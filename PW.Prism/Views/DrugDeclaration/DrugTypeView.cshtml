@@ -1,0 +1,175 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<div style="display: none;" id="drugTypeDiv">
+    <div class="input-group">
+        @Html.DropDownList("DrugTypeId", (IEnumerable<SelectListItem>)(ViewData["DrugTypes"]), String.Empty, new { @class = "form-control edit-control type-control" })
+        <span class="input-group-addon">
+            <a class="commentDialog" href="#">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </a>
+        </span>
+    </div>
+</div>
+
+<div style="display: none;" id="drugTypeKindDiv">
+    <div class="input-group">
+        @Html.DropDownList("DrugTypeKind", (IEnumerable<SelectListItem>)(ViewData["DrugTypeKinds"]), String.Empty, new { @class = "form-control edit-control type-control" })
+        <span class="input-group-addon">
+            <a class="commentDialog" href="#">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Лекарственное средство
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="table_drugType" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Лекарственное средство</td>
+                        <td>Вид</td>
+                        <td>Название оригинального лекартсвенного препарата</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="tab3">
+                    @for (var i = 0; i < Model.ExpDrugTypes.Count; i++)
+                    {
+                        var index = i + 1;
+                        var code = CodeConstManager.EXP_DrugTypeCode + "_" + Model.ExpDrugTypes[i].Id + "_";
+                        var drugTypeId = code + "DrugTypeId";
+                        var drugTypeKindId = code + "DrugTypeKind";
+                        var drugNameId = code + "DrugName";
+
+                        <tr rowid="@Model.ExpDrugTypes[i].Id" rowindex="@index" rowkind="1">
+                            <td>
+                                <div class="input-group">
+                                    @Html.DropDownList("ExpDrugTypes[" + @i + "].DrugTypeId", (IEnumerable<SelectListItem>)(ViewData["DrugTypes" + i.ToString(CultureInfo.InvariantCulture)]), String.Empty, new { @class = "form-control edit-control type-control", @id = @drugTypeId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.DropDownList("ExpDrugTypes[" + @i + "].DrugTypeKind", (IEnumerable<SelectListItem>)(ViewData["DrugTypeKinds" + i.ToString(CultureInfo.InvariantCulture)]), String.Empty, new { @class = "form-control edit-control type-control", @id = @drugTypeKindId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugTypes[i].DrugName, new { @class = " edit-control type-control  form-control", id = drugNameId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="3" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addDrugType" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            changeFieldList(".type-control", '@CodeConstManager.EXP_DrugTypeCode');
+
+            $("#addDrugType").on("click",
+                function() {
+                    var row = $(this).closest("tr").prev();
+                    var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+                    var nextIndex = rowindex + 1;
+                    var kindObject = "";
+                    kindObject = "ExpDrugTypes";
+
+                    var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+                    var eventDiv = document.getElementById("drugTypeDiv");
+
+                    var idEvent = "drugType_a" + nextIndex + '_DrugTypeId';
+                    var nameEvent = kindObject + '[' + nextIndex + '].DrugTypeId';
+                    var envetStr = replaceAll('id="DrugTypeId"', 'id="' + idEvent + '"', eventDiv.innerHTML);
+                    envetStr = replaceAll('name="DrugTypeId"', 'name="' + nameEvent + '"', envetStr);
+
+                    var drugKindDiv = document.getElementById("drugTypeKindDiv");
+                    var idDrugKind = "drugType_a" + nextIndex + '_DrugTypeKind';
+                    var nameDrugKind = kindObject + '[' + nextIndex + '].DrugTypeKind';
+                    var drugKindStr = replaceAll('id="DrugTypeKind"', 'id="' + idDrugKind + '"', drugKindDiv.innerHTML);
+                    drugKindStr = replaceAll('name="DrugTypeKind"', 'name="' + nameDrugKind + '"', drugKindStr);
+
+
+                    var idDrugName = "drugType_a" + nextIndex + "_DrugName";
+
+                    cols += '<td>' + envetStr + '</td>';
+                    cols += '<td>' + drugKindStr + '</td>';
+
+                    cols += '<td>  <div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].DrugName" id="' +
+                        idDrugName +
+                        '" class="edit-control type-control form-control" /> <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+                    cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                    cols += '</tr>';
+                    row.after(cols);
+                    changeFieldList("#" + idDrugName, '@CodeConstManager.EXP_DrugTypeCode');
+                    changeFieldList("#" + idEvent, '@CodeConstManager.EXP_DrugTypeCode');
+                    changeFieldList("#" + idDrugKind, '@CodeConstManager.EXP_DrugTypeCode');
+                });
+
+
+            $("#table_drugType").on("click",
+                ".deleteRow",
+                function() {
+
+                    var row = $(this).closest('tr');
+                    var success = function() {
+                        var entityId = row.attr('rowid');
+                        DeleteRecord('@CodeConstManager.EXP_DrugTypeCode', entityId);
+                        row.remove();
+                    }
+                    var cancel = function() {
+                    };
+                    showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+                });
+        });
+    </script>
+}

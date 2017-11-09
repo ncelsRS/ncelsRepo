@@ -1,0 +1,227 @@
+﻿@model Guid
+<script id="ref-treeview-template" type="text/kendo-ui-template">
+    # if (item.Type == 1) { #
+    <img src="../../Content/images/units/org.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 2) { #
+    <img src="../../Content/images/units/dep.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 3) { #
+    <img src="../../Content/images/history/document.png" height="16" width="16" />
+    # } #   
+    #: item.Name #
+
+</script>
+<script>
+    var name = '@Model';
+
+    $("#addRequestOrderButton").hide();
+    $("#updateRequestOrderButton").hide();
+    $("#editRequestOrderDiv").hide();
+    $("#deleteRequestOrderButton").hide();
+
+    var dataId, year, type, uid;
+
+    function onSelectRefRow(e) {
+        requestOrderAddUpdateCancel();
+        dataId = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).id;
+        type = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).Type;
+        year = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).Year;
+        uid = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).uid;
+
+        $("#addRequestOrderButton").hide();
+        $("#updateRequestOrderButton").hide();
+        $("#deleteRequestOrderButton").hide();
+        if (type == 2) {
+            $("#addRequestOrderButton").show();
+        }
+        if (type == 3) {
+            $("#updateRequestOrderButton").show();
+            $("#deleteRequestOrderButton").show();
+        }
+
+        $.ajax({
+            url: "/Project/RequestsList?Id=" + dataId + '&modelId=' + name + '&uid=' + uid,
+            success: function(result) {
+                // refreshes partial view
+                $('#EditUnits' + name).html(result);
+            }
+        });
+    }
+
+    function requestOrderAddUpdate() {
+        $("#requestOrderText" + name).val("");
+        if (type == 3) {
+            $.ajax({
+                url: "/Project/GetRequestOrderNumber?Id=" + dataId,
+                success: function(result) {
+                    $("#requestOrderText" + name).val(result);
+                    $("#editRequestOrderDiv").show();
+                    $("#editButtonsRequestOrderDiv").hide();
+                }
+            });
+        } else if (type == 2) {
+            $("#editRequestOrderDiv").show();
+            $("#editButtonsRequestOrderDiv").hide();
+        }
+    }
+
+    function requestOrderAddUpdateCancel() {
+        $("#editRequestOrderDiv").hide();
+        $("#editButtonsRequestOrderDiv").show();
+    }
+
+    function requestOrderAddUpdateConfirm() {
+        var n = $("#requestOrderText" + name).val();
+        if (n == null || n == '') {
+            ShowAlert('Ошибка', 'Необходимо заполнить поле', window.AlertType.Error);
+            return;
+        }
+        var obj = {};
+        obj.dataId = dataId;
+        obj.orderName = n;
+        var json = JSON.stringify(obj);
+        $.ajax({
+            type: 'POST',
+            url: '/Project/RequestOrderAddUpdate',
+            data: json,
+            contentType: 'application/json; charset=utf-8',
+            success: function(result) {
+                if (result == 'True') {
+                    requestOrderAddUpdateCancel();
+                    refreshTreeOrg();
+                    ShowAlert('Сообщение', '@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00', 'Success');
+                } else {
+                    ShowAlert('Ошибка', 'Не удалось сохранить данные', window.AlertType.Error);
+                }
+            },
+            complete: function () {
+
+            }
+        });
+    }
+
+    function requestOrderDelete() {
+        if (type == 3) {
+            $.ajax({
+                url: "/Project/CheckDeleteRequestOrder?Id=" + dataId,
+                success: function(result) {
+                    if (result == 'True') {
+                        var r = confirm("Вы уверены что хотите удалить приказ?");
+                        if (r != true)
+                            return;
+
+                        var obj = {};
+                        obj.dataId = dataId;
+                        var json = JSON.stringify(obj);
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Project/RequestOrderDelete',
+                            data: json,
+                            contentType: 'application/json; charset=utf-8',
+                            success: function (result) {
+                                if (result == 'True') {
+                                    requestOrderAddUpdateCancel();
+                                    refreshTreeOrg();
+                                    ShowAlert('Сообщение', 'Приказ успешно удален', 'Success');
+                                } else {
+                                    ShowAlert('Ошибка', 'Не удалось удалить запись', window.AlertType.Error);
+                                }
+                            },
+                            complete: function () {
+
+                            }
+                        });
+
+                        
+                    } else {
+                        ShowAlert('Ошибка', 'Приказ содержит записи и не может быть удален', window.AlertType.Error);
+                    }
+                }
+            });
+        } else {
+            return;
+        }
+    }
+
+
+
+</script>
+<div id="@("loader"+ Model)"></div>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("230px")
+                .Collapsible(true)
+                .MaxSize("400px")
+                .MinSize("230px")
+                .Content(
+                @<div class="pwPanelBar">
+                     <div id="editRequestOrderDiv" class="input-group" style="width: 100%">
+                         <input id="@("requestOrderText" + Model)" type="text" class="form-control" style="min-width: 120px"/>
+                         <span class="input-group-btn" style="width: 0px;"></span>
+                         <button class="form-control btn btn-default" id="addRequestOrderCompleteButton" style="margin-left: -1px" type="button" onclick="requestOrderAddUpdateConfirm()"><span class="glyphicon glyphicon-ok"></span></button>
+                         <span class="input-group-btn" style="width: 0px;"></span>
+                         <button class="form-control btn btn-default" style="margin-left: -1px" type="button" onclick="requestOrderAddUpdateCancel()"><span class="glyphicon glyphicon-remove"></span></button>
+                     </div>                    
+                    <div id="editButtonsRequestOrderDiv" class="input-group" style="width: 100%">
+                        <span class="input-group-btn" style="width: 0px;"></span>
+                        <button class="form-control btn btn-default" style="margin-left: -1px" type="button" onclick="refreshTreeOrg() "><span class="glyphicon glyphicon-refresh"></span></button>
+                        <span class="input-group-btn" style="width: 0px;"></span>
+                        <button class="form-control btn btn-default" id="addRequestOrderButton" style="margin-left: -1px" type="button" onclick="requestOrderAddUpdate() "><span class="glyphicon glyphicon-plus"></span></button>
+                        <span class="input-group-btn" style="width: 0px;"></span>
+                        <button class="form-control btn btn-default" id="updateRequestOrderButton" style="margin-left: -1px" type="button" onclick="requestOrderAddUpdate() "><span class="glyphicon glyphicon-pencil"></span></button>
+                        <span class="input-group-btn" style="width: 0px;"></span>
+                        <button class="form-control btn btn-default" id="deleteRequestOrderButton" style="margin-left: -1px" type="button" onclick="requestOrderDelete()"><span class="glyphicon glyphicon-trash"></span></button>
+                    </div>
+                    @(Html.Kendo().TreeView()
+                                   .Name("treeview" + Model)
+                                   .TemplateId("ref-treeview-template")
+                                   .DataTextField("Name")
+                                   .Events(events => events.Select("onSelectRefRow"))
+                                        .DataSource(dataSource => dataSource
+                                            .Read(read => read.Action("RequestOrderList", "Project")
+                                        )
+                                    )
+                                   .HtmlAttributes(new { @class = "pwOs" })
+                    )
+                </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div >
+                        <div id="@("EditUnits" + Model)">
+                        </div>
+                    </div>
+                );
+            }))
+<script>
+    function selectMenu(parameters) {
+        console.log('parame', parameters.sender);
+    }
+</script>
+<script type="text/javascript">
+
+    //treeview
+    function refreshTreeOrg() {
+        var tree = $("#treeview" + '@Model').data("kendoTreeView");
+        var selectedNode = tree.select();
+        if (selectedNode.length > 0 && selectedNode[0].parentNode != null) {
+            selectedNode = selectedNode[0].parentNode;
+        }
+        var selectedDataItem = tree.dataItem(selectedNode);
+
+        if (selectedDataItem == undefined) {
+            tree.dataSource.read();
+        } else {
+            selectedDataItem.loaded(false);
+            selectedDataItem.load();
+        }
+    }
+
+    var treeviewElement = $("#treeview" + '@Model');
+    treeviewElement.height($(window).height() - 210);
+</script>

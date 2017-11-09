@@ -1,0 +1,65 @@
+﻿
+@model PW.Ncels.Database.DataModel.Task
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formExclude" + Model.Id)">
+    @Html.HiddenFor(o => o.Id)
+    
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecute"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Исполнениедокумента_56__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Document.Number)</span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Document.DocumentDate)</span> </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="Note" name="Note" cols="8" rows="4" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickExcludeCancel()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" onclick="clickExclude()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+
+<script>
+
+    function clickExclude() {
+        var name = '@Model.Id';
+        var type = '@Model.Type';
+        var documentId = '@Model.DocumentId';
+
+        kendo.ui.progress($('#loader' + name), true);
+
+
+        var form = $('#formExclude' + name);
+        $.ajax({
+            type: 'POST',
+            url: '/Task/ExcludeConfirmDoc?taskId=' + name,
+            data: form.serialize(),
+            success: function (result) {
+                if (result.State == true) {
+                    var tree = $("#treeview" + documentId).data("kendoTreeView");
+                    tree.dataSource.read();
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loader' + name), false);
+            }
+        });
+    }
+
+    function clickExcludeCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

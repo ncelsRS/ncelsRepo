@@ -1,0 +1,393 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+<!-- Список оборудования. Список актов -->
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    var EquipmentList = {
+        _reload: function () {
+            var grid = $('@("#gridEquipment_" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        },
+        sync: function (e) {
+            this.read();
+        },
+        createActOfConversation: function (id, equpmentid) {
+            var window = $("#WindowActOfConversation");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Акт консервации',
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+            $("#WindowActOfConversation").data("kendoWindow").gridId = 'gridEqAct_' + equpmentid;
+            $("#WindowActOfConversation").data("kendoWindow").dialogCallback = function (r) {
+                EquipmentList._reload();
+            };
+            window.data("kendoWindow").refresh('@Url.Action("ActOfConversationForm", "Equipment")?id='
+                + id + '&equipmentId=' + equpmentid);
+
+            //window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+            return false;
+        },
+        createActOfSpareParts: function (id, equpmentid) {
+            var window = $("#WindowActOfSpareParts");
+
+            window.kendoWindow({
+                width: "800px",
+                height: "auto",
+                modal: true,
+                title: 'Акт установки запасных частей',
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+            $("#WindowActOfSpareParts").data("kendoWindow").gridId = 'gridEquipment_' + '@Model';
+            $("#WindowActOfSpareParts").data("kendoWindow").dialogCallback = function (r) {
+                EquipmentList._reload();
+            };
+            window.data("kendoWindow").refresh('@Url.Action("ActOfSparePartsForm", "Equipment")?id='
+                + id + '&equipmentId=' + equpmentid);
+
+            //window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+            return false;
+        },
+        createActForRepair: function (id, equpmentid) {
+            var window = $("#WindowActForRepair");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Дефектный акт для ремонта',
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+            $("#WindowActForRepair").data("kendoWindow").gridId = 'gridEquipment_' + '@Model';
+            $("#WindowActForRepair").data("kendoWindow").dialogCallback = function (r) {
+                EquipmentList._reload();
+            };
+            window.data("kendoWindow").refresh('@Url.Action("ActForRepairForm", "Equipment")?id='
+                + id + '&equipmentId=' + equpmentid);
+
+            //window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+            return false;
+        },
+        createProtocolOfQualification: function (id, equpmentid) {
+            var window = $("#WindowProtocolOfQualification");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Протокол квалификации',
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+            $("#WindowProtocolOfQualification").data("kendoWindow").gridId = 'gridEquipment_' + '@Model';
+            $("#WindowProtocolOfQualification").data("kendoWindow").dialogCallback = function (r) {
+                EquipmentList._reload();
+            };
+            window.data("kendoWindow").refresh('@Url.Action("ProtocolOfQualificationForm", "Equipment")?id='
+                + id + '&equipmentId=' + equpmentid);
+
+            //window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+            return false;
+        },
+        selectMenuItem: function (e) {
+            var action = $(e.item).data('action');
+            //var equipmentId = $(e.item).data('id');
+            var masterRow = this.wrapper.closest("tr.k-detail-row").prev(".k-master-row");
+            var grid = $('@("#gridEquipment_" + Model)').data("kendoGrid");
+            var equipmentData = grid.dataItem(masterRow);
+            var equipmentId = equipmentData.Id;
+
+            if (action === '@Dictionary.DicEquipmentAct.ActOfConversation') {
+                EquipmentList.createActOfConversation(null, equipmentId);
+            }
+            else if (action === '@Dictionary.DicEquipmentAct.ActOfSpareParts') {
+                EquipmentList.createActOfSpareParts(null, equipmentId);
+            }
+            else if (action === '@Dictionary.DicEquipmentAct.ActForRepair') {
+                EquipmentList.createActForRepair(null, equipmentId);
+            }
+            else if (action === '@Dictionary.DicEquipmentAct.ProtocolOfQualification') {
+                EquipmentList.createProtocolOfQualification(null, equipmentId);
+            }
+        },
+        editFn: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+            if (dataItem.ActTypeDicCode === '@Dictionary.DicEquipmentAct.ActOfConversation') {
+                EquipmentList.createActOfConversation(dataItem.Id, dataItem.EquipmentId);
+            }
+            else if (dataItem.ActTypeDicCode === '@Dictionary.DicEquipmentAct.ActOfSpareParts') {
+                EquipmentList.createActOfSpareParts(dataItem.Id, dataItem.EquipmentId);
+            }
+            else if (dataItem.ActTypeDicCode === '@Dictionary.DicEquipmentAct.ActForRepair') {
+                EquipmentList.createActForRepair(dataItem.Id, dataItem.EquipmentId);
+            }
+            else if (dataItem.ActTypeDicCode === '@Dictionary.DicEquipmentAct.ProtocolOfQualification') {
+                EquipmentList.createProtocolOfQualification(dataItem.Id, dataItem.EquipmentId);
+            }
+        },
+        detailExpand: function (e) {
+            var eid = e.masterRow[0].rowIndex;
+        },
+        detailCollapse: function (e) {
+            var eid = e.masterRow[0].rowIndex;
+        },
+        printFn: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var reportType = '';
+            if (dataItem.ActTypeDicCode == '@Dictionary.DicEquipmentAct.ActOfConversation') {
+                reportType = 'EquipmentActOfConversation.mrt';
+            }
+            else if (dataItem.ActTypeDicCode == '@Dictionary.DicEquipmentAct.ActOfSpareParts') {
+                reportType = 'EquipmentActOfSpareParts.mrt';
+            }
+            else if (dataItem.ActTypeDicCode == '@Dictionary.DicEquipmentAct.ActForRepair') {
+                reportType = 'EquipmentActForRepair.mrt';
+            }
+            else if (dataItem.ActTypeDicCode == '@Dictionary.DicEquipmentAct.ProtocolOfQualification') {
+                return;
+            }
+
+            var window = $("#windowFile");
+            window.kendoWindow({
+                width: "800px",
+                height: "500px",
+                modal: true,
+                resizable: false,
+                title: 'Печать',
+                actions: ["Pin", "Refresh", "Maximize", "Close"],
+                content: "/Upload/ReportFileView?code=" + dataItem.Id + '&name=Форма&report=' + reportType
+            });
+            window.data("kendoWindow").title('Форма');
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        }
+    };
+</script>
+
+<div id="WindowActOfConversation"></div>
+<div id="WindowActOfSpareParts"></div>
+<div id="WindowActForRepair"></div>
+<div id="WindowProtocolOfQualification"></div>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+            .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+            .ImageUrl("/Content/images/reload.png"))
+</div>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+                panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                   .Name("panelbar" + Model)
+                                   .ExpandMode(PanelBarExpandMode.Multiple)
+                                   .ExpandAll(true)
+                                   .HtmlAttributes(new { style = "width:auto;" })
+                                   //.Events(e => e.Select("panelEqLabSelect"))
+                                   .Items(panelbar =>
+                                   {
+                                       panelbar.Add().Expanded(true);
+                                       panelbar.Add().Text("По месторасположению")
+                                           .Items(panelbarItem =>
+                                           {
+                                               panelbarItem.Add().Text("Все")
+                                                   .LinkHtmlAttributes(new Dictionary<string, object>()
+                                                   {
+                                                       { "ItemType", "" },
+                                                       { "ModelId", Model.ToString() }
+                                                   });
+                                               foreach (Item itemInfo in (List<Item>)ViewBag.EquipmentLocation)
+                                               {
+                                                   panelbarItem.Add().Text(itemInfo.Name)
+                                                       .LinkHtmlAttributes(new Dictionary<string, object>()
+                                                       {
+                                                           { "ItemType", itemInfo.Id },
+                                                           { "ModelId", Model.ToString() }
+                                                       });
+                                               }
+                                           });
+                                   })
+                    )
+                </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block">
+                            <div id="pwOne">
+                                @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("")
+                                    .HtmlAttributes(new { @class = "pwWidth100" }))
+                            </div>
+
+                            <div id="pwTwo">
+
+                            </div>
+
+                            <div id="pwThree">
+                                @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                      .Content(Messages.Property_Найти_372__00)
+                                      .ImageUrl("/Content/images/find.png"))
+                            </div>
+                        </div>
+                        <div id="pwSix">
+                           
+                        </div>
+                       @(Html.Kendo().Grid<LimsEquipment>()
+                            .Name("gridEquipment_" + Model)
+                            .Columns(columns =>
+                            {
+                                columns.Command(command =>
+                                {
+                                    command.Edit().UpdateText(Messages.Property_Сохранить_278__00).Text("Карточка");
+                                    command.Destroy();
+                                }).Width(200);
+                                columns.Bound(p => p.Name).Title("Наименование оборудования").Width(150);
+                                columns.Bound(p => p.ModelDicName).Title("Модель").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.SerialNumber).Title("Заводской номер").Width(150);
+                                columns.Bound(p => p.ProducerDicName).Title("Фирма производитель").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.CountryProductionDicName).Title("Страна происхождения").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.EquipmentTypeDicName).Title("Тип оборудования").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.InventoryNumber).Title("Инвентарный номер").Width(150);
+                                columns.Bound(p => p.LocationDicName).Title("Место расположение").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.YearInstallation).Title("Год инсталляции").Width(150);
+                                columns.Bound(p => p.StatusDicName).Filterable(false).Sortable(false).Title("Статус").Width(150);
+                                columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(150);
+                            })
+                            .ToolBar(c => c.Create())
+                            .ColumnMenu(c => c.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .Editable(e => e.Mode(GridEditMode.PopUp))
+                            .Groupable()
+                            .Filterable()
+                            .Sortable()
+                            .Pageable(c => c.Refresh(true))
+                            .Scrollable()
+                            .ClientDetailTemplateId("templateAct")
+                            .HtmlAttributes(new { @class = "pwGrid" })
+                            .DataSource(dataSource => dataSource.Ajax().Model(model => { model.Id(p => p.Id); })
+                                .PageSize(20)
+                                .Read(read => read.Action("ReadEquipmentList", "Equipment"))
+                                .Update(update => update.Action("UpdateEquipment", "Equipment"))
+                                .Destroy(destroy => destroy.Action("DestroyEquipment", "Equipment"))
+                                .Create(create => create.Action("CreateEquipment", "Equipment"))
+                                .Events(c =>
+                                {
+                                    c.Sync("EquipmentList.sync");
+                                })
+                            )
+                            .Events(c =>
+                            {
+                                c.DetailExpand("EquipmentList.detailExpand");
+                                c.DetailCollapse("EquipmentList.detailCollapse");
+                            })
+                            .Resizable(s => s.Columns(true))
+                    )
+                    </div>
+                );
+            }))
+
+<script id="templateAct" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<LimsEquipmentAct>()
+        .Name("gridEqAct_#=Id#") // template expression, to be evaluated in the master context
+        .Columns(columns =>
+        {
+            columns.Command(command =>
+            {
+                //command.Edit().UpdateText(Messages.Property_Сохранить_278__00); .HtmlAttributes(new {@class = "k-button-icontext k-grid-edit"})
+                command.Custom("btn-edit").HtmlAttributes(new { @class = "k-button k-button-icontext k-grid-edit" }).Text("Изменить").Click("EquipmentList.editFn");
+                command.Destroy();
+                command.Custom("btnPrint").Text("Печать").Click("EquipmentList.printFn");
+            }).Width(100);
+            columns.Bound(o => o.ActTypeDicName).Title("Наименование документа").Width(120);
+            columns.Bound(o => o.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(120);
+        })
+        .ToolBar(config =>
+        {
+            config.Template(@<text>
+                <div class="templateToolbar">
+                     @(Html.Kendo().Menu().Name("menuact_" + Model)
+                        .Items(its =>
+                        {
+                            its.Add().Text("Создать").Items(nested =>
+                            {
+                                nested.Add().Text("Акт консервации").HtmlAttributes(new { data_action = "ActOfConversation", data_id = "#=Id#" });
+                                nested.Add().Text("Акт установки запасных частей").HtmlAttributes(new { data_action = "ActOfSpareParts", data_id = "#=Id#" });
+                                nested.Add().Text("Дефектный акт для ремонта").HtmlAttributes(new { data_action = "ActForRepair", data_id = "#=Id#" });
+                                nested.Add().Text("Протокол квалификации").HtmlAttributes(new { data_action = "ProtocolOfQualification", data_id = "#=Id#" });
+                            });
+                        }).Events(c => c.Select("EquipmentList.selectMenuItem")).ToClientTemplate()
+                    )                             
+                </div>  
+            </text>);
+        })
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .DataSource(dataSource => dataSource
+            .Ajax().Model(model =>
+            {
+                model.Id(p => p.Id);
+                //model.Field(p => p.EquipmentId).DefaultValue("#=Id#");
+            })
+            .PageSize(20)
+            .Read(read => read.Action("ReadEquipmentActList", "Equipment", new { equipmentId = "#=Id#" }))
+            //.Update(update => update.Action("UpdateEquipmentAct", "Equipment"))
+            .Destroy(destroy => destroy.Action("DestroyEquipmentAct", "Equipment"))
+            //.Create(create => create.Action("CreateEquipmentAct", "Equipment"))
+         )
+        .Sortable()
+        .Resizable(s => s.Columns(true))
+        .Pageable(p => p.Refresh(true))
+        .ToClientTemplate()
+    )
+</script>
+
+<script>
+    (function() {
+        resizeGrid3('@("#gridEquipment_" + Model)', 165);
+
+        $('@("#reload" + Model)').click(function (e) {
+            var grid = $('@("#gridEquipment_" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        });
+
+    })();
+</script>

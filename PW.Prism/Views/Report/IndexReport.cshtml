@@ -1,0 +1,84 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+
+
+
+<script>
+
+    InitFilterReportGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+                panes.Add()
+                    .Size("300px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("250px")
+                    .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                                       .Events(e => e.Select("panelReportSelect"))
+                               .Items(panelbar => {
+                                   foreach (var info in ((List<DictionaryInfo>)ViewData["ReportList"]).GroupBy(o => o.Type)) {
+                                       panelbar.Add().Expanded(true);
+                                       panelbar.Add().Text(info.Key).Items(projects => {
+                                           foreach (DictionaryInfo dictionaryInfo in info.Select(o => o)) {
+                                               projects.Add().Text(dictionaryInfo.Name).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", dictionaryInfo.Report }, { "ModelId", Model.ToString() } });
+                                           }
+
+                                       }
+                                           );
+                                   }
+                               })
+                        )
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPageScrollable">
+                         <div class="pwPanelBar">
+                             <div class="pwBlockAdd k-block">
+                                 <div id="pwReport1">
+                                     <span> @PW.Ncels.Database.Recources.Messages.Property_Дата_391__00 c:</span>
+                                 </div>
+                                 <div id="pwReport2">
+
+                                     @(Html.Kendo().DatePicker().Name("dateStart" + Model).Format("dd.MM.yyyy").HtmlAttributes(new { @class = "pwWidth100" }).Value(DateTime.Now.AddMonths(-1)))
+
+                                 </div>
+                                 <div id="pwReport3">
+                                     <span> @PW.Ncels.Database.Recources.Messages.Property_Датапо_326__00</span>
+                                 </div>
+                                 <div id="pwReport4">
+
+                                     @(Html.Kendo().DatePicker().Name("dateEnd" + Model).Format("dd.MM.yyyy").HtmlAttributes(new { @class = "pwWidth100" }).Value(DateTime.Now))
+                                 </div>
+
+                                 <div id="pwReport5">
+                                     @(Html.Kendo().Button().Name("buttonGen" + Model).Content(PW.Ncels.Database.Recources.Messages.Property_Сформировать_234__00).HtmlAttributes(new { @class = "pwWidth100", ModelId = Model.ToString() }).Events(e => e.Click("buttonReportGenSelect")))
+                                 </div>
+
+
+
+                                 <div id="pwReport6">
+                                     @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100", ModelId = Model })
+                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                           .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportReport")))
+                                 </div>
+                                 </div>
+
+                         </div>
+                         <div id="@("contentReport" + Model)" class="pwPageReport">
+                         </div>
+                     </div>
+             );
+            }))
+<input type="hidden" id="@("typeReport" + Model)" />

@@ -1,0 +1,80 @@
+﻿@model PW.Ncels.Database.Models.DocumentModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReview" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">Сменить статус<span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                @PW.Ncels.Database.Recources.Messages.Property_Статус_344__00
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("StatusId"+ Model.Id)"  class="pwWidth100" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="closeChangeStatus()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="changeConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+
+    function closeChangeStatus() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+
+    function changeConfirm() {
+        
+        var status = $("#StatusId" + name).val();
+        $.ajax({
+            type: 'POST',
+            url: '/IncomingDoc/ChangeStatusConfirm',
+            data: { id: name, status: status },
+            success: function (result) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+    }
+
+    $("#StatusId" + name).kendoDropDownList({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        autoBind: true,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ReadRegisterProjectStatus'
+
+                }
+            }
+        },
+        index: 0
+    });
+       
+
+    //$("#StatusId" + name).kendoMultiSelect({
+    //    dataTextField: "Name",
+    //    dataValueField: "Id",
+    //    filter: "contains",
+    //    autoBind: true,
+    //    maxSelectedItems:1,
+    //    dataSource: {
+    //        transport: {
+    //            read: {
+    //                url: '/Reference/ReadRegisterProjectStatus'
+
+    //            }
+    //        }
+    //    }
+    //});
+
+   // kendo.bind($("#formReview" + name), viewModel);
+</script>

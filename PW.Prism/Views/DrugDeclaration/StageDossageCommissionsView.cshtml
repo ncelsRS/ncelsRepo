@@ -1,0 +1,39 @@
+﻿@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStageDosage
+@{
+    
+}
+<div>
+    @( Html.Kendo().Grid<EXP_ExpertiseStageDosageCommissionView>()
+           .Name("stageDosageCommissionsGrid" + Model.Id)
+           .Columns(columns =>
+           {
+               columns.Bound(p => p.Date).Format("{0:dd.MM.yyyy}").Title("Дата").Width(120);
+               columns.Bound(p => p.FullNumber).Title("Номер протокола").Width(150);
+               columns.Bound(p => p.IsComplete).Title("Проведен").ClientTemplate("<input type='checkbox' #= IsComplete ? checked='checked' :'' # />").Width(150).HtmlAttributes(new { style = "text-align: center;" });
+               columns.Bound(p => p.CommisionType).Title("Тип протокола").Width(150);
+               columns.Bound(p => p.Id).Title("Повестка").ClientTemplate("Рассмотрение заявок").Width(150);
+               columns.Bound(p => p.ConclusionName).Title("Решение").Width(150);
+               columns.Bound(p => p.ConclusionComment).Title("Примечание").Width(150);
+           })
+           .Reorderable(reorderable => reorderable.Columns(true))
+           .Resizable(resizable => resizable.Columns(true))
+           .Groupable()
+           .Sortable()
+           .Filterable()
+           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+           .Scrollable(scrollable => scrollable.Virtual(true))
+           .Pageable()
+           .HtmlAttributes(new {@class = "pwGrid"})
+           .DataSource(dataSource => dataSource
+               .Ajax()
+               .Sort(sort => { sort.Add("Date").Descending(); })
+               .PageSize(50)
+               .Read(read => read.Action("ListCommissions", "DrugDeclaration", new {stageId=Model.StageId, dosageId=Model.DosageId}))
+           ))
+</div>
+<script>
+    $(document).ready(function() {
+        resizeGrid('@("#stageDosageCommissionsGrid" + Model.Id)');
+    });
+</script>

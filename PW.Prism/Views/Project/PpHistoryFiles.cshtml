@@ -1,0 +1,46 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+<style>
+    .k-grid-content {
+        height: 350px !important;
+    }
+</style>
+
+<div>
+@(Html.Kendo().Grid<Item>()
+    .Name("gridFile" + Model)
+    .Columns(columns =>{
+        columns.Bound(p => p.Name).Title("Наименование").Width(150);
+    })
+        .Reorderable(reorderable => reorderable.Columns(true))
+        .Resizable(resizable => resizable.Columns(true))
+        .Sortable(sortable => sortable.AllowUnsort(false))
+        .Scrollable(scrollable => scrollable.Virtual(true))
+                .Filterable().ClientDetailTemplateId("templateFileGrid")
+        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+        //.HtmlAttributes(new { @class = "pwGridHistory" })
+        .HtmlAttributes(new { @style = "height: 400px;" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+            .Read(read => read.Action("GetAttachList", "Upload", new { id = Model, type = "sysAttachPriceDict" }))
+        )
+    )
+</div>
+<script id="templateFileGrid" type="text/kendo-template">
+
+
+
+    <div id="DocumentFileTask_#=Id#">
+
+        @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listViewFile_#=Id#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:150px; border:0;overflow: auto;width: 500px;" })
+                                                .ClientTemplateId("fileReadProjectTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileProjectReadonly", "Upload", new { docId = Model, dicId = "#=Id#" }))).ToClientTemplate()
+        )
+
+    </div>
+
+</script>

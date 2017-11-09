@@ -1,0 +1,49 @@
+﻿@model Guid
+
+<div id="@("loaderDoc"+ Model)"></div>
+<form id="@("formJob"+ Model)" style="height: 100%; width: 100%">
+
+  
+   
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconDel"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Удалитьвыбранныйдокумент_26__00? </div>
+    </div>
+    <div class="pwWinContent3">
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickJobCancel()">@PW.Ncels.Database.Recources.Messages.Property_Нет_396__00</button>
+
+        <button type="button" id="TaskJob" class="k-button pwWinButton" onclick=" clickJob('/Task/DeleteDocConfirm?id=') ">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+        
+    </div>
+
+</form>
+<script>
+
+    function clickJob(url) {
+        var name = '@Model';
+        kendo.ui.progress($('#loaderDoc' + name), true);
+
+        $.ajax({
+            type: 'POST',
+            url: url + name,
+            success: function (result) {
+                if (result == 'True') {              
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    alert('Документ удален, закройте документ обновите список');
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loaderDoc' + name), false);
+            }
+        });
+    }
+
+    function clickJobCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

@@ -1,0 +1,65 @@
+﻿@model PW.Ncels.Database.Models.TmcOutCountViewModel
+
+<script>
+    var ReceiveTmcForm = {
+        tmcSelect: function (e) {
+            debugger;
+            var sItem = e.sender.dataItem(e.item);
+            $("\\#MeasureTypeConvertDicId" + "@Model.Id").data("kendoDropDownList").value(sItem.MeasureTypeConvertDicId);
+            $("\\#CountRequest" + "@Model.Id").data("kendoNumericTextBox").max(sItem.CountActual);
+            $("\\#CountRest" + "@Model.Id").data("kendoNumericTextBox").value(sItem.CountActual);
+        }
+    }
+</script>
+
+
+
+<dl class="pwEditRef">
+    <dt>Наименование</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.TmcId).ValuePrimitive(true).DataValueField("Id").DataTextField("Name")
+              .DataSource(source => source.Read("GetListTmcs", "MyTmc"))
+              .HtmlAttributes(new { style = "width: 100%" })
+              .Events(c => c.Select("ReceiveTmcForm.tmcSelect"))
+         )
+        <span data-for="TmcId" class="k-invalid-msg"></span>
+    </dd>
+    <br />
+
+    <dt>Количество/объем</dt>
+    <dd>
+        @(Html.Kendo().NumericTextBoxFor(p => p.Count)
+              .Min(0)
+              .Decimals(6)
+              .Format("{0:n6}")
+              .HtmlAttributes(new { id = "CountRequest" + Model.Id})
+         )
+    </dd>
+    <br />
+    
+    <dt>Остаток</dt>
+    <dd>
+        @(Html.Kendo().NumericTextBoxFor(p=>p.CountFact)
+              .Min(0)
+              .Enable(false)
+              .Decimals(6)
+              .Format("{0:n6}")
+              .HtmlAttributes(new { id = "CountRest" + Model.Id })
+        )
+    </dd>
+    <br />
+    
+    <dt>Единица измерения(конв.)</dt>
+    <dd>
+        @(Html.Kendo().DropDownListFor(p => p.MeasureTypeConvertDicId)
+            .OptionLabel("Единица измерения")
+              .ValuePrimitive(true).DataValueField("Id").DataTextField("Name")
+              .DataSource(source => source.Read("List", "Reference", new { text = "MeasureType"}))
+              .Enable(false)
+              .HtmlAttributes(new { style = "width: 100%", id = "MeasureTypeConvertDicId" + Model.Id })
+        )
+        <span data-for="Count" class="k-invalid-msg"></span>
+    </dd>
+    <br />
+
+</dl>

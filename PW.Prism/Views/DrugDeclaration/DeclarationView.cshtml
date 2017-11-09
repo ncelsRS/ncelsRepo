@@ -1,0 +1,203 @@
+﻿@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+
+@Html.HiddenFor(model => model.OwnerId)
+<input type="hidden" value="@Model.ObjectId" id="modelId" />
+@Html.HiddenFor(model => model.EditorId)
+@foreach (var comment in Model.EXP_DrugDeclarationCom)
+{
+    <p class="rating" idcontrol="@comment.ControlId" iserror=@comment.IsError>   </p>
+}
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
+<script src="~/Scripts/js/custom/atach-comment.js"></script>
+<script>
+    function DeleteRecord(code, recordId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteRecord")',
+            data: { 'code': code, 'recordId': recordId },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+            },
+            error: function(data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+
+    function showInformIcon(isShow) {
+        if (isShow) {
+            $('.input-group-addon').show();
+        } else {
+            $('.input-group-addon').hide();
+        }
+    }
+
+
+
+    function showHidenCommentBtn() {
+        if ($("#HideInform").val() === "hide") {
+            $("#HideInformText").text("Показать примечание");
+            $("#HideInform").val("show");
+            $("#HideInformCheck").addClass("glyphicon-unchecked");
+            $("#HideInformCheck").removeClass("glyphicon-check");
+            showInformIcon(false);
+        } else {
+            $("#HideInformText").text("Скрыть примечание");
+            $("#HideInform").val("hide");
+            $("#HideInformCheck").removeClass("glyphicon-unchecked");
+            $("#HideInformCheck").addClass("glyphicon-check");
+            showInformIcon(true);
+        }
+    }
+
+    function UpdateModel(code, recordId, fieldId, fieldName, fieldValue, type, fieldDisplay) {
+        if (type === "float") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                fieldValue = replaceAll(' ', '', fieldValue);
+                if (fieldValue.indexOf(',') > 0) {
+                    fieldValue = fieldValue.replace(',', '.');
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('@ResourceSetting.sInputNumberRequired');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('@ResourceSetting.enterNumberNotMinus');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+        if (type === "long") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                if (fieldValue.indexOf(',') > 0 || fieldValue.indexOf('.') > 0) {
+                    showWarning("Введите целое число");
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('@ResourceSetting.sInputNumberRequired');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('@ResourceSetting.enterNumberNotMinus');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+
+        var modelId = $("#modelId").val();
+        var userId = $("#EditorId").val();
+        if (modelId === null || modelId.length === 0) {
+            modelId = null;
+            window.Showbusy(event);
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateModel")',
+            data: {
+                'code': code,
+                'modelId': modelId,
+                'userId': userId,
+                'recordId': recordId,
+                'fieldName': fieldName,
+                'fieldValue': fieldValue,
+                'fieldDisplay': fieldDisplay
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (modelId === null) {
+                    $("#modelId").val(data.modelId);
+                    $("#loading").hide();
+                }
+                if (data.recordId > 0) {
+                    var row = $('#' + fieldName).parent().closest('tr');
+                    row.attr("rowid", data.recordId);
+//                    var codeControl = code + '_' + data.recordId + '_' + fieldName;
+                    $('#' + fieldName).attr('id', data.controlId);
+                }
+            },
+            error: function(data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $("#HideInform").click(function() {
+            showHidenCommentBtn();
+        });
+        //  $("#wrapPage").hide();
+//            $("#tab-2").addClass("active");
+        /*
+        $('#wrapLabelPage').click(function () {
+            $("#wrapPage").show();
+        });*/
+        $("div.chzn-select select").chosen();
+        $(".chzn-select-deselect").chosen({ allow_single_deselect: true });
+
+    });
+</script>
+@{
+    var tab1 = "tab-1" + Model.Id;
+    var tab1b = "#"+ tab1;
+    var tab2 = "tab-2" + Model.Id;
+    var tab2b = "#" + tab2;
+    var tab3 = "tab-3" + Model.Id;
+    var tab3b = "#" + tab3;
+    var tab4 = "tab-4" + Model.Id;
+    var tab4b = "#" + tab4;
+    var tab5 = "tab-5" + Model.Id;
+    var tab5b = "#" + tab5;
+    var tab6 = "tab-6" + Model.Id;
+    var tab6b = "#" + tab6;
+    var tab7 = "tab-7" + Model.Id;
+    var tab7b = "#" + tab7;
+    var tab8 = "tab-8" + Model.Id;
+    var tab8b = "#" + tab8;
+}
+<div class="ibox-content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab2b" id="wrapLabelPage">Дозировка</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab4b">Дополнительная информация</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab5b">Производители и участки производства</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab6b">Соглашение</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="@tab1" class="tab-pane active">
+                        @Html.Partial("~/Views/DrugDeclaration/MainView.cshtml", @Model)
+                    </div>
+                    <div id="@tab2" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/DosageView.cshtml", @Model)
+                    </div>
+                    <div id="@tab4" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/AdvancedView.cshtml", @Model)
+                    </div>
+                    <div id="@tab5" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/OrganizationView.cshtml", @Model)
+                    </div>
+                    <div id="@tab6" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/ConventionView.cshtml", @Model)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ @*   <script src="~/Scripts/js/plugins/select2/select2.js"></script>
+    <script src="~/Scripts/js/plugins/select2/select2_locale_ru.js"></script>
+    <script src="~/Scripts/js/plugins/chosen/chosen.js"></script>
+    <script src="~/Scripts/js/plugins/chosen/chosen.jquery.js"></script>
+    <script src="~/Scripts/js/custom/subform-comment.js"></script>*@
+

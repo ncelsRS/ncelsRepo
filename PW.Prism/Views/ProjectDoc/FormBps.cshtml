@@ -1,0 +1,75 @@
+﻿@model Guid
+
+<script id="taskTreeBps-template" type="text/kendo-ui-template">
+    # if (item.Type > -1) { #
+    <table id="pwTableTaskView">
+        <tr class="pwActivityStyle">
+            <td><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            <td>#: item.CreateDateTime #</td>
+            #if (item.ExecutionDateTime!="") {#
+            <td>#: item.ExecutionDateTime #</td>
+            # } #
+            <td style="white-space: pre-line;">#: item.Executor #</td>
+            #if (item.Text!=null) {#
+            <td style="width:250px; white-space: pre-line;">#: item.Text #</td>
+            # } #
+        </tr>
+    </table>
+    # } else { #
+    # if (item.Type == -1) { #
+        <table>
+            <tr class="pwTaskStyle">
+                <td><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+                @*<td>#: item.Number #</td>*@
+                # if (item.IsResponsible) { #
+                # if (item.IsMineLine) { #
+                <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwIsMineLine pwTaskStyleIsResponsible3">#: item.Executor #</td>
+                # } else { #
+                <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwTaskStyleIsResponsible3">#: item.Executor #</td>
+                # } #
+                <td class="pwTaskStyleIsResponsible">
+                    <img src="../../Content/images/FunctionType_Responsible.png" height="16" width="16" title="@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00" />
+                </td>
+                # } else { #
+                <td class="pwTaskStyleIsResponsible4">#: item.Executor #</td>
+                # } #
+            </tr>
+            # for (var i = 0; i < item.Reports.length; i++) { #
+            <tr class="pwTaskStyle">
+                <td colspan="2">#: item.Reports[i].ReportDate #</td>
+                <td style="width:200px; white-space: pre-line;" colspan="2">#: item.Reports[i].ReportText #</td>
+            </tr>
+            # } #
+        </table>
+    # } else { #
+        <table>
+            <tr class="pwActivityStyle">
+                <td style="width:250px; white-space: pre-line;">#: item.Text #</td>
+            </tr>
+        </table>
+    # } #
+    # } #
+    
+</script>
+
+<script>
+    function treeViewData() {
+        return {
+            id: '@Model'
+        };
+    }
+</script>
+
+<div class="pwPage">
+    @(Html.Kendo().TreeView()
+          .Name("treeview" + Model)
+          .HtmlAttributes(new { @class = "pwTaskTree" })
+          .TemplateId("taskTreeBps-template")
+          .ExpandAll(true)
+          .AutoBind(true)
+          .DataSource(dataSource => dataSource
+              .Model(m => m.Id("Id").HasChildren("HasChildren").Children("Children"))
+              .Read(read => read.Action("BpsTasks", "Task").Data("treeViewData"))
+          )
+    )
+</div>

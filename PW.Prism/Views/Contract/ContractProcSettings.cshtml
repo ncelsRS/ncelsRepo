@@ -1,0 +1,79 @@
+﻿@model Guid
+<script>
+    var uiId = '@Model';
+    var settValidator = $("#contractProcSettingsForm" + uiId).kendoValidator().data("kendoValidator");
+    $("#ProcCenterHeadId" + uiId).kendoComboBox({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        autoBind: false,
+        filter: "contains",
+        valuePrimitive: true,
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/ListEmployeAll'
+                }
+            }
+        }
+    });    
+    var viewModel = kendo.observable({
+        item: {},
+        Save: function () {
+            debugger;
+            if (settValidator.validate()) {
+                kendo.ui.progress($("#contractProcSettingsForm" + uiId), true);
+                var json = JSON.stringify(viewModel.get('item'));
+                $.ajax({
+                    type: 'POST',
+                    url: '/Contract/SaveContractProcSettings',
+                    data: json,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        viewModel.set("item", result);
+                    },
+                    complete: function () {
+                        kendo.ui.progress($("#contractProcSettingsForm" + uiId), false);
+                    }
+                });
+            }
+            
+        }
+    });
+    $.ajax({
+        type: 'get',
+        url: '/Contract/LoadContractProcSettings',
+        contentType: 'application/json; charset=utf-8',
+        success: function (result) {
+            debugger;
+            if (result.ProcCenterHeadId === '00000000-0000-0000-0000-000000000000')
+                result.ProcCenterHeadId = null;
+            viewModel.set("item", result);            
+            kendo.bind($("#contractProcSettingsForm" + uiId), viewModel);
+        },
+        complete: function () {
+        }
+    });
+</script>
+<div class="pwPage">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Настройка процесса обработки договоров</h3>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal" id="@("contractProcSettingsForm" + Model)">
+                <div class="form-group">
+                    <label for="@("ProcCenterHeadId" + Model)" class="col-sm-4 control-label">Сотрудник отвечающий за распределение новых договоров</label>
+                    <div class="col-sm-7">
+                        <input id="@("ProcCenterHeadId" + Model)" data-bind="value: item.ProcCenterHeadId" class="pwWidth100" required validationMessage="Обязательно для заполнения">
+                    </div>
+                </div>
+                <div class="btn-toolbar" role="toolbar">
+                    <div class="btn-group pull-right" role="group">
+                        <button type="button" class="btn btn-default" data-bind="click: Save"><span class="pwToolbarButtonSave"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</span></button>
+                    </div>
+                </div>
+            </form>
+        </div>        
+    </div>
+</div>

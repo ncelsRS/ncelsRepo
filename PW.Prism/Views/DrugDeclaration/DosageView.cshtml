@@ -1,0 +1,85 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models.Expertise
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+<div style="display: none;" id="wrapTypeDiv">
+    <div class="input-group">
+        @Html.DropDownList("WrappingTypeId", (IEnumerable<SelectListItem>)(ViewData["WrappingTypes"]), String.Empty, new { @class = "form-control edit-control wrapping-control", data_placeholder = "Выберите значение..." })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="templSubstanceDiv">
+    @Html.Partial("~/Views/DrugDeclaration/TempleSubstanceView.cshtml", new EXP_DrugSubstance() { Id = -1, Position = -1 })
+</div>
+<div style="display: none;" id="animalDiv">
+    <div class="input-group">
+        @Html.DropDownList("WrappingKindId", (IEnumerable<SelectListItem>)(ViewData["Boxes"]), String.Empty, new { @class = "form-control edit-control wrapping-control", data_placeholder = "Выберите значение..." })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="mesureDiv">
+    <div class="input-group">
+        @Html.DropDownList("MesureId", (IEnumerable<SelectListItem>)(ViewData["MeasureShortList"]), String.Empty, new { @class = "form-control edit-control  wrapping-control" })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="templDosageDiv">
+    @Html.Partial("~/Views/DrugDeclaration/TempleDosageView.cshtml", new EXP_DrugDosage() { Id = -1, Position = -1 })
+
+</div>
+
+<div id=collectionDosageDiv>
+    @for (var i = 0; i < Model.ExpDrugDosages.Count; i++)
+    {
+        var entity = Model.ExpDrugDosages[i];
+        entity.Position = i;
+        @Html.Partial("~/Views/DrugDeclaration/TempleDosageView.cshtml", entity)
+    }
+</div>
+<script>
+// Общие функции
+    function createNewAnimalList(idAnimal) {
+        $('#' + idAnimal).chosen({ width: '100%' });;
+    }
+</script>
+<!--changeDosage-->
+<script type="text/javascript">
+
+    function toogleDosagePangel(param) {
+        $(param).parent().parent().parent().find('.divpanel').toggle();
+    }
+    
+</script>
+<!--main ready-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        //createNewAnimalList(".chosen-wrap-kind");
+        $(".chosen-wrap-kind").chosen({ width: '100%' });
+     
+    });
+</script>
+
+
+
+<!--substance-->
+<script type="text/javascript">
+    function tooglePangel(param) {
+        $(param).parent().parent().parent().find('.divpanel').toggle();
+    }
+</script>
+
+<!--addSubstance-->
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.substance-names').each(function () {
+            var idcontrol = $(this).attr('idcontrol');
+            var code = '@CodeConstManager.EXP_DrugSubstanceCode' + "_" + idcontrol + "_SubstanceId";
+            $("#" + code).select2("data", { id: $(this).attr('substanceId'), text: $(this).attr('text') });
+        });
+    });
+
+
+</script>

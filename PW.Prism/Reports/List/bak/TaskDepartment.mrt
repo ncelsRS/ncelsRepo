@@ -1,0 +1,592 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism</Alias>
+        <ConnectionStringEncrypted>+XTNSUhZQoHiR73MYtjjL5k0z4rJTHptaVq53GBYbgrVYGnqS0xbgctEoaXlBKQ/jfLZC0Vrs5lrCOXcZ0z2E4tay+tPW9M=</ConnectionStringEncrypted>
+        <Name>prism</Name>
+      </prism>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <Documents Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Documents</Alias>
+        <Columns isList="true" count="14">
+          <value>Name,System.String</value>
+          <value>Number,System.String</value>
+          <value>DocumentDate,System.DateTime</value>
+          <value>Summary,System.String</value>
+          <value>StateTypeEx,System.Int32</value>
+          <value>CorrespondentsValue,System.String</value>
+          <value>CorrespondentsInfo,System.String</value>
+          <value>ResponsibleValue,System.String</value>
+          <value>AutoFirstExecutionDate,System.DateTime</value>
+          <value>ExecutionDate,System.DateTime</value>
+          <value>FactExecutionDate,System.DateTime</value>
+          <value>StateType,System.String</value>
+          <value>DocumentType,System.String</value>
+          <value>DayCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Documents</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand> 
+
+
+select  
+
+	dep.Name,
+	Number,
+	cast ( DocumentDate as Date) as DocumentDate,
+ Summary,
+ StateType as StateTypeEx,
+ CorrespondentsValue,
+CorrespondentsInfo,
+ ResponsibleValue,
+cast ( AutoFirstExecutionDate as Date) as AutoFirstExecutionDate,
+ cast (ExecutionDate as Date) as ExecutionDate,
+ FactExecutionDate,
+enState.Value as  StateType,
+enType.Value as DocumentType,
+(case when StateType = 9  and FactExecutionDate &gt; ExecutionDate then  DATEDIFF(day, ExecutionDate,FactExecutionDate) else case when StateType &gt; 1 and StateType &lt; 9 and GETDATE()&gt; ExecutionDate then DATEDIFF(day, ExecutionDate,GETDATE()) else 0 end end) as DayCount
+   FROM [Documents] as d
+left join (select * from  LinkUnits as unis where unis.PropertyName='ResponsibleId') as lin on lin.OwnerId = d.Id 
+  left join Employees as e on e.Id = lin.EmployeeId 
+  left join Units as dep on dep.Id = lin.Department1Id
+left join (select * from PrismEnums as en where en.Type='DocumentStateType') as enState on  enState.[Key] = d.StateType
+left join (select * from PrismEnums as en where en.Type='DocumentType') as enType on  enType.[Key] = d.DocumentType
+  where StateType &gt; 1 and DocumentType in (0,2,3,5) and dep.Id is not null
+
+  order by dep.NAme, d.CreatedDate desc</SqlCommand>
+      </Documents>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="3">
+      <value>,DateStart,DateStart,System.DateTime,_x0035__x002F_29_x002F_2014_x0020_12:00:49_x0020_AM,False,False</value>
+      <value>,DateEnd,DateEnd,System.DateTime,_x0035__x002F_29_x002F_2014_x0020_12:01:38_x0020_AM,False,False</value>
+      <value>,DepartamentId,DepartamentId,System.String,,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="4" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <ReportTitleBand1 Ref="5" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,33,2</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text1 Ref="6" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,33,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,16,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="4" />
+              <Parent isRef="5" />
+              <Text>Документы поступивщие в отдел, ответственные </Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text2 Ref="7" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,33,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="4" />
+              <Parent isRef="5" />
+              <Text>Параметры: Период: {DateStart.ToString("dd.MM.yyyy")} - {DateEnd.ToString("dd.MM.yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>ReportTitleBand1</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+        </ReportTitleBand1>
+        <HeaderDocuments Ref="8" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3.2,33,1.2</ClientRectangle>
+          <Components isList="true" count="11">
+            <HeaderDocuments_Number Ref="9" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Number</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Номер</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Number>
+            <HeaderDocuments_DocumentDate Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.8,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_DocumentDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Дата документа</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_DocumentDate>
+            <HeaderDocuments_StateType Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.6,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_StateType</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Статус</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_StateType>
+            <HeaderDocuments_DocumentType Ref="12" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.4,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_DocumentType</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Тип документа</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_DocumentType>
+            <HeaderDocuments_Summary Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.2,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Summary</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Содержание</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Summary>
+            <HeaderDocuments_CorrespondentsValue Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_CorrespondentsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Корреспондент</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_CorrespondentsValue>
+            <HeaderDocuments_CorrespondentsInfo Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.8,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_CorrespondentsInfo</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Ф.И.О.</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_CorrespondentsInfo>
+            <HeaderDocuments_ResponsibleValue Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.6,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_ResponsibleValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Ответственный</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_ResponsibleValue>
+            <HeaderDocuments_ExecutionDate Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22.4,0,2.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_ExecutionDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Срок исполнения</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_ExecutionDate>
+            <HeaderDocuments_FactExecutionDate Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>25.2,0,4,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_FactExecutionDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Фактический срок исполнения</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_FactExecutionDate>
+            <Text3 Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>29.2,0,3.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <Guid>6cdcc6dcf3d349ab8dda39f68c5bf20e</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="4" />
+              <Parent isRef="8" />
+              <Text>Просрочка дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderDocuments</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderDocuments>
+        <DataDocuments Ref="20" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,5.2,33,0.8</ClientRectangle>
+          <Components isList="true" count="11">
+            <DataDocuments_Number Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_Number</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.Number}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_Number>
+            <DataDocuments_DocumentDate Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>2.8,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_DocumentDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.DocumentDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="23" type="DateFormat" isKey="true" />
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_DocumentDate>
+            <DataDocuments_StateType Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>5.6,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_StateType</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.StateType}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_StateType>
+            <DataDocuments_DocumentType Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8.4,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_DocumentType</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.DocumentType}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_DocumentType>
+            <DataDocuments_Summary Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.2,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_Summary</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.Summary}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_Summary>
+            <DataDocuments_CorrespondentsValue Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_CorrespondentsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.CorrespondentsValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_CorrespondentsValue>
+            <DataDocuments_CorrespondentsInfo Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.8,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_CorrespondentsInfo</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.CorrespondentsInfo}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_CorrespondentsInfo>
+            <DataDocuments_ResponsibleValue Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19.6,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_ResponsibleValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.ResponsibleValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_ResponsibleValue>
+            <DataDocuments_ExecutionDate Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.4,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_ExecutionDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.ExecutionDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="31" type="DateFormat" isKey="true" />
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_ExecutionDate>
+            <DataDocuments_FactExecutionDate Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>25.2,0,4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_FactExecutionDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.FactExecutionDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_FactExecutionDate>
+            <Text4 Ref="33" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>29.2,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b190d7794ff7425490ce8239b4f32541</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Documents.DayCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+          </Components>
+          <Conditions isList="true" count="2">
+            <value>_x007B_Documents.StateTypeEx_x0020__x0021__x003D__x0020_9_x0020__x0026__x0026__x0020_Documents.DayCount_x0020__x003E__x0020_0_x007D_,Black,[231:188:193],Arial_x002C_8,True,False,,,All</value>
+            <value>_x007B_Documents.StateTypeEx_x0020__x003D__x003D__x0020_9_x0020__x0026__x0026__x0020_Documents.DayCount_x0020__x003E__x0020_0_x007D_,Black,[255:255:128],Arial_x002C_8,True,False,,,All</value>
+          </Conditions>
+          <DataSourceName>Documents</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataDocuments</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Sort isList="true" count="0" />
+        </DataDocuments>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>556abc0f8ce84ed291d1638be001b9ae</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>35</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="34" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="35" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>5/31/2014 12:54:55 PM</ReportChanged>
+  <ReportCreated>5/28/2014 11:54:33 PM</ReportCreated>
+  <ReportFile>D:\Spring\trunk\src\PW.Prism\PW.Prism\Reports\List\TaskDepartment.mrt</ReportFile>
+  <ReportGuid>8df362550d7940c7ad4f154bd97a1605</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2013.3.1800</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

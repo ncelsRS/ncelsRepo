@@ -1,0 +1,108 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+@model PW.Ncels.Database.Models.ContractModel
+@if ((bool) ViewBag.CanSign)
+{
+    @Html.Partial("~/Views/Home/SignView.cshtml")
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Просмотр дополнительного соглашения</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home" )">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Договоры</a>
+            </li>
+            <li class="active">
+                <strong>Просмотр дополнительного соглашения</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="contractDetail">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        @if (Model.ApplicantContract.Number != null)
+                        {
+                            <span> Доп. соглашение №@Model.ApplicantContract.Number</span>
+                        }
+                        @if (Model.ApplicantContract.ContractDate != null)
+                        {
+                            <span> от @Model.ApplicantContract.ContractDate.Value.ToString("dd.MM.yyyy")r</span>
+                        }
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction, "Contract")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button ng-if="'@Model.IsEdit'" class="btn btn-default btn-sm" type="button" onclick="location.href = '@Url.Action("ContractAddition", "Contract", new {id = @Model.ApplicantContract.Id, listAction=ViewBag.ListAction})'"><i class="fa fa-edit"></i> Форма для редактирования</button>
+                        @if ((bool) ViewBag.CanSign)
+                        {
+                            <button ng-if="canSign" class="btn btn-default btn-sm" type="button" ng-click="sign('@Model.ApplicantContract.Id')"><i class="fa fa-check-square"></i> Подписать</button>
+                        }
+                        <button class="btn btn-default btn-sm" type="button" ng-click="view('@Model.ApplicantContract.Id')"><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" onclick="location.href = '@Url.Action("GetContractTemplate", "Contract", new {id = @Model.ApplicantContract.Id})'"><i class="fa fa-download"></i> Скачать</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    @if (Model.HolderContract != null)
+                    {
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>К договору</label>
+                                    <p>
+                                        <a href="@Url.Action("ContractDetails", "Contract", new {id=Model.HolderContract.Id})">@Model.HolderContract.Number от @Model.HolderContract.CreatedDate.Value.ToString("dd.MM.yyyy") г.</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Тип дополнительного соглашения</label>
+                                    <p>
+                                        @Model.ApplicantContract.ContractAdditionTypeName
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#tab-1">Вложения</a></li>
+                                    <li><a data-toggle="tab" href="#tab-2"><h3 style="color: red">Замечания</h3></a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tab-1" class="tab-pane active">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-none m-b">Вложения</h3>
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" metadata="true" type="sysAttachContractAdditionDict" id="@Model.ApplicantContract.Id" path="@Model.ApplicantContract.Id" />
+                                        </div>
+                                    </div>
+                                    <div id="tab-2" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-object url="\Contract\ListComments?contractId=@(Model.ApplicantContract.Id)" column-order="0"></grid-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

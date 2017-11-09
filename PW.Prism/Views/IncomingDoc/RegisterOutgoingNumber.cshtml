@@ -1,0 +1,65 @@
+﻿
+@model Guid
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formRegisterOutgoingNumber" + Model)">
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecuteEx"></div>
+        <div class="pwWinTitleText">Регистрация номера</div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft1">
+                <p>Входящий номер</p>
+            </div>
+            <div class="pwWinContentRight1">
+                <input type="text" id="@("OutgoingNumber" + Model)" data-bind="value: item.OutgoingNumber" class="k-textbox pwWidth100">
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+<script>
+    var name = '@Model';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Data)));
+    var viewModel = kendo.observable({
+        item: data,
+        save: function(e) {
+            if (viewModel.get('item.OutgoingNumber') == null) {
+                alert('Не указан номер');
+                return;
+            }
+            kendo.ui.progress($('#loader' + name), true);
+
+            $.ajax({
+                type: 'POST',
+                url: '/IncomingDoc/RegisterOutgoingNumberSave',
+                contentType: 'application/json; charset=utf-8',
+                data: '{docId:\'' + name + '\', number:\'' + viewModel.get('item.OutgoingNumber') + '\'}',
+                success: function (result) {
+                    if (result == 'True') {
+                        ShowAlert('Сообщение', 'Данные успешно сохранены', 'Success');
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                        InitializeDataIncoming(name, '@(null)');
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formRegisterOutgoingNumber" + name), viewModel);
+</script>

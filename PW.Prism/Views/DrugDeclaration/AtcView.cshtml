@@ -1,0 +1,185 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<link href="~/Content/css/plugins/jsTree/style.css" rel="stylesheet" type="text/css" />
+<style>
+    #atcDialog {
+        width: 100% !important;
+        height: 25% !important;
+    }
+</style>
+@{
+    var atc_kz = "";
+    var atc_ru = "";
+    if (Model.sr_atc_codes != null)
+    {
+        atc_kz = "[" + Model.sr_atc_codes.code + "]-" + @Model.sr_atc_codes.name_kz;
+        atc_ru="[" + @Model.sr_atc_codes.code + "]-" + @Model.sr_atc_codes.name;
+    }
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="padding-top: 4px;padding-bottom: 15px;">
+        Анатомо-терапевтическо-химическая классификация (АТХ)
+        <div style="float: right;">
+            <button type="button" class="btn btn-warning btn-sm atc-btn" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Выбрать</button>
+        </div>
+    </div>
+    <div class="panel-body">
+
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="name" class="col-lg-3">На государственном языке:</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            <input class="form-control edit-control" type="text" readonly="readonly" id="atc_kz" value="@atc_kz">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="name" class="col-lg-3">На русском языке:</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            <input class="form-control edit-control" type="text" readonly="readonly" id="atc_ru" value="@atc_ru">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12" style="margin-top: 10px;">
+            <label  class="col-lg-3">Комментарии:</label>
+            
+            <div class="input-group">
+                @Html.TextAreaFor(model => model.AtxComment, new {@class = "form-control edit-control main-control", @readonly = "readonly", placeholder = "Описание и в случаи отсутствии АТХ в справочнике"})
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="selectAtcId" value="">
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" id="atcDialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Справочник АТХ</h4>
+            </div>
+            <div class="modal-body">
+                <div id="jstree"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="chooseAtcBtn" data-dismiss="modal">Выбрать</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Scripts/js/plugins/jsTree/jstree.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('#jstree').jstree({
+                "types": {
+                    "default": {
+                        "icon": "fa fa-shield treeFolderIcon"
+                    }
+                },
+                "plugins": ["json_data", "types", "wholerow", "search"],
+                'core': {
+                    'data': {
+                        'url': function(node) {
+                            if (node.id === '#')
+                                return '@Url.Action("GetRootAtcNodes")';
+                            else {
+                                return '@Url.Action("GetAtcNodes")';
+                            }
+
+                        },
+                        'data': function(node) {
+                            return { 'id': node.id };
+                        }
+                    }
+                }
+            });
+
+            $('#jstree').on('changed.jstree',
+                function(e, data) {
+                    $('#selectAtcId').val(data.node.id);
+                    //            console.log("=> selected node: " + data.node.id);
+                });
+            /*  $("#jstree").jstree({
+                  "types": {
+                      "default": {
+                          "icon": "fa fa-folder-open treeFolderIcon",
+                      }
+                  },
+                  "plugins": ["json_data", "types", "wholerow", "search"],
+                  "core": {
+                      "multiple": false,
+                      "data": {
+                          "url": function (node) {
+                              return node.id === '#' ? "GetRootAtcNodes" : "GetAtcNodes" + node.id;
+    
+                          },
+                          "data": function (node) {
+                              return { "id": node.id };
+                          }
+                      }
+                  }
+              }).bind("loaded.jstree", function (e, data) {
+                  $('#jstree').jstree("select_node", '#ref565', true);
+              });*/
+            $("#chooseAtcBtn").click(function() {
+                var val = $('#selectAtcId').val();
+                if (val == null || val.length === 0) {
+                    $("#atc_kz").val("");
+                    $("#atc_ru").val("");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetAtcNames")',
+                    data: { 'id': val },
+                    dataType: 'json',
+                    cache: false,
+                    success: function(data) {
+                        if (data.isSuccess) {
+                            $("#atc_kz").val(data.nameKz);
+                            $("#atc_ru").val(data.nameRu);
+                            UpdateModel("main", null, null, "AtxId", val, 'long', data.nameRu + '/' + data.nameKz);
+                        } else {
+                            $("#atc_kz").val("");
+                            $("#atc_ru").val("");
+                        }
+                    },
+                    error: function() {
+                        alert("Connection Failed. Please Try Again");
+                    }
+                });
+            });
+
+        });
+    </script>
+}

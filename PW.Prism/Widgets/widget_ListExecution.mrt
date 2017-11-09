@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <AutoLocalizeReportOnRun>True</AutoLocalizeReportOnRun>
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <assistent Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>assistent</Alias>
+        <ConnectionStringEncrypted>+XTNSUhUQs3iR73MYdjjL5nygYrJWTGkz1q5xGNYZRPVWt0rVlkxnctJ/ZhqGON/jXi7ycZ7k83iQdGETnjgE8Ra2SjvTA==</ConnectionStringEncrypted>
+        <Name>assistent</Name>
+      </assistent>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <ExecutionDocument Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>ExecutionDocument</Alias>
+        <Columns isList="true" count="7">
+          <value>Id,System.Guid</value>
+          <value>Summary,System.String</value>
+          <value>Number,System.String</value>
+          <value>Author,System.String</value>
+          <value>Executor,System.String</value>
+          <value>ExecutionDate,System.DateTime</value>
+          <value>ExecutorId,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>ExecutionDocument</Name>
+        <NameInSource>assistent</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>EmployeeId,EmployeeId,12,36</value>
+        </Parameters>
+        <SqlCommand>DECLARE @param1 nvarchar(8)
+SET @param1 = (SELECT ep.[PermissionValue] FROM [EmployeePermissions] as ep where ep.EmployeeId = @EmployeeId and ep.PermissionKey = 'IsAllStructureDashboard')
+
+SELECT Id, Summary, DisplayName AS Number, 
+	CASE 
+		WHEN d.DocumentType = 0 THEN d.CorrespondentsValue
+		WHEN d.DocumentType = 2 THEN d.CorrespondentsInfo
+		WHEN d.DocumentType = 3 THEN d.RegistratorValue
+		WHEN d.DocumentType = 4 THEN d .OwnerValue
+		WHEN d.DocumentType = 5 THEN d.CreatedUserValue
+	END AS Author,
+(SELECT ShortName FROM dbo.Employees AS e WHERE (Id = d.ResponsibleId)) AS Executor, AutoExecutionDate AS ExecutionDate, ResponsibleId AS ExecutorId
+FROM            dbo.Documents AS d
+WHERE        (StateType &lt;&gt; 9) AND (MonitoringType &gt; 1) AND (DocumentType IN (0, 2, 5)) AND (DATEDIFF(Day, GETDATE(), ExecutionDate) &gt;= 0) AND (DATEDIFF(Day, GETDATE(), ExecutionDate) &lt;= 3) AND (ResponsibleId IS NOT NULL) AND (ResponsibleId &lt;&gt; '') and IsDeleted = 0
+and ResponsibleId in (select Id from dbo.GetEmployeesInDep(@EmployeeId, @param1))
+order by Executor, Author, Number</SqlCommand>
+      </ExecutionDocument>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="1">
+      <value>,EmployeeId,EmployeeId,System.String,_x0034_FFCCBE5-B5A9-4D88-BBDB-BDF0D9650EE0,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="3">
+    <Item3 Ref="4" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>en</CultureName>
+      <Items isList="true" count="1">
+        <value>Text1.Text,_x0033__x0020_days_x0020_prior_x0020_to_x0020_the_x0020_execution_x0020_of_x0020_control_x0020_documents_x0020__x0028__x007B_Count_x0028_DataExpiredDocuments_x0029__x007D__x0029_</value>
+      </Items>
+    </Item3>
+    <Item4 Ref="5" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>ru</CultureName>
+      <Items isList="true" count="0" />
+    </Item4>
+    <Item5 Ref="6" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>kk</CultureName>
+      <Items isList="true" count="1">
+        <value>Text1.Text,Бақылау_x0020_құжаттарды_x0020_орындауға_x0020_дейiн_x0020_3_x0020_күнi_x0020__x0028__x007B_Count_x0028_DataExpiredDocuments_x0029__x007D__x0029_</value>
+      </Items>
+    </Item5>
+  </GlobalizationStrings>
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="7" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="2">
+        <HeaderBand1 Ref="8" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text1 Ref="9" type="Text" isKey="true">
+              <Brush>[255:230:191]</Brush>
+              <ClientRectangle>0,0,27,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>3 дня до исполнения контрольных документов ({Count(DataExpiredDocuments)})</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text3 Ref="10" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>21.8,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>e0d84be7bfe44389b6770118217c59cb</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{Time}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text2 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>c331d82333b24c9fb3d128cb4608bd5a</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text> </Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand1>
+        <DataExpiredDocuments Ref="12" type="DataBand" isKey="true">
+          <Brush>[255:183:75]</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,2,27,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataExpiredDocuments_Number Ref="13" type="Text" isKey="true">
+              <Border>None;[191:191:191];1;Dot;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,0,4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8,Underline</Font>
+              <Hyperlink>{"javascript:tagAnswerClick('" +ExecutionDocument.Id + "','" + ExecutionDocument.Number + "');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Number</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>{ExecutionDocument.Number}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>{ExecutionDocument.Summary}</ToolTip>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Number>
+            <DataExpiredDocuments_Author Ref="14" type="Text" isKey="true">
+              <Border>None;[191:191:191];1;Dot;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,13.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Author</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>{ExecutionDocument.Author}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Author>
+            <DataExpiredDocuments_Executor Ref="15" type="Text" isKey="true">
+              <Border>None;[191:191:191];1;Dot;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18.8,0,8.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Executor</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>{ExecutionDocument.Executor}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Executor>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>ExecutionDocument</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataExpiredDocuments</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataExpiredDocuments>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>d79f191fed9b4d028badf04cf7fc87ff</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="16" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="17" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>12/4/2015 5:40:04 PM</ReportChanged>
+  <ReportCreated>2/20/2015 2:55:55 PM</ReportCreated>
+  <ReportFile>C:\Users\morozilnik\OneDrive\Git\Assistent\src\PW.Prism\PW.Prism\Widgets\widget_ListExecution.mrt</ReportFile>
+  <ReportGuid>3806b6ebd04b44989c4da03135a01969</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

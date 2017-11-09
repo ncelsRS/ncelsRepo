@@ -1,0 +1,328 @@
+﻿@using PW.Prism.ViewModels.Commissions
+@model CommissionListModel
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+    var pageId = Guid.NewGuid();
+}
+<script>
+    var modelId = '@pageId.ToString()';
+    InitFilterCommissionAllGrid(modelId);
+    function error_handlerPP(e) {
+        e.preventDefault(e);
+        var grid = $("#gridCommissionList" + modelId).data("kendoGrid");
+        grid.cancelChanges();
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowAlert('Внимание!', message, window.AlertType.Warning, 3000);
+        }
+    }
+
+    function selectMenu(e) {
+        var action = $(e.item).data('action');
+        var id = $(e.item).data('id');
+        if(action == 'open') {
+            var name = $(e.item).data('name');
+            commissionOpen2(id, name);
+        }
+        if (action == 'complete') {
+            commissionComplete(id);
+        }
+        if (action == 'delete') {
+            commissionDelete(id);
+        }
+        if (action == 'report1') {
+            commissionReport(id, 1);
+        }
+        if (action == 'report2') {
+            commissionReport(id, 2);
+        }
+        if (action == 'updateDosages') {
+            reloadDosages(id);
+        }
+    }
+
+    function buildMenu() {
+        $(".templateCell").each(function () {
+            eval($(this).children("script").last().html());
+        });
+    }
+
+    function reloadDosages(id) {
+        $.ajax({
+            type: 'POST',
+            url: "/Commission/RefreshCommissionDosages",
+            data: { commissionId: id},
+            success: function (result) {
+                if (result.success == false) {
+                    ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                }
+                else {
+                    ShowAlert('Успех!', result.message, window.AlertType.Success, 10000);
+                }
+            },
+            error: function () {
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+</script>
+@*
+    #gridCommissionList@(Model) td {
+        overflow: initial;
+    } 
+    *@
+<style>
+
+    .k-widget .templateCell
+    {
+        overflow: visible;
+    }
+    .templateCell .k-item {
+        width:100%;
+    }
+    .templateCell .k-item .k-icon {
+        float: right;
+    }
+</style>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + pageId))
+            .Panes(panes =>
+            {
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        @*<div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + pageId).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>*@
+                       <div id="pwTwo" style="width: 300px;">
+                            @(Html.Kendo().DropDownList().Name("findType" + pageId).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(Model.TypeList)
+                                   .SelectedIndex(0)
+                            )
+                        </div>
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + pageId).HtmlAttributes(new { @class = "pwWidth100" })
+                         .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                         .ImageUrl("/Content/images/find.png"))
+                        </div>
+                    </div>
+                    <div id="pwSix" style="width:300px;">
+                        @(Html.Kendo().Button().Name("reload" + pageId).HtmlAttributes(new { @class = "pwWidth50 pwButtonReload commission-reload-list-btn", @style="width:50px;" })
+                                                        .Content("")
+                                   .ImageUrl("/Content/images/reload.png"))
+                        @*@(Html.Kendo().Button().Name("reloadDosages" + pageId).HtmlAttributes(new { @class = "pwWidth50 reloadDosages", @style = "width:250px;" })
+                                                        .Content("Обновить заявки в повестках").Events(ev => ev.Click("reloadDosages"))
+                                   .ImageUrl("/Content/images/reload.png"))*@
+                    </div>
+                    @(Html.Kendo().Grid<CommissionListItemModel>()
+                                .Name("gridCommissionList" + pageId)
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(p => p.Id).HtmlAttributes(new { @class = "templateCell" }).ClientTemplate(
+                                        Html.Kendo().Menu()
+                                        .Name("menu_#=Id#")
+                                        .Items(its =>
+                                        {
+                                            its.Add().Text("Действия").Items(nested =>
+                                            {
+                                                nested.Add().Text("Просмотр").HtmlAttributes(new { data_action = "open", data_id = "#=Id#", data_name = "#=Number#" });
+                                                nested.Add().Text("Завершить").HtmlAttributes(new { data_action = "complete", data_id = "#=Id#" });
+                                                nested.Add().Text("Удалить").HtmlAttributes(new { data_action = "delete", data_id = "#=Id#" });
+                                                nested.Add().Text("Обновить заявки").HtmlAttributes(new { data_action = "updateDosages", data_id = "#=Id#" });
+                                                nested.Add().Text("Отчет")
+                                                  .Items(innerChildren =>
+                                                  {
+                                                      innerChildren.Add().Text("Повестка").HtmlAttributes(new { data_action = "report1", data_id = "#=Id#" });
+                                                      innerChildren.Add().Text("Протокол").HtmlAttributes(new { data_action = "report2", data_id = "#=Id#" });
+                                                  });
+                                            });
+                                        }).Events(e => e.Select("selectMenu"))
+                                        .ToClientTemplate().ToHtmlString()
+                                        ).Title("").Filterable(false).Sortable(false).Width(120);
+                                    columns.Bound(p => p.Number).Title("Номер повестки");
+                                    columns.Bound(p => p.KindShortName).Title("Вид ЛС и ИМН");
+                                    columns.Bound(p => p.Date).Title("Дата проведения").Format("{0:dd/MM/yyyy}");
+                                    columns.Bound(p => p.TypeName).Title("Тип комиссии");
+                                    columns.Bound(p => p.IsComplete).Title("Проведено").ClientTemplate("<input type='checkbox' disabled='disabled'  #= IsComplete ? checked='checked' :'' # />");
+                                    columns.Bound(p => p.Comment).Title("Комментарий");
+                                })
+                                .Events(c => c.DataBound("buildMenu"))
+
+                                //  .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+                                .ToolBar(toolBar => toolBar.Template("<a class='k-button k-button-icontext' onclick='commissionOpen2(-1,\"Создание коммисии\")' href='#'></span>Добавить</a>"))
+                                .Filterable()
+                                .Sortable()
+                                .Pageable()
+                                .Scrollable()
+                                .Resizable(resizable => resizable.Columns(true))
+                                //.Groupable()
+                                .HtmlAttributes(new { @class = "pwGrid" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(p => p.Id);
+                                                //model.Field(p => p.Number);
+                                                //model.Field(p => p.KindShortName);
+                                                //model.Field(p => p.Date);
+                                                //model.Field(p => p.TypeName);
+                                                //model.Field(p => p.IsComplete);
+                                                //model.Field(p => p.Comment);
+                                                model.Field(p => p.Id).Editable(false);
+                                            })
+                                        .PageSize(20)
+                                        //.Group(x => x.Add(p => p.CategoryName))
+                                        //.Sort(sort => sort.Add("Name").Ascending())
+                                        .Read(read => read.Action("CommissionRead", "Commission"))
+                                        //.Create(update => update.Action("CommissionCreate", "Commission"))
+                                        //.Update(update => update.Action("CommissionUpdate", "Commission"))
+                                        //.Destroy(update => update.Action("CommissionDestroy", "Commission"))
+                                        .Events(events => events.Error("error_handlerPP"))
+                                        ))
+                </div>
+                 );
+            }))
+
+    @*<div id="commission" class="modal fade" style="padding-top: 100px">
+    </div>*@
+    @*<div id="commissionCreateQuestionModal" class="modal fade" style="padding-top: 100px">
+    </div>*@
+    @*<div id="commissionConclusionDrugDeclarationModal" class="modal fade" style="padding-top: 100px">
+    </div>*@
+
+<script src="@Url.Content("~/Scripts/js/custom/message-dialog-box.js")" type="text/javascript"> </script>
+<script>
+
+    $(document).ready(function () {
+        $(".hhg").kendoMenu({
+            openOnClick: true
+        });
+    });
+
+    resizeGrid('@("#gridCommissionList" + pageId)');
+
+    function commissionOpen2(id, name) {
+        var parameters = "commission" + id;
+        if (docArray.indexOf(parameters.toLowerCase()) !== -1)
+            docArray.splice(docArray.indexOf(parameters.toLowerCase()), 1);
+        var element = document.getElementById(parameters);
+        if (element === null) {
+            var tabStrip = $("#tabstrip").data("kendoTabStrip");
+            var content = '<div id="' + parameters + '"> </div>';
+            var idContent = '#' + parameters;
+            tabStrip.append({
+                text: '' + name,
+                content: content
+
+            });
+
+            tabStrip.select(tabStrip.items().length - 1);
+
+            var gridElement = $(idContent);
+
+            gridElement.height($(window).height() - 100);
+
+            $.ajax({
+                url: "/Commission/Commission?Id=" + id,
+                success: function (result) {
+                    $(idContent).html(result);
+                    console.log(1);
+                    var height = $(idContent).height();
+                    $('#tabstripCommission' + id).height(height - 30);
+                    $('#tabstripCommission' + id + ' #UnitsTable').css('max-height', (height - 150) + 'px');
+                    $('#tabstripCommission' + id + ' #CommissionQuestionsMain').css('max-height', (height - 100) + 'px');
+                }
+            });
+        } else {
+
+            var itesm = $('#' + parameters)[0].parentElement.getAttribute('id').split('-')[1];
+            if (itesm) {
+                $("#tabstrip").data("kendoTabStrip").select(itesm - 1);
+            }
+        }
+    }
+
+    //function commissionOpen(id, name) { //щас будем выносить в нормальную вкладку)
+    //    $.ajax({
+    //        type: 'POST',
+    //        url: "/Commission/Commission",
+    //        data: {id: id},
+    //        success: function (result) {
+    //            if (result.success == false) {
+    //                ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+    //            }
+    //            else {
+    //                $('#commission').html(result);
+    //                $('#commission').modal();
+    //                commissionTypeChange();
+    //            }
+    //        },
+    //        error: function () {
+    //            ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+    //        }
+    //    });
+    //}
+
+    function commissionDelete(id) {
+        var success = function () {
+            $.ajax({
+                type: 'POST',
+                url: "/Commission/DeleteCommission",
+                data: { id: id },
+                success: function (result) {
+                    if (result.success == false) {
+                        ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                    }
+                    else {
+                        ShowAlert('Успех!', 'Операция успешно выполнена', window.AlertType.Success, 3000);
+                        $("#reload" + modelId).click();
+                    }
+                },
+                error: function () {
+                    ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+                }
+            });
+        }
+        var cancel = function () {
+        };
+        showConfirmation("Подтверждение", "Вы действительно хотите удалить запись?", success, cancel);
+    }
+
+    function commissionComplete(id) {
+        var success = function () {
+            $.ajax({
+                type: 'POST',
+                url: "/Commission/CompleteCommission",
+                data: { id: id },
+                success: function (result) {
+                    if (result.success == false) {
+                        ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                    }
+                    else {
+                        ShowAlert('Успех!', 'Операция успешно выполнена', window.AlertType.Success, 3000);
+                        $("#reload" + modelId).click();
+                    }
+                },
+                error: function () {
+                    ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+                }
+            });
+        }
+        var cancel = function () {
+        };
+        showConfirmation("Подтверждение", "Вы действительно хотите завершить заседание?", success, cancel);
+    }
+    function commissionReport(id, type) {
+        window.open('/Commission/ExportFile2?id=' + id + "&type=" + type);
+    }
+</script>

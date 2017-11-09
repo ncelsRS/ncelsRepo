@@ -1,0 +1,164 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDosage
+<style type="text/css">
+    .dosage-remark {
+    }
+
+    .dosage-result { }
+</style>
+@{
+    var btnId = "addDosageResult" + Model.DrugDeclarationId;
+    var dosageTypeDiv1 = "dosageTypeDiv" + Model.DrugDeclarationId;
+    var tableId = "dosageResulTable" + Model.DrugDeclarationId;
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Результаты экспертизы
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="@tableId" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Наименование</td>
+                        <td>Тип замечания</td>
+                        <td>Замечание</td>
+                        <td>Дата замечания</td>
+                        <td>Дата исправления</td>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.ExpDrugAppDosageResults.Count; i++)
+                    {
+                        var code = CodeConstManager.EXP_DrugAppDosageResultCode + "_" + Model.DrugDeclarationId + "_" + Model.ExpDrugAppDosageResults[i].Id + "_";
+                        var nameResultId = code + "NameResult";
+                        var idremarkTypeId = code + "RemarkTypeId";
+                        var noteId = code + "Note";
+
+                        var idRemarkDateStr = code + "RemarkDateStr";
+
+                        var idFixedDateStr = code + "FixedDateStr";
+                        var idRecord = "";
+
+                        var wrapKindcss = "form-control edit-control dosage-result";
+                        if (Model.Id > -1)
+                        {
+                            idRecord = Model.DrugDeclarationId + "_" + Model.ExpDrugAppDosageResults[i].Id;
+                            wrapKindcss += " chosen-wrap-kind";
+                        }
+                        <tr rowid="@Model.ExpDrugAppDosageResults[i].Id">
+                            <td>
+                                @Html.TextBox("NameResult", Model.ExpDrugAppDosageResults[i].NameResult, new { @class = "dosage-result form-control", id = nameResultId })
+                            </td>
+                            <td>
+                                @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["ResultTypes" + idRecord]), String.Empty, new { @class = "form-control dosage-result", id = idremarkTypeId })
+                            </td>
+                            <td>
+                                @Html.TextBox("Note", Model.ExpDrugAppDosageResults[i].Note, new { @class = "dosage-result form-control", id = noteId })
+                            </td>
+                            <td>
+                                @Html.TextBox("RemarkDateStr", Model.ExpDrugAppDosageResults[i].RemarkDateStr, new { @class = "dosage-result form-control date-control", id = idRemarkDateStr })
+                            </td>
+                            <td>
+                                @Html.TextBox("FixedDateStr", Model.ExpDrugAppDosageResults[i].FixedDateStr, new { @class = "dosage-result form-control date-control", id = idFixedDateStr })
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteExpRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                <tfoot>
+                <tfoot>
+                    <tr>
+                        <td colspan="9" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-dosage-result" id="@btnId" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function changeDosageResult(control) {
+        changeDosageCollection(control, '@CodeConstManager.EXP_DrugAppDosageResultCode');
+    }
+
+    $(document).ready(function () {
+        changeDosageResult(".dosage-result");
+        $("#" + '@btnId').on("click", function () {
+            debugger;
+            var table = $(this).closest("table");
+            var tbody = table.find('tbody:first');
+            var lastRowIndex = tbody.children('tr').length;
+            var nextIndexValue = parseInt(lastRowIndex) + 1;
+
+            var kindObject = "ExpDrugAppDosageResults";
+
+            var cols = '<tr rowid="0" rowindex="' + nextIndexValue + '">';
+            var nextIndex = "0_" + nextIndexValue;
+
+            var eventDiv = document.getElementById('@dosageTypeDiv1');
+            var docagCode = "dosageResult_a" + nextIndex + "_";
+            var idWrappingType = docagCode + 'RemarkTypeId';
+            var nameWrappingType = kindObject + '[' + nextIndex + '].RemarkTypeId';
+
+            var wrapTypeStr = replaceAll('id="RemarkTypeId"',
+                'id="' + idWrappingType + '"',
+                eventDiv.innerHTML);
+            wrapTypeStr = replaceAll('name="RemarkTypeId"', 'name="' + nameWrappingType + '"', wrapTypeStr);
+
+            var idNameResult = docagCode + "NameResult";
+            var idNote = docagCode + "Note";
+            var idRemarkDateStr = docagCode + "RemarkDateStr";
+            var idFixedDateStr = docagCode + "FixedDateStr";
+
+            cols += '<td><input type="text" name="NameResult" id="' + idNameResult + '" class="dosage-remark form-control" /></td>';
+            cols += '<td>' + wrapTypeStr + '</td>';
+            cols += '<td><input type="text" name="Note" id="' + idNote + '" class="dosage-remark form-control" /></td>';
+            cols += '<td><input type="text" name="RemarkDateStr" id="' + idRemarkDateStr + '" class="dosage-remark form-control date-control" /></td>';
+            cols += '<td><input type="text" name="FixedDateStr" id="' + idFixedDateStr + '" class="dosage-remark form-control date-control" /></td>';
+            cols += '<td><i class="glyphicon glyphicon-remove deleteExpRow"  title="@ResourceSetting.delete"></td>';
+            cols += '</tr>';
+            tbody.append(cols);
+            changeDosageResult("#" + idNameResult);
+            changeDosageResult("#" + idWrappingType);
+            changeDosageResult("#" + idNote);
+            changeDosageResult("#" + idRemarkDateStr);
+            changeDosageResult("#" + idFixedDateStr);
+
+            setDateFormat("#" + idRemarkDateStr);
+            setDateFormat("#" + idFixedDateStr);
+        });
+
+
+        $("#" + '@tableId').on("click", ".deleteExpRow", function () {
+
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                DeleteRecord('@CodeConstManager.EXP_DrugAppDosageResultCode', entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+    });
+</script>

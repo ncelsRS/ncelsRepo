@@ -1,0 +1,106 @@
+﻿@model PW.Ncels.Models.LoginViewModel
+@{
+    ViewBag.Title = "Вход в систему";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+<style>
+.modal-dialog {
+    width: 35% !important;
+    height: 25% !important;
+}
+    </style>
+
+<script type="text/javascript" src="~/Scripts/photon/crypto/crypto_object_ext.js" charset="utf-8"></script>
+<script type="text/javascript" src="~/Scripts/photon/crypto/eds.js" charset="utf-8"></script>
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div ng-controller="MainCtrl">
+        <div>
+            <img alt="image" src="/Content/img/logo_big.png" />
+        </div>
+        <h3>Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники</h3>
+
+        <p>Авторизация</p>
+        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "m-t", role = "form" })) {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+            <div class="form-group">
+                <input type="text" class="form-control" name="Email" placeholder="Введите логин" required="">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" name="Password" placeholder="Введите пароль" required="">
+            </div>
+            <button type="submit" class="btn btn-success block full-width m-b" ng-click="clearStore()">Войти</button>
+            <a class="btn btn-white block full-width m-b" id="btnEcp">Войти по ЭЦП</a>
+            <a href="/Account/ForgotPassword"><small>Забыли пароль?</small></a>
+            <p class="text-muted text-center">
+                <small>У вас нет аккаунта?</small>
+            </p>
+            <a class="btn btn-sm btn-white btn-block" href="/Account/Register">Регистрация в системе</a>
+        }
+        <p class="m-t"> <small>&copy; 2017 | Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники.<br>Все права защищены.</small> </p>
+    </div>
+    <p>
+        @Html.Hidden("hfStoragePath", "")
+        @Html.Hidden("hfKeyAlias", "")
+        @Html.Hidden("UserName", "")
+        @Html.Password("Password", "", new { hidden = "hidden" })
+
+        @Html.Hidden("hfXmlToSign",
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><login><timeTicket>"
+                                    + DateTime.Now.ToShortDateString()
+                                + "</timeTicket></login>")
+        @Html.Hidden("Certificate", "")
+    </p>
+    <div id="dlgPasswordModal" class="modal fade">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Введите пароль ЭЦП
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="wrapper_logon" style="min-height: auto; margin-top: 0px;">
+                        <p>
+                            <label for="passwordCert" class="youpasswd" data-icon="p" style="width: 60px;">
+                                Пароль
+                            </label>
+                            <input id="passwordCert" name="passwordCert" required="required" type="password" placeholder='Введите ваш пароль' class="form-control">
+                        </p>
+
+                        <button type="button" class="btn btn-success btn-sm" id="btnAccept">
+                            Подтвердить
+                        </button>
+                        <button type="button" class="btn btn-warning btn-sm" id="btnCancel">
+                            Отмена
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btnEcp').on("click", function () {
+            if (!crypt_object_init("chooseStoragePath")) {
+                chooseStoragePath();
+            }
+        });
+        $('.modal').on('shown.bs.modal', function () {
+            $(this).find('input:password:visible:first').focus();
+        });
+
+        $("#btnAccept").click(function () {
+            $("#formLogin").find("#Password").val($('#passwordCert').val());
+            fillKeys();
+            $("#dlgPasswordModal").modal('toggle');
+        });
+        $("#btnCancel").click(function () {
+            $("#dlgPasswordModal").modal('toggle');
+        });
+
+    });
+</script>

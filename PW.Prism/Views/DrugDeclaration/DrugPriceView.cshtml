@@ -1,0 +1,71 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDosage
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Данные по стоимости формы выпуска лекарственного средства
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table class="tableDrugPrice" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Первичная</td>
+                        <td>Вторичная</td>
+                        <td>Промежуточная</td>
+                        <td style="width: 80px">Кол-во ЛС в упаковке</td>
+                        <td style="width: 50px">Штрих-код вторичной упаковки (указывается при наличии)</td>
+                        <td style="width: 50px">Цена производи-теля, в тенге</td>
+                        <td style="width: 50px">Референтная цена страны производителя-владельца регистрационного удостоверения, юридического лица, имеющего статус официального представителя производителя в тенге</td>
+                        <td style="width: 50px">Зарегистрированная цена (цена с учетом понесенных расходов на логистику, таможенных платежей и проведение оценки безопасности и качества), в тенге</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.ExpDrugPrices.Count; i++)
+                    {
+                        var code = CodeConstManager.EXP_DrugPrice + "_" + Model.Id + "_" + Model.ExpDrugPrices[i].Id + "_";
+                        var barcodeId = code + "Barcode";
+                        var refPriceId = code + "RefPrice";
+                        var regPriceId = code + "RegPrice";
+                        var primaryTextId = code + "PrimaryText";
+                        var secondaryTextId = code + "SecondaryText";
+                        var intermediateTextId = code + "IntermediateText";
+                        var countUnitId = code + "CountUnit";
+
+                        <tr rowid="@Model.ExpDrugPrices[i].Id">
+
+                            <td><div class="input-group">
+                                    @Html.TextBox("PrimaryText", Model.ExpDrugPrices[i].PrimaryText, new { @class = "edit-control price-control form-control", @readonly = "readonly", id = primaryTextId })
+                                <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div></td>
+                            <td><div class="input-group">
+                                @Html.TextBox("SecondaryText", Model.ExpDrugPrices[i].SecondaryText, new { @class = "edit-control price-control form-control", @readonly = "readonly", id = secondaryTextId })
+                                <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div></td>
+                            <td><div class="input-group">
+                                    @Html.TextBox("IntermediateText", Model.ExpDrugPrices[i].IntermediateText, new { @class = "edit-control price-control form-control", @readonly = "readonly", id = countUnitId })
+                                <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div></td>
+                            <td><div class="input-group">
+                                    @Html.TextBox("CountUnit", Model.ExpDrugPrices[i].CountUnit, new { @class = "edit-control price-control form-control", @readonly = "readonly", id = countUnitId })
+                                <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div></td>
+                            <td><div class="input-group">@Html.TextBoxFor(model => model.ExpDrugPrices[i].Barcode, new { @class = "form-control edit-control price-control", id = barcodeId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+                            <td><div class="input-group">@Html.TextBoxFor(model => model.ExpDrugPrices[i].ManufacturePrice, new { @class = "form-control edit-control price-control", id = refPriceId,  typeField = "float" })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+                            <td><div class="input-group">@Html.TextBoxFor(model => model.ExpDrugPrices[i].RefPrice, new { @class = "form-control edit-control price-control", id = refPriceId,  typeField = "float" })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+                            <td><div class="input-group">@Html.TextBoxFor(model => model.ExpDrugPrices[i].RegPrice, new { @class = "form-control edit-control price-control", id = regPriceId, typeField = "float" })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+
+                        
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

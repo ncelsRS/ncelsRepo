@@ -1,0 +1,270 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+<!-- Список Журнал заявок -->
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    var QEquipmentJournalList = {
+        _reload: function () {
+            var grid = $('@("#gridQEquipmentJournal_" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        },
+        sync: function (e) {
+            this.read();
+        },
+        detailExpand: function (e) {
+            var eid = e.masterRow[0].rowIndex;
+        },
+        detailCollapse: function (e) {
+            var eid = e.masterRow[0].rowIndex;
+        },
+        onEditHandler: function (e) {
+            debugger;
+            if (e.model.isNew()) {
+                var planType = e.container.find("[name='JournalTypeId']").data("kendoComboBox");
+                planType.value('@ViewBag.JournalTypeId');
+                e.model.JournalTypeId = '@ViewBag.JournalTypeId';
+            }
+        },
+        onChildEditHandler: function (e) {
+            debugger;
+            if (e.model.isNew()) {
+                var combobox = e.container.find("[name='EquipmentId']").data("kendoComboBox");
+                combobox.value('@ViewBag.EquipmentDefaultId');
+                e.model.EquipmentId = '@ViewBag.EquipmentDefaultId';
+
+                var masterRow = this.wrapper.closest("tr.k-detail-row").prev(".k-master-row");
+                var grid = $('@("#gridQEquipmentJournal_" + Model)').data("kendoGrid");
+                var journal = grid.dataItem(masterRow);
+
+                e.model.JournalId = journal.Id;
+            }
+        },
+        additionalData() {
+            return {
+                journalTypeCode: "@ViewBag.JournalTypeCode"
+            };
+        },
+        printFn: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var reportType = '';
+            if (dataItem.JournalTypeCode == '@Dictionary.DicEquipmentJournalType.QualificationJournal') {
+                reportType = 'EquipmentQJournal.mrt';
+            }
+            else if (dataItem.JournalTypeCode == '@Dictionary.DicEquipmentJournalType.PreventiveWorkJournal') {
+                reportType = 'EquipmentPreventiveWorkJournal.mrt';
+            }
+            else if (dataItem.JournalTypeCode == '@Dictionary.DicEquipmentJournalType.CheckJournal') {
+                reportType = 'EquipmentCheckJournal.mrt';
+            }
+
+            var window = $("#windowFile");
+            window.kendoWindow({
+                width: "800px",
+                height: "500px",
+                modal: true,
+                resizable: false,
+                title: 'Печать',
+                actions: ["Pin", "Refresh", "Maximize", "Close"],
+                content: "/Upload/ReportFileView?code=" + dataItem.Id + '&name=Форма&report=' + reportType
+            });
+            window.data("kendoWindow").title('Форма');
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        }
+    };
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+            .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+            .ImageUrl("/Content/images/reload.png"))
+</div>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+                panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                   .Name("panelbar" + Model)
+                                   .ExpandMode(PanelBarExpandMode.Multiple)
+                                   .ExpandAll(true)
+                                   .HtmlAttributes(new { style = "width:auto;" })
+                                   //.Events(e => e.Select("panelEqLabSelect"))
+                                   .Items(panelbar =>
+                                   {
+                                       panelbar.Add().Expanded(true);
+                                       panelbar.Add().Text("По видам")
+                                           .Items(panelbarItem =>
+                                           {
+                                               panelbarItem.Add().Text("Все")
+                                                   .LinkHtmlAttributes(new Dictionary<string, object>()
+                                                   {
+                                                       { "ItemType", "" },
+                                                       { "ModelId", Model.ToString() }
+                                                   });
+                                               if (ViewBag.EquipmentJournalType != null)
+                                               {
+                                                   foreach (Item itemInfo in (List<Item>)ViewBag.EquipmentJournalType)
+                                                   {
+                                                       panelbarItem.Add().Text(itemInfo.Name)
+                                                           .LinkHtmlAttributes(new Dictionary<string, object>()
+                                                           {
+                                                           { "ItemType", itemInfo.Id },
+                                                           { "ModelId", Model.ToString() }
+                                                           });
+                                                   }
+                                               }
+                                           });
+                                   })
+                        )
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block">
+                            <div id="pwOne">
+                                @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("")
+                                    .HtmlAttributes(new { @class = "pwWidth100" }))
+                            </div>
+
+                            <div id="pwTwo">
+
+                            </div>
+
+                            <div id="pwThree">
+                                @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                      .Content(Messages.Property_Найти_372__00)
+                                      .ImageUrl("/Content/images/find.png"))
+                            </div>
+                        </div>
+                        <div id="pwSix">
+
+                        </div>
+                        @(Html.Kendo().Grid<LimsEquipmentJournal>()
+                            .Name("gridQEquipmentJournal_" + Model)
+                            .Columns(columns =>
+                            {
+                                columns.Command(command =>
+                                {
+                                    command.Edit().UpdateText(Messages.Property_Сохранить_278__00);
+                                    command.Destroy();
+                                    command.Custom("btnPrint" + Model).Text("Печать").Click("QEquipmentJournalList.printFn");
+                                }).Width(200);
+                                columns.Bound(p => p.JournalTypeName).Title("Наименование журнала").Width(150);
+                                columns.Bound(p => p.Year).Title("Год").Filterable(false).Sortable(false).Width(150);
+                                columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(150);
+                            })
+                            .ToolBar(c => c.Create())
+                            .ColumnMenu(c => c.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .Editable(e => e.Mode(GridEditMode.PopUp))
+                            .Groupable()
+                            .Filterable()
+                            .Sortable()
+                            .Pageable(c => c.Refresh(true))
+                            .Scrollable()
+                            .ClientDetailTemplateId("templateQJournal")
+                            .HtmlAttributes(new { @class = "pwGrid" })
+                            .DataSource(dataSource => dataSource.Ajax().Model(model => { model.Id(p => p.Id); })
+                                .PageSize(20)
+                                .Read(read => read.Action("ReadJournalViewList", "EquipmentJournal", new { journalTypeCode = ViewBag.JournalTypeCode }))
+                                .Update(update => update.Action("UpdateEquipmentJournal", "EquipmentJournal").Data("QEquipmentJournalList.additionalData"))
+                                .Destroy(destroy => destroy.Action("DestroyEquipmentJournal", "EquipmentJournal"))
+                                .Create(create => create.Action("CreateEquipmentJournal", "EquipmentJournal").Data("QEquipmentJournalList.additionalData"))
+                                .Events(c =>
+                                {
+                                    c.Sync("QEquipmentJournalList.sync");
+                                })
+                            )
+                            .Events(c =>
+                            {
+                                c.DetailExpand("QEquipmentJournalList.detailExpand");
+                                c.DetailCollapse("QEquipmentJournalList.detailCollapse");
+                                c.Edit("QEquipmentJournalList.onEditHandler");
+                            })
+                            .Resizable(s => s.Columns(true))
+                        )
+                    </div>
+                );
+            }))
+<script id="templateQJournal" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<LimsEquipmentJournalRecordView>()
+          .Name("gridQEqRecord_#=Id#") // template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Command(command =>
+              {
+                  command.Edit().UpdateText(Messages.Property_Сохранить_278__00);
+                  command.Destroy();
+              }).Width(200);
+              columns.Bound(o => o.EquipmentName).Title("Наименование оборудования").Width(120);
+              columns.Bound(o => o.EquipmentModelName).Title("Модель").Width(120);
+              columns.Bound(o => o.EquipmentProducerName).Title("Производитель").Width(120);
+              columns.Bound(o => o.EquipmentYearInstallation).Title("Срок инсталяции").Width(120);
+              columns.Bound(o => o.ActionDate).Format("{0:dd.MM.yyyy}").Title(ViewBag.Header1).Width(120);
+              columns.Bound(o => o.NextActionDate).Format("{0:dd.MM.yyyy}").Title(ViewBag.Header2).Width(120);
+              columns.Bound(o => o.ActionInfo).Title(ViewBag.Header3).Width(120);
+              columns.Bound(o => o.ActionResult).Title(ViewBag.Header4).Width(120);
+              columns.Bound(o => o.Note).Title("Примечание").Width(120);
+              columns.Bound(o => o.ExecutorName).Title("Ф.И.О. исполнителя").Width(120);
+          })
+          .ToolBar(config =>
+          {
+              config.Create();
+          })
+          .HtmlAttributes(new { @class = "pwGrid" })
+          .DataSource(dataSource => dataSource
+              .Ajax().Model(model =>
+              {
+                  model.Id(p => p.Id);
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadJournalRecordList", "EquipmentJournal", new { eqipmentJournalId = "#=Id#" }))
+              .Update(update => update.Action("UpdateEquipmentJournalRecord", "EquipmentJournal"))
+              .Destroy(destroy => destroy.Action("DestroyEquipmentJournalRecord", "EquipmentJournal"))
+              .Create(create => create.Action("CreateEquipmentJournalRecord", "EquipmentJournal"))
+              .Events(c =>
+              {
+                  c.Sync("QEquipmentJournalList.sync");
+              })
+          )
+          .Sortable()
+          .Editable(c => c.Mode(GridEditMode.PopUp))
+          .Resizable(s => s.Columns(true))
+          .Pageable(p => p.Refresh(true))
+          .Events(c =>
+          {
+              c.Edit("QEquipmentJournalList.onChildEditHandler");
+          })
+          .ToClientTemplate())
+</script>
+
+<script>
+    (function() {
+        resizeGrid3('@("#gridQEquipmentJournal_" + Model)', 165);
+
+        $('@("#reload" + Model)').click(function (e) {
+            var grid = $('@("#gridQEquipmentJournal_" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        });
+
+    })();
+</script>
+
+

@@ -1,0 +1,604 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.0" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <ncels Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>ncels</Alias>
+        <ConnectionString>User ID=sa;Data Source=BEEUSERPC\MSSQLSERVER2016;Initial Catalog=ncels;Integrated Security=False;Password=014274228</ConnectionString>
+        <Name>ncels</Name>
+        <PromptUserNameAndPassword>False</PromptUserNameAndPassword>
+      </ncels>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <MonitoringRows Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>MonitoringRows</Alias>
+        <Columns isList="true" count="8">
+          <value>Login,System.String</value>
+          <value>StageName,System.String</value>
+          <value>ExpIsNotComplete,System.Int32</value>
+          <value>ExpIsComplete,System.Int32</value>
+          <value>ContractIsNotComplete,System.Int32</value>
+          <value>ContractIsComplete,System.Int32</value>
+          <value>VisitIsNotComplete,System.Int32</value>
+          <value>VisitIsComplete,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>MonitoringRows</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand>select
+	Login,
+	StageName,
+	ExpIsNotComplete,
+	ExpIsComplete,
+	ContractIsNotComplete,
+	ContractIsComplete,
+	VisitIsNotComplete,
+	VisitIsComplete
+	from
+(select
+	e.Login,
+	dic_stage.Code,
+	dic_stage.NameRu as StageName,
+	sum(case when stage.StatusId = 4 then 0 else 1 end) as ExpIsNotComplete,
+		sum(case when stage.StatusId = 4 then 1 else 0 end) as ExpIsComplete,
+		null as ContractIsNotComplete,
+		null as ContractIsComplete,
+		null as VisitIsNotComplete,
+		null as VisitIsComplete
+	from 
+		EXP_DrugDeclaration as dd
+		inner join EXP_ExpertiseStage as stage on stage.DeclarationId=dd.Id
+		left join EXP_ExpertiseStageExecutors as ese on ese.ExpertiseStageId = stage.Id
+		left join Employees as e on ese.ExecutorId = e.Id
+		left join EXP_DIC_Stage as dic_stage on stage.StageId = dic_stage.Id
+		left join Units as u on e.PositionId=u.Id
+	where
+		dd.IsDeleted = 0
+		and stage.IsHistory = 0
+		and e.Login is not null
+	group by
+		e.Login,
+		dic_stage.Code,
+		dic_stage.NameRu
+
+	union
+
+select 
+	Login,
+	'90' as Code,
+	'ЦОЗ(Договоры)' StageName,
+		null as ExpIsNotComplete,
+		null as ExpIsComplete,
+		sum(ContractIsNotComplete) as ContractIsNotComplete,
+		sum(ContractIsComplete) as ContractIsComplete,
+		null as VisitIsNotComplete,
+		null as VisitIsComplete
+	from
+(select
+	case when d.Code = 3 then signer_e.Login else e.Login end as Login,
+			case when d.Code &lt;&gt; 5 and d.Code &lt;&gt; 6 then 1 else 0 end as ContractIsNotComplete,
+			case when d.Code = 5 then 1 else 0 end as ContractIsComplete
+		from 
+			Contracts as c
+			LEFT JOIN Documents AS doc ON doc.Id = c.Id
+			LEFT JOIN Employees as e ON doc.ExecutorsId=e.Id
+			LEFT JOIN Employees as signer_e ON c.SignerId=signer_e.Id
+			LEFT JOIN Dictionaries as d ON c.StatusId=d.Id
+		where
+			doc.ExecutorsId is not null 
+			and (d.Code &lt;&gt; 3 or (d.Code = 3 and signer_e.Login is not null))
+			and c.StatusId is not null
+			and c.ContractId is null
+		) as t1
+	group by
+		Login
+
+	union 
+
+select 
+	e.Login,
+	'9' as Code,
+	'ОНЛАЙН' StageName,
+		null as ExpIsNotComplete,
+		null as ExpIsComplete,
+		null as ContractIsNotComplete,
+		null as ContractIsComplete,
+		count(*) as VisitIsNotComplete,
+		sum(case when v.VisitStatusId = 4 then 1 else 0 end) as VisitIsComplete
+	from 
+		Visits as v
+		left join Employees as e on v.EmployeeId=e.Id
+	group by
+		e.Login) as t
+
+order by Login, Code</SqlCommand>
+      </MonitoringRows>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="2">
+      <value>,PriceProjectId1,PriceProjectId1,System.Guid,,False,False</value>
+      <value>,PriceProjectId2,PriceProjectId2,System.Guid,,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="4" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <Text3 Ref="5" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>28,9.8,2,1.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,9.75,Bold</Font>
+          <Guid>f3ac1bf73a5147df8fc8428968ccb4fe</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text3</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>всего</Text>
+          <TextBrush>Black</TextBrush>
+          <VertAlignment>Center</VertAlignment>
+        </Text3>
+        <HeaderBand1 Ref="6" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,23.4,3</ClientRectangle>
+          <Components isList="true" count="13">
+            <Text2 Ref="7" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,23.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>56a95bf8697c485588d0ac8d78421d76</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Мониторинг наполнения экспертизы</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text4 Ref="8" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.4,1.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>8df97340baa94bc19e749c7ada944df2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>№ п/п
+</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text5 Ref="9" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,1.4,4.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>c4b5c962f23f4789a3ba21b0a194ad55</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Логин</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text6 Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>7eb95b6d4d4b4d46b769f6894fa41a36</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>В работе</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.4,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>fa1ccbf94c6243438a98faf4c369dff0</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Выполнено</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text16 Ref="12" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.8,1.4,4.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>ffc3554ec01a4d50a0f691751a005950</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Этап</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,1.4,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>1d092be09f534a44b2f764883b1f086a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Заявление</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+            <Text8 Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.6,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>142dcb7f08ad4437809b450a0a80bc4e</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>В работе</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text18 Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.8,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>f5f7cfee6f4145e58ea06d8702ac01ba</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Активный</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text18>
+            <Text19 Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>51bac707cb1848bea4a69ddae9649329</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Всего</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text20 Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>21.2,2.2,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>05f2cd531d0d4e64a2fdb4c547122234</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Проведено</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+            <Text21 Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.6,1.4,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>568af5c429e94a6394dd74f7a33da3fc</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Договора</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text22 Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19,1.4,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold</Font>
+              <Guid>968da5bfb6d54980b8ef49e6501322a4</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="4" />
+              <Parent isRef="6" />
+              <Text>Онлайн запись</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand1>
+        <DataBand2 Ref="20" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,4.2,23.4,0.8</ClientRectangle>
+          <Components isList="true" count="9">
+            <Text1 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>28fec93b9a3948d1bd0e3135728015e3</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text9 Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>3b5c7d64d6474788a651aa4c06233eb0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.Login}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.8,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>9ee007cd563f4283aa75ce1541640e16</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.StageName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text11 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>af3cf669237348508c22b24e569af0c1</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.ExpIsNotComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text12 Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>b2c42fb9b5e3469fb380e17043b8adcd</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.ExpIsComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+            <Text13 Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.6,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>f706e67679fd4947b304464eef4ae7f3</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.ContractIsNotComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+            <Text14 Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.8,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>86d922e3e6e14456a39a168c88bd97c5</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.ContractIsComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text15 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>4857e65b128e439d94e896f6d87a7f39</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.VisitIsNotComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text23 Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>21.2,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75</Font>
+              <Guid>8b022fba25fe4d4aba085cea8ac070c4</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="4" />
+              <Parent isRef="20" />
+              <Text>{MonitoringRows.VisitIsComplete}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text23>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>MonitoringRows</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>9a460f32db434adb94523e285be3c4de</Guid>
+          <Name>DataBand2</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>88bb0e307b0b45b8aeba5461953aeb63</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>10</PageHeight>
+      <PageWidth>25.4</PageWidth>
+      <Report isRef="0" />
+      <UnlimitedBreakable>False</UnlimitedBreakable>
+      <UnlimitedHeight>True</UnlimitedHeight>
+      <Watermark Ref="30" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="31" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>5/22/2017 2:22:28 PM</ReportChanged>
+  <ReportCreated>2/18/2017 10:06:24 PM</ReportCreated>
+  <ReportFile>D:\Projects\ncels\PW.Prism\Reports\List\MonitoringExp.mrt</ReportFile>
+  <ReportGuid>55fb576b5cb644c78d0f59d813a9c36a</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2010.1.700</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

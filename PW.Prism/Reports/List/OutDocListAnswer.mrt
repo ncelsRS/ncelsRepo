@@ -1,0 +1,829 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism</Alias>
+        <ConnectionStringEncrypted>+XRpSUhZ2YXiR+XJYiXjL5la+wLJV0vt+Um53GpJbgrKWPvrTVkx7XJr/exhcKxj0XDRK8hNe93hS9n4bwSgG9VagetFVtOkaE0l</ConnectionStringEncrypted>
+        <Name>prism</Name>
+      </prism>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <Documents Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Documents</Alias>
+        <Columns isList="true" count="36">
+          <value>DocumentId,System.Guid</value>
+          <value>IsAttachments,System.Boolean</value>
+          <value>Number,System.String</value>
+          <value>SortNumber,System.Int32</value>
+          <value>DocumentDate,System.DateTime</value>
+          <value>StateType,System.String</value>
+          <value>MonitoringType,System.String</value>
+          <value>ExecutionDate,System.DateTime</value>
+          <value>MonitoringNote,System.String</value>
+          <value>CorrespondentsValue,System.String</value>
+          <value>CorrespondentsInfo,System.String</value>
+          <value>OutgoingNumber,System.String</value>
+          <value>AutoOutgoingDate,System.DateTime</value>
+          <value>Summary,System.String</value>
+          <value>ResponsibleValue,System.String</value>
+          <value>ExecutorsValue,System.String</value>
+          <value>AnswersValue,System.String</value>
+          <value>LanguageDictionaryValue,System.String</value>
+          <value>QuestionDesignDictionaryValue,System.String</value>
+          <value>DocumentKindDictionaryValue,System.String</value>
+          <value>Counters,System.String</value>
+          <value>FormDeliveryDictionaryValue,System.String</value>
+          <value>NomenclatureDictionaryValue,System.String</value>
+          <value>CompleteDocumentsValue,System.String</value>
+          <value>RegistratorValue,System.String</value>
+          <value>Note,System.String</value>
+          <value>Year,System.Int32</value>
+          <value>Month,System.Int32</value>
+          <value>Day,System.Int32</value>
+          <value>CreatedUserValue,System.String</value>
+          <value>CopiesCount,System.Int32</value>
+          <value>PageCount,System.Int32</value>
+          <value>DepartmentParent,System.String</value>
+          <value>Name,System.String</value>
+          <value>Id,System.Guid</value>
+          <value>DisplayName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Documents</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+          <value>_x0040_OrganizationId,OrganizationId,12,500</value>
+        </Parameters>
+        <SqlCommand>select DocumentId = columns.Id,
+	columns.IsAttachments,
+	columns.Number,
+	columns.SortNumber,
+	columns.DocumentDate,
+	enStatus.Value as StateType,
+	enMonitoring.Value as MonitoringType,
+	columns.ExecutionDate,
+	columns.MonitoringNote,
+	columns.CorrespondentsValue,
+	columns.CorrespondentsInfo,
+	columns.OutgoingNumber,
+	columns.AutoOutgoingDate,
+	columns.Summary,
+	columns.ResponsibleValue,
+	columns.ExecutorsValue,
+	columns.AnswersValue,
+	columns.LanguageDictionaryValue,
+	columns.QuestionDesignDictionaryValue,
+	columns.DocumentKindDictionaryValue,
+	columns.Counters,
+	columns.FormDeliveryDictionaryValue,
+	columns.NomenclatureDictionaryValue,
+	columns.CompleteDocumentsValue,
+	columns.RegistratorValue,
+	columns.CreatedUserValue,
+	columns.Note,
+    columns.CopiesCount,
+	columns.PageCount,
+	columns.Year,
+	columns.Id,
+	columns.DisplayName,
+	columns.Month,
+	(case when depParent.Name is not null then depParent.Name else dep.Name end) as DepartmentParent,
+	dep.Name,
+	columns.Day from Documents as columns 
+	left join (select * from PrismEnums as e where e.Type ='StateTypeDocument') as enStatus on  enStatus.[Key] = columns.StateType
+	left join (select * from PrismEnums as e where e.Type ='MonitoringType') as enMonitoring on  enMonitoring.[Key] = columns.MonitoringType
+	left join (select * from  LinkUnits as unis where unis.PropertyName='OwnerId') as lin on lin.OwnerId = columns.Id 
+  	left join Employees as e on e.Id = lin.EmployeeId 
+  	left join Units as dep on dep.Id = lin.Department1Id
+ 	left join Units as depParent on depParent.Id = lin.Department2Id and lin.Department2Id is not null
+where columns.IsDeleted = 0 and columns.StateType &gt; 0 and columns.OutgoingType in (1,2) and columns.DocumentType = 1 and AutoDocumentDate between @dateStart and @dateEnd and columns.OrganizationId = @organizationId 
+order by SortNumber desc
+</SqlCommand>
+      </Documents>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="3">
+      <value>,OrganizationId,OrganizationId,System.String,_x0038_F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE,False,False</value>
+      <value>,DateStart,DateStart,System.DateTime,_x0035__x002F_24_x002F_2014_x0020_9:27:13_x0020_AM,False,False</value>
+      <value>,DateEnd,DateEnd,System.DateTime,_x0036__x002F_24_x002F_2014_x0020_9:27:37_x0020_AM,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="4" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="4">
+        <ReportTitleBand1 Ref="5" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,83.1,2</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text7 Ref="6" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,22.6,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,16,Bold</Font>
+              <Guid>fefc23a3c1154a48832538f9230e08b2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="4" />
+              <Parent isRef="5" />
+              <Text>Все ответные исходящие документы </Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="7" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>acdb28ffbe20478d87f6a35d1431d303</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="4" />
+              <Parent isRef="5" />
+              <Text>Параметры: Период: {DateStart.ToString("dd.MM.yyyy")} - {DateEnd.ToString("dd.MM.yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text9 Ref="8" type="Text" isKey="true">
+              <Border>All;Black;1;None;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22.6,0,5,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <Guid>5d257f634d7f448794495108c03b5cf0</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="4" />
+              <Parent isRef="5" />
+              <Text>{Time}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>SystemVariables</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>ReportTitleBand1</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+        </ReportTitleBand1>
+        <HeaderDocuments Ref="9" type="HeaderBand" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3.2,83.1,2.4</ClientRectangle>
+          <Components isList="true" count="16">
+            <HeaderDocuments_Number Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,3.6,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Number</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Номер</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Number>
+            <HeaderDocuments_DocumentDate Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.6,0,3.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_DocumentDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Дата документа</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_DocumentDate>
+            <HeaderDocuments_StateType Ref="12" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,0,3.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_StateType</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Статус</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_StateType>
+            <HeaderDocuments_CorrespondentsValue Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.4,0,7,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_CorrespondentsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Организация</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_CorrespondentsValue>
+            <HeaderDocuments_Summary Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.4,0,10.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Summary</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Краткое содержание</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Summary>
+            <HeaderDocuments_ExecutorsValue Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>43.6,0,5,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_ExecutorsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Исполнитель</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_ExecutorsValue>
+            <HeaderDocuments_AnswersValue Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>48.6,0,2.2,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_AnswersValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Отправлен в ответ на</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_AnswersValue>
+            <HeaderDocuments_LanguageDictionaryValue Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>50.8,0,2.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_LanguageDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Язык документа</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_LanguageDictionaryValue>
+            <HeaderDocuments_QuestionDesignDictionaryValue Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>53.2,0,2.2,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_QuestionDesignDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Характер вопроса</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_QuestionDesignDictionaryValue>
+            <HeaderDocuments_DocumentKindDictionaryValue Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>55.4,0,2.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_DocumentKindDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Вид документа</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_DocumentKindDictionaryValue>
+            <HeaderDocuments_Counters Ref="20" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>57.8,0,2.2,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Counters</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Л/П</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Counters>
+            <HeaderDocuments_FormDeliveryDictionaryValue Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>60,0,2.4,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_FormDeliveryDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Вид доставки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_FormDeliveryDictionaryValue>
+            <HeaderDocuments_NomenclatureDictionaryValue Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>62.4,0,11.8,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_NomenclatureDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Номенклатурное дело</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_NomenclatureDictionaryValue>
+            <HeaderDocuments_RegistratorValue Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>74.2,0,8.8,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_RegistratorValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Регистратор</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_RegistratorValue>
+            <Text3 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>27.8,0,8,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <Guid>863f30b4027e476f9e203b1010cbe853</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Департамент</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text5 Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>35.8,0,7.8,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <Guid>c00225722370481b9dafec1a8f02c1f7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="4" />
+              <Parent isRef="9" />
+              <Text>Отдел</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderDocuments</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderDocuments>
+        <DataDocuments Ref="26" type="DataBand" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <CanGrow>False</CanGrow>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0,6.4,83.1,0.8</ClientRectangle>
+          <Components isList="true" count="16">
+            <DataDocuments_Number Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,3.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:tagAnswerClick('" +Documents.Id + "','" + Documents.DisplayName + "');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_Number</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.Number}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_Number>
+            <DataDocuments_DocumentDate Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.6,0,3.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_DocumentDate</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.DocumentDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="29" type="DateFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_DocumentDate>
+            <DataDocuments_StateType Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,0,3.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_StateType</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.StateType}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_StateType>
+            <DataDocuments_CorrespondentsValue Ref="31" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.4,0,7,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_CorrespondentsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.CorrespondentsValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_CorrespondentsValue>
+            <DataDocuments_Summary Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.4,0,10.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_Summary</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.Summary}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_Summary>
+            <DataDocuments_ExecutorsValue Ref="33" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>43.6,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_ExecutorsValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.CreatedUserValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_ExecutorsValue>
+            <DataDocuments_AnswersValue Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>48.6,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_AnswersValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.AnswersValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_AnswersValue>
+            <DataDocuments_LanguageDictionaryValue Ref="35" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>50.8,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_LanguageDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.LanguageDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_LanguageDictionaryValue>
+            <DataDocuments_QuestionDesignDictionaryValue Ref="36" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>53.2,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_QuestionDesignDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.QuestionDesignDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_QuestionDesignDictionaryValue>
+            <DataDocuments_DocumentKindDictionaryValue Ref="37" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>55.4,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_DocumentKindDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.DocumentKindDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_DocumentKindDictionaryValue>
+            <DataDocuments_Counters Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>57.8,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_Counters</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{"л. " +Documents.PageCount + ", прил. " + Documents.CopiesCount + " "+  Documents.Counters}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_Counters>
+            <DataDocuments_FormDeliveryDictionaryValue Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>60,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_FormDeliveryDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.FormDeliveryDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_FormDeliveryDictionaryValue>
+            <DataDocuments_RegistratorValue Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>74.2,0,8.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_RegistratorValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.RegistratorValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_RegistratorValue>
+            <DataDocuments_NomenclatureDictionaryValue Ref="41" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>62.4,0,11.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataDocuments_NomenclatureDictionaryValue</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.NomenclatureDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </DataDocuments_NomenclatureDictionaryValue>
+            <Text4 Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>27.8,0,8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>9af49275ab0f4324b75eab1ada02bd29</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.DepartmentParent}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text6 Ref="43" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>35.8,0,7.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>fc9a4ba8215845b3a4657dbbe5e584fe</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="4" />
+              <Parent isRef="26" />
+              <Text>{Documents.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Documents</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataDocuments</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Sort isList="true" count="0" />
+        </DataDocuments>
+        <FooterBand1 Ref="44" type="FooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8,83.1,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text2 Ref="45" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.6,0,3.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8,Bold</Font>
+              <Guid>53a07201d1064922a39557ec8df8ed3d</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="4" />
+              <Parent isRef="44" />
+              <Text>{Count()}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text1 Ref="46" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,3.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8,Bold</Font>
+              <Guid>3d80977069a8494cb1c18449cd54b81a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="4" />
+              <Parent isRef="44" />
+              <Text>Итого:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>FooterBand1</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+        </FooterBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>e7beb346e7e04daf9f86c90ffbe36971</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <Report isRef="0" />
+      <SegmentPerWidth>3</SegmentPerWidth>
+      <Watermark Ref="47" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="48" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>3/4/2016 1:32:26 PM</ReportChanged>
+  <ReportCreated>4/14/2014 10:21:23 AM</ReportCreated>
+  <ReportFile>C:\Users\morozilnik\OneDrive\Git\Assistent\src\PW.Prism\PW.Prism\Reports\List\OutDocListAnswer.mrt</ReportFile>
+  <ReportGuid>fff106843ce24be5a8def8f2c426ebe2</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

@@ -1,0 +1,668 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@{
+    Layout = "../Shared/_Layout.cshtml";
+    var isSing = "";
+}
+@Html.Partial("~/Views/Home/SignView.cshtml")
+
+@if (Model != null && Model.StatusId == 2)
+{
+    isSing = "false";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Создать заявление на проведение экспертизы лекарственного средства</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявление</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5 id="drugTitle">
+                        Заявление
+                    </h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group" style="width: 100%">
+                        <button class="btn btn-info btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="location.href='@Url.Action("RegisterDrugList", "DrugDeclaration")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button type="button" class="btn btn-default btn-sm" id="HideInform" value="show">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true" id="HideInformCheck"></span> <span id="HideInformText">Скрыть примечание</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="button" security bp-type="project" bp-action="edit" id="checkBtn"><i class="fa fa-check"></i> Проверить</button>
+                        <button class="btn btn-default btn-sm" type="button" security bp-type="project" bp-action="edit" id="viewBtn" @*onclick="location.href = '@Url.Action("ExportFilePdf", new { id = Model.Id })'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <div style="float: right">
+                            <button class="btn btn-success btn-sm" type="button" security bp-type="project" style="background-color: #47a447" bp-action="edit" id="signBtn"><i class="fa fa-send"></i> Подписать и отправить</button>
+                            <button class="btn btn-warning btn-sm" type="button" security bp-type="project" bp-action="edit" id="notSignBtn"><i class="fa fa-send-o"></i> Отправить без подписи</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="drugDeclarationDiv">
+                    @Html.Partial("~/Views/DrugDeclaration/DeclarationView.cshtml", @Model)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/custom/common.js"></script>
+<script src="~/Scripts/js/custom/spin.js"></script>
+<script type="text/javascript">
+    function doSign() {
+        $.blockUI({
+            message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
+            css: { opacity: 1 }
+        });
+        signXmlCall(function () {
+            var model = { preambleId: $("#modelId").val(), xmlAuditForm: $("#Certificate").val() };
+            $.ajax({
+                url: '/DrugDeclaration/SignForm',
+                type: "POST",
+                dataType: 'json',
+                contentType: "application/json",
+                async: false,
+                data: JSON.stringify(model),
+                success: function (data) {
+
+                    if (data.success) {
+                        window.location.href = '@Url.Action("RegisterDrugList", "DrugDeclaration")';
+
+                        /*   $("#signBtn").attr('disabled', 'disabled');
+                           $("#notSignBtn").attr('disabled', 'disabled');
+                           $("#checkBtn").attr('disabled', 'disabled');
+                           setReadOnlyControl();*/
+                    }
+                        //                    window.location = data.url;
+                    else {
+                        $("#formCertValidation").show();
+                    }
+                    $.unblockUI();
+                    //                window.location.reload();
+                },
+                error: function (data) {
+                    $.unblockUI();
+                }
+            });
+        },
+            $("#hfXmlToSign").val());
+    }
+
+    $(document).ready(function () {
+
+        var modelId = $("#modelId").val();
+        //   if (modelId === null || modelId.length === 0) {
+        //       $("#drugAttachBtn").addClass('disabled');
+        //   }
+
+        if ('@isSing' != "") {
+            $("#signBtn").attr('disabled', 'disabled');
+            $("#notSignBtn").attr('disabled', 'disabled');
+            $("#checkBtn").attr('disabled', 'disabled');
+        }
+
+        $("#checkBtn").click(function () {
+            window.Showbusy(event);
+            var modelId = $("#modelId").val();
+            var url = window.location.href;
+            if (url.indexOf('Create') > -1) {
+                url = url.replace('Create', 'Edit') + '/' + modelId;;
+            }
+            url = url.replace("#", "");
+            window.location.href = url;
+
+
+        });
+        $("#viewBtn").click(function () {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportFileTemplate", new { id = Model.Id })',
+                dataType: 'html',
+                cache: false,
+                success: function (data) {
+                    showReport(data);
+                },
+                error: function (data) {
+                    alert("Ошибка");
+                }
+            });
+        });
+        $("#signBtn").click(function () {
+            var typeKindValid = checkValidDrugTypeKind();
+            if (!typeKindValid) {
+                return;
+            }
+            if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var id = $("#modelId").val();
+            startSign('/DrugDeclaration/SignOperation', id);
+        });
+        $("#notSignBtn").click(function () {
+            var typeKindValid = checkValidDrugTypeKind();
+            if (!typeKindValid) {
+                return;
+            }
+            if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var success = function () {
+                var modelId = $("#modelId").val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SendNotSign")',
+                    data: { 'modelId': modelId },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        window.location.href = '@Url.Action("RegisterDrugList", "DrugDeclaration")';
+                        /*  $("#signBtn").attr('disabled', 'disabled');
+                          $("#notSignBtn").attr('disabled', 'disabled');
+                          $("#checkBtn").attr('disabled', 'disabled');
+                          setReadOnlyControl();*/
+
+
+                    },
+                    error: function () {
+                        alert("Connection Failed. Please Try Again");
+                    }
+                });
+
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Подтверждение", "Вы уверены что хотите отправить без подписи?", success, cancel);
+        });
+
+
+        //        showInformIcon(false);
+    });
+</script>
+
+<!--Валидация-->
+<script type="text/javascript">
+
+    function checkDeclaraionValidation() {
+        if ($('#IsConvention').attr('disabled')) {
+            return true;
+        }
+        var validAttach = checkAttachFile1();
+        var validDeclaration = checkDeclaration();
+        if (!validDeclaration) {
+            $("#drugDeclarationBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#drugDeclarationBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        var valid = validDeclaration && validAttach;
+        return valid;
+    }
+
+
+    function checkValueFromIsNull(value) {
+        if (value == null || value.length === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    function setMarkValidation(control, value) {
+        if (checkValueFromIsNull(value)) {
+            $(control).addClass("pw-select-invalid");
+            return false;
+        }
+        if ($(control).hasClass("pw-select-invalid")) {
+            $(control).removeClass("pw-select-invalid");
+        }
+        return true;
+    }
+
+    function checkDeclaration() {
+        var validFile = true;
+        validFile = checkWrapping();
+       // validFile = checkSubstance(validFile);
+      //  validFile = checkMainPageDosage(validFile);
+        validFile = checkMainDeclaration(validFile);
+        validFile = checkAdvancedDeclaration(validFile);
+        return validFile;
+    }
+    function checkAdvancedDeclaration(commonValid) {
+
+        var validFile = checkValidField("Transportation", true);
+        validFile = checkValidField("StorageConditions1", validFile);
+        validFile = checkValidField("ManufactureTypeId", validFile);
+
+        if (!validFile) {
+            $("#advancedDrugPage").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#advancedDrugPage").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile && commonValid;
+    }
+    function checkMainDeclaration(commonValid) {
+        var validFile = true;
+        var typeId = parseInt($("#TypeId").val(), 10) || 0;
+
+        $('.reestr-number-control').each(function () {
+            if ($(this).attr("Id").indexOf("s2id_") < 0) {
+                if (typeId > 1) {
+                    if (checkValueFromIsNull($(this).val())) {
+                        if ($(this).attr("Id") === "RegisterId_0") {
+                            if ($("#inputReestrDiv").is(":visible")) {
+                                $($("#s2id_" + $(this).attr("Id"))).find('a').eq(0)
+                                    .css({ 'background': 'rgb(251, 227, 228)' });
+                                validFile = false;
+                            } else {
+                                $($("#s2id_" + $(this).attr("Id"))).find('a').eq(0).css({ 'background': '#ffffff' });
+                            }
+                        } else {
+                            $($("#s2id_" + $(this).attr("Id"))).find('a').eq(0).css({ 'background': 'rgb(251, 227, 228)' });
+                            validFile = false;
+                        }
+
+                    } else {
+                        $($("#s2id_" + $(this).attr("Id"))).find('a').eq(0).css({ 'background': '#ffffff' });
+                    }
+                } else {
+                    $($("#s2id_" + $(this).attr("Id"))).find('a').eq(0).css({ 'background': '#ffffff' });
+                }
+            }
+        });
+
+
+
+        $('.change-number').each(function () {
+            if (typeId === 3 && $("#changeTypeDiv").is(":visible")) {
+                if (checkValueFromIsNull($(this).val())) {
+                    $($(this)).css({ 'background': 'rgb(251, 227, 228)' });
+                    validFile = false;
+                } else {
+                    $($(this)).css({ 'background': '#ffffff' });
+                }
+            } else {
+                $($(this)).css({ 'background': '#ffffff' });
+            }
+        });
+        validFile = checkValidField("AccelerationTypeId", validFile);
+        validFile = checkValidField("ContractId", validFile);
+        validFile = checkValidField("NameKz", validFile);
+        validFile = checkValidField("NameRu", validFile);
+        validFile = checkValidField("NameEn", validFile);
+        validFile = checkValidField("atc_ru", validFile);
+        validFile = checkValidField("atc_kz", validFile);
+        $('.drug-type').each(function () {
+            if (checkValueFromIsNull($(this).val())) {
+                $($(this)).css({ 'background': 'rgb(251, 227, 228)' });
+                validFile = false;
+            } else {
+                $($(this)).css({ 'background': '#ffffff' });
+            }
+        });
+
+        $('.dgug-type-kind').each(function () {
+            if (checkValueFromIsNull($(this).val())) {
+                $($(this)).css({ 'background': 'rgb(251, 227, 228)' });
+                validFile = false;
+            } else {
+                $($(this)).css({ 'background': '#ffffff' });
+            }
+        });
+        var methodUseIdcontrol = $("#MethodUseIds_chosen").find('ul').eq(0);
+        if (checkValueFromIsNull($("#MethodUseIds").val())) {
+            $(methodUseIdcontrol).css({ 'background': 'rgb(251, 227, 228)' });
+            validFile = false;
+        } else {
+            $(methodUseIdcontrol).css({ 'background': '#ffffff' });
+        }
+
+        var mnncontrol = $("#s2id_MnnId").find('a').eq(0);
+
+        if (checkValueFromIsNull($("#MnnId").val()) && checkValueFromIsNull($("#MnnComment").val())) {
+            $(mnncontrol).css({ 'background': 'rgb(251, 227, 228)' });
+            validFile = false;
+        } else {
+            $(mnncontrol).css({ 'background': '#ffffff' });
+        }
+
+        var drugFormcontrol = $("#s2id_DrugFormId").find('a').eq(0);
+
+        if (checkValueFromIsNull($("#DrugFormId").val())) {
+            $(drugFormcontrol).css({ 'background': 'rgb(251, 227, 228)' });
+            validFile = false;
+        } else {
+            $(drugFormcontrol).css({ 'background': '#ffffff' });
+        }
+
+        if (!validFile) {
+            $("#declMainPage").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#declMainPage").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile && commonValid;
+    }
+
+    function checkValidField(idcontrol, validFile) {
+
+        if (checkValueFromIsNull($("#" + idcontrol).val())) {
+            $($("#" + idcontrol)).css({ 'background': 'rgb(251, 227, 228)' });
+            validFile = false;
+        } else {
+            $($("#" + idcontrol)).css({ 'background': '#ffffff' });
+        }
+        return validFile;
+    }
+    function checkMainPageDosage(commonValid) {
+        var validFile = true;
+        var tab = null;
+
+        $('.group-main-dosage').each(function () {
+            var rowId = parseInt($(this).attr("rowid"), 10) || 0;
+            if (rowId > 0) {
+                if (tab == null) {
+                    tab = "#" + $(this).parent().attr("Id") + "Label";
+                }
+
+                var valume = $(this).find('[Id*="BestBefore"]').eq(0);
+                var appPeriodOpen = $(this).find('[Id*="AppPeriodOpen"]').eq(0);
+                var appPeriodMix = $(this).find('[Id*="AppPeriodMix"]').eq(0);
+
+                var bestBeforeMeasureTypeDicId = $(this).find('[Id*="BestBeforeMeasureTypeDicId"]').eq(0);
+                var appPeriodOpenMeasureDicId = $(this).find('[Id*="AppPeriodOpenMeasureDicId"]').eq(0);
+                var appPeriodMixMeasureDicId = $(this).find('[Id*="AppPeriodMixMeasureDicId"]').eq(0);
+
+                validFile = checkValidField($(valume).attr("Id"), validFile);
+                validFile = checkValidField($(appPeriodMixMeasureDicId).attr("Id"), validFile);
+                validFile = checkValidField($(bestBeforeMeasureTypeDicId).attr("Id"), validFile);
+                validFile = checkValidField($(appPeriodOpenMeasureDicId).attr("Id"), validFile);
+                validFile = checkValidField($(appPeriodOpen).attr("Id"), validFile);
+                validFile = checkValidField($(appPeriodMix).attr("Id"), validFile);
+            }
+
+        });
+        if (tab != null) {
+            if (!validFile) {
+                $(tab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+            } else {
+                $(tab).css({ 'color': '#555', 'background-color': '#ffffff' });
+            }
+        }
+        return commonValid && validFile;
+    }
+
+ 
+
+    function checkWrapping() {
+        var validFile = true;
+        var validCommon = true;
+        $('.dosage-group').each(function () {
+            var rowId = parseInt($(this).attr("rowid"), 10) || 0;
+            if (rowId > 0) {
+                validFile = true;
+                var tab = null;
+                $(this).find('.wrapping-row').each(function () {
+                    if (tab == null) {
+                        tab = "#" + $(this).parent().parent().parent().parent().parent().parent().parent().attr("Id") + "Label";
+                    }
+                    var wrappingType = $(this).find('td').eq(1).find('select');
+                    var wrappingKind = $(this).find('td').eq(2).find('select');
+                    var wrappingSize = $(this).find('td').eq(3).find('input');
+                    var sizeMeasure = $(this).find('td').eq(4).find('select');
+                    var wrappingVolume = $(this).find('td').eq(5).find('input');
+                    var volumeMeasure = $(this).find('td').eq(6).find('select');
+                    var countUnit = $(this).find('td').eq(7).find('input');
+
+                    var wrappingTypeValue = $(wrappingType).val();
+                    var wrappingKindValue = $(wrappingKind).val();
+                    //            var wrappingSizeValue = $(wrappingSize).val();
+                    //            var sizeMeasureValue = $(sizeMeasure).val();
+                    //            var wrappingVolumeValue = $(wrappingVolume).val();
+                    //            var volumeMeasureValue = $(volumeMeasure).val();
+                    var countUnitValue = $(countUnit).val();
+
+                    var isNull = checkValueFromIsNull(wrappingTypeValue) &&
+                        checkValueFromIsNull(wrappingKindValue) &&
+                        /*    checkValueFromIsNull(wrappingSizeValue) &&
+                            checkValueFromIsNull(sizeMeasureValue) &&
+                            checkValueFromIsNull(wrappingVolumeValue) &&
+                            checkValueFromIsNull(volumeMeasureValue) &&*/
+                        checkValueFromIsNull(countUnitValue);
+                    if (isNull) {
+                        return;
+                    }
+                    validFile = setMarkValidation(wrappingType, wrappingTypeValue) && validFile;
+                    //            validFile = setMarkValidation(wrappingSize, wrappingSizeValue) && validFile;
+                    //            validFile = setMarkValidation(sizeMeasure, sizeMeasureValue) && validFile;
+
+                    var kindcontrol = $("#" + wrappingKind.attr('id') + "_chosen").find('a').eq(0);
+                    if (checkValueFromIsNull(wrappingKindValue)) {
+                        $(kindcontrol).css({ 'background': 'rgb(251, 227, 228)' });
+                        validFile = false;
+                    } else {
+                        $(kindcontrol).css({ 'background': '#ffffff' });
+                    }
+                    //debugger;
+                    var labelTab = $("#" + $(wrappingType).closest(".tab-pane").attr("id") + "Label");
+                    if (!labelTab.hasClass("error") && !validFile) {
+                        labelTab.addClass("error");
+                        $(labelTab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+                    } else {
+                        $(labelTab).css({ 'color': '#555', 'background-color': '#ffffff' });
+                    }
+                });
+                //validCommon = validCommon && validFile;
+                if (tab != null) {
+                    if (!validFile) {
+                        $(tab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+                    } else {
+                        $(tab).css({ 'color': '#555', 'background-color': '#ffffff' });
+                    }
+                }
+                validCommon = validCommon && validFile;
+
+                /// Substance
+
+                validFile = true;
+                tab = null;
+                $(this).find('.group-subtance').each(function () {
+                    var rowSubstanceId = parseInt($(this).attr("rowid"), 10) || 0;
+                    if (rowSubstanceId > 0) {
+                        if (tab == null) {
+                            tab = "#" + $(this).parent().parent().attr("Id") + "Label";
+                        }
+                        var isNotFound = $(this).find('.is-not-found').eq(0);
+                        if ($(isNotFound).prop('checked')) {
+                            var newNameSubstance = $(this).find('.new-name-substance').eq(0);
+                            if (checkValueFromIsNull($(newNameSubstance).val())) {
+                                $($(newNameSubstance)).css({ 'background': 'rgb(251, 227, 228)' });
+                                validFile = false;
+                            } else {
+                                $($(newNameSubstance)).css({ 'background': '#ffffff' });
+                            }
+                        } else {
+                            var substance = $(this).find('.search-substance').eq(0);
+                            if ($(substance).select2('data') == null) {
+                                $(substance).find('a').eq(0).css({ 'background': 'rgb(251, 227, 228)' });
+                                validFile = false;
+                            } else {
+                                $(substance).find('a').eq(0).css({ 'color': '#555', 'background-color': '#ffffff' });
+                            }
+                        }
+                        var substanceType = $(this).find('select').eq(0);
+
+                        var measure = $(this).find('select').eq(1);
+                        var valume = $(this).find('[Id*="SubstanceCount"]').eq(0);
+                        var normativeDocument = $(this).find('[Id*="NormDocFarmId"]').eq(0);
+                        validFile = checkValidField($(normativeDocument).attr("Id"), validFile);
+                        validFile = checkValidField($(substanceType).attr("Id"), validFile);
+                        validFile = checkValidField($(measure).attr("Id"), validFile);
+                        validFile = checkValidField($(valume).attr("Id"), validFile);
+                    }
+
+                });
+                if (tab != null) {
+                    if (!validFile) {
+                        $(tab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+                    } else {
+                        $(tab).css({ 'color': '#555', 'background-color': '#ffffff' });
+                    }
+                }
+                validCommon = validCommon && validFile;
+
+
+                // dosage
+                validFile = true;
+                tab = null;
+
+                $(this).find('.group-main-dosage').each(function () {
+                    var rowdosageId = parseInt($(this).attr("rowid"), 10) || 0;
+                    if (rowdosageId > 0) {
+                        if (tab == null) {
+                            tab = "#" + $(this).parent().attr("Id") + "Label";
+                        }
+
+                        var valume = $(this).find('[Id*="BestBefore"]').eq(0);
+                        var appPeriodOpen = $(this).find('[Id*="AppPeriodOpen"]').eq(0);
+                        var appPeriodMix = $(this).find('[Id*="AppPeriodMix"]').eq(0);
+
+                        var bestBeforeMeasureTypeDicId = $(this).find('[Id*="BestBeforeMeasureTypeDicId"]').eq(0);
+                        var appPeriodOpenMeasureDicId = $(this).find('[Id*="AppPeriodOpenMeasureDicId"]').eq(0);
+                        var appPeriodMixMeasureDicId = $(this).find('[Id*="AppPeriodMixMeasureDicId"]').eq(0);
+
+                        validFile = checkValidField($(valume).attr("Id"), validFile);
+                        validFile = checkValidField($(appPeriodMixMeasureDicId).attr("Id"), validFile);
+                        validFile = checkValidField($(bestBeforeMeasureTypeDicId).attr("Id"), validFile);
+                        validFile = checkValidField($(appPeriodOpenMeasureDicId).attr("Id"), validFile);
+                        validFile = checkValidField($(appPeriodOpen).attr("Id"), validFile);
+                        validFile = checkValidField($(appPeriodMix).attr("Id"), validFile);
+                    }
+
+                });
+                if (tab != null) {
+                    if (!validFile) {
+                        $(tab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+                    } else {
+                        $(tab).css({ 'color': '#555', 'background-color': '#ffffff' });
+                    }
+                }
+                validCommon = validCommon && validFile;
+            }
+        });
+        if (!validCommon) {
+            $("#wrapLabelPage").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#wrapLabelPage").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validCommon;
+    }
+    function checkSubstance(page, commonValid) {
+            var validFile = true;
+            var tab = null;
+            $(page).find('.group-subtance').each(function () {
+                var rowId = parseInt($(this).attr("rowid"), 10) || 0;
+                if (rowId > 0) {
+                    if (tab == null) {
+                        tab = "#" + $(this).parent().parent().attr("Id") + "Label";
+                    }
+                    var isNotFound = $(this).find('.is-not-found').eq(0);
+                    if ($(isNotFound).prop('checked')) {
+                        var newNameSubstance = $(this).find('.new-name-substance').eq(0);
+                        if (checkValueFromIsNull($(newNameSubstance).val())) {
+                            $($(newNameSubstance)).css({ 'background': 'rgb(251, 227, 228)' });
+                            validFile = false;
+                        } else {
+                            $($(newNameSubstance)).css({ 'background': '#ffffff' });
+                        }
+                    } else {
+                        var substance = $(this).find('.search-substance').eq(0);
+                        if ($(substance).select2('data') == null) {
+                            $(substance).find('a').eq(0).css({ 'background': 'rgb(251, 227, 228)' });
+                            validFile = false;
+                        } else {
+                            $(substance).find('a').eq(0).css({ 'color': '#555', 'background-color': '#ffffff' });
+                        }
+                    }
+                    var substanceType = $(this).find('select').eq(0);
+
+                    var measure = $(this).find('select').eq(1);
+                    var valume = $(this).find('[Id*="SubstanceCount"]').eq(0);
+                    var normativeDocument = $(this).find('[Id*="NormativeDocument"]').eq(0);
+                    validFile = checkValidField($(normativeDocument).attr("Id"), validFile);
+                    validFile = checkValidField($(substanceType).attr("Id"), validFile);
+                    validFile = checkValidField($(measure).attr("Id"), validFile);
+                    validFile = checkValidField($(valume).attr("Id"), validFile);
+                }
+
+            });
+            if (tab != null) {
+                if (!validFile) {
+                    $(tab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+                } else {
+                    $(tab).css({ 'color': '#555', 'background-color': '#ffffff' });
+                }
+            }
+            return commonValid && validFile;
+        }
+    function checkValidDrugTypeKind() {
+        var val = $(".dgug-type-kind:first").val();
+        if (val === "2" || val === "3") {
+            var isType = false;
+            $("select[id*='OrgManufactureTypeDicId']").each(function (i, el) {
+                var typeId = "d82f2b62-ef6e-49e5-b04a-000000008180";
+                if (typeId === $(this).val()) {
+                    var nameId = "#" + $(this).attr("Id").replace("OrgManufactureTypeDicId", "NameRu");
+                    if ($(nameId).val().length > 0) {
+                        isType = true;
+                    }
+                }
+            });
+            if (!isType) {
+                showWarning("Необходимо указать производителя и наименование производителя");
+            }
+            return isType;
+        }
+        return true;
+    }
+
+    function checkAttachFile1() {
+  
+        var validFile = true;
+        $('.file-validation').each(function () {
+            var ct = $(this).attr('countFile');
+            var attcode = $(this).attr('attcode');
+            var count = parseInt(ct, 10) || 0;
+            var check = $(this).parent().find('input:checkbox').eq(0);
+            var checkbox = false;
+            if ($(check).prop('checked')) {
+                checkbox = true;
+            } else {
+                checkbox = false;
+            }
+            if (count === 0 && attcode !== '@CodeConstManager.ATTACH_REMARK_FILE_CODE' && !checkbox) {
+                $(this).text("Необходимо вложить файлы");
+                validFile = false;
+            } else {
+                $(this).text("");
+            }
+        });
+        if (!validFile) {
+            $("#drugAttachBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#drugAttachBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile;
+    }
+</script>

@@ -1,0 +1,154 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model LimsEquipmentAct
+
+<script>
+    var WindowActOfSparePartsForm = {
+        save: function (e) {
+            e.preventDefault();
+            debugger;
+            kendo.ui.progress($('#loader' + name), true);
+            var t = SelectFromGridControl.serializeObject($('@("#WindowActOfSparePartsForm_" + Model.Id)'));
+
+            t.HeadOfLaboratoryId = t['@("HeadOfLaboratoryId" + (string)ViewBag.UiId)'];
+            t.EngineerId = t['@("EngineerId" + (string)ViewBag.UiId)'];
+
+            var equipment = JSON.stringify(t);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveActOfSpareParts", "Equipment")',
+                contentType: 'application/json; charset=utf-8',
+                data: equipment,
+                success: function (result) {
+                    $("#WindowActOfSpareParts").data("kendoWindow").close();
+                    var id = $("#WindowActOfSpareParts").data("kendoWindow").gridId;
+                    if (id) {
+                        var grid = $("#" + id).data("kendoGrid");
+                        grid.dataSource.read();
+                    }
+                    if ($("#WindowActOfSpareParts").data("kendoWindow").dialogCallback) {
+                        $("#WindowActOfSpareParts").data("kendoWindow").dialogCallback(result);
+                    }
+                },
+                complete: function() {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+            return false;
+        },
+        cancel: function(e) {
+            $("#WindowActOfSpareParts").data("kendoWindow").close();
+        },
+        productsReadData:function () {
+            return {
+                actId: "@Model.Id",
+                equipmentId: "@Model.EquipmentId"
+            };
+        }
+    };
+
+</script>
+
+<form id="@("WindowActOfSparePartsForm_" + Model.Id)"  class="k-content">
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.EquipmentId)
+    @Html.HiddenFor(model => model.ActTypeId)
+    @Html.HiddenFor(model => model.CreateDate)
+    <table style="width: 100%">
+        <tr style="vertical-align: top;">
+            <td style="vertical-align: top;">
+                <fieldset>
+                    <legend></legend>
+                    <dl class="pwEditRef">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.LimsEquipmentName)
+                        </dt>
+                        <dd>
+                            @Html.Kendo().TextBoxFor(model => model.LimsEquipmentName).HtmlAttributes(new { @readonly = "readonly", @disabled = "disabled" })
+                        </dd>
+                        <br/>
+                        
+                        <dt>
+                            @Html.DisplayNameFor(model => model.LimsEquipmentSerialNumber)
+                        </dt>
+                        <dd>
+                            @Html.Kendo().TextBoxFor(model => model.LimsEquipmentSerialNumber).HtmlAttributes(new { @readonly = "readonly", @disabled = "disabled" })
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.HeadOfLaboratoryId)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().ComboBoxFor(p => p.HeadOfLaboratoryId).Name("HeadOfLaboratoryId" + (string)ViewBag.UiId)
+                                .ValuePrimitive(true)
+                                .DataValueField("Id").DataTextField("Name")
+                                .DataSource(source => source.Read("ListEmployeIc", "Reference")))
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EngineerId)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().ComboBoxFor(p => p.EngineerId).Name("EngineerId" + (string)ViewBag.UiId).ValuePrimitive(true)
+                                  .DataValueField("Id").DataTextField("Name")
+                                  .DataSource(source => source.Read("ListEmployeIc", "Reference")))
+                        </dd>
+                        <br/>
+                    </dl>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Запасные части</h4>
+                @(Html.Kendo().Grid<LimsEquipmentActSparePart>()
+                      .Name("gridEquipmentActSpareParts")
+                      .Columns(columns =>
+                      {
+                          columns.Command(c =>
+                          {
+                              c.Edit().UpdateText(Messages.Property_Сохранить_278__00);
+                              c.Destroy();
+                          }).Width(200);
+                          columns.Bound(p => p.Name).Title("Наименование запасных частей").Width(150);
+                          columns.Bound(p => p.Quantity).Title("Количество").Width(100);
+                          columns.Bound(p => p.InventoryNumber).Title("Инвентарный номер").Width(100);
+                          columns.Bound(p => p.LocationDicName).Title("Место установки").Width(100);
+                          columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(100);
+                      })
+                      .ToolBar(t =>
+                      {
+                          t.Create();
+                      })
+                      .Editable(c => c.Mode(GridEditMode.PopUp))
+                      .Resizable(s => s.Columns(true))
+                      .Sortable()
+                      .Pageable()
+                      .Scrollable()
+                      .HtmlAttributes(new { @class = "pwGrid" })
+                      .DataSource(dataSource => dataSource.Ajax().Model(model =>
+                          {
+                              model.Id(p => p.Id);
+                          }).Sort(c => c.Add(m => m.Name).Descending())
+                          .PageSize(20)
+                          .Read(read => read.Action("ReadEquipmentActSparePartList", "Equipment", new { actId = Model.Id }))
+                          .Create(action => action.Action("CreateSparePart", "Equipment").Data("WindowActOfSparePartsForm.productsReadData"))
+                          .Update(action => action.Action("UpdateSparePart", "Equipment").Data("WindowActOfSparePartsForm.productsReadData"))
+                          .Destroy(action => action.Action("DestroySparePart", "Equipment"))
+                      ))
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="pwWinFooter">
+                    @Html.Kendo().Button().Name("Cancel" + (string)ViewBag.UiId).Content(PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00).HtmlAttributes(new {@class = "k-button pwWinButton", type = "button"}).Events(e => e.Click("WindowActOfSparePartsForm.cancel"))
+                    @Html.Kendo().Button().Name("Save" + (string)ViewBag.UiId).Content(PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00).HtmlAttributes(new {@class = "k-button k-primary pwWinButton", type = "button"}).Events(e => e.Click("WindowActOfSparePartsForm.save"))
+                </div>
+            </td>
+        </tr>
+    </table>
+</form>
+
+

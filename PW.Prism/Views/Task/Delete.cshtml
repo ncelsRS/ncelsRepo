@@ -1,0 +1,62 @@
+﻿@model PW.Ncels.Database.Models.TaskAction
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formJob"+ Model.Id)" style="height: 100%; width: 100%">
+
+    @Html.HiddenFor(o => o.Id)
+   
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconDel"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Удалитьвыбранныйэлемент_35__00? </div>
+    </div>
+    <div class="pwWinContent3">
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickJobCancel()">@PW.Ncels.Database.Recources.Messages.Property_Нет_396__00</button>
+        @if (Model.Type == 3 || Model.Type == 4) {
+            <button type="button" id="TaskJob" class="k-button pwWinButton" onclick=" clickJob('/Task/DeleteBpConfirm?actionId=') ">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+        } else {
+            <button type="button" id="TaskJob" class="k-button pwWinButton" onclick=" clickJob('/Task/DeleteConfirm?actionId=') ">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+        }
+    </div>
+
+</form>
+<script>
+
+    function clickJob(url) {
+        var name = '@Model.Id';
+        kendo.ui.progress($('#loader' + name), true);
+
+        $.ajax({
+            type: 'POST',
+            url: url + name,
+            success: function (result) {
+                if (result == 'True') {
+                    var tree = $("#treeview" + '@Model.DocumentId');
+                    if (tree != null && tree.data("kendoTreeView")!=null) {
+                     tree.data("kendoTreeView").dataSource.read();
+                    }
+
+                    var taskId = $("#TaskCommandWindow").data("kendoWindow").taskId;
+                    if (taskId != null) {
+                        var treeTask = $("#treeviewTask_" + taskId).data("kendoTreeView");
+                        if (treeTask != null) {
+                            treeTask.dataSource.read();
+                        }
+                    }
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loader' + name), false);
+            }
+        });
+    }
+
+    function clickJobCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

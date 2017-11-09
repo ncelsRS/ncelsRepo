@@ -1,0 +1,152 @@
+﻿@model PW.Ncels.Database.Models.TmcViewModel
+<!-- Принятие и конвертация в доверенности -->
+<div id="@("loader"+ Model)"></div>
+<form id="@("formReassignment" + Model.Id)">
+
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Количество/объем в запросе</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="CountRequest" name="CountRequest" data-bind="value: task.CountRequest, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Количество/объем (факт.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="Count" name="Count" data-bind="value: task.Count, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Единица измерения (конв.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="MeasureTypeConvertDicId" data-bind="value: task.MeasureTypeConvertDicId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Количество (конв.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="CountConvert" name="CountConvert" data-bind="value: task.CountConvert, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Дата получения</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="ReceivingDate" name="ReceivingDate" data-bind="value: task.ReceivingDate, events: { change: change }" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button k-primary pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+    var now = new Date();
+
+    $("#CountRequest").kendoNumericTextBox({
+        min: 0,
+        decimals: 6,
+        format: 'n6',
+        enable: false
+    });
+
+    $("#Count").kendoNumericTextBox({
+        min: 0,
+        max: parseFloat('@Model.Count'.replace(',', '.').replace(' ', '')),
+        decimals: 6,
+        format: 'n6',
+        //enable: false
+    });
+
+    $("#CountConvert").kendoNumericTextBox({
+        min: 0,
+        decimals: 6,
+        format: 'n6'
+    });
+    $("#ReceivingDate").kendoDatePicker({
+        value: now,
+        max: now
+    });
+
+    var viewModel = kendo.observable({
+        task: {
+            Count: '@Model.Count',
+            CountRequest: '@Model.CountRequest',
+            CountConvert: '@Model.CountConvert',
+            ReceivingDate: now,
+            MeasureTypeConvertDicId: '@Model.MeasureTypeConvertDicId',
+            TmcInId: '@Model.TmcInId',
+        },
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+            debugger;
+            var json = JSON.stringify(viewModel.get('task'));
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConfirmAcceptTmc","ApplicationPOA")?Id=' + name,
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+
+    });
+
+
+    $("#MeasureTypeConvertDicId").kendoComboBox({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListOfUnitsExceptCode',
+                    data: { text: "MeasureType" } //, Id: '@Model.MeasureTypeDicId'
+                }
+            }
+        }
+    });
+
+    kendo.bind($("#formReassignment" + name), viewModel);
+
+</script>
+

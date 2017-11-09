@@ -1,0 +1,169 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<link href="~/Content/css/plugins/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css" />
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Все</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index", "Visit")">Приёмы</a>
+            </li>
+            <li class="active">
+                <strong>Записаться на приём</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="visitCreate">
+    <div class="row">
+        <div class="col-lg-12">
+            <div>
+                <button type="button" onclick="location.href = '@Url.Action("ActualVisitList", "Visit")'" class="btn btn-primary">Предстоящие</button>
+                <button type="button" onclick="location.href = '@Url.Action("ArchiveVisitList", "Visit")'" class="btn btn-primary">Прошедшие</button>
+                <button type="button" onclick="location.href = '@Url.Action("Index", "Visit")'" class="btn btn-primary">Все</button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Записаться на приём
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" type="button" ng-click="save()" security bp-type="project" bp-action="edit" bp-id="{{object.VisitId}}"><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" ng-if="object.VisitId!=-1" type="button" ng-click="send()" security bp-type="project" bp-action="execute" bp-id="{{object.VisitId}}"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>
+                        <button class="btn btn-default btn-sm" ng-if="object.VisitId!=-1" type="button" ng-click="delete('@Model')" security bp-type="project" bp-action="execute" bp-id="{{object.VisitId}}"><i class="fa fa-trash"></i> Удалить</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="panel-body">
+                        <input type="hidden" value="@Model" id="visitId" />
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Тип</label>
+                                    <ui-select ng-model="object.VisitTypeId" ui-select-selected required theme="bootstrap" ng-change="selectVisitType(object.VisitTypeId)">
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in VisitTypes | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Дата приёма</label> @*в ангуляре не силён, а сроки горят*@
+                                    <input id="visitDate" class="form-control edit-control main-control date-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Время приёма</label> @*в ангуляре не силён, а сроки горят*@
+                                    <div id="visitTimeSelector"></div>
+                                    <intput type="hidden" id="visitTime"></intput>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Краткое описание вопроса</label>
+                                    <textarea class="form-control" ng-model="object.VisitComment" rows="9"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        setDateFormat(".date-control");
+    });
+    var visitDates = [];
+    var visitType = -1;
+
+    function setDateFormat(control) {
+        $(control).datepicker({
+            dateFormat: 'dd/mm/yy',
+            language: 'ru',
+            autoclose: true,
+            minDate: 0,
+            onSelect: function (dateText) {
+                ChangeDate(dateText);
+                console.debug("Selected date: " + dateText + "; input's current value: " + this.value);
+            },
+            beforeShowDay: function (date) {
+                var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                return [visitDates.indexOf(string) != -1]
+            }
+        });
+    }
+
+    function ChangeDate(date) {
+        if (date != undefined && date.length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '/Visit/GetTimesForCreateVisits',
+                data: { date: date, type: visitType },
+                success: function (result) {
+                    $('#visitTimeSelector').html(result);
+                    $('#visitTime').val('');
+                },
+                complete: function () {
+
+                }
+            });
+        }
+    }
+
+    function SelectTime(elem) {
+        if ($(elem).hasClass('time-select-all-busy'))
+        {
+            return;
+        }
+        $('.time-select').removeClass('active');
+        $(elem).addClass('active');
+        var time = $(elem).data('time');
+        $('#visitTime').val(time);
+    }
+
+    function cancelVisit(id) {
+        console.log('test');
+    }
+</script>
+<style>
+    .time-select {
+        margin: 5px;
+        padding: 5px;
+        font-size: 16px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .time-select-all-busy {
+        background: darkred;
+        color: white;
+        cursor: inherit;
+    }
+</style>

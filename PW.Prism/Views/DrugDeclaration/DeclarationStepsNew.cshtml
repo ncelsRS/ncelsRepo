@@ -1,0 +1,224 @@
+﻿@using PW.Ncels.Database.DataModel
+@model PW.Prism.ViewModels.DrugDeclaration.DeclarationStepsViewModel
+
+@{
+    var declarationId = Model.DeclarationId;
+    var steps = Model.Steps;
+    if (Model == null || Model.Steps == null)
+    {
+        return;
+    }
+}
+
+
+<div id="decSteps_@declarationId">
+<style>
+    .boldHeaders thead tr td {
+        font-weight: bold !important;
+    }
+</style>
+<script>
+    var declarationId = '@declarationId';
+
+
+    function ShowSetExecuterWindow(stageId) {
+
+        var idsToSend = [stageId];
+
+        if (idsToSend.length > 0) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                resizable: false,
+                close: window.onCloseCommandWindow,
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").dialogCallback = function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("DeclarationStepsNew")',
+                    dataType: 'html',
+                    data: { id: declarationId },
+                    success: function(result) {
+                        $('#decSteps_' + declarationId).replaceWith(result);
+                    },
+                    error: function(xhr, status, error) {
+                        ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+                    }
+                });
+            };
+            window.data("kendoWindow").gridSelectedIds = idsToSend;
+            window.data("kendoWindow").title('Отправить в работу');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('/DrugDeclaration/SetExecuter');
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        } else {
+
+        }
+    }
+</script>
+<div class="panel">
+    <div class="panel-body">
+        <table class="table table-bordered table-hover boldHeaders">
+            <thead>
+            <tr>
+                <td>
+                    Статус
+                </td>
+                <td>
+                    Этап
+                </td>
+                <td>
+                    Исполнитель
+                </td>
+                <td>
+                    Срок исполнения
+                </td>
+                <td>
+                    Дата начала
+                </td>
+                <td>
+                    Контрольная дата
+                </td>
+                <td>
+                    До завершения
+                </td>
+                <td>
+                    Этап завершен
+                </td>
+                <td>
+                    Дата завершения
+                </td>
+                <td>
+                    Этап просрочен
+                </td>
+                <td>
+                    Просрочено дней
+                </td>
+
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Steps)
+            {
+                if (!item.IsLeaderStep)
+                {
+                    <tr>
+                        <td>
+                            @if (!item.NeedWorkers)
+                            {
+                                @item.Status
+                            }
+                        </td>
+                        <td>
+                            @item.StepName
+                        </td>
+                        <td>
+                            @if (item.StageCode != EXP_DIC_Stage.ProcCenter && item.NeedWorkers)
+                            {
+                                if (item.AllowAddWorkers)
+                                {
+                                    <input type="button" class="btn btn-default" value="Назначить" onclick="ShowSetExecuterWindow('@item.Id')"/>
+                                }
+                            }
+                            else
+                            {
+                                @item.ExecutorShortName
+                            }
+                        </td>
+                        <td>
+                            @item.DueToAllDays
+                        </td>
+                        <td>
+                            @item.DateStart
+                        </td>
+                        <td>
+                            @item.ControlDate
+                        </td>
+                        <td>
+                            @item.DueToEndDays
+                        </td>
+                        <td>
+                            @{
+                                var result = "";
+                                if (item.StepIsEnded)
+                                {
+                                    result = "checked";
+                                }
+                            }
+                            <input type="checkbox" disabled="disabled" @result/>
+                        </td>
+                        <td>
+                            @item.DateEnd
+                        </td>
+                        <td>
+                            @{
+                                var result2 = "";
+                                if (item.StepIsOverdue)
+                                {
+                                    result2 = "checked";
+                                }
+                            }
+                            <input type="checkbox" disabled="disabled" @result2/>
+                        </td>
+                        <td>
+
+                            @if (item.StepIsOverdue)
+                            {
+                                @item.OverdueDays
+                            }
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            @item.Status
+                        </td>
+                        <td>
+                            @item.StepName
+                        </td>
+                        <td>
+                            @item.ExecutorShortName
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            @item.DateStart
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+                            @if (!item.NeedWorkers)
+                            {
+                                @item.DateStart
+                            }
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>

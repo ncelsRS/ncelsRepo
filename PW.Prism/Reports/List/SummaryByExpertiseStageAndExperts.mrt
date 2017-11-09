@@ -1,0 +1,1035 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <ncels Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>ncels</Alias>
+        <ConnectionStringEncrypted>+XhpCcVdwvVrS9nMYRjhY4tsZStGTRPdT0S5BORcol7e8stJ73yZxekIzYBiHORe+VrRSWJKk81rR+X46ZjjL94U9w==</ConnectionStringEncrypted>
+        <Name>ncels</Name>
+      </ncels>
+    </Databases>
+    <DataSources isList="true" count="2">
+      <summaryData Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>summaryData</Alias>
+        <Columns isList="true" count="3">
+          <value>statusName,System.String</value>
+          <value>appsCount,System.Int32</value>
+          <value>totalAppsCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>summaryData</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>stage,Stage,8,0</value>
+          <value>periodStart,DateStart,4,0</value>
+          <value>periodEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>declare @result table(
+	statusName nvarchar(255),
+	appsCount int,
+	totalAppsCount int
+)
+declare @periodStartTotal datetime = DATEFROMPARTS(DATEPART(YEAR,@periodStart),1,1);
+declare @periodEndTotal datetime = DATEFROMPARTS(DATEPART(YEAR,@periodEnd),12,31);
+declare @appsCount int;
+declare @totalAppsCount int;
+
+--всего заявок поступило на этап за период
+select @appsCount=count(*) from (select rp.id from RegisterProjects rp
+inner join Tasks t on t.DocumentId=rp.Id
+where t.Stage=@stage and t.CreatedDate between @periodStart and @periodEnd
+group by rp.Id) apps
+select @totalAppsCount=count(*) from (select rp.id from RegisterProjects rp
+inner join Tasks t on t.DocumentId=rp.Id
+where t.Stage=@stage and t.CreatedDate between @periodStartTotal and @periodEndTotal
+group by rp.Id) apps
+insert into @result (statusName, appsCount, totalAppsCount) values ('Поступило за период', @appsCount, @totalAppsCount)
+
+--в работе но не закончено
+select @appsCount=count(*) from (select rp.Id from RegisterProjects rp
+inner join Tasks wt on wt.DocumentId=rp.Id and wt.Stage=@stage
+inner join History wth on wth.ObjectId = wt.Id and wth.ColumnName='Column_Task_State' and wth.CreatedTime &lt;= @periodEnd and (wth.NewValue='1' or wth.NewValue='4')
+where not((wt.State=2 or wt.State=3) and wt.DateOfOperation &lt;=@periodEnd) group by rp.Id) apps
+select @totalAppsCount=count(*) from (select rp.Id from RegisterProjects rp
+inner join Tasks wt on wt.DocumentId=rp.Id and wt.Stage=@stage
+inner join History wth on wth.ObjectId = wt.Id and wth.ColumnName='Column_Task_State' and wth.CreatedTime &lt;= @periodEndTotal and (wth.NewValue='1' or wth.NewValue='4')
+where not((wt.State=2 or wt.State=3) and wt.DateOfOperation &lt;=@periodEndTotal) group by rp.Id) apps
+insert into @result (statusName, appsCount, totalAppsCount) values ('В работе (не закончено)', @appsCount, @totalAppsCount)
+
+--завершено
+select @appsCount=count(*) from (select rp.Id from RegisterProjects rp
+inner join Tasks ct on ct.DocumentId=rp.Id and ct.Stage=@stage and (ct.State=2 or ct.State=3) and ct.DateOfOperation between @periodStart and @periodEnd
+group by rp.Id) apps
+select @totalAppsCount=count(*) from (select rp.Id from RegisterProjects rp
+inner join Tasks ct on ct.DocumentId=rp.Id and ct.Stage=@stage and (ct.State=2 or ct.State=3) and ct.DateOfOperation between @periodStartTotal and @periodEndTotal
+group by rp.Id) apps
+insert into @result (statusName, appsCount, totalAppsCount) values ('Выполнено за период', @appsCount, @totalAppsCount)
+
+select * from @result</SqlCommand>
+      </summaryData>
+      <dataByExperts Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>dataByExperts</Alias>
+        <Columns isList="true" count="8">
+          <value>Executor,System.String</value>
+          <value>TotalInWork,System.Int32</value>
+          <value>TotalInWorkExpired,System.Int32</value>
+          <value>TotalInWorkExpiredByApplicant,System.Int32</value>
+          <value>TotalComplited,System.Int32</value>
+          <value>TotalComplitedExpired,System.Int32</value>
+          <value>TotalComplitedExpiredLetter,System.Int32</value>
+          <value>AvgExecutionTime,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>dataByExperts</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>stage,Stage,8,0</value>
+          <value>periodStart,DateStart,4,0</value>
+          <value>dateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>declare @periodStartTotal datetime = DATEFROMPARTS(DATEPART(YEAR,@periodStart),1,1);
+declare @dateEndTotal datetime = DATEFROMPARTS(DATEPART(YEAR,@dateEnd),12,31);
+declare @appsCount int;
+declare @totalAppsCount int;
+
+declare @apps table(
+	ExecutorId uniqueidentifier,
+	AppId uniqueidentifier,
+	TaskId uniqueidentifier,
+	status nvarchar(255)
+)
+
+--в работе но не закончено
+insert into @apps(ExecutorId, AppId, TaskId, status)
+select distinct wt.ExecutorId, rp.Id as AppId, wt.id as TaskId, 'InWork' as status from RegisterProjects rp
+inner join Tasks wt on wt.DocumentId=rp.Id and wt.Stage=@stage
+inner join History wth on wth.ObjectId = wt.Id and wth.ColumnName='Column_Task_State' and wth.CreatedTime &lt;= @dateEnd and (wth.NewValue='1' or wth.NewValue='4')
+where not((wt.State=2 or wt.State=3) and wt.DateOfOperation &lt;=@dateEnd) group by wt.ExecutorId, rp.Id, wt.Id
+union
+select distinct wt.ExecutorId, rp.Id as AppId, wt.id as TaskId, 'InWorkExpired' as status from RegisterProjects rp
+inner join Tasks wt on wt.DocumentId=rp.Id and wt.Stage=@stage
+inner join History wth on wth.ObjectId = wt.Id and wth.ColumnName='Column_Task_State' and wth.CreatedTime &lt;= @dateEnd and (wth.NewValue='1' or wth.NewValue='4')
+where not((wt.State=2 or wt.State=3) and wt.DateOfOperation &lt;=@dateEnd) and wt.ExecutionDate&lt;=@dateEnd and (wt.DateOfOperation is null or wt.DateOfOperation&gt;wt.ExecutionDate)
+group by wt.ExecutorId, rp.Id, wt.Id
+union
+select distinct wt.ExecutorId, rp.Id as AppId, wt.id as TaskId, 'InWorkExpiredLetters' as status from RegisterProjects rp
+inner join Tasks wt on wt.DocumentId=rp.Id and wt.Stage=@stage
+inner join History wth on wth.ObjectId = wt.Id and wth.ColumnName='Column_Task_State' and wth.CreatedTime &lt;= @dateEnd and (wth.NewValue='1' or wth.NewValue='4')
+left join Documents lt on lt.MainTaskId=wt.Id and lt.DocumentType=1
+where not((wt.State=2 or wt.State=3) and wt.DateOfOperation &lt;=@dateEnd) and lt.ExecutionDate&lt;=@dateEnd and (lt.FactExecutionDate is null or lt.FactExecutionDate&gt;lt.ExecutionDate)
+group by wt.ExecutorId, rp.Id, wt.Id
+union
+select distinct ct.ExecutorId, rp.Id as AppId, ct.id as TaskId, 'Complited' as status from RegisterProjects rp
+inner join Tasks ct on ct.DocumentId=rp.Id and ct.Stage=@stage and (ct.State=2 or ct.State=3) and ct.DateOfOperation between @periodStart and @dateEnd
+group by ct.ExecutorId, rp.Id, ct.Id
+union
+select distinct ct.ExecutorId, rp.Id as AppId, ct.id as TaskId, 'ComplitedExpired' as status from RegisterProjects rp
+inner join Tasks ct on ct.DocumentId=rp.Id and ct.Stage=@stage and (ct.State=2 or ct.State=3) and ct.DateOfOperation between @periodStart and @dateEnd
+where ct.ExecutionDate&lt;=@dateEnd and (ct.DateOfOperation is null or ct.DateOfOperation&gt;ct.ExecutionDate)
+group by ct.ExecutorId, rp.Id, ct.Id
+union
+select distinct ct.ExecutorId, rp.Id as AppId, ct.id as TaskId, 'ComplitedExpiredLetter' as status from RegisterProjects rp
+inner join Tasks ct on ct.DocumentId=rp.Id and ct.Stage=@stage and (ct.State=2 or ct.State=3) and ct.DateOfOperation between @periodStart and @dateEnd
+left join Documents lt on lt.MainTaskId=ct.Id and lt.DocumentType=1
+where ct.ExecutionDate&lt;=@dateEnd and (ct.DateOfOperation is null or ct.DateOfOperation&gt;ct.ExecutionDate)
+and lt.ExecutionDate&lt;=@dateEnd and (lt.FactExecutionDate is null or lt.FactExecutionDate&gt;lt.ExecutionDate)
+group by ct.ExecutorId, rp.Id, ct.Id
+
+select e.ShortName +'('+ org.Name +')' as Executor
+	,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='InWork' group by AppId) a1) as TotalInWork
+,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='InWorkExpired' group by AppId) a2) as TotalInWorkExpired
+,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='InWorkExpiredLetters' group by AppId) a3) as TotalInWorkExpiredByApplicant
+,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='Complited' group by AppId) a4) as TotalComplited
+,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='ComplitedExpired' group by AppId) a5) as TotalComplitedExpired
+,(select count(*) from (select distinct AppId from @apps where ExecutorId=e.Id and status='ComplitedExpiredLetter' group by AppId) a6) as TotalComplitedExpiredLetter
+,(select sum(IIF(DATEDIFF(DAY,t.CreatedDate,t.DateOfOperation)=0,1,DATEDIFF(DAY,t.CreatedDate,t.DateOfOperation)))/ISNULL(count(*),1)
+	from (select distinct TaskId from @apps where ExecutorId=e.Id group by TaskId) s
+inner join Tasks t on t.Id=s.TaskId
+where t.DateOfOperation is not null) as AvgExecutionTime
+from Employees e
+inner join Units org on org.Id=e.OrganizationId
+where e.Id in (select distinct ExecutorId from @apps)</SqlCommand>
+      </dataByExperts>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="4">
+      <value>,DateStart,DateStart,System.DateTime,_x0031__x002F_1_x002F_2016_x0020_5:41:19_x0020_PM,False,False</value>
+      <value>,DateEnd,DateEnd,System.DateTime,_x0031__x002F_29_x002F_2017_x0020_5:42:11_x0020_PM,False,False</value>
+      <value>,StageName,StageName,System.String,Первичная_x0020_экспертиза,False,False</value>
+      <value>,Stage,Stage,System.Int32,_x0031_,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="5" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <HeaderBand1 Ref="6" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.8</ClientRectangle>
+          <Components isList="true" count="5">
+            <Text1 Ref="7" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,19,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14.25,Bold,Point,False,204</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>Ежемесячный сводный отчет по этапу  {StageName}
+за период с {Format("{0:dd.MM.yyyy}", DateStart)} по {Format("{0:dd.MM.yyyy}", DateEnd)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text2 Ref="8" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>№</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text3 Ref="9" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2,1.2,8.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>779b541591ea4ab78c3126013e3f6fb4</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>Параметр</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text4 Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,1.2,4.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>9490351e2fa1407488d2778cd80e7b96</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>{Format("{0:yyyy}", DateEnd)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text5 Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.6,1.2,4.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>dfe8965a9a004cc5a0e7d81ac133130c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>Всего</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+        </HeaderBand1>
+        <DataBand1 Ref="12" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,3,19,0.6</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text6 Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <Guid>3b05627c130949b9acf3fd85c0fd23b9</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="5" />
+              <Parent isRef="12" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2,0,8.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <Guid>6e5193aec07d4f0a8104cf0644a5fbba</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="5" />
+              <Parent isRef="12" />
+              <Text>{summaryData.statusName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,0,4.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <Guid>0c28d357fb0943138fd59af9f72e8abc</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="5" />
+              <Parent isRef="12" />
+              <Text>{summaryData.appsCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text9 Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.6,0,4.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <Guid>c5257c7e648049b8aa082494b12eef5a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="5" />
+              <Parent isRef="12" />
+              <Text>{summaryData.totalAppsCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>summaryData</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Sort isList="true" count="0" />
+        </DataBand1>
+        <HeaderBand2 Ref="17" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,4.4,19,4</ClientRectangle>
+          <Components isList="true" count="15">
+            <Text10 Ref="18" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.4,19,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14.25,Bold,Point,False,204</Font>
+              <Guid>665396e80e7c47979057b59b1d53c405</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Отчет по работе экспертов
+за период с {Format("{0:dd.MM.yyyy}", DateStart)} по {Format("{0:dd.MM.yyyy}", DateEnd)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text11 Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.6,1,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>96fae103e6bd49f1bb4c33f243689f19</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>№</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text12 Ref="20" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1,1.6,6,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>d54f178b507e4993a3ecd9926fa3e9aa</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>ФИО экспертов</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+            <Text14 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,2.4,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>16d0bdb618484354a159a97941c43461</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Всего</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text13 Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.2,2.4,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8.25,Bold,Point,False,204</Font>
+              <Guid>7b848f78a1f14a74817aca365b75d9d8</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Просрочено экспертом</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+            <Text15 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10,2.4,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8.25,Bold,Point,False,204</Font>
+              <Guid>c0d0facd2806462d95273cb007718815</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Просрочено заявителем</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text16 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.8,2.4,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>fb6229a6a5f24a4fb59a53d60f6deeef</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Всего</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13,2.4,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8.25,Bold,Point,False,204</Font>
+              <Guid>9c55057c15254ada9dcd47a68dc25ba7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Просрочено экспертом</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+            <Text18 Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.8,2.4,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8.25,Bold,Point,False,204</Font>
+              <Guid>0b2e2ae2a6c4489fbf67328a922c7864</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Просрочено заявителем</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text18>
+            <Text19 Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,1.6,4.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>574e922e616841ff9b24792769ca3898</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Количество заявок в работе</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text20 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.8,1.6,4.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>844989a93fa145649862d0a13002b444</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Количество заявок выполнено</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+            <Text21 Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.6,1.6,2.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8.25,Bold,Point,False,204</Font>
+              <Guid>c2155cda7c114b18be933ae8f6b2d841</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Средний срок проведения экспертизы в днях</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text31 Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,3.2,1,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>b12b1b61fad64057a519939d9c9928eb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text31>
+            <Text32 Ref="31" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1,3.2,6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>5cb39a0fd8d9465193470d2155b9ef13</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <Text>Штатные эксперты:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text32>
+            <Text33 Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,3.2,12,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>42ea7905a3784444a48f1b142b56dc47</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="5" />
+              <Parent isRef="17" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text33>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>3821f4fa03ef4ba9b3dc6222d4cfa66d</Guid>
+          <Name>HeaderBand2</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand2>
+        <DataBand2 Ref="33" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,9.2,19,0.6</ClientRectangle>
+          <Components isList="true" count="9">
+            <Text22 Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>9ecd6ead21e74d98b48e70de9146d7d1</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+            <Text23 Ref="35" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1,0,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>22ccb3cd2f834bf2966d7d831596c739</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.Executor}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text23>
+            <Text24 Ref="36" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7,0,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c489ece1370d44859c723da88325e1c9</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalInWork}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text24>
+            <Text25 Ref="37" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8.2,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>72b3cc253b404024bdfcd3ed4daba6a6</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalInWorkExpired}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text25>
+            <Text26 Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>10,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d9cf2053d69042a992f635ffbace9b49</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalInWorkExpiredByApplicant}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text26>
+            <Text27 Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.8,0,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4dce2ab80d9b4bb792dc05e7481b4ffc</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalComplited}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text27>
+            <Text28 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7a2d469b96ba489a8d5e42985df424a8</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalComplitedExpired}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text28>
+            <Text29 Ref="41" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14.8,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>81ae02dbfd334b6b9dda32de78af0f81</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text29</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.TotalComplitedExpiredLetter}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text29>
+            <Text30 Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.6,0,2.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Regular,Point,False,204</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>efbd1e9116ce44fd9130fbff81f1054c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text30</Name>
+              <Page isRef="5" />
+              <Parent isRef="33" />
+              <Text>{dataByExperts.AvgExecutionTime}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text30>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>dataByExperts</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand2</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+        <FooterBand1 Ref="43" type="FooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,10.6,19,0.6</ClientRectangle>
+          <Components isList="true" count="9">
+            <Text34 Ref="44" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,1,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>a2eccda80319426d9bb632d113be01f2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text34</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text34>
+            <Text35 Ref="45" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1,0,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>bf8b79a00333475ca00644d654b461d5</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text35</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>Итого:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text35>
+            <Text36 Ref="46" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,0,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>b423aa45c2a24a5a9f86a577b42eab66</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text36</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalInWork)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text36>
+            <Text37 Ref="47" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.2,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>07cf432d876142f1825235f46d2d0031</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text37</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalInWorkExpired)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text37>
+            <Text38 Ref="48" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>29f645e4dfe84a25b2f9d2bcaa451d22</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text38</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalInWorkExpiredByApplicant)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text38>
+            <Text39 Ref="49" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.8,0,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>04dfa8ea252a4730932e4cb0f7799b94</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text39</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalComplited)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text39>
+            <Text40 Ref="50" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>fda3401a132c4df5a188469e5a7212f7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text40</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalComplitedExpired)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text40>
+            <Text41 Ref="51" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.8,0,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>fc74056612044a6c86f0e4b67ceae8c1</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text41</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.TotalComplitedExpiredLetter)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text41>
+            <Text42 Ref="52" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.6,0,2.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold,Point,False,204</Font>
+              <Guid>4d40c060cf264200940f2f5045196a63</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text42</Name>
+              <Page isRef="5" />
+              <Parent isRef="43" />
+              <Text>{SumI(dataByExperts.AvgExecutionTime)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text42>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>FooterBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+        </FooterBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>de7c6808749b487bb2cf59be3c773ec1</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="53" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="54" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>1/30/2017 10:22:11 PM</ReportChanged>
+  <ReportCreated>1/29/2017 5:36:38 PM</ReportCreated>
+  <ReportFile>C:\Projects\Crypton\NCLSPortal\PW.Prism\PW.Prism\Reports\List\SummaryByExpertiseStageAndExperts.mrt</ReportFile>
+  <ReportGuid>d66db4ac73f04861ac193e71ccffd8cd</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

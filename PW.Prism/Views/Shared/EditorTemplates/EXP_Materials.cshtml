@@ -1,0 +1,652 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model EXP_Materials
+
+<style>
+    .k-datepicker {
+        width: 100%;
+    }
+
+    .k-dropdown {
+        width: 100%;
+    }
+
+    legend {
+        margin-bottom: 3px;
+    }
+
+    fieldset {
+        margin-left: 5px;
+    }
+
+    .k-grid .k-grid-header .k-header .k-link {
+        height: auto;
+    }
+
+    .k-grid .k-grid-header .k-header {
+        white-space: normal;
+    }
+
+    .editColumn {
+        vertical-align: top;
+        width: 33%;
+    }
+
+    dt, dd {
+        float: left;
+    }
+
+    dt {
+        clear: both;
+        width: 35%;
+    }
+
+    dd {
+        width: 65%;
+    }
+
+    .k-widget.k-tooltip-validation {
+        display: flex;
+        position: absolute;
+        border-color: #ffe79e !important;
+        background-color: #fff4c9 !important;
+        color: red !important;
+        /* -webkit-box-shadow: none !important; */
+        -ms-box-shadow: none !important;
+        /* box-shadow: none !important; */
+        left: 100px;
+        top: auto;
+        font-weight: bold;
+    }
+</style>
+
+<div class="k-content">
+    @Html.HiddenFor(model => model.Id, new {Id = "EXP_MaterialsId"})
+    @Html.HiddenFor(model => model.DrugDeclarationId, new {Id = "EXP_Materials_DdId"})
+    <fieldset>
+        <legend>Общие сведения</legend>
+        <table style="width: 100%">
+            <tr style="vertical-align: top;">
+                <td class="editColumn">
+                    <dl class="pwEditRef">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DrugDeclarationNumber)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBoxFor(model => model.DrugDeclarationNumber).Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DrugDeclarationTypeName)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBoxFor(model => model.DrugDeclarationTypeName).Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DrugDeclarationCreatedDate)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBoxFor(model => model.DrugDeclarationCreatedDate).Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DrugDeclarationName)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBoxFor(model => model.DrugDeclarationName).Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                    </dl>
+                </td>
+                <td>
+                    <dl class="pwEditRef">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DirectionNumber)
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBoxFor(model => model.DirectionNumber).Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            Документ
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBox()
+                                .Name("test1")
+                                .Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+
+                        <dt>
+                            Номер документа
+                        </dt>
+                        <dd>
+                            @(Html.Kendo().TextBox()
+                                .Name("test2")
+                                .Enable(false)
+                                .Deferred()
+                                .ToClientTemplate()
+                            )
+                        </dd>
+                        <br/>
+                    </dl>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+   
+    <div id="tabstripDirectionToPay">
+        <ul>
+            <li id="tab1">
+                Сведения о материале
+            </li>
+            <li>
+                Сведения об остатках
+            </li>
+            <li>
+                Журнал событий
+            </li>
+            <li>
+                История изменений
+            </li>
+        </ul>
+        <div>
+            <table style="width: 100%">
+                <tr style="vertical-align: top;">
+                    <td class="editColumn">
+                        <dl class="pwEditRef">
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Id)
+                            </dt>
+                            <dd>
+                                @(Html.Kendo().TextBoxFor(model => model.Id).Enable(false)
+                                    .Deferred()
+                                    .ToClientTemplate()
+                                 )
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.IsAdditional)
+                            </dt>
+                            <dd>
+                                @Html.CheckBoxFor(model => model.IsAdditional)
+                                <span data-for="IsAdditional" class="k-invalid-msg"></span>
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.TypeId)
+                            </dt>
+                            <dd>
+                                <input id="TypeId" name="TypeId" required="required" type="text" data-val="true" data-val-required="Требуется поле Тип." data-bind="value:TypeId"  />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </dt>
+                            <dd>
+                                @(Html.Kendo().TextBoxFor(model => model.Name)
+                                    //.HtmlAttributes(new { required = "required" })
+                                    .Deferred()
+                                    .ToClientTemplate()
+                                )
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.DrugFormId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="DrugFormId" name="DrugFormId" type="text" data-bind="value:DrugFormId"  />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Dosage)
+                            </dt>
+                            <dd>
+                                <input id="Dosage" name="Dosage" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:Dosage" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.DosageUnitId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="DosageUnitId" name="DosageUnitId" type="text" data-bind="value:DosageUnitId" />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Concentration)
+                            </dt>
+                            <dd>
+                                @(Html.Kendo().TextBoxFor(model => model.Concentration)
+                                    .Deferred()
+                                    .ToClientTemplate()
+                                 )
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ConcentrationUnitId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="ConcentrationUnitId" name="ConcentrationUnitId" type="text" data-bind="value:ConcentrationUnitId" />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Volume)
+                            </dt>
+                            <dd>
+                                <input id="Volume" name="Volume" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:Volume" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.VolumeUnitId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="VolumeUnitId" name="VolumeUnitId" type="text" data-bind="value:VolumeUnitId" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.DosageQuantity)
+                            </dt>
+                            <dd>
+                                <input id="DosageQuantity" name="DosageQuantity" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:DosageQuantity" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.IsContainNPP)
+                            </dt>
+                            <dd>
+                                @Html.CheckBoxFor(model => model.IsContainNPP)
+                                <span data-for="IsAdditional" class="k-invalid-msg"></span>
+                            </dd>
+                            <br />
+                            <div style="display: none">
+                                <dt>
+                                    @Html.DisplayNameFor(model => model.ProducerId)
+                                </dt>
+                                <dd>
+                                    <input data-val="true" id="ProducerId" name="ProducerId" type="text" data-bind="value:ProducerId" />
+                                </dd>
+                                <br />
+
+                                <dt>
+                                    @Html.DisplayNameFor(model => model.CountryId)
+                                </dt>
+                                <dd>
+                                    <input data-val="true" id="CountryId" name="CountryId" type="text" data-bind="value:CountryId" />
+                                </dd>
+                                <br />
+                            </div>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Quantity)
+                            </dt>
+                            <dd>
+                                <input id="Quantity" name="Quantity" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:Quantity" data-val="true" step="1" required="required" />
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.LabelFor(model => model.UnitId, new { @class = "required" })
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="UnitId" name="UnitId" type="text" data-bind="value:UnitId" required data-required-msg="Необходимо заполнить"/>
+                            </dd>
+                            <br />
+                            
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Batch)
+                            </dt>
+                            <dd>
+                                @(Html.Kendo().TextBoxFor(model => model.Batch)
+                                    //.HtmlAttributes(new { required = "required" })
+                                    .Deferred()
+                                    .ToClientTemplate()
+                                )
+                            </dd>
+                            <br />
+                        </dl>
+
+                    </td>
+                    <td class="editColumn">
+                        <dl class="pwEditRef">
+                            <dt>
+                                @Html.DisplayNameFor(model => model.DateOfManufacture)
+                            </dt>
+                            <dd>
+                                <input id="DateOfManufacture" name="DateOfManufacture" type="text" data-role="datepicker" data-bind="value:DateOfManufacture" style="width: 100%;">
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ExpirationDate)
+                            </dt>
+                            <dd>
+                                <input id="ExpirationDate" name="ExpirationDate" type="text" data-role="datepicker" data-bind="value:ExpirationDate" style="width: 100%;">
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.RetestDate)
+                            </dt>
+                            <dd>
+                                <input id="RetestDate" name="RetestDate" type="text" data-role="datepicker" data-bind="value:RetestDate" style="width: 100%;">
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.IsCertificatePassport)
+                            </dt>
+                            <dd>
+                                @Html.CheckBoxFor(model => model.IsCertificatePassport)
+                                <span data-for="IsCertificatePassport" class="k-invalid-msg"></span>
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.StorageConditionId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="StorageConditionId" name="StorageConditionId" type="text" data-bind="value:StorageConditionId" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.StorageTemperatureFrom)
+                            </dt>
+                            <dd>
+                                <input id="StorageTemperatureFrom" name="StorageTemperatureFrom" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:StorageTemperatureFrom" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.StorageTemperatureTo)
+                            </dt>
+                            <dd>
+                                <input id="StorageTemperatureTo" name="StorageTemperatureTo" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:StorageTemperatureTo" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ExternalStateId)
+                            </dt>
+                            <dd>
+                                <input data-val="true" id="ExternalStateId" name="ExternalStateId" type="text" data-bind="value:ExternalStateId" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ActiveSubstancePercent)
+                            </dt>
+                            <dd>
+                                <input id="ActiveSubstancePercent" name="ActiveSubstancePercent" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:ActiveSubstancePercent" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.WaterContentPercent)
+                            </dt>
+                            <dd>
+                                <input id="WaterContentPercent" name="WaterContentPercent" type="text" data-role="numerictextbox" role="spinbutton" data-bind="value:WaterContentPercent" data-val="true" step="0.01" />
+                            </dd>
+                            <br />
+
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ConcordanceStatementId)
+                            </dt>
+                            <dd>
+                               <input data-val="true" id="ConcordanceStatementId" name="ConcordanceStatementId" type="text" data-bind="value:ConcordanceStatementId" />
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.OpeningDate)
+                            </dt>
+                            <dd>
+                               <input id="OpeningDate" name="OpeningDate" type="text" data-role="datepicker" data-bind="value:OpeningDate" style="width: 100%;">
+                            </dd>
+                            <br />
+
+                            <dt>
+                                @Html.DisplayNameFor(model => model.ExpirationAfterOpeningDate)
+                            </dt>
+                            <dd>
+                                <input id="ExpirationAfterOpeningDate" name="ExpirationAfterOpeningDate" type="text" data-role="datepicker" data-bind="value:ExpirationAfterOpeningDate" style="width: 100%;">
+                            </dd>
+                            <br />
+
+                        </dl>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>В работе</div>
+        <div>В работе</div>
+        <div>В работе</div>
+    </div>
+
+</div>
+
+@Html.Kendo().DeferredScripts()
+
+<script>
+    (function () {
+        var tabsStrip = $("\\#tabstripDirectionToPay").kendoTabStrip().data("kendoTabStrip");
+        tabsStrip.select("li:first");
+
+
+        jQuery("\\#TypeId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MaterialRdType.DicCode" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#DrugFormId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetDrugFormNodes", "Material")" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#Dosage").kendoNumericTextBox();
+
+
+        jQuery("\\#DosageUnitId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MeasureType.DicCode" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#ConcentrationUnitId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MeasureType.DicCode" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+
+        jQuery("\\#Volume").kendoNumericTextBox();
+
+        jQuery("\\#VolumeUnitId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MeasureType.DicCode" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+        
+        jQuery("\\#DosageQuantity").kendoNumericTextBox();
+
+        jQuery("\\#ProducerId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": { "url": "@Url.Action("GetOrganizations", "Dictionaries")" },
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#CountryId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": {"url":"@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.CountryDic.DicCode"},
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#Quantity").kendoNumericTextBox();
+
+        jQuery("\\#UnitId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": {"url":"@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MeasureType.DicCode"},
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+        
+        $("\\#DateOfManufacture").kendoDatePicker();
+
+        $("\\#ExpirationDate").kendoDatePicker();
+
+        $("\\#RetestDate").kendoDatePicker();
+
+        jQuery("\\#StorageConditionId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": {"url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.StorageCondition.DicCode"},
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#StorageTemperatureFrom").kendoNumericTextBox();
+
+        jQuery("\\#StorageTemperatureTo").kendoNumericTextBox();
+
+        jQuery("\\#ExternalStateId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": {"url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MaterialRdExternalState.DicCode"},
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        jQuery("\\#ActiveSubstancePercent").kendoNumericTextBox();
+
+        jQuery("\\#WaterContentPercent").kendoNumericTextBox();
+
+        jQuery("\\#ConcordanceStatementId").kendoDropDownList({
+            "dataSource": {
+                "transport": {
+                    "read": {"url": "@Url.Action("GetReference", "Dictionaries")?type=@Dictionary.MaterialRdExternalState.DicCode"},
+                    "prefix": ""
+                },
+                "schema": { "errors": "Errors" }
+            },
+            "optionLabel": "Выберите...",
+            "dataTextField": "Name",
+            "valuePrimitive": true,
+            "dataValueField": "Id"
+        });
+
+        $("\\#OpeningDate").kendoDatePicker();
+
+        $("\\#ExpirationAfterOpeningDate").kendoDatePicker();
+
+    })();
+</script>

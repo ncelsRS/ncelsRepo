@@ -1,0 +1,61 @@
+﻿
+@using System.Collections
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@model Guid
+
+
+
+<div class="pwPage">
+    @(Html.Kendo().Grid<Task>()
+          .Name("gridAllTask" + Model)
+      .Columns(columns => {
+
+          columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Срокисп_283__00).Width(100);
+          columns.Bound(p => p.Text).Title("Текст").Width(150);
+          columns.Bound(p => p.AuthorValue).Title("Автор").Width(150);
+          columns.ForeignKey(p => p.Stage,((IEnumerable)ViewData["StageList"]),"Id","Name").Title("Этап").Width(150);
+          columns.ForeignKey(p => p.State, ((IEnumerable)ViewData["StateList"]), "Id", "Name").Title("Статус").Width(150);
+
+      })
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable().ClientDetailTemplateId("templateAllGrid")
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable()
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .HtmlAttributes(new { @class = "pwGridHistory" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .PageSize(50)
+                               .Read(read => read.Action("ListAllTask", "Application", new { id = Model }))
+                           )
+    )
+</div>
+<script id="templateAllGrid" type="text/kendo-template">
+
+   
+    @(Html.Kendo().TabStrip()
+          .Name("tabStripAllTask_#=TaskId#").HtmlAttributes(new { @style = "height:300px; width: 862px; border:0;background: none repeat scroll 0 0 ; clear: both;" })
+          .Animation(false)
+          .SelectedIndex(0)
+          .Items(items => {
+          items.Add().Text("Исполнение").LoadContentFrom("ReportDetails", "Application", new { id = "#=TaskId#" });
+          items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вложения_333__00).Content(
+            @<div style="height:256px" id="DocumentFileTask_#=TaskId#">
+                @*<a onclick="DownloadAllFile('#=TaskId#')">Скачать все одним файлом</a>*@
+
+                @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listViewAllTask_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadTask", "Upload", new { taskId = "#=TaskId#" }))).ToClientTemplate()
+                )
+
+            </div>);
+
+             
+          }).ToClientTemplate())
+
+</script>

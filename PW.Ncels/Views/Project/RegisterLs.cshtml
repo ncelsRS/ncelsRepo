@@ -1,0 +1,1214 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/SignView.cshtml")
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Создать заявление на проведение экспертизы лекарственного средства</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявление</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId" />
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="registerLsGrid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Заявление на проведение экспертизы лекарственного средства
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                    <span class="label label-success pull-right">Новый</span>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" type="button" ng-click="editProject()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" id ="signBtn" type="button" ng-click="sign('@Model')" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-check-square"></i> Подписать ЭЦП</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="sendAgree()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-if="isEnableDownload" ng-click="view('@Model')" @*onclick="location.href='@Url.Action("FileView", "Upload")'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-if="isEnableDownload" onclick="location.href='@Url.Action("CardDownload", "Upload",new {id=@Model})'" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-download"></i> Выгрузить файл на диск</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-2">Упаковка</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-3">Полный качественный и количественный состав</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-4">Дополнительная информация</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-5">Производитель(и) лекарственного препарата и участок(и) производства</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-6">Соглашение</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-7">Перечень документов</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-8">Вложения</a></li>
+                                    @*<li class=""><a data-toggle="tab" href="#tab-9">Переписка</a></li>*@
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tab-1" class="tab-pane active">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Данные по договору
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Договор</label>
+                                                                        <ui-select ng-model="object.Drug.ContractId" ui-select-selected required theme="bootstrap" ng-change="setContractDate('ContractId','ContractExpireDate',object.Drug.ContractId)">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in ContractId | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        <div class="input-group date">
+                                                                            <input ng-model="ContractExpireDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" disabled>
+                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Тип ускоренной регистрации</label>
+                                                        <ui-select ng-model="object.Drug.AccelerationTypeDicId" ng-change="setSelectedCode('AccelerationType','accelerationSelected',object.Drug.AccelerationTypeDicId)" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in AccelerationType | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4" ng-if="accelerationSelected=='fast'">
+                                                    <div class="form-group">
+                                                        <label>№ письма</label>
+                                                        <input ng-model="object.Drug.AccelerationNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4" ng-if="accelerationSelected=='fast'">
+                                                    <div class="form-group">
+                                                        <label>Дата письма</label>
+                                                        <div class="input-group date">
+                                                            <input ng-model="object.Drug.AccelerationDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" ng-if="accelerationSelected=='fast'">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Обоснование</label>
+                                                        <input ng-model="object.Drug.AccelerationNote" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Торговое название
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <input ng-model="object.Drug.NameKz" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <input ng-model="object.Drug.NameRu" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На английском языке</label>
+                                                                <input ng-model="object.Drug.NameEn" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Международное непатентованное название (МНН)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <input ng-model="object.Drug.MnnKz" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <input ng-model="object.Drug.MnnRu" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На английском языке</label>
+                                                                <input ng-model="object.Drug.MnnEn" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Торговое название на экспорт (для отечественных производителей)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Страна</label>
+                                                                        <ui-select ng-model="object.Export.CountryDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Наименование на государственном языке</label>
+                                                                        <input ng-model="object.Export.NameKz" placeholder="Введите значение" class="form-control" type="text">
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Наименование на русском языке</label>
+                                                                        <input ng-model="object.Export.NameRu" placeholder="Введите значение" class="form-control" type="text">
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Наименование на английском языке</label>
+                                                                        <input ng-model="object.Export.NameEn" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <button class="btn btn-success " type="button" ng-click="addOrganizationType12()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                                                    <button class="btn btn-success " type="button" ng-click="saveOrganizationType12()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                                                    <button type="button" class="btn btn-w-m btn-danger" ng-click="deleteOrganizationType12()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <grid-light-object object-id="@Model" url="/Organization/GetOrganizationType?type=12" dt-id="gridOrganizationType12" dt-selectfun="selectGridOrganizationType12" reload-row="reloadGridOrganizationType12" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Наличие патентной защиты</label>
+                                                        <ui-select ng-model="object.Drug.IsPatent" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>№</label>
+                                                        <input ng-model="object.Drug.PatentNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Дата</label>
+                                                        <div class="input-group date">
+                                                            <input ng-model="object.Drug.PatentDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Срок действия охранного документа на изобретение или полезную модель (приложить копию документа)</label>
+                                                        <div class="input-group date">
+                                                            <input ng-model="object.Drug.PatentExpiryDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Лекарственная форма
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <input ng-model="object.Drug.LsFormNameKz" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <input ng-model="object.Drug.LsFormNameRu" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Анатомо-терапевтическо-химическая классификация (АТХ)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>АТХ</label>
+                                                                <ui-select ng-model="object.Drug.AtxId" ng-change="setSelectedAtx(object.Drug.AtxId)" ui-select-selected required theme="bootstrap">
+                                                                    <ui-select-match>{{$select.selected.Code}} {{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in Atx | filter: $select.search">
+                                                                        <div ng-bind-html="item.Code + ' ' + item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Код</label>
+                                                                <input ng-model="object.Drug.AtxCode" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <input ng-model="object.Drug.AtxNameKz" placeholder="Введите значение" class="form-control" type="text">
+
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <input ng-model="object.Drug.AtxNameRu" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Лекарственное средство</label>
+                                                        <ui-select ng-model="object.Drug.LsTypeDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in LsType | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>&nbsp;</label>
+                                                        <ui-select ng-model="object.Drug.LsType2DicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in LsType2 | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Указать название оригинального лекартсвенного препарата</label>
+                                                        <input ng-model="object.Drug.OriginalName" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Форма отпуска в стране заявителя</label>
+                                                        <ui-select ng-model="object.Drug.SaleTypeDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in SaleType | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Способы введения</label>
+                                                        <ui-select ng-model="object.Drug.IntroducingMethodDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in IntroducingMethod | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Дозировка/концентрация (заполняется при наличии, объем заполняется в упаковке)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Количество</label>
+                                                                        <input ng-model="object.Drug.Dosage" placeholder="Введите значение" class="form-control" type="number">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Drug.DosageMeasureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                @*<div class="col-lg-3">
+                                                                        <div class="form-group">
+                                                                            <label>Описание фасовки (на рус)</label>
+                                                                            <input ng-model="object.Drug.DosageNoteRu" placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-3">
+                                                                        <div class="form-group">
+                                                                            <label>Описание фасовки (на каз)</label>
+                                                                            <input ng-model="object.Drug.DosageNoteKz" placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                    </div>*@
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Концентрация (на рус)</label>
+                                                                        <input ng-model="object.Drug.ConcentrationRu" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Концентрация (на каз)</label>
+                                                                        <input ng-model="object.Drug.ConcentrationKz" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-2" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group">
+                                                                <label>Вид</label>
+                                                                <ui-select ng-model="object.Package.PackageTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in PackageType | filter: $select.search">
+                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Наименование</label>
+                                                                <ui-select ng-model="object.Package.PackageNameDicId" ng-change="setSelectedCode('PackageName','packageNameCode',object.Package.PackageNameDicId)" ui-select-selected required theme="bootstrap">
+                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in PackageName | filter: $select.search">
+                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                            <div class="form-group" ng-if="packageNameCode=='other'">
+                                                                <label>Наименование вручную</label>
+                                                                <input ng-model="object.Package.PackageName" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="row">
+                                                                    <div class="col-lg-6">
+                                                                        <label>Размер (при наличии)</label>
+                                                                        <input ng-model="object.Package.Size" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                    <div class="col-lg-6">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Package.SizeMeasureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="row">
+                                                                    <div class="col-lg-6">
+                                                                        <label>Объем (при наличии)</label>
+                                                                        <input ng-model="object.Package.Volume" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                    <div class="col-lg-6">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Package.VolumeMeasureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Кол-во единиц в упаковке</label>
+                                                                <input ng-model="object.Package.Count" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Краткое описание</label>
+                                                                <textarea ng-model="object.Package.Note" placeholder="Введите значение" class="form-control" type="text" rows="3"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="ng-scope">
+                                                                <p>Выберите изображение</p>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+
+                                                                        <div class="cropArea">
+                                                                            <img-crop area-type="square" image="myImage" result-image="myCroppedImage" class="ng-isolate-scope"><canvas width="400" height="242" style="cursor: default;"></canvas></img-crop>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <p>Макет</p>
+                                                                        <div>
+                                                                            <img src="../../Content/img/logo_big.png"></>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <button class="btn btn-success " type="button" ng-click="addPackage()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                                            <button class="btn btn-success " type="button" ng-click="savePackage()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                                            <button type="button" class="btn btn-w-m btn-danger" ng-click="deletePackage()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <grid-light-object object-id="@Model" url="/Packag/GetPackageType" dt-id="gridPackage" dt-selectfun="selectGridPackage" reload-row="reloadGridPackage" column-order="1" dt-options="dtOptions2" dt-columns="dtColumns2"></grid-light-object>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" ng-show="isCountLsEnable">
+                                                        <div class="col-lg-3">
+                                                            <label>Количество ЛС в упаковке</label>
+                                                            <input ng-model="countLs" ng-init="countLs=1;isCountLsEnable=false" placeholder="Введите значение" class="form-control" type="text" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-3" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Тип вещества</label>
+                                                        <ui-select ng-model="object.Composition.MaterialTypeDicId" ng-change="setSelectedCode('MaterialType','materialSelected',object.Composition.MaterialTypeDicId)" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in MaterialType | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Наименование</label>
+                                                        <ui-select ng-model="object.Composition.MaterialNameDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in MaterialName | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Наименование вручную</label>
+                                                        <input ng-model="object.Composition.MaterialName" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Количество на единицу лекарственной формы</label>
+                                                        <input ng-model="object.Composition.Count" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Нормативный докуент, регламентирующий качество или Фармакопея с указанием года издания</label>
+                                                        <input ng-model="object.Composition.NormativeDocument" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" ng-if="materialSelected=='active'">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Производитель
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Страна</label>
+                                                                        <ui-select ng-model="object.Composition.CountryDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Населенный пункт</label>
+                                                                        <input ng-model="object.Composition.City" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Улица</label>
+                                                                        <input ng-model="object.Composition.Street" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Дом</label>
+                                                                        <input ng-model="object.Composition.House" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <label>Контролируется международным комитетом по контролю за наркотиками</label>
+                                                        <ui-select ng-model="object.Composition.IsControl" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <label>Наличие ядовитых веществ</label>
+                                                        <ui-select ng-model="object.Composition.IsPoison" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Тип</label>
+                                                        <ui-select ng-model="object.Composition.MaterialGainDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in MaterialGain | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Место произрастания</label>
+                                                        <input ng-model="object.Composition.MaterialGain" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Происхождение</label>
+                                                        <ui-select ng-model="object.Composition.MaterialOriginDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in MaterialOrigin | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <button class="btn btn-success " type="button" ng-click="addComposition()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                                    <button class="btn btn-success " type="button" ng-click="saveComposition()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                                    <button type="button" class="btn btn-w-m btn-danger" ng-click="deleteComposition()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-light-object object-id="@Model" url="/Composition/GetComposition" dt-id="gridComposition" dt-selectfun="selectGridComposition" reload-row="reloadGridComposition" column-order="1" dt-options="dtOptions3" dt-columns="dtColumns3"></grid-light-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-4" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Подана ли на государственную регистрацию лекарственная субстанция, произведенная не в условиях Надлежащей производственной практики, для отечественных производителей (кроме гомеопатических препаратов, иммунобиологических препаратов и лекарственного растительного сырья)</label>
+                                                        <ui-select ng-model="object.Drug.IsGrls" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Условия транспортирования</label>
+                                                        <input ng-model="object.Drug.Transportation" placeholder="Введите значение" class="form-control" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Производство</label>
+                                                        <ui-select ng-model="object.Drug.ManufactureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in ManufactureType | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <label>Наличие сертификата GMP</label>
+                                                        <ui-select ng-model="object.Drug.IsGmp" ui-select-selected required theme="bootstrap">
+                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                            <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                            </ui-select-choices>
+                                                        </ui-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <label>Срок действия</label>
+                                                        <div class="input-group date">
+                                                            <div class="input-group date">
+                                                                <input ng-model="object.Drug.GmpExpiryDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Срок хранения лекарственного средства
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый срок хранения</label>
+                                                                        <input ng-model="object.Drug.BestBefore" placeholder="Введите значение" class="form-control" type="number">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Drug.BestBeforeMeasureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in BestBeforeMeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый период применения (после первого вскрытия контейнера)</label>
+                                                                        <input ng-model="object.Drug.AppPeriodOpen" placeholder="Введите значение" class="form-control" type="number">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Drug.AppPeriodOpenMeasureDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in BestBeforeMeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый период применения (после растворения или разведения)</label>
+                                                                        <input ng-model="object.Drug.AppPeriodMix" placeholder="Введите значение" class="form-control" type="number">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <ui-select ng-model="object.Drug.AppPeriodMixMeasureDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in BestBeforeMeasureType | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Условия хранения
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>Предлагаемые условия хранения</label>
+                                                                <input ng-model="object.Drug.StorageConditions1" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Предлагаемые условия хранения после первого вскрытия упаковки</label>
+                                                                <input ng-model="object.Drug.StorageConditions2" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Данные по стоимости формы выпуска лекарственного средства
+                                                        </div>
+
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Штрих-код вторичной упаковки (указывается при наличии)</label>
+                                                                        <input ng-model="object.Drug.Barcode" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Цена производи-теля, в тенге</label>
+                                                                        <input ng-model="object.Drug.ManufacturePrice" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                    @*<div class="form-group">
+                                                                            <label>Первичная упаковка</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во доз в первичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>*@
+                                                                </div>
+                                                                @*<div class="col-lg-4">
+                                                                        <div class="form-group">
+                                                                            <label>Вторичная упаковка</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во первичной упаковки во вторичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во доз во вторичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                    </div>*@
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Референтная цена страны производителя-владельца регистрационного удостоверения, юридического лица, имеющего статус официального представителя производителя в тенге </label>
+                                                                        <input ng-model="object.Drug.RefPrice" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Зарегистрированная цена (цена с учетом понесенных расходов на логистику, таможенных платежей и проведение оценки безопасности и качества), в тенге</label>
+                                                                        <input ng-model="object.Drug.RegPrice" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Наличие охранного документа на изобретение или полезную модель
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Название охранного документа</label>
+                                                                        <input ng-model="object.Drug.SecureDocument" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Номер охранного документа</label>
+                                                                        <input ng-model="object.Drug.SecureDocumentNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Дата выдачи</label>
+                                                                        <div class="input-group date">
+                                                                            <input ng-model="object.Drug.SecureDocumentDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        <div class="input-group date">
+                                                                            <input ng-model="object.Drug.SecureDocumentExpiryDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Регистрация в стране-производителе и других странах
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Страна</label>
+                                                                        <ui-select ng-model="object.Manufacture.CountryDicId" ui-select-selected required theme="bootstrap">
+                                                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                            <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                            </ui-select-choices>
+                                                                        </ui-select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>№ регистрационного удостоверения (указывается при наличии)</label>
+                                                                        <input ng-model="object.Manufacture.DocNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Дата выдачи</label>
+                                                                        <div class="input-group date">
+                                                                            <input ng-model="object.Manufacture.DocDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        <div class="input-group date">
+                                                                            <input ng-model="object.Manufacture.DocExpiryDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <button class="btn btn-success " type="button" ng-click="addOrganizationType14()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                                                    <button class="btn btn-success " type="button" ng-click="saveOrganizationType14()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                                                    <button type="button" class="btn btn-w-m btn-danger" ng-click="deleteOrganizationType14()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <grid-light-object object-id="@Model" url="/Organization/GetOrganizationType?type=14" dt-id="gridOrganizationType14" dt-selectfun="selectGridOrganizationType14" reload-row="reloadGridOrganizationType14" column-order="1" dt-options="dtOptions4" dt-columns="dtColumns4"></grid-light-object>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-5" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <label>Тип производителя</label>
+                                                                <ui-select ng-model="object.Organization.OrgManufactureTypeDicId" ui-select-selected required theme="bootstrap">
+                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in OrgManufactureType | filter: $select.search">
+                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <div class="form-group">
+                                                                <label>Наименование на русском языке</label>
+                                                                <input ng-model="object.Organization.NameRu" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div class="form-group">
+                                                                <label>Наименование на казахском языке</label>
+                                                                <input ng-model="object.Organization.NameKz" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div class="form-group">
+                                                                <label>Наименование на английском языке</label>
+                                                                <input ng-model="object.Organization.NameEn" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Страна</label>
+                                                                <ui-select ng-model="object.Organization.CountryDicId" ui-select-selected required theme="bootstrap">
+                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>№ разрешительного документа</label>
+                                                                <input ng-model="object.Organization.DocNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Дата выдачи</label>
+                                                                <div class="input-group date">
+                                                                    <input ng-model="object.Organization.DocDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Срок действия </label>
+                                                                <div class="input-group date">
+                                                                    <input ng-model="object.Organization.DocExpiryDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group">
+                                                                <label>Юридический адрес</label>
+                                                                <input ng-model="object.Organization.AddressLegal" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Фактический адрес</label>
+                                                                <input ng-model="object.Organization.AddressFact" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group">
+                                                                <label>Телефон, факс</label>
+                                                                <input ng-model="object.Organization.Phone" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Электронная почта</label>
+                                                                <input ng-model="object.Organization.Email" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group">
+                                                                <label>Фамилия первого руководителя</label>
+                                                                <input ng-model="object.Organization.BossLastName" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Имя первого руководителя</label>
+                                                                <input ng-model="object.Organization.BossFirstName" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Отчество первого руководителя</label>
+                                                                <input ng-model="object.Organization.BossMiddleName" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Должность первого руководителя</label>
+                                                                <input ng-model="object.Organization.BossPosition" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="form-group">
+                                                                <label>Фамилия, имя, отчество контактного лица</label>
+                                                                <input ng-model="object.Organization.ContactFio" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Должность контактного лица</label>
+                                                                <input ng-model="object.Organization.ContactPosition" placeholder="Введите значение" class="form-control" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <button class="btn btn-success" type="button" ng-click="addOrganizationType13()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                                            <button class="btn btn-success" type="button" ng-click="saveOrganizationType13()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                                            <button type="button" class="btn btn-w-m btn-danger" ng-click="deleteOrganizationType13()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <grid-light-object object-id="@Model" url="/Organization/GetOrganizationType?type=13" dt-id="gridOrganizationType13" dt-selectfun="selectGridOrganizationType13" reload-row="reloadGridOrganizationType13" column-order="1" dt-options="dtOptions5" dt-columns="dtColumns5"></grid-light-object>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-6" class="tab-pane">
+                                        <div class="panel-body">
+                                            <p class="text-bold">Необходимо принять соглашение:</p>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="pw-text-area" rows="20" id="comment">@Html.Partial("Convention")</div>
+                                                    <br />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <input type="checkbox"> Подтверждаю
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-7" class="tab-pane">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-none m-b">Перечень и образцы документов при проведении экспертизы ЛС</h3>
+                                            <div id="news_content" class="cont cont-text">
+                                                <ol>
+                                                    <li style="margin-bottom: 10px;">
+                                                        <a href="http://www.dari.kz/upload/images/downloads/doc ls/%D0%9F%D0%B5%D1%80%D0%B5%D1%87%D0%B5%D0%BD%D1%8C%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BE%D1%81%D1%8C%D0%B5%2C%20%D0%BF%D1%80%D0%B5%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D0%B5%D0%BC%D1%8B%D1%85%20%D0%BF%D1%80%D0%B8%20%D0%B3%D0%BE%D1%81%D1%83%D0%B4%D0%B0%D1%80%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9%20%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%B8%2C%20%D0%BF%D0%B5%D1%80%D0%B5%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BB%D0%B5%D0%BA%D0%B0%D1%80%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D1%8B%D1%85.docx">Перечень документов регистрационного досье, предоставляемых при экспертизе лекарственных средств в Республике Казахстан в формате Общего технического документа (для лекарственных средств, произведенных &nbsp;в условиях Надлежащей производственной практики);</a>
+                                                    </li>
+                                                    <li style="margin-bottom: 10px;">
+                                                        <a href="http://www.dari.kz/upload/images/downloads/doc ls/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2%20%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BE%D1%81%D1%8C%D0%B5%2C%20%D0%BF%D1%80%D0%B5%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D0%B5%D0%BC%D1%8B%D1%85%20%D0%BF%D1%80%D0%B8%20%D1%8D%D0%BA%D1%81%D0%BF%D0%B5%D1%80%D1%82%D0%B8%D0%B7%D0%B5%20%D0%BB%D0%B5%D0%BA%D0%B0%D1%80%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D1%8B%D1%85%20%D1%81%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B2%2C%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%BD%D1%8B%D1%85%20%D0%B2%20%D0%BD%D0%B5%20%D1%83%D1%81%D0%BB%D0%BE%D0%B2%D0%B8%D1%8F%D1%85.docx">Список документов регистрационного досье, предоставляемых при экспертизе лекарственных средств, произведенных в не условиях надлежащей производственной практики;</a>
+                                                    </li>
+                                                    <li style="margin-bottom: 10px;">
+                                                        <a href="http://www.dari.kz/upload/images/downloads/%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B8%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F.docx">Перечень документов по внесению изменений;</a>
+                                                    </li>
+                                                    <li style="margin-bottom: 10px;">
+                                                        <a href="http://www.dari.kz/upload/images/downloads/%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D1%8B%D0%B9%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B21.rar">Электронный формат документов</a>;
+                                                    </li>
+                                                    <li style="margin-bottom: 10px;">
+                                                        <a href="http://www.dari.kz/upload/files/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%20%D0%9B%D0%A1.xls">Шаблон ввода образцов и материалов при сдаче регистрационного досье</a>;
+                                                    </li>
+                                                </ol>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-8" class="tab-pane">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-none m-b">3. Вложения</h3>
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-edit url="/Upload/GetAttachListEdit" type="sysAttachMaterialsDict" path="@Model" />
+                                        </div>
+                                    </div>
+                                    @*<div id="tab-9" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <grid-cor-object url="/Correspondence/GetList" column-order="1"></grid-cor-object>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

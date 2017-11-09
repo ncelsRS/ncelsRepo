@@ -1,0 +1,136 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_ExpertiseSafetyreportFinalDoc
+
+@{
+    var safetyreportFinalDocFormId = "safetyreportFinalDocForm" + Model.EXP_ExpertiseStageDosage.Id;
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var primaryConclusion = Model.EXP_ExpertiseStageDosage.DosageId + "_PrimaryConclusion";
+    var pharmaceuticalConclusion = Model.EXP_ExpertiseStageDosage.DosageId + "_PharmaceuticalConclusion";
+    var pharmacologicalConclusion = Model.EXP_ExpertiseStageDosage.DosageId + "_PharmacologicalConclusion";
+    var analyticalConclusion = Model.EXP_ExpertiseStageDosage.DosageId + "_AnalyticalConclusion";
+    var conclusion = Model.EXP_ExpertiseStageDosage.DosageId + "_Conclusion";
+    var headercss = "panel ";
+    var statusName = "";
+    if (Model.IsAccepted != null)
+    {
+        if (Model.IsAccepted.Value)
+        {
+            headercss += "panel-success";
+            statusName = "Принят";
+        }
+        else
+        {
+            headercss += "panel-warning";
+            statusName = "На доработку";
+        }
+    }
+    else
+    {
+        headercss += "panel-default";
+    }
+}
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
+<link href="~/Content/css/custom/subform-comment-style.css" rel="stylesheet" type="text/css" />
+<script>
+    debugger;
+    $(document).ready(function () {
+        var viewModel = kendo.observable({
+            PrimaryConclusion: $('#@primaryConclusion').text(),
+            PharmaceuticalConclusion: $('#@pharmaceuticalConclusion').text(),
+            PharmacologicalConclusion: $('#@pharmacologicalConclusion').text(),
+            AnalyticalConclusion: $('#@analyticalConclusion').text(),
+            Conclusion: $('#@conclusion').text()
+        });
+        viewModel.bind("change", function (e) {
+            updateFinalDocument(e.field, viewModel.get(e.field), '@Model.EXP_ExpertiseStageDosage.Id', '@controllerName');
+        });
+        kendo.bind($("#@safetyreportFinalDocFormId"), viewModel);
+    });
+</script>
+
+<div class="@headercss">
+    <div class="panel-heading">
+        Результаты экспертизы
+        @if (Model.IsAccepted != null)
+        {
+            <p>@statusName</p>
+            if (!Model.IsAccepted.Value)
+            {
+                <p>Причина:@Model.Remark</p>
+            }
+        }
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+        <table class="table table-bordered table-striped" id="@safetyreportFinalDocFormId">
+            <tbody>
+                <tr>
+                    <td>
+                        <span>@Html.DisplayNameFor(model => model.PrimaryConclusion)</span>
+                        <div class="input-group">
+                            <textarea class="form-control edit-control" cols="20" rows="2" data-bind="value: PrimaryConclusion" id="@primaryConclusion" >@Model.PrimaryConclusion</textarea>
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>@Html.DisplayNameFor(model => model.PharmaceuticalConclusion)</span>
+                        <div class="input-group">
+                            <textarea class="form-control edit-control" cols="20" rows="2" data-bind="value: PharmaceuticalConclusion" id="@pharmaceuticalConclusion">@Model.PharmaceuticalConclusion</textarea>
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                      
+                    <span>@Html.DisplayNameFor(model => model.PharmacologicalConclusion)</span>
+                        <div class="input-group">
+                            <textarea class="form-control edit-control" cols="20" rows="2" data-bind="value: PharmacologicalConclusion" id="@pharmacologicalConclusion">@Model.PharmacologicalConclusion</textarea>
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                      
+                    <span>@Html.DisplayNameFor(model => model.AnalyticalConclusion)</span>
+                        <div class="input-group">
+                            <textarea class="form-control edit-control" cols="20" rows="2" data-bind="value: AnalyticalConclusion" id="@analyticalConclusion">@Model.AnalyticalConclusion</textarea>
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       
+                    <span>@Html.DisplayNameFor(model => model.Conclusion)</span>
+                        <div class="input-group">
+                            <textarea class="form-control edit-control" cols="20" rows="2" data-bind="value: Conclusion" id="@conclusion">@Model.Conclusion</textarea>
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

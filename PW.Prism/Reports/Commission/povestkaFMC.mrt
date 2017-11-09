@@ -1,0 +1,2872 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism</Alias>
+        <ConnectionStringEncrypted>+XpBK90Kks3zSoScYQSx5950+ytNVuO8Ykf1bOqYJV6Q1MuhxUpj+exM1aVvTOF7gWDBic1bS53LW+3cY0yiP8V4ZS1hVEPx4Uv1gOUc7HvTbPvCS13zvOJNccR6xCVGxMjXicldQ81vE+jMTXSzF8Jg4QlNSw==</ConnectionStringEncrypted>
+        <Name>prism</Name>
+      </prism>
+    </Databases>
+    <DataSources isList="true" count="7">
+      <Documents Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Documents</Alias>
+        <Columns isList="true" count="29">
+          <value>DocumentId,System.Guid</value>
+          <value>IsAttachments,System.Boolean</value>
+          <value>Number,System.String</value>
+          <value>SortNumber,System.Int32</value>
+          <value>DocumentDate,System.DateTime</value>
+          <value>StateType,System.String</value>
+          <value>MonitoringType,System.String</value>
+          <value>ExecutionDate,System.DateTime</value>
+          <value>MonitoringNote,System.String</value>
+          <value>CorrespondentsValue,System.String</value>
+          <value>CorrespondentsInfo,System.String</value>
+          <value>OutgoingNumber,System.String</value>
+          <value>AutoOutgoingDate,System.DateTime</value>
+          <value>Summary,System.String</value>
+          <value>ResponsibleValue,System.String</value>
+          <value>ExecutorsValue,System.String</value>
+          <value>AnswersValue,System.String</value>
+          <value>LanguageDictionaryValue,System.String</value>
+          <value>QuestionDesignDictionaryValue,System.String</value>
+          <value>DocumentKindDictionaryValue,System.String</value>
+          <value>Counters,System.String</value>
+          <value>FormDeliveryDictionaryValue,System.String</value>
+          <value>NomenclatureDictionaryValue,System.String</value>
+          <value>CompleteDocumentsValue,System.String</value>
+          <value>RegistratorValue,System.String</value>
+          <value>Note,System.String</value>
+          <value>Year,System.Int32</value>
+          <value>Month,System.Int32</value>
+          <value>Day,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Documents</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>organizationId,OrganizationId,12,100</value>
+        </Parameters>
+        <SqlCommand>select DocumentId = columns.Id,
+	columns.IsAttachments,
+	columns.Number,
+	columns.SortNumber,
+	columns.DocumentDate,
+	enStatus.Value as StateType,
+	enMonitoring.Value as MonitoringType,
+	columns.ExecutionDate,
+	columns.MonitoringNote,
+	columns.CorrespondentsValue,
+	columns.CorrespondentsInfo,
+	columns.OutgoingNumber,
+	columns.AutoOutgoingDate,
+	columns.Summary,
+	columns.ResponsibleValue,
+	columns.ExecutorsValue,
+	columns.AnswersValue,
+	columns.LanguageDictionaryValue,
+	columns.QuestionDesignDictionaryValue,
+	columns.DocumentKindDictionaryValue,
+	columns.Counters,
+	columns.FormDeliveryDictionaryValue,
+	columns.NomenclatureDictionaryValue,
+	columns.CompleteDocumentsValue,
+	columns.RegistratorValue,
+	columns.Note,
+	columns.Year,
+	columns.Month,
+	columns.Day from Documents as columns 
+	left join (select * from PrismEnums as e where e.Type ='StateTypeDocument') as enStatus on  enStatus.[Key] = columns.StateType
+	left join (select * from PrismEnums as e where e.Type ='MonitoringType') as enMonitoring on  enMonitoring.[Key] = columns.MonitoringType
+where columns.IsDeleted = 0 and columns.DocumentType = 3 and columns.OrganizationId = @organizationId
+</SqlCommand>
+      </Documents>
+      <Commissions Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Commissions</Alias>
+        <Columns isList="true" count="14">
+          <value>Id,System.Int32</value>
+          <value>Number,System.Int32</value>
+          <value>FullNumber,System.String</value>
+          <value>KindId,System.Int32</value>
+          <value>TypeId,System.Int32</value>
+          <value>Date,System.DateTime</value>
+          <value>IsComplete,System.Boolean</value>
+          <value>Comment,System.String</value>
+          <value>PredsedatelLastName,System.String</value>
+          <value>SekretarLastName,System.String</value>
+          <value>PredsedatelFirstName,System.String</value>
+          <value>PredsedatelMiddleName,System.String</value>
+          <value>SekretarFirstName,System.String</value>
+          <value>SekretarMiddleName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Commissions</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionid,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>select C.*
+	,E.LastName AS PredsedatelLastName
+	,E.FirstName AS PredsedatelFirstName
+	,E.MiddleName AS PredsedatelMiddleName
+	,E2.LastName AS SekretarLastName
+	,E2.FirstName AS SekretarFirstName
+	,E2.MiddleName AS SekretarMiddleName
+from dbo.Commissions AS C
+	left join dbo.CommissionUnits AS CU ON CU.Commissionid = C.Id 
+		AND CU.UnitTypeId = 1
+	left join dbo.Employees AS E ON E.Id = CU.EmployeeId
+	left join dbo.CommissionUnits AS CU2 ON CU2.Commissionid = C.Id 
+		AND CU2.UnitTypeId = 3
+	left join dbo.Employees AS E2 ON E2.Id = CU2.EmployeeId
+where C.Id = @commissionid
+</SqlCommand>
+      </Commissions>
+      <CommissionQuestions Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>CommissionQuestions</Alias>
+        <Columns isList="true" count="6">
+          <value>Id,System.Int32</value>
+          <value>CommissionId,System.Int32</value>
+          <value>Number,System.Int32</value>
+          <value>TypeId,System.Int32</value>
+          <value>Comment,System.String</value>
+          <value>TypeName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>CommissionQuestions</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionId,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>select q.*
+	,qt.Name as TypeName
+from CommissionQuestions as q
+	inner join CommissionQuestionTypes as qt on qt.Id = q.TypeId
+WHERE q.CommissionId = @commissionId</SqlCommand>
+      </CommissionQuestions>
+      <Exp_DrugDosageStageView Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Exp_DrugDosageStageView</Alias>
+        <Columns isList="true" count="56">
+          <value>Id,System.Guid</value>
+          <value>DosageId,System.Int64</value>
+          <value>DosageStageId,System.Guid</value>
+          <value>DosageRegNumber,System.String</value>
+          <value>DeclarationId,System.Guid</value>
+          <value>DeclarationNumber,System.String</value>
+          <value>DeclarationNameRu,System.String</value>
+          <value>DeclarationCreatedDate,System.DateTime</value>
+          <value>StageId,System.Int32</value>
+          <value>StageNameRu,System.String</value>
+          <value>ResultId,System.Int32</value>
+          <value>ResultNameRu,System.String</value>
+          <value>FinalDocStatusId,System.Guid</value>
+          <value>FinalDocStatusCode,System.String</value>
+          <value>FinalDocStatusDisplayName,System.String</value>
+          <value>CommissionId,System.Int32</value>
+          <value>CommissionTypeId,System.Int32</value>
+          <value>CommissionConclusionTypeId,System.Int32</value>
+          <value>CommissionConclusionTypeCode,System.Int32</value>
+          <value>ProducerNameRu,System.String</value>
+          <value>ProducerCountryId,System.Guid</value>
+          <value>ProducerCountryName,System.String</value>
+          <value>DosageFormId,System.Int32</value>
+          <value>DosageFormName,System.String</value>
+          <value>DeclarationPaysDates,System.String</value>
+          <value>DosageStageStartDate,System.DateTime</value>
+          <value>DosageStageEndDate,System.DateTime</value>
+          <value>DosageBestBefore,System.String</value>
+          <value>DosageDosageValue,System.Decimal</value>
+          <value>DosageSaleTypeId,System.Int32</value>
+          <value>DosageSaleTypeName,System.String</value>
+          <value>DosageDosageName,System.String</value>
+          <value>DosageDosageShortName,System.String</value>
+          <value>DosageBestBeforeName,System.String</value>
+          <value>DosageBestBeforeShortName,System.String</value>
+          <value>DeclarationTypeId,System.Int32</value>
+          <value>DeclarationTypeNameRu,System.String</value>
+          <value>ResultDate,System.DateTime</value>
+          <value>ResultCreatorId,System.Guid</value>
+          <value>ResultCreatorLastName,System.String</value>
+          <value>ResultCreatorFirstName,System.String</value>
+          <value>ResultCreatorMiddleName,System.String</value>
+          <value>ResultCreatorShortName,System.String</value>
+          <value>CommissionConclusionComment,System.String</value>
+          <value>ProducerDocDate,System.DateTime</value>
+          <value>ProducerDocExpiryDate,System.DateTime</value>
+          <value>DeclarationAtxId,System.Int32</value>
+          <value>DeclarationAtxName,System.String</value>
+          <value>DeclarationAtxCode,System.String</value>
+          <value>DeclarationMnnId,System.Int32</value>
+          <value>DeclarationMnnNameRu,System.String</value>
+          <value>NtdId,System.Int32</value>
+          <value>NtdNameRu,System.String</value>
+          <value>PrevCommissionCount,System.Int32</value>
+          <value>ChangeString,System.String</value>
+          <value>PrevCommissions,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Exp_DrugDosageStageView</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionId,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>SELECT DD.*
+	,CH.ChangeString
+	,PR.PrevCommissions
+FROM dbo.Exp_DrugDosageStageView AS DD
+	LEFT JOIN dbo.Exp_DrugDeclarationChangeView AS CH 
+		ON CH.DrugDeclarationId = DD.DeclarationId
+	LEFT JOIN dbo.Exp_DrugDosageStagePrevCommissionConcatinateView AS PR 
+		ON PR.DosageStageId = DD.Id
+WHERE DD.CommissionId = @commissionId</SqlCommand>
+      </Exp_DrugDosageStageView>
+      <CommissionOtherUnits Ref="7" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>CommissionOtherUnits</Alias>
+        <Columns isList="true" count="4">
+          <value>Id,System.Guid</value>
+          <value>LastName,System.String</value>
+          <value>FirstName,System.String</value>
+          <value>MiddleName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>CommissionOtherUnits</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionId,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>select E.Id
+	,E.LastName AS LastName
+	,E.FirstName AS FirstName
+	,E.MiddleName AS MiddleName
+	from dbo.Commissions AS C
+	left join dbo.CommissionUnits AS CU ON CU.Commissionid = C.Id 
+	AND CU.UnitTypeId &lt;&gt; 1 AND CU.UnitTypeId &lt;&gt; 3
+	left join dbo.Employees AS E ON E.Id = CU.EmployeeId
+where C.Id = @commissionid
+</SqlCommand>
+      </CommissionOtherUnits>
+      <CommissionCount Ref="8" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>CommissionCount</Alias>
+        <Columns isList="true" count="1">
+          <value>Count,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>CommissionCount</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionId,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>SELECT COUNT(1) AS Count
+	FROM dbo.Exp_DrugDosageStageView AS Q
+	WHERE Q.CommissionId = @commissionId
+	AND Q.PrevCommissionCount &lt;= 0</SqlCommand>
+      </CommissionCount>
+      <CommissionCountRepeat Ref="9" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>CommissionCountRepeat</Alias>
+        <Columns isList="true" count="1">
+          <value>Count,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>CommissionCountRepeat</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>commissionId,CommissionId,8,0</value>
+        </Parameters>
+        <SqlCommand>SELECT COUNT(1) AS Count
+	FROM dbo.Exp_DrugDosageStageView AS Q
+	WHERE Q.CommissionId = @commissionId
+	AND Q.PrevCommissionCount &gt; 0</SqlCommand>
+      </CommissionCountRepeat>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Resources isList="true" count="0" />
+    <Variables isList="true" count="2">
+      <value>,OrganizationId,OrganizationId,,System.String,_x0038_F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE,False,False,False,False</value>
+      <value>,CommissionId,CommissionId,,System.Int32,_x0035_9,False,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="3">
+    <Page1 Ref="10" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="4">
+        <Text8 Ref="11" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>25.4,17.21,1.8,0.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,8</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text8</Name>
+          <Page isRef="10" />
+          <Parent isRef="10" />
+          <Text>Стр. {PageNumber}</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text8>
+        <HeaderBand13 Ref="12" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27.7,6.79</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text118 Ref="13" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,5.6,27.21,0.81</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>f3098661fb484aa989e7f0c15e078654</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text118</Name>
+              <Page isRef="10" />
+              <Parent isRef="12" />
+              <Text>Повестка  № {Commissions.FullNumber} заседания фармацевтической комиссии от {Format("{0:dd.MM.yyyy}", Commissions.Date)} г</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text118>
+            <Text122 Ref="14" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.4,0.2,3,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>2075074328fa4f9495c1a80002426a8b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text122</Name>
+              <Page isRef="10" />
+              <Parent isRef="12" />
+              <Text>УТВЕРЖДАЮ</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text122>
+            <Text123 Ref="15" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.4,1,8,4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>3d795c9c7bee4f4e94f98399bf510bce</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text123</Name>
+              <Page isRef="10" />
+              <Parent isRef="12" />
+              <Text>заместитель Генерального директора
+РГП на ПХВ "Национальнаый Центр
+ экспертизы лекарственных средств,
+ изделий медицинского назначения 
+и медицинской техники" МЗ СР РК 
+__________________ А.Кабденова 
+&lt;&lt;____&gt;&gt;_________________2016г.</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text123>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>36a914c157684b5fa517b8412768f10a</Guid>
+          <Name>HeaderBand13</Name>
+          <Page isRef="10" />
+          <Parent isRef="10" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand13>
+        <DataBand3 Ref="16" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,7.99,27.7,5.4</ClientRectangle>
+          <Components isList="true" count="5">
+            <Text2 Ref="17" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0.21,27.21,0.81</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>c353e33bc379492ca26c12e76e2fd2a5</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="10" />
+              <Parent isRef="16" />
+              <Text>1. О первичном рассмотрении заявок на регистрацию, перерегистрацию ЛС, внесение изменений в 	РД (приложение 1).</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text2>
+            <Text13 Ref="18" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,1.81,27.21,0.81</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>b2b62e528d1144d1bb49f686d076b919</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="10" />
+              <Parent isRef="16" />
+              <Text>2.О повторном рассмотрении заявок на регистрацию, перерегистрацию ЛС, внесение изменений в РД 	(приложение 2).</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text13>
+            <Text15 Ref="19" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,4.21,27.21,0.81</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>daf23780948e43618e4ce372e7274993</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="10" />
+              <Parent isRef="16" />
+              <Text>3. Разное</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text15>
+            <Text119 Ref="20" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1,1.01,21.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16</Font>
+              <Guid>9780dd2cb6614ae1abbed103190061a0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text119</Name>
+              <Page isRef="10" />
+              <Parent isRef="16" />
+              <Text>1. Первичное рассмотрение – {CommissionCount.Count} заявок </Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text119>
+            <Text120 Ref="21" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1,2.61,21.6,1.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16</Font>
+              <Guid>60727f33aef04788800b1aa23180d3ed</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text120</Name>
+              <Page isRef="10" />
+              <Parent isRef="16" />
+              <Text>2. Повторное рассмотрение  – {CommissionCountRepeat.Count} заявок
+3. Всего – {CommissionCountRepeat.Count+ CommissionCount.Count} заявок
+</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text120>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Commissions</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand3</Name>
+          <Page isRef="10" />
+          <Parent isRef="10" />
+          <Sort isList="true" count="0" />
+        </DataBand3>
+        <DataBand1 Ref="22" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,14.19,27.7,2.6</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text4 Ref="23" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0.41,14.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="10" />
+              <Parent isRef="22" />
+              <Text>Председатель фармацевтической комиссии ЛС</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text4>
+            <Text5 Ref="24" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,1.41,14.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16,Bold</Font>
+              <Guid>a2b5025cc8b44d509fd3cdf778776e87</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="10" />
+              <Parent isRef="22" />
+              <Text>Секретарь фармацевтической комиссии ЛС</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text5>
+            <Text6 Ref="25" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>15,0.41,12.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16</Font>
+              <Guid>65638ef59eb04df48c87bb10523a3c6d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="10" />
+              <Parent isRef="22" />
+              <Text>{Commissions.PredsedatelLastName} {Substring(Commissions.PredsedatelFirstName,0,1)}.{Substring(Commissions.PredsedatelMiddleName,0,1)}.</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text6>
+            <Text7 Ref="26" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>15,1.41,12.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16</Font>
+              <Guid>aafa510837d44f83ad9b1d004ae7eca6</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="10" />
+              <Parent isRef="22" />
+              <Text>{Commissions.SekretarLastName} {Substring(Commissions.SekretarFirstName,0,1)}.{Substring(Commissions.SekretarMiddleName,0,1)}.</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text7>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Commissions</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand1</Name>
+          <Page isRef="10" />
+          <Parent isRef="10" />
+          <Sort isList="true" count="0" />
+        </DataBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>e7beb346e7e04daf9f86c90ffbe36971</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <PaperSize>A4</PaperSize>
+      <Report isRef="0" />
+      <Watermark Ref="27" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+    <Page2 Ref="28" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="13">
+        <PageFooterBand1 Ref="29" type="PageFooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,29,27.7,1.4</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text10 Ref="30" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>25.8,0.8,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>13ee95d67cfb4b42852456300fe8ccb5</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="28" />
+              <Parent isRef="29" />
+              <Text>Стр. {PageNumber}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text10>
+            <Text22 Ref="31" type="Text" isKey="true">
+              <Border>Bottom;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.2,26.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12</Font>
+              <Guid>f43f31109799499fb3c7c58003ab2969</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="28" />
+              <Parent isRef="29" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text22>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooterBand1</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+        </PageFooterBand1>
+        <HeaderBand4 Ref="32" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27.7,2.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text11 Ref="33" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,2.2,27.6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <Guid>c79f192e66ac446eb7ba838edf9a2ecf</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="28" />
+              <Parent isRef="32" />
+              <Text>Список заявок, представленных на первичное рассмотрение при регистрации, перерегистрации ЛС</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text11>
+            <Text1 Ref="34" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>23.2,0.8,4.4,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="28" />
+              <Parent isRef="32" />
+              <Text>к повестке № {Commissions.FullNumber} заседания СФК от {Format("{0:dd.MM.yyyy}", Commissions.Date)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text1>
+            <Text14 Ref="35" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.2,0,3.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="28" />
+              <Parent isRef="32" />
+              <Text>Приложение 1</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text14>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>e81f64eb8ce44258b8e1fed5595c21c1</Guid>
+          <Name>HeaderBand4</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand4>
+        <HeaderBand12 Ref="36" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,4,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="13">
+            <Text109 Ref="37" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5ca1267aa6c54e948f2301c899e6a8f8</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text109</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>№ п/п</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text109>
+            <Text110 Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5ae2cd6fe26a40ec94f71ef260275387</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text110</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>№, дата заявки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text110>
+            <Text111 Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>088c5dc5973943b29e781a5a657b00bb</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text111</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Торговое название (МНН)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text111>
+            <Text112 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>743b71c5d07f401881de87cd53b3951a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text112</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Лекарственная форма</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text112>
+            <Text113 Ref="41" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7922c02c64b142eb8c016f1806c946fa</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text113</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Производитель, страна</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text113>
+            <Text114 Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>6d37446e248043d4bd0e77cde4d71e5a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text114</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>МНН или состав</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text114>
+            <Text115 Ref="43" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c8d6fad00182492d8e6c1130698eb0cf</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text115</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Эксперт</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text115>
+            <Text116 Ref="44" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>e7b0600ad2d743d786e8d19443dafb36</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text116</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Тип рег.</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text116>
+            <Text117 Ref="45" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4f76f4d2d2984eed85a95e532e538c8c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text117</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Лаборатория</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text117>
+            <Text121 Ref="46" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>26.2,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4c94074bd4984d3cb79934195d089881</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text121</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>№ НД</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text121>
+            <Text124 Ref="47" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24.6,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>72012163254a4c06a4ff66d9ce874d33</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text124</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Количество аналогов в РК</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text124>
+            <Text125 Ref="48" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>e2f771f131724327b87d73cc6e31a364</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text125</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Срок хр.</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text125>
+            <Text129 Ref="49" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>76bd581eb58c422b950e97b95d9781d0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text129</Name>
+              <Page isRef="28" />
+              <Parent isRef="36" />
+              <Text>Дата пост. на этап</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text129>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>cc990edc9f1c41ddba78a1e1cfe4f189</Guid>
+          <Name>HeaderBand12</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand12>
+        <DataBand9 Ref="50" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,5.6,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="13">
+            <Text100 Ref="51" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>8e1d988fd3f5471e83c15003a52d6c8f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text100</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text100>
+            <Text101 Ref="52" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>a3822727ecbe412daabd836f42d999e4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text101</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNumber},{Format("{0:dd.MM.yyyy}", Exp_DrugDosageStageView.DeclarationCreatedDate)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text101>
+            <Text102 Ref="53" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>6f40377afd6d486ab85cbb022a224a66</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text102</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text102>
+            <Text103 Ref="54" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>255adbd66971449c90cce69db2339aff</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text103</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DosageFormName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text103>
+            <Text104 Ref="55" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>3843a91d64af428ebabb149dbc4eadc3</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text104</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.ProducerNameRu},{Exp_DrugDosageStageView.ProducerCountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text104>
+            <Text105 Ref="56" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5fd211ed856a46aba56ac8fc10f8d0db</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text105</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DeclarationMnnNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+            </Text105>
+            <Text106 Ref="57" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>a0166dd2c1db49ca820bebcd7d9e0a5e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text106</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.ResultCreatorShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text106>
+            <Text107 Ref="58" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>1cbcfd2b1d7449d9a4690deba43fa09b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text107</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DeclarationTypeNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text107>
+            <Text108 Ref="59" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b6ecbcede7da4734a7ab43fbdd60e679</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text108</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text108>
+            <Text126 Ref="60" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>1287f7c4cd3e4f698816d0269c34c97f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text126</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DosageBestBefore} {Exp_DrugDosageStageView.DosageBestBeforeShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text126>
+            <Text127 Ref="61" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24.6,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>11f23226ac1b43be85c81b522cf0c72d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text127</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text127>
+            <Text128 Ref="62" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>26.2,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>3f3d040c9f1c4a209c7efd52ce7a2973</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text128</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text128>
+            <Text130 Ref="63" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>43ebcf85ae0748a6a1cc0738cd1bd186</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text130</Name>
+              <Page isRef="28" />
+              <Parent isRef="50" />
+              <Text>{Exp_DrugDosageStageView.DosageStageStartDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text130>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Exp_DrugDosageStageView</DataSourceName>
+          <Filters isList="true" count="2">
+            <value>PrevCommissionCount,EqualTo,_x0030_,,Numeric</value>
+            <value>DeclarationTypeId,Between,_x0031_,_x0032_,Numeric</value>
+          </Filters>
+          <Guid>e1e33bf0bd70452da44fe70c1eccbd12</Guid>
+          <Name>DataBand9</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand9>
+        <HeaderBand2 Ref="64" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,7.2,27.7,0.4</ClientRectangle>
+          <Components isList="true" count="1">
+            <Text9 Ref="65" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0,27.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <Guid>26be4be856184aa3bbea7f809410e0c8</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="28" />
+              <Parent isRef="64" />
+              <Text>Список заявок, представленных на первичное рассмотрение при внесении изменений в РД</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text9>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand2</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand2>
+        <HeaderBand11 Ref="66" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8.4,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="11">
+            <Text90 Ref="67" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>026ee809916348848fc315e99b1a0f75</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text90</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>№ п/п</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text90>
+            <Text91 Ref="68" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c646ec3f68d94f598d8d3abceb6f4471</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text91</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>№, дата заявки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text91>
+            <Text16 Ref="69" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c900e1189c16418fa3f705a57ccfe3bb</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Торговое название (МНН)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text16>
+            <Text17 Ref="70" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>1998222c91fb4b9cbd37c183d532f3e1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Лекарственная форма</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text17>
+            <Text92 Ref="71" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5e3b5338be0c4614b1528308611b8e88</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text92</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Производитель, страна</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text92>
+            <Text93 Ref="72" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c797e009a93c466d85848f1eea0333c6</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text93</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>МНН или состав</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text93>
+            <Text94 Ref="73" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>ff096ef2c714482fb6c2758c00f60ede</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text94</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Эксперт</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text94>
+            <Text95 Ref="74" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7941dafee24a4802b9545c82e8fc140d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text95</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Дата пост. на этап</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text95>
+            <Text97 Ref="75" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,3.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>f63f75bdbe50426b8b4c554718675e41</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text97</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Типы изменений</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text97>
+            <Text98 Ref="76" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>626d898ce67b4032b9933e525a8a4ecb</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text98</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>Наименование изменений</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text98>
+            <Text131 Ref="77" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>21.2,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>9b56ac9d6b9945efa570aee983553686</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text131</Name>
+              <Page isRef="28" />
+              <Parent isRef="66" />
+              <Text>АЭ / без АЭ</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text131>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>ec649b72dfae4ab783324bbf6fa66620</Guid>
+          <Name>HeaderBand11</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand11>
+        <DataBand8 Ref="78" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,10,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="11">
+            <Text82 Ref="79" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>57e6354c5ee045bca87aa4ce403261c1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text82</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text82>
+            <Text83 Ref="80" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>c1e45f2988a24aaca772dcf2701076e3</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text83</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNumber},{Format("{0:dd.MM.yyyy}", Exp_DrugDosageStageView.DeclarationCreatedDate)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text83>
+            <Text84 Ref="81" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>76b0a21d55fe4e319cf5239f3e606b83</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text84</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text84>
+            <Text85 Ref="82" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>966767702f1e4df9a4eab6cee264ecec</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text85</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.DosageFormName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text85>
+            <Text86 Ref="83" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>511fcab058c3454d988cf8197bbae2d2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text86</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.ProducerNameRu},{Exp_DrugDosageStageView.ProducerCountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text86>
+            <Text87 Ref="84" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>29e5175a868642de928458c38142e75b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text87</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.DeclarationMnnNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+            </Text87>
+            <Text88 Ref="85" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>19c6c703acb44b0b95e99d90ee15d918</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text88</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.ResultCreatorShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text88>
+            <Text96 Ref="86" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5452389b339248b992cb0bf044817f00</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text96</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.DosageStageStartDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text96>
+            <Text89 Ref="87" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,3.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>24f5b26edebf458dabfb6ba4f72c9d61</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text89</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text89>
+            <Text99 Ref="88" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>6788587dc7bb4ee294b540c363fd28f4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text99</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>{Exp_DrugDosageStageView.ChangeString}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text99>
+            <Text132 Ref="89" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>21.2,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>eb1aa8cedf21463fb139f3978a25017d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text132</Name>
+              <Page isRef="28" />
+              <Parent isRef="78" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text132>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Exp_DrugDosageStageView</DataSourceName>
+          <Filters isList="true" count="2">
+            <value>StageId,EqualTo,_x0032_,,Numeric</value>
+            <value>ResultId,EqualTo,_x0035_,,Numeric</value>
+          </Filters>
+          <Guid>37845fc7e4324d538b85ae6fad9277fa</Guid>
+          <Name>DataBand8</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand8>
+        <HeaderBand1 Ref="90" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,11.6,27.7,2.4</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text3 Ref="91" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,2,27.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="28" />
+              <Parent isRef="90" />
+              <Text>Список заявок, представленных на повторное рассмотрение при регистрации, перерегистрации ЛС</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text3>
+            <Text18 Ref="92" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>23.2,0.8,4.4,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>2eae28f445bd4ff38e0359f9868199c9</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="28" />
+              <Parent isRef="90" />
+              <Text>к повестке№ {Commissions.FullNumber} заседания {Switch(Exp_DrugDosageStageView.CommissionTypeId == 1,"ЭC",Exp_DrugDosageStageView.CommissionTypeId == 2,"ФМЦ",Exp_DrugDosageStageView.CommissionTypeId == 3,"ФМК")} от {Format("{0:dd.MM.yyyy}", Commissions.Date)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text18>
+            <Text19 Ref="93" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.2,0,3.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>748875c70979463db74d9106fb0068cf</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="28" />
+              <Parent isRef="90" />
+              <Text>Приложение 2</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text19>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand1>
+        <HeaderBand10 Ref="94" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,14.8,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="11">
+            <Text74 Ref="95" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>6db480ce250645d2b31d71d5971f53a4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text74</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>№ п/п</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text74>
+            <Text75 Ref="96" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b14343a52ca04cc2b5d7825b33554743</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text75</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>№, дата заявки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text75>
+            <Text20 Ref="97" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>f21c4c9449454488b4d02740a2813a27</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Торговое название (МНН)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text20>
+            <Text21 Ref="98" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d902b6d80d1c421b823e8b4b0291b389</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Лекарственная форма</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text21>
+            <Text68 Ref="99" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>252da019589448faadfd22e556015075</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text68</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Производитель, страна</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text68>
+            <Text69 Ref="100" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>cb1695716612436393df25afddf36375</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text69</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>МНН или состав</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text69>
+            <Text70 Ref="101" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b1475898448d4607b6708f6b6ccd26e3</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text70</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Эксперт</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text70>
+            <Text71 Ref="102" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>8fc46d77cf16417084160b425c125181</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text71</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Тип рег.</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text71>
+            <Text72 Ref="103" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d564154d5e7a4ea4acf0111dd10577ed</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text72</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Лаборатория</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text72>
+            <Text73 Ref="104" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>556bba2d433142e9a633974395ce2500</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text73</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Р/ПР, повторное рассмотрение</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text73>
+            <Text76 Ref="105" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>ba7b573976b3419e8bba596447b883cf</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text76</Name>
+              <Page isRef="28" />
+              <Parent isRef="94" />
+              <Text>Дата пост. на этап</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text76>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>03ff2ec11bd64e9ebd50ef1fabecb779</Guid>
+          <Name>HeaderBand10</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand10>
+        <DataBand7 Ref="106" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,16.4,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="11">
+            <Text66 Ref="107" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>31a7aa26e5f242b8b7dc41c77002a932</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text66</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text66>
+            <Text67 Ref="108" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>225c6d87edd44b85bd3ad85acefb6bb2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text67</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNumber},{Format("{0:dd.MM.yyyy}", Exp_DrugDosageStageView.DeclarationCreatedDate)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text67>
+            <Text77 Ref="109" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>87fe66cc4a0e49ef8d3e27488a16e3be</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text77</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text77>
+            <Text78 Ref="110" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>77ab77eb96854098b268feab96bade1e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text78</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DosageFormName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text78>
+            <Text79 Ref="111" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>62a3edd8cbc548219879e0a241ef27fe</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text79</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.ProducerNameRu},{Exp_DrugDosageStageView.ProducerCountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text79>
+            <Text80 Ref="112" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>8a4ad00722eb413d95df779fdeb2f58c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text80</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DeclarationMnnNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+            </Text80>
+            <Text81 Ref="113" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>57bcc2b14afd468da2d76ef45a8494d0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text81</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.ResultCreatorShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text81>
+            <Text133 Ref="114" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b429099c965c480b975b69eb13dc22d9</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text133</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DeclarationTypeNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text133>
+            <Text134 Ref="115" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7da65f7ed405469ba1e007913c034d6c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text134</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text134>
+            <Text135 Ref="116" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5808b5be142a4e61ba93597b30929974</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text135</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.DosageStageStartDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text135>
+            <Text136 Ref="117" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>6072acb1f9064c2cbb03a9bbca61cbac</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text136</Name>
+              <Page isRef="28" />
+              <Parent isRef="106" />
+              <Text>{Exp_DrugDosageStageView.PrevCommissions}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text136>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Exp_DrugDosageStageView</DataSourceName>
+          <Filters isList="true" count="2">
+            <value>DeclarationTypeId,EqualTo,_x0033_,,Numeric</value>
+            <value>PrevCommissionCount,EqualTo,_x0030_,,Numeric</value>
+          </Filters>
+          <Guid>465e5ec41ecd4556afcaf637c11a6978</Guid>
+          <Name>DataBand7</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand7>
+        <HeaderBand5 Ref="118" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,18,27.7,0</ClientRectangle>
+          <Components isList="true" count="1">
+            <Text12 Ref="119" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,27.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <Guid>2dd6f5b24d0c41edbb63acb863d5fbf7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="28" />
+              <Parent isRef="118" />
+              <Text>Список заявок, представленных на повторное рассмотрение при внесении изменений в РД</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text12>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>e2b3e1c28c93413cbd4bb561408974dd</Guid>
+          <Name>HeaderBand5</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand5>
+        <HeaderBand9 Ref="120" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,18.8,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text58 Ref="121" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>40d37ab825834ea68b6fe48c7164347e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text58</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>№ п/п</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text58>
+            <Text59 Ref="122" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5c43e0a070274c2f84c548ed48b4c7d7</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text59</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>№, дата заявки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text59>
+            <Text52 Ref="123" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b0cf0092805f4ba68ed458a6c9074a47</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text52</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Торговое название (МНН)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text52>
+            <Text53 Ref="124" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>f9985697577e4d48b6f6f27c46d034ac</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text53</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Лекарственная форма</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text53>
+            <Text54 Ref="125" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>3c1546126bf1406c98d1d05fb9298959</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text54</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Производитель, страна</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text54>
+            <Text55 Ref="126" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>e83c646fa0674adca6b4c8d557b9fd06</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text55</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>МНН или состав</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text55>
+            <Text56 Ref="127" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>679a0118e8714adfa27109a46d5b32e1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text56</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Эксперт</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text56>
+            <Text57 Ref="128" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,7,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d6ea186189ff468bb325e9052f82bb48</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text57</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Наименование изменений</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text57>
+            <Text60 Ref="129" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d991e62d310641a8a1a5295540b8de7e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text60</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Тип изменений</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text60>
+            <Text61 Ref="130" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>cac10a80932a45159263045e07b0f336</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text61</Name>
+              <Page isRef="28" />
+              <Parent isRef="120" />
+              <Text>Дата пост. на этап</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text61>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>9476f7337deb4559ab77123307458ba4</Guid>
+          <Name>HeaderBand9</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand9>
+        <DataBand6 Ref="131" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,20.4,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text50 Ref="132" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>609414dc1f474dc4b72091668ce586ba</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text50</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text50>
+            <Text51 Ref="133" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>2baab6c85d71476dbe1d304c2b11658e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text51</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNumber},{Format("{0:dd.MM.yyyy}", Exp_DrugDosageStageView.DeclarationCreatedDate)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text51>
+            <Text62 Ref="134" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>20.8,0,7,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b58dc8c9bdab4b4392d8506be0f1dbad</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text62</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.ChangeString}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text62>
+            <Text63 Ref="135" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,3,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>231ff27168f144a69cd5479dbcf0f43a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text63</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.DeclarationNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text63>
+            <Text64 Ref="136" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d427c162b8d94e428278e97a2a8bbe6a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text64</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.DosageFormName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text64>
+            <Text65 Ref="137" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>501a0205d8e24261b8646683562953b4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text65</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.ProducerNameRu},{Exp_DrugDosageStageView.ProducerCountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text65>
+            <Text137 Ref="138" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14,0,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>2e93c482fc7545b5bd5505ed6a62dd22</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text137</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.DeclarationMnnNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+            </Text137>
+            <Text138 Ref="139" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.6,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>512449420f4e4acb99bfa9595dcc2731</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text138</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.ResultCreatorShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text138>
+            <Text139 Ref="140" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.6,0,1.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>dd24a6402b5c42849587efccccc1dcce</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text139</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>{Exp_DrugDosageStageView.DosageStageStartDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text139>
+            <Text140 Ref="141" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>18,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,11</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b7ed598e57f74d2d84b5db0aa8ad21c4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text140</Name>
+              <Page isRef="28" />
+              <Parent isRef="131" />
+              <Text>[-]</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text140>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Exp_DrugDosageStageView</DataSourceName>
+          <Filters isList="true" count="2">
+            <value>DeclarationTypeId,EqualTo,_x0033_,,Numeric</value>
+            <value>PrevCommissionCount,GreaterThan,_x0030_,,Numeric</value>
+          </Filters>
+          <Guid>8eb0649867ff4c4d819252849165e884</Guid>
+          <Name>DataBand6</Name>
+          <Page isRef="28" />
+          <Parent isRef="28" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>47921a51f5ef43a6825c19332182c2e3</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page2</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="142" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page2>
+    <Page3 Ref="143" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="4">
+        <HeaderBand6 Ref="144" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,4.6</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text24 Ref="145" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.2,19,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,16,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="143" />
+              <Parent isRef="144" />
+              <Text>ЯВОЧНЫЙ ЛИСТ</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text24>
+            <Text25 Ref="146" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,19,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="143" />
+              <Parent isRef="144" />
+              <Text>к заседанию {Switch(Exp_DrugDosageStageView.CommissionTypeId == 1,"Экспертного совета",Exp_DrugDosageStageView.CommissionTypeId == 2,"Фармацевтической комиссии",Exp_DrugDosageStageView.CommissionTypeId == 3,"Фармакологической комиссии")} № {Commissions.FullNumber} от {Format("{0:dd.MM.yyyy}", Commissions.Date)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text25>
+            <Text26 Ref="147" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,2.4,18.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="143" />
+              <Parent isRef="144" />
+              <Text>Председатель - {Commissions.PredsedatelLastName} {Commissions.PredsedatelFirstName} {Commissions.PredsedatelMiddleName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text26>
+            <Text27 Ref="148" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,3,18.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>c5781d3c188344a9b8d5918ea5e332f2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="143" />
+              <Parent isRef="144" />
+              <Text>Секретарь - {Commissions.SekretarLastName} {Commissions.SekretarFirstName} {Commissions.SekretarMiddleName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text27>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand6</Name>
+          <Page isRef="143" />
+          <Parent isRef="143" />
+        </HeaderBand6>
+        <DataBand2 Ref="149" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,5.8,19,0.2</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Commissions</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand2</Name>
+          <Page isRef="143" />
+          <Parent isRef="143" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+        <HeaderBand7 Ref="150" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,6.8,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text28 Ref="151" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>ee29be84ea0a4bd6b68d909e715b93be</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="143" />
+              <Parent isRef="150" />
+              <Text>№ п/п</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text28>
+            <Text29 Ref="152" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.2,0,12.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>ca42e31915bd42ba82222ab6fc3ca0f1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text29</Name>
+              <Page isRef="143" />
+              <Parent isRef="150" />
+              <Text>ФИО эксперта</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text29>
+            <Text30 Ref="153" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.8,0,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>4a05c15e80ca44f7b5a006b6a8f25c93</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text30</Name>
+              <Page isRef="143" />
+              <Parent isRef="150" />
+              <Text>Подпись</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text30>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand7</Name>
+          <Page isRef="143" />
+          <Parent isRef="143" />
+        </HeaderBand7>
+        <DataBand4 Ref="154" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,8.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text31 Ref="155" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>e9a715b09c984b8492039d8a5d4aff73</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="143" />
+              <Parent isRef="154" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text31>
+            <Text32 Ref="156" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.8,0,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>c4b6609596014abd9c6c5652b6cca7de</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="143" />
+              <Parent isRef="154" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text32>
+            <Text33 Ref="157" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.2,0,12.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <Guid>0634430df39f4a49bf0e7a0e97db176c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="143" />
+              <Parent isRef="154" />
+              <Text>{CommissionOtherUnits.LastName} {CommissionOtherUnits.FirstName} {CommissionOtherUnits.MiddleName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text33>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>CommissionOtherUnits</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand4</Name>
+          <Page isRef="143" />
+          <Parent isRef="143" />
+          <Sort isList="true" count="0" />
+        </DataBand4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>1b36883497b14540b312bd514383c0ff</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page3</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="158" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page3>
+  </Pages>
+  <PrinterSettings Ref="159" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>5/27/2017 4:37:44 PM</ReportChanged>
+  <ReportCreated>4/14/2014 10:21:23 AM</ReportCreated>
+  <ReportFile>D:\GricinaMA\itig\ncels\PW.Prism\Reports\Commission\povestkaFMC.mrt</ReportFile>
+  <ReportGuid>c906fb22825a470e88519ce9c97c9469</ReportGuid>
+  <ReportImage isNull="true" />
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2016.3.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+	public class Report : Stimulsoft.Report.StiReport
+	{
+		public Report()        {
+			this.InitializeComponent();
+		}
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

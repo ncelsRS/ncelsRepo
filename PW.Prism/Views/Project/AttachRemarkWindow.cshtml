@@ -1,0 +1,68 @@
+﻿@model Guid
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formAttachRemark" + Model)">
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecuteEx"></div>
+        <div class="pwWinTitleText">Замечание к документу:</div>
+        <br/>
+    </div>
+    <div class="pwWinTitle">
+        <div class="pwWinTitleText"><b>@ViewBag.AttachName</b></div>
+    </div>
+    <div class="pwWinContent2">
+        <br />
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft1">
+                <p>Замечание:</p>
+            </div>
+            <div class="pwWinContentRight1">
+                <input type="text" id="@("AttachRemarkNote" + Model)" value="@ViewBag.Remark" class="k-textbox pwWidth100">
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+<script>
+    var name = '@Model';
+
+    var viewModel = kendo.observable({
+        save: function (e) {
+            var remark = $("#AttachRemarkNote" + name).val();
+            if (remark == null) {
+                alert('Необходимо указать текст замечания');
+                return;
+            }
+            kendo.ui.progress($('#loader' + name), true);
+
+            $.ajax({
+                type: 'POST',
+                url: '/Project/AttachRemarkSave',
+                contentType: 'application/json; charset=utf-8',
+                data: '{attDicId:\'' + name + '\', ppId:\'' + "@ViewBag.PpId" + '\', note:\'' + remark + '\'}',
+                success: function (result) {
+                    if (result == 'True') {
+                        ShowAlert('Сообщение', 'Данные успешно сохранены', 'Success');
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formAttachRemark" + name), viewModel);
+</script>

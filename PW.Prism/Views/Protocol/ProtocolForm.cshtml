@@ -1,0 +1,298 @@
+﻿@model PW.Prism.ViewModels.PriceProject.ProtocolModel
+@{}
+<script>
+    $(document).ready(function() {
+        var viewModel = kendo.observable({
+            Save: function(e) {
+                save(0);
+            },
+            Complete: function(e) {
+                save(1);
+            },
+            Cancel: function(e) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            },
+            filter: $("#TaskCommandWindow").data("kendoWindow").windowViewModel
+        });
+
+        kendo.bind($("#protocolAddForm@(Model.Guid)"), viewModel);
+
+        if ($("#ComissionMembersId@(Model.Guid)") != null) {
+            $("#ComissionMembersId@(Model.Guid)").kendoMultiSelect({
+                dataTextField: "Name",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '/Protocol/AllListComissionMembers'
+                        }
+                    }
+                }
+            });
+
+            if ("@(Model.Protocol.PP_ProtocolComissionMembers.Count > 0)") {
+                var el = $("#ComissionMembersId@(Model.Guid)").data("kendoMultiSelect");
+                var membersList = @Html.Raw(Json.Encode(Model.Protocol.PP_ProtocolComissionMembers.Select(x => x.EmployeeId.ToString())));
+                el.value(membersList);
+            }
+        }
+
+        if ("@(Model.Protocol.PP_ProtocolProductPrices.Count > 0)") {
+            LoadProtocolPrices();
+        }
+
+        $("#Requester@(Model.Guid)").change(function() {
+            LoadBossFio();
+            GetProtocolPrices();
+        });
+
+        $(".rb-protocol-product-type").change(function() {
+            if ($("#Requester@(Model.Guid)").val()) {
+                GetProtocolPrices();
+            }
+        });
+
+    });
+
+    function save(status) {
+        var validator = $("#protocolAddForm@(Model.Guid)").kendoValidator().data("kendoValidator");
+
+        if (!validator.validate()) {
+            return;
+        }
+
+        var grid = $("#" + $("#TaskCommandWindow").data("kendoWindow").gridId).data("kendoGrid");
+        var protocol = {}
+        //var requestDate = $("#requestDate").val();
+        var protocolId = $("#protocolId").val();
+        var productType = $('input[name=prPrTypeRb]:checked', '#protocolAddForm@(Model.Guid)').val();
+        var comMembers = $("#ComissionMembersId@(Model.Guid)").val();
+        var members = [];
+        $(comMembers).each(function(i) {
+            var member = {};
+            member.EmployeeId = this + '';
+            members.push(member);
+        });
+        //var protocolPrices = $("#protocolPrices");
+        //var priceCount = $("#protocolPrices").attr("priceCount");
+
+        var priceTr = $(".priceRow");
+        var priceRows = [];
+
+        protocol.Number = @(Model.Protocol.Number);
+        protocol.Type = $("#ProtocolType@(Model.Guid)").val();
+        protocol.ChiefId = $("#PfLeadership@(Model.Guid)").val();
+        protocol.RequesterName = $("#bossFio").val();
+        protocol.AdditionalPersonName = $("#addtionalPersonFio").val();
+        protocol.IsImn = (productType === "imn");
+        protocol.RequesterId = $("#Requester@(Model.Guid)").val();
+        protocol.PP_ProtocolComissionMembers = members;
+        protocol.Id = protocolId;
+        protocol.Status = status;
+        var priceValid = true;
+        $(priceTr).each(function(ind) {
+            var index = ind + 1;
+            var cb = $("#cbAddPrice" + index).is(':checked');
+            if (cb) {
+                var priceNew = $("#price" + index).val();
+                if (priceNew == null || priceNew == 0) {
+                    ShowAlert('Внимание', 'Цена должна быть больше 0', window.AlertType.Error);
+                    priceValid = false;
+                }
+                var row = {}
+                row.ProductNameRu = $(this).attr("prName");
+                row.PriceFirst = $(this).attr("priceFirst");
+                row.PriceNew = priceNew;
+                row.PriceProjectId = $(this).attr("ppId");
+                priceRows.push(row);
+            }
+        });
+
+        if (!priceValid) {
+            return;
+        }
+
+        protocol.PP_ProtocolProductPrices = priceRows;
+
+        var data2send = JSON.stringify(protocol);
+        $.ajax({
+            type: "POST",
+            url: '/Protocol/SendProtocol',
+            data: data2send,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(arg) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+                grid.dataSource.read();
+            },
+            error: function(xhr) {
+                alert('Ошибка сохранения данных');
+            }
+        });
+    }
+
+    function LoadBossFio() {
+        $.ajax({
+            url: "/Protocol/GetBossFio?id=" + $("#Requester@(Model.Guid)").val(),
+            type: "get",
+            success: function(result) {
+                $("#bossFio").val(result);
+            }
+        });
+    }
+
+    function GetProtocolPrices() {
+        var productType = $('input[name=prPrTypeRb]:checked', '#protocolAddForm@(Model.Guid)').val();
+        $.ajax({
+            url: "/Protocol/GetProtocolPriceDetails?id=" + $("#Requester@(Model.Guid)").val() + "&isImn=" + (productType === "imn"),
+            type: "get",
+            success: function(result) {
+                $("#protocolPriceDetails").html(result);
+            }
+        });
+    }
+
+    function LoadProtocolPrices() {
+        $.ajax({
+            url: "/Protocol/LoadProtocolPriceDetails?id=" + $("#protocolId").val(),
+            type: "get",
+            success: function(result) {
+                $("#protocolPriceDetails").html(result);
+            }
+        });
+    }
+
+</script>
+<style>
+    .k-widget.k-tooltip-validation {
+        left: 10px !important;
+        top: -17px !important;
+        font-weight: normal !important;
+        background-color : transparent !important;
+    }
+</style>
+<input type="hidden" id="protocolId" value="@Model.Protocol.Id"/>
+<div class="row">
+    <form id="protocolAddForm@(Model.Guid)" class="form-horizontal">
+        <div class="row" style="margin-top: 10px">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="requestDate" class="col-lg-3 control-label">Дата:</label>
+                    <div class="col-lg-9">
+                        <p id="requestDate" style="margin-top: 7px;">@Model.Protocol.ProtocolDate.ToString("dd.MM.yyyy")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="protocolNumber" class="col-lg-3 control-label">№ протокола:</label>
+                    <div class="col-lg-9">
+                        <p id="protocolNumber" style="margin-top: 7px;">@Model.Protocol.Number</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Тип:</label>
+                    <div class="col-lg-9">
+                        @Html.Kendo().ComboBox().Name("ProtocolType" + Model.Guid).BindTo((List<SelectListItem>) ViewBag.ProtocolTypes).Value(Model.Protocol.Type.ToString()).HtmlAttributes(new {@class = "pwWidth100"})
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Председатель:</label>
+                    <div class="col-lg-9">
+                        @Html.Kendo().ComboBox().Name("PfLeadership" + Model.Guid).BindTo((List<SelectListItem>) ViewBag.Leadership).Value(Model.Protocol.ChiefId.ToString()).HtmlAttributes(new {@class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Заявитель:</label>
+                    <div class="col-lg-9">
+                        @Html.Kendo().ComboBox().Name("Requester" + Model.Guid).BindTo((List<SelectListItem>)ViewBag.Requesters).Value(Model.Protocol.RequesterId.ToString()).HtmlAttributes(new { @class = "pwWidth100", required="", validationMessage = "Обязательно для заполнения" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Тип продукта:</label>
+                    <div class="col-lg-6">
+                        <fieldset id="prPrTypeRb">
+                            <input type="radio" class="rb-protocol-product-type" id="rbLs" value="ls" name="prPrTypeRb" @(!Model.Protocol.IsImn ? "checked" : "") />
+                            <label for="rbLs">ЛС</label>&nbsp;&nbsp;&nbsp;
+                            <input type="radio" class="rb-protocol-product-type" id="rbImn" value="imn" name="prPrTypeRb" @(Model.Protocol.IsImn ? "checked" : "") />
+                            <label for="rbImn">ИМН</label>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">               
+                    <label for="bossFio" class="col-lg-3 control-label">ФИО Руководителя:</label>
+                    <div class="col-lg-9">
+                        @(Html.Kendo().TextBox().Name("bossFio").Value(Model.Protocol.RequesterName)
+                              .HtmlAttributes(new {@class = "form-control", required = "", validationMessage = "Обязательно для заполнения" }))
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="addtionalPersonFio" class="col-lg-3 control-label">Приглашенные:</label>
+                    <div class="col-lg-9">
+                        @(Html.Kendo().TextBox().Name("addtionalPersonFio").Value(Model.Protocol.AdditionalPersonName).HtmlAttributes(new { @class = "form-control" }))
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <label class="col-sm-12">Члены комиссии:</label>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <select name="@("ComissionMembersId" + Model.Guid)" id="@("ComissionMembersId" + Model.Guid)" data class="pwWidth100" required validationmessage = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Обязательно для заполнения" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-lg-1 control-label"></label>
+                    <div class="col-lg-11">
+                        <div id="protocolPriceDetails">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" data-bind="click: Cancel" class="btn btn-danger dropdown-toggle">Отмена</button>
+                </div>
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" data-bind="click: Complete" class="btn btn-success dropdown-toggle">Сформировать</button>  
+                </div>
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" data-bind="click: Save" class="btn btn-primary dropdown-toggle">Сохранить</button>  
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>

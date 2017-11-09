@@ -1,0 +1,100 @@
+﻿@using PW.Prism.ViewModels.Commissions
+@model CommissionModel
+@{
+//простите за всё это, очень спешу
+}
+
+@if (Model.Id == null)
+{
+    <label>перед работой с вопросами, нужно сохранить повестку</label>
+    return;
+}
+@{
+    var tabName = "tabstripCommission" + Model.Id;
+}
+<div>
+    @if (Model.Questions.Count < 3)
+    {
+        <button class="btn btn-info" onclick="AddQuestion('@Model.Id', '@tabName')">
+            <i class="glyphicon glyphicon-plus-sign"></i>Добавить
+        </button>
+    }
+</div>
+@(Html.Kendo().PanelBar()
+    .Name(tabName+"questionPanelBar")
+    .Items(panelbar =>
+    {
+    foreach (var commissionQuestion in Model.Questions)
+    {
+        panelbar.Add().Text(commissionQuestion.Number + ". " + commissionQuestion.CommissionQuestionType.Name)
+          .Content(
+            @<text>
+                @if (commissionQuestion.TypeId == 1)
+                {
+                    <div>
+                        @{
+                            var cqModel = new CommissionQuestionsModel();
+                            cqModel.Guid = Guid.NewGuid();
+                            cqModel.CommissionId = Model.Id.Value;
+                            //cqModel.CommissionKind = Model.Kind.Value;
+                            //cqModel.CommissionType = Model.Type.Value;
+                        }
+                        <div>
+                            @Html.Partial("CommissionDrugDeclarations", cqModel)
+                        </div>
+                        <button class="btn btn-info" onclick="showAddQuestionList('@tabName')"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                        <div id="addQuestionsMain" class="hidden">
+                            <h3>Заявки для добавления</h3>
+                            @Html.Partial("CommissionDrugDeclarationsForAdd", cqModel)
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <label>Комментарий</label>
+                                <textarea rows="10" cols="45" id="commissionQuestionComment1" value="@commissionQuestion.Comment" 
+                                          onkeypress="ChangeCommissionQuestionComment(this, '@tabName')">@commissionQuestion.Comment</textarea>
+                                <button id="commissionQuestionComment1SaveBtn" class="btn btn-info hidden" onclick="SaveCommissionQuestionComment('commissionQuestionComment1', '@Model.Id.Value', '@commissionQuestion.TypeId', '@tabName')">
+                                    <i class="glyphicon glyphicon-ok"></i>
+                                </button>
+                            </div>
+                            @*<button class="btn btn-danger hidden" onclick="DeleteCommissionQuestion('@Model.Id.Value', '@commissionQuestion.TypeId')">
+                                <i class="glyphicon glyphicon-trash">Удалить вопрос</i>
+                            </button>*@
+                        </div>
+                    </div>
+                }
+                else if (commissionQuestion.TypeId == 2)
+                {
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <label>Комментарий</label>
+                            <textarea rows="10" cols="45" id="commissionQuestionComment2" value="@commissionQuestion.Comment" 
+                                      onkeypress="ChangeCommissionQuestionComment(this, '@tabName')">@commissionQuestion.Comment</textarea>
+                            <button id="commissionQuestionComment2SaveBtn" class="btn btn-info hidden" onclick="SaveCommissionQuestionComment('commissionQuestionComment2', '@Model.Id.Value', '@commissionQuestion.TypeId', '@tabName')">
+                                <i class="glyphicon glyphicon-ok"></i>
+                            </button>
+                        </div>
+                        @*<button class="btn btn-danger hidden" onclick="DeleteCommissionQuestion('@Model.Id.Value', '@commissionQuestion.TypeId')">
+                            <i class="glyphicon glyphicon-trash">Удалить вопрос</i>
+                        </button>*@
+                    </div>
+                }
+                else if (commissionQuestion.TypeId == 3)
+                {
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <label>Комментарий</label>
+                            <textarea rows="10" cols="45" id="commissionQuestionComment3" value="@commissionQuestion.Comment" 
+                                      onkeypress="ChangeCommissionQuestionComment(this, '@tabName')">@commissionQuestion.Comment</textarea>
+                            <button id="commissionQuestionComment3SaveBtn" class="btn btn-info hidden" onclick="SaveCommissionQuestionComment('commissionQuestionComment3', '@Model.Id.Value', '@commissionQuestion.TypeId', '@tabName')">
+                                <i class="glyphicon glyphicon-ok"></i>
+                            </button>
+                        </div>
+                        @*<button class="btn btn-danger hidden" onclick="DeleteCommissionQuestion('@Model.Id.Value', '@commissionQuestion.TypeId')">
+                            <i class="glyphicon glyphicon-trash">Удалить вопрос</i>
+                        </button>*@
+                    </div>
+                }
+            </text>);
+        }
+    })
+)

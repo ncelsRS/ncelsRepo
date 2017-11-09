@@ -1,0 +1,137 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Наличие охранного документа на изобретение или полезную модель, товарный знак
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="protectTable" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Название охранного документа</td>
+                        <td>Наименование владельца</td>
+                        <td>Номер охранного документа</td>
+                        <td>Дата выдачи</td>
+                        <td>Срок действия</td>
+                    </tr>
+                </thead>
+                <tbody id="tab3">
+                    @for (var i = 0; i < Model.ExpDrugProtectionDocs.Count; i++)
+                    {
+                        var index = i + 1;
+                        var code = @CodeConstManager.EXP_DrugProtectionDoc + "_" + Model.ExpDrugProtectionDocs[i].Id + "_";
+                        var NameDocumentId = code + "NameDocument";
+                        var NameOwnerId = code + "NameOwner";
+                        var NumberDocumentId = code + "NumberDocument";
+                        var IssueDateStrId = code + "IssueDateStr";
+                        var ExpireDateStrId = code + "ExpireDateStr";
+
+                        <tr rowid="@Model.ExpDrugProtectionDocs[i].Id" rowindex="@index" rowkind="1">
+
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugProtectionDocs[i].NameDocument, new { @class = "protect-control edit-control  form-control", @id = NameDocumentId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugProtectionDocs[i].NameOwner, new { @class = "protect-control edit-control  form-control", @id = NameOwnerId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugProtectionDocs[i].NumberDocument, new { @class = "protect-control edit-control  form-control", @id = @NumberDocumentId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugProtectionDocs[i].IssueDateStr, new { @class = "protect-control edit-control  form-control date-control", @id = @IssueDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugProtectionDocs[i].ExpireDateStr, new { @class = "protect-control edit-control  form-control date-control", @id = @ExpireDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="7" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-btn" id="addprotect" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //bird
+    $(document).ready(function () {
+        changeFieldList(".protect-control", '@CodeConstManager.EXP_DrugProtectionDoc');
+        $("#addprotect").on("click", function () {
+            var row = $(this).closest("tr").prev();
+            var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+            var nextIndex = rowindex + 1;
+            var kindObject = "ExpDrugProtectionDocs";
+
+            var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+
+            var idNameDocument = "protectionDoc_a" + nextIndex + "_NameDocument";
+            var idNumberDocument = "protectionDoc_a" + nextIndex + "_NumberDocument";
+            var idNameOwner = "protectionDoc_a" + nextIndex + "_NameOwner";
+            var idIssueDateStr = "protectionDoc_a" + nextIndex + "_IssueDateStr";
+            var idExpireDateStr = "protectionDoc_a" + nextIndex + "_ExpireDateStr";
+
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].NameDocument" id="' + idNameDocument + '" class="protect-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].NameOwner" id="' + idNameOwner + '" class="protect-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].NumberDocument" id="' + idNumberDocument + '" class="protect-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].IssueDateStr" id="' + idIssueDateStr + '" class="protect-control edit-control form-control date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].ExpireDateStr" id="' + idExpireDateStr + '" class="protect-control edit-control form-control date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+            cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+            cols += '</tr>';
+            row.after(cols);
+            changeFieldList("#" + idNameOwner, '@CodeConstManager.EXP_DrugProtectionDoc');
+            changeFieldList("#" + idNameDocument, '@CodeConstManager.EXP_DrugProtectionDoc');
+            changeFieldList("#" + idNumberDocument, '@CodeConstManager.EXP_DrugProtectionDoc');
+            changeFieldList("#" + idIssueDateStr, '@CodeConstManager.EXP_DrugProtectionDoc');
+            changeFieldList("#" + idExpireDateStr, '@CodeConstManager.EXP_DrugProtectionDoc');
+            setDateFormat("#" + idIssueDateStr);
+            setDateFormat("#" + idExpireDateStr);
+        });
+
+
+        $("#protectTable").on("click", ".deleteRow", function () {
+
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                DeleteRecord('@CodeConstManager.EXP_DrugProtectionDoc', entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+    });
+</script>

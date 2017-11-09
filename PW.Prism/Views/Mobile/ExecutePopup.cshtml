@@ -1,0 +1,236 @@
+﻿@model PW.Ncels.Database.DataModel.Task
+
+@* Форма исполнения *@
+<div>
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+            <span data-role="view-title">Исполнить</span>
+
+            <a class="nav-button" data-align="right" data-role="button" id="done" onclick="executeclick()">Да</a>
+        </div>
+    </header>
+    <form id="executeform">
+        @Html.HiddenFor(o => o.Id)
+        <ul data-role="listview" data-style="inset">
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Документ_298__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <span class="pw-right-fix">@Html.DisplayFor(o => o.Document.Number) </span>
+                        
+                        @PW.Ncels.Database.Recources.Messages.Property_от_400__00
+
+                        @String.Format("{0:dd/MM/yyyy}", Model.Document.DocumentDate)
+</div>
+                </div>
+            </li>
+            @*<li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Тип_398__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <input id="TypeReportExecute" name="TypeReport" />
+                        </label>
+                    </div>
+                </div>
+            </li>*@
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Тип_398__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <select id="TypeReportExecute" name="TypeReport">
+                                <option value="0">Принято к сведению</option>
+                                <option value="1">Перевод</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </li>
+                    <li id="PageCountContent" style="display: none">
+                        <div class="fullTaskMobileWindow">
+                            <div class="leftTaskMobileWindow">
+                                <label>
+                                    Листов
+                                    <input id="PageCountExecute" name="PageCount" class="pw-text" type="number" data-bind="value: task.PageCount, events: { change: change }" />
+                                </label>
+                            </div>
+                        </div>
+                    </li>
+            <li id="CopiesCountContent" style="display: none">
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            Символов
+                            <input id="CopiesCountExecute" name="CopiesCount" class="pw-text" type="number" data-bind="value: task.CopiesCount, events: { change: change }" />
+                        </label>
+                    </div>
+                </div>
+            </li>
+                <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Текст_351__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <input id="NoteExecute" class="pw-text" name="Note" type="text" required validationmessage="Текст:" data-bind="value: task.Note"/>
+                        </label>
+                    </div>
+                </div>
+            </li>
+            <li>
+                @*<div class="fullTaskMobileWindow">
+                    @*<div class="leftTaskMobileWindow">*@
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00
+                        @*</label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>*@
+                            
+                        </label>
+                    <input name="files" data-role="upload" id="filesTasksExecute" type="file" />
+                    @*</div>
+                </div>*@
+            </li>
+        </ul>
+    </form>
+</div>
+@* Форма исполнения*@
+
+<script>
+    var validator = $("#executeform").kendoValidator().data("kendoValidator");
+
+    //Кнопка да исполнить--------------------------------------------
+    function executeclick() {
+        if ($("#TypeReportExecute").val() == 1) {
+            document.getElementById("PageCountExecute").setAttribute("required", "required");
+            document.getElementById("PageCountExecute").setAttribute("validationmessage", "Листы");
+            document.getElementById("CopiesCountExecute").setAttribute("required", "required");
+            document.getElementById("CopiesCountExecute").setAttribute("validationmessage", "Символы");
+        }
+        else {
+            document.getElementById("PageCountExecute").removeAttribute("required");
+            document.getElementById("PageCountExecute").removeAttribute("validationmessage");
+            document.getElementById("CopiesCountExecute").removeAttribute("required");
+            document.getElementById("CopiesCountExecute").removeAttribute("validationmessage");
+        }
+        if (validator.validate()) {
+            startLoading();
+            var dataId = '@Model.Id';
+            var dataform = $('#executeform').serialize();
+            $.ajax({
+                type: 'POST',
+                url: '/Mobile/ExecuteConfirm?TaskId=' + dataId,
+                dataType: 'json',
+                data: dataform,
+                success: function (result) {
+                    kendo.mobile.application.navigate("#:back");
+                    kendo.mobile.application.pane.loader.hide();
+                },
+            });
+        }
+    }
+    function startLoading() {
+        kendo.mobile.application.changeLoadingMessage("Ждите!");
+        kendo.mobile.application.showLoading();
+    }
+    var dataReportType = [
+{ text: "Принято к сведению", value: "0" },
+{ text: "Перевод", value: "1" }
+    ];
+    var name = '@Model.Id';
+    $("#TypeReportExecute").change(function () {
+        //var dataItem = this.dataItem(e.item.index());
+        var el = document.getElementById('PageCountContent');
+        var el1 = document.getElementById('CopiesCountContent');
+        if ($('#TypeReportExecute').val() != 1) {
+            el.style.display = 'none';
+            el1.style.display = 'none';
+        } else {
+            el.style.display = 'block';
+            el1.style.display = 'block';
+        }
+    });
+    //function selectReportType(e) {
+
+    //    var dataItem = this.dataItem(e.item.index());
+    //    var el = document.getElementById('PageCountContent');
+
+    //    if (dataItem.value != 1) {
+    //        el.style.display = 'none';
+    //    } else {
+    //        el.style.display = 'block';
+    //    }
+    //};
+    nameDocId = '@Model.DocumentId';
+    $("#filesTasksExecute").kendoUpload({
+        // multiple: true,
+        async: {
+            saveUrl: "/Upload/save",
+            removeUrl: "/Upload/remove",
+            autoUpload: true
+        }
+       , upload: function (e) {
+
+           e.data = { documentId: nameDocId };
+       },
+        remove: function (e) {
+            e.data = { documentId: nameDocId };
+        },
+        complete: function (e) {
+            var files = $("#filesTasks").closest(".k-upload").find("a");
+            $.each(files, function (i, file) {
+                file.onclick = function () {
+                    fileView(nameDocId, file.getAttribute('fileName'));
+                };
+            });
+        },
+        localization: {
+            select: 'Загрузить...',
+            remove: '',
+            cancel: '',
+            headerStatusUploading: "Загрузка...",
+            headerStatusUploaded: "Загружено!"
+        }
+        //     var filesButton = $("#filesTasks").closest(".k-upload").find("button");
+
+        //     $.each(filesButton, function (i, file) {
+        //         if (file.className == 'file-edit') {
+        //             file.onclick = function () {
+
+        //                 fileEdit(nameDocId, file.getAttribute('fileName'));
+
+        //             };
+        //         };
+        //     });
+        //     var filesDownload = $("#filesTasks").closest(".k-upload").find("button");
+        //     $.each(filesDownload, function (i, file) {
+        //         if (file.className == 'file-download') {
+        //             file.onclick = function () {
+        //                 fileDownload(nameDocId, file.getAttribute('fileName'));
+        //             };
+        //         };
+        //     });
+        // },
+        // select: function (e) { },
+        // template: kendo.template($('#fileTemplate').html())
+    });
+
+</script>

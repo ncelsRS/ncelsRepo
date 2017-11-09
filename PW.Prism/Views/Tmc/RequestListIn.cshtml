@@ -1,0 +1,148 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+<!-- Список доверенностей -->
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    function takeDetailsReport(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        printDocumentTMC2(dataItem.Id);
+    }
+ 
+    function takeDetails(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var window = $("#TaskCommandWindow");
+       
+        window.kendoWindow({
+            width: "550px",
+            height: "auto",
+            modal: true,
+            title: 'Принятие',
+            actions: ["Close"]
+        });
+        $("#TaskCommandWindow").data("kendoWindow").gridId = 'grid1_' + dataItem.TmcInId;
+        window.data("kendoWindow").title('Принятие');
+        window.data("kendoWindow").setOptions({
+            width: 550,
+            height: 'auto'
+        });
+        window.data("kendoWindow").refresh('/Tmc/AddTmc?id=' + dataItem.Id);
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+
+    }
+
+    function dataBoundTmcViewModelHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.StateType == 1) {
+                $(this).find(".k-grid-Принять").addClass("k-state-disabled");
+            }
+        });
+    }
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+                                .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+                                .ImageUrl("/Content/images/reload.png"))
+</div>
+@(Html.Kendo().Grid<TmcInViewModel>()
+    .Name("grid" + Model)
+    .Columns(columns => {
+        columns.Bound(p => p.OwnerEmployeeValue).Title("ФИО МОЛ").Width(150);
+        //columns.Bound(p => p.ExecutorEmployeeValue).Title("Заявка на имя").Width(150);
+        //columns.Bound(p => p.AgreementEmployeeValue).Title("Согласующий").Width(150);
+        columns.Bound(p => p.Provider).Title("Наименование поставщика товара").Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+        columns.Bound(p => p.ProviderBin).Title("БИН поставщика товара").Width(150);
+        columns.Bound(p => p.ContractNumber).Title("Номер договора").Width(150);
+        columns.Bound(p => p.ContractDate).Format("{0:dd.MM.yyyy}").Title("Дата договора").Width(150);
+        columns.Bound(p => p.LastDeliveryDate).Format("{0:dd.MM.yyyy}").Title("Последний срок поставки по договору").Width(150);
+        columns.Bound(p => p.IsFullDeliveryValue).Title("Полная поставка (да/нет)").Width(150);
+        columns.Bound(p => p.StateTypeValue).Title("Статус").Width(150);
+        // columns.Bound(p => p.Func1).Title("Разница дней").Width(150);
+        columns.Bound(p => p.Id).Title("Скан документ").Width(150);
+        columns.Bound(p => p.PowerOfAttorney).Title("Доверенность").Width(150);
+        //columns.Bound(p => p.IsFullDeliveryValue).Title("Сведения по товару").Width(150);
+        //columns.Bound(p => p.Name).Title("Наименование товара").Width(150);
+        //columns.Bound(p => p.Name).Title("Единица измерения").Width(150);
+        //columns.Bound(p => p.Name).Title("Количество/объем поставляемого товара").Width(150);
+        //columns.Command(command => { command.Custom("Печать").Click("takeDetailsReport"); }).Width(350);
+    })
+    //                      .ToolBar(toolbar => toolbar.Create())
+    //.Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .ColumnMenu(c => c.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .Groupable()
+    .Filterable()
+    .Sortable()
+    .Pageable()
+    .Scrollable()
+    .ClientDetailTemplateId("template")
+    .HtmlAttributes(new { @class = "pwGrid" })
+    .DataSource(dataSource => dataSource.Ajax().Model(model => {model.Id(p => p.Id);})
+    .PageSize(20)
+    .Read(read => read.Action("ReadRequestTake", "Tmc", new { type = 1 }))
+    .Update(update => update.Action("UpdateRequestTake", "Tmc"))
+    .Destroy(destroy => destroy.Action("DestroyRequestTake", "Tmc"))
+    .Create(create => create.Action("CreateRequestTake", "Tmc")))
+    .Resizable(s => s.Columns(true))
+)
+
+<script id="template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<TmcViewModel>()
+        .Name("grid1_#=TmcInId#") // template expression, to be evaluated in the master context
+        .Columns(columns =>
+        {
+            columns.Command(command => { command.Custom("Принять").Click("takeDetails"); }).Width(100);
+            columns.Bound(o => o.Name).Title("Наименование товара").Width(120);
+            columns.Bound(o => o.MeasureTypeDicValue).Title("Единица измерения").Width(120);
+            columns.Bound(o => o.Count).Title("Количество/объем").Format("{0:n6}").Width(120);
+            columns.Bound(o => o.CountFact).Title("Количество/объем (факт)").Format("{0:n6}").Width(120);
+            columns.Bound(o => o.MeasureTypeConvertDicValue).Title("Единица измерения (конв)").Width(120);
+            columns.Bound(o => o.CountConvert).Title("Количество/объем (конв)").Format("{0:n6}").Width(120);
+            columns.Bound(o => o.StateTypeValue).Title("Статус").Width(120);
+            columns.Bound(o => o.ReceivingDate).Format("{0:dd.MM.yyyy}").Title("Дата получения").Width(120);
+        })
+        .Events(c => c.DataBound("dataBoundTmcViewModelHandler"))
+        //.ToolBar(toolbar => toolbar.Create())
+        .HtmlAttributes(new { @class = "pwGrid" })
+        //.Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .DataSource(dataSource => dataSource
+                    .Ajax().Model(model =>
+                    {
+                        model.Id(p => p.Id);
+                        model.Field(p => p.TmcInIdString).DefaultValue("#=TmcInId#");
+                    })
+        .PageSize(20)
+        .Read(read => read.Action("ReadRequestTakeChildrens", "Tmc", new { tmcInId = "#=TmcInId#" }))
+        .Update(update => update.Action("UpdateRequestTakeChildrens", "Tmc"))
+        .Destroy(destroy => destroy.Action("DestroyRequestTakeChildrens", "Tmc"))
+        .Create(create => create.Action("CreateRequestTakeChildrens", "Tmc")))
+        .Sortable()
+        .Resizable(s => s.Columns(true))
+        .Pageable()
+        .ToClientTemplate()
+
+    )
+</script>
+
+<script>
+    (function() {
+        resizeGrid3('@("#grid" + Model)', 110);
+
+        $('@("#reload" + Model)').click(function (e) {
+            var grid = $('@("#grid" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        });
+    })();
+</script>

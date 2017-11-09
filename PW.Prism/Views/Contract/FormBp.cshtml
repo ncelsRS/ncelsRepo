@@ -1,0 +1,240 @@
+﻿@model string[]
+@{
+    // Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script id="taskTreeBp-template" type="text/kendo-ui-template">
+    # if (item.Type > -1) { #
+    <table id="pwTableTaskView">
+        <tr class="pwActivityStyle">
+            <td><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            <td>#: item.CreateDateTime #</td>
+            #if (item.ExecutionDateTime!="") {#
+            <td>#: item.ExecutionDateTime #</td>
+            # } #
+            <td style="white-space: pre-line;">#: item.Executor #</td>
+            #if (item.Text!=null) {#
+            <td style="width:250px; white-space: pre-line;">#: item.Text #</td>
+            # } #
+            # if (item.IsAllowEdit) { #
+            <td style="padding: 2px 4px;">
+                <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-default" onclick='taskEditDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    @*<button type="button" class="btn btn-default" onclick='taskDeleteDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>*@
+                    
+                </div>
+            </td>
+            # } #
+          
+        </tr>
+    </table>
+    # } else { #
+    <table>
+        <tr class="pwTaskStyle">
+            <td><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            @*<td>#: item.Number #</td>*@
+            # if (item.IsResponsible) { #
+            # if (item.IsMineLine) { #
+            <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwIsMineLine pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } else { #
+            <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } #
+            <td class="pwTaskStyleIsResponsible">
+                <img src="../../Content/images/FunctionType_Responsible.png" height="16" width="16" title="@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00" />
+            </td>
+            # } else { #
+            <td class="pwTaskStyleIsResponsible4">#: item.Executor #</td>
+            # } #
+            # if (item.IsConfirm) { #
+            <td style="padding: 2px 4px;">
+                <div class="btn-group btn-group-xs">
+                    @*<button type="button" class="btn btn-default" onclick='taskEditDoc("#=item.Id#", "#=item.TaskId#")'>
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>*@
+                    <button type="button" class="btn btn-default" onclick='taskOnAgreement("#=item.Id#")'>
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+
+                </div>
+            </td>
+            # } #
+        </tr>
+        # for (var i = 0; i < item.Reports.length; i++) { #
+        <tr class="pwTaskStyle">
+            <td colspan="2">#: item.Reports[i].ReportDate #</td>
+            <td style="width:200px; white-space: pre-line;" colspan="2">#: item.Reports[i].ReportText #</td>
+        </tr>
+        # } #
+    </table>
+    # } #
+
+</script>
+<script>
+
+    function onSelectTreeItem(e) {
+
+        var id = '@Model[0]';
+        var state = '@Model[1]';
+
+        if (e.node != null) {
+            var viewModel =  kendo.observable({
+                task: $("#treeview" + id).data("kendoTreeView").dataItem(e.node),
+
+                edit: function () {
+                    taskAgreementEditDoc(this.task.Id);
+                },
+                remove: function () {
+                    taskDeleteDoc(this.task.Id);
+                }
+
+            });
+            kendo.bind($("#taskButtonEdit" + id), viewModel);
+            if (e.node.parentElement == null || $("#treeview" + id).data("kendoTreeView").dataItem(e.node).Type == 3 || $("#treeview" + id).data("kendoTreeView").dataItem(e.node).Type == 4) {
+                $('#edit' + id).prop('disabled', false);
+                $('#delete' + id).prop('disabled', false);
+            }
+            if ($("#treeview" + id).data("kendoTreeView").dataItem(e.node).Type == -1) {
+                $('#edit' + id).prop('disabled', true);
+                $('#delete' + id).prop('disabled', true);
+            }
+
+            if (state == 2 || state == 3 || state == 4 || state == 5 || state == 7 || state == 8 || state == 9) {
+                $('#edit' + id).prop('disabled', true);
+                $('#delete' + id).prop('disabled', true);
+            }
+
+         
+        }
+    }
+
+    function treeViewData() {
+        return {
+            id: '@Model[0]'
+        };
+    }
+
+</script>
+
+<div class="pwToolbar">
+    <div class="btn-toolbar" role="toolbar" >
+        <div class="btn-group" id="@("taskButtonAdd"+ Model[0])">
+            <button type="button" data-bind="click: agreement,enabled: hasAgreement" class="btn btn-default" id="@("agreement" + Model[0])"><span class="pwToolbarButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Добавитьсогласование_51__00</span></button>
+         
+        </div>
+        <div class="btn-group" id="@("taskButtonReview" + Model[0])">
+            <button type="button" class="btn btn-default" data-bind="click: send, enabled: hasSend" id="@("send" + Model[0])"><span class="pwToolbarButtonSend"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отправитьнасогласование_32__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: reject, enabled: hasReject" id="@("reject" + Model[0])"><span class="pwToolbarButtonReturn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отозвать_321__00</span></button>
+        </div>
+        <div class="btn-group" id="@("taskButtonEdit" + Model[0])">
+            <button type="button" data-bind="click: edit" class="btn btn-default" id="@("edit" + Model[0])" disabled><span class="pwToolbarButtonEdit"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Редактировать_212__00</span></button>
+            <button type="button" data-bind="click: remove" class="btn btn-default" id="@("delete" + Model[0])" disabled><span class="pwToolbarButtonDelete"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Удалить_334__00</span></button>
+        </div>
+
+    </div>
+</div>
+<div class="pwPage">
+    @(Html.Kendo().TreeView()
+          .Name("treeview" + Model[0])
+          .HtmlAttributes(new { @class = "pwTaskTree" })
+          .TemplateId("taskTreeBp-template")
+          .ExpandAll(true)
+          .AutoBind(true)
+          .DataSource(dataSource => dataSource
+              .Model(m => m.Id("Id").HasChildren("HasChildren").Children("Children"))
+              .Read(read => read.Action("BpTasks", "Task").Data("treeViewData"))
+          )
+          .Events(events => events.Select("onSelectTreeItem"))
+    )
+</div>
+<script>
+    var id = '@Model[0]';
+    var state = '@Model[1]';
+    var viewModelAdd = kendo.observable({
+        
+        hasAgreement:true,
+        agreement: function () {
+            taskOnAgreementDoc(id);
+        },
+        signing: function () {
+            taskOnSingDoc(id);
+        },
+
+    });
+    if (state == 0 || state == 2 || state == 3 || state == 4 || state == 5 || state == 7 || state == 8 || state == 9) {
+        viewModelAdd.set('hasAgreement', false);
+    }
+    kendo.bind($("#taskButtonAdd" + id), viewModelAdd);
+
+
+    var viewModelReview = kendo.observable({
+        hasSend: true,
+        send: function () {
+            $.ajax({
+                type: 'POST',
+                url: '/Contract/DocumentBpReview?Id=' + id,
+                success: function (result) {
+                    result = JSON.parse(result);
+                    if (result.State == true) {
+                        state = result.document.StateType;
+                        if (state == 1 || state == 6) {
+                            viewModelReview.set('hasSend', true);
+                        } else {
+                            viewModelReview.set('hasSend', false);
+                        }
+                        if (state == 4 || state == 5) {
+                            viewModelReview.set('hasReject', true);
+                        } else {
+                            viewModelReview.set('hasReject', false);
+                        }
+                        CardReview2Success();
+                    };
+                },
+                complete: function () {
+                 //   kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        hasReject: true,
+        reject: function () {
+            $.ajax({
+                type: 'POST',
+                url: '/Contract/DocumentBpReject?Id=' + id,
+                success: function (result) {
+                    result = JSON.parse(result);
+                    if (result.State == true) {
+                        state = result.document.StateType;
+                        if (state == 1 || state == 6) {
+                            viewModelReview.set('hasSend', true);
+                        } else {
+                            viewModelReview.set('hasSend', false);
+                        }
+                        if (state == 4 || state == 5) {
+                            viewModelReview.set('hasReject', true);
+                        } else {
+                            viewModelReview.set('hasReject', false);
+                        }
+                        CardRejectSuccess();
+                    };
+                },
+                complete: function () {
+                   // kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        }
+    });
+    if (state == 1 || state == 6) {
+        viewModelReview.set('hasSend', true);
+    } else {
+        viewModelReview.set('hasSend', false);
+    }
+    if (state == 4 || state == 5) {
+        viewModelReview.set('hasReject', true);
+    } else {
+        viewModelReview.set('hasReject', false);
+    }
+    kendo.bind($("#taskButtonReview" + id), viewModelReview);
+</script>
