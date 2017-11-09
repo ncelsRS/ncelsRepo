@@ -1,0 +1,118 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Новое дополнительное соглашение</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Договоры</a>
+            </li>
+            <li class="active">
+                <strong>Создать дополнительное соглашение</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId" />
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="contracAdditiontForm">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Новое дополнительное соглашение
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction, "Contract")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="editProject()" check-validate><i class="fa fa-save"></i> Сохранить</button>
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="open()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-check-square"></i> Подписать ЭЦП</button>*@
+                        <button class="btn btn-default btn-sm" type="button" ng-click="sendInProcessing()" ng-if="object.ContractAddition.ContractStatus.Code=='@Contract.StatusNew' || object.ContractAddition.ContractStatus.Code=='@Contract.StatusOnCorrection'"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-if="object.ContractAddition.ContractStatus" ng-click="viewContract('@Model')" @*onclick="location.href='@Url.Action("FileView", "Upload")'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" ng-if="object.ContractAddition.ContractStatus" onclick="location.href = '@Url.Action("GetContractTemplate", "Contract", new {id = @Model})'"><i class="fa fa-download"></i> Скачать</button>
+                    </div>
+                </div>
+                <form name="contracAdditiontForm">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>К договору</label>
+                                    <ui-select ng-model="object.ContractAddition.ContractId" ui-select-selected required theme="bootstrap">
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in ContractId | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Выберите дополнительное соглашение</label>
+                                    <ui-select ng-model="object.ContractAddition.ContractAdditionTypeId" ui-select-selected required theme="bootstrap" ng-change="contractAdditionChanged($select.selected)">
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in ContractAddition | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Выберите подписанта со стороны НЦЭЛС</label>
+                                            <div class="col-lg-8">
+                                                <ui-select ng-model="object.ContractAddition.SignerId" ui-select-selected required theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in Signers | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#tab-1">Вложения</a></li>
+                                        <li ng-if="object.Contract.ContractStatus && object.Contract.ContractStatus.Code!=='@Contract.StatusNew'"><a data-toggle="tab" href="#tab-2"><h3 style="color: red">Замечания</h3></a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tab-1" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <h3 class="m-t-none m-b">Вложения</h3>
+                                                <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                                <attach-edit attach-codes="object.AttachCodes" metadata="true" history="true" url="/Upload/GetAttachListEdit" type="sysAttachContractAdditionDict" path="@Model" />
+                                            </div>
+                                        </div>
+                                        <div ng-if="object.Contract.ContractStatus && object.Contract.ContractStatus.Code!=='@Contract.StatusNew'" id="tab-2" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <grid-object url="\Contract\ListComments?contractId=@(Model)" column-order="0"></grid-object>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,187 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.Models.Expertise.StageModel
+@{
+    var uiId = Guid.NewGuid();
+    var sendToNextStageBtn = "sendToNextStageBtn" + uiId;
+    var currentStageResult = "currentStageResult" + uiId;
+    var currentStageId = "currentStageId" + uiId;
+    var dicStageId = "dicStageId" + uiId;
+    var endExpertiseId = "endExpertiseId" + uiId;
+    var sendApplicationId = "sendApplicationId" + uiId;
+    var statusDeclarationId = "statusDeclaration" + uiId;
+}
+    <div style="margin-top: 10px; margin-bottom: 10px">
+        <div class="row">
+            <input type="hidden" id="@currentStageId" value="@Model.CurrentStage.Id"/>
+            <input type="hidden" id="@dicStageId" value="@Model.CurrentStage.StageId"/>
+            <div style="float: left; width: 400px">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="@currentStageResult" class="col-lg-5" style="margin-top: 8px">Результат этапа:</label>
+                        <div class="col-lg-7">
+                            @Html.DropDownList(currentStageResult, new SelectList(Model.StageResults, "Id", "NameRu", Model.CurrentStage.ResultId),
+                                String.Empty,
+                                new
+                                {
+                                    @class = "form-control edit-control " + (Model.CurrentStage.EXP_DIC_StageStatus.Code == EXP_DIC_StageStatus.Completed ? "disabled" : "")
+                                })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="@sendToNextStageBtn" @{
+                                                 if (Model.CurrentStage.ResultId == null || Model.CurrentStage.EXP_DIC_StageStatus.Code == EXP_DIC_StageStatus.Completed)
+                                                 {
+                                                     <text> disabled</text>
+                                                 }
+                                             } class="btn btn-primary btn-sm" type="button">
+                <i class="glyphicon glyphicon-arrow-right"></i> Перевести на следующий этап
+            </button>
+            @if (Model.CurrentStage.EXP_DIC_Stage.Code == EXP_DIC_Stage.SafetyConclusion && Model.CurrentStage.EXP_DIC_StageStatus.Code != EXP_DIC_StageStatus.Completed
+                 && Model.CurrentStage.ParentStageId != null && Model.CurrentStage.ParentStage.EXP_DIC_StageStatus.Code == EXP_DIC_StageStatus.Completed)
+            {
+                <button id="@endExpertiseId" class="btn btn-success btn-sm" type="button">
+                    <i class="glyphicon glyphicon-ok"></i> Завершить экспертизу
+                </button>
+            }
+          
+           
+        </div>
+@if (Model.CurrentStage.EXP_DIC_Stage.Code == EXP_DIC_Stage.SafetyConclusion && Model.CurrentStage.EXP_DIC_StageStatus.Code != EXP_DIC_StageStatus.Completed)
+{
+
+    <div class="row" style="margin-top: 20px">
+        <div style="float: left; width: 400px">
+            <div class="row">
+                <div class="form-group">
+                    <label for="@currentStageResult" class="col-lg-5" style="margin-top: 8px">Статус заявления:</label>
+                    <div class="col-lg-7">
+                        <input  type="text" readonly="readonly" class="form-control"  id="@statusDeclarationId" value="@Model.CurrentStage.EXP_DrugDeclaration.EXP_DIC_Status.NameRu">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="@sendApplicationId" class="btn btn-warning btn-sm" type="button">
+            <i class="glyphicon glyphicon-ok-circle"></i> Отправить на согласования заявителю
+        </button>
+    </div>
+}
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ('@Model.CurrentStage.EXP_DrugDeclaration.StatusId' === '@CodeConstManager.STATUS_EXP_SEND_INSTRUCTION_ID') {
+                $('#@endExpertiseId').attr('disabled', 'disabled');
+                        $('#@sendToNextStageBtn').attr('disabled', 'disabled');
+                        $('#@currentStageResult').attr('disabled', 'disabled');
+                $('#@sendApplicationId').attr('disabled', 'disabled');
+               
+            }
+            $('#@currentStageResult').change(function (e) {
+                if ($('#@currentStageResult').val()) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/DrugDeclaration/SetStageResult',
+                        data: {
+                            stageId: '@Model.CurrentStage.Id',
+                            resultId: $('#@currentStageResult').val()
+                        },
+                        //contentType: 'application/json; charset=utf-8',
+                        success: function (result) {
+                            $('#@sendToNextStageBtn').removeAttr('disabled');
+                        },
+                        complete: function () {
+                        }
+                    });
+
+                    if ('@Model.CurrentStage.EXP_DIC_Stage.Code' == '@CodeConstManager.STAGE_SAFETYREPORT') {
+                        if ($('#@currentStageResult').val() == '2') {
+                            $('#@sendToNextStageBtn').text('Перевести на предыдущий этап');
+                        } else {
+                            $('#@sendToNextStageBtn').text('Перевести на следующий этап');
+                        }
+                    }
+                }
+            });
+
+            $('#@sendToNextStageBtn').click(function () {
+                var window = $("#TaskCommandWindow");
+                var expStageId = $('#@currentStageId').val();
+                var dicStageId = $('#@dicStageId').val();
+                window.kendoWindow({
+                    width: "650",
+                    height: "auto",
+                    modal: true,
+                    title: "Отправка на этап",
+                    actions: ["Close"]
+                });
+                $("#TaskCommandWindow").data("kendoWindow").dialogCallback = function (stages) {
+                    ShowAlert('Сообщение', 'Документ отправлен на этап: ' + stages, 'Info', 5000);
+                    $('#@sendToNextStageBtn').attr('disabled', 'disabled');
+                }
+                window.data("kendoWindow").refresh('/DrugDeclaration/SendToNextStage?expStageId=' +
+                    expStageId +
+                    '&dicStageId=' +
+                    dicStageId +
+                    '&stageResultId=' +
+                    $('#@currentStageResult').val());
+                window.data("kendoWindow").title("Отправка на этап");
+                window.data("kendoWindow").setOptions({
+                    width: "650",
+                    height: "auto"
+                });
+                window.data("kendoWindow").center();
+                window.data("kendoWindow").open();
+            });
+            $('#@endExpertiseId').click(function () {
+                var expStageId = $('#@currentStageId').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/DrugDeclaration/EndExpertise',
+                    data: {
+                        stageId: expStageId
+                    },
+                    success: function (result) {
+                        ShowAlert('Сообщение', 'Экспертиза завершена', 'Info', 5000);
+                        $('#@endExpertiseId').attr('disabled', 'disabled');
+                        $('#@sendToNextStageBtn').attr('disabled', 'disabled');
+                        $('#@currentStageResult').attr('disabled', 'disabled');
+                        $('#@sendApplicationId').attr('disabled', 'disabled');
+                    },
+                    complete: function () {
+                    }
+                });
+            });
+
+            $('#@sendApplicationId').click(function () {
+                var expStageId = $('#@currentStageId').val();
+                var success = function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Safetyreport/SendToApplicant',
+                        data: {
+                            stageId: expStageId
+                        },
+                        success: function (data) {
+
+                            $('#@statusDeclarationId').val(data.statusName);
+                            $('#@endExpertiseId').attr('disabled', 'disabled');
+                            $('#@sendToNextStageBtn').attr('disabled', 'disabled');
+                            $('#@currentStageResult').attr('disabled', 'disabled');
+                            $('#@sendApplicationId').attr('disabled', 'disabled');
+                            ShowAlert('Сообщение', 'Отправлено на согласования заявителю', 'Info', 5000);
+                        },
+                        error: function () {
+                            alert("Connection Failed. Please Try Again");
+                        }
+                    });
+
+                }
+                var cancel = function () {
+                };
+                showConfirmation("Подтверждение", "Вы уверены что хотите отправить на согласования заявителю?", success, cancel);
+            });
+
+        });
+    </script>

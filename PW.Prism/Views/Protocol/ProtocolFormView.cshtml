@@ -1,0 +1,152 @@
+﻿@using PW.Ncels.Database.Enums.PriceProject
+@using EnumHelper = PW.Ncels.Database.Helpers.EnumHelper
+@model PW.Prism.ViewModels.PriceProject.ProtocolModel
+@{}
+<script>
+
+    $(document).ready(function () {
+        var viewModel = kendo.observable({
+            Complete: function (e) {
+                var r = confirm("Вы уверены что хотите завершить работу по протоколу?");
+                if (r != true)
+                    return;
+                complete();
+            },
+            Cancel: function (e) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            },
+            filter: $("#TaskCommandWindow").data("kendoWindow").windowViewModel
+        });
+
+        kendo.bind($("#protocolViewForm@(Model.Guid)"), viewModel);
+    });
+
+    function complete() {
+        $.ajax({
+            type: "POST",
+            url: '/Protocol/CompleteProtocol',
+            data: '{rowId:\'@(Model.Protocol.Id)\'}',
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                debugger;
+                if (result == 'True') {
+                    ShowAlert('Сообщение', 'Работа по протоколу успешно завершена', 'Success');
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var grid = $("#" + $("#TaskCommandWindow").data("kendoWindow").gridId).data("kendoGrid");
+                    grid.dataSource.read();
+                } else {
+                    ShowAlert('Ошибка', 'Ошибка при попытке завешения работы протокола', 'Error');
+                }
+
+            },
+            error: function (xhr) {
+                debugger;
+                alert('Ошибка сохранения данных');
+            }
+        });
+    }
+
+</script>
+<input type="hidden" id="protocolId" value="@Model.Protocol.Id"/>
+<div class="row">
+    <form id="protocolViewForm@(Model.Guid)" class="form-horizontal">
+        <div class="row">
+            <div class="panel-body">
+                <div class="row form-horizontal">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="col-lg-4">Дата:</label>
+                            <div class="col-lg-8">
+                                <p>@Model.Protocol.ProtocolDate.ToString("dd.MM.yyyy")</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Тип:</label>
+                            <div class="col-lg-8">
+                                <p>@EnumHelper.DisplayName((ProtocolType) Model.Protocol.Type)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">ФИО Руководителя:</label>
+                            <div class="col-lg-8">
+                                <p>@Model.Protocol.RequesterName</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Члены комиссии:</label>
+                            <div class="col-lg-8">
+                                @Html.Raw(ViewBag.ComissionMembers)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 form-horizontal">
+                        <div class="form-group">
+                            <label class="col-lg-4">№ протокола:</label>
+                            <div class="col-lg-8">
+                                <p>@Model.Protocol.Number</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Председатель:</label>
+                            <div class="col-lg-8">
+                                <p>@ViewBag.ChiefDisplayName</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Заявитель:</label>
+                            <div class="col-lg-8">
+                                <p>@ViewBag.RequesterDisplayName</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Тип продукта:</label>
+                            <div class="col-lg-8">
+                                <p>@(Model.Protocol.IsImn ? "ИМН" : "ЛС")</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4">Приглашенные:</label>
+                            <div class="col-lg-8">
+                                <p>@Model.Protocol.AdditionalPersonName</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" >
+            <label class="col-lg-11">Детали:</label>
+        </div>   
+        <div class="row" style="margin-top: 5px; margin-bottom: 7px;">
+            <label class="col-lg-8">Наименование</label>
+            <div class="col-lg-3">
+                <b>Цена</b>
+            </div>
+        </div>  
+         
+        @foreach (var item in Model.Protocol.PP_ProtocolProductPrices) {
+            <div class="row">
+                <div class="col-lg-8">@item.ProductNameRu</div>
+                <div class="col-lg-3">
+                    <p>@item.PriceNew</p>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" data-bind="click: Cancel" class="btn btn-danger dropdown-toggle">Закрыть</button>  
+                </div>
+
+                @if (Model.Protocol.Status == (int)ProtocolStatus.InWork && ViewBag.HasEdit){
+                    <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                        <button type="button" data-bind="click: Complete" class="btn btn-primary dropdown-toggle">Завершить</button>  
+                    </div>
+                }
+
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,574 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+@model Guid
+
+<script>
+    function onExportTmcList(e) {
+        /// TODO заменить
+        // window.open('/Tmc/ExportFile');
+    }
+
+    var DirectionToPayGrid = {
+        _callDialog: function(dataItem, url, text) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Направление на оплату',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'gridDirectionToPay' + '@Model';
+            window.data("kendoWindow").title('Направление на оплату');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _callRejectDialog: function (dataItem, url, text, payload) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Направление на оплату',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'gridDirectionToPay' + '@Model';
+            window.data("kendoWindow").title('Направление на оплату');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("RejectDialog","Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text
+                + '&payload' + payload);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _callAgreementDialog: function (dataItem) {
+            var window = $("#CardCommandWindow");
+            window.kendoWindow({
+                width: "700px",
+                height: "auto",
+                modal: true,
+                resizable: false,
+                title: 'Направление на оплату. Согласование',
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+            window.data("kendoWindow").dialogCallback = function(r) {
+                DirectionToPayGrid._reload();
+            };
+            window.data("kendoWindow").title('Направление на оплату. Согласование');
+            window.data("kendoWindow").refresh('@Url.Action("AgreementList", "Agreement")?docId=' + dataItem.Id
+                + '&documentTypeCode=' + @Dictionary.ExpAgreedDocType.DirectionToPay);
+
+            // window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _disableElement: function(element) {
+            element.attr("disabled","disabled");
+            element.attr("disabled", "disabled");
+            element.addClass("k-state-disabled");
+        },
+        _hideElement: function(element) {
+            element.attr("disabled","disabled");
+            element.attr("disabled", "disabled");
+            element.addClass("k-state-hided");
+        },
+        _reload: function() {
+            var grid = $('@("#gridDirectionToPay" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        },
+        createDirectionDialogShow:function () {
+            var window = $("#TaskCommandWindow");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Направление на оплату',
+                actions: ["Close"]
+            });
+            $("#TaskCommandWindow").data("kendoWindow").directionGridId = 'gridDirectionToPay' + '@Model';
+            window.data("kendoWindow").title('Направление на оплату');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("CreateDirectionForm","DirectionToPay")');
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+            return false;
+        },
+        onDataBoundHandler: function (e) {
+            var grid = $("#gridDirectionToPay" + '@Model').data("kendoGrid");
+            var gridData = grid.dataSource.view();
+            debugger;
+
+            for (var i = 0; i < gridData.length; i++) {
+                var currentUid = gridData[i].uid;
+                var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+
+                var editButton = $(currenRow).find(".k-grid-edit");
+                var deleteButton = $(currenRow).find(".k-grid-delete");
+                var sendButton = $(currenRow).find(".k-grid-directiontopay-send");
+                var approveButton = $(currenRow).find(".k-grid-directiontopay-approve");
+                var rejectButton = $(currenRow).find(".k-grid-directiontopay-reject");
+                var repealButton = $(currenRow).find(".k-grid-directiontopay-repeal");
+
+                var isCreator = '@(UserHelper.GetCurrentEmployee() == null ? "": UserHelper.GetCurrentEmployee().Id.ToString())' == gridData[i].CreateEmployeeId;
+                var isExecutor = gridData[i].ExecutorId == gridData[i].CreateEmployeeId;
+                if (gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.Created") {
+                    approveButton.remove();
+                    rejectButton.remove();
+                    repealButton.remove();
+                } else if (gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.OnAgreement") {
+                    if (isCreator && !isExecutor) {
+                        sendButton.remove();
+                        deleteButton.remove();
+                        approveButton.remove();
+                        rejectButton.remove();
+                    } else {
+                        deleteButton.remove();
+                        sendButton.remove();
+                        repealButton.remove();
+                    }
+                } else if (gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.Canceled") {
+                    approveButton.remove();
+                    rejectButton.remove();
+                    repealButton.remove();
+                } else if (gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.OnСorrection") {
+                    if (isCreator && !isExecutor) {
+                        approveButton.remove();
+                        rejectButton.remove();
+                        repealButton.remove();
+                    } else {
+                        //DirectionToPayGrid._disableElement(editButton);
+                        deleteButton.remove();
+                        sendButton.remove();
+                        approveButton.remove();
+                        rejectButton.remove();
+                        repealButton.remove();
+                    }
+                } else if (gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.Agreed" ||
+                    gridData[i].StatusCode == "@Dictionary.ExpDirectionToPayStatus.SendedTo1C") {
+                    //DirectionToPayGrid._disableElement(editButton);
+                    deleteButton.remove();
+                    sendButton.remove();
+                    approveButton.remove();
+                    rejectButton.remove();
+                    repealButton.remove();
+                }
+            }
+            //var newOptions = $.extend({}, grid.getOptions());                     
+            //newOptions.columns[0].width = newOptions.columns[0].width - 50;
+            //grid.setOptions(newOptions);
+            //grid.columns[0].width = "280px";
+        },
+        onRequestEndHandler: function (e) {
+            //debugger;
+            //DirectionToPayGrid.onDataBoundHandler();
+        },
+        onEditHandler: function (e) {
+            if (e.model.StatusCode == "@Dictionary.ExpDirectionToPayStatus.OnAgreement" ||
+                e.model.StatusCode == "@Dictionary.ExpDirectionToPayStatus.Agreed" ||
+                e.model.StatusCode == "@Dictionary.ExpDirectionToPayStatus.SendedTo1C") {
+                e.container.find('#gridPriceLists').find('.k-toolbar').hide();
+                //e.container.find('#gridPriceLists').find('.k-grid-edit').hide();
+                //e.container.find('#gridPriceLists').find('.k-grid-delete').hide();
+            }
+
+            //$(".k-grid-cancel").on("click",
+            //function() {
+            //setTimeout(function() {
+            //$('#gridDirectionToPay' + '@Model').data("kendoGrid").trigger("dataBound");
+            //});
+            //});
+            debugger;
+            if (e.model.Type == '@EXP_DirectionToPaysView.ExpertWorkType') {
+                $('*[id*=pageCountContainer]:visible').each(function () {
+                    $(this).hide();
+                });
+            } else {
+                $("#pricelistContainer").hide();
+
+                //$("#pageCountContainer").hide();
+            }
+        },
+        onCancelHandler: function (e) {
+            setTimeout(function () {
+                $('#gridDirectionToPay' + '@Model').data("kendoGrid").trigger("dataBound");
+            });
+        },
+        onPanelTmcTypeSelect: function(e) {
+            var selectType = $(e.item).find("> .k-link").attr('ItemType');
+            if (selectType != null) {
+
+                var gridId = $(e.item).find("> .k-link").attr('ModelId');
+                var filter = new Array();
+
+                $("#TmcTypeId" + gridId).val(selectType);
+                filter.push({ field: "StatusId", operator: "eq", value: selectType });
+                var grid = $("#gridDirectionToPay" + gridId).data("kendoGrid");
+                if (selectType == '') {
+                    grid.dataSource.filter([]);
+                } else {
+                    grid.dataSource.filter({
+                        filters: filter
+                    });
+                }
+            }
+        },
+        send: function(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+//            var text = "Отправить?";
+//            var url = encodeURIComponent('@Url.Action("SendToAgreement","Agreement")?documentId=' +
+//                dataItem.Id +
+//                '&documentTypeCode=' +
+//                '@Dictionary.ExpAgreedDocType.DirectionToPay' +
+//                '&activityTypeCode=' +
+//                '@Dictionary.ExpActivityType.DirectionToPayAgrement');
+
+            DirectionToPayGrid._callAgreementDialog(dataItem);
+        },
+        reject: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Отклонить?";
+            var url = encodeURIComponent('@Url.Action("Reject","Agreement")?documentId=' +
+                dataItem.Id +
+                '&activityTypeCode=' +
+                '@Dictionary.ExpActivityType.DirectionToPayAgrement');
+
+
+            DirectionToPayGrid._callRejectDialog(dataItem, url, text);
+        },
+        repeal: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Аннулировать?";
+            var url = encodeURIComponent('@Url.Action("Repeal", "Agreement")?documentId=' +
+                dataItem.Id +
+                '&activityTypeCode=' + '@Dictionary.ExpActivityType.DirectionToPayAgrement');
+
+            DirectionToPayGrid._callDialog(dataItem, url, text);
+        },
+        approve: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Согласовать?";
+            var url = encodeURIComponent('@Url.Action("Approve", "Agreement")?documentId=' +
+                dataItem.Id +
+                '&activityTypeCode=' +
+                '@Dictionary.ExpActivityType.DirectionToPayAgrement');
+
+            DirectionToPayGrid._callDialog(dataItem, url, text);
+        }
+    };
+
+    var DirectionToPaysView = {
+        onEdit: function(e) {
+            //check if record is new
+            if (e.model.isNew()) {
+                //set the required field value
+                e.model.set("DirectionToPayId", $("#EXP_DirectionToPaysViewId").val());
+            }
+        },
+        sync: function(e) {
+            this.read();
+        },
+        onDataBound: function (e) {
+            debugger;
+            var statusCode = $("#StatusCode").val();
+            if (statusCode)
+                if (statusCode == "@Dictionary.ExpDirectionToPayStatus.OnAgreement" ||
+                    statusCode == "@Dictionary.ExpDirectionToPayStatus.Agreed" ||
+                    statusCode == "@Dictionary.ExpDirectionToPayStatus.SendedTo1C") {
+                    e.sender.hideColumn(0);
+                }
+        },
+        onchangePageCount: function (e) {
+            debugger;
+            var total = this.value() * 2277;
+
+            $('*[id*=TotalPrice]').each(function () {
+                $(this).data("kendoNumericTextBox").value(total);
+            });
+
+            // $("#TotalPrice")
+        }
+    };
+    var EXP_PriceListDirectionToPayView = {
+        onSelect: function (e) {
+            var dataItem = this.dataSource.view()[e.item.index()];
+            //var res = $("#PriceSum" + name).data("kendoNumericTextBox").value();
+            //$("#PriceSum" + name).data("kendoNumericTextBox").value(res + parseFloat(dataItem.Price));
+
+            var count = $(this.element).closest('.k-window').find('#Count').data('kendoNumericTextBox').value();
+            if (count == null) {
+                count = 1;
+            }
+            var res = count * parseFloat(dataItem.Price);
+            $(this.element).closest('.k-window').find('#Total').data('kendoNumericTextBox').value(res);
+            $(this.element).closest('.k-window').find('#Total').data('kendoNumericTextBox').trigger("change");
+            $(this.element).closest('.k-window').find('#Price').data('kendoNumericTextBox').value(dataItem.Price);
+            $(this.element).closest('.k-window').find('#Price').data('kendoNumericTextBox').trigger("change");
+        },
+        onChange: function(e) {
+            var price = $(this.element).closest('.k-window').find('#Price').data('kendoNumericTextBox').value();
+            var res = this.value() * price;
+            $(this.element).closest('.k-window').find('#Total').data('kendoNumericTextBox').value(res);
+            $(this.element).closest('.k-window').find('#Total').data('kendoNumericTextBox').trigger("change");
+        }
+    };
+</script>
+
+<style>
+    .k-edit-form-container {
+        width: 850px;
+    }
+
+    fieldset {
+        margin-left: 5px;
+    }
+
+    .k-grid .k-grid-header .k-header .k-link {
+        height: auto;
+    }
+
+    .k-grid .k-grid-header .k-header {
+        white-space: normal;
+    }
+
+    .editColumn {
+        vertical-align: top;
+        width: 33%;
+    }
+
+    dt, dd { float: left;}
+    dt { clear: both;width: 35%; }
+    dd { width: 65%;}
+</style>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+                panes.Add()
+                    .Size("250px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("250px")
+                    .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                       .Name("panelbar" + Model)
+                                       .ExpandMode(PanelBarExpandMode.Multiple)
+                                       .ExpandAll(true)
+                                       .HtmlAttributes(new { style = "width:auto;" })
+                                       .Events(e => e.Select("DirectionToPayGrid.onPanelTmcTypeSelect"))
+                                       .Items(panelbar =>
+                                       {
+                                           panelbar.Add().Expanded(true);
+                                           panelbar.Add().Text("По статусам")
+                                               .Items(panelbarItem =>
+                                               {
+                                                   panelbarItem.Add().Text("Все")
+                                                       .LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", "" }, { "ModelId", Model.ToString() } });
+
+                                                   foreach (Item dictionaryInfo in (List<Item>)ViewBag.DirectionToPayStatuses)
+                                                   {
+                                                       panelbarItem.Add().Text(dictionaryInfo.Name)
+                                                       .LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", dictionaryInfo.Id }, { "ModelId", Model.ToString() } });
+                                                   }
+                                               });
+                                       })
+                        )
+                    </div>
+                    );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block">
+                            <div id="pwOne">
+                                
+                                @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("")
+                                      .HtmlAttributes(new {@class = "pwWidth100"}))
+                                 
+                            </div>
+
+                            <div id="pwTwo">
+
+                            </div>
+
+                            <div id="pwThree">
+                                
+                                @(Html.Kendo().Button().Name("find" + Model)
+                                      .HtmlAttributes(new {@class = "pwWidth100"})
+                                      .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                      .ImageUrl("/Content/images/find.png"))
+                                
+                            </div>
+
+                            <div id="pwFour">
+                            @*
+                                @(Html.Kendo().Button().Name("export" + Model)
+                                      .HtmlAttributes(new {@class = "pwWidth100"})
+                                      .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                      .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportTmcList")))
+                            *@
+                            </div>
+                        </div>
+                        <div id="pwSix">
+                            @(Html.Kendo().Button().Name("reload" + Model)
+                                .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                .Content("")
+                                .ImageUrl("/Content/images/reload.png"))
+                        </div>
+                        @(Html.Kendo().Grid<EXP_DirectionToPaysView>()
+                          .Name("gridDirectionToPay" + Model)
+                          .Columns(columns =>
+                          {
+                              columns.Command(command =>
+                              {
+                                  command.Edit().Text("${data.Number}").UpdateText(Messages.Property_Сохранить_278__00);
+                                  command.Destroy().Text(Messages.Property_Удалить_334__00);
+                                  command.Custom("directiontopay-send").Text(Messages.Action_Execute_Отправить).Click("DirectionToPayGrid.send");
+                                  command.Custom("directiontopay-approve").Text(Messages.Action_Execute_Согласовать).Click("DirectionToPayGrid.approve");
+                                  command.Custom("directiontopay-reject").Text(Messages.Action_Reject_Отклонить).Click("DirectionToPayGrid.reject");
+                                  command.Custom("directiontopay-repeal").Text(Messages.Action_Repeal_Аннулировать).Click("DirectionToPayGrid.repeal");
+                              }).Width(300).Title(Messages.Property_Номер_373__00);
+                              //columns.Bound(p => p.Number).Title(Messages.Property_Номер_373__00).Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                              columns.Bound(p => p.TypeStr).Title("Тип").Width(150);
+                              columns.Bound(p => p.DirectionDate).Format("{0:dd.MM.yyyy}").Title(Messages.Property_Дата_391__00).Width(150);
+                              columns.Bound(p => p.RegistrationForm).Title(Messages.Property_Тип_398__00).Width(150);
+                              columns.Bound(p => p.StatusStr).Title(Messages.Ncels_Статус_33).Width(150);
+                              columns.Bound(p => p.ApplicationNumbers).Title("Номера заявлений").Width(150);
+                              columns.Bound(p => p.ApplicationDates).Title("Даты заявлений").Width(150);
+                              columns.Bound(p => p.TradeName).Title("Торговое название").Width(150);
+                              columns.Bound(p => p.DrugForm).Title("Лекарственная форма").Width(150);
+                              columns.Bound(p => p.Manufacture).Title("Производитель").Width(150);
+                              columns.Bound(p => p.ExpertDisplayName).Title("Эксперт").Width(150);
+                              columns.Bound(p => p.TotalPrice).Title("Общая сумма").Width(150);
+                              columns.Bound(p => p.PriceListName).Title("Наименование по прейскуранту").Width(150);
+                              columns.Bound(p => p.ExecutorName).Title("Исполнитель").Width(150);
+                              columns.Bound(p => p.Comment).Title("Комментарий").Width(150);
+                          })
+                          .ToolBar(toolbar =>
+                          {
+                              // toolbar.Create().Text("Создать направление");
+                              toolbar.Custom().Name("createDirectionBtn").Text("Создать направление").HtmlAttributes(new
+                              {
+                                  href = "#",
+                                  onclick = "DirectionToPayGrid.createDirectionDialogShow();"
+                              });
+                          })
+                          .ColumnMenu(c => c.Columns(true))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Editable(e => e.Mode(GridEditMode.PopUp))
+                          .Resizable(s => s.Columns(true))
+                          .Groupable()
+                          .Filterable()
+                          .Sortable()
+                          .Pageable()
+                          .Scrollable()
+                          // .ClientDetailTemplateId("templateDirectionDetail")
+                          .Events(c =>
+                          {
+                              c.DataBound("DirectionToPayGrid.onDataBoundHandler");
+                              c.Edit("DirectionToPayGrid.onEditHandler");
+                              c.Cancel("DirectionToPayGrid.onCancelHandler");
+                          })
+                          .HtmlAttributes(new { @class = "pwGrid" })
+                          .DataSource(dataSource => dataSource.Ajax()
+                                .Model(model => { model.Id(p => p.Id); })
+                                .Sort(c => c.Add(m => m.CreateDate).Descending())
+                                .PageSize(20)
+                                .Read(read => read.Action("ReadDirectionList", "DirectionToPay"))
+                                .Update(update => update.Action("UpdateDirection", "DirectionToPay"))
+                                .Destroy(update => update.Action("DeleteDirection", "DirectionToPay"))
+                                .Events(c =>
+                                {
+                                    c.RequestEnd("DirectionToPayGrid.onRequestEndHandler");
+                                    c.Sync("DirectionToPaysView.sync");
+                                })
+                          //.Create(create => create.Action("CreateDirection", "DirectionToPay"))
+                          ))
+                    </div>
+                );
+            })
+      )
+<script>
+    (function () {
+        resizeGrid3('@("#gridDirectionToPay" + Model)',210);
+        var name = '@Model';
+        var grid = $('@("#gridDirectionToPay" + Model)').data("kendoGrid");
+
+        $('#reload' + name).click(function (e) {
+            DirectionToPayGrid._reload();
+        });
+
+        $("#find" + name).click(function (e) {
+            var text = $("#findText" + name).val();
+            var grid = $("#gridDirectionToPay" + name).data("kendoGrid");
+            if (text != '') {
+                $filter = new Array();
+
+                $filter.push({ field: "Number", operator: "contains", value: text });
+                $filter.push({ field: "ApplicationNumbers", operator: "contains", value: text });
+                $filter.push({ field: "TradeNameRu", operator: "contains", value: text });
+                $filter.push({ field: "DrugFormRu", operator: "contains", value: text });
+
+                grid.dataSource.filter({
+                    logic: "or",
+                    filters: $filter
+                });
+            } else {
+                grid.dataSource.filter([]);
+            }
+        });
+
+        $("#findText" + name).keypress(function (d) {
+            if (d.keyCode == 13) {
+                $("#find" + name).click();
+            }
+        });
+
+        $("#findText" + name).change(function (e) {
+            if ($("#findText" + name).val() == '') {
+                var grid = $("#gridDirectionToPay" + name).data("kendoGrid");
+                grid.dataSource.read();
+            }
+        });
+
+        $("#gridDirectionToPay" + name).kendoTooltip({
+            filter: "td:nth-child(14)", //this filter selects the second column's cells
+            position: "left",
+            content: function (e) {
+                var dataItem = $("#gridDirectionToPay" + name).data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = dataItem.Comment;
+                return content;
+            }
+        }).data("kendoTooltip");
+
+    })();
+</script>

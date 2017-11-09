@@ -1,0 +1,873 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism</Alias>
+        <ConnectionStringEncrypted>+XRpSUhf2e3iR73JYiXjL5lawQLJVEvx+Um5xGpJpHvVavXrxVkx7XJNvYRjXG3X3HDbietVq93hfNXM6UTgj9Vaz4liTXOBZ2s=</ConnectionStringEncrypted>
+        <Name>prism</Name>
+      </prism>
+    </Databases>
+    <DataSources isList="true" count="2">
+      <Documents Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Documents</Alias>
+        <Columns isList="true" count="11">
+          <value>AllCount,System.Int32</value>
+          <value>Exclude,System.Int32</value>
+          <value>FulfilledDateExclude,System.Int32</value>
+          <value>OnJob,System.Int32</value>
+          <value>ExecutionDateOnJob,System.Int32</value>
+          <value>NowOnJob,System.Int32</value>
+          <value>OnJob5,System.Int32</value>
+          <value>OnJob3,System.Int32</value>
+          <value>OnJobMany,System.Int32</value>
+          <value>ExDateExclude,System.Int32</value>
+          <value>RegionValue,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Documents</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_dateStart,DateStart,31,0</value>
+          <value>_x0040_dateEnd,DateEnd,31,0</value>
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand>SELECT 
+	d.RegionValue,
+	count(*) as AllCount,
+	sum (case when StateType = 9 then 1 else 0 end) as Exclude,
+sum (case when Cast(FactExecutionDate as date) &gt;  AutoExecutionDate and StateType = 9 then 1 else 0 end) as FulfilledDateExclude,
+sum (case when Cast(FactExecutionDate as date) &lt;= AutoExecutionDate and StateType = 9 then 1 else 0 end) as ExDateExclude,
+sum (case when StateType &gt; 1 and StateType &lt; 9  then 1 else 0 end) as OnJob,
+sum (case when StateType &gt; 1 and StateType &lt; 9 and AutoExecutionDate &lt; cast( GETDATE() as date)  then 1 else 0 end) as ExecutionDateOnJob,
+sum (case when StateType &gt; 1 and StateType &lt; 9 and AutoExecutionDate &gt; cast(GETDATE ()as date)  then 1 else 0 end) as NowOnJob,
+sum (case when StateType &gt; 1 and StateType &lt; 9 and DATEDIFF(day, ExecutionDate, GETDATE()) &gt;= 0 and DATEDIFF(day, ExecutionDate, GETDATE()) &lt;= 3   then 1 else 0 end) as OnJob3,
+sum (case when StateType &gt; 1 and StateType &lt; 9 and DATEDIFF(day, ExecutionDate, GETDATE()) &lt;= 5 and DATEDIFF(day, ExecutionDate, GETDATE()) &gt; 3  then 1 else 0 end) as OnJob5,
+sum (case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt; 5  then 1 else 0 end) as OnJobMany
+  FROM [Documents] as d
+left join (select * from  LinkUnits as unis where unis.PropertyName='ResponsibleId') as lin on lin.OwnerId = d.Id 
+  left join Employees as e on e.Id = lin.EmployeeId 
+  left join Units as dep on dep.Id = lin.Department1Id
+  left join Units as depParent on depParent.Id = lin.Department2Id and lin.Department2Id is not null
+  left join Units as depParent1 on depParent1.Id = lin.Department3Id and lin.Department3Id is not null
+  where StateType &gt; 1 and DocumentType = 2 and MonitoringType in (2,3,4) and AutoDocumentDate between @dateStart and @dateEnd and d.OrganizationId = @organizationId
+
+  group by d.RegionValue</SqlCommand>
+      </Documents>
+      <Documents2 Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Documents2</Alias>
+        <Columns isList="true" count="20">
+          <value>Name,System.String</value>
+          <value>Number,System.String</value>
+          <value>DocumentDate,System.DateTime</value>
+          <value>Summary,System.String</value>
+          <value>StateType,System.Int32</value>
+          <value>CorrespondentsValue,System.String</value>
+          <value>OutgoingNumber,System.String</value>
+          <value>OutgoingDate,System.DateTime</value>
+          <value>ResponsibleValue,System.String</value>
+          <value>ResponsibleId,System.String</value>
+          <value>AutoFirstExecutionDate,System.DateTime</value>
+          <value>ExecutionDate,System.DateTime</value>
+          <value>CountEx,System.Int32</value>
+          <value>FactExecutionDate,System.DateTime</value>
+          <value>TypeEx,System.String</value>
+          <value>TypeEx1,System.Int32</value>
+          <value>DayEx,System.Int32</value>
+          <value>DepartmentParent,System.String</value>
+          <value>Id,System.Guid</value>
+          <value>DisplayName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Documents2</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_dateStart,DateStart,31,0</value>
+          <value>_x0040_dateEnd,DateEnd,31,0</value>
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand> 
+
+
+select  
+	d.Id,
+	d.DisplayName,
+	(case when depParent1.Name is not null  then depParent1.Name else case when depParent.Name is not null then depParent.Name else dep.Name end end ) as DepartmentParent,
+	dep.Name,
+	d.Number,
+	cast ( DocumentDate as Date) as DocumentDate,
+ Summary,
+ StateType,
+ CorrespondentsInfo as CorrespondentsValue,
+ OutgoingNumber,
+ OutgoingDate,
+ ResponsibleValue,
+ ResponsibleId,
+cast ( AutoFirstExecutionDate as Date) as AutoFirstExecutionDate,
+ cast (ExecutionDate as Date) as ExecutionDate,
+(select count(*) from ExtensionExecutions as ex where ex.DocumentId = d.Id ) as CountEx,
+ FactExecutionDate,
+ (
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,ExecutionDate , GETDATE())  &gt; 0   then 'Просрочено'  else  
+ case when StateType = 9 and DATEDIFF(day, ExecutionDate, FactExecutionDate)  &lt;= 0 then 'Исполнено в срок' else 
+ case when StateType = 9 and DATEDIFF(day,ExecutionDate , FactExecutionDate)  &gt; 0 then 'Исполнено несвоевременно' else  
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt;= 0 and DATEDIFF(day,GETDATE() , ExecutionDate) &lt;=3 then 'Оставшийся срок  3 и менее дней' else
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt; 3 and DATEDIFF(day,GETDATE() , ExecutionDate) &lt;=5 then 'Оставшийся срок от 3 до 5 дней' else
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt; 5 then 'Оставшийся срок более 5 дней' else
+
+ '' 
+ end end end end end end) as TypeEx,
+  (
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,ExecutionDate , GETDATE())  &gt; 0   then 1  else  
+ case when StateType = 9 and DATEDIFF(day, ExecutionDate, FactExecutionDate)  &lt;= 0 then 2 else 
+ case when StateType = 9 and DATEDIFF(day,ExecutionDate , FactExecutionDate)  &gt; 0 then 3 else  
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt;= 0 and DATEDIFF(day,GETDATE() , ExecutionDate) &lt;=3 then 4 else
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt; 3 and DATEDIFF(day,GETDATE() , ExecutionDate) &lt;=5 then 5 else
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,GETDATE() , ExecutionDate)  &gt; 5 then 6 else
+
+ '' 
+ end end end end end end) as TypeEx1,
+ (case when StateType = 9 and DATEDIFF(day,ExecutionDate , FactExecutionDate)  &gt; 0 then DATEDIFF(day,ExecutionDate , FactExecutionDate) else 
+ case when StateType &lt;&gt; 9 and DATEDIFF(day,ExecutionDate , GETDATE())  &gt; 0   then DATEDIFF(day,ExecutionDate , GETDATE())  else 0 end end) as DayEx
+   
+   FROM [Documents] as d
+left join (select * from  LinkUnits as unis where unis.PropertyName='ResponsibleId') as lin on lin.OwnerId = d.Id 
+  left join Employees as e on e.Id = lin.EmployeeId 
+  left join Units as dep on dep.Id = lin.Department1Id
+  left join Units as depParent on depParent.Id = lin.Department2Id and lin.Department2Id is not null
+left join Units as depParent1 on depParent1.Id = lin.Department3Id and lin.Department3Id is not null
+  where StateType &gt; 1 and DocumentType = 2 and dep.Id is not null  and MonitoringType in (2,3,4) and AutoDocumentDate between @dateStart and @dateEnd and d.OrganizationId = @organizationId</SqlCommand>
+      </Documents2>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="3">
+      <value>,DateStart,DateStart,,System.DateTime,_x0035__x002F_5_x002F_2014_x0020_12:00:49_x0020_AM,False,False,False,False</value>
+      <value>,DateEnd,DateEnd,,System.DateTime,_x0031_0_x002F_1_x002F_2016_x0020_12:01:38_x0020_AM,False,False,False,False</value>
+      <value>,OrganizationId,OrganizationId,,System.String,_x0038_F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE,False,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="5" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <ReportTitleBand1 Ref="6" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27.7,2</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text1 Ref="7" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,27.6,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,16,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>Обращения граждан регионы </Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text2 Ref="8" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Text>Параметры: Период: {DateStart.ToString("dd.MM.yyyy")} - {DateEnd.ToString("dd.MM.yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>ReportTitleBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+        </ReportTitleBand1>
+        <HeaderDocuments Ref="9" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3.2,27.7,1.6</ClientRectangle>
+          <Components isList="true" count="10">
+            <HeaderDocuments_Department Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,4.6,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Department</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>Регионы</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Department>
+            <HeaderDocuments_Exclude Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>4.6,0,2,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_Exclude</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>Исполнено</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_Exclude>
+            <HeaderDocuments_FulfilledDateExclude Ref="12" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[180:240:155]</Brush>
+              <ClientRectangle>6.6,0,2.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_FulfilledDateExclude</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>в т.ч. исполнено в срок</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_FulfilledDateExclude>
+            <HeaderDocuments_OnJob Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.2,0,2.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_OnJob</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>На исполнении</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_OnJob>
+            <HeaderDocuments_NowOnJob Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[235:113:93]</Brush>
+              <ClientRectangle>14.6,0,2.2,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_NowOnJob</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>в т.ч. просрочено</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_NowOnJob>
+            <HeaderDocuments_OnJob5 Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.6,0,2.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_OnJob5</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>Оставшийся срок от 3 до 5 дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_OnJob5>
+            <HeaderDocuments_OnJobMany Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22.4,0,2.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_OnJobMany</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>в т.ч. оставшийся срок свыше 5 дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_OnJobMany>
+            <HeaderDocuments_AllCount Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>25.2,0,2.4,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_AllCount</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>Итого</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_AllCount>
+            <HeaderDocuments_ExecutionDateOnJob Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[251:251:91]</Brush>
+              <ClientRectangle>9.4,0,2.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_ExecutionDateOnJob</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>в т.ч. исполнено с нарушением срока</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_ExecutionDateOnJob>
+            <HeaderDocuments_OnJob3 Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.8,0,2.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderDocuments_OnJob3</Name>
+              <Page isRef="5" />
+              <Parent isRef="9" />
+              <Text>в т.ч. оставшийся срок  3 и менее дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderDocuments_OnJob3>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderDocuments</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderDocuments>
+        <GroupHeaderBand1 Ref="20" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,5.6,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text19 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>e4fb3fa51137437bb7eef3f796c7b62d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <NullValue>Не указано</NullValue>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Documents.RegionValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text20 Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.6,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b757213f10974689b519713af4bf04fa</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.Exclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+            <Text21 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[180:240:155]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>6.6,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>366b31b930fe4d6e95d16fe1ebbb50aa</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.ExDateExclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text22 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[251:251:91]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>9.4,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>186dbd2722364a78a7bb14fe5e774d68</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.FulfilledDateExclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+            <Text23 Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.2,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>e418aa4d9a3142079b6c13bf7fd31ff2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.OnJob)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text23>
+            <Text24 Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[235:113:93]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14.6,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>fe36a5c8c9b9433d921f3f1a69579f08</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.ExecutionDateOnJob)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text24>
+            <Text25 Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19.6,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>da6c8d6d33974d1a8bab5e1cf7aeeb1c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.OnJob5)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text25>
+            <Text26 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.4,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>ee3688aecefe419cafede4558b307748</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.OnJobMany)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text26>
+            <Text27 Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>25.2,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>da2a3b1a00a345d08e43d161888e42e9</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.AllCount)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text27>
+            <Text28 Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.8,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>39710e84c3f940f7b7e94fdb11317b4d</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="5" />
+              <Parent isRef="20" />
+              <Text>{Sum(Documents.OnJob3)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text28>
+          </Components>
+          <Condition>{Documents.RegionValue}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeaderBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+        </GroupHeaderBand1>
+        <DataDocuments Ref="31" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,7.2,27.7,0</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Documents</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataDocuments</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Sort isList="true" count="0" />
+        </DataDocuments>
+        <FooterBand1 Ref="32" type="FooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8,27.7,1</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text3 Ref="33" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,4.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <Guid>c8a0f0f77908412aa4d5ff87309184a2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>Итого</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text4 Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>4.6,0,2,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <Guid>b71addb57830453fb73bcac823300b00</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.Exclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text5 Ref="35" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[180:240:155]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>6.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5112548791d549e394a228ae197c8d86</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.ExDateExclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text6 Ref="36" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.2,0,2.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>f5ed16e6db0c4a708ba8d55fad3859b8</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.OnJob)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="37" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[235:113:93]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14.6,0,2.2,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>34ba7a83721e4daeb46ca39007146005</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.ExecutionDateOnJob)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d279691acb99485c88ddbce76447b7ea</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.OnJob5)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text9 Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b854c754b37049668fd098a8b6b88648</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.OnJobMany)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>25.2,0,2.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4efb5e76907e40eca7f64fdc5f8f7f87</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.AllCount)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text11 Ref="41" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>[251:251:91]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>9.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>45ef216751f34b9783633eec3dbc0587</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.FulfilledDateExclude)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text12 Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,10,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5e7aa7e6a12745ff84f8fd90a50d7ae4</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="5" />
+              <Parent isRef="32" />
+              <Text>{Sum(Documents.OnJob3)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>FooterBand1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+        </FooterBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>556abc0f8ce84ed291d1638be001b9ae</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="43" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="44" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>3/31/2016 10:42:56 AM</ReportChanged>
+  <ReportCreated>5/28/2014 11:54:33 PM</ReportCreated>
+  <ReportFile>D:\Projects\Assistent\src\PW.Prism\PW.Prism\Reports\List\OnJobDocCitizenRegions.mrt</ReportFile>
+  <ReportGuid>4a6f20f4e804458890e1085b4cba5d72</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2016.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

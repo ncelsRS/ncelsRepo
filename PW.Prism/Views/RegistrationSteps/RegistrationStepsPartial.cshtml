@@ -1,0 +1,187 @@
+﻿@model List<PW.Ncels.Database.DataModel.EXP_RegistrationExpSteps>
+@{
+    var paddingStep = 40;
+    var durationSum = Model.Any() ? Model.Sum(x => x.Duration) : 0;
+    var multiply = 0;
+    int lastPriority = 0;
+    var orderedItems = Model.OrderBy(x => x.Priority).ToList();
+}
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#stepsTab">Изменение этапов</a></li>
+    <li><a data-toggle="tab" href="#schemaTab">Схема</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="stepsTab" class="tab-pane fade in active">
+        <button class="btn btn-default" onclick="ShowCreateStep(event)">Создать этап <span class="glyphicon glyphicon-plus-sign centered-glif"></span></button>
+
+        <table class="table table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>
+                        Наименование этапа
+                    </th>
+                    <th style="width: 10%" class="text-center">
+                        Длительность (в днях)
+                    </th>
+                    <th style="width: 10%">
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var step in orderedItems)
+                {
+                    if (lastPriority != step.Priority)
+                    {
+                        multiply++;
+                    }
+                    lastPriority = step.Priority;
+                    var padding = multiply * paddingStep;
+                    var padString = padding + "px";
+                    <tr>
+                        <td style="padding-left: @padString">
+                            <div class="bordered-cell">
+                                @step.Name
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            @step.Duration
+                        </td>
+                        <td>
+                            <a class='edit-link' href='\#' title='Редактировать' onclick="ShowEditStep(event,'@step.Id')"></a>
+                            <a class='delete-link' href='\#' title='Удалить' onclick="DeleteRegistrationStep(event,'@step.Id')"></a>
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-right"><strong>Итого:</strong></td>
+                    <td class="text-center"><strong>@durationSum</strong></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="schemaTab" class="tab-pane fade">
+        <div id="schema" class="center-block">
+            <div class="tree">
+                <div class="arrow"></div>
+                @DrawChild(orderedItems, 0, 0)
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@helper DrawChild(List<PW.Ncels.Database.DataModel.EXP_RegistrationExpSteps> childs, int iter,int prevPriority)
+{
+    if (childs != null && childs.Count > iter)
+    {
+        var currentItem = childs[iter];
+        int newIterator = iter + 1;
+        if (prevPriority != currentItem.Priority)
+        {
+            <ul>
+                <li>
+                    <a href="#">@currentItem.Name</a>
+                    @DrawChild(childs, newIterator, currentItem.Priority)
+                </li>
+            </ul>
+        }
+        else
+        {
+            <a class="with-brother" href="#">@currentItem.Name</a>
+            @DrawChild(childs, newIterator, currentItem.Priority)
+        }
+    }
+}
+
+
+<script>
+    var currentRegTypeId = window.GetSelectedRegTypeId();
+    function CreateUpdateExpRegStep(isUpdate) {
+        var data = $("#createRegStepForm").serialize() + '&registrationTypeId=' + currentRegTypeId;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CreateRegistrationStep")',
+            data: data,
+            dataType: 'json',
+            success: function (result) {
+                var win = $('#modalWindow').data('kendoWindow');
+                win.close();
+                window.LoadExpRegSteps(currentRegTypeId);
+            },
+            error: function (xhr, status, error) {
+                ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function ShowCreateStep(eve) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        ev.stopPropagation();
+        var url = '@Url.Action("ShowCreateRegistrationStep")';
+        var title = "Создание этапа";
+        window.ViewInPopup(url, null, title);
+    }
+
+    function ShowEditStep(id, eve) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        ev.stopPropagation();
+        var url = '@Url.Action("ShowUpdateRegistrationStep")';
+        var title = "Редактирование типа регистрации экспертизы";
+        window.ViewInPopup(url, id, title);
+    }
+
+    function DeleteRegistrationStep(eve, id) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        var con = confirm("Удалить этап?");
+        if (con == true) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteRegistrationStep")',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id: id }),
+                traditional: true,
+                success: function (response) {
+                    window.LoadExpRegSteps(currentRegTypeId);
+                },
+                error: function (xhr, status, error) {
+                    ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+                }
+            });
+        }
+    }
+
+    function ShowCreateStep11() {
+        var data = $("#addEditRegTypeForm").serialize();
+        console.log(data);
+        var url;
+        if (isEdit) {
+            url = '@Url.Action("UpdateExpRegType")';
+        } else {
+            url = '@Url.Action("CreateExpRegType")';
+        }
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            dataType:'json',
+            success: function (result) {
+                var win = $('#modalWindow').data('kendoWindow');
+                win.close();
+                var treeview = getTreeView();
+                treeview.dataSource.read();
+            },
+            error: function (xhr, status, error) {
+                ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+            }
+        });
+    }
+</script>

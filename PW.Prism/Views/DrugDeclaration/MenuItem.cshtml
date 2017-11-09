@@ -1,0 +1,276 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStage
+@{
+    var appMenu = "appMenu" + Model.StageId;
+    var appMenuIndex = "#appMenu" + Model.StageId;
+    var controllerName = "";
+
+    switch (Model.StageId)
+    {
+        case CodeConstManager.STAGE_PRIMARY:
+            {
+                controllerName = "DrugPrimary";
+                break;
+            }
+        case CodeConstManager.STAGE_PHARMACEUTICAL:
+            {
+                controllerName = "Pharmaceutical";
+                break;
+            }
+        case CodeConstManager.STAGE_PHARMACOLOGICAL:
+            {
+                controllerName = "Pharmacological";
+                break;
+            }
+        case CodeConstManager.STAGE_SAFETYREPORT:
+            {
+                controllerName = "Safetyreport";
+                break;
+            }
+        case CodeConstManager.STAGE_TRANSLATE:
+        {
+            controllerName = "Translate";
+            break;
+        }
+        case CodeConstManager.STAGE_ANALITIC:
+            {
+                controllerName = "DrugAnalitic";
+                break;
+            }
+
+        default:
+            {
+                controllerName = "DrugDeclaration";
+                break;
+            }
+    }
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+
+    function showDeclaration(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugDeclaration/Design?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showDosage(event, id) {
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+
+        $.ajax({
+            url: '/' + '@controllerName' + '/AppDosage?Id=' + id,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showAttachFile(event) {
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugDeclaration/AttachFileView?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showDocumentsRdHistory(event) {
+        //GetRdDocumentsHistory
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugDeclaration/GetRdDocumentsHistory?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showDeclarationSteps(event) {
+        //GetRdDocumentsHistory
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugDeclaration/DeclarationStepsNew?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            },
+            error: function () {
+                $("#loading").hide();
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function showHistoryStage(event)
+    {
+        //GetRdDocumentsHistory
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugStageHistory/HistoryStageView?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            },
+            error: function () {
+                $("#loading").hide();
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function showMaterial(event) {
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/Material/MaterialListPartialVew?ddId=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showPrimaryKind(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugPrimary/PrimaryPageView?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showPharmaceuticalStage(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/Pharmaceutical/PharmaceuticalPageView?id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showPharmacologicalStage(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/Pharmacological/PharmacologicalPageView?id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showTranslateStage(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/Translate/TranslatePageView?id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+     function showSafetyreportStage(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/Safetyreport/SafetyReportPageView?id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showPrimaryNtd() {
+        var itemId = '@Model.DeclarationId';
+
+        $.ajax({
+            url: "/DrugDeclaration/PrimaryNTDView?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+            }
+        });
+    }
+    function showAnaliticPage(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/DrugAnalitic/AnaliticPageView?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+</script>
+
+<div id="MainMenu" style="font-size: 14px; ">
+    <div class="list-group panel">
+        <a href="#" onclick="showDeclaration(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span> Заявление</a>
+        <a href="#" onclick="showAttachFile(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Документы РД</a>
+        @if (Model.StageId == CodeConstManager.STAGE_PRIMARY)
+        {
+            <a href="#" onclick="showPrimaryKind(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Первичная экспертиза</a>
+        }
+        @if (Model.StageId == CodeConstManager.STAGE_PHARMACEUTICAL)
+        {
+            <a href="#" onclick="showPharmaceuticalStage(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Фармацевтическая экспертиза</a>
+        }
+        @if (Model.StageId == CodeConstManager.STAGE_PHARMACOLOGICAL)
+        {
+            <a href="#" onclick="showPharmacologicalStage(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Фармакологическая экспертиза</a>
+        }
+        @if (Model.StageId == CodeConstManager.STAGE_SAFETYREPORT)
+        {
+            <a href="#" onclick="showSafetyreportStage(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Заключение о безопастности</a>
+        }
+        @if (Model.StageId == CodeConstManager.STAGE_ANALITIC)
+        {
+            <a href="#" onclick="showAnaliticPage(event)" class="list-group-item">Аналитическая экспертиза</a>
+        }
+        @if (Model.StageId == CodeConstManager.STAGE_TRANSLATE)
+        {
+            <a href="#" onclick="showTranslateStage(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Перевод</a>
+        }
+        <a href="#" onclick="showMaterial(event)" class="list-group-item"><span class="glyphicon glyphicon-briefcase"></span> Материалы РД</a>
+        <a href="@appMenuIndex" class="list-group-item list-group-item-success" data-toggle="collapse" data-parent="#MainMenu">
+            <span class="glyphicon glyphicon-chevron-down"></span> Список заявок
+        </a>
+        <div class="collapse" id="@appMenu">
+            @foreach (var expDrugDosage in Model.EXP_ExpertiseStageDosage)
+            {
+                <a href="#" onclick="showDosage(event,'@expDrugDosage.Id')" class="list-group-item" style="margin-left: 15px"> <span class="glyphicon glyphicon-ok-sign"></span> Заявка №@expDrugDosage.EXP_DrugDosage.RegNumber</a>
+            }
+        </div>
+        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-flag"></span> История позаявлению</a>
+        <a href="#" onclick="showDocumentsRdHistory(event);" class="list-group-item"><span class="glyphicon glyphicon-time"></span> История документов РД</a>
+        <a href="#" onclick="showDeclarationSteps(event)" class="list-group-item"><span class="glyphicon glyphicon-ok-circle"></span> Этапы заявления</a>
+        <a href="#" onclick="showHistoryStage(event)" class="list-group-item"><span class="glyphicon glyphicon-off"></span> Заключения этапов</a>
+
+    </div>
+</div>

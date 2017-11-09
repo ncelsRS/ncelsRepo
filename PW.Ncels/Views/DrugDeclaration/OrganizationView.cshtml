@@ -1,0 +1,272 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models.Expertise
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+<div style="display: none;" id="templOrgDiv">
+    @Html.Partial("~/Views/DrugDeclaration/TempleOrgView.cshtml", new EXP_DrugOrganizations() { Id = -1, Position = -1 })
+
+</div>
+
+<div id=collectionOrgDiv>
+    @for (var i = 0; i < Model.ExpDrugOrganizationses.Count; i++)
+    {
+        var entity = Model.ExpDrugOrganizationses[i];
+        entity.Position = i;
+        @Html.Partial("~/Views/DrugDeclaration/TempleOrgView.cshtml", entity)
+    }
+</div>
+
+<div class="row">
+    <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addOrgBtn" style="margin-top: 10px">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+    </button>
+</div>
+<script type="text/javascript">
+    function createDublicateOrg(param) {
+        var rootPanel = $(param).parent().parent().parent();
+        var entityId = rootPanel.attr('rowid');
+        if (entityId != null && entityId.length > 0) {
+            window.Showbusy(event);
+            $.ajax({
+                url: "/DrugDeclaration/CreateDublicateOrg?modelId=" + $("#modelId").val() + "&orgId=" + entityId,
+                success: function (result) {
+                    $("#tab-5").html(result);
+                    $("#loading").hide();
+                }
+            });
+        } else {
+            showWarning("Внесите данные по организации");
+        }
+
+    }
+    function toogleOrgPangel(param) {
+        $(param).parent().parent().parent().find('.divpanel').toggle();
+    }
+
+    function removeOrgPanel(param) {
+        var success = function () {
+            var rootPanel = $(param).parent().parent().parent();
+            var entityId = rootPanel.attr('rowid');
+            if (entityId != null && entityId.length > 0) {
+                DeleteRecord('@CodeConstManager.EXP_DrugOrganizationsCode', entityId);
+            }
+            rootPanel.remove();
+        }
+        var cancel = function () {
+        };
+        showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+
+    }
+
+    function getInfoFromContract(idcontrol, recordId) {
+        var currentControl = $("#" + idcontrol);
+        var val = $("#" + idcontrol).val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetInfoFromContract")',
+            data: { 'recordId': recordId, 'type': val },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var parent = currentControl.closest(".panel-body");
+                var parentHeader = parent.parent().parent().find(".panel-heading");
+                var title = parentHeader.find(".lotLihk");
+                if (title != null) {
+                    title.text($("#" + idcontrol + " option:selected").text());
+                }
+                parent.find(".org-control").each(function () {
+                    if ($(this).attr("id").indexOf('OrgManufactureTypeDicId') > -1) {
+                        return;
+                    }
+                    if (!data.isSuccess) {
+                        $(this).val(null);
+                        if ($(this).is('input')) {
+                            $(this).prop("readonly", false);
+                        } else {
+                            $(this).removeAttr('disabled');
+                        }
+                    }
+                    else {
+                        /* if ($(this).is('input')) {
+                             $(this).prop("readonly", true);
+                         } else {
+                             $(this).attr('disabled', 'disabled');
+                         }*/
+                        var controls = $(this).attr("id").split('_');
+                        if (controls.length > 2) {
+                            var fieldName = controls[2];
+                            switch (fieldName) {
+                            case 'OpfTypeDicId': { $(this).val(data.OpfTypeDicId); break; }
+                            case 'CountryDicId': { $(this).val(data.CountryDicId); break; }
+                            case 'NameRu': { $(this).val(data.NameRu); break; }
+                            case 'NameKz': { $(this).val(data.NameKz); break; }
+                            case 'NameEn': { $(this).val(data.NameEn); break; }
+                            case 'DocNumber': { $(this).val(data.DocNumber); break; }
+                            case 'DocDateStr': { $(this).val(data.DocDateStr); break; }
+                            case 'DocExpiryDateStr': { $(this).val(data.DocExpiryDateStr); break; }
+                            case 'BossLastName': { $(this).val(data.BossLastName); break; }
+                            case 'BossFirstName': { $(this).val(data.BossFirstName); break; }
+                            case 'BossMiddleName': { $(this).val(data.BossMiddleName); break; }
+                            case 'BossPosition': { $(this).val(data.BossPosition); break; }
+                            case 'Phone': { $(this).val(data.Phone); break; }
+                            case 'Email': { $(this).val(data.Email); break; }
+                            case 'ContactFio': { $(this).val(data.ContactFio); break; }
+                            case 'ContactPosition': { $(this).val(data.ContactPosition); break; }
+                            case 'AddressLegal': { $(this).val(data.AddressLegal); break; }
+                            case 'AddressFact': { $(this).val(data.AddressFact); break; }
+                            }
+                        }
+                    }
+                });
+            },
+            error: function (data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+
+
+    function changeOrgList(control) {
+        $(control).change(function () {
+            var fieldId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+            var row = $(this).closest('.panel-success');
+            var entityId;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+
+            if (type === "float") {
+                if (fieldValue != null && fieldValue.length > 0) {
+                    fieldValue = replaceAll(' ', '', fieldValue);
+                    if (fieldValue.indexOf(',') > 0) {
+                        fieldValue = fieldValue.replace(',', '.');
+                    }
+                    if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                        showWarning('@ResourceSetting.sInputNumberRequired');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue.indexOf('-') > -1) {
+                        showWarning('@ResourceSetting.enterNumberNotMinus');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                }
+            }
+            if (type === "long") {
+                if (fieldValue != null && fieldValue.length > 0) {
+                    if (fieldValue.indexOf(',') > 0 || fieldValue.indexOf('.') > 0) {
+                        showWarning("Введите целое число");
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                        showWarning('@ResourceSetting.sInputNumberRequired');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue.indexOf('-') > -1) {
+                        showWarning('@ResourceSetting.enterNumberNotMinus');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                }
+            }
+
+            var modelId = $("#modelId").val();
+            var userId = $("#EditorId").val();
+            if (modelId === null || modelId.length === 0) {
+                modelId = null;
+                window.Showbusy(event);
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateModel")',
+                data: { 'code': '@CodeConstManager.EXP_DrugOrganizationsCode', 'modelId': modelId, 'userId': userId, 'recordId': entityId, 'fieldName': fieldId, 'fieldValue': fieldValue, 'fieldDisplay': fieldDisplay },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (modelId === null) {
+                        $("#modelId").val(data.modelId);
+                        $("#loading").hide();
+                    }
+                    if (data.recordId > 0) {
+                        row.attr("rowid", data.recordId);
+                        //                    var codeControl = code + '_' + data.recordId + '_' + fieldName;
+                        $('#' + fieldId).attr('id', data.controlId);
+                    }
+
+                    if (fieldId.indexOf('OrgManufactureTypeDicId') > -1) {
+                        getInfoFromContract(fieldId, data.recordId);
+                    }
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+
+        });
+    }
+    $(document).ready(function () {
+        var manufacturTypesReadOnly = ['@CodeConstManager.ORG_APPLICANT_ID', '@CodeConstManager.ORG_HOLDER_ID', '@CodeConstManager.ORG_MANUFACTURE_ID'];
+        $('[id*=OrgManufactureTypeDicId]').each(function () {
+            if ( $.inArray($(this).val(), manufacturTypesReadOnly) > -1 ) {
+                var parent = $(this).closest(".panel-body");
+                parent.find(".org-control").each(function() {
+                    if ($(this).attr("id").indexOf('OrgManufactureTypeDicId') > -1) {
+                        return;
+                    }
+                    /* if ($(this).is('input')) {
+                         $(this).prop("readonly", true);
+                     } else {
+                         $(this).attr('disabled', 'disabled');
+                     }*/
+                });
+
+            }
+        });
+
+        changeOrgList(".org-control");
+        /* $("a.lotLihk").click(function () {
+             $(this).parent().parent().parent().find('.divpanel').toggle();
+         });*/
+
+        //        selectSubstance("#substance_1_SubstanceId");
+        $("#addOrgBtn").on("click",
+            function () {
+                var rowindex = $(".group-org").last().attr('rowindex');
+                var nextIndex = parseInt(rowindex, 10) || 0;
+                nextIndex = nextIndex + 1;
+                var nextStr = 'rowindex = "' + nextIndex + '"';
+                var sub = "orgcontrol" + nextIndex;
+                var templSubstanceDiv = document.getElementById("templOrgDiv");
+                var envetStr = replaceAll('org-control', sub, templSubstanceDiv.innerHTML);
+                envetStr = replaceAll('rowindex = "-1"', nextStr, envetStr);
+
+
+                $("#collectionOrgDiv").append(envetStr);
+                changeOrgList("." + sub);
+
+            });
+
+
+    });
+
+
+</script>

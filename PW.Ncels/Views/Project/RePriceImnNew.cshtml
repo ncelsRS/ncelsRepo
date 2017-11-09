@@ -1,0 +1,190 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/MessageDialogBox.cshtml")
+
+<style type="text/css">
+    .CSSTableGenerator thead tr, .disabletd {
+        color: #707070;
+        font-weight: normal;
+        background: #f2f2f2;
+        background-color: #f3f3f3;
+        background-image: -moz-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: -webkit-gradient(linear,0 0,0 100%,from(#f8f8f8),to(#ececec));
+        background-image: -webkit-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: -o-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: linear-gradient(to bottom,#f8f8f8,#ececec);
+        background-repeat: repeat-x;
+        margin-bottom: 20px;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8',endColorstr='#ffececec',GradientType=0);
+    }
+
+        .CSSTableGenerator thead tr td {
+            border-left: 1px solid gray;
+        }
+</style>
+<link href="~/Content/css/plugins/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .select2-container {
+        width: 100%;
+    }
+
+    .edit-control {
+        width: 100%;
+    }
+
+    .ui-dialog {
+        background: white;
+    }
+
+    .ui-dialog-titlebar-close {
+        background: #08e7d2;
+    }
+
+    .ui-widget-header {
+        border: 1px solid #08e7d2;
+        background: #004d86;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .ui-dialog .ui-dialog-buttonpane button {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+    /* Меню */
+
+    #menuConteiner {
+        width: 150px;
+        float: left;
+        margin-right: 5px;
+        min-height: 50px;
+        position: fixed;
+        z-index: 9999;
+        top: 20%;
+    }
+
+    .main-control {
+    }
+</style>
+
+<link href="~/Content/css/plugins/select2/select2.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/plugins/chosen/chosen.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/custom/subform-comment-style.css" rel="stylesheet" type="text/css" />
+@Html.Partial("~/Views/Home/SignView.cshtml")
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Заявление на внесение изменений в зарегистрированную цену на изделие медицинского назначения</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявление</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId"/>
+<input type="hidden" value="@Model" id="modelId" />
+<input type="hidden" value="@ViewBag.EditorId" id="EditorId" />
+<input type="hidden" ng-model="object.Project.RegisterId" id="registerId" />
+<input type="hidden" ng-model="object.Project.RegisterDfId" id="registerDfId"/>
+
+<script src="~/Scripts/js/price/subform-comment.js"></script>
+<script src="~/Scripts/js/custom/message-dialog-box.js"></script>
+<script src="~/Scripts/js/custom/atach-comment.js"></script>
+<script src="~/Scripts/js/price/sign-price.js"></script>
+
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="rePriceImnNewGrid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Заявление на регистрацию цен на изделие медицинского назначения
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group" style="width: 100%">
+                        <button class="btn btn-success btn-sm" type="button" ng-show="isProjectSaved" ng-click="editProject(true)" check-validate><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-if="isEnableDownload" ng-click="view('@Model')" @*onclick="location.href='@Url.Action("FileView", "Upload")'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-if="isEnableDownload" onclick="location.href = '@Url.Action("CardDownload", "Upload", new {id = @Model})'" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-download"></i> Выгрузить файл</button>
+                        <div style="float: right">
+                            @*<button class="btn btn-warning btn-sm" type="button" ng-show="isProjectSaved" ng-click="open()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-check-square"></i> Подписать ЭЦП</button>*@
+                            <button class="btn btn-success btn-sm" type="button" ng-show="isProjectSaved" ng-click="signPrice('@Model')" check-validate style="background-color: #47a447" bp-action="edit" id="signBtn"><i class="fa fa-send"></i> Подписать и отправить</button>
+                            <button class="btn btn-warning btn-sm" type="button" ng-show="isProjectSaved" ng-click="sendAgree()" check-validate><i class="fa fa-send-o"></i> Отправить без подписи</button>
+
+@*                                <button class="btn btn-success btn-sm" type="button" ng-show="isProjectSaved" ng-click="sendAgree()" check-validate  style="background-color: #47a447"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>                            *@
+                        </div>
+                    </div>
+                </div>
+                <form name="rePriceImnForm">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active" ng-show="isShowFindTab" id="findTabLink"><a data-toggle="tab" href="#tab-0" class="f-tab tab-0">Поиск</a></li>
+                                        <li class="" ng-show="isProjectSaved" id="producerTabLink"><a data-toggle="tab" href="#tab-1" class="f-tab tab-1">1.1. Производитель</a></li>
+                                        <li class="" ng-show="isProjectSaved"><a data-toggle="tab" href="#tab-2" class="f-tab tab-2">1.2. Владелец регистрационного удостоверения</a></li>
+                                        <li class="" ng-show="isProjectSaved"><a data-toggle="tab" href="#tab-3" class="f-tab tab-3">1.3. Доверенное лицо/компания</a></li>
+                                        <li class="" ng-show="isProjectSaved"><a data-toggle="tab" href="#tab-4" class="f-tab tab-4">2. Информация об ИМН</a></li>
+                                        <li class="" ng-show="isProjectSaved"><a data-toggle="tab" href="#tab-5" class="f-tab-attach tab-5">3. Вложения</a></li>
+                                        @*<li class=""><a data-toggle="tab" href="#tab-6">Переписка</a></li>*@
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tab-0" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <button type="button" class="btn btn-w-m btn-success" ng-click="SetObjectReg()"><i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="bold">Заполнить поля из выбранной записи</span></button>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div style="overflow: auto">
+                                                            <grid-integration-object object-id="@Model" url="/Project/ReadSrReestrView?type=2" dt-id="gridIntegration" dt-selectfun="selectGridIntegration" reload-row="reloadGridIntegration" column-order="1" dt-options="dtOptions2" dt-columns="dtColumns10"></grid-integration-object>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-1" class="tab-pane">
+                                            @Html.Partial("PriceProducer")
+                                        </div>
+                                        <div id="tab-2" class="tab-pane">
+                                            @Html.Partial("PriceOwner")
+                                        </div>
+                                        <div id="tab-3" class="tab-pane">
+                                            @Html.Partial("PriceProxy")
+                                        </div>
+                                        <div id="tab-4" class="tab-pane">
+                                            @Html.Partial("PriceMedicalProduct")
+                                        </div>
+                                        <div id="tab-5" class="tab-pane">
+                                            <div class="panel-body">
+                                                <h3 class="m-t-none m-b">3. Вложения</h3>
+                                                <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                                <attach-edit metadata="true" url="/Upload/GetAttachListEdit" type="sysAttachPriceDict" path="@Model" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

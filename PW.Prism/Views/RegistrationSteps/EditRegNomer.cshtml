@@ -1,0 +1,215 @@
+﻿
+@using Kendo.Mvc.UI.Fluent
+@using PW.Ncels.Database.DataModel
+@model Guid
+
+
+<link href="@Url.Content("~/Content/css/specific_representation/exp_registration_steps.css")" rel="stylesheet" type="text/css" />
+<script>
+    function DicParams() {
+        return {
+            type: $('@("#typeDic" + Model)').val()
+        };
+    }
+
+    function onDataBound(e) {
+        $("#expTree").data("kendoTreeView").expand(".k-item");
+    }
+    function onRegTypeSelected(e) {
+        debugger;
+        var treeView = getTreeView();
+        var dataOfNode = treeView.dataItem(e.node);
+        var selectedId = dataOfNode.id;
+        LoadExpRegSteps(selectedId);
+    }
+    InitFilterDictionaryGrid('@Model.ToString()');
+ 
+</script>
+<script id="treeview-template" type="text/kendo-ui-template">
+    #: item.Name #  
+    # if (!item.hasChildren) { #
+    <a class='delete-link' href='\#' title='Удалить' onclick='Delete(event,"#= item.id #");'></a>
+    @*<span class="glyphicon glyphicon-remove-circle" onclick='Delete("#= item.id #");'></span>*@
+    <a class='edit-link' title='Редактировать' href='\#' onclick='ShowUpdateExpRegType(event,"#= item.id #");'></a>
+    # } #
+</script>
+@(Html.Kendo().Window()
+    .Name("modalWindow")
+    .Title("About Alvar Aalto")
+    .Visible(false)
+    .Scrollable(false)
+    .Content(
+        @<div id="modalContent">
+         </div>
+  
+)
+    .Draggable()
+    .Actions(actions => actions.Close())
+)
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+                panes.Add()
+                    .Size("350px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("350px")
+                    .Content(
+                        @<div class="pwPanelBar">
+                            <div class="k-block">
+                                <div class="k-header regs-head">
+                                    <h3 class="panel-title pull-left">Настройка этапов ЛС </h3> <span onclick="ShowCreateExpRegType(event);" title="Добавить" class="btn glyphicon glyphicon-plus-sign pull-right"></span></div>
+                                <div>                                   
+                                    <div class="demo-section">
+                                        @(Html.Kendo().TreeView()
+                                          .Name("expTree")
+                                          .ExpandAll(true)
+                                          .DataTextField("Name")
+                                          .TemplateId("treeview-template")
+                                          .Events(events => events
+                                              .DataBound("onDataBound")
+                                              .Select("onRegTypeSelected")
+                                          )
+                                          .DataSource(source =>
+                                          {
+                                              source.Model(m => m
+                                                  .Id("id")
+                                                  .HasChildren("hasChildren")
+                                                  )
+                                                  .Read(read => read.Action("GetExpRegistrationsTypes", "RegistrationSteps"));
+                                          })
+                                        )
+                                    </div>
+
+                                </div>
+                            </div>                        
+                            
+                        </div>
+                    );
+
+                panes.Add().Scrollable(false).Size("100%").Content(                   
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block" id="regStepsBlock">
+                        </div>
+                    </div>
+                    );
+            }))
+
+<input type="hidden" id="@("typeDic" + Model)"/>
+<script>
+    function ViewInPopup(url, id, title) {
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'html',
+            data:{ id: id },
+            success: function (result) {
+                $('#modalContent').html(result);
+                var win = $('#modalWindow').data('kendoWindow');
+                win.title(title);
+                win.center().open();
+            },
+            error: function (xhr, status, error) {
+                ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function LoadExpRegSteps(id) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ShowRegistrationSteps")',
+            dataType: 'html',
+            data: { id: id },
+            success: function (result) {
+                $('#regStepsBlock').html(result);
+            },
+            error: function (xhr, status, error) {
+                ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function AddEditExpRegType(isEdit) {
+        var data = $("#addEditRegTypeForm").serialize();
+        var url;
+        if (isEdit) {
+            url = '@Url.Action("UpdateExpRegType")';
+        } else {
+            url = '@Url.Action("CreateExpRegType")';
+        }
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            dataType:'json',
+            success: function (result) {
+                var win = $('#modalWindow').data('kendoWindow');
+                win.close();
+                var treeview = getTreeView();
+                treeview.dataSource.read();
+            },
+            error: function (xhr, status, error) {
+                ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function GetSelectedRegTypeId() {
+        var treeview = getTreeView();
+        var selectedNode = treeview.select();
+        var selectData = treeview.dataItem(selectedNode);
+        if (selectData) {
+            return selectData.id;
+        }
+        return null;
+    }
+
+    function getTreeView() {
+        return $("#expTree").data("kendoTreeView");;
+    }
+
+    function ShowCreateExpRegType(eve) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        ev.stopPropagation();
+        var url = '@Url.Action("ShowCreateRegistrationType")';
+        var title = "Создание типа регистрации экспертизы";
+        ViewInPopup(url, null, title);
+    }
+
+    function ShowUpdateExpRegType(eve, id) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        ev.stopPropagation();
+        var url = '@Url.Action("ShowUpdateRegistrationType")';
+        var title = "Редактирование типа регистрации экспертизы";
+        ViewInPopup(url, id, title);
+    }
+
+    function Delete(eve, id) {
+        var ev = window.event || eve;
+        ev.preventDefault();
+        var con = confirm("Удалить регистрацию?");
+        if (con == true) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteRegistrationType")',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id: id }),
+                traditional:true,
+                success: function (response) {
+                    var treeView = getTreeView();
+                    var node = treeView.dataSource.get(id);
+                    treeView.dataSource.remove(node);
+                },
+                error: function (xhr, status, error) {
+                    ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+                }
+            });
+        }
+    }
+
+</script>

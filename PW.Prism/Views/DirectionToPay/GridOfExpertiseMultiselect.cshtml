@@ -1,0 +1,97 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.Models.Expertise.DialogParameter
+    
+<script>
+    var GridOfExpertiseMultiSelect = {
+        checkedIds: {},
+
+        selectRow: function () {
+            var checked = this.checked,
+                row = $(this).closest("tr"),
+                grid = $('#gridExpertise' + '@Model.Id').data("kendoGrid"),
+                dataItem = grid.dataItem(row);
+
+           
+            if (checked) {
+                //-select the row
+                GridOfExpertiseMultiSelect.checkedIds[dataItem.id] = dataItem.Number;
+                row.addClass("k-state-selected");
+            } else {
+                //-remove selection
+                delete GridOfExpertiseMultiSelect.checkedIds[dataItem.id];
+                row.removeClass("k-state-selected");
+            }
+        },
+
+        onDataBound: function(e) {
+            var view = this.dataSource.view();
+            for (var i = 0; i < view.length; i++) {
+                if (GridOfExpertiseMultiSelect.checkedIds[view[i].Id]) {
+                    this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                        .addClass("k-state-selected")
+                        .find(".checkbox")
+                        .attr("checked", "checked");
+                }
+            }
+        },
+
+        approve: function () {
+            var wdw = $("#@Model.ContainerId").data("kendoWindow");
+            var listNumbers = '';
+            var listIds = '';
+            for (var key in GridOfExpertiseMultiSelect.checkedIds) {
+                listNumbers += GridOfExpertiseMultiSelect.checkedIds[key] + '; ';
+                listIds += key + ';';
+            }
+            $('#' + wdw.controlId).val(listNumbers);
+            $('#' + wdw.controlId).attr('data-ids', listIds);
+            $("#@Model.ContainerId").data("kendoWindow").close();
+        },
+
+        cancel: function () {
+            $("#@Model.ContainerId").data("kendoWindow").close();
+        }
+    };
+</script>
+<div>
+    @(Html.Kendo().Grid<EXP_DrugDeclarationView>()
+          .Name("gridExpertise" + Model.Id)
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.IsSelect).Title("").Filterable(false).ClientTemplate("<input type='checkbox' class='checkbox' #=IsSelect ? checked='checked' :''# />").Width(30);
+              columns.Bound(p => p.Number).Title(Messages.Property_Номер_373__00).Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+              columns.Bound(p => p.NameRu).Title(Messages.Property_Наименование_230__00).Width(150);
+              columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title(Messages.Property_Тип_398__00).Width(150);
+          })
+          //.Resizable(s => s.Columns(true))
+          .Filterable()
+          .Sortable()
+          .Pageable()
+          .Scrollable()
+          .Events(c => c.DataBound("GridOfExpertiseMultiSelect.onDataBound"))
+          .Selectable(c => c.Mode(GridSelectionMode.Single))
+          .HtmlAttributes(new { @class = "pwGrid", style="height:400px;" })
+          .DataSource(dataSource => dataSource.Ajax().Model(model =>
+              {
+                  model.Id(p => p.Id);
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadDrugDeclarationList", "DirectionToPay", new {type = Model.Type})))
+      )
+</div>
+<div class="pwWinFooter">   
+    @(Html.Kendo().Button().Name("GridOfExpertiseMultiSelectCancel").Content(PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00)
+        .HtmlAttributes(new { @class = "k-button pwWinButton", type = "button" })
+        .Events(e => e.Click("GridOfExpertiseMultiSelect.cancel")))
+    @(Html.Kendo().Button().Name("GridOfExpertiseMultiSelectApprove").Content("Подтвердить")
+        .HtmlAttributes(new { @class = "k-button k-primary pwWinButton", type = "button" })
+        .Events(e => e.Click("GridOfExpertiseMultiSelect.approve")))
+</div>
+
+<script>
+    (function () {
+        var g = $('#gridExpertise' + '@Model.Id').data("kendoGrid");
+        g.table.on("click", ".checkbox", GridOfExpertiseMultiSelect.selectRow);
+    })();
+</script>

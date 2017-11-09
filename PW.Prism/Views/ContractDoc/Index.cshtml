@@ -1,0 +1,180 @@
+﻿
+@model Guid
+
+@{
+//Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<script>
+    InitFilterContractGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        @(Html.Kendo().Button().Name("addInDocButton" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Создатьдокумент_119__00).Events(e => e.Click("addContractDocClick"))
+                                   .ImageUrl("/Content/images/add.png"))
+                    </div>
+
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                               .Events(e => e.Select("panelContractSelect"))
+                               .Items(panelbar =>
+                               {
+                                   //panelbar.Add().Expanded(true);
+                                   //panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                   //    .Items(projects =>
+                                   //    {
+                                   //        projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                   //        projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Новые_377__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                   //        projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Зарегистрированные_84__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                   //        projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вработе_309__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                   //        projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Исполненные_240__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "9" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                   //    });
+
+                                   //panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Потипуконтроля_121__00)
+                                   //    .Items(programs =>
+                                   //    {
+                                   //        programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Неконтрольный_174__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                   //        programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Контроль_310__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                   //        programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Особоыйконтроль_122__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                   //        programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Доконтроль_241__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "4" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                   //    });
+
+
+                               })
+                    )
+                </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+
+                        <div id="pwTwo">
+                            @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                            )
+
+                        </div>
+
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+                        </div>
+
+                        <div id="pwFour">
+                            @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                   .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportCitizenDoc")))
+                        </div>
+
+                    </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+                    </div>
+                    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Document>()
+                                           .Name("gridContractListDoc" + Model)
+                           .Columns(columns =>
+                           {
+
+                               columns.Bound(p => p.IsAttachments).Width(49).ClientTemplate(
+                                   "# if (IsAttachments == true) { #" +
+                                   "<img  src='" + Url.Content("~/Content/images/attachTrue.png") + "'  />" +
+                                   "# } else { #" +
+                                   "# } #").Title(PW.Ncels.Database.Recources.Messages.Property_Ф_402__00);
+                               columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getContractDetails('#=DocumentId#', '#=Number#')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                        "<button type='button' style='width:20px;' class='btn btn-default btn-xs' onclick=\"addContractRepeatDocClick('#=DocumentId#')\"><span class=\"glyphicon glyphicon-retweet\"></span></button>" +
+                                    "</div>"
+                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                               columns.Bound(p => p.DocumentDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Дата_391__00).Width(150);
+                               columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_ДатаОконч).Width(150);
+                               columns.Bound(p => p.ExecutorsValue).Title(PW.Ncels.Database.Recources.Messages.Property_ФИО_361__00);
+                           })
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Filterable()
+                            .ClientDetailTemplateId("template")
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => { aggregates.Add(p => p.Number).Count(); })
+                               .Sort(sort => { sort.Add("SortNumber").Descending(); sort.Add("CreatedDate").Descending(); })
+                               .PageSize(50)
+                                       .Read(read => read.Action("ListDocument", "ContractDoc"))
+                           ))
+                </div>
+            );
+            }))
+<script id="template" type="text/kendo-tmpl">
+  
+    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Document>()
+        .Name("grid_#=DocumentId#") // template expression, to be evaluated in the master context
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.IsAttachments).Width(40).ClientTemplate(
+                                   "# if (IsAttachments == true) { #" +
+                                   "<img  src='" + Url.Content("~/Content/images/attachTrue.png") + "'  />" +
+                                   "# } else { #" +
+                                   "# } #").Title(PW.Ncels.Database.Recources.Messages.Property_Ф_402__00);
+            columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                "<button type='button' style='width:120px;' class='btn btn-default btn-xs' onclick=\"getContractDetails('\\#=DocumentId\\#', '\\#=Number\\#')\"><span style=\"color:rgb(66,139,202);\">\\#=Number\\#</span></button>" +
+                "</div>"
+                ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00);
+            columns.Bound(p => p.DocumentDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Дата_391__00).Width(150);
+            columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_ДатаОконч).Width(150);
+            columns.Bound(p => p.ExecutorsValue).Title(PW.Ncels.Database.Recources.Messages.Property_ФИО_361__00);
+        })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+
+        .Read(read => read.Action("ListRepeatDocument", "ContractDoc", new { repeatId = "#=DocumentId#" }))
+        )
+        .Scrollable(scrollable => scrollable.Virtual(true))
+        .Sortable()
+        .ToClientTemplate()
+        )
+      
+   
+</script>
+<script>
+    resizeGrid('@("#gridContractListDoc" + Model)');
+</script>

@@ -1,0 +1,345 @@
+﻿
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@{
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/dashboard.css" rel="stylesheet" />
+}
+<body>
+    <div class="pwDashboardBody">
+        <div class="row btn-group-xs">
+            <button type="button" class="btn btn-default pull-right" style="margin-right: 15px; margin-top: 5px; margin-bottom: -5px" onclick="ReloadDashboard()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> @PW.Ncels.Database.Recources.Messages.Reload</button>
+        </div>
+        @if (EmployePermissionHelper.IsProcHeadContractDashboardVisibility || EmployePermissionHelper.IsLawyerContractDashboardVisibility)
+        {
+            <div class="row">
+                @if (EmployePermissionHelper.IsProcHeadContractDashboardVisibility)
+                {
+                    <div class="col-md-3" id="widget_CountInQueueContracts"></div>
+                    <div class="col-md-6" id="widget_ListLawyerBurden"></div>
+                    <div class="col-md-3" id="widget_CountOnAgreementContracts"></div>
+                }
+                @if (EmployePermissionHelper.IsLawyerContractDashboardVisibility)
+                {
+                    <div class="col-md-3" id="widget_CountNewContracts"></div>
+                    <div class="col-md-3" id="widget_CountInWorkContracts"></div>
+                    <div class="col-md-3" id="widget_CountApprovedContracts"></div>
+                    <div class="col-md-3" id="widget_CountOnRegistrationContracts"></div>
+                }
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-3" id="widget_CountNew"></div>
+            <div class="col-md-3" id="widget_CountWork"></div>
+            <div class="col-md-3" id="widget_CountExpired"></div>
+            <div class="col-md-3" id="widget_CountDone"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="pwDashboardScroll pwDashboardWidget_ListExpired" id="widget_ListExpired"></div>
+            </div>
+        </div>
+
+        @if (EmployePermissionHelper.IsAllStructureDashboard == "all" || EmployePermissionHelper.IsAllStructureDashboard == "departament")
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="pwDashboardScroll pwDashboardWidget_TableDep" id="widget_TableDep"></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pwDashboardScroll pwDashboardWidget_TableEmpl" id="widget_TableEmpl"></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pwDashboardScroll pwDashboardWidget_TableDoc" id="widget_TableDoc"></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pwDashboardScroll pwDashboardWidget_TableEmpl" id="widget_TableEmpl"></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pwDashboardScroll pwDashboardWidget_TableDoc" id="widget_TableDoc"></div>
+                </div>
+            </div>
+        }
+
+        @*@if (EmployePermissionHelper.IsAllStructureDashboard)
+            {
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="pwDashboardWidget_widget_ChartDepartment" id="widget_ChartDepartment" onclick=" showReport('widget_ChartDepartment') "></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pwDashboardWidget_widget_ChartEmployee" id="widget_ChartEmployee" onclick=" showReport('widget_ChartEmployee') "></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pwDashboardWidget_widget_ChartKpi" id="widget_ChartKpi" onclick=" showReport('widget_ChartKpi') "></div>
+                </div>
+            </div>
+            }*@
+        <div class="row">
+            <div class="col-md-3">
+
+            </div>
+            <div class="col-md-6">
+                <div class="pwDashboardScroll pwDashboardWidget_birthday" id="widget_birthday"></div>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+    </div>
+    <div id="dashboardModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div id="reportContainer"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+<script>
+    //modal
+    $('#dashboardModal').css('overflow', 'hidden');
+    $('.modal-dialog').css('width', '1014px');
+    $('.modal-content').css('width', '902px');
+    $('.modal-body').css('width', '856px');
+
+
+    function showReport(reportName) {
+
+        var reportHtml = $('#' + reportName).html();
+        $('#reportContainer').html(reportHtml);
+        $("#dashboardModal").on("show", function () {    // wire up the OK button to dismiss the modal when shown
+            $("#dashboardModal a.btn").on("click", function (e) {
+                console.log("button pressed");   // just as an example...
+                $("#dashboardModal").modal('hide');     // dismiss the dialog
+            });
+        });
+
+        //$("#myModal").on("hide", function () {    // remove the event listeners when the dialog is dismissed
+        //    $("#myModal a.btn").off("click");
+        //});
+
+        //$("#myModal").on("hidden", function () {  // remove the actual elements from the DOM when fully hidden
+        //    $("#myModal").remove();
+        //});
+
+        $("#dashboardModal").modal({                    // wire up the actual modal functionality and show the dialog
+            "backdrop": "static",
+            "keyboard": true,
+            "show": true                     // ensure the modal is shown immediately
+        });
+    }
+
+    //modal
+    var gridElement = $("#tabstrip-1");
+    gridElement.height($(window).height() - 100);
+
+    function BuildWidget(widgetName, idContainer, p1, p2) {
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtmlParams?name=" + widgetName + "&param=" + p1 + "&param=" + p2,
+            success: function (result) {
+                $(idContainer).html(result);
+            }
+        });
+    }
+
+    ReloadDashboard();
+
+    function ReloadDashboard() {
+        $('#widget_CountInQueueContracts').html("");
+        $('#widget_CountNewContracts').html("");
+        $('#widget_CountInWorkContracts').html("");
+        $('#widget_ListLawyerBurden').html("");        
+        $('#widget_CountOnAgreementContracts').html("");
+        $('#widget_CountApprovedContracts').html("");
+        $('#widget_CountOnRegistrationContracts').html("");        
+        $('#widget_CountNew').html("");
+        $('#widget_CountWork').html("");
+        $('#widget_CountExpired').html("");
+        $('#widget_CountDone').html("");
+        $('#widget_ListExpired').html("");
+        $('#widget_ListExecution').html("");
+        $('#widget_TableEmpl').html("");
+        $('#widget_TableDoc').html("");
+        $('#widget_birthday').html("");
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountInQueueContracts.mrt",
+            success: function (result) {
+                $('#widget_CountInQueueContracts').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_ListLawyerBurden.mrt",
+            success: function (result) {
+                $('#widget_ListLawyerBurden').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountNewContracts.mrt",
+            success: function (result) {
+                $('#widget_CountNewContracts').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountInWorkContracts.mrt",
+            success: function (result) {
+                $('#widget_CountInWorkContracts').html(result);
+            }
+        });
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountOnAgreementContracts.mrt",
+            success: function (result) {
+                $('#widget_CountOnAgreementContracts').html(result);
+            }
+        });
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountApprovedContracts.mrt",
+            success: function (result) {
+                $('#widget_CountApprovedContracts').html(result);
+            }
+        });
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountOnRegistrationContracts.mrt",
+            success: function (result) {
+                $('#widget_CountOnRegistrationContracts').html(result);
+            }
+        });
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountNew.mrt",
+            success: function (result) {
+                $('#widget_CountNew').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountWork.mrt",
+            success: function (result) {
+                $('#widget_CountWork').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountExpired.mrt",
+            success: function (result) {
+                $('#widget_CountExpired').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_CountDone.mrt",
+            success: function (result) {
+                $('#widget_CountDone').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_ListExpired.mrt",
+            success: function (result) {
+                $('#widget_ListExpired').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_ListExecution.mrt",
+            success: function (result) {
+                $('#widget_ListExecution').html(result);
+            }
+        });
+
+        if (document.getElementById('widget_TableDep') != null) {
+            $('#widget_TableDep').html("");
+            $.ajax({
+                type: 'get',
+                url: "/Dashboard/BuildHtml?name=widget_TableDep.mrt",
+                success: function (result) {
+                    $('#widget_TableDep').html(result);
+                }
+            });
+        }
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_TableEmpl.mrt",
+            success: function (result) {
+                $('#widget_TableEmpl').html(result);
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_TableDoc.mrt",
+            success: function (result) {
+                $('#widget_TableDoc').html(result);
+            }
+        });
+
+        if (document.getElementById('widget_ChartDepartment') != null) {
+            $('#widget_ChartDepartment').html("");
+            $.ajax({
+                type: 'get',
+                url: "/Dashboard/BuildImage?name=widget_ChartDepartment.mrt",
+                success: function (result) {
+                    $('#widget_ChartDepartment').html("<img src='data:image/png;base64," + result + "'/>");
+                }
+            });
+        }
+
+        if (document.getElementById('widget_ChartEmployee') != null) {
+            $('#widget_ChartEmployee').html("");
+            $.ajax({
+                type: 'get',
+                url: "/Dashboard/BuildImage?name=widget_ChartEmployee.mrt",
+                success: function (result) {
+                    $('#widget_ChartEmployee').html("<img src='data:image/png;base64," + result + "'/>");
+                }
+            });
+        }
+
+        if (document.getElementById('widget_ChartKpi') != null) {
+            $('#widget_ChartKpi').html("");
+            $.ajax({
+                type: 'get',
+                url: "/Dashboard/BuildImage?name=widget_ChartKpi.mrt",
+                success: function (result) {
+                    $('#widget_ChartKpi').html("<img src='data:image/png;base64," + result + "'/>");
+                }
+            });
+        }
+        $.ajax({
+            type: 'get',
+            url: "/Dashboard/BuildHtml?name=widget_birthday.mrt",
+            success: function (result) {
+                $('#widget_birthday').html(result);
+            }
+        });
+    }
+
+</script>

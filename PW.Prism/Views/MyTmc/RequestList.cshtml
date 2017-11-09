@@ -1,0 +1,271 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+<!-- Заявки на получение -->
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    
+    var MyRequestForTMC = {
+        editDetails: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            $.ajax({
+                type: 'POST',
+                url: '/Tmc/SendTmcOut?id=' + dataItem.Id,
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    var grid = $("#gridRequestList" + '@Model').data("kendoGrid");
+                    grid.dataSource.read();
+                    alert('Отправленно');
+                },
+                complete: function () {
+
+                }
+            });
+        },
+
+        dataBoundHandler: function () {
+            var grid = this;
+            grid.tbody.find("tr[role='row']").each(function () {
+                var model = grid.dataItem(this);
+
+                if (model.StateType == 1 || model.StateType == 2) {
+                    $(this).find(".k-grid-edit").addClass("k-state-disabled");
+                    $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                    $(this).find(".k-grid-send").addClass("k-state-disabled");
+                }
+            });
+        },
+
+        dataBoundChildHandler: function () {
+            var grid = this;
+            grid.tbody.find("tr[role='row']").each(function () {
+                var model = grid.dataItem(this);
+
+                if (model.ApplicationStateType == 1 || model.ApplicationStateType == 2) {
+                    $(this).find(".k-grid-edit").addClass("k-state-disabled");
+                    $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                }
+            });
+        },
+
+        expandDetailsHandler: function (e) {
+            var dataItem = this.dataItem(e.masterRow);
+            if (dataItem.StateType == 1 || dataItem.StateType == 2) {
+                e.detailRow.find('.k-toolbar').hide();
+                $.each(e.detailRow.find('.k-grid-edit'),
+                    function (i, o) {
+                        $(o).addClass("k-state-disabled");
+                    });
+                $.each(e.detailRow.find('.k-grid-delete'),
+                    function (i, o) {
+                        $(o).addClass("k-state-disabled");
+                    });
+            } else {
+                e.detailRow.closest('.k-toolbar').show();
+            }
+        },
+
+        syncHandler: function (e) {
+            this.read();
+        },
+        _reload: function () {
+            var grid = $('@("#gridRequestList" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        }
+    };
+    
+
+
+
+    function editDetails(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $.ajax({
+            type: 'POST',
+            url: '/Tmc/SendTmcOut?id=' + dataItem.Id,
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                var grid = $("#gridRequestList" + '@Model').data("kendoGrid");
+                grid.dataSource.read();
+                alert('Отправленно');
+            },
+            complete: function () {
+
+            }
+        });
+    }
+
+    function dataBoundHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.StateType == 1 || model.StateType == 2) {
+                $(this).find(".k-grid-edit").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                $(this).find(".k-grid-send").addClass("k-state-disabled");
+            }
+        });
+    }
+
+    function dataBoundChildHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.ApplicationStateType == 1 || model.ApplicationStateType == 2) {
+                $(this).find(".k-grid-edit").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+            }
+        });
+    }
+
+    function expandDetailsHandler(e) {
+        var dataItem = this.dataItem(e.masterRow);
+        if (dataItem.StateType == 1 || dataItem.StateType == 2) {
+            e.detailRow.find('.k-toolbar').hide();
+            $.each(e.detailRow.find('.k-grid-edit'),
+                function (i, o) {
+                    $(o).addClass("k-state-disabled");
+                });
+            $.each(e.detailRow.find('.k-grid-delete'),
+                function (i, o) {
+                    $(o).addClass("k-state-disabled");
+                });
+        }
+        else {
+            e.detailRow.closest('.k-toolbar').show();
+        }
+    }
+
+    function sync_handler(e) {
+        this.read();
+    }
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+            .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+            .Content("")
+            .ImageUrl("/Content/images/reload.png")
+     )
+</div>
+
+@(Html.Kendo().Grid<TmcOutViewModel>()
+    .Name("gridRequestList" + Model)
+    .Columns(columns =>
+    {
+        columns.Command(command =>
+        {
+            command.Edit().UpdateText(Messages.Property_Сохранить_278__00);
+            command.Destroy();
+            command.Custom("send").Text("Отправить").Click("editDetails");
+        }).Width(200);
+        columns.Bound(p => p.Note).Title("Описание").Width(150);
+        columns.Bound(p => p.OutTypeDicValue).Title("Вид получения").Width(150);
+        columns.Bound(p => p.OwnerEmployeeValue).Title("ФИО МОЛ").Width(150);
+        columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(150);
+        columns.Bound(p => p.StateTypeValue).Title("Статус").Width(150);
+        columns.Bound(p => p.Comment).Title("Комментарии").Width(150);
+        //columns.Bound(p => p.IsFullRequestValue).Title("Сведения по товару").Width(150);
+        //columns.Bound(p => p.Name).Title("Наименование товара").Width(150);
+        //columns.Bound(p => p.Name).Title("Единица измерения").Width(150);
+        //columns.Bound(p => p.Name).Title("Количество/объем поставляемого товара").Width(150);
+    })
+    .ColumnMenu(c => c.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .ToolBar(toolbar => toolbar.Create())
+    .Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .Groupable()
+    .Filterable()
+    .Sortable()
+    .Pageable(s => s.Refresh(true))
+    .Scrollable()
+    .Resizable(s => s.Columns(true))
+    .ClientDetailTemplateId("templateMyTmcOutCount")
+    .HtmlAttributes(new { @class = "pwGrid" })
+    .DataSource(dataSource => dataSource
+        .Ajax().Model(model =>
+        {
+            model.Id(p => p.Id);
+        })
+        .PageSize(20)
+        .Read(read => read.Action("ReadRequest", "MyTmc"))
+        .Update(update => update.Action("UpdateRequest", "MyTmc"))
+        .Destroy(destroy => destroy.Action("DestroyRequest", "MyTmc"))
+        .Create(create => create.Action("CreateRequest", "MyTmc")))
+    .Events(c =>
+    {
+        c.DetailExpand("expandDetailsHandler");
+        c.DataBound("dataBoundHandler");
+    })
+)
+
+<script id="templateMyTmcOutCount" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<TmcOutCountViewModel>()
+        .Name("gridRequestListChildrens_#=TmcOutId#") // template expression, to be evaluated in the master context
+        .Columns(columns =>
+        {
+            columns.Command(command =>
+            {
+                command.Edit().UpdateText(Messages.Property_Сохранить_278__00);
+                command.Destroy();
+            }).Width(120);
+            columns.Bound(o => o.Name).Title("Наименование").Width(120);
+            columns.Bound(o => o.MeasureTypeConvertDicValue).Title("Единица измерения").Width(120);
+            columns.Bound(o => o.Count).Title("Количество/объем").Format("{0:n6}").Width(120);
+            //columns.Bound(o => o.CountFact).Title("Количество/объем (факт)").Width(120);
+            //columns.Bound(o => o.StateTypeValue).Title("Статус").Width(120);
+        })
+        .ColumnMenu(c => c.Columns(true))
+        .Reorderable(reorder => reorder.Columns(true))
+        .ToolBar(toolbar => toolbar.Create())
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+                model.Field(p => p.TmcOutIdString).DefaultValue("#=TmcOutId#");
+            })
+            .PageSize(20)
+            .Read(read => read.Action("ReadRequestChildrens", "MyTmc", new { tmcOutId = "#=TmcOutId#" }))
+            .Update(update => update.Action("UpdateRequestChildrens", "MyTmc"))
+            .Destroy(destroy => destroy.Action("DestroyRequestChildrens", "MyTmc"))
+            .Create(create => create.Action("CreateRequestChildrens", "MyTmc"))
+            .Events(c =>
+            {
+                c.Sync("sync_handler");
+            }))
+        .Resizable(s => s.Columns(true))
+        .Sortable()
+        .Pageable()
+        .Events(c =>
+        {
+            c.DataBound("dataBoundChildHandler");
+        })
+        .ToClientTemplate()
+    )
+</script>
+
+<script>
+    (function () {
+        var name = '@Model';
+
+        resizeGrid3("#gridRequestList" + name, 110);
+
+        $('#reload' + name).click(function (e) {
+            MyRequestForTMC._reload();
+        });
+    })();
+
+
+</script>
+

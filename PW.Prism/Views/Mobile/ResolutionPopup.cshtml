@@ -1,0 +1,332 @@
+﻿@model PW.Ncels.Database.Models.TaskAction
+
+<header data-role="header">
+    <div data-role="navbar">
+        <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+        <span data-role="view-title">Резолюция</span>
+        <a class="nav-button" data-align="right" data-role="button" id="done" onclick="resolutionClick()">Да</a>
+    </div>
+</header>
+<div data-role="scroller" data-use-native="true">
+    <form id="formResolution">
+        <ul id="resolutionListView">
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Документ_298__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <span class="pw-right-fix" id="@("DocumenetNumber" + Model.Id)" data-bind="text: task.DocumenetNumber"></span>
+
+
+                        @PW.Ncels.Database.Recources.Messages.Property_от_400__00
+
+                        <span id="@("DocumenetDate" + Model.Id)" data-bind="text: task.DocumenetDate"></span>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <input id="ExecutionDate" name="ExecutionDate" type="text"  data-bind="value:task.ExecutionDate" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00"/>
+                        </label>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Текст_351__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <input id="@("Text" + Model.Id)" name="@("Text" + Model.Id)" class="pw-text" type="text" data-bind="value: task.Text" required validationmessage="Текст:" />
+                        </label>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <label>
+                    @PW.Ncels.Database.Recources.Messages.Property_Исполнители_237__00
+                </label>
+            </li>
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <button id="addCombo" data-animated="true"></button>
+                    </div>
+                    <div class="rightTaskMobileWindow pw-validation">
+                        <select id="executorResolution" required validationmessage="!">
+                            <option value="" disabled selected>@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+    </div>
+<div id="container"></div>
+
+    <script>
+        $.ajax({
+            url: '/Reference/ListEmploye',
+            contentType: 'application/json; charset=utf-8',
+            type: "POST",
+            dataType: 'json',
+            success: function (response) {
+                for (var k = 0; k < response.length; k++) {
+                    $("<option />", {value: response[k].Id, text: response[k].Name}).appendTo("#executorResolution");
+                }
+
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+        var validator = $("#formResolution").kendoValidator().data("kendoValidator");
+
+        var name = '@Model.Id';
+
+        var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+        var viewModel = kendo.observable({
+            task: data,
+            hasChanges:false,
+            change: function () {
+                if (this.task.get('ExecutorId') != null && this.task.get('ExecutorId').length > 0) {
+                    this.set('hasChanges', true);
+                } else {
+                    this.set('hasChanges', false);
+                }
+            }
+
+        });
+        var i = 1;
+
+        function resolutionClick(){
+                if (validator.validate())
+                {
+                    startLoading();
+                    var employees = [];
+                    var mainExecutorResolutionId=$('#executorResolution').val();
+                    var mainExecutorResolutionName=$("#executorResolution option:selected").text();
+                    if(mainExecutorResolutionId!=null){
+                        employees.push({
+                            "Id" : mainExecutorResolutionId,
+                            "Name"  : mainExecutorResolutionName
+                        });
+                    }
+                    var executorResolutionId;
+                    var executorResolutionName;
+                    for (j = 1 ; j <= i ; j++){
+
+                        if ($("#combo"+j).val()!=null){
+                            executorResolutionId = $("#combo"+j).val();
+                            executorResolutionName=$("#combo"+j+" option:selected").text();
+                            employees.push({
+                                "Id" : executorResolutionId,
+                                "Name"  : executorResolutionName
+                            });
+                        }
+                    }
+
+                viewModel.set('task.ExecutorId',employees);
+                var json = JSON.stringify(viewModel.get('task'));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Mobile/ResolutionConfirm?TaskId=' + name,
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        kendo.mobile.application.navigate("#:back");
+                        kendo.mobile.application.pane.loader.hide();
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+        function startLoading() {
+            kendo.mobile.application.changeLoadingMessage("Ждите!");
+            kendo.mobile.application.showLoading();
+        }
+        $("#addCombo").click(function(){
+            //
+            var liResolution = document.createElement("li");
+            var liIdResolution = document.createAttribute("id");
+            liIdResolution.value  = "liIdResolution"+i;
+            liResolution.setAttributeNode(liIdResolution);
+            $('#resolutionListView').find(' > li:nth-last-child(1)').after(liResolution);
+            //
+            var fullDiv = document.createElement("DIV");
+            var fullDivId = document.createAttribute("id");
+            fullDivId.value  = "fullDivId"+i;
+            fullDiv.setAttributeNode(fullDivId);
+            var fullDivClass = document.createAttribute("class");
+            fullDivClass.value="fullTaskMobileWindow";
+            fullDiv.setAttributeNode(fullDivClass);
+            document.getElementById("liIdResolution"+i).appendChild(fullDiv);
+
+            var leftDiv = document.createElement("DIV");
+            var divId = document.createAttribute("id");
+            divId.value  = "leftDivId"+i;
+            leftDiv.setAttributeNode(divId);
+            var divClass = document.createAttribute("class");
+            divClass.value="rightTaskMobileWindow pw-validation";
+            leftDiv.setAttributeNode(divClass);
+            document.getElementById("fullDivId"+i).appendChild(leftDiv);
+
+            //var combobox = document.createElement("INPUT");
+            //var classCombo = document.createAttribute("class");
+            //classCombo.value  = "comboid";
+            //combobox.setAttributeNode(classCombo);
+
+            //var idCombo = document.createAttribute("id");
+            //idCombo.value  = "combo"+i;
+            //combobox.setAttributeNode(idCombo);
+            //document.getElementById("leftDivId"+i).appendChild(combobox);
+            //
+            var combobox = document.createElement("SELECT");
+            var idCombo = document.createAttribute("id");
+            idCombo.value  = "combo"+i;
+            combobox.setAttributeNode(idCombo);
+           
+            document.getElementById("leftDivId"+i).appendChild(combobox);
+            var optionAssignment = document.createElement("OPTION");
+            document.getElementById("combo"+i).appendChild(optionAssignment);
+            $(combobox).find('option:first').remove();
+            $("<option />", {value: "",disabled:true, selected:true, text: "Выберите значение"}).appendTo(combobox);
+           
+            $.ajax({
+                url: '/Reference/ListEmploye',
+                contentType: 'application/json; charset=utf-8',
+                type: "POST",
+                dataType: 'json',
+                success: function (response) {
+                    for (var k = 0; k < response.length; k++) {
+                        $("<option />", {value: response[k].Id, text: response[k].Name}).appendTo(combobox);
+                    }
+
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+            //
+            document.getElementById("combo"+i).setAttribute("name", "combo"+i);
+            document.getElementById("combo"+i).setAttribute("required", "required");
+            document.getElementById("combo"+i).setAttribute("validationmessage", "!");
+            //
+            var deleteButton = document.createElement("BUTTON");
+            var classButton = document.createAttribute("class");
+            // var deleteText = document.createTextNode("delete");
+            var deleteId = document.createAttribute("id");
+            deleteId.value  = "delete"+i;
+            deleteButton.setAttributeNode(deleteId);
+            // deleteButton.appendChild(deleteText);
+            classButton.value  = "buttonid";
+            deleteButton.setAttributeNode(classButton);
+            deleteButton.addEventListener("click",
+              removeEmployee, false);
+
+            var rightDiv = document.createElement("DIV");
+            var divIdRight = document.createAttribute("id");
+            divIdRight.value  = "rightDivId"+i;
+            rightDiv.setAttributeNode(divIdRight);
+            var divClassRight = document.createAttribute("class");
+            divClassRight.value="leftTaskMobileWindow";
+            rightDiv.setAttributeNode(divClassRight);
+            document.getElementById("fullDivId"+i).appendChild(rightDiv);
+
+            document.getElementById("rightDivId"+i).appendChild(deleteButton);
+            $("#delete"+i).kendoMobileButton({
+                icon: "delete"
+            });
+            i++;
+        }); 
+
+        function removeEmployee(){
+            var str = this.id;
+            var id=str.replace("delete", "");
+            $("#liIdResolution"+id).remove();
+        }
+
+        $("#ExecutorsIdResolution" + name).kendoDropDownList({
+            dataTextField: "Name",
+            dataValueField: "Id",
+            optionLabel   :'@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00',
+            //filter: "contains",
+            //maxSelectedItems: 1,
+            autoBind: false,
+            dataSource: {
+                transport: {
+                    read: {
+                        url: '/Reference/AllListEmploye'
+                    }
+                }
+            }
+        });
+
+        $("#addCombo").kendoMobileButton({
+            icon: "add"
+        });
+
+        var $input = $("#ExecutionDate").pickadate({
+            format: 'dd.mm.yyyy',
+            formatSubmit: 'yyyy/mm/dd',
+            first_day: 1,
+            // min: [2015, 7, 14],
+            container: '#container',
+            // editable: true,
+            closeOnSelect: true,
+            closeOnClear: false,
+            //selectYears: true,
+            //selectMonths: true,
+            firstDay: 1
+        });
+        $("#ExecutionDate").attr("readonly", false);
+        var picker = $input.pickadate('picker');
+        //picker.set('select', '14 October, 2014')
+        //picker.open()
+
+        //$('button').on('click', function() {
+        //    picker.set('disable', true);
+        //});
+
+        $("#ResponsibleId" + name).kendoMultiSelect({
+            dataTextField: "Name",
+            dataValueField: "Id",
+            maxSelectedItems: 1,
+            filter: "contains",
+            autoBind: false,
+
+            dataSource: {
+                transport: {
+                    read: {
+                        url: '/Reference/ListEmploye'
+
+                    }
+                }
+            }
+        });
+
+        kendo.bind($("#formResolution"), viewModel);
+        var temp = viewModel.get('task.ExecutionDate');
+        if (temp != null) {
+            var date = temp.toString();
+            // viewModel.set('task.ExecutionDate', isoDateReviver(date));
+        }
+        $("#ExecutionDate").val(kendo.toString(kendo.parseDate($("#ExecutionDate").val()), "dd.MM.yyyy"));
+
+    </script>

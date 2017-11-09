@@ -1,0 +1,742 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <AutoLocalizeReportOnRun>True</AutoLocalizeReportOnRun>
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <assistent Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>assistent</Alias>
+        <ConnectionStringEncrypted>+XRpSUhf2e3iR73JYiXjL5lawQLJVEvx+Um5xGpJpHvVavXrxVkx7XJNvYRjXG3X3HDbietVq93hfNXM6UTgj9Vaz4liTXOBZ2s=</ConnectionStringEncrypted>
+        <Name>assistent</Name>
+      </assistent>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <ExpiredDocuments Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>ExpiredDocuments</Alias>
+        <Columns isList="true" count="9">
+          <value>ExecutorId,System.Guid</value>
+          <value>ExecutorValue,System.String</value>
+          <value>Rank,System.Int32</value>
+          <value>Total,System.Int32</value>
+          <value>Done,System.Int32</value>
+          <value>DoneExpired,System.Int32</value>
+          <value>Work,System.Int32</value>
+          <value>WorkMonitor,System.Int32</value>
+          <value>WorkMonitorExpired,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>ExpiredDocuments</Name>
+        <NameInSource>assistent</NameInSource>
+        <Parameters isList="true" count="2">
+          <value>DepId,DepId,14,36</value>
+          <value>EmployeeId,EmployeeId,14,36</value>
+        </Parameters>
+        <SqlCommand>DECLARE @param1 nvarchar(12)
+SET @param1 = (SELECT ep.[PermissionValue] FROM [EmployeePermissions] as ep where ep.EmployeeId = @EmployeeId and ep.PermissionKey = 'IsAllStructureDashboard')
+
+if (@param1 = 'all' or @param1 = 'departament')
+BEGIN
+	;WITH q AS (
+SELECT	[StateType] = 'Total',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'Done',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType = 9 and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'DoneExpired',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType = 9 and cast(FactExecutionDate as date) &gt;  cast(ExecutionDate as date)  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'Work',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType &lt;&gt; 9  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'WorkMonitor',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; ''and StateType &lt;&gt; 9 and MonitoringType &gt; 1  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'WorkMonitorExpired',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType &lt;&gt; 9 and MonitoringType &gt; 1 and cast(GETDATE() as date) &gt;  cast(ExecutionDate as date)  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+	)
+SELECT top(100) ExecutorId, (select ShortName From Employees where Id = ExecutorId) as ExecutorValue, (select Rank From Units where Id = (select PositionId  from Employees where Id = ExecutorId)) as Rank
+			, Total = ISNULL(Total, 0)
+			, Done = ISNULL(Done, 0)
+			, DoneExpired = ISNULL(DoneExpired, 0)
+			, Work = ISNULL(Work, 0)
+			, WorkMonitor = ISNULL(WorkMonitor, 0)
+			, WorkMonitorExpired = ISNULL(WorkMonitorExpired, 0)
+		
+FROM    (SELECT * FROM q  where @DepId in (select u.ParentId from Units as u where u.EmployeeId = ExecutorId and PositionState = 1)) s 
+	PIVOT (SUM(fSum) FOR StateType IN ([Total], [Done],[DoneExpired],[Work], [WorkMonitor],[WorkMonitorExpired])) pvt
+	 order by Rank
+ END
+ ELSE
+ BEGIN
+		;WITH q AS (
+SELECT	[StateType] = 'Total',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'Done',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType = 9 and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'DoneExpired',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType = 9 and cast(FactExecutionDate as date) &gt;  cast(ExecutionDate as date)  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'Work',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType &lt;&gt; 9  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'WorkMonitor',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; ''and StateType &lt;&gt; 9 and MonitoringType &gt; 1  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+UNION All SELECT	[StateType] = 'WorkMonitorExpired',
+	ExecutorId = e.Id,
+	fSum = count(*)
+	FROM [Documents] as d
+	left join Employees as e on e.Id = cast(d.ResponsibleId as uniqueidentifier)
+	where ResponsibleId is not null and ResponsibleId &lt;&gt; '' and StateType &lt;&gt; 9 and MonitoringType &gt; 1 and cast(GETDATE() as date) &gt;  cast(ExecutionDate as date)  and DocumentType IN (0, 2, 5) and IsDeleted = 0
+	group by e.Id
+
+	)
+SELECT top(100) ExecutorId, (select ShortName From Employees where Id = ExecutorId) as ExecutorValue, (select Rank From Units where Id = (select PositionId  from Employees where Id = ExecutorId)) as Rank
+			, Total = ISNULL(Total, 0)
+			, Done = ISNULL(Done, 0)
+			, DoneExpired = ISNULL(DoneExpired, 0)
+			, Work = ISNULL(Work, 0)
+			, WorkMonitor = ISNULL(WorkMonitor, 0)
+			, WorkMonitorExpired = ISNULL(WorkMonitorExpired, 0)
+		
+FROM    (SELECT * FROM q  where ExecutorId = @EmployeeId) s 
+	PIVOT (SUM(fSum) FOR StateType IN ([Total], [Done],[DoneExpired],[Work], [WorkMonitor],[WorkMonitorExpired])) pvt
+	 order by Rank
+ END</SqlCommand>
+      </ExpiredDocuments>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="2">
+      <value>,DepId,DepId,System.Guid,f89cfe57-6535-4a1d-9c89-13a98a05c67e,False,False</value>
+      <value>,EmployeeId,EmployeeId,System.Guid,a994cf0d-1bc2-4c1d-bae7-a51c262b07c0,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="3">
+    <Item3 Ref="4" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>en</CultureName>
+      <Items isList="true" count="14">
+        <value>Text1.Text,Documents_x0020_by_x0020_executors</value>
+        <value>Text12.Text,TOTAL</value>
+        <value>Text3.Text,Total</value>
+        <value>Text3.ToolTip,The_x0020_total_x0020_number_x0020_of_x0020_documents</value>
+        <value>Text4.Text,Exc.</value>
+        <value>Text4.ToolTip,The_x0020_total_x0020_number_x0020_of_x0020_all_x0020_executed_x0020_documents</value>
+        <value>Text5.Text,Done_x0020_over.</value>
+        <value>Text5.ToolTip,Including_x0020_executed_x0020_overdue</value>
+        <value>Text6.Text,Todo</value>
+        <value>Text6.ToolTip,The_x0020_total_x0020_number_x0020_of_x0020_documents_x0020_in_x0020_the_x0020_work</value>
+        <value>Text7.Text,Cnt.</value>
+        <value>Text7.ToolTip,Including_x0020_the_x0020_control_x0020_documents</value>
+        <value>Text8.Text,Ctn._x0020_exp.</value>
+        <value>Text8.ToolTip,Including_x0020_the_x0020_control_x0020_documents_x0020_in_x0020_the_x0020_late</value>
+      </Items>
+    </Item3>
+    <Item4 Ref="5" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>ru</CultureName>
+      <Items isList="true" count="0" />
+    </Item4>
+    <Item5 Ref="6" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>kk</CultureName>
+      <Items isList="true" count="14">
+        <value>Text1.Text,Орындаушылар_x0020_жөнiндегi_x0020_құжаттар</value>
+        <value>Text12.Text,Жиынтығы</value>
+        <value>Text3.Text,Барлығы</value>
+        <value>Text3.ToolTip,Барлық_x0020_құжат_x0020_жалпы_x0020_сан</value>
+        <value>Text4.Text,Оры.</value>
+        <value>Text4.ToolTip,Барлық_x0020_орындалған_x0020_құжаттар_x0020_жалпы_x0020_сан</value>
+        <value>Text5.Text,Өтк._x0020_орын.</value>
+        <value>Text5.ToolTip,Саны_x0020_зарық_x0020_мерзiм_x0020_өткiзумен_x0020_орындалған</value>
+        <value>Text6.Text,Жумыста</value>
+        <value>Text6.ToolTip,Құжаттарды_x0020_жұмыста_x0020_жалпы_x0020_сан</value>
+        <value>Text7.Text,Бақ.</value>
+        <value>Text7.ToolTip,Жұмыста_x0020_бақылау_x0020_құжаттарды_x0020_сан_x0020_зарыққан</value>
+        <value>Text8.Text,Өтк._x0020_орын.</value>
+        <value>Text8.ToolTip,Жұмыста_x0020_бақылау_x0020_мерзiмiнен_x0020_өтiлген_x0020_құжаттар_x0020_сан_x0020_зарыққан</value>
+      </Items>
+    </Item5>
+  </GlobalizationStrings>
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="7" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="4">
+        <HeaderBand1 Ref="8" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text1 Ref="9" type="Text" isKey="true">
+              <Brush>[141:179:226]</Brush>
+              <ClientRectangle>0,0,27,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,14</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Документы по исполнителям</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text9 Ref="10" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>21.8,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>449a34feafb14fb186a099c8cc300275</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{Time}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>7168ff9df2f64125b5f0110299c9ebf6</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text> </Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand1>
+        <HeaderBand2 Ref="12" type="HeaderBand" isKey="true">
+          <Brush>[84:141:212]</Brush>
+          <ClientRectangle>0,2,27,0.8</ClientRectangle>
+          <Components isList="true" count="7">
+            <Text2 Ref="13" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>4038e8c3242e465e8e9c93c46502f6be</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text3 Ref="14" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>23d669190641425da685adb2434116f5</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>Всего</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>Общее число всех документов</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text4 Ref="15" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.6,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>45c762ccc48546a397a691cd639fdea6</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>Исп.</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>Общее число всех исполненных документов</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text5 Ref="16" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.4,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>62c077a26f2b4d95a7d763bc597004f4</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>Исп. с проср.</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>В том числе исполненно с просрочкой</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text6 Ref="17" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.2,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>bea01829d61c4ba495af5d4a6ebf51fd</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>В работе</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>Общее число документов в работе</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="18" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>81cc400b48d6465c8731b8c0f762a7b9</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>Контр.</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>В том числе контрольных документов в работе</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="19" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>b8e6b25a38bf48399cc5a7b0fd1e44e7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="7" />
+              <Parent isRef="12" />
+              <Text>Контр. проср.</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <ToolTip>В том числе контрольные просроченные документы в работе</ToolTip>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>d4e884f268144c5c9ad25b1366caa6d7</Guid>
+          <Name>HeaderBand2</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand2>
+        <DataExpiredDocuments Ref="20" type="DataBand" isKey="true">
+          <Brush>[84:141:212]</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,3.6,27,0.8</ClientRectangle>
+          <Components isList="true" count="7">
+            <DataExpiredDocuments_ExecutorValue Ref="21" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,0,3.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_ExecutorValue</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.ExecutorValue}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_ExecutorValue>
+            <DataExpiredDocuments_Total Ref="22" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>3.8,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','Total');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Total</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.Total}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Total>
+            <DataExpiredDocuments_Done Ref="23" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.6,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','Done');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Done</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.Done}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Done>
+            <DataExpiredDocuments_DoneExpired Ref="24" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>11.4,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','DoneExpired');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_DoneExpired</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.DoneExpired}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_DoneExpired>
+            <DataExpiredDocuments_Work Ref="25" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>15.2,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','Work');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_Work</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.Work}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_Work>
+            <DataExpiredDocuments_WorkMonitor Ref="26" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19,0,3.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','WorkMonitor');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_WorkMonitor</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.WorkMonitor}</Text>
+              <TextBrush>White</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_WorkMonitor>
+            <DataExpiredDocuments_WorkMonitorExpired Ref="27" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22.8,0,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Hyperlink>{"javascript:BuildWidget('widget_TableDoc.mrt','#widget_TableDoc', '" + ExpiredDocuments.ExecutorId + "','WorkMonitorExpired');"}</Hyperlink>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataExpiredDocuments_WorkMonitorExpired</Name>
+              <Page isRef="7" />
+              <Parent isRef="20" />
+              <Text>{ExpiredDocuments.WorkMonitorExpired}</Text>
+              <TextBrush>[255:64:64]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataExpiredDocuments_WorkMonitorExpired>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>ExpiredDocuments</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataExpiredDocuments</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataExpiredDocuments>
+        <FooterBand1 Ref="28" type="FooterBand" isKey="true">
+          <Brush>[84:141:212]</Brush>
+          <ClientRectangle>0,5.2,27,1</ClientRectangle>
+          <Components isList="true" count="7">
+            <Text11 Ref="29" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.8,0,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>331ec5a068ff45409d030ed5473ed4c7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.Total)}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text12 Ref="30" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0,3.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8,Bold</Font>
+              <Guid>332021cbe7364bd1984684029bb87204</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>ИТОГО</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+            <Text13 Ref="31" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.6,0,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>e9b8fe7e720c444ea80fbccf0ac85727</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.Done)}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+            <Text14 Ref="32" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.4,0,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>2178dc31a4064a06868b1e89d13ae2e1</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.DoneExpired)}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text15 Ref="33" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>15.2,0,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>a5a0ad6e81814298aa53ec1e55c49f9f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.Work)}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text16 Ref="34" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19,0,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>fc0783075cac4fd9a618ce7f4ac614e5</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.WorkMonitor)}</Text>
+              <TextBrush>White</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="35" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22.8,0,4.2,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9,Bold</Font>
+              <Guid>1af7cccdf91043548ee063155e0fe65d</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="7" />
+              <Parent isRef="28" />
+              <Text>{Sum(ExpiredDocuments.WorkMonitorExpired)}</Text>
+              <TextBrush>Red</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>f7ce94c83f1243e79dc5a3bf027fa3e1</Guid>
+          <Name>FooterBand1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </FooterBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>d79f191fed9b4d028badf04cf7fc87ff</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="36" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="37" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>9/16/2016 12:45:52 PM</ReportChanged>
+  <ReportCreated>2/20/2015 2:55:55 PM</ReportCreated>
+  <ReportFile>C:\Users\morozilnik\OneDrive\Git\Assistent\src\PW.Prism\PW.Prism\Widgets\widget_TableEmpl.mrt</ReportFile>
+  <ReportGuid>4c2f1bd218484ccd88414afb55cde183</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

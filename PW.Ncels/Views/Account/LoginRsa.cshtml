@@ -1,0 +1,770 @@
+﻿@model PW.Ncels.Models.LoginViewModel
+@{
+    ViewBag.Title = "Вход в систему";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+
+<script src="~/Scripts/photon/crypto/jquery.js"></script>
+<script src="~/Scripts/photon/crypto/jquery.blockUI.js"></script>
+<script src="~/Scripts/photon/crypto/crypto_object.js"></script>
+<script type="text/javascript">
+
+    function chooseStoragePath() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        if (storageAlias !== "NONE") {
+            browseKeyStore(storageAlias, "P12", storagePath, "chooseStoragePathBack");
+        }
+    }
+
+    function chooseStoragePathBack(rw) {
+        var storagePath = $("#storagePath").val();
+
+        if (rw.getErrorCode() === "NONE") {
+            storagePath = rw.getResult();
+            if (storagePath !== null && storagePath !== "") {
+                $("#storagePath").val(storagePath);
+            } else {
+                $("#storageAlias").val("NONE");
+                $("#storagePath").val("");
+            }
+        } else {
+            $("#storageAlias").val("NONE");
+            $("#storagePath").val("");
+        }
+    }
+
+    function fillKeysBack(result) {
+        if (result['errorCode'] === "NONE") {
+            var keyListEl = document.getElementById('keys');
+            keyListEl.options.length = 0;
+            var list = result['result'];
+            var slotListArr = list.split("\n");
+            for (var i = 0; i < slotListArr.length; i++) {
+                if (slotListArr[i] === null || slotListArr[i] === "") {
+                    continue;
+                }
+                keyListEl.options[keyListEl.length] = new Option(slotListArr[i], i);
+            }
+            keysOptionChanged();
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+            var keyListEl = document.getElementById('keys');
+            keyListEl.options.length = 0;
+        }
+    }
+
+    function fillKeys() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var keyType = "AUTH";
+
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                getKeys(storageAlias, storagePath, password, keyType, "fillKeysBack");
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function keysOptionChanged() {
+        var str = $("#keys :selected").text();
+        var alias = str.split("|")[3];
+        $("#keyAlias").val(alias);
+        getRdnByOidCall();
+    }
+
+    function setLocaleCall() {
+        var lang = $("#lang").val();
+        setLocale(lang);
+    }
+
+    function getNotBeforeCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    getNotBefore(storageAlias, storagePath, alias, password, "getNotBeforeBack");
+                } else {
+                    alert("Вы не выбран ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function getNotBeforeBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#notbefore").val(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function getNotAfterCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    getNotAfter(storageAlias, storagePath, alias, password, "getNotAfterBack");
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function getNotAfterBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#notafter").val(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function getSubjectDNCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    getSubjectDN(storageAlias, storagePath, alias, password, "getSubjectDNBack");
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function getSubjectDNBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#subjectDn").text(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function getIssuerDNCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    getIssuerDN(storageAlias, storagePath, alias, password, "getIssuerDNBack");
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function getIssuerDNBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#issuerDn").text(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function signPlainDataCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        $("#identifier").text("Не проверено");
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var data = $("#date").val();
+                    if (data !== null && data !== "") {
+                        signPlainData(storageAlias, storagePath, alias, password, data, "signPlainDataBack");
+                    } else {
+                        alert("Вы не ввели данные!")
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function signPlainDataBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#signature").text(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#signature").text("");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function createCMSSignatureCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        $("#identifierCMS").text("Не проверено");
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var data = $("#dateCMS").val();
+                    var flag = $("#flag").is(':checked');
+
+                    if (data !== null && data !== "") {
+                        if (flag) {
+                            createCMSSignature(storageAlias,
+                                storagePath,
+                                alias,
+                                password,
+                                data,
+                                true,
+                                "createCMSSignatureBack");
+                        } else {
+                            createCMSSignature(storageAlias,
+                                storagePath,
+                                alias,
+                                password,
+                                data,
+                                false,
+                                "createCMSSignatureBack");
+                        }
+                    } else {
+                        alert("Вы не ввели данные!");
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function createCMSSignatureBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#signatureCMS").text(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#signatureCMS").text("");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function signXmlCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        $("#identifierXML").text("Не проверено");
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var data = document.getElementById("dateXML").value;
+                    if (data !== null && data !== "") {
+                        signXml(storageAlias, storagePath, alias, password, data, "signXmlBack");
+                    } else {
+                        alert("Вы не ввели данные!");
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function signXmlBack(result) {
+        if (result['errorCode'] === "NONE") {
+            document.getElementById("signatureXML").value = result['result'];
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                document.getElementById("signatureXML").value = "";
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function signXmlByElementIdCall() {
+        document.getElementById("signatureXMLById").value = "";
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        $("#identifierXMLById").text("Не проверено");
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var data = document.getElementById("dateXMLById").value;
+                    var xmlElemName = $("#xmlElemName").val();
+                    var xmlIdAttrName = $("#xmlIdAttrName").val();
+                    var signatureParentElement = $("#signatureParentElement").val();
+                    if (data !== null &&
+                        data !== "" &&
+                        xmlElemName !== null &&
+                        xmlElemName !== "" &&
+                        xmlIdAttrName !== null &&
+                        xmlIdAttrName !== "") {
+                        signXmlByElementId(storageAlias,
+                            storagePath,
+                            alias,
+                            password,
+                            data,
+                            xmlElemName,
+                            xmlIdAttrName,
+                            signatureParentElement,
+                            "signXmlByElementIdBack");
+                    } else {
+                        alert("Вы не ввели данные или не указали идентификатор!");
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function signXmlByElementIdBack(result) {
+        if (result['errorCode'] === "NONE") {
+            document.getElementById("signatureXMLById").value = result['result'];
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                document.getElementById("signatureXMLById").value = "";
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function verifyXmlCall() {
+        var signature = document.getElementById("signatureXML").value;
+        if (signature !== null && signature !== "") {
+            verifyXml(signature, "verifyXmlBack");
+        } else {
+            alert("Не найден подписанный XML!");
+        }
+    }
+
+    function verifyXmlBack(result) {
+        if (result['errorCode'] === "NONE") {
+            if (result['result']) {
+                $("#identifierXML").text("Валидная подпись");
+            } else {
+                $("#identifierXML").text("Неправильная подпись");
+            }
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#identifierXML").text("Неправильная подпись");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function verifyXmlByIdCall() {
+        var signature = document.getElementById("signatureXMLById").value;
+        var signatureParentElement = document.getElementById("signatureParentElement").value;
+        var xmlIdAttrName = document.getElementById("xmlIdAttrName").value;
+        if (signature !== null && signature !== "") {
+            verifyXmlById(signature, xmlIdAttrName, signatureParentElement, "verifyXmlByIdBack");
+        } else {
+            alert("Не найден подписанный XML!");
+        }
+    }
+
+    function verifyXmlByIdBack(result) {
+        if (result['errorCode'] === "NONE") {
+            if (result['result']) {
+                $("#identifierXMLById").text("Валидная подпись");
+            } else {
+                $("#identifierXMLById").text("Неправильная подпись");
+            }
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['errorCode'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#identifierXML").text("Неправильная подпись");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function verifyPlainDataCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var data = $("#date").val();
+                    var signature = $("#signature").val();
+                    if (data !== null && data !== "" && signature !== null && signature !== "") {
+                        verifyPlainData(storageAlias,
+                            storagePath,
+                            alias,
+                            password,
+                            data,
+                            signature,
+                            "verifyPlainDataBack");
+                    } else {
+                        alert("Вы не ввели данные, или подписанные данные не найдены!");
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function verifyPlainDataBack(result) {
+        if (result['errorCode'] === "NONE") {
+            if (result['result']) {
+                $("#identifier").text("Валидная подпись");
+            } else {
+                $("#identifier").text("Неправильная подпись");
+            }
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function verifyCMSSignatureCall() {
+        var data = $("#dateCMS").val();
+        var signatureCMS = $("#signatureCMS").val();
+        if (signatureCMS !== null && signatureCMS !== "") {
+            verifyCMSSignature(signatureCMS, data, "verifyCMSSignatureBack");
+        } else {
+            alert("Вы не ввели данные, или подписанные данные не найдены!");
+        }
+    }
+
+    function verifyCMSSignatureBack(result) {
+        if (result['errorCode'] === "NONE") {
+            if (result['result']) {
+                $("#identifierCMS").text("Валидная подпись");
+            } else {
+                $("#identifierCMS").text("Неправильная подпись");
+            }
+        } else {
+            $("#identifierCMS").text("Неправильная подпись");
+            alert(result['errorCode']);
+        }
+    }
+
+    function getRdnByOidCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+                    var oid = "2.5.4.5";
+                    //var selected = $("input[type='radio'][name='oid']:checked");
+                    //if (selected.length > 0) {
+                    //    oid = selected.val();
+                    //}
+                    getRdnByOid(storageAlias, storagePath, alias, password, oid, 0, "getRdnByOidBack");
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбран хранилище!");
+        }
+    }
+
+    function getRdnByOidBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#iin").val(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#iin").val("RDN не найден!");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function selectFileToSignCall() {
+        try {
+            showFileChooser("ALL", "", "selectFileToSignBack");
+        } catch (e) {
+            alert(e);
+        }
+    }
+
+    function selectFileToSignBack(result) {
+        if (result['errorCode'] === "NONE") {
+            document.getElementById("filePath").value = result['result'];
+        } else {
+            alert(result['errorCode']);
+        }
+    }
+
+    function createCMSSignatureFromFileCall() {
+        var storageAlias = $("#storageAlias").val();
+        var storagePath = $("#storagePath").val();
+        var password = $("#password").val();
+        var alias = $("#keyAlias").val();
+        var rw = null;
+
+
+        $("#identifierCMSFile").text("Не проверено");
+        if (storagePath !== null && storagePath !== "" && storageAlias !== null && storageAlias !== "") {
+            if (password !== null && password !== "") {
+                if (alias !== null && alias !== "") {
+
+                    var filePath = $("#filePath").val();
+                    var flag = $("#flagFile").is(':checked');
+
+                    if (filePath !== null && filePath !== "") {
+                        if (flag) {
+                            createCMSSignatureFromFile(storageAlias,
+                                storagePath,
+                                alias,
+                                password,
+                                filePath,
+                                true,
+                                "createCMSSignatureFromFileBack");
+                        } else {
+                            createCMSSignatureFromFile(storageAlias,
+                                storagePath,
+                                alias,
+                                password,
+                                filePath,
+                                false,
+                                "createCMSSignatureFromFileBack");
+                        }
+                    } else {
+                        alert("Вы не ввели путь к файлу");
+                    }
+                } else {
+                    alert("Вы не выбрали ключ!");
+                }
+            } else {
+                alert("Введите пароль к хранилищу");
+            }
+        } else {
+            alert("Не выбрано хранилище!");
+        }
+    }
+
+    function createCMSSignatureFromFileBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#signatureCMSFile").text(result['result']);
+        } else {
+            if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
+                alert("Неправильный пароль! Количество оставшихся попыток: " + result['result']);
+            } else if (result['errorCode'] === "WRONG_PASSWORD") {
+                alert("Неправильный пароль!");
+            } else {
+                $("#signatureCMS").text("");
+                alert(result['errorCode']);
+            }
+        }
+    }
+
+    function verifyCMSSignatureFromFileCall() {
+        var signatureCMSFile = $("#signatureCMSFile").val();
+        var filePath = $("#filePath").val();
+        if (signatureCMS !== null && signatureCMS !== "") {
+            var rw = null;
+            verifyCMSSignatureFromFile(signatureCMSFile, filePath, "verifyCMSSignatureFromFileBack");
+        } else {
+            alert("Вы не ввели данные, или подписанные данные не найдены!");
+        }
+    }
+
+    function verifyCMSSignatureFromFileBack(result) {
+        if (result['errorCode'] === "NONE") {
+            if (result['result']) {
+                $("#identifierCMSFile").text("Валидная подпись");
+            } else {
+                $("#identifierCMSFile").text("Неправильная подпись");
+            }
+        } else {
+            $("#identifierCMSFile").text("Неправильная подпись");
+            alert(result['errorCode']);
+        }
+    }
+
+    function getHashCall() {
+        var hashAlgorithm = $("#hashAlg").val();
+        var dataHash = $("#dataHash").val();
+        if (dataHash !== null && dataHash !== "") {
+            getHash(dataHash, hashAlgorithm, "getHashBack");
+        } else {
+            alert("Вы не ввели данные для хеширование");
+        }
+    }
+
+    function getHashBack(result) {
+        if (result['errorCode'] === "NONE") {
+            $("#hashArea").text(result['result']);
+        } else {
+            alert(result['errorCode']);
+        }
+    }
+</script>
+
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div ng-controller="MainCtrl">
+        <div>
+            <img alt="image" src="/Content/img/logo_big.png" />
+        </div>
+        <h3>Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники</h3>
+
+        <p>Авторизация</p>
+        @using (Html.BeginForm("LoginRsa", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "m-t", role = "form" })) {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+            <div class="form-group">
+                <label style="float: left !important;">Тип хранилища ключа:</label>
+                <select onchange="chooseStoragePath();" id="storageAlias" size="1" class="form-control">
+                    <option value="NONE">-- Выберите тип --</option>
+                    <option value="PKCS12">Ваш Компьютер</option>
+                    <option value="AKKaztokenStore">Казтокен</option>
+                    <option value="AKKZIDCardStore">Личное Удостоверение</option>
+                    <option value="AKEToken72KStore">EToken Java 72k</option>
+                    <option value="AKJaCartaStore">AK JaCarta</option>
+                </select>
+            </div>
+            <div class="form-group" style="display: none;">
+                <label style="float: left !important;">Путь хранилища ключа:</label>
+                <input type="text" readonly="readonly" id="storagePath" value="" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label style="float: left !important;">Пароль для хранилища:</label>
+                <input id="password" type="password" name="Password" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label style="float: left !important;">Список ключей:</label>
+                <input type="hidden" id="keyAlias" value="" />
+                <select onchange="keysOptionChanged();" id="keys" class="form-control" onclick="fillKeys();"></select>
+            </div>
+            <div class="form-group">
+                <label style="float: left !important;">ИИН:</label>
+                <input id="iin" name="Email" type="text" class="form-control" readonly="readonly" style="background-color: white !important" />
+            </div>
+            <button type="submit" class="btn btn-success block full-width m-b" ng-click="clearStore()">Войти</button>
+            <a class="btn btn-white block full-width m-b" href="/Account/Login">Войти по логину</a>
+            <a href="/Account/ForgotPassword"><small>Забыли пароль?</small></a>
+            <p class="text-muted text-center">
+                <small>У вас нет аккаунта?</small>
+            </p>
+            <a class="btn btn-sm btn-white btn-block" href="/Account/Register">Регистрация в системе</a>
+        }
+        <p class="m-t"> <small>&copy; 2017 | Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники.<br>Все права защищены.</small> </p>
+    </div>
+</div>

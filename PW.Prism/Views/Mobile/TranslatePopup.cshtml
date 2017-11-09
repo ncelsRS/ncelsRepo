@@ -1,0 +1,153 @@
+﻿@model PW.Ncels.Database.Models.TaskAction
+
+@*<div id="@("loader"+ Model.Id)"></div>*@
+<header data-role="header">
+    <div data-role="navbar">
+        <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+        <span data-role="view-title">На перевод</span>
+        <a class="nav-button" data-align="right" data-role="button" id="done" onclick="translateClick()">Да</a>
+    </div>
+</header>
+<form id="formTranslate">
+    <ul id="translateListview">
+        <li>
+            <div class="fullTaskMobileWindow">
+                <div class="leftTaskMobileWindow">
+                    <label>
+                        @PW.Ncels.Database.Recources.Messages.Property_Документ_298__00
+                    </label>
+                </div>
+                <div class="rightTaskMobileWindow">
+                    <span id="@("DocumenetNumber" + Model.Id)" class="pw-right-fix" data-bind="text: task.DocumenetNumber"></span>
+
+                    @PW.Ncels.Database.Recources.Messages.Property_от_400__00
+
+                    <span id="@("DocumenetDate" + Model.Id)" data-bind="text: task.DocumenetDate"></span>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="fullTaskMobileWindow">
+                <div class="leftTaskMobileWindow">
+                    <label>
+                        @PW.Ncels.Database.Recources.Messages.Property_Исполнитель_222__00
+                    </label>
+                </div>
+                <div class="rightTaskMobileWindow">
+                    <label>
+                        <select id="executorTranslate" required validationmessage="!">
+                            <option value="" disabled selected>@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="fullTaskMobileWindow">
+                <div class="leftTaskMobileWindow">
+                    <label>
+                        @PW.Ncels.Database.Recources.Messages.Property_Текст_351__00
+                    </label>
+                </div>
+                <div class="rightTaskMobileWindow">
+                    <label>
+                        <input id="@("Text" + Model.Id)" name="Text" class="pw-text" data-bind="value: task.Text" type="text" required validationmessage="Текст:" />
+                    </label>
+                </div>
+            </div>
+        </li>
+        </ul>
+</form>
+<script>
+    $.ajax({
+        url: '/Reference/ListEmploye',
+        contentType: 'application/json; charset=utf-8',
+        type: "POST",
+        dataType: 'json',
+        success: function (response) {
+            for (var k = 0; k < response.length; k++) {
+                $("<option />", {value: response[k].Id, text: response[k].Name}).appendTo("#executorTranslate");
+            }
+
+        },
+        error: function () {
+            alert("error");
+        }
+    });
+    var validator = $("#formTranslate").kendoValidator().data("kendoValidator");
+    var name = '@Model.Id';
+    var documentId = '@Model.DocumentId';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        task: data,
+        hasChanges:false,
+        change: function () {
+            if (this.task.get('ExecutorId') != null && this.task.get('ExecutorId').length > 0) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        }
+    });
+    function translateClick() {
+        if (validator.validate()) {
+            startLoading();
+            //kendo.ui.progress($('#loader' + name), true);
+            var employees = [];
+            var mainExecutorTranslateId=$('#executorTranslate').val();
+            var mainExecutorTranslateName=$("#executorTranslate option:selected").text();
+            if(mainExecutorTranslateId!=null){
+                employees.push({
+                    "Id" : mainExecutorTranslateId,
+                    "Name"  : mainExecutorTranslateName
+                });
+            }
+            viewModel.set('task.ExecutorId',employees);
+            var json = JSON.stringify(viewModel.get('task'));
+            $.ajax({
+                type: 'POST',
+                url: '/Mobile/TranslateConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result.State == true) {
+                        kendo.mobile.application.navigate("#:back");
+                        kendo.mobile.application.pane.loader.hide();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        }
+    }
+    function startLoading() {
+        kendo.mobile.application.changeLoadingMessage("Ждите!");
+        kendo.mobile.application.showLoading();
+    }
+    viewModel.set('task.ExecutionDate', new Date());
+    kendo.bind($("#formTranslate"), viewModel);
+    //function ExecutorChangeAgreement() {
+    //    var dataTask = viewModel.get('task.ExecutorsId');
+    //    console.log("ExecutorId", dataTask);
+    //}
+    $("#ExecutorsId" + name).kendoDropDownList({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        optionLabel   :'@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00',
+        //filter: "contains",
+        //maxSelectedItems: 1,
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/AllListEmploye'
+                }
+            }
+        }
+    });
+    $("#ExecutionDate" + name).kendoDatePicker();
+</script>
+

@@ -1,0 +1,167 @@
+﻿@{
+    ViewBag.Title = "Register";
+}
+@{
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+<div class="pw-register-box animated fadeInDown">
+    <div class="row text-center">
+        <div class="col-lg-3">
+            <img alt="image" src="/Content/img/logo_big.png" />
+        </div>
+        <div class="col-lg-6">
+            <h3>Регистрация в системе</h3>
+            <p>
+                Экспертиза лекарственных средств, изделий медицинского назначения и медицинской техники
+            </p>
+        </div>
+    </div>
+    <br />
+
+
+    <div class="row" data-ng-controller="registerRequest">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    @*<table>
+                        <tr>
+                            <td>
+                                <h2>Регистрация физических лиц граждан РК</h2>
+                            </td>
+                            <td style="padding-left: 20px;"><a href="~/Account/RegisterUl">Для граждан РК ЮЛ</a></td>
+                            <td style="padding-left: 20px;"><a href="~/Account/Register2">Для иностранных граждан ФЛ</a></td>
+                            <td style="padding-left: 20px;"><a href="~/Account/Register2Ul">Для иностранных граждан ЮЛ</a></td>
+                        </tr>
+                    </table>*@
+                    @*<p>
+                        Заполните форму для регистрации в системе.
+                    </p>*@
+                    <div class="row" data-ng-controller="registerRequest">
+                        <form name="registerForm">
+                            <div class="wrapper animated fadeInRight">
+                                <input type="hidden" ng-model="user.personType" ng-init="user.personType=0; user.userType='fl'; user.hasIin=true;"/>
+                                <div class="pw-form-row-min row">
+                                    <div class="col-lg-4"></div>
+                                    <div class="col-lg-3">
+                                        <input type="radio" id="rbFl" name="userType" value="fl" ng-model="user.userType">
+                                        <label for="rbFl">&nbsp;Физическое лицо</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="radio" id="rbUl" name="userType" value="ul" ng-model="user.userType">
+                                        <label for="rbUl">&nbsp;Юридическое лицо</label>
+                                    </div>
+                                </div>
+
+                                <div ng-if="user.userType == 'ul'">
+                                    <div class="pw-form-row-min row">
+                                        <label class="col-lg-4 control-label form-label">БИН:</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" maxlength="12" ui-select-selected id="Bin" name="Bin" class="form-control required" ng-model="user.Bin" pw-max-length="100" only-digits>
+                                        </div>
+                                    </div>
+                                    <div class="pw-form-row-min row">
+                                        <label class="col-lg-4 control-label form-label">Наименование*:</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" ui-select-selected required id="CompanyName" name="CompanyName" class="form-control required" ng-model="user.Name" pw-max-length="100">
+                                        </div>
+                                    </div>
+                                    <div class="pw-form-row-min row">
+                                        <hr style="margin-top: 0px; margin-bottom: 0px;"/>
+                                        <label class="col-lg-6 control-label form-label" style="margin-top: 5px;">Контактное лицо</label>
+                                    </div>   
+                                </div>
+
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Есть ИИН</label>
+                                    <div class="col-lg-6">
+                                        <input type="checkbox" ng-model="user.hasIin">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row" ng-if="user.hasIin">
+                                    <label class="col-lg-4 control-label form-label">ИИН*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" maxlength="12" ui-select-selected required id="Iin" name="Iin" class="form-control required" ng-model="user.Iin" pw-max-length="100" only-digits>
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row" ng-if="!user.hasIin">
+                                    <label class="col-lg-4 control-label form-label">Гражданство*:</label>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <ui-select ng-model="user.CountryId" ui-select-selected required theme="bootstrap">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Пароль*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="password" ui-select-selected required id="Password" name="Password" class="form-control required" ng-model="user.password" pw-max-length="100">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Подтвердите пароль*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="password" ui-select-selected required id="ConfirmPassword" name="ConfirmPassword" class="form-control required" ng-model="user.confirmPassword" pw-max-length="100">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Фамилия*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" ui-select-selected required id="LastName" name="LastName" class="form-control required" ng-model="user.LastName" pw-max-length="100">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Имя*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" ui-select-selected required id="FirstName" name="FirstName" class="form-control required" ng-model="user.FirstName" pw-max-length="100">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Отчество:</label>
+                                    <div class="col-lg-6">
+                                        <input type="text" ui-select-selected id="MiddleName" name="MiddleName" class="form-control required" ng-model="user.MiddleName" pw-max-length="100">
+                                    </div>
+                                </div>
+                                <div class="pw-form-row-min row">
+                                    <label class="col-lg-4 control-label form-label">Email*:</label>
+                                    <div class="col-lg-6">
+                                        <input type="email" class="form-control required email" placeholder="email@mail.kz" ui-select-selected required ng-model="user.Email" pw-max-length="50">
+                                    </div>
+                                </div>
+
+
+                                <div class="pw-form-row row">                           
+                                    <div class="col-lg-10 form-label">
+                                        <button class="btn btn-success" type="button" ng-click="postRequest()" check-validate>Зарегистрироваться</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="middle-box text-center" style="padding-top: 20px">
+    <a ui-sref="forgot_password" href="/Account/ForgotPassword"><small>Забыли пароль?</small></a>
+    <p class="text-muted text-center">
+        <small>У вас есть аккаунт?</small>
+    </p>
+    <a class="btn btn-sm btn-white btn-block" href="/Account/Login">Войдите в систему</a>
+    <p class="m-t text-center">
+    <p class="m-t"> <small>&copy; 2017 | Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники.<br>Все права защищены.</small> </p>
+    </p>
+</div>
+@section Styles {
+    @Styles.Render("~/Content/plugins/iCheck/iCheckStyles")
+}
+@section Scripts {
+    @Scripts.Render("~/plugins/iCheck")
+}

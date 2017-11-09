@@ -1,0 +1,176 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@{ var stylenone = "display: none";}
+@{ var defaultTempl = "display: none";}
+@{ var addTempl = "display: none";}
+@if (Model.TypeId > 1)
+{
+    stylenone = "";
+}
+@if (!Model.ExpDrugDosages.Any(e => e.RegisterId > 0))
+{
+    defaultTempl = "";
+}
+else
+{
+    addTempl = "";
+}
+<div class="panel panel-default" id="changeReestrDiv" style="@stylenone">
+    <div class="panel-heading">
+        Данные с гос. реестра
+    </div>
+    <div class="panel-body">
+
+        @foreach (var dosage in Model.ExpDrugDosages.Where(e => e.RegisterId > 0))
+        {
+            <input type="hidden" class="change-reg-number" dosageId="@dosage.Id" regId="@dosage.RegisterId" regnumber ="@dosage.ReestrNumber">
+            @Html.Partial("~/Views/DrugDeclaration/TempReestView.cshtml", dosage)
+        }
+        <div id="inputReestrDiv" style="@defaultTempl">
+            @Html.Partial("~/Views/DrugDeclaration/TempReestView.cshtml", new EXP_DrugDosage())
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addReestrDrug" style="@addTempl">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+            </button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".remove-reestr-drug").on("click",
+         function () {
+             var dosageId = $(this).attr("dosageId");
+             var success3 = function () {
+               
+                 window.Showbusy(event);
+                 $.ajax({
+                     url: "/DrugDeclaration/RemoveDrugReestr?modelId=" + $("#modelId").val() + "&dosageId=" + dosageId,
+                     success: function (result) {
+                         var modelId1 = $("#modelId").val();
+                         var url = '@Url.Action("Edit", "DrugDeclaration")?id=' + modelId1;
+                         window.location.href = url;
+                     }
+                 });
+                 return;
+
+             }
+             var cancel3 = function () {
+             };
+             showConfirmation("Подтверждение", "При удалении удалиться дозировку. Вы уверены что хотите удалить? ", success3, cancel3);
+         });
+
+        var pageSize = 20;
+        $("#addReestrDrug").on("click",
+            function () {
+                $("#inputReestrDiv").show();
+                $(this).hide();
+            });
+        $("#TypeId").change(function () {
+            var typeId = parseInt($(this).val(), 10) || 0;
+            if (typeId > 1) {
+                $("#addReestrDrug").show();
+                $("#changeReestrDiv").show();
+            } else {
+                $("#changeReestrDiv").hide();
+            }
+        });
+        $('.reestr-number-control').select2(
+     {
+         placeholder: 'Введите часть слова',
+         minimumInputLength: 3,
+         allowClear: true,
+         ajax: {
+             quietMillis: 150,
+             url: '@Url.Action("SelectReestr")',
+             dataType: 'jsonp',
+             data: function (term, page) {
+                 return {
+                     pageSize: pageSize,
+                     pageNum: page,
+                     searchTerm: term
+                 };
+             },
+             results: function (data, page) {
+                 var more = (page * pageSize) < data.Total;
+                 return { results: data.Results, more: more };
+             }
+         }
+     }).on("change",
+         function (e) {
+             debugger;
+             var dosageId = $(this).attr("dosageId");
+             var val = e.val;
+             var textVal = $(this).select2('data').text;
+             var type = $("#TypeId").val();
+             if (val == null || val.length === 0) {
+                 $("#NumberNd_" + dosageId).val("");
+                 $("#ReestrRegDate_" + dosageId).val("");
+                 $("#ReestrExpirationDate_" + dosageId).val("");
+                 return;
+             }
+             $.ajax({
+                 type: "POST",
+                 url: '@Url.Action("GetReestrNames")',
+                 data: { 'id': val, 'type': type },
+                 dataType: 'json',
+                 cache: false,
+                 success: function (data) {
+                     if (data.isSuccess) {
+                         var message =
+                             "<p>№ регистрационного удостоверения:" + textVal + "</p>" +
+                             "<p>Дата регистрации:" +
+                             data.reg_date +
+                             "</p>" +
+                             "<p>№ НД (Нормативная документация):" +
+                             data.nd_number +
+                             "</p>" +
+                             "<p>Срок действия:" +
+                             data.expiration_date +
+                             "</p>" +
+                             "Вы уверены, что хотите загрузить данные с государтственного реестра? ВНИМАНИЕ это действие перезапишет ваши данные в заявлении!";
+                         $("#NumberNd_" + dosageId).val(data.nd_number);
+                         $("#ReestrRegDate_" + dosageId).val(data.reg_date);
+                         $("#ReestrExpirationDate_" + dosageId).val(data.expiration_date);
+                         if (data.isShowChange) {
+                             $("#changeTypeDiv").show();
+                         } else {
+                             $("#changeTypeDiv").hide();
+                         }
+
+                         var success2 = function () {
+                             window.Showbusy(event);
+                             $.ajax({
+                                 url: "/DrugDeclaration/SetDrugReestr?modelId=" + $("#modelId").val() + "&dosageId=" + dosageId + "&reestrId=" + val,
+                                 success: function (result) {
+                                     var modelId1 = $("#modelId").val();
+                                     var url = '@Url.Action("Edit", "DrugDeclaration")?id=' + modelId1;
+                                     window.location.href = url;
+//                                     $("#drugDeclarationDiv").html(result);
+                                 }
+                             });
+                             return;
+
+                         }
+                         var cancel2 = function () {
+                         };
+                         showConfirmation("Подтверждение", message, success2, cancel2);
+
+                     } else {
+                         $("#NumberNd_" + dosageId).val("");
+                         $("#ReestrRegDate_" + dosageId).val("");
+                         $("#ReestrExpirationDate_" + dosageId).val("");
+                     }
+                 },
+                 error: function () {
+                     alert("Connection Failed. Please Try Again");
+                 }
+             });
+
+         });
+        $('.change-reg-number').each(function (index, value) {
+            $("#RegisterId_" + $(this).attr('dosageId')).select2("data", { id: $(this).attr('regId'), text: $(this).attr('regnumber') });
+        });
+    });
+</script>

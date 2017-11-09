@@ -1,0 +1,96 @@
+﻿@using PW.Ncels.Database.Helpers
+@model PW.Ncels.Database.Models.Common.FileGroup
+
+@{
+    var andGroup = Model;
+    var downloadActionGrp = "/Upload/FileDownload?";
+    var removeActionGrp = "/Upload/FileDelete?";
+    var path = (Guid)ViewBag.Path;
+    var currentEmployeeGuid = UserHelper.GetCurrentEmployee().Id;
+}
+<script>
+    function onBeforeAndUploaded(e) {
+        e.data = { comment: $("#newAndComment").val() };
+    }
+</script>
+<div class="panel">
+    <div class="panel-heading">
+        <strong>Номер АНД 0000</strong>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-hover tbl_rdHist">
+            <thead>
+                <tr>
+                    <th>
+                        Источник
+                    </th>
+                    <th>
+                        Этап
+                    </th>
+                    <th>Дата</th>
+                    <th>Версия</th>
+                    <th>Файл</th>
+                    <th>Комментарий</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (andGroup != null)
+                {
+                    var origins = andGroup.FileGroupItems.OrderByDescending(x => x.Version).ToList();
+                    var origin = origins.FirstOrDefault();
+                    var uploadExists = andGroup.FileGroupItems.Any(x => x.OwnerId == currentEmployeeGuid);
+                    foreach (var gr in andGroup.FileGroupItems.OrderBy(x=>x.Version))
+                    {
+                        var currentDownloadAction = downloadActionGrp + gr.AttachId;
+                        <tr>
+                            <td>@gr.OwnerName</td>
+                            <td>@gr.Stage</td>
+                            <td>@gr.CreateDate</td>
+                            <td>@gr.Version</td>
+                            <td>@gr.AttachName</td>
+                            <td class="comment">@gr.Comment</td>
+                            <td>
+                                <a href="@currentDownloadAction" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a>
+                                @if (gr.OwnerId == currentEmployeeGuid)
+                                {
+                                    var currentRemoveAction = removeActionGrp + gr.AttachId;
+                                    <a href="#" data-link="@currentRemoveAction" data-activetab="andTab" onclick="TryRemoveHistoryFile(this);" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></a>
+                                }
+                            </td>
+                        </tr>
+                        //string id = null, string path = null, string name = null, string fileId = null
+                    }
+                    <tr>
+                        <td colspan="7">
+                            @if (!uploadExists)
+                            {
+                                
+                                @(Html.Kendo().Upload().Name("attachAnd").Multiple(false).HtmlAttributes(new { accept = "application/pdf,application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, image/jpeg", data_activetab = "andTab" })
+                                    .Events(ev => ev.Success("SuccessAndUploaded")
+                                    .Upload("onBeforeAndUploaded"))
+                                    .Messages(m => m.Select("Выбрать АНД для загрузки..."))
+                                    .Async(ac => ac.AutoUpload(false)
+                                          .Save("FilePostv2", "Upload", new
+                                          {
+                                              code = andGroup.Id,
+                                              path = path,
+                                              saveMetadata = true,
+                                              originFileId = origin == null ? null : origin.MetadataId
+                                          })))
+
+                                <div class="form-group">
+                                    <label for="newAndComment" class="control-label col-md-4">Комментарий</label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="newAndComment" class="form-control" />
+                                    </div>
+                                </div>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

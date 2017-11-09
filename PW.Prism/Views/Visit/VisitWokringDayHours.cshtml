@@ -1,0 +1,169 @@
+﻿@using PW.Prism.ViewModels.Visits
+@model VisitWokringDayHoursModel
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+@if(Model == null || Model.Intervals == null)
+{
+    return;
+}
+ @{
+ }
+<h3>Время приёма на @Model.Date.ToShortDateString()</h3>
+<div id="times">
+    @foreach (var interval in Model.Intervals)
+    {
+        @Html.Partial("VisitWokringDayHoursRow", interval)
+    }
+</div>
+    <div id="newTime" data-time-id="" data-date="@Model.Date.ToShortDateString()" class="time-row hidden" style="display: flex;">
+        <div class="input-group">
+            <span class="input-group-addon">с</span>
+            <input class="form-control time-from" value="09:00" />
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon">по</span>
+            <input class="form-control time-to" value="13:00" />
+        </div>
+        <button class="btn btn-info edit-btn" onclick="confirmCreateTime(this)">
+            <i class="glyphicon glyphicon-ok"></i>
+        </button>
+        <button class="btn btn-danger delete-btn" onclick="cancelCreateTime(this)">
+            <i class="glyphicon glyphicon-trash"></i>
+        </button>
+    </div> @*быстрое дублирование, похорошему можно убрать :(*@
+    <div id="newTime2" data-time-id="" data-date="@Model.Date.ToShortDateString()" class="time-row hidden" style="display: flex;">
+        <div class="input-group">
+            <span class="input-group-addon">с</span>
+            <input class="form-control time-from" value="14:00" />
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon">по</span>
+            <input class="form-control time-to" value="18:00" />
+        </div>
+        <button class="btn btn-info edit-btn" onclick="confirmCreateTime(this)">
+            <i class="glyphicon glyphicon-ok"></i>
+        </button>
+        <button class="btn btn-danger delete-btn" onclick="cancelCreateTime(this)">
+            <i class="glyphicon glyphicon-trash"></i>
+        </button>
+    </div>
+<button class="btn btn-info" onclick="startCreateTime()" >Добавить</button>
+<script>
+    function startEditTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        $('#' + rowId + " .edit-btn").addClass('hidden');
+        $('#' + rowId + " .edit-btn-confirm").removeClass('hidden');
+    }
+
+    function cancelEditTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        $('#' + rowId + " .edit-btn").removeClass('hidden');
+        $('#' + rowId + " .edit-btn-confirm").addClass('hidden');
+    }
+
+    function confirmEditTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        var id = $('#' + rowId).data('time-id');
+        var from = $('#' + rowId + ' .time-from').val();
+        var to = $('#' + rowId + ' .time-to').val();
+        $.ajax({
+            type: 'POST',
+            url: "/Visit/UpdateWorkingDayHours",
+            data: { id: id, from: from, to: to },
+            success: function (result) {
+                if (result.success == false) {
+                    ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                }
+                else {
+                    var rowId = $(elem).closest('.time-row').attr('id');
+                    $('#' + rowId + " .edit-btn").removeClass('hidden');
+                    $('#' + rowId + " .edit-btn-confirm").addClass('hidden');
+                }
+            },
+            error: function () {
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function startDeleteTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        $('#' + rowId + " .delete-btn").addClass('hidden');
+        $('#' + rowId + " .delete-btn-confirm").removeClass('hidden');
+    }
+
+    function cancelDeleteTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        $('#' + rowId + " .delete-btn").removeClass('hidden');
+        $('#' + rowId + " .delete-btn-confirm").addClass('hidden');
+    }
+
+    function confirmDeleteTime(elem) {
+        var rowId = $(elem).closest('.time-row').attr('id');
+        var id = $('#' + rowId).data('time-id');
+        $.ajax({
+            type: 'POST',
+            url: "/Visit/DeleteWorkingDayHours",
+            data: { id: id},
+            success: function (result) {
+                if (result.success == false) {
+                    ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                }
+                else {
+                    $('#' + rowId).remove();
+                    getWorkingTime();
+                }
+            },
+            error: function () {
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
+    function startCreateTime() {
+        $("#newTime").clone().appendTo("#times").removeClass('hidden');
+        $("#newTime2").clone().appendTo("#times").removeClass('hidden');
+    }
+
+    function cancelCreateTime(elem) {
+        $(elem).closest('.time-row').remove();
+    }
+
+    function confirmCreateTime(elem) {
+        var row = $(elem).closest('.time-row');
+        var date = $(row).data('date');
+        var from = $(row).find('.time-from').val();
+        var to = $(row).find('.time-to').val();
+        $.ajax({
+            type: 'POST',
+            url: "/Visit/CreateWorkingDayHours",
+            data: { date: date, from: from, to: to },
+            success: function (result) {
+                if (result.success == false) {
+                    ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                }
+                else {
+                    $(row).replaceWith(result);
+                    getWorkingTime();
+                }
+            },
+            error: function () {
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+</script>
+<style>
+    .edit-btn,
+    .edit-btn-confirm,
+    .delete-btn,
+    .delete-btn-confirm {
+        margin-left: 5px;
+        height: 20px;
+    }
+    .time-row .input-group {
+        width:120px;
+        margin-bottom:10px;
+    }
+</style>

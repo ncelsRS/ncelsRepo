@@ -1,0 +1,262 @@
+﻿@using PW.Ncels.Database.Enums
+@{
+    var pType = (PriceProjectType)ViewBag.PriceProjectType;
+    var form = "";
+
+    switch (pType) {
+        case PriceProjectType.PriceLs:
+            form = "priceLsForm";
+            break;
+        case PriceProjectType.RePriceLs:
+            form = "rePriceLsForm";
+            break;
+        case PriceProjectType.PriceImn:
+            form = "priceImnForm";
+            break;
+        case PriceProjectType.RePriceImn:
+            form = "rePriceImnForm";
+            break;
+    }
+
+}
+
+<div class="panel-body">
+    @if (ViewBag.AllowReason && (pType == PriceProjectType.RePriceLs || pType == PriceProjectType.RePriceImn)){
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label>Причина изменения цены</label>
+                    <div class="input-group">
+                        <select name="prRePriceDicId" id="prRePriceDicId" ng-model="object.Project.RePriceDicId" class="form-control edit-control main-control" required>
+                            <option ng-repeat="item in RePrice | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                        </select>
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hr-line-dashed"></div>
+    }
+    <h3 class="m-t-none m-b">1. Заявитель</h3>
+    <div class="row">
+        <div class="col-lg-6 b-r">
+            <p class="text-bold">1.1. Производитель лекарственного средства</p>
+            <div ng-if="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Наименование на государственном языке</label>
+                <input ng-model="object.ManufacturerOrganization.NameKz" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div ng-if="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Наименование на русском языке</label>
+                <input ng-model="object.ManufacturerOrganization.NameRu" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Наименование на государственном языке</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.NameKz" placeholder="Введите значение" class="form-control edit-control main-control"
+                           id="moNameKz" name="moNameKz" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Наименование на русском языке</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.NameRu" placeholder="Введите значение" class="form-control edit-control main-control"
+                           id="moNameRu" name="moNameRu" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group" ng-if="!object.Project.IsOrfan && object.ManufacturerOrganization.NameEn=='-'">
+                <label>Наименование на английском языке</label>
+                <input ng-model="object.ManufacturerOrganization.NameEn" placeholder="Введите значение" class="form-control" type="text" ui-select-selected>
+            </div>
+            <div class="form-group has-warning" ng-if="!object.Project.IsOrfan && object.ManufacturerOrganization.NameEn != '-'">
+                <label class="control-label">Наименование на английском языке</label>
+                <input ng-model="object.ManufacturerOrganization.NameEn" placeholder="Заполняется автоматически" class="form-control" type="text" ui-select-selected readonly="readonly">
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Наименование на английском языке</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.NameEn" placeholder="Введите значение" class="form-control edit-control main-control" 
+                           id="moNameEn" name="moNameEn" type="text" ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group" ng-show="!object.Project.IsOrfan">
+                <label>Страна</label>
+                <ui-select ng-model="object.ManufacturerOrganization.CountryDicId" ui-select-selected @*required*@ ng-disabled="true" theme="bootstrap">
+                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                    <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+            <div class="form-group" ng-show="object.Project.IsOrfan">
+                <label>Страна</label>
+                <div class="input-group">
+                    <select name="moCountryDicId" id="moCountryDicId"
+                            ng-model="object.ManufacturerOrganization.CountryDicId" class="form-control edit-control main-control" ng-required="object.Project.IsOrfan">
+                        <option ng-repeat="item in Country | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                    </select>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Юридический адрес</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.AddressLegal" placeholder="Введите значение"
+                           class="form-control edit-control main-control" id="moAddressLegal" name="moAddressLegal" type="text" ui-select-selected required>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Фактический адрес</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.AddressFact" placeholder="Введите значение"
+                           id="moAddressFact" name="moAddressFact" class="form-control edit-control main-control" type="text" ui-select-selected required>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Телефон</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.Phone" placeholder="+7(000)-000-00-00" 
+                           id="moPhone" name="moPhone" class="form-control edit-control main-control phone" type="text" ui-select-selected required>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Факс</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.Fax" placeholder="Введите значение" class="form-control edit-control main-control"
+                           id="moFax" name="moFax" type="text" ui-select-selected required>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>e-mail</label>
+                <div class="input-group">
+                    <input ng-model="object.ManufacturerOrganization.Email" name="moEmail" id="moEmail" ng-pattern="emailFormat" placeholder="example@mail.ru"
+                           class="form-control edit-control main-control" type="email" ui-select-selected required ng-class="{'valid-error': @(form).moEmail.$error.pattern}">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    <div class="col-lg-6 b-l">
+        <p class="text-bold">Контактное лицо</p>
+        <div class="form-group">
+            <label>Фамилия, имя, отчество (при его наличии)</label>
+            <div class="input-group">
+                <input ng-model="object.ManufacturerOrganization.ContactFio" placeholder="Введите значение" class="form-control edit-control main-control"
+                       name="moContactFio" id="moContactFio" type="text" ui-select-selected required>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Должность</label>
+            <div class="input-group">
+                <input ng-model="object.ManufacturerOrganization.ContactPosition" placeholder="Введите значение" class="form-control edit-control main-control"
+                       name="moContactPosition" id="moContactPosition" type="text" ui-select-selected required>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Телефон</label>
+            <div class="input-group">
+                <input ng-model="object.ManufacturerOrganization.ContactPhone" placeholder="+7(000)-000-00-00"
+                       name="moContactPhone" id="moContactPhone" class="form-control edit-control main-control phone" type="text" ui-select-selected required>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Факс</label>
+            <div class="input-group">
+                <input ng-model="object.ManufacturerOrganization.ContactFax" placeholder="Введите значение" class="form-control edit-control main-control"
+                       name="moContactFax" id="moContactFax" type="text" ui-select-selected required>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>e-mail</label>
+            <div class="input-group">
+                <input ng-model="object.ManufacturerOrganization.ContactEmail" name="mocEmail" id="mocEmail" ng-pattern="emailFormat" placeholder="example@mail.ru" class="form-control edit-control main-control"
+                       type="email" ui-select-selected required ng-class="{'valid-error': @(form).mocEmail.$error.pattern}">
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Наличие в РК структурного подразделения (ТОО, филиал и прочие) наделенного функцией реализации для оптовых дистрибьюторов</label>
+            <input id="cbFilial" type="checkbox" ng-model="ndFilialModel" ng-change="object.Project.Filial = cbNoDataChange(ndFilialModel)"/>
+            <label for="cbFilial">нет данных</label>
+            <div class="input-group">
+                <input ng-model="object.Project.Filial" placeholder="Введите значение" ng-disabled="ndFilialModel" class="form-control edit-control main-control"
+                       name="filial" id="filial" type="text" ng-required="!ndFilialModel" ui-select-selected>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>

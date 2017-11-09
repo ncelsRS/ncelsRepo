@@ -1,0 +1,243 @@
+﻿@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStageDosage
+@{
+    var exampleModal = Model.Id + "exampleModal";
+    var tableName = Model.Id + "tableName";
+    var tbodyName = Model.Id + "tbodyName";
+    var analyseIndicator = "AnalyseIndicatorList" + Model.Id;
+    var isMatches = "Booleans" + Model.Id;
+    var temperatureTemp = Model.Id + "_Temperature";
+    var humidityTemp = Model.Id + "_Humidity";
+    var designationTemp = Model.Id + "_Designation";
+    var demandTemp = Model.Id + "_Demand";
+    var actualResultTemp = Model.Id + "_ActualResult";
+    var inProtocolTemp = Model.Id + "_InProtocol";
+    var submit = Model.Id + "_submit";
+}
+
+
+<style type="text/css">
+    
+    .growed {
+        height: 33px;
+    }
+    </style>
+<link href="~/Content/css/plugins/dataTables/demo_table.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/js/plugins/dataTables/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/js/plugins/dataTables/jquery.dataTables.rowReordering.js"></script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Показатели
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <form>
+            <table id="@tableName" class="display">
+                <thead>
+                <tr>
+                    <th>
+                       №
+                    </th>
+                    <th>Наименование показателей</th>
+                    <th style="width: 100px">Температура С</th>
+                    <th style="width: 100px">Влажность %</th>
+                    <th>Обозначение АНД</th>
+                    <th>Требование НД</th>
+                    <th>Фактически полученные результаты</th>
+                    <th>Соответствует</th>
+                    <th>В протокол</th>
+                    <th style="width: 100px"></th>
+                </tr>
+
+                </thead>
+                <tbody id="@tbodyName">
+                @for (var i = 0; i < Model.ExpDrugAnaliseIndicators.Count; i++)
+                {
+                    var nameRu = Model.ExpDrugAnaliseIndicators[i].Id + "_NameRu";
+                    var temperature = Model.ExpDrugAnaliseIndicators[i].Id + "_Temperature";
+                    var humidity = Model.ExpDrugAnaliseIndicators[i].Id + "_Humidity";
+                    var designation = Model.ExpDrugAnaliseIndicators[i].Id + "_Designation";
+                    var demand = Model.ExpDrugAnaliseIndicators[i].Id + "_Demand";
+                    var actualResult = Model.ExpDrugAnaliseIndicators[i].Id + "_ActualResult";
+                    var inProtocol = Model.ExpDrugAnaliseIndicators[i].Id + "_InProtocol";
+                    var isMatchesStr = Model.ExpDrugAnaliseIndicators[i].Id + "_IsMatchesStr";
+
+                    <tr id="@Model.ExpDrugAnaliseIndicators[i].Id">
+                        <td>
+                            @Model.ExpDrugAnaliseIndicators[i].PositionNumber
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].EXP_DIC_AnalyseIndicator.NameRu, new {@class = "form-control", @readonly = "readonly", id = nameRu})
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].Temperature, new {@class = "form-control", @readonly = "readonly", id = temperature})
+
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].Humidity, new {@class = "form-control", @readonly = "readonly", id = humidity})
+
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].Designation, new {@class = "form-control", @readonly = "readonly", id = designation})
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].Demand, new {@class = "form-control growed", @readonly = "readonly", id = demand})
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].ActualResult, new {@class = "form-control growed", @readonly = "readonly", id = actualResult})
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(e => Model.ExpDrugAnaliseIndicators[i].IsMatchesStr, new {@class = "form-control", @readonly = "readonly", id = isMatchesStr})
+                        </td>
+                        <td>
+                            @Html.CheckBoxFor(model => model.ExpDrugAnaliseIndicators[i].InProtocol, new {@class = "form-control is-protocol", id = inProtocol})
+                        </td>
+                        <td>
+                            <div class="btn-group" style="float: right; margin-right: 10px; color: white; text-align: left">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Операции <span class="caret"></span></button>
+                                <ul class="dropdown-menu btnmenu">
+
+                                    <li class="btn-info">
+                                        <a href="#" class="link-object" onclick="showAnalyseDialog('@Model.ExpDrugAnaliseIndicators[i].Id', '@Model.Id', true)" style="color: white; padding: 5px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Просмотр</a>
+                                    </li>
+                                    <li class="btn-warning edit-li">
+                                        <a href="#" class="editExpRow" onclick="showAnalyseDialog('@Model.ExpDrugAnaliseIndicators[i].Id', '@Model.Id', false)" style="color: white; padding: 5px"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Редактировать</a>
+                                    </li>
+                                    <li class="btn-danger edit-li">
+                                        <a href="#" class="deleteExpRow" style="color: white; padding: 5px"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Удалить</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+
+                    </tr>
+                }
+          
+            </table>
+        </form>
+    </div>
+   
+            <div colspan="9" style="text-align: left;">
+                <button type="button" class="btn btn-success btn-sm" style="margin-top: 10px" onclick="showAnalyseDialog('@Guid.Empty','@Model.Id',false)">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                </button>
+            </div>
+       
+</div>
+
+
+<div class="modal fade" id="@exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" currentId="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Показатели</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="@analyseIndicator" class="control-label">Наименование показателей:</label>
+                        @Html.DropDownList("AnalyseIndicator", (IEnumerable<SelectListItem>)(ViewData[analyseIndicator]), String.Empty, new { @class = "form-control", id = analyseIndicator })
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@temperatureTemp" class="control-label">Температура, С:</label>
+                                <input type="number" class="form-control" id="@temperatureTemp" value="">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@humidityTemp" class="control-label">Влажность, %:</label>
+                                <input type="number" class="form-control" id="@humidityTemp" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@designationTemp" class="control-label">Обозначение АНД:</label>
+                                <input type="text" class="form-control" id="@designationTemp" value="">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@isMatches" class="control-label">Соответствует:</label>
+                                @Html.DropDownList("IsMatches", (IEnumerable<SelectListItem>)(ViewData[isMatches]), String.Empty, new { @class = "form-control", id = isMatches })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@demandTemp" class="control-label">Требование НД:</label>
+                                <textarea class="form-control" id="@demandTemp" rows="8"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="@actualResultTemp" class="control-label">Фактически полученные результаты:</label>
+                                <textarea class="form-control" id="@actualResultTemp" rows="8"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-success" onclick="submitAnalyseIndicator('@Model.Id','@tbodyName')" id="@submit">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        chekcInProtocol(".is-protocol");
+        growthControl(".growed");
+        $('#' + '@tableName').dataTable().rowReordering({ sURL: "/DrugAnalitic/UpdateOrder" });
+        $("#" + '@tableName').on("click", ".deleteExpRow", function () {
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                removeAnalyseInidcator(entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+
+        $("#" + '@tableName').on("click", ".sendExpRow", function () {
+            var row = $(this).closest('tr');
+            var ul = $(this).closest('ul');
+            var modelId = row.attr('rowid');
+            var objectId = "#" + $(this).attr('object-id');
+            var success = function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/DrugPrimary/SendMailRemark",
+                    data: { 'id': modelId },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        $(ul).find(".edit-li").each(function () {
+                            $(this).hide();
+                        });
+                        var status = objectId + "_Status";
+                        var datesend = objectId + "_DateSend";
+                        $(status).val(data.statusName);
+                        $(datesend).val(data.sendDate);
+                    },
+                    error: function (data) {
+                        alert("1Error" + data);
+                    }
+                });
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Подтверждение", "Вы уверены что хотите отправить письмо?", success, cancel);
+        });
+    });
+</script>

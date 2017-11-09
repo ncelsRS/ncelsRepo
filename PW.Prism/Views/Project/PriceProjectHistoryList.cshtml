@@ -1,0 +1,90 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+
+@* Исторические/Архивные записи PriceProjects *@
+
+<script>
+    function DicParams() {
+        return {
+            type: @ViewBag.Type,
+            year: @ViewBag.Year
+        };
+    }
+
+    //InitFilterDictionaryGrid('@Model.ToString()');
+</script>
+
+
+<div class="pwPanelBar">
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new {@class = "pwWidth100 pwButtonReload"})
+              .Content("")
+              .ImageUrl("/Content/images/reload.png"))
+        &nbsp;
+    </div>
+    @*<div id="pwSix1">
+        @(Html.Kendo().Button().Name("export1" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload", type="button" })
+              .Content("")
+              .ImageUrl("/Content/images/export.png"))
+    </div>*@
+    @(Html.Kendo().Grid<PriceProjectArchiveView>()
+          .Name("gridListDic" + Model)
+          .Columns(columns => {
+              columns.Bound(p => p.MnnCode)
+                .ClientTemplate(
+                            "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button type='button' style='width:100px;' class='btn btn-default btn-xs' onclick=\"openPpHistoryDetails('#=Id#', '#=MnnCode#', '" + Model + "')\"><span style=\"color:rgb(66,139,202);\">#=MnnCode#</span></button>" +
+                             "</div>"
+                            )
+                .Title("МНН").Width(140).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=Id.count#");
+              columns.Bound(p => p.MnnRu).Title("Наименование лекарственного средства МНН").Width(150);
+              columns.Bound(p => p.DrugDescription).Title("Характеристика препарата").Width(150);
+              columns.Bound(p => p.DrugName).Title("Наименование ЛС").Width(150);
+
+
+              columns.Bound(p => p.CountPackage).Title("Фасовка").Width(150);
+              columns.Bound(p => p.ProducerName).Title("Производитель ЛС").Width(150);
+              columns.Bound(p => p.ProducerCountry).Title("Страна производителя").Width(150);
+              columns.Bound(p => p.RegNumber).Title("Номер рег. удост.").Width(150);
+              columns.Bound(p => p.RegDate).Format("{0:dd.MM.yyyy}").Title("Дата регистрации").Width(150);
+              columns.Bound(p => p.RegEndDate).Format("{0:dd.MM.yyyy}").Title("Дата истечения регистрации").Width(150);
+              columns.Bound(p => p.ProxyName).Title("Доверенное лицо/компания").Width(150);
+              columns.Bound(p => p.RequesterContacts).Title("Контакты").Width(150);
+              columns.Bound(p => p.LsTypeName).Title("Информация о лекарственном средстве").Width(150);
+              columns.Bound(p => p.MarginalPriceTn622).Title("Предельная цена ТН по 622 приказу").Width(150);
+              columns.Bound(p => p.BasePrice).Title("Первоначальная цена заявителя").Width(150);
+              columns.Bound(p => p.BasePriceDate).Format("{0:dd.MM.yyyy}").Title("Дата заявления").Width(150);
+              columns.Bound(p => p.TalkPrice).Title("Цена зарегистрированная после переговоров").Width(150);
+              columns.Bound(p => p.TalkPriceDate).Format("{0:dd.MM.yyyy}").Title("Дата заявления после переговоров").Width(150);
+              columns.Bound(p => p.LimitCost).Title("Предельная цена МНН").Width(150);
+              columns.Bound(p => p.MinRefPrice2016).Title("Минимальная референтная цена").Width(150);
+              columns.Bound(p => p.FinalPrice).Title("Финальная цена").Width(150);
+              columns.Bound(p => p.FinalFixPrice).Title("Зафиксированная цена после РФК").Width(150);
+              columns.Bound(p => p.FinalMarginalPriceTn).Title("Предельная цена по ТН").Width(150);
+              //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+
+          })
+          //.ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+          .Editable(editable => editable.Mode(GridEditMode.InLine))
+          .Reorderable(reorderable => reorderable.Columns(true))
+          .Resizable(resizable => resizable.Columns(true))
+          .Scrollable(scrollable => scrollable.Virtual(true))
+          .Filterable()
+          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+          .HtmlAttributes(new {@class = "pwGridRef"})
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Model(model => model.Id(p => p.Id))
+              .Aggregates(aggregates => { aggregates.Add(p => p.Id).Count(); })
+
+              .PageSize(50)
+              .Sort(sort => sort.Add("MnnRu").Ascending())
+              .Sort(sort => sort.Add("MnnCode").Ascending())
+              .Read(read => read.Action("PriceProjectArchiveRead", "Application").Data("DicParams"))
+          ))
+</div>
+
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid3('@("#gridListDic" + Model)', 270);
+</script>

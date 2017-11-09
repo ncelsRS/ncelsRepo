@@ -1,0 +1,178 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<div style="display: none;" id="otherCountryDiv">
+    <div class="input-group">
+        @Html.DropDownList("CountryId", (IEnumerable<SelectListItem>)(ViewData["Counties"]), String.Empty, new { @class = "form-control edit-control other-country" })
+        <span class="input-group-addon">
+            <a class="commentDialog" href="#">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </a>
+        </span>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Регистрация в стране-производителе и других странах
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="tableotherCountry" class="wast-list" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Страна</td>
+                        <td>№ регистрационного удостоверения (указывается при наличии)</td>
+                        <td>Дата выдачи</td>
+                        <td>Срок действия</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="tab3">
+                    @for (var i = 0; i < Model.ExpDrugOtherCountries.Count; i++)
+                    {
+                        var index = i + 1;
+                        var code = CodeConstManager.EXP_DrugOtherCountry + "_" + Model.ExpDrugOtherCountries[i].Id + "_";
+                        var countryId = code + "CountryId";
+                        var nameKzId = code + "RegNumber";
+                        var issueDateStrId = code + "IssueDateStr";
+                        var expireDateStrId = code + "ExpireDateStr";
+
+                        <tr rowid="@Model.ExpDrugOtherCountries[i].Id" rowindex="@index" rowkind="1">
+                            <td>
+                                <div class="input-group">
+                                    @Html.DropDownList("ExpDrugOtherCountries[" + @i + "].CountryId", (IEnumerable<SelectListItem>)(ViewData["OtherCounties" + i.ToString(CultureInfo.InvariantCulture)]), String.Empty, new { @class = "form-control other-country edit-control", @id = @countryId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugOtherCountries[i].RegNumber, new { @class = "other-country form-control edit-control", @id = @nameKzId })<span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugOtherCountries[i].IssueDateStr, new { @class = "other-country edit-control  form-control  date-control", @id = issueDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugOtherCountries[i].ExpireDateStr, new { @class = "other-country edit-control  form-control  date-control", @id = expireDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="6" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addOtherCountry" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+
+        //bird
+        $(document).ready(function() {
+            changeFieldList(".other-country", '@CodeConstManager.EXP_DrugOtherCountry');
+
+            $("#addOtherCountry").on("click",
+                function() {
+                    var row = $(this).closest("tr").prev();
+                    var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+                    var nextIndex = rowindex + 1;
+                    var kindObject = "";
+                    kindObject = "ExpDrugOtherCountries";
+
+                    var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+                    var eventDiv = document.getElementById("otherCountryDiv");
+
+                    var idEvent = kindObject + '_' + nextIndex + '__CountryId';
+                    var nameEvent = kindObject + '[' + nextIndex + '].CountryId';
+                    var envetStr = replaceAll('id="CountryId"', 'id="' + idEvent + '"', eventDiv.innerHTML);
+                    envetStr = replaceAll('name="CountryId"', 'name="' + nameEvent + '"', envetStr);
+
+
+                    var idRegNumber = "otherCountry_a" + nextIndex + "_RegNumber";
+                    var idIssueDateStr = "otherCountry_a" + nextIndex + "_IssueDateStr";
+                    var idExpireDateStr = "otherCountry_a" + nextIndex + "_ExpireDateStr";
+
+                    cols += '<td>' + envetStr + '</td>';
+
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].RegNumber" id="' +
+                        idRegNumber +
+                        '" class="other-country edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].IssueDateStr" id="' +
+                        idIssueDateStr +
+                        '" class="other-country edit-control form-control  date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].ExpireDateStr" id="' +
+                        idExpireDateStr +
+                        '" class="other-country edit-control form-control  date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+                    cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                    cols += '</tr>';
+                    row.after(cols);
+                    changeFieldList("#" + idEvent, '@CodeConstManager.EXP_DrugOtherCountry');
+                    changeFieldList("#" + idRegNumber, '@CodeConstManager.EXP_DrugOtherCountry');
+                    changeFieldList("#" + idIssueDateStr, '@CodeConstManager.EXP_DrugOtherCountry');
+                    changeFieldList("#" + idExpireDateStr, '@CodeConstManager.EXP_DrugOtherCountry');
+                    setDateFormat("#" + idIssueDateStr);
+                    setDateFormat("#" + idExpireDateStr);
+                });
+
+
+            $("#tableotherCountry").on("click",
+                ".deleteRow",
+                function() {
+
+                    var row = $(this).closest('tr');
+                    var success = function() {
+                        var entityId = row.attr('rowid');
+                        DeleteRecord('@CodeConstManager.EXP_DrugOtherCountry', entityId);
+                        row.remove();
+                    }
+                    var cancel = function() {
+                    };
+                    showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+                });
+        });
+    </script>
+}

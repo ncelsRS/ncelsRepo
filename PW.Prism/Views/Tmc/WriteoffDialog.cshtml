@@ -1,0 +1,89 @@
+﻿@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.DataModel.TmcApplicationComment
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReject" + Model.Id)" name="TmcApplicationComment">
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.ApplicationId)
+    @Html.HiddenFor(m => m.CreateEmployeeId)
+    @Html.HiddenFor(m => m.Type)
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Причина</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: task.Text, events: { change: change }" class="pwTextArea pwWidth100" style="width:98%; height:100px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+
+    var name = '@Model.Id';
+
+    $("#Text" + name).kendoAutoComplete({
+        filter: "contains",
+        // dataTextField: "Name",
+        placeholder: "@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00",
+
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListAutoComplete',
+                    data: { text: "@Dictionary.DicWriteOffReasons.DicCode" }
+                }
+            }
+        }
+    });
+
+    var viewModel = kendo.observable({
+        task: {},
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var c = {
+                Id:  $("#Id").val(),
+                ApplicationId: $("#ApplicationId").val(),
+                CreateEmployeeId: $("#CreateEmployeeId").val(),
+                Comment: $("#Comment").val(),
+                Type: '@Model.Type'
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Model.Url',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ comment: c  }),
+                success: function (result) {
+                    debugger;
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formReject" + name), viewModel);
+
+</script>

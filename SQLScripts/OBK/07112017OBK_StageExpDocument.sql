@@ -1,0 +1,3 @@
+alter table OBK_StageExpDocument add AssessmentDeclarationId uniqueidentifier null
+CONSTRAINT FK_OBK_StageExpDocument_OBK_Assessment_Declaration FOREIGN KEY([AssessmentDeclarationId])
+REFERENCES OBK_AssessmentDeclaration (Id)

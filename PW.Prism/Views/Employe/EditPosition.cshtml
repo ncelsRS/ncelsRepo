@@ -1,0 +1,175 @@
+﻿@using Aspose.Words.Lists
+@using PW.Ncels.Database.Helpers
+@model Guid[]
+
+<script>
+    var nameData = '@Model[0]';
+    var parentId = '@(Model.Length==2? Model[1].ToString():string.Empty)';
+    var modelId = '@ViewData["modelId"]';
+    var modelUid = '@ViewData["ModeUid"]';
+    var viewModel = kendo.observable({
+        item: {},
+        Save: function () {
+            Save();
+        }
+
+    });
+
+    function Save() {
+        var json = JSON.stringify(viewModel.get('item'));
+
+        $.ajax({
+            type: 'POST',
+            url: '/Employe/PositionUpdate',
+            data: json,
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+
+                if (result.result == 'True') {
+                    $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).loaded(false);
+                    $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).load();
+                  //  treereload(modelId, result.ParentId);
+                    alert('@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00');
+                };
+            },
+            complete: function () {
+
+            }
+        });
+    }
+    $.ajax({
+        type: 'get',
+        url: '/Employe/OrganizationRead?Id=' + nameData+ '&ParentId=' + parentId,
+        contentType: 'application/json; charset=utf-8',
+        success: function (result) {
+            result = JSON.parse(result);
+            // alert(JSON.stringify(result));
+            viewModel.set("item", result);
+
+            //viewModel.person = JSON.stringify(result);
+            kendo.bind($("#formPosition" + nameData), viewModel);
+
+        },
+        complete: function () {
+            //  alert('Success! User Loaded!');
+        }
+    });
+
+
+
+    $("#UnitTypeDictionaryId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        autoBind: false,
+        maxSelectedItems: 1,
+        filter: "contains",
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/List',
+                    data: { text: "PositionTypeDictionary" }
+                }
+            }
+        }
+    });
+
+    var dataStateType = [
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Неактивная_250__00", value: "0" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Активная_317__00", value: "1" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Вакансия_318__00", value: "2" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Отпуск_363__00", value: "3" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Отпускучебный_182__00", value: "6" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Отпускбезсодержания", value: "7" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Командировка", value: "8" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Декрет_364__00", value: "4" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_Уволенный_296__00", value: "5" }
+
+    ];
+
+    $("#PositionState" + nameData).kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: 0,
+        dataSource: dataStateType
+    });
+
+    var dataPositionType = [
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_PositionType0", value: "0" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_PositionType1", value: "1" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_PositionType2", value: "2" },
+    ];
+
+    $("#PositionType" + nameData).kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: 0,
+        dataSource: dataPositionType
+    });
+
+    var dataPositionStaff = [
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_PositionStaff0", value: "0" },
+      { text: "@PW.Ncels.Database.Recources.Messages.Property_PositionStaff1", value: "1" },
+    ];
+
+    $("#PositionStaff" + nameData).kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: 0,
+        dataSource: dataPositionStaff
+    });
+
+    $("#rank" + nameData).kendoNumericTextBox({format: "#"});
+
+</script>
+<div class="pwUnitsPage">
+    <div class="pwUnitsHeader">@PW.Ncels.Database.Recources.Messages.Property_Должность_297__00</div>
+    <form id="@("formPosition" + Model[0])" class="pwUnitsContent">
+        <table>
+            <colgroup>
+                <col width="30%"/>
+                <col width="100%"/>
+            </colgroup>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Код_385__00</td>
+                <td><input type="text" data-bind="value: item.Code" class="k-textbox pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Наименование_201__00</td>
+                <td><input type="text" data-bind="value: item.Name" class="k-textbox pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Сокращенноенаименование_28__00</td>
+                <td><input type="text" data-bind="value: item.ShortName" class="k-textbox pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Типдолжности_183__00</td>
+                <td><input id="@("UnitTypeDictionaryId" + Model[0])" data-bind="value: item.UnitTypeDictionaryId" class="pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Статус_344__00</td>
+                <td><input id="@("PositionState" + Model[0])" data-bind="value: item.PositionState" class="pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Ранг_379__00</td>
+                <td><input id="@("rank" + Model[0])" type="number" min="0" max="9999" step="1" data-bind="value: item.Rank" class="pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Тип_398__00</td>
+                <td><input id="@("PositionType" + Model[0])" data-bind="value: item.PositionType" class="pwWidth100"/></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Штат</td>
+                <td><input id="@("PositionStaff" + Model[0])" data-bind="value: item.PositionStaff" class="pwWidth100"/></td>
+            </tr>
+        </table>
+        <div hidden="@(!EmployePermissionHelper.IsEditOs)" class="pwUnitsFooter k-block">
+            <button type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    var treeviewElement3 = $("#formPosition" + '@Model[0]');
+    treeviewElement3.height($(window).height() - 280);
+</script>

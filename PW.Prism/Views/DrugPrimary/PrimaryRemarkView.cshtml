@@ -1,0 +1,259 @@
+﻿@model PW.Ncels.Database.Models.Expertise.PrimaryEntity
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+<style type="text/css">
+    .primary-remark {
+    }
+
+    .growed {
+        height: 33px;
+    }
+</style>
+@{
+    var btnId = "addDosageMark" + Model.DrugDeclarationId;
+    var dosageTypeDiv2 = "dosageTypeDiv2" + Model.DrugDeclarationId;
+    var tableId = "dosageTable" + Model.DrugDeclarationId;
+}
+
+<div style="display: none;" id="@dosageTypeDiv2">
+    @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["RemarkTypes" + Model.DrugDeclarationId]), String.Empty, new { @class = "form-control primary-remark" })
+</div>
+<div style="margin-top: 20px; margin-bottom: 10px">
+    <button class="btn btn-warning btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="createMailRemark('@Model.DrugDeclarationId')"><i class="glyphicon glyphicon-envelope"></i> Сформировать письмо</button>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Замечания и уточнения
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="@tableId" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td style="width: 130px">Тип замечания</td>
+                        <td>Замечание</td>
+                        <td style="width: 100px">Эксперт</td>
+                        <td style="width: 100px">Дата замечания</td>
+                        <td>Ответ</td>
+                        <td style="width: 70px">Исправлено</td>
+                        <td style="width: 70px">Принята</td>
+                        <td style="width: 100px">Дата исправления</td>
+                        @*                    <td>Комментарии</td>*@
+                        <td></td>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.ExpExpertiseStageRemarks.Count; i++)
+                    {
+                        var code = CodeConstManager.EXP_DrugAppDosageRemarkCode + "_" + Model.ExpExpertiseStageRemarks[i].Id + "_";
+                        if (Model.ExpExpertiseStageRemarks[i].OtdId > 0)
+                        {
+                            code += Model.ExpExpertiseStageRemarks[i].OtdId + "_";
+                        }
+                        else
+                        {
+                            code += "0_";
+                        }
+
+                        var nameResultId = code + "NameResult";
+                        var answerRemarkId = code + "AnswerRemark";
+                        var IdIsFixed = code + "IsFixed";
+                        var IdIsAccepted = code + "IsAccepted";
+                        var idremarkTypeId = code + "RemarkTypeId";
+                        var noteId = code + "Note";
+
+                        var idRemarkDateStr = code + "RemarkDateStr";
+
+                        var idFixedDateStr = code + "FixedDateStr";
+
+                        var wrapKindcss = "form-control edit-control primary-remark";
+                        var idRecord = Model.DrugDeclarationId + "_" + Model.ExpExpertiseStageRemarks[i].Id;
+                        wrapKindcss += " chosen-wrap-kind";
+
+                        var isReadony = "";
+                        if (Model.ExpExpertiseStageRemarks[i].IsReadOnly)
+                        {
+                            isReadony = "readonly";
+                        }
+
+                        <tr rowid="@Model.ExpExpertiseStageRemarks[i].Id">
+                            @if (Model.ExpExpertiseStageRemarks[i].IsReadOnly)
+                            {
+                                <td>
+                                    @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["RemarkTypes" + idRecord]), String.Empty, new { @class = "form-control primary-remark", id = idremarkTypeId, disabled = "false" })
+                                </td>
+                                <td>
+                                    @Html.TextArea("NameRemark", Model.ExpExpertiseStageRemarks[i].NameRemark, new { @class = "primary-remark form-control growed", id = nameResultId, @readonly = "readonly" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["RemarkTypes" + idRecord]), String.Empty, new { @class = "form-control primary-remark", id = idremarkTypeId })
+                                </td>
+                                <td>
+                                    @Html.TextArea("NameRemark", Model.ExpExpertiseStageRemarks[i].NameRemark, new { @class = "primary-remark form-control growed", id = nameResultId })
+                                </td>
+                            }
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpExpertiseStageRemarks[i].Employee.DisplayName, new { @class = "primary-remark form-control", @readonly = "readonly" })
+                            </td>
+                            @if (Model.ExpExpertiseStageRemarks[i].IsReadOnly)
+                            {
+                                <td>
+                                    @Html.TextBox("RemarkDateStr", Model.ExpExpertiseStageRemarks[i].RemarkDateStr, new { @class = "primary-remark form-control remark-date", id = idRemarkDateStr, otdId = Model.ExpExpertiseStageRemarks[i].OtdId, @readonly = "readonly" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @Html.TextBox("RemarkDateStr", Model.ExpExpertiseStageRemarks[i].RemarkDateStr, new { @class = "primary-remark form-control remark-date", id = idRemarkDateStr, otdId = Model.ExpExpertiseStageRemarks[i].OtdId })
+                                </td>
+                            }
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextArea("AnswerRemark", Model.ExpExpertiseStageRemarks[i].AnswerRemark, new { @class = "primary-remark form-control growed edit-control answer-remark", id = answerRemarkId, @readonly="readonly" })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.CheckBoxFor(model => model.ExpExpertiseStageRemarks[i].IsFixed, new { @class = "form-control primary-remark", @readonly = "readonly", @style = "", id = IdIsFixed })
+                            </td>
+                            @if (Model.ExpExpertiseStageRemarks[i].IsReadOnly)
+                            {
+                                <td>
+                                    @Html.CheckBoxFor(model => model.ExpExpertiseStageRemarks[i].IsAccepted, new { @class = "form-control primary-remark", @style = "", id = IdIsAccepted, @readonly = "readonly" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @Html.CheckBoxFor(model => model.ExpExpertiseStageRemarks[i].IsAccepted, new { @class = "form-control primary-remark", @style = "", id = IdIsAccepted })
+                                </td>
+                            }
+
+
+                            <td>
+                                @Html.TextBox("FixedDateStr", Model.ExpExpertiseStageRemarks[i].FixedDateStr, new { @class = "primary-remark form-control", @readonly = "readonly", id = idFixedDateStr })
+                            </td>
+                            @*<td>
+                                    @Html.TextBox("Note", Model.ExpPrimaryRemark[i].Note, new {@class = "primary-remark form-control", id = noteId})
+                                </td>*@
+
+                        @*    @if ((i == 0 || Model.ExpExpertiseStageRemarks[i].OtdId != null) || Model.ExpExpertiseStageRemarks[i].IsReadOnly)
+                            {
+                                <td><a class="deleteExpRow"></a></td>
+                            }
+                            else
+                            {*@
+
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteExpRow" title="Удалить"></i>
+                                </td>
+@*                            }*@
+                        </tr>
+                    }
+                <tfoot>
+                <tfoot>
+                    <tr>
+                        <td colspan="9" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-primary-mark" id="@btnId" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        growthControl(".growed");
+        $(".remark-date").each(function () {
+            var otdId = parseInt($(this).attr('otdId'), 10) || 0;
+            if (otdId > 0) {
+                $(this).prop("readonly", true);
+            }
+        });
+
+        changePrimaryRemark(".primary-remark");
+        $("#" + '@btnId').on("click", function () {
+            var table = $(this).closest("table");
+            var tbody = table.find('tbody:first');
+            var lastRowIndex = tbody.children('tr').length;
+            var nextIndexValue = parseInt(lastRowIndex) + 1;
+
+            var kindObject = "ExpPrimaryRemark";
+
+            var cols = '<tr rowid="0" rowindex="' + nextIndexValue + '">';
+            var nextIndex = +nextIndexValue;
+
+            var eventDiv = document.getElementById('@dosageTypeDiv2');
+            var docagCode = "remark_a" + nextIndex + "_0_";
+            var idWrappingType = docagCode + 'RemarkTypeId';
+            var nameWrappingType = kindObject + '[' + nextIndex + '].RemarkTypeId';
+
+            var wrapTypeStr = replaceAll('id="RemarkTypeId"',
+                'id="' + idWrappingType + '"',
+                eventDiv.innerHTML);
+            wrapTypeStr = replaceAll('name="RemarkTypeId"', 'name="' + nameWrappingType + '"', wrapTypeStr);
+
+            var idNameRemark = docagCode + "NameRemark";
+            var idAnswerRemark = docagCode + "AnswerRemark";
+            var idIsMark = docagCode + "IsFixed";
+            var idIsAccepted = docagCode + "IsAccepted";
+            var idNote = docagCode + "Note";
+            var idRemarkDateStr = docagCode + "RemarkDateStr";
+            var idFixedDateStr = docagCode + "FixedDateStr";
+            cols += '<td>' + wrapTypeStr + '</td>';
+            cols += '<td><TextArea type="text" name="NameRemark" id="' + idNameRemark + '" class="primary-remark form-control growed" /></td>';
+            cols += '<td><input type="text" readonly="readonly"  class="primary-remark form-control" value="' + '@ViewBag.CurrentEmployeeName' + '"/></td>';
+            cols += '<td><input type="text" name="RemarkDateStr" id="' + idRemarkDateStr + '" class="primary-remark form-control date-control" /></td>';
+            cols += '<td><TextArea type="text" name="AnswerRemark" id="' + idAnswerRemark + '" class="primary-remark form-control growed" /></td>';
+            cols += '<td><input class="form-control primary-remark" data-val="true"  id="' + idIsMark + '" readonly="readonly"  name="IsFixed" style="" type="checkbox" value="true"></td>';
+            cols += '<td><input class="form-control primary-remark" data-val="true" id="' + idIsAccepted + '" readonly="readonly"  name="IsAccepted" style="" type="checkbox" value="true"></td>';
+            cols += '<td><input type="text" name="FixedDateStr" id="' + idFixedDateStr + '" class="primary-remark form-control date-control readonly="readonly"  /></td>';
+            //            cols += '<td><input type="text" name="Note" id="' + idNote + '" class="primary-remark form-control" /></td>';
+            cols += '<td><i class="glyphicon glyphicon-remove deleteExpRow"  title="@ResourceSetting.delete"></td>';
+            cols += '</tr>';
+            tbody.append(cols);
+            growthControl("#" + idNameRemark);
+            growthControl("#" + idAnswerRemark);
+            changePrimaryRemark("#" + idNameRemark);
+            changePrimaryRemark("#" + idAnswerRemark);
+            changePrimaryRemark("#" + idWrappingType);
+            changePrimaryRemark("#" + idIsMark);
+            changePrimaryRemark("#" + idIsAccepted);
+            //            changePrimaryRemark("#" + idNote);
+            changePrimaryRemark("#" + idRemarkDateStr);
+            changePrimaryRemark("#" + idFixedDateStr);
+
+            setDateFormat("#" + idRemarkDateStr);
+            //            setDateFormat("#" + idFixedDateStr);
+            $("#" + idFixedDateStr).prop("readonly", true);
+        });
+
+
+        $("#" + '@tableId').on("click", ".deleteExpRow", function () {
+
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                DeleteRecord('@CodeConstManager.EXP_ExpertiseStageRemarkCode', entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+    });
+</script>

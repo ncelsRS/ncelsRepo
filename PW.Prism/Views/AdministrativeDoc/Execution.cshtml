@@ -1,0 +1,73 @@
+﻿
+@model PW.Ncels.Database.DataModel.Document
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formExecution" + Model.Id)">
+    @Html.HiddenFor(o => o.Id)
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecute"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Исполнениедокумента_56__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Number)</span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.DocumentDate)</span> </div>
+    </div>
+    <div class="pwWinContent2">
+     
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: item.Text, events: { change: change }" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+<script>
+    var name = '@Model.Id';
+    var viewModel = kendo.observable({
+        item:  {
+            Text:''
+        },
+        hasChanges:false,
+        change: function () {
+
+                this.set('hasChanges', true);
+          
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('item'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/AdministrativeDoc/DocumentExcludeConfirm?id=' + name + '&text=' + viewModel.get('item.Text'),
+                success: function (result) {
+                    if (result== 'True') {
+                        var model = $("#TaskCommandWindow").data("kendoWindow").viewModel;
+                        model.set('document.StateType', 9);
+                        model.initButton();
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formExecution" + name), viewModel);
+
+</script>

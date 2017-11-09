@@ -1,0 +1,256 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DirectionToPaysView
+
+<style>
+    .k-datepicker {
+        width: 100%;
+    }
+    legend {
+        margin-bottom: 3px;
+    }
+</style>
+
+<div class="k-content">
+    @Html.HiddenFor(model => model.Id, new {Id = "EXP_DirectionToPaysViewId" })
+    @(Html.Kendo().TabStrip()
+          .Name("tabstripDirectionToPay")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Направление")
+                  .Selected(true)
+                  .Content(@<text>
+                               <table style="width: 100%">
+                                   <tr style="vertical-align: top;">
+                                       <td class="editColumn">
+                                           <fieldset>
+                                               <legend>Направление на оплату</legend>
+                                               <dl class="pwEditRef">
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.Number)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.HiddenFor(model => model.StatusCode)
+                                                       @Html.Kendo().TextBoxFor(model => model.Number).Enable(false)
+                                                       <span data-for="Name" class="k-invalid-msg"></span>
+                                                   </dd>
+                                                   <br/>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.DirectionDate)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().DatePickerFor(model => model.DirectionDate).Enable(false)
+                                                       <span data-for="Code" class="k-invalid-msg"></span>
+                                                   </dd>
+                                                   <br/>
+                                                   
+                                                   <div id="pageCountContainer">
+                                                       <dt>
+                                                           Количество страниц
+                                                       </dt>
+                                                       <dd>
+                                                           @(Html.Kendo().NumericTextBoxFor(d => d.PageCount)
+                                                                 .Decimals(0)
+                                                                 .Min(0)
+                                                                 .Events(a => a.Change("DirectionToPaysView.onchangePageCount"))
+                                                                 .HtmlAttributes(new { style = "width: 100%" }))
+                                                       </dd>
+                                                       <br />
+                                                   </div>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.TotalPrice)
+                                                   </dt>
+                                                   <dd>
+                                                       @(Html.Kendo().NumericTextBoxFor(d => d.TotalPrice)
+                                                           .Format("n2")
+                                                           .Decimals(2)
+                                                           .Min(0)
+                                                           .Enable(false)
+                                                           .HtmlAttributes(new { style = "width: 100%"}))
+                                                   </dd>
+                                                   <br />
+                                                   
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.Currency)
+                                                   </dt>
+                                                   <dd>
+                                                       <!-- TODO Необходимо поменять. неизвестно откуда берется валюта -->
+                                                       @Html.Kendo().TextBoxFor(model => model.Currency).Value("Тенге (KZT)").Enable(false)
+                                                   </dd>
+                                                   <br/>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.ExpertDisplayName)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().TextBoxFor(model => model.ExpertDisplayName).Enable(false)
+                                                   </dd>
+                                                   <br/>
+                                               </dl>
+                                           </fieldset>
+                                       </td>
+                                       <td class="editColumn">
+                                           <fieldset>
+                                               <legend>Оплата</legend>
+                                               <dl class="pwEditRef">
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.InvoiceDatetime1C)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().DatePickerFor(model => model.InvoiceDatetime1C).Enable(false)
+                                                   </dd>
+                                                   <br/>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.InvoiceNumber1C)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().TextBoxFor(model => model.InvoiceNumber1C).Enable(false)
+                                                   </dd>
+                                                   <br/>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.PaymentDatetime1C)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().DatePickerFor(model => model.PaymentDatetime1C).Enable(false)
+                                                   </dd>
+                                                   <br/>
+
+                                                   <dt>
+                                                       @Html.DisplayNameFor(model => model.PaymentValue1C)
+                                                   </dt>
+                                                   <dd>
+                                                       @Html.Kendo().TextBoxFor(model => model.PaymentValue1C).Enable(false)
+                                                   </dd>
+                                                   <br/>
+                                               </dl>
+                                           </fieldset>
+                                       </td>
+                                       <td class="editColumn">
+                                           <fieldset>
+                                               <legend>Согласование</legend>
+                                               <div id="divAgreementContainer">
+
+                                               </div>
+                                           </fieldset>
+                                       </td>
+                                   </tr>
+                                   <tr>
+                                       <td colspan="3">
+                                           <h4>Заявления на экспертизу</h4>
+                                           @(Html.Kendo().Grid<EXP_DrugDeclarationDirectionToPayView>()
+                                                 .Name("gridExpertiseDeclarations")
+                                                 .Columns(columns =>
+                                                 {
+                                                     columns.Bound(p => p.Number).Title(Messages.Property_Номер_373__00).Width(150); //.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                                                     columns.Bound(p => p.Name).Title(Messages.Property_Наименование_230__00).Width(150);
+                                                     columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title(Messages.Property_Дата_391__00).Width(150);
+                                                 })
+                                                 .Resizable(s => s.Columns(true))
+                                                 //.Filterable()
+                                                 .Sortable()
+                                                 .Pageable()
+                                                 .Scrollable()
+                                                 //.Events(c => c.DataBound("onDataBound"))
+                                                 // .Selectable(c => c.Mode(GridSelectionMode.Multiple))
+                                                 .HtmlAttributes(new {@class = "pwGrid"})
+                                                 .DataSource(dataSource => dataSource.Ajax().Model(model =>
+                                                 {
+                                                     model.Id(p => p.Id);
+                                                 }).Sort(c => c.Add(m => m.Number).Descending())
+                                                     .PageSize(20)
+                                                     .Read(read => read.Action("ReadDrugDeclarationListView", "DirectionToPay", new {directionId = "${data.Id}"}))))
+                                       </td>
+                                   </tr>
+                                   <tr>
+                                       <td colspan="3">
+                                           <div id="pricelistContainer">
+                                               <h4>Прейскуранты</h4>
+                                               @( Html.Kendo().Grid<EXP_PriceListDirectionToPayView>()
+                                                  .Name("gridPriceLists")
+                                                  .Columns(columns =>
+                                                  {
+                                                      columns.Command(p =>
+                                                      {
+                                                          p.Edit();
+                                                          p.Destroy();
+                                                      });
+                                                      columns.Bound(p => p.NameRu).Title(Messages.Property_Наименование_230__00).Width(150);
+                                                      columns.Bound(p => p.Price).Title("Цена").Width(150);
+                                                      columns.Bound(p => p.Count).Title("Количество").Width(150);
+                                                      columns.Bound(p => p.Total).Title("Итого").Width(150);
+                                                  })
+                                                  .ToolBar(t => t.Create())
+                                                  .Resizable(s => s.Columns(true))
+                                                  //.Filterable()
+                                                  .Sortable()
+                                                  .Pageable()
+                                                  .Scrollable()
+                                                  .Editable(e => e.Mode(GridEditMode.PopUp))
+                                                  //.Events(c => c.DataBound("onDataBound"))
+                                                  //.Selectable(c => c.Mode(GridSelectionMode.Multiple))
+                                                  .HtmlAttributes(new { @class = "pwGrid" })
+                                                  .DataSource(dataSource => dataSource.Ajax().Model(model =>
+                                                      {
+                                                          model.Id(p => p.Id);
+                                                          model.Field(p => p.DirectionToPayId);
+                                                      })
+                                                      .PageSize(20)
+                                                      .Read(read => read.Action("ReadPriceListView", "DirectionToPay", new { directionId = "${data.Id}" }))
+                                                      .Create(c => c.Action("CreateDirectionPriceList", "DirectionToPay"))
+                                                      .Update(c => c.Action("UpdateDirectionPriceList", "DirectionToPay"))
+                                                      .Destroy(c => c.Action("DeleteDirectionPriceList", "DirectionToPay"))
+                                                      //.AutoSync(true)
+                                                      .Events(c => c.Sync("DirectionToPaysView.sync"))
+                                                  )
+                                                  .Events(p =>
+                                                  {
+                                                      p.Edit("DirectionToPaysView.onEdit");
+                                                      p.DataBound("DirectionToPaysView.onDataBound");
+                                                  })
+                                               )
+                                           </div>
+                                       </td>
+                                   </tr>
+                               </table>
+                            </text>);
+
+              tabstrip.Add().Text("Плательщик")
+                  .LoadContentFrom("GetPayerInfo", "DirectionToPay", new {directionId = "${data.Id}"});
+          })
+          )
+</div>
+
+<script>
+    (function() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetAgreementList","DirectionToPay", new { directionId = "${data.Id}" })',
+            success: function (result) {
+                $("#divAgreementContainer").html(result);
+            }
+        });
+
+        var gridElement = $("#gridExpertiseDeclarations");
+        var dataArea = gridElement.find(".k-grid-content");
+
+        var newGridHeight = 150;
+        var newDataAreaHeight = newGridHeight;
+
+        dataArea.height(newDataAreaHeight);
+        gridElement.height(newGridHeight);
+
+        gridElement = $("#gridPriceLists");
+        dataArea = gridElement.find(".k-grid-content");
+
+        dataArea.height(newDataAreaHeight);
+        gridElement.height(newGridHeight);
+
+    })();
+</script>

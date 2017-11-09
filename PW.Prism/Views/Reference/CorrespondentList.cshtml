@@ -1,0 +1,190 @@
+﻿@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model string[]
+<script>
+    function DicParams() {
+        return {
+            type: '@Model[1]'
+        };
+    }
+
+    function CollapseAllRows() {
+
+        var name = "#gridDic" + '@Model[0]'
+        var grid = $(name).data("kendoGrid");
+
+        grid.tbody.find('>tr.k-grouping-row').each(
+
+            function (e) {
+
+                grid.collapseRow(this);
+
+            });
+
+    }
+    function onDataBound() {
+        expandGroupRows();
+        collapseGroupRows();
+    }
+    var checkedIds = {};
+    var checkedNames = {};
+    var checkedEmails = {};
+    function selectRow(id,name,email, item) {
+        var checked = item.checked;
+        checkedIds[id] = checked;
+        checkedEmails[id] = email;
+        checkedNames[id] = name;
+      //  console.log(checkedNames[id]);
+        console.log(item);
+    }
+
+
+    function DictionaryViewSubmit(id, type) {
+        var window = $("#DictionaryCommandWindow");
+        var model = window.data("kendoWindow").modelDocument;
+        var multiSelect = $("#CorrespondentsId" + id).data("kendoMultiSelect");
+        var emailProperty = $("#ApplicantEmail" + id);
+      
+        if (type == 'False') {
+            var entityGrid = $("#gridDic" + id).data("kendoGrid");
+            var selectedItem = entityGrid.dataItem(entityGrid.select());
+
+            //  document.getElementById('CorrespondentsValue' + id).value = selectedItem.Name;
+            // $('#CorrespondentsValue' + id).val(selectedItem.Name).trigger('change');
+            // $('#ApplicantEmail' + id).val(selectedItem.Email).trigger('change');
+
+            var item = [{ Id: selectedItem.Id, Name: selectedItem.NameFull }];
+            multiSelect.dataSource.add({ Id: selectedItem.Id, Name: selectedItem.NameFull });
+            model.set('document.CorrespondentsId', item);
+            model.set('document.ApplicantEmail', selectedItem.Email);
+            multiSelect.value(selectedItem.Id);
+            emailProperty.val(selectedItem.Email);
+            model.set('hasChanges', true);
+            window.data("kendoWindow").close();
+        } else {
+            var checked = [];
+            var checkedName = [];
+            var checkedEmail = [];
+            for (var i in checkedIds) {
+                if (checkedIds[i]) {
+                    checked.push(i);
+                    checkedName.push({ Id: i, Name: checkedNames[i] });
+                    multiSelect.dataSource.add({ Id: i, Name: checkedNames[i] });
+                    if (checkedEmails[i] != 'null'){
+                        checkedEmail.push(checkedEmails[i]);
+                        console.log(checkedEmails[i]);
+                    }
+                }
+            }
+            var emails = checkedEmail.join('; ');
+            model.set('document.CorrespondentsId', checkedName);
+            model.set('document.ApplicantEmail', emails);
+            
+            emailProperty.val(emails);
+             multiSelect.value(checked);
+             model.set('hasChanges', true);
+            window.data("kendoWindow").close();
+          
+        }
+    }
+    function DictionaryViewClose() {
+        var window = $("#DictionaryCommandWindow");
+        window.data("kendoWindow").close();
+    }
+
+    function collapseGroupRows() {
+        var grid = $('@("#gridDic" + Model[0])');
+        if (grid != null)
+            grid.find(".k-icon.k-i-collapse").trigger("click");
+    }
+
+    function expandGroupRows() {
+        var grid = $('@("#gridDic" + Model[0])');
+        if (grid != null)
+            grid.find(".k-icon.k-i-expand").trigger("click");
+    }
+    function requestEnd() {
+        collapseGroupRows();
+    }
+    InitFilterDictionaryWindowGrid('@Model[0]');
+</script>
+
+<div class="pwBlockAdd">
+        @(Html.Kendo().MaskedTextBox().Name("findText" + Model[0]).Mask("").HtmlAttributes(new { @class = "pwCorFindText" }))
+        @(Html.Kendo().Button().Name("find" + Model[0])
+          .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+          .ImageUrl("/Content/images/find.png"))
+        <div id="pwFourX">
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default" onclick="collapseGroupRows()"><span class="glyphicon glyphicon-expand"></span></button>
+                <button type="button" class="btn btn-default" onclick="expandGroupRows()"><span class="glyphicon glyphicon-collapse-down"></span></button>
+            </div>
+        </div>
+    </div>
+
+
+<div class="pwPageScrollable1">
+@(Html.Kendo().Grid<UnitModel>().Name("gridDic" + Model[0])
+      .Columns(columns => {
+          if (Model[1] == "True") {
+              columns.Bound(p => p.Id).Width(40).ClientTemplate("<input type='checkbox'  class='checkbox'  />").Title("#");
+          }
+
+          columns.ForeignKey(p => p.Category, (System.Collections.IEnumerable)ViewData["Units"], "Id", "Name")
+            .Title(PW.Ncels.Database.Recources.Messages.Property_Категория_301__00).Width(150);
+
+          columns.Bound(p => p.Name).Title(PW.Ncels.Database.Recources.Messages.Property_Наименованиенарусском_41__00).Width(150);
+          columns.Bound(p => p.NameKz).Title(PW.Ncels.Database.Recources.Messages.Property_Наименованиенаказахском_33__00).Width(150);
+          columns.Bound(p => p.Email).Title("Email").Width(90);
+          columns.Command(command => { command.Edit(); }).Width(80).Visible(EmployePermissionHelper.IsEditCor);
+
+      })
+          .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @style = EmployePermissionHelper.IsEditCor ? "" : "visibility: collapse;" }))
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Reorderable(reorderable => reorderable.Columns(true))
+      .Resizable(resizable => resizable.Columns(true))
+
+       .Filterable()
+      .Events(e=>e.DataBound("onDataBound"))
+      .Selectable(o => o.Mode(GridSelectionMode.Single))
+      .HtmlAttributes(new { @style = "height: 500px !important; font-size: 12px;" })
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model =>  model.Id(p => p.Id) ).Model(m=>m.Field(o=>o.Id).Editable(false).DefaultValue(Guid.NewGuid()))
+
+
+                          .Sort(sort => sort.Add("Name").Ascending())
+                          .Group(groups => groups.Add(p => p.Category))
+               .Create(update => update.Action("UnitCreate", "Reference"))
+                       .Read(read => read.Action("AllListUnits", "Reference"))
+               .Update(update => update.Action("UnitUpdate", "Reference"))
+               .Destroy(update => update.Action("UnitDestroy", "Reference"))
+
+      ))
+    </div>
+<script>
+    function selectRowData() {
+      
+        console.log(this.checked);
+        var row = $(this).closest("tr");
+        var grid = $(name).data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+        var checked = this.checked;
+        checkedIds[dataItem.Id] = checked;
+        checkedEmails[dataItem.Id] = dataItem.Email;
+        checkedNames[dataItem.Id] = dataItem.NameFull;
+        console.log(dataItem);
+        console.log(checkedIds);
+        console.log(checkedEmails);
+    }
+
+    var name = "#gridDic" + '@Model[0]';
+   var grid=   $(name).data("kendoGrid");
+   grid.table.on("click", ".checkbox", selectRowData);
+   
+</script>
+
+<div class="pwWinFooter">
+    <button type="button"  class="k-button pwWinButton" onclick="DictionaryViewClose()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+    <button type="button"  class="k-button pwWinButton" onclick="DictionaryViewSubmit('@Model[0]','@Model[1]')">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+</div>

@@ -1,0 +1,119 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Models.EcpUserModel
+@{
+    ViewBag.Title = "Register";
+}
+@{
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+<div class="pw-register-box animated fadeInDown">
+    <div class="row text-center">
+        <div class="col-lg-3">
+            <img alt="image" src="/Content/img/logo_big.png" />
+        </div>
+        <div class="col-lg-6">
+            <h3>Регистрация в системе</h3>
+            <p>
+                Экспертиза лекарственных средств, изделий медицинского назначения и медицинской техники
+            </p>
+        </div>
+    </div>
+    <br />
+ 
+    @{
+        var title = "";
+        var biniinLabel = "";
+        var typePerson = 0;
+    }
+    @if (Model != null)
+    {
+        if (Model.TypePerson == PersonTypeEnum.LegalPerson)
+        {
+            title = "Регистрация юридического лица";
+            biniinLabel = "БИН *:";
+          
+        }
+        if (Model.TypePerson == PersonTypeEnum.NaturalPerson)
+        {
+            title = "Регистрация физического лица";
+            biniinLabel = "ИИН *:";
+        }
+        if (Model.IsError)
+        {
+            <div class="alert alert-danger" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
+        typePerson = (int) Model.TypePerson; //PersonTypeEnum.LegalPerson;
+    }
+    <h2>@title</h2>
+    <div class="row"  data-ng-controller="registerRequest">
+        <form name="registerForm">
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(model => model.TypePerson)
+            @Html.HiddenFor(model => model.IsError)
+            <div class="wrapper animated fadeInRight">
+                <input type="hidden" ng-model="user.personType" ng-init="user.personType='@typePerson'" />
+                <div class="pw-form-row row">
+                    <div class="col-lg-4">
+                        <label for="user.LastName">Фамилия:</label>
+                        <input type="text" ui-select-selected required id="LastName" name="LastName" class="form-control required" ng-model="user.LastName" ng-init="user.LastName='@Model.LastName'" pw-max-length="100">
+
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="FirstName">Имя:</label>
+                        <input type="text" ui-select-selected required id="FirstName" name="FirstName"  class="form-control required" ng-model="user.FirstName" ng-init="user.FirstName='@Model.FirstName'" pw-max-length="100">
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="user.MiddleName">Отчество:</label>
+                        <input type="text" ui-select-selected name="MiddleName" class="form-control"    ng-model="user.MiddleName" ng-init="user.MiddleName='@Model.MiddleName'" pw-max-length="100">
+                    </div>
+                </div>
+                <div class="pw-form-row row">
+                    @if (Model.TypePerson == PersonTypeEnum.LegalPerson)
+                    {
+                        <div class="col-lg-4">
+                            <label for="user.Name">Организация:</label>
+                            <input type="text" ui-select-selected id="Name"   name="Name" class="form-control" ng-model="user.Name" ng-init="user.Name='@Model.JuridicalName'" readonly="readonly" pw-max-length="100">
+                        </div>
+                    }
+                    <div class="col-lg-4">
+                        <label for="user.Email">Email:</label>
+                        <input type="email" class="form-control required email"  placeholder="email@mail.kz" ui-select-selected required ng-model="user.Email" ng-init="user.Email='@Model.Email'" pw-max-length="50">
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="user.Iin">@biniinLabel</label>
+                        <input type="text" ui-select-selected required id="Iin" name="Iin" class="form-control required" ng-model="user.Iin" ng-init="user.Iin='@Model.BINIIN'" readonly="readonly" pw-max-length="100">
+                    </div>
+                </div>
+                <div class="pw-form-row row">
+                    <div class="col-lg-12">
+                        <button class="btn btn-success" type="button" ng-click="postRequest()" check-validate>Зарегистрироваться</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+<div class="middle-box text-center" style="padding-top: 20px">
+    <a ui-sref="forgot_password" href="/Account/ForgotPassword"><small>Забыли пароль?</small></a>
+    <p class="text-muted text-center">
+        <small>У вас есть аккаунт?</small>
+    </p>
+    <a class="btn btn-sm btn-white btn-block" href="/Account/Login">Войдите в систему</a>
+    <p class="m-t text-center">
+        <p class="m-t"> <small>&copy; 2017 | Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники.<br>Все права защищены.</small> </p>
+    </p>
+</div>
+
+
+@section Styles {
+    @Styles.Render("~/Content/plugins/iCheck/iCheckStyles")
+}
+@section Scripts {
+    @Scripts.Render("~/plugins/iCheck")
+
+}

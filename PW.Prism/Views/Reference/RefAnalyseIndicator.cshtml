@@ -1,0 +1,49 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@model Guid
+
+<script>
+    InitFilterNomenclatureGrid('@Model.ToString()');
+</script>
+
+<div class="pwPanelBar">
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+            .Content("").ImageUrl("/Content/images/reload.png"))
+
+    </div>
+    @(Html.Kendo().Grid<EXP_DIC_AnalyseIndicator>().Name("gridListDic" + Model)
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Code).Title("Код").Width(100).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                                  columns.Bound(p => p.NameRu).Title("Наименование на русском языке").Width(150);
+                                  columns.Bound(p => p.NameKz).Title("Наименование на казахском языке").Width(150);
+                                  if (EmployePermissionHelper.IsEditRefAnalyseIndicator) {
+                                      columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+                                  }
+                              })
+                            .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                            .Reorderable(reorderable => reorderable.Columns(true))
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Filterable()
+
+                            .HtmlAttributes(new { @class = "pwGridRef" })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Model(model => model.Id(p => p.Id))
+                                .Aggregates(aggregates => aggregates.Add(p => p.Code).Count())
+                                .PageSize(999)
+                                .Create(update => update.Action("RefAnalyseIndicatorCreate", "Reference"))
+                                .Read(read => read.Action("RefAnalyseIndicatorList", "Reference"))
+                                .Update(update => update.Action("RefAnalyseIndicatorUpdate", "Reference"))
+                                .Destroy(update => update.Action("RefAnalyseIndicatorDestroy", "Reference"))
+                                .Sort(sort => sort.Add("NameRu").Ascending()))
+
+                           )
+</div>
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+</script>

@@ -1,0 +1,119 @@
+﻿@using PW.Ncels.Database.Models
+@model int
+@{
+//Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+<script>
+    InitFilterPermissionRoleKeysAllGrid('@Model.ToString()');
+
+    function PermissionParams() {
+        return {
+            roleId: '@Model'
+        };
+    }
+
+    function paramsPermissionValueList() {
+        return {
+            permissionKey: $("#KeyType").val()
+        };
+    }
+
+    function changePermission(e) {
+        var x = $("#KeyPermissionValue").data("kendoDropDownList").text();
+        var y = $("#KeyPermissionValue").val();
+        $("#KeyValue").val(y).change();
+        $("#KeyPermission").val(x).change();
+    }
+
+    function error_handlerPP(e) {
+        e.preventDefault(e);
+        var grid = $("#gridPermissionRoleKeysList" + '@Model.ToString()').data("kendoGrid");
+        grid.cancelChanges();
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowAlert('Внимание!', message, window.AlertType.Warning, 3000);
+        }
+    }
+</script>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+                        @*<div id="pwTwo">
+                                @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .DataTextField("Text")
+                                       .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                           },
+                                       })
+                                       .SelectedIndex(0)
+                                )
+                            </div>*@
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                 .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                 .ImageUrl("/Content/images/find.png"))
+                        </div>
+                        <div id="pwFour">
+                        </div>
+                    </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+                    </div>
+
+                    @(Html.Kendo().Grid<PermissionModel>()
+                        .Name("gridPermissionRoleKeysList" + Model)
+                                          .Columns(columns =>
+                                          {
+                                              columns.Bound(p => p.GroupName).Title(PW.Ncels.Database.Recources.Messages.Property_Типыразрешений_155__00).Width(1).ClientGroupHeaderTemplate("#= value #");
+                                              columns.Bound(p => p.KeyName).Title(PW.Ncels.Database.Recources.Messages.Property_Модуль_999);
+                                              columns.Bound(p => p.KeyDescription).Title(PW.Ncels.Database.Recources.Messages.Property_Действие_315__00).Width(300);
+                                              columns.Bound(p => p.KeyPermission).Title(PW.Ncels.Database.Recources.Messages.Property_Разрешение_271__00);
+                                              columns.Command(command => { command.Edit(); }).Width(120);
+                                          })
+                                          .HtmlAttributes(new { @class = "pwGrid" })
+                                          .Reorderable(reorderable => reorderable.Columns(true))
+                                          .Resizable(resizable => resizable.Columns(true))
+                                          .Sortable()
+                                          //.Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                                          .Scrollable()
+                                          .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .Model(model =>
+                                              {
+                                                  model.Id(p => p.Id);
+                                                  model.Field(f => f.GroupName).Editable(false);
+                                                  model.Field(f => f.KeyDescription).Editable(false);
+                                                  model.Field(f => f.KeyName).Editable(false);
+                                              })
+                                              .Group(groups => groups.Add(p => p.GroupName))
+                                              .Read(read => read.Action("PermissionRoleKeysRead", "Employe").Data("PermissionParams"))
+                                              .Update(update => update.Action("PermissionRoleKeysUpdate", "Employe").Data("PermissionParams"))
+                                              .Events(events => events.Error("error_handlerPP"))
+                                          ))
+                    )
+                </div>
+             );
+            }))
+<script>
+    resizeGrid('@("#gridPermissionRoleKeysList" + Model)');
+</script>

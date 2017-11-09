@@ -1,0 +1,571 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+
+
+@{
+    var @modelId = Model.Id;
+    var @expertiseStartDate = DateTime.Now.ToShortDateString();
+    bool @expDocumentResult = @Model.ExpDocumentResult;
+
+    var @stageStatus = @Model.OBK_AssessmentStage.FirstOrDefault(e => e.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)?.StageStatusId;
+
+    var @invoiceContractRu = @Model.InvoiceContractRu ?? " ";
+    var @invoiceContractKz = @Model.InvoiceContractKz ?? " ";
+    var @invoiceRu = @Model.InvoiceRu ?? " ";
+    var @invoiceKz = @Model.InvoiceKz ?? " ";
+    var @invoiceDate = @Model.InvoiceDate != null ? @Model.InvoiceDate.ToString() : " ";
+
+    var @certNameRu = @Model.CertificateGMPCheck != null && @Model.CertificateGMPCheck == true ? "сертификат " + @Model.OBK_Ref_CertificateType?.NameRu + " №" + @Model.CertificateGMP + " от " + string.Format("{0:dd.MM.yyyy}", @Model.CertificateStartDate) + " г., действителен до " + string.Format("{0:dd.MM.yyyy}", @Model.CertificateDate) + " г. выдан организацией " + @Model.CertificateOrganization : "";
+    var @certNameKz = @Model.CertificateGMPCheck != null && @Model.CertificateGMPCheck == true ? @Model.OBK_Ref_CertificateType?.NameKz + " сертификаты №" + @Model.CertificateGMP + " " + string.Format("{0:dd.MM.yyyy}", @Model.CertificateStartDate) + " ж. бастап, " + string.Format("{0:dd.MM.yyyy}", @Model.CertificateDate) + " ж. дейін жарамды, " + @Model.CertificateOrganization + " ұйымымен берілген." : "";
+}
+
+<style>
+    .pw-row-selected {
+        background-color: #beebff !important;
+    }
+    button {
+        margin: 10px !important;
+    }
+</style>
+
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div>
+                    <button type="button" hidden="hidden" class="btn btn-default" id="returnBtn"><span class="pwToolbarButtonReturn"></span><span class="pwToolbarButtonTitle">Вернуть на доработку</span></button>
+                    <button type="button" class="btn btn-default" id="signBtn"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">Подписать</span></button>
+                    @if (Model.ExpDocumentResult)
+                    {
+                        <button type="button" disabled="disabled" class="btn btn-default" id="viewBtn"><span class="pwToolbarButtonPrint"></span><span class="pwToolbarButtonTitle">Печатная форма</span></button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-default" id="viewMotivRefusBtn"><span class="pwToolbarButtonPrint"></span><span class="pwToolbarButtonTitle">Печатная форма</span></button>
+                    }
+
+                    @*<button type="button" id="act">Акт</button>*@
+                </div>
+            </div>
+            @if (Model.ExpDocumentResult)
+            {
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Информация о продукции
+                    </div>
+                    <div class="panel-body">
+                        <div class="row" style="margin-bottom: 10px">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <div class="col-lg-12">
+                                        <table class="table table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableExpertiseProducts_@modelId" width="100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Информация о заявлемой продукции
+                    </div>
+                    <div class="panel-body">
+                        <div class="row" style="margin-bottom: 10px">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <div class="col-lg-12">
+                                        <table id="tableExpertiseProductSeries_@modelId" dt-options="dtOptions" dt-columns="dtColumns" class="table table-bordered table-hover dataTable" width="100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @if (Model.ExpDocumentResult)
+    {
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="col-lg-6" id="expertiseStartDateId">
+                                    <label class="control-label">Дата регистрации:</label>
+                                    <input class="form-control date-control" type="text" id="expertiseStartDate" value="@expertiseStartDate">
+                                </div>
+                                <div class="col-lg-6" id="expertiseEndDateId">
+                                    <label class="control-label">Дата истечения:</label>
+                                    <input class="form-control date-control" type="text" id="expertiseEndDate">
+                                </div>
+                            </div>
+                            <div id="showreasonId">
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Основание на русском языке*</label>
+                                        <textarea rows="4" id="expReasonNameRu" name="expReasonNameRu" type="text" class="form-control exp-doc-control" readonly="readonly"></textarea>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Основание на казахском языке*</label>
+                                        <textarea rows="4" id="expReasonNameKz" name="expReasonNameKz" type="text" class="form-control" readonly="readonly"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="displayShow" style="display: block">
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Наименование на русском языке*</label>
+                                        <textarea rows="5" id="expProNameRu" name="expProNameRu" type="text" class="form-control" readonly="readonly"></textarea>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Наименование на казахском языке*</label>
+                                        <textarea rows="5" id="expProNameKz" name="expProNameKz" type="text" class="form-control" readonly="readonly"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Доп. информация на русском языке</label>
+                                        <textarea id="addInfoExpertiseRu" name="addInfoExpertiseRu" type="text" class="form-control" readonly="readonly"></textarea>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Доп. информация на казахском языке</label>
+                                        <textarea id="addInfoExpertiseKz" name="addInfoExpertiseKz" type="text" class="form-control" readonly="readonly"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label class="control-label">№ заключения*</label>
+                                        <input id="expConclusionNumber" name="expConclusionNumber" type="text" class="form-control">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="control-label">№ бланка*</label>
+                                        <input id="expBlankNumber" name="expBlankNumber" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label class="control-label">Тип заключения</label><br />
+                                        <input type="radio" name="radiobutton" checked="checked" id="expNotApplication" value="hide"> без приложения
+                                        <input type="radio" name="radiobutton" id="expApplication" value="show"> с приложением
+                                    </div>
+                                    <div class="col-lg-6" id="expApplicationNumber" style="display: none">
+                                        <label class="control-label">№ бланка приложения</label>
+                                        <input id="expApplicationNumber1" name="expApplicationNumber" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <label class="control-label">Результат</label>
+                                    @Html.DropDownList("Id", (IEnumerable<SelectListItem>)ViewData["UObkReasons"],
+                                        String.Empty, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <label class="control-label">Основание на русском языке*</label>
+                                    <textarea rows="4" id="expRejectReasonNameRu" name="expReasonNameRu" type="text" class="form-control"></textarea>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="control-label">Основание на казахском языке*</label>
+                                    <textarea rows="4" id="expRejectReasonNameKz" name="expReasonNameKz" type="text" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="panel-body">
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div id="saveButtonId" style="display: block">
+                        <button type="button" class="btn btn-default" onclick="saveExpDoc()"> Сохранить </button>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    var productSeriesId = null;
+
+    $(document).ready(function() {
+        setDateFormat(".date-control");
+        getContract();
+        visibleReturnBtn();
+        $('#tableExpertiseProductSeries_@modelId').DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            bLengthChange: false,
+            columns: [
+                { title: "Номер серии", sWidth: "40%" },
+                { title: "Результат", sWidth: "20%" },
+                { title: "№ заключения", sWidth: "20%" },
+                { title: "Срок действия", sWidth: "20%" }
+            ]
+        });
+    });
+
+    function visibleReturnBtn() {
+        debugger;
+        var stageStatus = '@stageStatus';
+        if (stageStatus === '9') {
+            $("#returnBtn").show();
+        } else {
+            $("#returnBtn").hide();
+        }
+    }
+
+    function setDateFormat(control) {
+        $(control).datepicker({
+            dateFormat: 'dd.mm.yy',
+            language: 'ru',
+            autoclose: true
+        });
+    }
+
+    $("#signBtn").click(function() {
+        debugger;
+        var valid = true;
+        var exp = '@expDocumentResult';
+        var modelId = '@modelId';
+        if (exp === "True") {
+            var data = $("#tableExpertiseProducts_@modelId").DataTable().data();
+            $.each(data,
+                function(index, value) { $.each(value.OBK_Procunts_Series,
+                        function(i, v) { if (v.ExpId == null) {
+                            alert("Необходимо сформировать ответ на серию №" + v.Series + " продукции '" + value.NameRu + "' ");
+                                valid = false;
+                                return false;
+                            }
+                        });
+                });
+        }
+        if (valid) {
+            $.ajax({
+                type: 'GET',
+                url: '/OBKExpDocument/GetSignExpDocument?id=' + modelId,
+                success: function (result) {
+                    debugger;
+                    startSign(result.data, modelId, saveSignedPayment);
+                }
+            });
+
+            function saveSignedPayment(signedData, id) {
+                debugger;
+                var data1 = {
+                    id: id,
+                    signedData: signedData
+                };
+                var json = JSON.stringify(data1);
+                $.ajax({
+                    type: 'POST',
+                    url: '/OBKExpDocument/SaveSignedExpDocument',
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        debugger;
+                        alert(result.message);
+                    }
+                });
+            }
+        }
+    });
+
+    $("#returnBtn").click(function() {
+        debugger;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ReturnToExecutor","OBKExpDocument")',
+            data: { id: '@Model.Id' },
+            success: function(result) {
+                debugger;
+                if(result.result)
+                    alert("Заявка отправлена на доработку исполнителю");
+                else
+                    alert("Ошибка при отправке");
+            }
+        });
+    });
+
+    $("#act").click(function() {
+        if (productSeriesId == null)
+            alert("Выберите серию из таблицы");
+        window.open('/OBKExpDocument/ActExportFilePdf?id=' + '@Model.Id');
+    });
+
+    $("#viewBtn").click(function () {
+        if (productSeriesId == null)
+            alert("Выберите серию из таблицы");
+        exportProtocol();
+    });
+    function exportProtocol() {
+        window.open('/OBKExpDocument/ExpDocumentExportFilePdf?productSeriesId=' + productSeriesId +
+            '&id=' + '@Model.Id');
+    }
+
+    $("#viewMotivRefusBtn").click(function() {
+        window.open('/OBKExpDocument/ExpDocumentMotivRefusExportFilePdf?id=' + '@Model.Id');
+    });
+
+    function getContract() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetContract", "SafetyAssessment")',
+            data: { 'id': '@Model.ContractId' },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    $("#tableExpertiseProducts_@modelId").DataTable({
+                        language: {
+                            url: "/Content/json/Russian.json"
+                        },
+                        data: data.result.ObkRsProductses,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        bLengthChange: false,
+                        autoWidth: true,
+                        rowCallback: rowCallback,
+                        columns: [
+                            { title: "Наименование", data: "NameRu", sWidth: "32%" },
+                            { title: "Производитель", data: "ProducerNameRu", sWidth: "32%" },
+                            { title: "Страна-производитель", data: "CountryNameRu", sWidth: "13%" }
+                        ]
+                    });
+                    $("#tableExpertiseProductSeries_@modelId").DataTable().clear().draw();
+                }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+
+    function rowCallback(row) {
+        $('td', row).unbind('click');
+        $('td', row).bind('click',
+            function() {
+                var tab = $(this.parentNode.parentNode.parentNode).DataTable();
+                tab.$('tr.pw-row-selected').removeClass('pw-row-selected');
+                $(this.parentNode).addClass('pw-row-selected');
+                var mass = tab.row('.pw-row-selected').data();
+                $("#tableExpertiseProductSeries_@modelId").DataTable({
+                    language: {
+                        url: "/Content/json/Russian.json"
+                    },
+                    data: mass.OBK_Procunts_Series,
+                    destroy: true,
+                    searching: false,
+                    LengthMenu: false,
+                    iDisplayLength: 5,
+                    bLengthChange: false,
+                    rowCallback: rowCallbackSeries,
+                    columns: [
+                        {
+                            data: function(data) {
+                                return data.Series +
+                                    ", годен до " +
+                                    data.SeriesEndDate +
+                                    ", партия " +
+                                    data.SeriesParty +
+                                    " " +
+                                    data.SeriesShortNameRu;
+                            }
+                        },
+                        { data: "ExpResultTitle", defaultContent: "<i>нет данных</i>" },
+                        { data: "ExpConclusionNumber", defaultContent: "<i>нет данных</i>" },
+                        { data: "ExpEndDate", defaultContent: "<i>нет данных</i>" }
+                    ]
+                });
+                debugger;
+                $("#viewBtn").attr("disabled", true);
+                rowClear();
+                function rowCallbackSeries(rowSeries) {
+                    $('td', rowSeries).unbind('click');
+                    $('td', rowSeries).bind('click',
+                        function() {
+                            var tabSeries = $(this.parentNode.parentNode.parentNode).DataTable();
+                            tabSeries.$('tr.pw-row-selected').removeClass('pw-row-selected');
+                            $(this.parentNode).addClass('pw-row-selected');
+                            var massSeries = tabSeries.row('.pw-row-selected').data();
+                            debugger;
+                            rowClear();
+                            if (massSeries.ProductSeriesId != null) {
+                                if (massSeries.ExpResult === "True") {
+                                    $("#viewBtn").attr("disabled", false);
+                                    productSeriesId = massSeries.Id;
+                                    $("#expertiseStartDate").val(massSeries.ExpStartDate);
+                                    $("#expertiseEndDate").val(massSeries.ExpEndDate);
+                                    $("#expReasonNameRu").val(massSeries.ExpReasonNameRu);
+                                    $("#expReasonNameKz").val(massSeries.ExpReasonNameKz);
+                                    $("#expProNameRu").val(massSeries.ExpProductNameRu);
+                                    $("#expProNameKz").val(massSeries.ExpProductNameKz);
+                                    $("#nomenclatureNameRu").val(massSeries.ExpNomenclatureRu);
+                                    $("#nomenclatureNameKz").val(massSeries.ExpNomenclatureKz);
+                                    $("#addInfoExpertiseRu").val(massSeries.ExpAddInfoRu);
+                                    $("#addInfoExpertiseKz").val(massSeries.ExpAddInfoKz);
+                                    $("#expConclusionNumber").val(massSeries.ExpConclusionNumber);
+                                    $("#expBlankNumber").val(massSeries.ExpBlankNumber);
+                                    //if (massSeries.ExpApplication)
+                                    //    show();
+                                    //else
+                                    //    hide();
+                                    $("#expApplicationNumber1").val(massSeries.ExpApplicationNumber);
+                                } else {
+                                    $("#viewBtn").attr("disabled", true);
+                                    productSeriesId = massSeries.Id;
+                                    //$("#expertiseStartDate").val(massSeries.ExpStartDate);
+                                    //$("#expertiseEndDate").val(massSeries.ExpEndDate);
+                                    $("#expRejectReasonNameRu").val(massSeries.ExpReasonNameRu);
+                                    $("#expRejectReasonNameKz").val(massSeries.ExpReasonNameKz);
+                                }
+                            } else {
+                                $("#viewBtn").attr("disabled", true);
+                                productSeriesId = massSeries.Id;
+                                invoice();
+                                $("#expertiseEndDate").val(massSeries.SeriesEndDate);
+                                if (@Model.OBK_Ref_Type.Code === 3) {
+                                    $("#expReasonNameRu").val('@certNameRu');
+                                    $("#expReasonNameKz").val('@certNameKz');
+                                }
+                                $("#expProNameRu").val(mass.NameRu +
+                                    ", серия " +
+                                    massSeries.Series +
+                                    ", годен до " +
+                                    massSeries.SeriesEndDate +
+                                    ", партия " +
+                                    massSeries.SeriesParty +
+                                    " " +
+                                    massSeries.SeriesShortNameRu);
+                                $("#expProNameKz").val(mass.NameKz +
+                                    ", " +
+                                    massSeries.Series +
+                                    " сериясы, сақтау мерзімі " +
+                                    massSeries.SeriesEndDate +
+                                    " ж., партия " +
+                                    massSeries.SeriesParty +
+                                    " " +
+                                    massSeries.SeriesShortNameRu);
+                            }
+                        });
+                    return rowSeries;
+                }
+            });
+        return row;
+    }
+
+    function rowClear() {
+        $("#expertiseStartDate").val('');
+        $("#expertiseEndDate").val('');
+        $("#expConclusionNumber").val('');
+        $("#expBlankNumber").val('');
+        $("#expApplicationNumber1").val('');
+    }
+
+    function invoice() {
+        var dogovorRu = "";
+        var invoiceRu = "";
+        var invoiceDateRu = "";
+        var dogovorKz = "";
+        var invoiceKz = "";
+        var invoiceDateKz = "";
+        if ("@invoiceContractRu" !== " ") {
+            dogovorRu = ("Договора поставки " + "@invoiceContractRu");
+        }
+        if ("@invoiceRu" !== " ") {
+            invoiceRu = (" инвойс " + "@invoiceRu");
+        }
+        if ("@invoiceDate" !== " ") {
+            invoiceDateRu = (" дата инвойса " + "@invoiceDate");
+            invoiceDateKz = (" инвойс күні " + "@invoiceDate");
+        }
+        if ("@invoiceContractKz" !== " ") {
+            dogovorKz = ("Жеткізу шарты " + "@invoiceContractKz");
+        }
+        if ("@invoiceRu" !== " ") {
+            invoiceRu = (" инвойс " + "@invoiceRu");
+        }
+        if ("@invoiceKz" !== " ") {
+            invoiceKz = (" инвойс " + "@invoiceKz"); }
+        $("#addInfoExpertiseRu").val(dogovorRu + invoiceRu + invoiceDateRu);
+        $("#addInfoExpertiseKz").val(dogovorKz + invoiceKz + invoiceDateKz);
+    }
+
+    $('input[type=radio][name=radiobutton]').change(function() {
+        if (this.value === 'show') {
+            document.getElementById('expApplicationNumber').style.display = 'block';
+        }
+        else if (this.value === 'hide') {
+            document.getElementById('expApplicationNumber').style.display = 'none';
+        }
+    });
+
+    function saveExpDoc() {
+        debugger;
+        var expData = {
+            AssessmentDeclarationId:'@modelId',
+            ProductSeriesId: productSeriesId,
+            ExpResult: '@Model.ExpDocumentResult',
+            ExpStartDate: $("#expertiseStartDate").val(),
+            ExpEndDate: $("#expertiseEndDate").val(),
+            ExpReasonResult: $("#ReasonResult").val(),
+            ExpReasonNameRu: '@Model.ExpDocumentResult' === 'True' ? $("#expReasonNameRu").val() :  $("#expRejectReasonNameRu").val(),
+            ExpReasonNameKz: '@Model.ExpDocumentResult' === 'True' ? $("#expReasonNameKz").val() :  $("#expRejectReasonNameKz").val(),
+            ExpProductNameRu: $("#expProNameRu").val(),
+            ExpProductNameKz: $("#expProNameKz").val(),
+            ExpNomenclatureRu: $("#nomenclatureNameRu").val(),
+            ExpNomenclatureKz: $("#nomenclatureNameKz").val(),
+            ExpAddInfoRu: $("#addInfoExpertiseRu").val(),
+            ExpAddInfoKz: $("#addInfoExpertiseKz").val(),
+            ExpConclusionNumber: $("#expConclusionNumber").val(),
+            ExpBlankNumber: $("#expBlankNumber").val(),
+            ExpApplicationNumber: $("#expApplicationNumber1").val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetSaveExpDoc")',
+            data: JSON.stringify(expData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                if (result.isSuccess) {
+                    alert("OK!");
+                    getContract();
+                } else { alert("Error!"); }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+</script>

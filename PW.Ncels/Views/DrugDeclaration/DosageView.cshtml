@@ -1,0 +1,996 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models.Expertise
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+<div style="display: none;" id="wrapTypeDiv">
+    <div class="input-group">
+        @Html.DropDownList("WrappingTypeId", (IEnumerable<SelectListItem>)(ViewData["WrappingTypes"]), String.Empty, new { @class = "form-control edit-control wrapping-control", data_placeholder = "Выберите значение..." })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="substanceCountiesDiv">
+    <div class="input-group">
+        @Html.DropDownList("CountryId", (IEnumerable<SelectListItem>)(ViewData["SubstanceCounties"]), String.Empty, new { @class = "form-control edit-control smanufacture-control", data_placeholder = "Выберите значение..." })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="templSubstanceDiv">
+    @Html.Partial("~/Views/DrugDeclaration/TempleSubstanceView.cshtml", new EXP_DrugSubstance() { Id = -1, Position = -1, ExpDrugSubstanceManufactures = new List<EXP_DrugSubstanceManufacture> { new EXP_DrugSubstanceManufacture() }})
+</div>
+
+<div style="display: none;" id="animalDiv">
+    <div class="input-group">
+        @Html.DropDownList("WrappingKindId", (IEnumerable<SelectListItem>)(ViewData["Boxes"]), String.Empty, new { @class = "form-control edit-control wrapping-control", data_placeholder = "Выберите значение..." })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="mesureDiv">
+    <div class="input-group">
+        @Html.DropDownList("MesureId", (IEnumerable<SelectListItem>)(ViewData["MeasureShortList"]), String.Empty, new { @class = "form-control edit-control  wrapping-control" })
+        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+    </div>
+</div>
+<div style="display: none;" id="templDosageDiv">
+    @Html.Partial("~/Views/DrugDeclaration/TempleDosageView.cshtml", new EXP_DrugDosage() { Id = -1, Position = -1 })
+</div>
+
+<div id=collectionDosageDiv>
+    @for (var i = 0; i < Model.ExpDrugDosages.Count; i++)
+    {
+        var entity = Model.ExpDrugDosages[i];
+        entity.Position = i;
+        @Html.Partial("~/Views/DrugDeclaration/TempleDosageView.cshtml", entity)
+    }
+</div>
+
+<div class="row">
+    <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addDosageBtn" style="margin-top: 10px">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+    </button>
+</div>
+
+<script>
+// Общие функции
+    function createNewAnimalList(idAnimal) {
+        $('#' + idAnimal).chosen({ width: '100%' });;
+        changeWrappingList('#' + idAnimal);
+    }
+    function checkValidateion(type, fieldValue, fieldId) {
+        if (type === "float") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                fieldValue = replaceAll(' ', '', fieldValue);
+                if (fieldValue.indexOf(',') > 0) {
+                    fieldValue = fieldValue.replace(',', '.');
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('Поле должно содержат числовое значение');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('Введите число без знака минус');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+        if (type === "long") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                if (fieldValue.indexOf(',') > 0 || fieldValue.indexOf('.') > 0) {
+                    showWarning("Введите целое число");
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('Поле должно содержат числовое значение');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('Введите число без знака минус');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+</script>
+<!--changeDosage-->
+<script type="text/javascript">
+   
+    function toogleDosagePangel(param) {
+        $(param).parent().parent().parent().find('.divpanel').toggle();
+    }
+    function removeDosagePanel(param) {
+        var success = function () {
+            var rootPanel = $(param).parent().parent().parent();
+            var entityId = rootPanel.attr('rowid');
+            if (entityId != null && entityId.length > 0) {
+                DeleteRecord('@CodeConstManager.EXP_DrugDosageCode', entityId);
+            }
+            rootPanel.remove();
+        }
+        var cancel = function () {
+        };
+        showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+    }
+    function changeDosageList(control) {
+        $(control).change(function () {
+            var fieldId = $(this).attr('id');
+
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+            if (!checkValidateion(type, fieldValue, fieldId)) {
+                return;
+            }
+            var row = $(this).closest('.panel-success');
+            var entityId;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+
+            var modelId = $("#modelId").val();
+            var userId = $("#EditorId").val();
+            if (modelId === null || modelId.length === 0) {
+                modelId = null;
+                window.Showbusy(event);
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateModel")',
+                data: { 'code': '@CodeConstManager.EXP_DrugDosageCode', 'modelId': modelId, 'userId': userId, 'recordId': entityId, 'fieldName': fieldId, 'fieldValue': fieldValue, 'fieldDisplay': fieldDisplay },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (modelId === null) {
+                        $("#modelId").val(data.modelId);
+                        $("#loading").hide();
+                    }
+                    if (data.recordId > 0) {
+                        row.attr("rowid", data.recordId);
+                        $('#' + fieldId).attr('id', data.controlId);
+                    }
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+
+        });
+    }
+</script>
+<!--main ready-->
+<script type="text/javascript">
+    function createDublicateDosage(param) {
+        var rootPanel = $(param).parent().parent().parent();
+        var entityId = rootPanel.attr('rowid');
+        if (entityId != null && entityId.length > 0) {
+            window.Showbusy(event);
+            $.ajax({
+                url: "/DrugDeclaration/DublcateDoage?modelId=" + $("#modelId").val() + "&dosageId=" + entityId+"&userId="+ $("#EditorId").val(),
+                success: function (result) {
+                    $("#tab-2").html(result);
+                    $("#loading").hide();
+                }
+            });
+        } else {
+            showWarning("Внесите данные в дозировке");
+        }
+
+    }
+    $(document).ready(function () {
+
+/*
+        $('.is-not-found').change(function () {
+            var notFoundDiv = $(this).parent().parent().parent().find(".not-found-div").eq(0);
+            var foundDiv = $(this).parent().parent().parent().find(".found-div").eq(0);
+            if ($(this).prop('checked')) {      
+                $(notFoundDiv).show();
+                $(foundDiv).hide();
+            } else {
+                $(foundDiv).show();
+                $(notFoundDiv).hide();
+            }
+        });*/
+        //createNewAnimalList(".chosen-wrap-kind");
+        $(".chosen-wrap-kind").chosen({ width: '100%' });
+        changeDosageList(".dosage-control");
+        /* $("a.lotLihk").click(function () {
+             $(this).parent().parent().parent().find('.divpanel').toggle();
+         });*/
+
+        //        selectSubstance("#substance_1_SubstanceId");
+        $("#addDosageBtn").on("click",
+            function () {
+                window.Showbusy(event);
+                $.ajax({
+                    url: "/DrugDeclaration/DublcateDoage?modelId=" + $("#modelId").val() + "&dosageId=0",
+                    success: function (result) {
+                        $("#tab-2").html(result);
+                        $("#loading").hide();
+                    }
+                });
+                return;
+
+                var rowindex = $(".dosage-group").last().attr('rowindex');
+                var nextIndex = parseInt(rowindex, 10) || 0;
+                nextIndex = nextIndex + 1;
+                var nextStr = 'rowindex = "' + nextIndex + '"';
+                var sub = "dosagecontrol" + nextIndex;
+                var templSubstanceDiv = document.getElementById("templDosageDiv");
+                var envetStr = replaceAll('dosage-control', sub, templSubstanceDiv.innerHTML);
+                envetStr = replaceAll('rowindex = "-1"', nextStr, envetStr);
+                var codeIndex = 'a' + nextIndex + '_0';
+                var addWrapBtn = "addWrapBtn_" + nextIndex;
+                var tadId = 'dosage_a' + nextIndex + '_tab';
+                var idSubstanceId = "substance_" + codeIndex + "_SubstanceId";
+                var addSubstanceBtn = "addSubstanceBtn_" + nextIndex;
+                var addPriceBtn = "addPriceBtn_" + nextIndex;
+                var subclass = "subcontrol" + nextIndex;
+                envetStr = replaceAll('addWrapBtn_-1', addWrapBtn, envetStr);
+                envetStr = replaceAll('addPriceBtn_-1', addPriceBtn, envetStr);
+                envetStr = replaceAll('dosage_-1_tab', tadId, envetStr);
+                envetStr = replaceAll('sub-control', subclass, envetStr);
+                envetStr = replaceAll('substance_0_-1_SubstanceId', idSubstanceId, envetStr);
+                envetStr = replaceAll('sub-control', idSubstanceId, envetStr);
+                envetStr = replaceAll("wrapping__1__1_WrappingKindId_chosen", "wrapping_" + codeIndex + "_WrappingKindId_chosen", envetStr);
+
+                $("#collectionDosageDiv").append(envetStr);
+                changeDosageList("." + sub);
+                changeSubstanceList("." + subclass);    
+                selectSubstance("#" + idSubstanceId);
+                var wrapCode = "wrapping_" + codeIndex + "_";
+                var idEvent = wrapCode + "WrappingKindId";
+                var idWrappingType = wrapCode + "WrappingTypeId";
+                var idSizeMeasure = wrapCode + "SizeMeasureId";
+                var idVolumeMeasure = wrapCode + "VolumeMeasureId";
+                var idWrappingSize = wrapCode + "WrappingSize";
+                var idWrappingVolume = wrapCode + "WrappingVolume";
+                var idCountUnit = wrapCode + "CountUnit";
+                var idNote = wrapCode + "Note";
+                createNewAnimalList(idEvent);
+                changeWrappingList("#" + idWrappingType);
+                changeWrappingList("#" + idSizeMeasure);
+                changeWrappingList("#" + idVolumeMeasure);
+                changeWrappingList("#" + idWrappingSize);
+                changeWrappingList("#" + idWrappingVolume);
+                changeWrappingList("#" + idCountUnit);
+                changeWrappingList("#" + idNote);
+                addWrapRow("#" + addWrapBtn, nextIndex);
+                addSubstance("#" + addSubstanceBtn, nextIndex);
+                addPriceRow("#" + addPriceBtn);
+                selectSubstance("#" + idSubstanceId);
+            });
+    });
+</script>
+
+<!--changeSubstanceManufactureCollection-->
+<script type="text/javascript">
+    function changeDosageCollection(control, code) {
+        $(control).change(function () {
+            var fieldId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                var title1 = $(this).parent().parent().parent().parent().parent().parent().parent().find("h4").find("a").eq(0);
+                fieldDisplay = $(this).select2('data').text;
+                $(title1).text("Наименование : " + fieldDisplay);
+            }
+            if (fieldId.indexOf('NewName') > -1) {
+                var title = $(this).parent().parent().parent().parent().parent().parent().find("h4").find("a").eq(0);
+                $(title).text("Наименование : " + fieldDisplay);
+            }
+            if (!checkValidateion(type, fieldValue, fieldId)) {
+                return;
+            }
+            if ($(this).is(':checkbox')) {
+                var notFoundDiv = $(this).parent().parent().parent().find(".not-found-div").eq(0);
+                var foundDiv = $(this).parent().parent().parent().find(".found-div").eq(0);
+                if ($(this).prop('checked')) {
+                    $(notFoundDiv).show();
+                    $(foundDiv).hide();
+                } else {
+                    $(foundDiv).show();
+                    $(notFoundDiv).hide();
+                }
+
+                if ($(this).prop('checked')) {
+                    fieldValue = "true";
+                    fieldDisplay = "Да";
+                } else {
+                    fieldValue = "false";
+                    fieldDisplay = "Нет";
+                }
+            }
+            var modelId = $("#modelId").val();
+            var userId = $("#EditorId").val();
+
+            if (modelId === null || modelId.length === 0) {
+                modelId = null;
+                window.Showbusy(event);
+            }
+
+            var row;
+            if (code === '@CodeConstManager.EXP_DrugSubstanceCode') {
+                row = $(this).closest('.group-subtance');
+            } else {
+                row = $(this).closest('tr');
+            }
+            var entityId;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+
+            var dosagePanel = $(this).closest('.panel-success');
+            var dosageId;
+            if (dosagePanel != null) {
+                dosageId = dosagePanel.attr('rowid');
+            }
+
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateSubModel")',
+                data: { 'code': code, 'modelId': modelId, 'subModelId': dosageId, 'userId': userId, 'recordId': entityId, 'fieldName': fieldId, 'fieldValue': fieldValue, 'fieldDisplay': fieldDisplay },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (modelId === null) {
+                        $("#modelId").val(data.modelId);
+                        $("#loading").hide();
+                    }
+                    if (data.recordId > 0) {
+                        row.attr("rowid", data.recordId);
+                        dosagePanel.attr("rowid", data.submodelId);
+                        //                    var codeControl = code + '_' + data.recordId + '_' + fieldName;
+                        $('#' + fieldId).attr('id', data.controlId);
+                    }
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+        });
+    }
+
+    function changeSubstanceManufactureCollection(control) {
+        $(control).change(function () {
+            var fieldId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+           
+            if (!checkValidateion(type, fieldValue, fieldId)) {
+                return;
+            }
+            var userId = $("#EditorId").val();
+            var modelId = $("#modelId").val();
+          
+            var row = $(this).closest('tr');
+            var entityId=0;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+      
+          
+            var dosagePanel = $(this).closest('.panel-warning');
+            var dosageId=0;
+            if (dosagePanel != null) {
+                dosageId = dosagePanel.attr('rowid');
+            }
+            if (dosageId === "0") {
+                $(this).val("");
+                showWarning("Внесите данные по составу");
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateSubModel")',
+                data: { 'code': '@CodeConstManager.EXP_DrugSubstanceManufactureCode', 'modelId': modelId, 'subModelId': dosageId, 'userId': userId, 'recordId': entityId, 'fieldName': fieldId, 'fieldValue': fieldValue, 'fieldDisplay': fieldDisplay },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (modelId === null) {
+                        $("#loading").hide();
+                    }
+                    if (data.recordId > 0) {
+                        row.attr("rowid", data.recordId);
+                        $('#' + fieldId).attr('id', data.controlId);
+                    }
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+        });
+    }
+    function changeWrappingList(control) {
+        changeDosageCollection(control, '@CodeConstManager.EXP_DrugWrappingCode');
+    }
+   
+    function changePriceList(control) {
+        changeDosageCollection(control, '@CodeConstManager.EXP_DrugPrice');
+    }
+</script>
+<!--addSmanufactureRow-->
+<script type="text/javascript">
+    function addSmanufactureRow(idocntrol) {
+        $(idocntrol).on("click",
+            function () {
+                //var row = $(this).closest("tr").prev();
+                var table = $(this).closest("table");
+                var tbody = table.find('tbody:first');
+
+                var lastRowIndex = tbody.children('tr').length;
+
+                var nextIndex = parseInt(lastRowIndex) + 1;
+                var wrapTypeDiv = document.getElementById("substanceCountiesDiv");
+                var idWrappingType = "a" + nextIndex + '_CountryId';
+                var nameWrappingType ='ExpDrugSubstanceManufactures[' + nextIndex + '].CountryId';
+
+                var wrapTypeStr = replaceAll('id="CountryId"',
+                    'id="' + idWrappingType + '"',
+                    wrapTypeDiv.innerHTML);
+                wrapTypeStr = replaceAll('name="CountryId"', 'name="' + nameWrappingType + '"', wrapTypeStr);
+
+              
+                var cols = '<tr rowid="0" rowindex="' + nextIndex + '"  class="substanceManufacture-row">';
+
+
+                var idWrappingSize = "a" + nextIndex + "_ProducerName";
+                var idWrappingVolume = "a" + nextIndex + "_ProducerAddress";
+                cols += '<td><div class="input-group"><input type="text" name="ExpDrugSubstanceManufactures' +
+                    '[' +
+                    nextIndex +
+                    '].ProducerName" id="' +
+                    idWrappingSize +
+                    '" class="smanufacture-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                cols += '<td>' + wrapTypeStr + '</td>';
+
+                cols += '<td><div class="input-group"><input type="text" name="ExpDrugSubstanceManufactures' +
+                    '[' +
+                    nextIndex +
+                    '].ProducerAddress" id="' +
+                    idWrappingVolume +
+                    '" class="smanufacture-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+                cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                cols += '</tr>';
+                tbody.append(cols);
+                changeSubstanceManufactureCollection("#" + idWrappingType);
+                changeSubstanceManufactureCollection("#" + idWrappingSize);
+                changeSubstanceManufactureCollection("#" + idWrappingVolume);
+               
+            });
+    }
+</script>
+<!--addWrapRow-->
+<script type="text/javascript">
+    function addWrapRow(idocntrol, indexDosage) {
+        $(idocntrol).on("click",
+            function () {
+                //var row = $(this).closest("tr").prev();
+                var table = $(this).closest("table");
+                var tbody = table.find('tbody:first');
+
+                var lastRowIndex = tbody.children('tr').length;
+                var kindObject = "ExpDrugWrappings";
+
+                var nextIndex = parseInt(lastRowIndex) + 1;
+                nextIndex = indexDosage + "_" + nextIndex;
+                var wrapTypeDiv = document.getElementById("wrapTypeDiv");
+                var idWrappingType = "wrapping_a" + nextIndex + '_WrappingTypeId';
+                var nameWrappingType = kindObject + '[' + nextIndex + '].WrappingTypeId';
+
+                var wrapTypeStr = replaceAll('id="WrappingTypeId"',
+                    'id="' + idWrappingType + '"',
+                    wrapTypeDiv.innerHTML);
+                wrapTypeStr = replaceAll('name="WrappingTypeId"', 'name="' + nameWrappingType + '"', wrapTypeStr);
+
+
+                var mesureDiv = document.getElementById("mesureDiv");
+
+                var idSizeMeasure = "wrapping_a" + nextIndex + '_SizeMeasureId';
+                var nameSizeMeasure = kindObject + '[' + nextIndex + '].SizeMeasureId';
+
+                var idVolumeMeasure = "wrapping_a" + nextIndex + '_VolumeMeasureId';
+                var nameVolumeMeasure = kindObject + '[' + nextIndex + '].VolumeMeasureId';
+
+                var sizeMeasureStr = replaceAll('id="MesureId"', 'id="' + idSizeMeasure + '"', mesureDiv.innerHTML);
+                sizeMeasureStr = replaceAll('name="MesureId"', 'name="' + nameSizeMeasure + '"', sizeMeasureStr);
+
+                var volumeMeasureStr = replaceAll('id="MesureId"', 'id="' + idVolumeMeasure + '"', mesureDiv.innerHTML);
+                volumeMeasureStr = replaceAll('name="MesureId"', 'name="' + nameVolumeMeasure + '"', volumeMeasureStr);
+
+                var cols = '<tr rowid="0" rowindex="' + nextIndex + '"  class="wrapping-row">';
+                var eventDiv = document.getElementById("animalDiv");
+
+                var idEvent = "wrapping_a" + nextIndex + '_WrappingKindId';
+                var nameEvent = kindObject + '[' + nextIndex + '].WrappingKindId';
+                var envetStr = replaceAll('id="WrappingKindId"', 'id="' + idEvent + '"', eventDiv.innerHTML);
+                envetStr = replaceAll('name="WrappingKindId"', 'name="' + nameEvent + '"', envetStr);
+
+                var idWrappingSize = "wrapping_a" + nextIndex + "_WrappingSizeStr";
+                var idWrappingVolume = "wrapping_a" + nextIndex + "_WrappingVolumeStr";
+                var idCountUnit = "wrapping_a" + nextIndex + "_CountUnit";
+                var idNote = "wrapping_a" + nextIndex + "_Note";
+                cols += '<td><input type="checkbox" class="check-wrap"></td>';
+                cols += '<td>' + wrapTypeStr + '</td>';
+                cols += '<td>' + envetStr + '</td>';
+                cols += '<td><div class="input-group"><input type="text" name="' +
+                    kindObject +
+                    '[' +
+                    nextIndex +
+                    '].WrappingSizeStr" id="' +
+                    idWrappingSize +
+                    '" class="wrapping-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                cols += '<td>' + sizeMeasureStr + '</td>';
+                cols += '<td><div class="input-group"><input type="text" name="' +
+                    kindObject +
+                    '[' +
+                    nextIndex +
+                    '].WrappingVolumeStr" id="' +
+                    idWrappingVolume +
+                    '" class="wrapping-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                cols += '<td>' + volumeMeasureStr + '</td>';
+                cols += '<td><div class="input-group"><input type="text" name="' +
+                    kindObject +
+                    '[' +
+                    nextIndex +
+                    '].CountUnit" id="' +
+                    idCountUnit +
+                    '" class="wrapping-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                cols += '<td><div class="input-group"><input type="text" name="' +
+                    kindObject +
+                    '[' +
+                    nextIndex +
+                    '].Note" id="' +
+                    idNote +
+                    '" class="wrapping-control edit-control form-control growed" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+                cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                cols += '</tr>';
+                tbody.append(cols);
+                createNewAnimalList(idEvent);
+                changeWrappingList("#" + idWrappingType);
+                changeWrappingList("#" + idSizeMeasure);
+                changeWrappingList("#" + idVolumeMeasure);
+                changeWrappingList("#" + idWrappingSize);
+                changeWrappingList("#" + idWrappingVolume);
+                changeWrappingList("#" + idCountUnit);
+                changeWrappingList("#" + idNote);
+            });
+    }
+</script>
+
+<!--addPriceRow-->
+<script type="text/javascript">
+
+
+    function addPriceRow(control) {
+        $(control).on("click", function () {
+            var warning = "";
+            var kinds1 = [];
+            var kinds2 = [];
+            var kinds3 = [];
+            var calc = 1;
+            var isExist = false;
+            var table = $(this).closest("table");
+            var tbody = table.find('tbody:first');
+
+            tbody.find('.check-wrap').each(function () {
+                if (!$(this).prop('checked')) {
+                    return;
+                }
+                isExist = true;
+                var row = $(this).parent().closest('tr');
+                row.attr("rowid");
+                var recordId = parseInt(row.attr("rowid"));
+                if (recordId > 0) {
+
+                    var rowIndex = row.index() + 1;
+                    var wrappingTypeId = "#" + row.find("td").eq(1).find("select").eq(0).attr("id");
+                    var wrappingKindId = "#" + row.find("td").eq(2).find("select").eq(0).attr("id");
+                    if ($(wrappingTypeId) == null ||
+                        $(wrappingTypeId).val() == null ||
+                        $(wrappingTypeId).val().length === 0) {
+                        warning += "Сторка: " + rowIndex + " не указан 'Вид'; ";
+                    }
+                    if ($(wrappingKindId) == null || $(wrappingKindId).val() == null || $(wrappingKindId).val().length === 0) {
+                        warning += "Сторка: " + rowIndex + " не указана 'Наименование'; ";
+                    } else {
+                        var kindValue = $(wrappingKindId).val();
+                        switch ($(wrappingTypeId).val()) {
+                        case "1": { kinds1.push(kindValue); break; }
+                        case "2": { kinds2.push(kindValue); break; }
+                        case "3": { kinds3.push(kindValue); break; }
+                        }
+                    }
+                    var countUnit = "#" + row.find("td").eq(7).find("input").eq(0).attr("id");
+                    if ($(countUnit) == null || $(countUnit).val() == null || $(countUnit).val().length === 0) {
+                        warning += "Сторка: " + rowIndex + " не указана 'Кол-во единиц в упаковке'; ";
+                    } else {
+                        calc = calc * parseFloat($(countUnit).val());
+                    }
+                }
+
+            });
+
+            if (!isExist) {
+                showWarning("Установите галочки в упаковках");
+                return;
+            }
+            if (warning.length > 0) {
+                showWarning(warning);
+                return;
+            }
+            var dosagePanel = $(this).closest('.panel-success');
+            var dosageId = 0;
+            if (dosagePanel != null) {
+                dosageId = dosagePanel.attr('rowid');
+            }
+
+            if (dosageId === 0) {
+                return;
+            }
+            var bodyPrice = dosagePanel.find('.tableDrugPrice').eq(0).find("tbody").eq(0);
+            var userId = $("#EditorId").val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SetPrice")',
+                data: { 'dosageId': dosageId, 'userId': userId, 'kinds1': kinds1.join(','), 'kinds2': kinds2.join(','), 'kinds3': kinds3.join(','), 'calc': calc },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    var cols = '<tr rowid="' + data.recordId + '">';
+                    var code = "drugPrice_" + dosageId + "_" + data.recordId + "_";
+
+                    var idPrimaryText = code + 'PrimaryText';
+                    var idSecondaryText = code + 'SecondaryText';
+                    var idIntermediateText = code + 'IntermediateText';
+                    var idCountUnit = code + 'CountUnit';
+                    var idBarcode = code + 'Barcode';
+                    var idRefPrice = code + 'RefPrice';
+                    var idRegPrice = code + 'RegPrice';
+                    var idManufacturePrice = code + 'ManufacturePrice';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idPrimaryText + '" value ="' + data.PrimaryText + '" class="price-control edit-control form-control" readonly="readonly" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idSecondaryText + '" value ="' + data.SecondaryText + '" class="price-control edit-control form-control" readonly="readonly" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idIntermediateText + '" value ="' + data.IntermediateText + '" class="price-control edit-control form-control" readonly="readonly" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idCountUnit + '" value ="' + data.CountUnit + '" class="price-control edit-control form-control" readonly="readonly" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idBarcode + '" class="price-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idManufacturePrice + '" class="price-control edit-control form-control" typeField = "float" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idRefPrice + '" class="price-control edit-control form-control" typeField = "float" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text"  id="' + idRegPrice + '" class="price-control edit-control form-control" typeField = "float" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                    cols += '</tr>';
+                    bodyPrice.append(cols);
+                    changePriceList("#" + idBarcode);
+                    changePriceList("#" + idRefPrice);
+                    changePriceList("#" + idRegPrice);
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+        });
+
+    }
+</script>
+
+<!--PriceRow-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        changeSubstanceManufactureCollection(".smanufacture-control");
+        changeWrappingList(".wrapping-control");
+        addWrapRow(".add-wrapping");
+        addSmanufactureRow(".add-smanufacture");
+        addPriceRow(".add-price");
+        addSubstance(".add-substance");
+        $(".tableSubstanceManufacture").on("click",
+            ".deleteRow",
+            function () {
+
+                var row = $(this).closest('tr');
+                var success = function () {
+                    var entityId = row.attr('rowid');
+                    DeleteRecord('@CodeConstManager.EXP_DrugSubstanceManufactureCode', entityId);
+                    row.remove();
+                }
+                var cancel = function () {
+                };
+                showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+            });
+        $(".tableWrapping").on("click",
+            ".deleteRow",
+            function () {
+
+                var row = $(this).closest('tr');
+                var success = function () {
+                    var entityId = row.attr('rowid');
+                    DeleteRecord('@CodeConstManager.EXP_DrugWrappingCode', entityId);
+                    row.remove();
+                }
+                var cancel = function () {
+                };
+                showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+            });
+        $(".tableDrugPrice").on("click",
+            ".deleteRow",
+            function () {
+
+                var row = $(this).closest('tr');
+                var success = function () {
+                    var entityId = row.attr('rowid');
+                    DeleteRecord('@CodeConstManager.EXP_DrugPrice', entityId);
+                    row.remove();
+                }
+                var cancel = function () {
+                };
+                showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+            });
+
+    });
+</script>
+
+<!--substance-->
+<script type="text/javascript">
+    function tooglePangel(param) {
+        $(param).parent().parent().parent().find('.divpanel').toggle();
+    }
+    function removeSubPanel(param) {
+        var success = function () {
+            var rootPanel = $(param).parent().parent().parent();
+            var entityId = rootPanel.attr('rowid');
+            if (entityId != null && entityId.length > 0) {
+                DeleteRecord('@CodeConstManager.EXP_DrugSubstanceCode', entityId);
+            }
+            rootPanel.remove();
+        }
+        var cancel = function () {
+        };
+        showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+
+    }
+</script>
+
+<!--changeSubstanceList-->
+<script type="text/javascript">
+    function changeSubstanceList(control) {
+        changeDosageCollection(control, '@CodeConstManager.EXP_DrugSubstanceCode');
+    }
+
+    function changeSubstanceList1(control) {
+        $(control).change(function () {
+            var fieldId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+            var row = $(this).closest('.group-subtance');
+            var entityId;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+
+            if (type === "float") {
+                if (fieldValue != null && fieldValue.length > 0) {
+                    fieldValue = replaceAll(' ', '', fieldValue);
+                    if (fieldValue.indexOf(',') > 0) {
+                        fieldValue = fieldValue.replace(',', '.');
+                    }
+                    if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                        showWarning('@ResourceSetting.sInputNumberRequired');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue.indexOf('-') > -1) {
+                        showWarning('@ResourceSetting.enterNumberNotMinus');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                }
+            }
+            if (type === "long") {
+                if (fieldValue != null && fieldValue.length > 0) {
+                    if (fieldValue.indexOf(',') > 0 || fieldValue.indexOf('.') > 0) {
+                        showWarning("Введите целое число");
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                        showWarning('@ResourceSetting.sInputNumberRequired');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                    if (fieldValue.indexOf('-') > -1) {
+                        showWarning('@ResourceSetting.enterNumberNotMinus');
+                        $('#' + fieldId).val("");
+                        return false;
+                    }
+                }
+            }
+
+            var modelId = $("#modelId").val();
+            var userId = $("#EditorId").val();
+            if (modelId === null || modelId.length === 0) {
+                modelId = null;
+                window.Showbusy(event);
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateModel")',
+                data: {
+                    'code': '@CodeConstManager.EXP_DrugSubstanceCode',
+                    'modelId': modelId,
+                    'userId': userId,
+                    'recordId': entityId,
+                    'fieldName': fieldId,
+                    'fieldValue': fieldValue,
+                    'fieldDisplay': fieldDisplay
+                },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (modelId === null) {
+                        $("#modelId").val(data.modelId);
+                        $("#loading").hide();
+                    }
+                    if (data.recordId > 0) {
+                        row.attr("rowid", data.recordId);
+                        //                    var codeControl = code + '_' + data.recordId + '_' + fieldName;
+                        $('#' + fieldId).attr('id', data.controlId);
+                    }
+                },
+                error: function (data) {
+                    alert("1Error" + data);
+                }
+            });
+
+        });
+    }
+</script>
+
+<!--addSubstance-->
+<script type="text/javascript">
+    function addSubstance(control, indexDosage) {
+        $(control).on("click",
+            function () {
+                var rowindex = $(".group-subtance").last().attr('rowindex');
+                var nextIndex = parseInt(rowindex, 10) || 0;
+                nextIndex = nextIndex + 1;
+                nextIndex = indexDosage + "_" + nextIndex;
+                var idSubstanceId = "substance_a" + nextIndex + "_SubstanceId";
+                var nextStr = 'rowindex = "' + nextIndex + '"';
+                var sub = "subcontrol" + nextIndex;
+                var templSubstanceDiv = document.getElementById("templSubstanceDiv");
+                var envetStr = replaceAll('sub-control', sub, templSubstanceDiv.innerHTML);
+                envetStr = replaceAll('rowindex = "-1"', nextStr, envetStr);
+                envetStr = replaceAll('substance_0_-1_SubstanceId', idSubstanceId, envetStr);
+                $(this).parent().parent().find(".collectionSubDiv").eq(0).append(envetStr);
+                changeSubstanceList("." + sub);
+                selectSubstance("#" + idSubstanceId);
+            });
+    }
+
+    $(document).ready(function () {
+        changeSubstanceList(".sub-control");
+        selectSubstance(".search-substance");
+
+        $('.substance-names').each(function () {
+            var idcontrol = $(this).attr('idcontrol');
+            var code = '@CodeConstManager.EXP_DrugSubstanceCode' + "_" + idcontrol + "_SubstanceId";
+            $("#" + code).select2("data", { id: $(this).attr('substanceId'), text: $(this).attr('text') });
+        });
+    });
+
+    function selectSubstance(idcontrol) {
+        var attendeeUrl = '@Url.Action("SelectSubstance")';
+        var pageSize = 20;
+
+        $(idcontrol).select2(
+        {
+            placeholder: 'Введите часть слова',
+            minimumInputLength: 3,
+            allowClear: true,
+            ajax: {
+                quietMillis: 150,
+                url: attendeeUrl,
+                dataType: 'jsonp',
+                data: function (term, page) {
+                    return {
+                        pageSize: pageSize,
+                        pageNum: page,
+                        searchTerm: term
+                    };
+                },
+                results: function (data, page) {
+                    var more = (page * pageSize) < data.Total;
+                    return { results: data.Results, more: more };
+                }
+            }
+        }).on("change",
+            function (e) {
+                var val = e.val;
+                var control = $(this).parent().parent().parent();
+           
+                if (val == null || val.length === 0) {
+                    //                    $("#drugform_kz").val("");
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSubstanceNames")',
+                    data: { 'id': val },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        if (data.categoryName != null) {
+                            var isControl = $(control).find('.is-control');
+                            $(isControl).val("True");
+                        }
+                        if (data.isSuccess) {
+                            control.find("p").each(function () {
+                                if ($(this).hasClass("categoryName")) {
+                                    $(this).text(data.categoryName);
+                                }
+                                if ($(this).hasClass("categoryPos")) {
+                                    $(this).text(data.categoryPos);
+                                }
+                            });
+                         
+
+                        } else {
+
+                        }
+                    },
+                    error: function () {
+                        alert("Connection Failed. Please Try Again");
+                    }
+                });
+
+            });
+    }
+
+
+</script>

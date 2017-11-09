@@ -1,0 +1,114 @@
+﻿@using PW.Ncels.Database.Helpers
+@model System.Collections.Generic.IEnumerable<PW.Ncels.Database.Models.Common.FileGroup>
+@{
+    var downloadActionGrp = "/Upload/FileDownload?";
+    var removeActionGrp = "/Upload/FileDelete?";
+    var path = (Guid)ViewBag.Path;
+    var currentEmployeeGuid = UserHelper.GetCurrentEmployee().Id;
+    var guid = Guid.NewGuid();
+}
+<style>
+    .tbl_rdHist {
+        table-layout: fixed;
+        width: 100%;
+    }
+    .tbl_rdHist tbody td.comment {
+        word-wrap: break-word;
+    }
+</style>
+<div id="rdDocumentsHistory_@guid">
+    <script>
+        function ReloadHistoryGrid(el, url) {
+            var pathId = '@path';
+            var curGuid = '@guid';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: 'html',
+                data: { id: pathId },
+                success: function (result) {
+                    $(el).html(result);
+                },
+                error: function (xhr, status, error) {
+                    ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+                }
+            });
+        }
+
+        function SuccessAndUploaded() {
+            var url = '@Url.Action("GetRdDocumentsHistoryAnd", "DrugDeclaration")';
+            var el = $('#andTab');
+            ReloadHistoryGrid(el, url);
+        }
+
+        function SuccessMaketUploaded() {
+            var el = $('#maketTab');
+            var url = '@Url.Action("GetRdDocumentsHistoryMaket", "DrugDeclaration")';
+            ReloadHistoryGrid(el, url);
+        }
+
+        function SuccessInstructionUploaded() {
+            var el = $('#instrTab');
+            var url = '@Url.Action("GetRdDocumentsHistoryInstruction", "DrugDeclaration")';
+            ReloadHistoryGrid(el,url);
+        }
+
+        function SwitchToExecuteUpdate(activeTab) {
+            switch(activeTab) {
+                case "instrTab":
+                    SuccessInstructionUploaded();
+                    break;
+                case "maketTab":
+                    SuccessMaketUploaded();
+                    break;
+                case "andTab":
+                    SuccessAndUploaded();
+                    break;
+            }
+        }
+
+        function TryRemoveHistoryFile(elem) {
+            var url = $(elem).data('link');
+            var activeTab = $(elem).data('activetab');
+            $.ajax({
+                type: 'GET',
+                url: url,
+                success: function (result) {
+                    SwitchToExecuteUpdate(activeTab);
+                },
+                error: function (xhr, status, error) {
+                    ShowAlert('Внимание!', "Не удалось выполнить операцию", window.AlertType.Error, 3000);
+                }
+            });
+        }
+    </script>
+<div>
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#instrTab">Инструкция</a></li>
+    <li><a data-toggle="tab" href="#maketTab">Макет</a></li>
+    <li><a data-toggle="tab" href="#andTab">АНД</a></li>
+</ul>
+<div class="tab-content">
+<div id="instrTab" class="tab-pane fade in active">
+    @{
+        var instrGroup = Model.FirstOrDefault(x => x.Code == "4");
+    }
+    @Html.Partial("GetRdDocumentsHistoryInstruction", instrGroup)
+</div>
+<div id="maketTab" class="tab-pane fade">
+    @{
+        var maketGroup = Model.FirstOrDefault(x => x.Code == "3");
+    }
+    @Html.Partial("GetRdDocumentsHistoryMaket", maketGroup)
+</div>
+<div id="andTab" class="tab-pane fade">
+    @{
+        var andGroup = Model.FirstOrDefault(x => x.Code == "5");
+    }
+    @Html.Partial("GetRdDocumentsHistoryAnd",andGroup)
+</div>
+</div>
+</div>
+
+
+</div>

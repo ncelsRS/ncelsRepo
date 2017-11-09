@@ -1,0 +1,317 @@
+﻿@model PW.Ncels.Database.Models.TaskAction
+
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+            <span data-role="view-title">Поручение</span>
+            <a class="nav-button" data-align="right" data-role="button" id="done" onclick="assignmentClick()">Да</a>
+        </div>
+    </header>
+<div data-role="scroller" data-use-native="true">
+    <form id="formReassignment">
+        <ul id="assignmentListView">
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Документ_298__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <span id="@("DocumenetNumber" + Model.Id)" data-bind="text: task.DocumenetNumber" class="pw-right-fix"></span>
+
+
+                        @PW.Ncels.Database.Recources.Messages.Property_от_400__00
+
+                        <span id="@("DocumenetDate" + Model.Id)" data-bind="text: task.DocumenetDate"></span>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                         <label>
+                             @PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                         <input id="ExecutionDateAssignment" name="ExecutionDateAssignment" type="text" data-bind="value:task.ExecutionDate" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00"/>
+                    </div>
+                 </div>
+            </li>
+            <li>
+                @*<div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">*@
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Текст_351__00
+                        @*</label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>*@
+                            <input id="@("Text" + Model.Id)" name="Text" class="pw-text" type="text" data-bind="value: task.Text"  required validationmessage="Текст:"/>
+                        </label>
+                    @*</div>
+                </div>*@
+            </li>
+            <li>
+                <label>
+                    @PW.Ncels.Database.Recources.Messages.Property_Исполнители_237__00
+                </label>
+            </li>
+            <li>
+              <div class="fullTaskMobileWindow">
+                <div class="leftTaskMobileWindow">
+                <button id="addComboAssignment" data-animated="true"></button>
+            </div>
+            <div class="rightTaskMobileWindow pw-validation">
+                <select id="executorAssignment" required validationmessage="!">
+                    <option  value="" disabled selected>@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00</option>
+                </select>
+                </div>
+            </div>
+            </li>
+        </ul>
+        
+    </form>
+</div>
+<div id="containerAssignment"></div>
+    <script>
+
+    $.ajax({
+        url: '/Reference/ListEmploye',
+        contentType: 'application/json; charset=utf-8',
+        type: "POST",
+        dataType: 'json',
+        success: function (response) {
+            for (var k = 0; k < response.length; k++) {
+                $("<option />", {value: response[k].Id, text: response[k].Name}).appendTo("#executorAssignment");
+            }
+
+        },
+        error: function () {
+            alert("error");
+        }
+    });
+    var validator = $("#formReassignment").kendoValidator().data("kendoValidator");
+
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+        var viewModel = kendo.observable({
+            task: data,
+            hasChanges:false,
+            change: function () {
+                if (this.task.get('ExecutorId') != null && this.task.get('ExecutorId').length > 0) {
+                    this.set('hasChanges', true);
+                } else {
+                    this.set('hasChanges', false);
+                }
+            }
+
+        });
+
+        var i = 1;
+
+        function assignmentClick(){
+            if (validator.validate())
+            {
+                startLoading();
+                var employees = [];
+                //
+                var mainExecutorAssignmentId=$('#executorAssignment').val();
+                var mainExecutorAssignmentName=$("#executorAssignment option:selected").text();
+                if(mainExecutorAssignmentId!=null){
+                    employees.push({
+                        "Id" : mainExecutorAssignmentId,
+                        "Name"  : mainExecutorAssignmentName
+                    });
+                }
+                var executorAssignmentId;
+                var executorAssignmentName;
+                for (j = 1 ; j <= i ; j++){
+
+                    if ($("#comboAssignment"+j).val()!=null){
+                        executorAssignmentId = $("#comboAssignment"+j).val();
+                        executorAssignmentName=$("#comboAssignment"+j+" option:selected").text();
+                        employees.push({
+                            "Id" : executorAssignmentId,
+                            "Name"  : executorAssignmentName
+                        });
+                    }
+                }
+                viewModel.set('task.ExecutorId',employees);
+                var json = JSON.stringify(viewModel.get('task'));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Mobile/AssignmentConfirm?TaskId=' + name,
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        kendo.mobile.application.navigate("#:back");
+                        kendo.mobile.application.pane.loader.hide();
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        function startLoading() {
+            kendo.mobile.application.changeLoadingMessage("Ждите!");
+            kendo.mobile.application.showLoading();
+        }
+        $("#addComboAssignment").click(function(){
+            //
+            var li = document.createElement("li");
+            var liId = document.createAttribute("id");
+            liId.value  = "liId"+i;
+            li.setAttributeNode(liId);
+            $('#assignmentListView').find(' > li:nth-last-child(1)').after(li);
+            //
+            var fullDiv = document.createElement("DIV");
+            var fullDivId = document.createAttribute("id");
+            fullDivId.value  = "fullDivIdAssignment"+i;
+            fullDiv.setAttributeNode(fullDivId);
+            var fullDivClass = document.createAttribute("class");
+            fullDivClass.value="fullTaskMobileWindow";
+            fullDiv.setAttributeNode(fullDivClass);
+            document.getElementById("liId"+i).appendChild(fullDiv);
+
+            var leftDiv = document.createElement("DIV");
+            var divId = document.createAttribute("id");
+            divId.value  = "leftDivIdAssignment"+i;
+            leftDiv.setAttributeNode(divId);
+            var divClass = document.createAttribute("class");
+            divClass.value="rightTaskMobileWindow pw-validation";
+            leftDiv.setAttributeNode(divClass);
+            document.getElementById("fullDivIdAssignment"+i).appendChild(leftDiv);
+
+           //
+            var combobox = document.createElement("SELECT");
+            var idCombo = document.createAttribute("id");
+            idCombo.value  = "comboAssignment"+i;
+            combobox.setAttributeNode(idCombo);
+            document.getElementById("leftDivIdAssignment"+i).appendChild(combobox);
+            var optionAssignment = document.createElement("OPTION");
+            document.getElementById("comboAssignment"+i).appendChild(optionAssignment);
+            $(combobox).find('option:first').remove();
+            $("<option />", {value: "",disabled:true, selected:true, text: "Выберите значение"}).appendTo(combobox);
+           
+            $.ajax({
+                url: '/Reference/ListEmploye',
+                contentType: 'application/json; charset=utf-8',
+                type: "POST",
+                dataType: 'json',
+                success: function (response) {
+                    for (var k = 0; k < response.length; k++) {
+                        $("<option />", {value: response[k].Id, text: response[k].Name}).appendTo(combobox);
+                    }
+
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+            document.getElementById("comboAssignment"+i).setAttribute("name", "comboAssignment"+i);
+            document.getElementById("comboAssignment"+i).setAttribute("required", "required");
+            document.getElementById("comboAssignment"+i).setAttribute("validationmessage", "!");
+            document.getElementById("comboAssignment"+i).setAttribute("class", "pw-validate");
+            //
+            var deleteButton = document.createElement("BUTTON");
+            var classButton = document.createAttribute("class");
+            // var deleteText = document.createTextNode("delete");
+            var deleteId = document.createAttribute("id");
+            deleteId.value  = "deleteAssignment"+i;
+            deleteButton.setAttributeNode(deleteId);
+            // deleteButton.appendChild(deleteText);
+            classButton.value  = "buttonidAssignment";
+            deleteButton.setAttributeNode(classButton);
+            deleteButton.addEventListener("click",
+              removeEmployee, false);
+
+            var rightDiv = document.createElement("DIV");
+            var divIdRight = document.createAttribute("id");
+            divIdRight.value  = "rightDivIdAssignment"+i;
+            rightDiv.setAttributeNode(divIdRight);
+            var divClassRight = document.createAttribute("class");
+            divClassRight.value="leftTaskMobileWindow";
+            rightDiv.setAttributeNode(divClassRight);
+            document.getElementById("fullDivIdAssignment"+i).appendChild(rightDiv);
+
+            document.getElementById("rightDivIdAssignment"+i).appendChild(deleteButton);
+            $("#deleteAssignment"+i).kendoMobileButton({
+                icon: "delete"
+            });
+            i++;
+        });
+
+        function removeEmployee(){
+            var str = this.id;
+            var id=str.replace("deleteAssignment", "");
+            $("#liId"+id).remove();
+        }
+        $("#ExecutorsIdAssignment" + name).kendoDropDownList({
+            dataTextField: "Name",
+            dataValueField: "Id",
+            optionLabel   :'@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00',
+        //filter: "contains",
+        //maxSelectedItems: 1,
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/AllListEmploye'
+                }
+            }
+        }
+    });
+
+    $("#addComboAssignment").kendoMobileButton({
+        icon: "add"
+    });
+
+
+    var $input = $("#ExecutionDateAssignment").pickadate({
+        format: 'dd.mm.yyyy',
+        formatSubmit: 'dd/mm/yyyy',
+
+        // min: [2015, 7, 14],
+        container: '#containerAssignment',
+        // editable: true,
+        closeOnSelect: true,
+        closeOnClear: false,
+        //selectYears: true,
+        //selectMonths: true,
+        firstDay: 1
+    });
+    var picker = $input.pickadate('picker');
+    $("#ExecutionDateAssignment").attr("readonly", false);
+
+
+    $("#ResponsibleId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+
+    kendo.bind($("#formReassignment"), viewModel);
+    var temp = viewModel.get('task.ExecutionDate');
+    if (temp != null) {
+        var date = temp.toString();
+        // viewModel.set('task.ExecutionDate', isoDateReviver(date));
+    }
+    $("#ExecutionDateAssignment").val(kendo.toString(kendo.parseDate($("#ExecutionDateAssignment").val()), "dd.MM.yyyy"));
+
+    </script>

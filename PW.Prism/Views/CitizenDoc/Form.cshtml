@@ -1,0 +1,329 @@
+﻿@using System.Activities.Statements
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid[]
+
+<div class="pwToolbar" id="@("docToolbar"+ Model[0])">
+    <div class="btn-toolbar" role="toolbar">
+        
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: save, enabled: hasChanges" id="@("save"+ Model[0])"><span class="pwToolbarButtonSave"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: register, enabled: hasRegister" id="@("register" + Model[0])"><span class="pwToolbarButtonRegister"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Зарегистрировать_116__00</span></button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: review, enabled: hasReview" id="@("review" + Model[0])"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Нарассмотрение_141__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: extensionExecution, enabled: hasExtensionExecution" id="@("extensionExecution" + Model[0])"><span class="pwToolbarButtonExecuteEx"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Продлитьисполнение_67__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: execute, enabled: hasExecute" id="@("execute" + Model[0])"><span class="pwToolbarButtonExecute"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнить_279__00</span></button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: print, enabled: hasPrint" id="@("print" + Model[0])"><span class="pwToolbarButtonPrint"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Печать_353__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: deleteDoc" id="@("delete" + Model)"><span class="pwToolbarButtonDelete"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Удалить_334__00</span></button>
+       
+         </div>
+    </div>
+</div>
+<div class="pwPage">
+    <table class="pwDocTable">
+        <colgroup>
+            <col width="180px" />
+            <col width="265px" />
+            <col width="10px" />
+            <col width="180px" />
+            <col width="265px" />
+        </colgroup>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Типобращения_172__00</td>
+            <td>
+                <select id="@("ApplicantType" + Model[0])" id="@("ApplicantType" + Model[0])" data-bind="value: document.ApplicantType, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ExecutionDate"+ Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00
+            </td>
+            <td>
+                <div></div>
+                <input name="@("ExecutionDate"+ Model[0])" id="@("ExecutionDate"+ Model[0])" data-role="datepicker" data-bind="value: document.ExecutionDate, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00" class="pwWidth100"  data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @PW.Ncels.Database.Recources.Messages.Property_Первичныйсрокисп_58__00
+            </td>
+            <td>
+                <input id="@("AutoFirstExecutionDate" + Model[0])" name="@("AutoFirstExecutionDate" + Model[0])" data-bind="value: document.FirstExecutionDate, events: { change: change }" class="pwWidth100" readonly />
+            </td>
+            <td></td>
+            <td>
+                @PW.Ncels.Database.Recources.Messages.Property_Фактическийсрокисп_42__00
+            </td>
+            <td>
+                <input id="@("AutoFactExecutionDate" + Model[0])" name="@("AutoFactExecutionDate" + Model[0])" data-bind="value: document.FactExecutionDate, events: { change: change }" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @PW.Ncels.Database.Recources.Messages.Property_Типконтроля_195__00
+            </td>
+            <td>
+                <select id="@("MonitoringType" + Model[0])" name="@("MonitoringType" + Model[0])" data-bind="value: document.MonitoringType, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" />
+            </td>
+            <td></td>
+        
+           
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Входящийномер_144__00</td>
+            <td>
+                <input name="@("Number"+ Model[0])" id="@("Number"+ Model[0])" data-bind="value: document.Number" class="pwWidth100 pwTextBoxReadonly" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("DocumentDate" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_От_393__00
+            </td>
+            <td>
+                <input name="@("DocumentDate"+ Model[0])" id="@("DocumentDate"+ Model[0])"  data-bind="value: document.DocumentDate, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("CorrespondentsInfo" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_ФИО_336__00
+            </td>
+            <td>
+                <input name="@("CorrespondentsInfo" + Model[0])" id="@("CorrespondentsInfo" + Model[0])" data-bind="value: document.CorrespondentsInfo, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_ФИО_336__00" />
+            </td>
+            <td></td>
+           
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("RegionId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Регион_1_1
+            </td>
+            <td>
+                <select id="@("RegionId" + Model[0])" name="@("RegionId" + Model[0])" data-bind="value: document.RegionId, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Регион_1_1" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ApplicantAddress" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Адрес_359__00
+            </td>
+            <td>
+                <input name="@("ApplicantAddress" + Model[0])" id="@("ApplicantAddress" + Model[0])" data-bind="value: document.ApplicantAddress, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ApplicantName" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Организция_272__001
+            </td>
+            <td>
+                <input name="@("ApplicantName" + Model[0])" id="@("ApplicantName" + Model[0])" data-bind="value: document.ApplicantName, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00" class="pwWidth100" data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Организция_272__001"/>
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("OutgoingNumber" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Исходящийномер_134__00
+            </td>
+            <td>
+                <input name="@("OutgoingNumber" + Model[0])" id="@("OutgoingNumber" + Model[0])" data-bind="value: document.OutgoingNumber, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00" class="pwWidth100" data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Исходящийномер_134__00"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ApplicantCategoryDictionaryId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Типавтора_239__00
+            </td>
+            <td>
+                <select name="@("ApplicantCategoryDictionaryId" + Model[0])" id="@("ApplicantCategoryDictionaryId" + Model[0])" data-bind="value: document.ApplicantCategoryDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Типавтора_239__00" />
+            </td>
+            <td></td>
+            <td>Email:</td>
+            <td>
+                <input name="@("ApplicantEmail" + Model[0])" id="@("ApplicantEmail" + Model[0])"  data-bind="value: document.ApplicantEmail, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ExecutorsId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Адресат_308__00
+            </td>
+            <td colspan="4">
+                <select name="@("ExecutorsId" + Model[0])" id="@("ExecutorsId"+ Model[0])" data-bind="value: document.ExecutorsId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Адресат_308__00" />
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_98__00</td>
+            <td colspan="4">
+                <input name="@("ResponsibleValue"+ Model[0])" id="@("ResponsibleValue"+ Model[0])" data-bind="value: document.ResponsibleValue, events: { change: change }" class="pwWidth100 pwTextBoxReadonly" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("CitizenTypeDictionaryId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Видобращения_173__00
+            </td>
+            <td>
+                <select name="@("CitizenTypeDictionaryId" + Model[0])" id="@("CitizenTypeDictionaryId" + Model[0])" data-bind="value: document.CitizenTypeDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Видобращения_173__00" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("QuestionDesignDictionaryId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Характервопроса_99__00
+            </td>
+            <td>
+                <select name="@("QuestionDesignDictionaryId"+ Model[0])" id="@("QuestionDesignDictionaryId"+ Model[0])" data-bind="value: document.QuestionDesignDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Характервопроса_99__00" />
+            </td>
+        </tr>
+        <tr style="height: 67px;">
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("Summary" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Краткоесодержание_69__00
+            </td>
+            <td colspan="4">
+                <textarea name="@("Summary"+ Model[0])" id="@("Summary"+ Model[0])" data-bind="value: document.Summary, events: { change: change }" class="pwWidth100 pwTextArea" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Краткоесодержание_69__00" />
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("PageCount" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_ЛистПрилДругое_70__00
+            </td>
+            <td>
+                <input id="@("PageCount" + Model[0])" name="@("PageCount" + Model[0])" data-bind="value: document.PageCount, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_ЛистПрилДругое_70__00" />&nbsp;/
+                <input id="@("CopiesCount" + Model[0])" name="@("CopiesCount" + Model[0])" data-bind="value: document.CopiesCount, events: { change: change }" style="width: 60px;" />&nbsp;/
+                <input id="@("Counters" + Model[0])" name="@("Counters" + Model[0])" data-bind="value: document.Counters, events: { change: change }" style="width: 125px;" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("LanguageDictionaryId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Языкдокумента_142__00
+            </td>
+            <td>
+                <select name="@("LanguageDictionaryId"+ Model[0])" id="@("LanguageDictionaryId"+ Model[0])" data-text-field="Name" data-value-field="Id" data-bind="value: document.LanguageDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Языкдокумента_142__00" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("FormDeliveryDictionaryId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_Виддоставки_197__00
+            </td>
+            <td>
+                <select name="@("FormDeliveryDictionaryId"+ Model[0])" id="@("FormDeliveryDictionaryId"+ Model[0])" data-bind="value: document.FormDeliveryDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Виддоставки_197__00" />
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Полученвответна_71__00</td>
+            <td colspan="4">
+                <select name="@("AnswersId"+ Model[0])" id="@("AnswersId"+ Model[0])" data-text-field="Name" data-value-field="Id" data-bind="value: document.AnswersId, events: { change: change }" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Кдокументу_223__00</td>
+            <td colspan="4">
+                <select name="@("CompleteDocumentsId"+ Model[0])" id="@("CompleteDocumentsId"+ Model[0])" data-text-field="Name" data-value-field="Id" data-bind="value: document.CompleteDocumentsId, events: { change: change }" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>Отправлены ответные*:</td>
+            <td>
+                <input name="@("AutoAnswersId"+ Model[0])" id="@("AutoAnswersId"+ Model[0])" data-bind="value: document.AutoAnswersId" class="pwWidth100 pwTextBoxReadonly" />
+            </td>
+            <td></td>
+            <td>Отправлены промежуточные*:</td>
+            <td>
+                <input name="@("AutoAnswersTempId"+ Model[0])" id="@("AutoAnswersTempId"+ Model[0])" data-bind="value: document.AutoAnswersTempId" class="pwWidth100 pwTextBoxReadonly" />
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Дело_375__00</td>
+            <td colspan="4">
+                <select name="@("NomenclatureDictionaryId"+ Model[0])" id="@("NomenclatureDictionaryId"+ Model[0])" data-bind="value: document.NomenclatureDictionaryId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Том_382__00</td>
+            <td>
+                <input name="@("Deed" + Model[0])" id="@("Deed" + Model[0])" data-bi data-bind="value: document.Deed" class="pwWidth100"  />
+            </td>
+            <td></td>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Листы_360__00</td>
+            <td>
+                <input name="@("Book" + Model[0])" id="@("Book" + Model[0])" data-bind="value: document.Book" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Акты_376__00</td>
+            <td colspan="4">
+                <input name="@("Akt" + Model[0])" id="@("Akt" + Model[0])" data-bind="value: document.Akt" class="pwWidth100"  />
+            </td>
+        </tr>
+        <tr id="@("attachEdit" + Model[0])">
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00</td>
+            <td colspan="4">
+                <input name="files" id="@("files" + Model[0])" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" />
+            </td>
+        </tr>
+        <tr id="@("attachReadonly" + Model[0])">
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00</td>
+            <td colspan="4">
+                @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("filesReadonly" + Model[0])
+                                .TagName("div").HtmlAttributes(new { @style = "border:0;" })
+                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadonly", "Upload", new { docId = Model[0] })))
+                )
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    SetReadonlyDoc('@(Model[0])', '@(EmployePermissionHelper.IsEditDoc)');
+    InitializeDataCitizen('@Model[0].ToString()', '@(Model.Length==2?Model[1].ToString():null)');
+</script>
+

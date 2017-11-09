@@ -1,0 +1,171 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+<style type="text/css">
+    .accepted-file {
+    }
+
+    .rejected-file {
+    }
+</style>
+<div class="modal fade" id="rejectConlucionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" currentId="">
+    <div class="modal-dialog" role="document">
+        <input type="hidden" id="currentIndex" value="">
+        <input type="hidden" id="idConlucion" value="">
+        <input type="hidden" id="idGroup" value="">
+        <input type="hidden" id="idCulture" value="">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">На доработку</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="noteConlucion" class="control-label">Замечание:</label>
+                        <textarea class="form-control" id="noteConlucion" rows="8"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-success" onclick="conclusionRejectConfirm()">Применить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<h4>Заключения</h4>
+<table class="table table-bordered table-hover tbl_rdHist">
+    <thead>
+        <tr>
+            <th>
+                Источник
+            </th>
+            <th>Файл</th>
+            <th>Замечания</th>
+            <th>Статус</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var i = 0;}
+        @foreach (var gr in Model.ConclusionSafetyReports.Where(e => e.Id != null))
+        {
+            var acceptBtn = "acceptBtn_" + i;
+            var acceptDisableBtn = "false";
+            var rejectDisableBtn = "false";
+            var rejectBtn = "rejectBtn_" + i;
+            var statusLabel = "statusLabel_" + i;
+            var remarkLabel = "remarkLabel_" + i;
+            i++;
+            if (gr.IsAccepted != null)
+            {
+                if (gr.IsAccepted.Value)
+                {
+                    acceptDisableBtn = "true";
+                }
+                else
+                {
+                    rejectDisableBtn = "true";
+                }
+            }
+            <tr>
+                <td>@gr.Title</td>
+                <td>@gr.FileName</td>
+                <td id="@remarkLabel">@gr.Remark</td>
+                <td id="@statusLabel">@gr.StatusName</td>
+                <td>
+                    <button class="btn btn-info btn-sm" type="button" security bp-type="project" onclick="location.href = '@gr.Url'">
+                        <i class="glyphicon glyphicon-eye-open"></i> Сформировать
+                    </button>
+                    <button type="button" class="btn btn-success btn-xs accepted-file" id="@acceptBtn" is-accepted="@acceptDisableBtn" name="@gr.Id" lang="@gr.Language" group="@gr.Category">
+
+                        <span class="glyphicon glyphicon-ok-sign"></span> Принять
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs rejected-file" id="@rejectBtn" is-accepted="@rejectDisableBtn" name="@gr.Id" lang="@gr.Language" group="@gr.Category">
+                        <span class="glyphicon glyphicon-remove-sign"></span> На доработку
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script type="text/javascript">
+    function conclusionRejectConfirm() {
+        confirmConclusion($("#idConlucion").val(),
+            $("#idGroup").val(),
+            false,
+            $("#noteConlucion").val(),
+            $("#idCulture").val(),
+            $("#currentIndex").val());
+    }
+
+
+    function confirmConclusion(id, category, isAccept, comment, culture, index) {
+        var params = JSON.stringify({
+            'modelId': id,
+            'category': category,
+            'isAccept': isAccept,
+            'comment': comment,
+            'culture': culture
+        });
+        $.ajax({
+            type: "POST",
+            url: '/DrugDeclaration/ConfirmConclusion',
+            data: params,
+            dataType: 'json',
+            cache: false,
+            contentType: "application/json; charset=utf-8",
+            success: function(data) {
+
+                if (isAccept) {
+                    $("#acceptBtn_" + index).attr('disabled', 'disabled');
+                    $("#rejectBtn_" + index).removeAttr("disabled");
+                } else {
+                    $("#acceptBtn_" + index).removeAttr("disabled");
+                    $("#rejectBtn_" + index).attr('disabled', 'disabled');
+
+                    $('#rejectConlucionModal').modal('hide');
+                }
+                $("#remarkLabel_" + index).text(comment);
+                $("#statusLabel_" + index).text(data.statusName);
+            },
+            error: function(data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('.accepted-file').each(function() {
+            if ('@Model.StatusId' === "8") {
+                if ($(this).attr("is-accepted") === "true") {
+                    $(this).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this).attr('disabled', 'disabled');
+            }
+        });
+        $('.rejected-file').each(function () {
+            if ('@Model.StatusId' === "8") {
+            if ($(this).attr("is-accepted") === "true") {
+                $(this).attr('disabled', 'disabled');
+            }
+            } else {
+                $(this).attr('disabled', 'disabled');
+            }
+        });
+        $(".accepted-file").click(function () {
+            var index = $(this).attr("id").split('_')[1];
+            confirmConclusion($(this).attr("name"), $(this).attr("group"), true, "", $(this).attr("lang"), index);
+        });
+        $(".rejected-file").click(function () {
+            var index = $(this).attr("id").split('_')[1];
+            $("#idConlucion").val($(this).attr("name"));
+            $("#idGroup").val($(this).attr("group"));
+            $("#idCulture").val($(this).attr("lang"));
+            $("#currentIndex").val(index);
+            $("#noteConlucion").val($("#remarkLabel_" + index).text());
+            $('#rejectConlucionModal').modal();
+        });
+        $("#noteConlucion").prop("readonly", false);
+    });
+</script>

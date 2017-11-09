@@ -1,0 +1,170 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.Models.Material.CreateMaterialViewModel
+
+<script>
+    var MaterialGrid = {
+        _callDialog: function (dataItem, url, text) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Материалы РД',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'gridMaterialList' + '@Model.DrugDeclarationId';
+            window.data("kendoWindow").title('Материалы РД');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        view: function () {
+            var grid = $('#gridMaterialList' + '@Model.DrugDeclarationId').data('kendoGrid');
+            var selectedRow = grid.select();
+            // var selectedItem = grid.dataItem(selectedRow);
+            if (selectedRow)
+                grid.editRow(selectedRow);
+        },
+        edit: function () {
+            var grid = $('#gridMaterialList' + '@Model.DrugDeclarationId').data('kendoGrid');
+            var selectedRow = grid.select();
+            // var selectedItem = grid.dataItem(selectedRow);
+            if (selectedRow)
+                grid.editRow(selectedRow);
+        },
+        remove: function () {
+            var grid = $('#gridMaterialList' + '@Model.DrugDeclarationId').data('kendoGrid');
+            var selectedRow = grid.select();
+            // var selectedItem = grid.dataItem(selectedRow);
+            if (selectedRow)
+                grid.removeRow(selectedRow);
+        },
+        accept: function () {
+            var grid = $('#gridMaterialList' + '@Model.DrugDeclarationId').data('kendoGrid');
+            var selectedRow = grid.select();
+            var dataItem = grid.dataItem(selectedRow);
+
+            var text = "Принять?";
+            var url = encodeURIComponent('@Url.Action("AcceptMaterials", "Material")?modelId=' +
+                dataItem.Id);
+            MaterialGrid._callDialog(dataItem, url, text);
+        },
+        onEditHandler: function (e) {
+            if (e.model.isNew()) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetDrugForm","Material")?drugDeclarationId=' + e.model.DrugDeclarationId,
+                    success: function (result) {
+                        e.model.set("DrugFormId", result.DrugFormId);
+                    },
+                    complete: function () {
+                       
+                    }
+                });
+            }
+        },
+        sync: function (e) {
+            this.read();
+        }
+    };
+</script>
+<style>
+    .k-edit-form-container {
+        width: 850px;
+    }
+</style>
+
+    @(Html.Kendo().Grid<EXP_Materials>()
+          .Name("gridMaterialList" + Model.DrugDeclarationId)
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.IsAdditionalStr).Title("Донос").Width(50);
+              columns.Bound(p => p.RegistrationDate).Title("Дата регистрации").Format("{0:dd.MM.yyyy}").Width(100);
+              columns.Bound(p => p.Name).Title("Наименование").Width(100);
+              columns.Bound(p => p.Quantity).Title("Количество").Width(100);
+              columns.Bound(p => p.UnitName).Title("Единица измерения").Width(100);
+              columns.Bound(p => p.Batch).Title("Серия/Партия").Width(100);
+              columns.Bound(p => p.DateOfManufacture).Title("Дата изготовления").Format("{0:dd.MM.yyyy}").Width(100);
+              columns.Bound(p => p.IsCertificatePassportStr).Title("Серия/Паспорт").Width(100);
+              columns.Bound(p => p.StorageName).Title("Условия хранения").Width(100);
+              columns.Bound(p => p.StorageTemperatureStr).Title("Температура с ... по ...").Width(100);
+              columns.Command(p => p.Edit().Text("Редактировать").UpdateText("Сохранить").CancelText("Отмена")).Width(0);
+          })
+          .ToolBar(toolbar =>
+          {
+              toolbar.Custom().Name("btnAccept").Text("Принять материалы").HtmlAttributes(new { Id = "custombtnAccept" });
+              toolbar.Create();
+              toolbar.Custom().Name("btnView").Text("Просмотреть").HtmlAttributes(new { Id = "custombtnView" });
+              toolbar.Custom().Name("btnEdit").Text("Редактировать").HtmlAttributes(new {Id = "custombtnEdit"});
+              toolbar.Custom().Name("btnDelete").Text("Удалить").HtmlAttributes(new { Id = "custombtnDelete" });
+          })
+          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .Groupable()
+          .Filterable()
+          .Sortable()
+          .Pageable(c =>
+          {
+              c.Refresh(true);
+          })
+          .Scrollable()
+          .Selectable(c => c.Mode(GridSelectionMode.Single))
+          .HtmlAttributes(new { @class = "pwGrid" })
+          .DataSource(dataSource => dataSource.Ajax()
+              .Model(model =>
+              {
+                  model.Id(p => p.Id);
+                  model.Field(p => p.Id).DefaultValue(Guid.NewGuid());
+                  model.Field(p => p.DrugDeclarationId).DefaultValue(Model.DrugDeclarationId);
+                  model.Field(p => p.TypeId).DefaultValue(Model.TypeIdDefaultValue);
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadMaterialList", "Material", new {ddId = Model.DrugDeclarationId}))
+              .Update(update => update.Action("UpdateMaterial", "Material"))
+              .Destroy(destroy => destroy.Action("DeleteMaterial", "Material"))
+              .Create(create => create.Action("CreateMaterial", "Material"))
+              .Events(c =>
+              {
+                  c.Sync("MaterialGrid.sync");
+              }))
+           .Events(c =>
+           {
+               c.Edit("MaterialGrid.onEditHandler");
+           })
+       )
+
+
+<script>
+    (function () {
+        resizeGrid3('@("#gridMaterialList" + Model.DrugDeclarationId)', 165);
+
+
+        $("#custombtnView").click(function (e) {
+            e.preventDefault();
+            MaterialGrid.edit();
+        });
+
+        $("#custombtnEdit").click(function (e) {
+            e.preventDefault();
+            MaterialGrid.edit();
+        });
+
+        $("#custombtnDelete").click(function (e) {
+            e.preventDefault();
+            MaterialGrid.remove();
+        });
+
+        $("#custombtnAccept").click(function (e) {
+            e.preventDefault();
+            MaterialGrid.accept();
+        });
+    })();
+</script>

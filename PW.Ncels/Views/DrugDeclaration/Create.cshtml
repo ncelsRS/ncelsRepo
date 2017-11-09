@@ -1,0 +1,296 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@{
+    Layout = "../Shared/_Layout.cshtml";
+    var isSing = "";
+}
+@Html.Partial("~/Views/Home/SignView.cshtml")
+
+@if (Model != null && Model.StatusId == 2)
+{
+    isSing = "false";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Создать заявление на проведение экспертизы лекарственного средства</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявление</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5 id="drugTitle">
+                        Заявление
+                    </h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group" style="width: 100%">
+                        <button class="btn btn-info btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="location.href='@Url.Action("RegisterDrugList", "DrugDeclaration")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button type="button" class="btn btn-default btn-sm" id="HideInform" value="show">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true" id="HideInformCheck"></span> <span id="HideInformText">Скрыть примечание</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="button" security bp-type="project" bp-action="edit" id="checkBtn"><i class="fa fa-check"></i> Проверить</button>
+                        <button class="btn btn-default btn-sm" type="button" security bp-type="project" bp-action="edit" id="viewBtn" @*onclick="location.href = '@Url.Action("ExportFilePdf", new { id = Model.Id })'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <div style="float: right">
+                            <button class="btn btn-success btn-sm" type="button" security bp-type="project" style="background-color: #47a447" bp-action="edit" id="signBtn" ><i class="fa fa-send"></i> Подписать и отправить</button>
+                            <button class="btn btn-warning btn-sm" type="button" security bp-type="project" bp-action="edit" id="notSignBtn"><i class="fa fa-send-o"></i> Отправить без подписи</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="drugDeclarationDiv">
+                @Html.Partial("~/Views/DrugDeclaration/DeclarationView.cshtml", @Model)
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/custom/common.js"></script>
+<script src="~/Scripts/js/custom/spin.js"></script>
+<script type="text/javascript">
+    function doSign() {
+        $.blockUI({
+            message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
+            css: { opacity: 1 }
+        });
+        signXmlCall(function() {
+                var model = { preambleId: $("#modelId").val(), xmlAuditForm: $("#Certificate").val() };
+                $.ajax({
+                    url: '/DrugDeclaration/SignForm',
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: "application/json",
+                    async: false,
+                    data: JSON.stringify(model),
+                    success: function (data) {
+
+                        if (data.success) {
+                            window.location.href = '@Url.Action("RegisterDrugList", "DrugDeclaration")';
+
+                         /*   $("#signBtn").attr('disabled', 'disabled');
+                            $("#notSignBtn").attr('disabled', 'disabled');
+                            $("#checkBtn").attr('disabled', 'disabled');
+                            setReadOnlyControl();*/
+                        }
+                        //                    window.location = data.url;
+                        else {
+                            $("#formCertValidation").show();
+                        }
+                        $.unblockUI();
+                        //                window.location.reload();
+                    },
+                    error: function(data) {
+                        $.unblockUI();
+                    }
+                });
+            },
+            $("#hfXmlToSign").val());
+    }
+
+    $(document).ready(function () {
+
+        var modelId = $("#modelId").val();
+     //   if (modelId === null || modelId.length === 0) {
+     //       $("#drugAttachBtn").addClass('disabled');
+     //   }
+
+        if ('@isSing' != "") {
+            $("#signBtn").attr('disabled', 'disabled');
+            $("#notSignBtn").attr('disabled', 'disabled');
+            $("#checkBtn").attr('disabled', 'disabled');
+        }
+
+        $("#checkBtn").click(function() {
+            window.Showbusy(event);
+            var modelId = $("#modelId").val();
+            var url = window.location.href;
+            if (url.indexOf('Create') > -1) {
+                url = url.replace('Create', 'Edit') + '/' + modelId;;
+            }
+            url = url.replace("#", "");
+            window.location.href = url;
+
+
+        });
+        $("#viewBtn").click(function() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportFileTemplate", new { id = Model.Id })',
+                dataType: 'html',
+                cache: false,
+                success: function(data) {
+                    showReport(data);
+                },
+                error: function(data) {
+                    alert("Ошибка");
+                }
+            });
+        });
+        $("#signBtn").click(function () {
+            if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var id = $("#modelId").val();
+            startSign('/DrugDeclaration/SignOperation', id);
+        });
+        $("#notSignBtn").click(function () {
+           if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var success = function () {
+                var modelId = $("#modelId").val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SendNotSign")',
+                    data: { 'modelId': modelId },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        window.location.href = '@Url.Action("RegisterDrugList", "DrugDeclaration")';
+                      /*  $("#signBtn").attr('disabled', 'disabled');
+                        $("#notSignBtn").attr('disabled', 'disabled');
+                        $("#checkBtn").attr('disabled', 'disabled');
+                        setReadOnlyControl();*/
+
+
+                    },
+                    error: function () {
+                        alert("Connection Failed. Please Try Again");
+                    }
+                });
+
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Подтверждение", "Вы уверены что хотите отправить без подписи?", success, cancel);
+        });
+
+
+        //        showInformIcon(false);
+    });
+</script>
+
+<!--Валидация-->
+<script type="text/javascript">
+
+    function checkDeclaraionValidation() {
+        var validAttach = checkAttachFile();
+        var validDeclaration = checkWrapping();
+        if (!validDeclaration) {
+            $("#drugDeclarationBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#drugDeclarationBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        valid = validDeclaration && validAttach;
+        return valid;
+    }
+    function checkValueFromIsNull(value) {
+        if (value == null || value.length === 0) {
+            return true;
+        }
+        return false;
+    }
+    function setMarkValidation(control, value) {
+        if (checkValueFromIsNull(value)) {
+            $(control).addClass("pw-select-invalid");
+            return false;
+        }
+            if ($(control).hasClass("pw-select-invalid")) {
+                $(control).removeClass("pw-select-invalid");
+            }
+        return true;
+    }
+    function checkWrapping() {
+        var validFile = true;
+        $('.wrapping-row').each(function () {
+            var wrappingType = $(this).find('td').eq(1).find('select');
+            var wrappingKind = $(this).find('td').eq(2).find('select');
+            var wrappingSize = $(this).find('td').eq(3).find('input');
+            var sizeMeasure = $(this).find('td').eq(4).find('select');
+            var wrappingVolume = $(this).find('td').eq(5).find('input');
+            var volumeMeasure = $(this).find('td').eq(6).find('select');
+            var countUnit = $(this).find('td').eq(7).find('input');
+
+            var wrappingTypeValue = $(wrappingType).val();
+            var wrappingKindValue = $(wrappingKind).val();
+//            var wrappingSizeValue = $(wrappingSize).val();
+//            var sizeMeasureValue = $(sizeMeasure).val();
+//            var wrappingVolumeValue = $(wrappingVolume).val();
+//            var volumeMeasureValue = $(volumeMeasure).val();
+            var countUnitValue = $(countUnit).val();
+
+            var isNull = checkValueFromIsNull(wrappingTypeValue) &&
+                checkValueFromIsNull(wrappingKindValue) &&
+            /*    checkValueFromIsNull(wrappingSizeValue) &&
+                checkValueFromIsNull(sizeMeasureValue) &&
+                checkValueFromIsNull(wrappingVolumeValue) &&
+                checkValueFromIsNull(volumeMeasureValue) &&*/
+                checkValueFromIsNull(countUnitValue);
+            if (isNull) {
+                return;
+            }
+            validFile = setMarkValidation(wrappingType, wrappingTypeValue) && validFile;
+//            validFile = setMarkValidation(wrappingSize, wrappingSizeValue) && validFile;
+//            validFile = setMarkValidation(sizeMeasure, sizeMeasureValue) && validFile;
+
+            var kindcontrol = $("#" + wrappingKind.attr('id') + "_chosen").find('a').eq(0);
+            if (checkValueFromIsNull(wrappingKindValue)) {
+                $(kindcontrol).css({ 'background': 'rgb(251, 227, 228)' });
+                validFile = false;
+            } else {
+                $(kindcontrol).css({ 'background': '#ffffff' });
+            }
+            //debugger;
+            var labelTab = $("#" + $(wrappingType).closest(".tab-pane").attr("id") + "Label");
+            if (!labelTab.hasClass("error") && !validFile) {
+                labelTab.addClass("error");
+                $(labelTab).css({ 'color': '#a94442', 'background-color': '#f2dede' });
+            } else {
+                $(labelTab).css({ 'color': '#555', 'background-color': '#ffffff' });
+            }
+        });
+
+        if (!validFile) {
+            $("#wrapLabelPage").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#wrapLabelPage").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile;
+    }
+    function checkAttachFile() {
+        var validFile = true;
+        $('.file-validation').each(function () {
+            var ct = $(this).attr('countFile');
+            var attcode = $(this).attr('attcode');
+            var count = parseInt(ct, 10) || 0;
+            if (count === 0 && attcode!='@CodeConstManager.ATTACH_REMARK_FILE_CODE') {
+                $(this).text("Необходимо вложить файлы");
+                validFile = false;
+            } else {
+                $(this).text("");
+            }
+        });
+        if (!validFile) {
+            $("#drugAttachBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#drugAttachBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile;
+    }
+</script>

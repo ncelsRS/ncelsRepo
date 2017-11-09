@@ -1,0 +1,176 @@
+﻿@using PW.Prism.Controllers
+@model Guid
+
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<script>
+    InitFilterProtocolGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        @(Html.Kendo().Button().Name("addAdminDocButton" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Создатьдокумент_119__00).Events(e => e.Click("addProtocolDocClick"))
+                                   .ImageUrl("/Content/images/add.png"))
+                    </div>
+
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                               .Events(e => e.Select("panelProtocolSelect"))
+                               .Items(panelbar => {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                       .Items(projects => {
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Новые_377__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Зарегистрированные_84__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вработе_309__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Исполненные_240__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "9" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                       });
+
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Потипуконтроля_121__00)
+                                       .Items(programs => {
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Неконтрольный_174__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Контроль_310__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Особоыйконтроль_122__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Доконтроль_241__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "4" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                       });
+
+
+                               })
+                    )
+                </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                     <div class="pwBlockAdd k-block">
+                         
+                         <div id="pwOne">
+                             @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                         </div>
+
+                         <div id="pwTwo">
+                             @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поисполнителю_170__00, Value = "2"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поотправителю_171__00, Value = "3"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                                   )
+
+                         </div>
+
+                         <div id="pwThree">
+                             @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+                         </div>
+
+                         <div id="pwFour">
+                             @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                   .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportProtocolDoc")))
+                         </div>
+
+                     </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+                    </div>
+                    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Document>()
+                                   .Name("gridAdminListDoc" + Model)
+                           .Columns(columns => {
+
+                               columns.Bound(p => p.IsAttachments).Width(40).ClientTemplate(
+                                   "# if (IsAttachments == true) { #" +
+                                   "<img  src='" + Url.Content("~/Content/images/attachTrue.png") + "'  />" +
+                                   "# } else { #" +
+
+                                   "# } #"
+
+                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Ф_402__00).Lockable(false).Locked(true).Lockable(false);
+                               columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getProtocolDetails('#=DocumentId#', '#=Number#')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                        "<button type='button' style='width:20px;' class='btn btn-default btn-xs' onclick=\"addProtocolRepeatDocClick('#=DocumentId#')\"><span class=\"glyphicon glyphicon-retweet\"></span></button>" +
+                                    "</div>"
+                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 +"#=count#").Locked(true).Lockable(false);
+                               //columns.Bound(p => p.SortNumber).Width(65).Title("№").Locked(true).Lockable(false);
+                               columns.Bound(p => p.DocumentDate).Format("{0:dd.MM.yyyy HH:mm}").Title(PW.Ncels.Database.Recources.Messages.Property_Датадок_307__00).Width(115).Locked(true).Lockable(false);
+                               columns.Bound(p => p.StateType).ClientTemplate("<img  src=\"/Content/images/StateType_#=StateType#.png\" />").Title(PW.Ncels.Database.Recources.Messages.Property_Статус_357__00).Width(100).Filterable(filterable => filterable.UI("StateFilterDoc"));
+                               columns.Bound(p => p.MonitoringType).ClientTemplate("<img  src=\"/Content/images/MonitoringType_#=MonitoringType#.png\" />").Title(PW.Ncels.Database.Recources.Messages.Property_Типконтроля_224__00).Width(100).Filterable(filterable => filterable.UI("MonitoringFilterDoc"));
+                               columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Срокисп_283__00).Width(100);
+                               //columns.Bound(p => p.MonitoringNote).Title(PW.Ncels.Database.Recources.Messages.Property_Типконтроля_224__00).Width(250);
+                               columns.Bound(p => p.SignerValue).Title(PW.Ncels.Database.Recources.Messages.Property_Подписано_282__00).Width(250);
+                               columns.Bound(p => p.SigningFormDictionaryValue).Title(PW.Ncels.Database.Recources.Messages.Property_Формаподписи_213__00).Width(250);
+                               columns.Bound(p => p.Summary).Title(PW.Ncels.Database.Recources.Messages.Property_Тема_390__00).Width(250);
+                               columns.Bound(p => p.ReadersValue).Title(PW.Ncels.Database.Recources.Messages.Property_Исполнитель_244__00).Width(250);
+                               columns.Bound(p => p.AgreementsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Согласовано_253__00).Width(250);
+                               columns.Bound(p => p.ExecutorsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Ознакомлено_254__00).Width(250);
+                               columns.Bound(p => p.ResponsibleValue).Title(PW.Ncels.Database.Recources.Messages.Property_Наконтроле_255__00).Width(100);
+                               columns.Bound(p => p.AdministrativeTypeDictionaryValue).Title(PW.Ncels.Database.Recources.Messages.Property_Видпротокола_214__00).Width(100);
+                               columns.Bound(p => p.NomenclatureDictionaryValue).Title(PW.Ncels.Database.Recources.Messages.Property_Дело_383__00).Width(100);
+                               columns.Bound(p => p.CompleteDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Дополняет_299__00).Width(100);
+                               columns.Bound(p => p.EditDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Изменяет_324__00).Width(100);
+                               columns.Bound(p => p.RepealDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Аннулирует_274__00).Width(100);
+                               columns.Bound(p => p.AutoCompleteDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Дополнен_300__00).Width(100);
+                               columns.Bound(p => p.AutoEditDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Изменен_325__00).Width(100);
+                               columns.Bound(p => p.AutoRepealDocumentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Аннулирован_233__00).Width(100);
+                               columns.Bound(p => p.RegistratorValue).Title(PW.Ncels.Database.Recources.Messages.Property_Регистратор_243__00).Width(100);
+                               columns.Bound(p => p.Note).Title(PW.Ncels.Database.Recources.Messages.Property_Примечание_264__00).Width(100);
+                           })
+
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Filterable()
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => {aggregates.Add(p => p.Number).Count();})
+                               .Sort(sort => { sort.Add("SortNumber").Descending(); sort.Add("CreatedDate").Descending(); })
+                               .PageSize(50)
+                               .Read(read => read.Action("ListDocument", "ProtocolDoc"))
+                           ))
+                </div>
+            );
+        }))
+
+<script>
+    resizeGrid('@("#gridAdminListDoc" + Model)');
+
+
+</script>

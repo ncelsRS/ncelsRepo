@@ -1,0 +1,156 @@
+﻿@model PW.Prism.ViewModels.Dialog.ReassignmentViewModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReassignment" + Model.Id)">
+    
+    <input type="hidden" data-bind="value:task.DocumentTypeCode"  />
+    <input type="hidden" data-bind="value:task.ActivityTypeCode" />
+    <input type="hidden" data-bind="value:task.TaskTypeCode" />
+   
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconEdit"></div>
+        <div class="pwWinTitleText">Этап согласования</div>
+    </div>
+    <div class="pwWinContent2">
+
+        @*
+    <div class="pwWinContentLine1">
+        <div class="pwWinContentLeft2">
+            <p>@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00</p>
+        </div>
+        <div class="pwWinContentRight2">
+            <input id="@("ExecutionDate" + Model.Id)" data-bind="value: task.ExecutionDate" class="pwWidth100" />
+            <p></p>
+            <p></p>
+        </div>
+    </div>
+        *@
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Исполнители_237__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("ExecutorsId"+ Model.Id)" data-bind="value: task.ExecutorId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100"/>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    @*
+    <div class="pwWinContentLine2">
+        <div class="pwWinContentLeft2">
+            <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+        </div>
+        <div class="pwWinContentRight2">
+            <textarea id="@("Text" + Model.Id)" data-bind="value: task.Text, events: { change: change }" class="pwTextArea pwWidth100"></textarea>
+            <p></p>
+            <p></p>
+        </div>
+    </div>
+    *@
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+
+<script>
+
+    var name = '@Model.Id';
+    var documentId = '@Model.DocumentId';
+
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    
+    var viewModel = kendo.observable({
+        task: data,
+        hasChanges:false,
+        change: function () {
+            debugger;
+            if (this.task.get('ExecutorId') != null) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('task'));
+            $.ajax({
+                type: 'POST',
+                url: '/Dialog/ReassignmentConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    debugger;
+
+                    var currentWindows = $("#divDialog").data("kendoWindow");
+                    if (result.IsSuccess) {
+                        
+                        if (currentWindows.dialogCallback) {
+                            currentWindows.dialogCallback(result);
+                        }
+
+                    } else {
+                        //taskActionError();
+                    }
+                    if (currentWindows)
+                        currentWindows.close();
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#divDialog").data("kendoWindow").close();
+        }
+
+    });
+
+    kendo.bind($("#formReassignment" + name), viewModel);
+
+    $("#ExecutionDate" + name).kendoDatePicker({
+
+    });
+
+    $("#ExecutorsId" + name).kendoComboBox({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Dictionaries/GetEmployeeList'
+                }
+            }
+        }
+    });
+    
+    $("#Text" + name).kendoAutoComplete({
+        filter: "contains",
+       // dataTextField: "Name",
+        placeholder: "@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00",
+
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListAutoComplete',
+                    data: { text: "ReassignmentTypeDictionary" }
+                }
+            }
+        }
+    });
+//    var temp = viewModel.get('task.ExecutionDate');
+//    if (temp != null) {
+//        var date = temp.toString();
+//        viewModel.set('task.ExecutionDate', isoDateReviver(date));
+//    }
+    //var date = viewModel.get('task.ExecutionDate').toString();
+    //viewModel.set('task.ExecutionDate', isoDateReviver(date));
+</script>
+

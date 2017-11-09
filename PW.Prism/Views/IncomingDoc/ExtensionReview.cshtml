@@ -1,0 +1,99 @@
+﻿
+@model PW.Ncels.Database.DataModel.Report
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formExecution" + Model.Id)">
+    @Html.HiddenFor(o => o.Id)
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecuteEx"></div>
+        <div class="pwWinTitleText">Добавить замечание </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Замечание</p>
+            </div>
+            <div class="pwWinContentRight2">
+                     <select id="@("TitleDicId" + Model.Id)" data-bind="value: item.DicId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: item.Text, events: { change: change }" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+<script>
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        item: data,
+        hasChanges:false,
+        change: function () {
+            if (this.item.get('ExecutionDate') != null) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('item'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/IncomingDoc/ExtensionReviewConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result== 'True') {
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formExecution" + name), viewModel);
+
+
+    $("#TitleDicId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        maxSelectedItems: 1,
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/List',
+                    data: { text: "TitleDic" }
+                }
+            }
+        }
+    });
+</script>

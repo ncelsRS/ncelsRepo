@@ -1,0 +1,1 @@
+﻿INSERT [dbo].[EXP_DIC_Status] ([Id], [Code], [NameRu], [NameKz], [DateCreate], [IsDeleted], [DateEdit]) VALUES (5, N'5', N'Повторно', N'Повторно', CAST(N'2017-01-01T00:00:00.000' AS DateTime), 0, NULL)

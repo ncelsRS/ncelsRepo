@@ -1,0 +1,101 @@
+﻿
+@model  PW.Ncels.Database.Models.PricesViewModel
+<dl class="pwEditRef">
+    <dt>Страна</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.CountryId).DataValueField("Id").DataTextField("Name").ValuePrimitive(true).DataSource(
+              source => source.Read("List", "Reference", new {text = "Country"})
+              ))
+        <span data-for="CountryId" class="k-invalid-msg"></span>
+    </dd>
+    <dt>Цена</dt>
+    <dd>
+        @(Html.EditorFor(p => p.ManufacturerPrice))
+        <span data-for="ManufacturerPrice" class="k-invalid-msg"></span>
+    </dd>
+
+    <dt>Вaлюта</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.ManufacturerPriceCurrencyDicId).DataValueField("Id").DataTextField("Name").ValuePrimitive(true).DataSource(
+              source => source.Read("List", "Reference", new {text = "Currency"})
+              ))
+        <span data-for="ManufacturerPriceCurrencyDicId" class="k-invalid-msg"></span>
+    </dd>
+    <dt>Ссылка</dt>
+    <dd>
+        @(Html.EditorFor(p => p.Name))
+        <span data-for="Name" class="k-invalid-msg"></span>
+    </dd>
+    <dt>Вложения</dt>
+    <dd>
+        <input name="files" id="PricesViewFiles" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл"/>
+        @(Html.HiddenFor(p => p.Id, new { id = "testOI" }))
+    </dd>
+</dl>
+
+<script>
+    $("#PricesViewFiles").kendoUpload({
+        localization: {
+            select: 'Выбрать файл...',
+            remove: '',
+            cancel: '',
+            headerStatusUploading: "Загрузка...",
+            headerStatusUploaded: "Загружено!"
+        },
+        async: {
+            saveUrl: "/Upload/save",
+            removeUrl: "/Upload/remove",
+            autoUpload: true
+        }
+        , upload: function (e) {
+            e.data = { documentId: $("#testOI").val() };
+        },
+        remove: function (e) {
+            e.data = { documentId: $("#testOI").val() };
+        },
+        complete: function (e) {
+            var files = $("#PricesViewFiles" + $("#testOI").val()).closest(".k-upload").find("a");
+            $.each(files, function (i, file) {
+                file.onclick = function () {
+                    fileView($("#testOI").val(), file.getAttribute('fileName'));
+                };
+            });
+
+            var filesButton = $("#PricesViewFiles" + $("#testOI").val()).closest(".k-upload").find("button");
+            $.each(filesButton, function (i, file) {
+                if (file.className == 'file-edit') {
+                    file.onclick = function () {
+                        fileEdit($("#testOI").val(), file.getAttribute('fileName'));
+                    };
+                };
+            });
+
+            var filesDownload = $("#PricesViewFiles" + $("#testOI").val()).closest(".k-upload").find("button");
+            $.each(filesDownload, function (i, file) {
+                if (file.className == 'file-download') {
+                    file.onclick = function () {
+                        fileDownload($("#testOI").val(), file.getAttribute('fileName'));
+                    };
+                };
+            });
+        },
+        select: function (e) {},
+        template: kendo.template($('#fileTemplate111').html())
+    });
+</script>
+
+<script id="fileTemplate111" type="text/x-kendo-template">
+    <span class='k-progress'></span>
+    <div class='file-wrapper'>
+        <a filename='#=name#' title="@PW.Ncels.Database.Recources.Messages.Property_Просмотр_328__00" onclick='fileView("#=files[0].documentId#" ,"#=name#")'>
+            <span class='file-icon #=addExtensionClass(files[0].extension)#'></span>
+            <span style="text-decoration:underline;" class='file-heading file-name-heading'>#=substring(name)#</span>
+        </a>
+        <span class='file-size-heading'>#=bytesToSize(size)#</span>
+        <span></span>
+        <button filename='#=name#' title="@PW.Ncels.Database.Recources.Messages.Property_Редактировать_212__00" type='button' class='file-edit' onclick='fileEdit("#=files[0].documentId#", "#=name#")'></button>
+        <button filename='#=name#' title="@PW.Ncels.Database.Recources.Messages.Property_Скачать_348__00" type='button' class='file-download' onclick='fileDownload("#=files[0].documentId#", "#=name#")'></button>
+
+        <button title="@PW.Ncels.Database.Recources.Messages.Property_Удалить_334__00" type='button' class='k-upload-action'></button>
+    </div>
+</script>

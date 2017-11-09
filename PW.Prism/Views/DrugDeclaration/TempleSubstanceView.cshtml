@@ -1,0 +1,239 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.EXP_DrugSubstance
+@{
+    var code = CodeConstManager.EXP_DrugSubstanceCode + "_" + Model.DrugDosageId + "_";
+    if (Model.Id == 0)
+    {
+        code += "a" + Model.Position;
+    }
+    else
+    {
+        code += Model.Id.ToString();
+    }
+    var searchclass = "edit-control sub-control";
+    if (Model.Id > -1)
+    {
+        searchclass += " search-substance";
+    }
+
+    code += "_";
+    var idSubstanceId = "s2id_"+code + "SubstanceId";
+    var idSubstanceTypeId = code + "SubstanceTypeId";
+    var idSubstanceCount = code + "SubstanceCount";
+    var idIsPoison = code + "IsPoison";
+    var idIsControl = code + "IsControl";
+    var idNormativeDocument = code + "NormativeDocument";
+    var idOriginId = code + "OriginId";
+    var idPlantKindId = code + "PlantKindId";
+    var idLocus = code + "Locus";
+    var idProducerName = code + "ProducerName";
+    var idCountryId = code + "CountryId";
+    var idProducerAddress = code + "ProducerAddress";
+    var idMeasureId = code + "MeasureId";
+    var idIsNotFound = code + "IsNotFound";
+    var idNewName = code + "NewName";
+
+    var divId = "subDiv_" + Model.Id;
+    var searchSubstanceTemp = "searchSubstance_" + Model.Position;
+    var idRecord = "";
+    var indexRecord = Model.Position.ToString();
+    var codeRecord = "";
+    if (Model.Id > 0)
+    {
+        codeRecord = "ExpDrugSubstances[" + @indexRecord + "].";
+        idRecord = Model.Id.ToString();
+    }
+    var substanceNames = "";
+    if (Model.sr_substances != null)
+    {
+        substanceNames = Model.sr_substances.name;
+    }
+    var notfoundDiv = "display : none";
+    var foundDiv = "";
+    if (Model.IsNotFound)
+    {
+        notfoundDiv = "";
+        foundDiv = "display : none";
+        substanceNames = Model.NewName;
+    }
+}
+
+<div class="panel panel-warning group-subtance" id="@divId" rowid="@idRecord" rowindex="@indexRecord">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a class="lotLihk" onclick="tooglePangel(this)">Наименование : @substanceNames</a>
+            <a style="float: right" class="glyphicon glyphicon-remove" onclick="removeSubPanel(this)"></a>
+        </h4>
+
+    </div>
+    <div class="panel-body divpanel">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Наименование
+            </div>
+            <div class="panel-body">
+                <div class="checkbox">
+                    @if (Model.IsNotFound)
+                    {
+                        <label><input type="checkbox" id="@idIsNotFound" style="float: left; width: 20px; height: 20px; margin-top: 0px;" checked="checked" class="edit-control sub-control is-not-found"><span style="margin-left: 5px"> Отсутствует в списке наименовании</span></label>
+                    }
+                    else
+                    {
+                        <label><input type="checkbox" id="@idIsNotFound" style="float: left; width: 20px; height: 20px; margin-top: 0px;" class="edit-control sub-control is-not-found"><span style="margin-left: 5px"> Отсутствует в списке наименовании</span></label>
+                    }
+                </div>
+                <div class="found-div" style="@foundDiv">
+                    <div>
+                        <div class="input-group">
+                            <div class="select2-container edit-control sub-control search-substance select2-allowclear"
+                                 id="@idSubstanceId">
+                                <a href="javascript:void(0)" class="select2-choice" tabindex="-1">
+                                    <span class="select2-chosen" id="select2-chosen-5">@substanceNames</span><abbr class="select2-search-choice-close"></abbr>
+                                    <span class="select2-arrow" role="presentation"><b role="presentation"></b></span>
+                                </a><label for="s2id_autogen5" class="select2-offscreen">
+                                </label><input class="select2-focusser select2-offscreen" type="text" aria-haspopup="true" role="button"
+                                               aria-labelledby="select2-chosen-5" id="s2id_autogen5" readonly=""><div class="select2-drop select2-display-none select2-with-searchbox">
+                                    <div class="select2-search">
+                                        <label for="s2id_autogen5_search" class="select2-offscreen"></label>
+                                        <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="select2-input"
+                                               role="combobox" aria-expanded="true" aria-autocomplete="list" aria-owns="select2-results-5" id="s2id_autogen5_search"
+                                               placeholder="" readonly="">
+                                    </div>   <ul class="select2-results" role="listbox" id="select2-results-5">   </ul>
+                                </div>
+                            </div>
+
+                            <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <p class="categoryName">@Model.CategoryName</p>
+                        <p class="categoryPos">@Model.CategoryPos</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group not-found-div" style="@notfoundDiv">
+                        @Html.TextBox(@codeRecord + "NewName", Model.NewName, new { @class = "edit-control sub-control form-control", id = idNewName, placeholder = "Укажите наименование которого нет в списке" })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Тип вещества</label>
+                    <div class="input-group">
+                        @Html.DropDownList(@codeRecord + "SubstanceTypeId", (IEnumerable<SelectListItem>)(ViewData["SubstanceTypes" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idSubstanceTypeId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Количество на единицу лекарственной формы</label>
+                    <div class="row">
+                        <div class="col-lg-6" style="padding-right: 5px;">
+                            <div class="input-group">
+                                @Html.TextBox(@codeRecord + "SubstanceCount", Model.SubstanceCount, new { @class = "edit-control sub-control form-control", id = idSubstanceCount })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" style="padding-left: 0px;">
+                            <div class="input-group">
+                                @Html.DropDownList(@codeRecord + "MeasureId", (IEnumerable<SelectListItem>)(ViewData["SubstanceMeasureList" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idMeasureId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Наличие ядовитых веществ</label>
+                    <div class="input-group">
+                        @Html.DropDownList(@codeRecord + "IsPoison", (IEnumerable<SelectListItem>)(ViewData["IsPoisonList" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idIsPoison })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Контролируется международным комитетом по контролю за наркотиками</label>
+                    <div class="input-group">
+                        @Html.DropDownList(@codeRecord + "IsControl", (IEnumerable<SelectListItem>)(ViewData["IsControlList" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control is-control", id = idIsControl })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="form-group">
+                    <label class="col-lg-9">Нормативный Документ, регламентирующий качество или Фармакопея с указанием года издания</label>
+                    <div class="input-group col-lg-12">
+                        @Html.DropDownList(@codeRecord + "NormDocFarmId", (IEnumerable<SelectListItem>)(ViewData["NormDocs" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idNormativeDocument })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Вид растения</label>
+                    <div class="input-group">
+                        @Html.DropDownList(@codeRecord + "PlantKindId", (IEnumerable<SelectListItem>)(ViewData["PlantKinds" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idPlantKindId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="form-group">
+                    <label>Место произрастания</label>
+                    <div class="input-group">
+                        @Html.TextBox(@codeRecord + "Locus", Model.Locus, new { @class = "form-control edit-control sub-control", id = idLocus })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @Html.Partial("~/Views/DrugDeclaration/DrugSubstanceManufactureView.cshtml", @Model)
+     @*   <div class="panel panel-default">
+            <div class="panel-heading">
+                Производитель
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Наименование</label>
+                            <div class="input-group">
+                                @Html.TextBox(@codeRecord + "ProducerName", Model.ProducerName, new { @class = "form-control edit-control sub-control", id = idProducerName })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Страна</label>
+                            <div class="input-group">
+                                @Html.DropDownList(@codeRecord + "CountryId", (IEnumerable<SelectListItem>)(ViewData["SubstanceCounties" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idCountryId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Адрес производственной площадки </label>
+                            <div class="input-group">
+                                @Html.TextBox(@codeRecord + "ProducerAddress", Model.ProducerAddress, new { @class = "form-control edit-control sub-control", id = idProducerAddress })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label>Признак происхождения</label>
+                    <div class="input-group">
+                        @Html.DropDownList(@codeRecord + "OriginId", (IEnumerable<SelectListItem>)(ViewData["Origins" + idRecord]), String.Empty, new { @class = "form-control edit-control sub-control", id = idOriginId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

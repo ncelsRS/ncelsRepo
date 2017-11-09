@@ -1,0 +1,506 @@
+﻿@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.Models.Material.CreateMaterialViewModel
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/css/plugins/jsTree/style.css" rel="stylesheet" type="text/css" />
+<style>
+    .select-treeview {
+        font-size: 0.9em;
+        color: rgb(103, 106, 108);
+    }
+</style>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Новый материал</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Материалы</a>
+            </li>
+            <li class="active">
+                <strong>Добавить материал</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="MaterialBase.materialFormController">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Материал
+                        <small>Заполните форму</small>
+                        
+                    </h5>
+                    <!-- <div ibox-tools></div> -->
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" type="button" onclick="location.href='@Url.Action("Edit","DrugDeclaration")?id=@Model.DrugDeclarationId'">
+                            <i class="fa fa-arrow-left"></i> Вернуться
+                        </button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="saveMaterial()">
+                            <i class="fa fa-save"></i> Сохранить
+                        </button>
+                    </div>
+                    
+                    <input ng-model="object.Material.DrugDeclarationId" type="hidden" value="@Model.DrugDeclarationId" id="drugdeclarationId" />
+                    <input ng-model="object.Material.Id" type="hidden" value="@Model.Id" id="modelId" />
+
+                </div>
+                <form name="materialForm" novalidate>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="panel-body">
+                                <div class="row">
+                                <div class="col-lg-6 b-r">
+                                        
+                                    <div class="form-inline form-group">
+                                        <label for="object.Material.IsAdditional" class="control-label">
+                                            Донос
+                                        </label>
+@*                                        <input type="checkbox" ng-model="object.Material.IsAdditional" />*@
+                                        <div class="btn-group">
+                                            <label class="btn btn-default" ng-model="object.Material.IsAdditional" uib-btn-radio="true">Да</label>
+                                            <label class="btn btn-default" ng-model="object.Material.IsAdditional" uib-btn-radio="false">Нет</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.MaterialType.$invalid && (materialForm.MaterialType.$touched || materialForm.MaterialType.$dirty)}">
+                                        <label class="control-label">
+                                            Тип*
+                                        </label>
+                                        <ui-select name="MaterialType"  ng-model="object.Material.MaterialType" theme="bootstrap" required>
+                                            <ui-select-match placeholder="Выберите значение">
+                                                {{$select.selected.Name}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="item as item in MaterialRdType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Name.$invalid && (materialForm.Name.$touched || materialForm.Name.$dirty)}">
+                                        <label class="control-label" for="object.Material.Name">
+                                            Наименование*
+                                        </label>
+                                        <input name="Name" ng-model="object.Material.Name" placeholder="Введите значение" class="form-control" type="text" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            Лекарственная форма
+                                        </label>
+                                        <!-- select from tree view -->
+                                        <div class="input-group">
+                                            <input id="DrugFormName" ng-model="object.Material.DrugFormName" ng-init="object.Material.DrugFormName='@Model.DrugFormName'" class="form-control" type="text" placeholder="Выберите значение" readonly="readonly" />
+                                            <input id="DrugFormId" ng-model="object.Material.DrugFormId" ng-init="object.Material.DrugFormId=@Model.DrugFormId" ng-show="false" type="text" />
+                                            <span class="input-group-addon">
+                                                <a class="glyphicon glyphicon-option-horizontal select-treeview" data-toggle="modal" data-target="#lfTreeModal">
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Dosage.$invalid && (materialForm.Dosage.$touched || materialForm.Dosage.$dirty)}">
+                                        <label class="control-label" for="object.Material.Dosage">
+                                            Дозировка
+                                        </label>
+                                        <input type="text" class="form-control" name="Dosage" placeholder="Введите значение" ng-model="object.Material.Dosage" ng-pattern="decimal2Pattern" step="0.01" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.DosageUnitId">
+                                            Единица измерения дозировки
+                                        </label>
+                                        <ui-select name="DosageUnitId" ng-model="object.Material.DosageUnitId" theme="bootstrap" ng-change="setSelectedCode('MeasureType','DosageUnitId',object.Material.DosageUnitId);">
+                                            <ui-select-match placeholder="Выберите значение">{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Concentration.$invalid && (materialForm.Concentration.$touched || materialForm.Concentration.$dirty)}">
+                                        <label class="control-label" for="object.Material.Concentration">
+                                            Концентрация
+                                        </label>
+                                        <input name="Concentration" type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.Concentration" ng-pattern="decimal2Pattern" step="0.01"/>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            Единица измерения концентрации
+                                        </label>
+                                        <ui-select ng-model="object.Material.ConcentrationUnitId" theme="bootstrap"
+                                                   ng-change="setSelectedCode('MeasureType','ConcentrationUnitId',object.Material.ConcentrationUnitId);">
+                                            <ui-select-match placeholder="Выберите значение">
+                                                {{$select.selected.Name}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Volume.$invalid && (materialForm.Volume.$touched || materialForm.Volume.$dirty)}">
+                                        <label for="object.Material.Volume">
+                                            Объем
+                                        </label>
+                                        <input name="Volume" type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.Volume" ng-pattern="decimal2Pattern" step="0.01"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            Единица измерения объема
+                                        </label>
+                                        <ui-select ng-model="object.Material.VolumeUnitId" theme="bootstrap" 
+                                                   ng-change="setSelectedCode('MeasureType','VolumeUnitId',object.Material.VolumeUnitId);">
+                                            <ui-select-match placeholder="Выберите значение">
+                                                {{$select.selected.Name}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.DosageQuantity">
+                                            Количество доз в одной упаковке
+                                        </label>
+                                        <input type="number" decimal class="form-control" placeholder="Введите значение" ng-model="object.Material.DosageQuantity" step="1" />
+                                    </div>
+
+                                    <div class="form-inline form-group">
+                                        <label class="control-label" for="object.Material.IsContainNPP">
+                                            Содержит НПП
+                                        </label>
+@*                                        <input type="checkbox" ng-model="object.Material.IsContainNPP"/>*@
+                                        <div class="btn-group">
+                                            <label class="btn btn-default" ng-model="object.Material.IsContainNPP" ng-init="object.Material.IsContainNPP=@Model.IsNpp.ToString().ToLower()" uib-btn-radio="true">
+                                                Да
+                                            </label>
+                                            <label class="btn btn-default" ng-model="object.Material.IsContainNPP" ng-init="object.Material.IsContainNPP=@Model.IsNpp.ToString().ToLower()" uib-btn-radio="false">
+                                                Нет
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Producer.$invalid && (materialForm.Producer.$touched || materialForm.Producer.$dirty)}" style="display:none">
+                                        <label class="control-label" for="object.Material.Producer">
+                                            Производитель*
+                                        </label>
+                                        <ui-select name="Producer" ng-model="manufacturesSource.selected" theme="bootstrap" ng-change="fetchOrganization(manufacturesSource.selected)">
+                                            <ui-select-match placeholder="Введите наименование производителя">
+                                                {{$select.selected.Name}}
+                                            </ui-select-match>
+                                            <ui-select-choices repeat="item in manufacturesSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'manufacturesSource')" refresh-delay="1000">
+                                                <div ng-bind-html="item.Name"></div>
+                                                <div ng-if="$index == $select.items.length - 1">
+                                                    <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'manufacturesSource', $event)" 
+                                                            style="width: 100%; margin-top: 5px;" 
+                                                            ng-disabled="manufacturesSource.loading || manufacturesSource.page > manufacturesSource.lastPage">
+                                                        Загрузить еще...
+                                                    </button>
+                                                </div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Country.$invalid && (materialForm.Country.$touched || materialForm.Country.$dirty)}" style="display:none">
+                                        <label class="control-label" for="object.Material.Country" >
+                                            Страна*
+                                        </label>
+                                        <ui-select name="Country" ng-model="object.Material.Country" theme="bootstrap">
+                                            <ui-select-match placeholder="Выберите значение">{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item as item in Country | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.Quantity.$invalid && (materialForm.Quantity.$touched || materialForm.Quantity.$dirty)}">
+                                        <label class="control-label" for="object.Material.Quantity">
+                                            Количество упаковок*
+                                        </label>
+                                        <input name="Quantity" type="number" class="form-control" placeholder="Введите значение" ng-model="object.Material.Quantity" step="1" required/>
+                                    </div>
+
+                                    <div class="form-group" ng-class="{ 'has-error' : materialForm.UnitId.$invalid && (materialForm.UnitId.$touched || materialForm.UnitId.$dirty)}">
+                                        <label class="control-label" for="object.Material.UnitId">
+                                            Единица измерения*
+                                        </label>
+                                        <ui-select name="UnitId" ng-model="object.Material.UnitId" theme="bootstrap" required ng-change="setSelectedCode('MeasureType','UnitId',object.Material.UnitId);">
+                                            <ui-select-match placeholder="Выберите значение">{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in MeasureType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+
+                                    <div class="form-group"  ng-class="{ 'has-error' : materialForm.Batch.$invalid && (materialForm.Batch.$touched || materialForm.Batch.$dirty)}">
+                                        <label class="control-label" for="object.Material.Batch">
+                                            Серия/Партия*
+                                        </label>
+                                        <input name="Batch" ng-model="object.Material.Batch" placeholder="Введите значение" class="form-control" type="text" required/>
+                                    </div>
+
+                                </div>
+                                        
+                               
+
+                                <div class="col-lg-6 b-l">
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label">Дата изготовления</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datepicker"
+                                                   placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup=""
+                                                   datepicker-options="datePicker.dateOfManufactureOptions"
+                                                   is-open="datePicker.dateOfManufactureStatus.opened"
+                                                   ng-model="object.Material.DateOfManufacture"
+                                                   ng-click="datePicker.dateOfManufactureOpen($event)"
+                                                   onkeydown="return false" ui-select-selected />
+                                            <span class="input-group-addon" ng-click="datePicker.dateOfManufactureOpen($event)">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label">Срок годности</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datepicker"
+                                                   placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup=""
+                                                   datepicker-options="datePicker.expirationDateOptions"
+                                                   is-open="datePicker.expirationDateStatus.opened"
+                                                   ng-model="object.Material.ExpirationDate"
+                                                   ng-click="datePicker.expirationDateOpen($event)"
+                                                   onkeydown="return false" ui-select-selected />
+                                            <span class="input-group-addon" ng-click="datePicker.expirationDateOpen($event)">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label">Дата ре-теста</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datepicker"
+                                                   placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup=""
+                                                   datepicker-options="datePicker.retestDateStatusOptions"
+                                                   is-open="datePicker.retestDateStatus.opened"
+                                                   ng-model="object.Material.RetestDate"
+                                                   ng-click="datePicker.retestDateStatusOpen($event)"
+                                                   onkeydown="return false" ui-select-selected />
+                                            <span class="input-group-addon" ng-click="datePicker.retestDateStatusOpen($event)">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                            
+
+                                    <div class="form-inline form-group">
+                                        <label class="control-label" for="object.Material.IsCertificatePassport">
+                                            Сертификат/паспорт
+                                        </label>
+@*                                        <input type="checkbox" ui-checkbox ng-model="object.Material.IsCertificatePassport" />*@
+                                        <div class="btn-group">
+                                            <label class="btn btn-default" ng-model="object.Material.IsCertificatePassport" uib-btn-radio="true">Да</label>
+                                            <label class="btn btn-default" ng-model="object.Material.IsCertificatePassport" uib-btn-radio="false">Нет</label>
+                                        </div>
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label">Условия хранения</label>
+                                        <ui-select name="StorageConditionId" ng-model="object.Material.StorageConditionId" theme="bootstrap" 
+                                                   ng-change="setSelectedCode('StorageCondition','StorageConditionId',object.Material.StorageConditionId);">
+                                            <ui-select-match placeholder="Выберите значение">{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in StorageCondition | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.StorageTemperatureFrom">Температура хранения, с</label>
+                                        <input type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.StorageTemperatureFrom" ng-pattern="decimal2Pattern" step="0.01" />
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.StorageTemperatureTo">по</label>
+                                        <input type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.StorageTemperatureTo" ng-pattern="decimal2Pattern" step="0.01" />
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.ActiveSubstancePercent">% содержания активного вещества</label>
+                                        <input type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.ActiveSubstancePercent" ng-pattern="decimal2Pattern" step="0.01" />
+                                    </div>
+                                            
+                                    <div class="form-group">
+                                        <label class="control-label" for="object.Material.WaterContentPercent">% содержания воды</label>
+                                        <input type="text" class="form-control" placeholder="Введите значение" ng-model="object.Material.WaterContentPercent" ng-pattern="decimal2Pattern" step="0.01" />
+                                    </div>
+
+                                </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="lfTreeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Справочник Лекарственных форм</h4>
+            </div>
+            <div class="modal-body">
+                <div id="jsLftree"></div>
+                <input type="hidden" id="selectedText"/>
+                <input type="hidden" id="selectedValue"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="chooseLfBtn" data-dismiss="modal">Выбрать</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="storageTreeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Справочник Мест хранения</h4>
+            </div>
+            <div class="modal-body">
+                <div id="jsStorageTree"></div>
+                <input type="hidden" id="selectedStorageText" />
+                <input type="hidden" id="selectedStorageValue" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="chooseStorageBtn" data-dismiss="modal">Выбрать</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/Scripts/js/plugins/jsTree/jstree.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Id Model
+        //var modelId = $("#modelId").val();
+        
+        $('#jsLftree').jstree({
+            "types": {
+                "default": {
+                    "icon": "fa fa-shield"
+                }
+            },
+            "plugins": ["json_data", "types", "wholerow", "search"],
+            'core': {
+                'data': {
+                    'url': function(node) {
+                        if (node.id === '#')
+                            return '@Url.Action("GetRootDrugFormNodes")';
+                        else {
+                            return '@Url.Action("GetDrugFormNodes")';
+                        }
+                    },
+                    'data': function (node) {
+                        return { 'parentId': node.id };
+                    }
+                }
+            }
+        });
+
+        $('#jsLftree').on('changed.jstree', function (e, data) {
+            if (data.node && data.node.id) {
+                $("#selectedValue").val(data.node.id);
+                $("#selectedText").val(data.node.text);
+            }
+        });
+
+        $("#chooseLfBtn").click(function () {
+            var id = $("#selectedValue").val();
+            var text = $("#selectedText").val();
+
+            if (id) {
+                $("#DrugFormName").val(text).trigger('input');
+                $("#DrugFormId").val(id).trigger('input');
+            }
+        });
+
+
+
+
+
+
+
+        $('#jsStorageTree').jstree({
+            "types": {
+                "default": {
+                    "icon": "fa fa-shield"
+                }
+            },
+            "plugins": ["json_data", "types", "wholerow", "search"],
+            'core': {
+                'data': {
+                    'url': function (node) {
+                        if (node.id === '#')
+                            return '@Url.Action("GetRootStorageNodes")';
+                        else {
+                            return '@Url.Action("GetStorageNodes")';
+                        }
+                    },
+                    'data': function (node) {
+                        return { 'parentId': node.id };
+                    }
+                }
+            }
+        });
+
+        $('#jsStorageTree').on('changed.jstree', function (e, data) {
+            if (data.node && data.node.id) {
+                $("#selectedStorageValue").val(data.node.id);
+                $("#selectedStorageText").val(data.node.text);
+            }
+        });
+
+        $("#chooseStorageBtn").click(function () {
+            var id = $("#selectedStorageValue").val();
+            var text = $("#selectedStorageText").val();
+
+            if (id) {
+                $("#StorageConditionName").val(text).trigger('input');
+                $("#StorageConditionId").val(id).trigger('input');
+            }
+        });
+
+
+    });
+</script>

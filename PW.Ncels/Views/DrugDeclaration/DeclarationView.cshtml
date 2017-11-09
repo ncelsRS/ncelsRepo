@@ -1,0 +1,360 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@Html.Partial("~/Views/Home/MessageDialogBox.cshtml")
+<style type="text/css">
+    .CSSTableGenerator thead tr, .disabletd {
+        color: #707070;
+        font-weight: normal;
+        background: #f2f2f2;
+        background-color: #f3f3f3;
+        background-image: -moz-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: -webkit-gradient(linear,0 0,0 100%,from(#f8f8f8),to(#ececec));
+        background-image: -webkit-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: -o-linear-gradient(top,#f8f8f8,#ececec);
+        background-image: linear-gradient(to bottom,#f8f8f8,#ececec);
+        background-repeat: repeat-x;
+        margin-bottom: 20px;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8',endColorstr='#ffececec',GradientType=0);
+    }
+
+        .CSSTableGenerator thead tr td {
+            border-left: 1px solid gray;
+        }
+</style>
+<link href="~/Content/css/plugins/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .select2-container {
+        width: 100%;
+    }
+
+    .edit-control {
+        width: 100%;
+    }
+
+    .ui-dialog {
+        background: white;
+    }
+
+    .ui-dialog-titlebar-close {
+        background: #08e7d2;
+    }
+
+    .ui-widget-header {
+        border: 1px solid #08e7d2;
+        background: #004d86;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .ui-dialog .ui-dialog-buttonpane button {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+    /* Меню */
+
+    #menuConteiner {
+        width: 150px;
+        float: left;
+        margin-right: 5px;
+        min-height: 50px;
+        position: fixed;
+        z-index: 9999;
+        top: 20%;
+    }
+
+    .main-control {
+    }
+</style>
+<link href="~/Content/css/plugins/select2/select2.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/plugins/chosen/chosen.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/css/custom/subform-comment-style.css" rel="stylesheet" type="text/css" />
+
+@Html.HiddenFor(model => model.OwnerId)
+<input type="hidden" value="@Model.ObjectId" id="modelId" />
+@Html.HiddenFor(model => model.EditorId)
+@foreach (var comment in Model.EXP_DrugDeclarationCom)
+{
+    <p class="rating" idcontrol="@comment.ControlId" iserror=@comment.IsError>   </p>
+}
+@if (Model.StatusId == CodeConstManager.STATUS_REJECT_ID)
+{
+    <div class="alert alert-warning" role="alert">
+        <h4>Причина отказа:</h4>
+        @Model.DesignNote
+    </div>
+}
+
+<div class="ibox-content">
+
+    <div class="row root-page" id="mainPage">
+        <div class="col-lg-12">
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-2" id="wrapLabelPage">Дозировка</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-4">Дополнительная информация</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-5">Производители и участки производства</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-6">Соглашение</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active">
+                        @Html.Partial("~/Views/DrugDeclaration/MainView.cshtml", @Model)
+                    </div>
+                    <div id="tab-2" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/DosageView.cshtml", @Model)
+                    </div>
+                    <div id="tab-4" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/AdvancedView.cshtml", @Model)
+                    </div>
+                    <div id="tab-5" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/OrganizationView.cshtml", @Model)
+                    </div>
+                    <div id="tab-6" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/ConventionView.cshtml", @Model)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row root-page" id="historyPage" style="display: none">
+        @Html.Partial("~/Views/DrugDeclaration/HistoriesView.cshtml", @Model.EXP_DrugDeclarationHistory)
+    </div>
+    <div class="row root-page" id="attachPage" style="display: none">
+        <div class="panel-body">
+            <h3 class="m-t-none m-b">3. Вложения</h3>
+            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+            <div id="attachDeclarationDiv">
+                <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_DRUG_FILE_CODE" path="@Model.Id" />
+            </div>
+        </div>
+    </div>
+    <div class="row root-page" id="materialPage" style="display: none">
+        @Html.Action("MaterialListPartialView", "Material", new { drugDeclarationId = Model?.ObjectId })
+    </div>
+    <div class="row root-page" id="remarkPage" style="display: none">
+        @Html.Partial("~/Views/DrugDeclaration/PrimaryRemarkView.cshtml", @Model)
+    </div>
+    <div class="row root-page" id="conclusionPage" style="display: none">
+        @Html.Partial("~/Views/DrugDeclaration/Conclusion/ConclusionView.cshtml", @Model)
+    </div>
+    <div class="row root-page" id="corespondencePage" style="display: none">
+        @Html.Partial("~/Views/DrugDeclaration/DrugCorespondenceView.cshtml", @Model)
+    </div>
+</div>
+<script src="~/Scripts/js/plugins/select2/select2.js"></script>
+<script src="~/Scripts/js/plugins/select2/select2_locale_ru.js"></script>
+<script src="~/Scripts/js/plugins/chosen/chosen.js"></script>
+<script src="~/Scripts/js/plugins/chosen/chosen.jquery.js"></script>
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
+<script src="~/Scripts/js/custom/atach-comment.js"></script>
+<script type="text/javascript">
+    function showRootPage(btnId, contentId) {
+        $('#' + btnId).on('click', function () {
+            if ($("#" + contentId).is(':visible')) {
+                return;
+            }
+            if ($("#" + contentId).hasClass('disabled')) {
+                return;
+            }
+            $("#drugTitle").text($("#" + btnId).text());
+
+            $(".root-page").hide();
+            $("#" + contentId).show();
+        });
+    }
+    $(function () {
+        $('#menuConteiner').show();
+        $('#menuSlideBtn').on('click', function () {
+            if (!$("#menuConteiner").hasClass('hidemenu')) {
+                $("#menuConteiner").animate({ "left": "-110px" }).addClass('hidemenu');
+            } else {
+                $("#menuConteiner").animate({ "left": "0" }).removeClass('hidemenu');
+            }
+        });
+        showRootPage("drugDeclarationBtn", "mainPage");
+        showRootPage("drugAttachBtn", "attachPage");
+        showRootPage("drugHistoryBtn", "historyPage");
+        showRootPage("materialAttachBtn", "materialPage");
+        showRootPage("remarkBtn", "remarkPage");
+        showRootPage("corespondenceBtn", "corespondencePage");
+        showRootPage("conclusionBtn", "conclusionPage");
+    });
+
+    function DeleteRecord(code, recordId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteRecord")',
+            data: { 'code': code, 'recordId': recordId },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+            },
+            error: function(data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+
+    function showInformIcon(isShow) {
+        if (isShow) {
+            $('.input-group-addon').show();
+        } else {
+            $('.input-group-addon').hide();
+        }
+    }
+
+    function changeFieldList(control, code) {
+        $(control).change(function() {
+            var controlId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+            if ($(this).is(":checkbox")) {
+                fieldValue = $(this).prop('checked');
+                if ($(this).prop('checked')) {
+                    fieldDisplay = "Да";
+                } else {
+                    fieldDisplay = "Нет";
+                }
+            }
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+            var row = $(this).closest('tr');
+            var entityId;
+            if (row != null) {
+                entityId = row.attr('rowid');
+            }
+            UpdateModel(code, entityId, null, controlId, fieldValue, type, fieldDisplay);
+        });
+    }
+
+    function showHidenCommentBtn() {
+        if ($("#HideInform").val() === "hide") {
+            $("#HideInformText").text("Показать примечание");
+            $("#HideInform").val("show");
+            $("#HideInformCheck").addClass("glyphicon-unchecked");
+            $("#HideInformCheck").removeClass("glyphicon-check");
+            showInformIcon(false);
+        } else {
+            $("#HideInformText").text("Скрыть примечание");
+            $("#HideInform").val("hide");
+            $("#HideInformCheck").removeClass("glyphicon-unchecked");
+            $("#HideInformCheck").addClass("glyphicon-check");
+            showInformIcon(true);
+        }
+    }
+
+    function UpdateModel(code, recordId, fieldId, fieldName, fieldValue, type, fieldDisplay) {
+        if (type === "float") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                fieldValue = replaceAll(' ', '', fieldValue);
+                if (fieldValue.indexOf(',') > 0) {
+                    fieldValue = fieldValue.replace(',', '.');
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('@ResourceSetting.sInputNumberRequired');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('@ResourceSetting.enterNumberNotMinus');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+        if (type === "long") {
+            if (fieldValue != null && fieldValue.length > 0) {
+                if (fieldValue.indexOf(',') > 0 || fieldValue.indexOf('.') > 0) {
+                    showWarning("Введите целое число");
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue !== '' && !$.isNumeric(fieldValue)) {
+                    showWarning('@ResourceSetting.sInputNumberRequired');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+                if (fieldValue.indexOf('-') > -1) {
+                    showWarning('@ResourceSetting.enterNumberNotMinus');
+                    $('#' + fieldId).val("");
+                    return false;
+                }
+            }
+        }
+
+        var modelId = $("#modelId").val();
+        var userId = $("#EditorId").val();
+        if (modelId === null || modelId.length === 0) {
+            modelId = null;
+            window.Showbusy(event);
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateModel")',
+            data: {
+                'code': code,
+                'modelId': modelId,
+                'userId': userId,
+                'recordId': recordId,
+                'fieldName': fieldName,
+                'fieldValue': fieldValue,
+                'fieldDisplay': fieldDisplay
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (modelId === null) {
+                    $("#modelId").val(data.modelId);
+                    $("#drugAttachBtn").removeClass('disabled');
+                    //                    var attachContent = '<attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_DRUG_FILE_CODE" path="' + data.modelId + '" />';
+                    //                    $("#attachDeclarationDiv").html(attachContent);
+                    //                    $("#attachDeclarationDiv").load();
+
+                    //                    $("#attachDeclarationId").attr("path", data.modelId);
+                    $("#loading").hide();
+                }
+                if (data.recordId > 0) {
+                    var row = $('#' + fieldName).parent().closest('tr');
+                    row.attr("rowid", data.recordId);
+                    //                    var codeControl = code + '_' + data.recordId + '_' + fieldName;
+                    $('#' + fieldName).attr('id', data.controlId);
+                }
+            },
+            error: function (data) {
+                alert("1Error" + data);
+            }
+        });
+    }
+   
+    $(document).ready(function () {
+        $("#HideInform").click(function () {
+            showHidenCommentBtn();
+        });
+        //  $("#wrapPage").hide();
+        // $("#tab-2").addClass("active");
+        /*
+        $('#wrapLabelPage').click(function () {
+            $("#wrapPage").show();
+        });*/
+        $("div.chzn-select select").chosen({ width: '100%' });
+
+        // $('.chzn-drop').css({ "width": "300px" });
+        //    $(".chzn-select-deselect").chosen({ allow_single_deselect: true });
+
+    });
+</script>

@@ -1,0 +1,118 @@
+﻿@model PW.Ncels.Database.Models.DocumentModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReview" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">Отправить заявку в бухгалтерию? <span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+          Прайс
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("DocumentDictionaryTypeId" + Model.Id)" data-bind="value: document.DocumentDictionaryTypeId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00"/>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+           Сумма
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("PriceSum"+ Model.Id)" data-bind="value: document.PriceSum, events: { change: change }"  type="number" step="2" value="0" style="width: 100%;"/>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        document: data,
+        isSend:false,
+        hasChanges:true,
+        change: function () {
+            if (this.document.get('DocumentDictionaryTypeId') != null && this.document.get('DocumentDictionaryTypeId').length > 0) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            if (this.isSend==false){
+            this.isSend = true;
+            kendo.ui.progress($('#loader' + name), true);
+           
+            var json = JSON.stringify(viewModel.get('document'));
+            
+            $.ajax({
+                type: 'POST',
+                url: '/IncomingDoc/DocumentReviewConfirm2',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    result = JSON.parse(result);
+                    if (result.State == true) {
+                        viewModel.set("document", result.document);
+                        kendo.bind($("#inDocForm" + name), viewModel);
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+            }
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    function onSelect(e) {
+        var dataItem = this.dataSource.view()[e.item.index()];
+        //var res = $("#PriceSum" + name).data("kendoNumericTextBox").value();
+        //$("#PriceSum" + name).data("kendoNumericTextBox").value(res + parseFloat(dataItem.Price));
+        var res = viewModel.get('document.PriceSum');
+        if (res == null) {
+            res = 0;
+        }
+        res = res + parseFloat(dataItem.Price);
+      viewModel.set('document.PriceSum',res);
+    }
+
+ 
+
+    $("#DocumentDictionaryTypeId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        select: onSelect,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/GetPrices?id=' + name
+
+                }
+            }
+        }
+    });
+
+    $("#PriceSum"+ name).kendoNumericTextBox();
+ 
+
+    kendo.bind($("#formReview" + name), viewModel);
+</script>

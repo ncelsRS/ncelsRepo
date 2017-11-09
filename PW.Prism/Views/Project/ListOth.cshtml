@@ -1,0 +1,121 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@model Guid
+
+@* Предельная цена *@
+@* ZakupRead *@
+<script>
+    function DicParams() {
+        return {
+            type: 4
+        };
+    }
+
+    var id = '@Model';
+
+    function addRequest() {
+
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            minHeight: 600,
+            minWidth: 1200,
+            modal: true,
+            title: 'Добавить',
+            actions: ["Close"]
+        });
+
+        window.data("kendoWindow").title('Добавить');
+        window.data("kendoWindow").setOptions({
+            width: 1500,
+            height: 600
+        });
+        window.data("kendoWindow").refresh({
+            url: "/Project/ListRequest",
+            data: { type: 4, id: id }
+        });
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    InitFilterDictionaryGrid('@Model.ToString()');
+</script>
+
+
+<div class="pwPanelBar">
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+        &nbsp;
+    </div>
+
+    <div id="pwSix1">
+        @(Html.Kendo().Button().Name("export1" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+              .Content("").Events(e => e.Click("onExportOthList"))
+              .ImageUrl("/Content/images/export.png"))
+    </div>
+    @(Html.Kendo().Grid<RequestListView>()
+                                   .Name("gridListDic" + Model)
+                               .Columns(columns =>
+                               {
+
+                                   columns.Bound(p => p.Number).Title("Порядковый номер").Width(100).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                                   columns.Bound(p => p.AtxCode).Title("АТХ код").Width(100);
+                                   columns.Bound(p => p.MnnName).Title("МНН").Width(150);
+                                   columns.Bound(p => p.substance_count).Title("Состав").Width(100);
+                                   columns.Bound(p => p.TradeName).Title("ТН").Width(100);
+                                   columns.Bound(p => p.DrugForm).Title("Лек форма").Width(100);
+                                   columns.Bound(p => p.Dosage).Title("Дозировка").Width(100);
+                                   columns.Bound(p => p.Concentration).Title("Концентрация").Width(100);
+                                   columns.Bound(p => p.volume).Title("Объём").Width(100);
+                                   columns.Bound(p => p.dosage_comment).Title("Комментарие к лекарственной форме").Width(100);
+                                   columns.Bound(p => p.Manufacturer).Title("Производитель").Width(100);
+                                   columns.Bound(p => p.Country).Title("Страна").Width(100);
+                                   columns.Bound(p => p.RegNumber).Title("Рег номер ").Width(100);
+                                   columns.Bound(p => p.RegDate).Title("Рег дата").Format("{0:dd.MM.yyyy}").Width(100);
+                                   columns.Bound(p => p.RegDateExpire).Title("Дата истечения рег номера").Format("{0:dd.MM.yyyy}").Width(100);
+                                   columns.Bound(p => p.Mark).Title("Признак").Width(100);
+                                   columns.Bound(p => p.LimitPriceMnn).Title("Предельная цена за МНН").Width(100);
+                                   columns.Bound(p => p.LimitPriceTn).Title("Предельная цена за ТН").Width(100);
+                                   columns.Bound(p => p.Applicant).Title("Потенциальный заявитель").Width(100);
+                                   columns.Bound(p => p.Status).Title("Статус").Width(100);
+                                   columns.Bound(p => p.Reason).Title("Причина").Width(100);
+                                   columns.Bound(p => p.Characteristic).Title("Характеристика").Width(100);
+
+                                   columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+
+                               })
+                            .ToolBar(toolbar =>
+                                toolbar.Template("<a class='k-button k-button-icontext' onclick='addRequest()'></span>Добавить</a>")
+                            //toolbar.Custom("К заявке").Click("toApplication");
+                            )
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                            .Reorderable(reorderable => reorderable.Columns(true))
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Scrollable(scrollable => scrollable.Virtual(true))
+                             .Filterable()
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .HtmlAttributes(new { @class = "pwGridRef pwGridMin" })
+                            .DataSource(dataSource => dataSource
+                               .Ajax()
+                                       .Model(model => model.Id(p => p.Id))
+                                               .Aggregates(aggregates => { aggregates.Add(p => p.Number).Count(); })
+
+                            .PageSize(50)
+                            .Sort(sort => sort.Add("MnnName").Ascending())
+                            .Read(read => read.Action("ListRequestRead", "Project").Data("DicParams"))
+                            .Update(update => update.Action("ListRequestUpdate", "Project").Data("DicParams"))
+                            .Destroy(update => update.Action("ListRequestDestroy", "Project").Data("DicParams"))
+
+                           ))
+</div>
+         
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+
+
+
+</script>

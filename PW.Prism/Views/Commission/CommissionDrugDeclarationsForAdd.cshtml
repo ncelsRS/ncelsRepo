@@ -1,0 +1,80 @@
+﻿@using PW.Prism.ViewModels.Commissions
+@model CommissionQuestionsModel
+
+@{
+    //простите за всё это, очень спешу
+    var modelId = Model.Guid.ToString();
+}
+<script>
+    InitFilterCommissionQuestionForAddAllGrid('@modelId');
+</script>
+<div class="pwPanelBar">
+    <div class="pwBlockAdd k-block">
+        <div id="pwOne">
+            @(Html.Kendo().MaskedTextBox().Name("findText" + modelId).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+        </div>
+        @*<div id="pwTwo">
+                @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                       .DataTextField("Text")
+                       .DataValueField("Value")
+                       .BindTo(new List<SelectListItem>() {
+                           new SelectListItem() {
+                               Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                           },
+                       })
+                       .SelectedIndex(0)
+                )
+            </div>*@
+        <div id="pwThree">
+            @(Html.Kendo().Button().Name("find" + modelId).HtmlAttributes(new { @class = "pwWidth100" })
+                             .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                             .ImageUrl("/Content/images/find.png"))
+        </div>
+        <div id="pwFour">
+        </div>
+    </div>
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + modelId).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                        .Content("")
+                                   .ImageUrl("/Content/images/reload.png"))
+    </div>
+
+    @(Html.Kendo().Grid<CommissionDrugDeclarationListItemModel>()
+        .Name("gridCommissionQuestionsForAddList" + modelId)
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Number).Title("Номер").Width(125).ClientTemplate(
+                 "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getDeclarationDetails('#=DosageStageId#', '#=DeclarationNumber#','DrugPrimary')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                 "</div>"
+                 ).Title("№ заявления");
+            columns.Bound(p => p.Name).Title("Наименование");
+            columns.Bound(p => p.StageName).Title("Этап");
+            columns.Bound(p => p.Date).Title("Дата выдачи").Format("{0:dd/MM/yyyy}");
+            columns.Bound(p => p.DrugDosageId).ClientTemplate(
+                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                          "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"AddCommissionDrugDeclaration('#=DrugDosageId#','#=DosageStageId#','" + Model.CommissionId + "')\"><span style=\"color:rgb(66,139,202);\">Добавить</span></button>" +
+                                      "</div>"
+                                    ).Title("").Width(120).Filterable(false).Sortable(false);
+            //  columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+        })
+        //.ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+        .Filterable()
+        .Sortable()
+        .Pageable()
+        .Scrollable()
+        .Resizable(x => x.Columns(true))
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+                 .Model(model =>
+                 {
+                     model.Id(p => p.Id);
+                     model.Field(p => p.Id).Editable(false);
+                 })
+                .PageSize(20)
+                //.Sort(sort => sort.Add("Name").Ascending())
+                .Read(read => read.Action("CommissionDrugDelaretionForAddRead", "Commission", new { commissionId = Model.CommissionId }))
+                .Events(events => events.Error("error_handlerPP"))
+                ))
+</div>

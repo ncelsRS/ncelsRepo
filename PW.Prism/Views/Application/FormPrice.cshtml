@@ -1,0 +1,258 @@
+﻿
+@using PW.Ncels.Database.Enums
+@using PW.Ncels.Database.Models
+@model CalcModel
+
+@{
+    Layout = null;
+}
+<script>
+    function DicParams() {
+        return {
+            id: '@Model.Id'
+        };
+    }
+
+    $(document).ready(function () {
+        $("#reCalcObk" + "@Model.Id").click(function () {
+            var d1 = $("#priceFormToSave" + "@Model.Id").find("#CalcDateStart")[0].value;
+            var d2 = $("#priceFormToSave" + "@Model.Id").find("#CalcDateEnd")[0].value;
+            if (d1 == null) {
+                alert("Необходимо указать начальную дату для рассчета");
+            } else if (d2 == null) {
+                alert("Необходимо указать конечную дату для рассчета");
+            } else {
+                $.ajax({
+                    url: '/Application/ReCalcObk',
+                    type: "POST",
+                    data: {'id':'@Model.Id', 'date1':d1, 'date2':d2},
+                    success: function (data) {
+                        var result = data.toString().replace(".", ",");
+                        $("#AvgObkCost")[0].value = result;
+                    },
+                    error: function (data) {
+                        alert('Не удалось получить данные');
+                    }
+                });
+            }
+        });
+
+        // перерасчет минимальной референтной цены
+        $("#reCalcMinCost" + "@Model.Id").click(function () {
+            $.ajax({
+                url: '/Application/ReCalcMinRef',
+                type: "POST",
+                data: { 'id': '@Model.Id', 'avgObkCost': $("#priceFormToSave" + "@Model.Id").find("#AvgObkCost")[0].value, 'avgOptCost': $("#priceFormToSave" + "@Model.Id").find("#AvgOptCost")[0].value, 'avgRznCost': $("#priceFormToSave" + "@Model.Id").find("#AvgRznCost")[0].value, 'limitCost': $("#priceFormToSave" + "@Model.Id").find("#LimitCost")[0].value, 'zakupCost': $("#priceFormToSave" + "@Model.Id").find("#ZakupCost")[0].value },
+                success: function (data) {
+                    var result = data.toString().replace(".", ",");
+                    $("#MinimalCost")[0].value = result;
+                },
+                error: function (data) {
+                    alert('Не удалось получить данные');
+                }
+            });
+        });
+    });
+</script>
+
+<div class="pwToolbar" id="@("docToolbarPrice"+ Model.Id)" style="width: 960px !important">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: save" id="@("save"+ Model.Id)"><span class="pwToolbarButtonBuild"></span><span class="pwToolbarButtonTitle">Рассчитать</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: register" id="@("register" + Model.Id)"><span class="pwToolbarButtonSig"></span><span class="pwToolbarButtonTitle">Проверить</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: calcMark" id="@("calcMark"+ Model.Id)"><span class="pwToolbarButtonExecuteEx"></span><span class="pwToolbarButtonTitle">Наценка</span></button>
+        </div>
+    </div>
+</div>
+<div class="pwPage">
+    @(Html.Kendo().ListView<UploadInitialFile>()
+          .Name("listView_FileData" + Model.Id)
+          .TagName("div").HtmlAttributes(new {@style = "height:auto; border:0;overflow: auto;width: 838px;"})
+          .ClientTemplateId("fileReadTemplate")
+          .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadonlyById", "Upload", new {docId = Model.Id})))
+          )
+    <form id="priceFormToSave@(Model.Id)" name="priceFormToSave@(Model.Id)" method="post">
+        <input id="Id" name="Id" class="k-textbox pwWidth100" value="@Model.Id" hidden="hidden"/>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Цена производителя:</div>
+            <div class="col-lg-5"><input id="ManufacturerPrice" name="ManufacturerPrice" class="k-textbox pwWidth100 pw-readonly" value="@Model.ManufacturerPrice" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">CIP цена:</div>
+            <div class="col-lg-5"><input id="CipPrice" name="CipPrice" class="k-textbox pwWidth100 pw-readonly" value="@Model.CipPrice" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Референтная цена:</div>
+            <div class="col-lg-5"><input id="RefPrice" name="RefPrice" class="k-textbox pwWidth100 pw-readonly" value="@Model.RefPrice" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Цена зарегистрированная за уп.:</div>
+            <div class="col-lg-5"><input id="OwnerPrice" name="OwnerPrice" class="k-textbox pwWidth100 pw-readonly" value="@Model.OwnerPrice" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Первоначальная цена заявителя:</div>
+            <div class="col-lg-5"><input id="OriginalCost" name="OriginalCost" class="k-textbox pwWidth100 pw-readonly" value="@Model.OriginalCost" readonly="readonly"/>
+            </div>
+        </div>
+        @if (Model.PriceProjectType == (int)PriceProjectType.RePriceImn || Model.PriceProjectType == (int)PriceProjectType.RePriceLs)
+        {
+            <div class="hr-line-dashed2"></div>
+            <div class="row">
+                <div class="col-lg-6">Цена заявителя после переговоров в тенге:</div>
+                <div class="col-lg-5">
+                    <input id="UnitPrice" name="UnitPrice" value="@Model.UnitPrice" class="k-textbox pwWidth100" readonly="readonly" />
+                </div>
+            </div>
+        }
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Британский национальный формуляр цена в тенге за ед.изм.:</div>
+            <div class="col-lg-5"><input id="BritishPrice" name="BritishPrice" value="@Model.BritishPrice" class="k-textbox pwWidth100 pw-readonly" placeholder="Введите значение" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-11" style="padding-left: 0"><b>Регрессивная шкала начисления наценок на лекарственные средства:</b></div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Оптовая наценка:</div>
+            <div class="col-lg-5">
+                <input id="MarkupCostOpt" name="MarkupCostOpt" value="@Model.MarkupCostOpt" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Розничная наценка:</div>
+            <div class="col-lg-5">
+                <input id="MarkupCost" name="MarkupCost" value="@Model.MarkupCost" class="k-textbox pwWidth100" placeholder="Введите значение" />
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Дата для расчета ввозных цен</div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6" style="padding-top: 5px;">
+                с:
+            </div>
+            <div class="col-lg-5">
+                <input id="CalcDateStart" name="CalcDateStart" value="@Model.CalcDateStart" class="pwWidth100" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6" style="padding-top: 5px;">
+                по:
+            </div>
+            <div class="col-lg-5">
+                <input id="CalcDateEnd" name="CalcDateEnd" value="@Model.CalcDateEnd" class="pwWidth100" />
+            </div>
+            <div class="col-lg-1">
+                @(Html.Kendo().Button().Name("reCalcObk" + Model.Id).HtmlAttributes(new { @class = "btn btn-default", type = "button" })
+                    .Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Средняя ввозная цена по базе ОБК Цена в тенге:</div>
+            <div class="col-lg-5"><input id="AvgObkCost" name="AvgObkCost" value="@Model.AvgObkCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Дата для расчета оптовых и розничных цен:</div>
+            <div class="col-lg-5">
+                <input id="CreatedDate" name="CreatedDate" value="@Model.CreatedDate" class="pwWidth100" />
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Средняя розничная цена в тенге:</div>
+            <div class="col-lg-5"><input id="AvgRznCost" name="AvgRznCost" value="@Model.AvgRznCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Средняя оптовая цена в тенге:</div>
+            <div class="col-lg-5"><input id="AvgOptCost" name="AvgOptCost" value="@Model.AvgOptCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Закупочная цена в тенге:</div>
+            <div class="col-lg-5"><input id="ZakupCost" name="ZakupCost" value="@Model.ZakupCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Предельная цена 2016 года:</div>
+            <div class="col-lg-5"><input id="LimitCost" name="LimitCost" value="@Model.LimitCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Минимальная референтная цена:</div>
+            <div class="col-lg-5"><input id="MinimalCost" name="MinimalCost" value="@Model.MinimalCost" class="k-textbox pwWidth100" placeholder="Введите значение"/>
+            </div>
+            <div class="col-lg-1">
+                @(Html.Kendo().Button().Name("reCalcMinCost" + Model.Id).HtmlAttributes(new { @class = "btn btn-default", type = "button" })
+                    .Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+    </form>
+    @(Html.Kendo().Grid<PricesViewModel>()
+          .Name("gridPricesView" + Model.Id)
+          .Columns(columns => {
+              columns.Bound(p => p.CountryName).Title("Страна").Width(100);
+              columns.Bound(p => p.ManufacturerPrice).Title("Цена").Width(70);
+              columns.Bound(p => p.ManufacturerPriceCurrencyName).Title("Валюта").Width(70);
+              columns.Bound(p => p.CipPrice).Title("Цена в тенге за ед изм").Width(100);
+              columns.Bound(p => p.RefPrice).Title("Цена в тенге за упаковку").Width(100);
+              columns.Bound(p => p.Name).Title("Ссылка").Width(100);
+              columns.Bound(p => p.CreatedDate).Title("Дата").Format("{0:dd.MM.yyyy}").Width(70);
+              columns.Command(command => {
+                  command.Edit();
+                  command.Destroy();
+              }).Width(60);
+          }).ToolBar(toolbar => toolbar.Create())
+          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .Events(e => { e.DataBound("dataBoundPriceMainList"); })
+          .Reorderable(reorderable => reorderable.Columns(false))
+          .ClientDetailTemplateId("templateProtocols")
+          .Resizable(resizable => resizable.Columns(true))
+          .Scrollable(scrollable => scrollable.Virtual(true))
+          .HtmlAttributes(new {@class = "pwGridPrice"})
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Sort(sort => sort.Add("ManufacturerPrice"))
+              .Model(model => model.Id(p => p.Id))
+              .Read(read => read.Action("ListPrice", "Application", new {id = Model.Id}))
+              .Create(update => update.Action("PriceCreate", "Application").Data("DicParams"))
+              .Update(update => update.Action("PriceUpdate", "Application"))
+              .Destroy(update => update.Action("PriceDestroy", "Application"))
+          ))
+</div>
+<script>
+    InitializeDataIncomingPrice('@Model.Id');
+    $("#priceFormToSave" + "@Model.Id").find("#CalcDateStart").kendoDatePicker();
+    $("#priceFormToSave" + "@Model.Id").find("#CalcDateEnd").kendoDatePicker();
+    $("#priceFormToSave" + "@Model.Id").find("#CreatedDate").kendoDatePicker();
+</script> 
+ 
+<script id="templateProtocols" type="text/kendo-template">
+    @(Html.Kendo().ListView<UploadInitialFile>()
+                    .Name("listViewOutDoc_#=Id#")
+                    .TagName("div").HtmlAttributes(new { style = "height:auto; border:0; overflow: auto; width: auto;" })
+                    .ClientTemplateId("fileReadTemplate")
+                    .DataSource(dataSource => dataSource.Read(read => read.Action("SampleFileRead", "Upload", new { objId = "#=Id#" }))).ToClientTemplate())
+</script>

@@ -1,0 +1,169 @@
+﻿@using Microsoft.Ajax.Utilities
+@model PW.Ncels.Database.DataModel.Document
+
+<div style="height: 256px; overflow: auto; width: 838px;">
+    <table class="pwDocTable2">
+        <colgroup>
+            <col width="140px" />
+            <col width="265px" />
+            <col width="5px" />
+            <col width="140px" />
+            <col width="265px" />
+        </colgroup>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Типконтроля_195__00</td>
+            <td>
+                @(Model.MonitoringType == 1 ? PW.Ncels.Database.Recources.Messages.Property_Неконтрольный_174__00 :
+                  Model.MonitoringType == 2 ? PW.Ncels.Database.Recources.Messages.Property_Контроль_310__00 :
+                  Model.MonitoringType == 3 ? PW.Ncels.Database.Recources.Messages.Property_Особыйконтроль_164__00 :
+                  Model.MonitoringType == 4 ? PW.Ncels.Database.Recources.Messages.Property_Доконтроль_241__00 : 
+                  string.Empty)
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00</td>
+            <td>
+                @(Model.ExecutionDate.HasValue ? Model.ExecutionDate.Value.ToString("dd.MM.yyyy") : string.Empty)
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Входящийномер_144__00</td>
+            <td>
+               <a href="#" onclick="getIncomingDetails('@Model.Id', '@Model.Number')">@Model.Number</a>  
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_От_393__00</td>
+            <td>
+                @(Model.DocumentDate.HasValue ? Model.DocumentDate.Value.ToString("dd.MM.yyyy") : string.Empty)
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Корреспондент_187__00</td>
+            <td>
+                @Model.CorrespondentsValue
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Автор_355__00</td>
+            <td>
+                @Model.CorrespondentsInfo
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Телефон_330__00</td>
+            <td>
+                @Model.ApplicantPhone
+            </td>
+            <td></td>
+            <td class="pwLabel">Email:</td>
+            <td>
+                @Model.ApplicantEmail
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Исходящийномер_134__00</td>
+            <td>
+                @Model.OutgoingNumber
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_От_393__00</td>
+            <td>
+                @(Model.OutgoingDate.HasValue ? Model.OutgoingDate.Value.ToString("dd.MM.yyyy") : string.Empty)
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Адресат_308__00</td>
+            <td colspan="4">
+                @Model.ExecutorsValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_98__00</td>
+            <td colspan="4">
+                @Model.ResponsibleValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Виддокумента_188__00</td>
+            <td>
+                @Model.DocumentKindDictionaryValue
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Характервопроса_99__00</td>
+            <td>
+                @Model.QuestionDesignDictionaryValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Краткоесодержание_69__00</td>
+            <td colspan="4">
+                @Model.Summary
+
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_ЛистПрилДругое_70__00</td>
+            <td>
+                @string.Format("{0} / {1} / {2}", Model.PageCount, Model.CopiesCount, Model.Counters)
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Языкдокумента_142__00</td>
+            <td>
+                @Model.LanguageDictionaryValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Виддоставки_197__00</td>
+            <td>
+                @Model.FormDeliveryDictionaryValue
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Полученвответна_71__00</td>
+            <td colspan="4">
+                @Model.AnswersValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Кдокументу_223__00</td>
+            <td colspan="4">
+                @Model.CompleteDocumentsValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">Отправлены ответные*:</td>
+            <td>
+                @Model.AutoAnswersValue
+            </td>
+            <td></td>
+            <td class="pwLabel">Отправлены промежуточные*:</td>
+            <td>
+                @Model.AutoAnswersTempValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Дело_375__00</td>
+            <td colspan="4">
+                @Model.NomenclatureDictionaryValue
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Том_382__00</td>
+            <td>
+                @Model.Deed
+            </td>
+            <td></td>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Листы_360__00</td>
+            <td>
+                @Model.Book
+            </td>
+        </tr>
+        <tr>
+            <td class="pwLabel">@PW.Ncels.Database.Recources.Messages.Property_Акты_376__00</td>
+            <td colspan="4">
+                @Model.Akt
+            </td>
+        </tr>
+    </table>
+</div>

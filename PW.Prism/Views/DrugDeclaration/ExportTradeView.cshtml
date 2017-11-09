@@ -1,0 +1,185 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<div style="display: none;" id="eventDiv">
+    <div class="input-group">
+        @Html.DropDownList("CountryId", (IEnumerable<SelectListItem>)(ViewData["Counties"]), String.Empty, new { @class = "form-control edit-control form4Field" })
+        <span class="input-group-addon">
+            <a class="commentDialog" href="#">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </a>
+        </span>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Торговое название на экспорт (для отечественных производителей)
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="table_plan3" class="wast-list" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Страна</td>
+                        <td>Наименование на государственном языке</td>
+                        <td>Наименование на русском языке</td>
+                        <td>Наименование на английском языке</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="tab3">
+                    @for (var i = 0; i < Model.ExpDrugExportTrades.Count; i++)
+                    {
+                        var index = i + 1;
+                        var code = CodeConstManager.EXP_DrugExportTradeCode+"_" + Model.ExpDrugExportTrades[i].Id + "_";
+                        var countryId = code + "CountryId";
+                        var nameKzId = code + "NameKz";
+                        var nameRuId = code + "NameRu";
+                        var nameEnId = code + "NameEn";
+
+                        <tr rowid="@Model.ExpDrugExportTrades[i].Id" rowindex="@index" rowkind="1">
+                            <td>
+                                <div class="input-group">
+                                    @Html.DropDownList("ExpDrugExportTrades[" + @i + "].CountryId", (IEnumerable<SelectListItem>)(ViewData["Counties" + i.ToString(CultureInfo.InvariantCulture)]), String.Empty, new { @class = "form-control form4Field edit-control", @id= @countryId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugExportTrades[i].NameKz, new { @class = "form4Field  form-control edit-control", @id = @nameKzId })<span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugExportTrades[i].NameRu, new { @class = "form4Field  form-control edit-control", @id = @nameRuId })<span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>    
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugExportTrades[i].NameEn, new { @class = "form4Field  form-control edit-control", @id = @nameEnId })<span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="6" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addCoordrrow" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+
+        //bird
+        $(document).ready(function () {
+           
+            changeFieldList(".form4Field", '@CodeConstManager.EXP_DrugExportTradeCode');
+
+            $("#addCoordrrow").on("click",
+                function() {
+                    var row = $(this).closest("tr").prev();
+                    var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+                    var nextIndex = rowindex + 1;
+                    var kindObject = "";
+                    kindObject = "ExpDrugExportTrades";
+
+                    var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+                    var eventDiv = document.getElementById("eventDiv");
+
+                    var idEvent = kindObject + '_' + nextIndex + '_CountryId';
+                    var nameEvent = kindObject + '[' + nextIndex + '].CountryId';
+                    var envetStr = replaceAll('id="CountryId"', 'id="' + idEvent + '"', eventDiv.innerHTML);
+                    envetStr = replaceAll('name="CountryId"', 'name="' + nameEvent + '"', envetStr);
+
+
+                    var idNameRu = "exportTrade_a" + nextIndex + "_NameRu";
+                    var idNameKz = "exportTrade_a" + nextIndex + "_NameKz";
+                    var idNameEn = "exportTrade_a" + nextIndex + "_NameEn";
+
+                    cols += '<td>' + envetStr + '</td>';
+
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].NameKz" id="' +
+                        idNameKz +
+                        '" class="form4Field edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].NameRu" id="' +
+                        idNameRu +
+                        '" class="form4Field edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+                    cols += '<td><div class="input-group"><input type="text" name="' +
+                        kindObject +
+                        '[' +
+                        nextIndex +
+                        '].NameEn" id="' +
+                        idNameEn +
+                        '" class="form4Field edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+                    cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+                    cols += '</tr>';
+                    row.after(cols);
+                    changeFieldList("#" + idEvent, '@CodeConstManager.EXP_DrugExportTradeCode');
+                    changeFieldList("#" + idNameRu, '@CodeConstManager.EXP_DrugExportTradeCode');
+                    changeFieldList("#" + idNameKz, '@CodeConstManager.EXP_DrugExportTradeCode');
+                    changeFieldList("#" + idNameEn, '@CodeConstManager.EXP_DrugExportTradeCode');
+                });
+
+
+            $("#table_plan3").on("click",
+                ".deleteRow",
+                function() {
+
+                    var row = $(this).closest('tr');
+                    var success = function() {
+                        var entityId = row.attr('rowid');
+                        DeleteRecord('@CodeConstManager.EXP_DrugExportTradeCode', entityId);
+                        row.remove();
+                    }
+                    var cancel = function() {
+                    };
+                    showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+                });
+        });
+    </script>
+}

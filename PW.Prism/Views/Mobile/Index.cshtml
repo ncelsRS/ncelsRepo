@@ -1,0 +1,1498 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<div data-role="view" data-title="СЭД">
+    <ul data-role="listview" data-style="inset" data-type="group">
+        <li>
+            Задания
+            <ul>
+                <li id="taskNewOpen" data-icon="add"> <a href="#task-new" data-transition="none">Новые<span id="newTaskCount" class="km-badge pw-new-badge"></span></a></li>
+                <li id="taskInWorkOpen" data-icon="compose"><a href="#task-in-work" data-transition="none">В работе<span id="inWorkTaskCount" class="km-badge pw-work-badge"></span></a></li>
+                <li id="taskUnsubscribedOpen" data-icon="contacts"><a href="#task-unsubscribed" data-transition="none">Отписанные<span id="unsubscribedTaskCount" class="km-badge pw-work-badge"></span></a></li>
+                <li id="taskExecutedOpen" data-icon="executed"><a href="#task-done" data-transition="none">Исполненные<span id="executedTaskCount" class="km-badge pw-done-badge"></span></a></li>
+                <li id="taskAllOpen" data-icon="organize"><a href="#task-all" data-transition="none">Все<span id="allTaskCount" class="km-badge"></span></a></li>
+            </ul>
+         
+        </li>
+        <li>
+           @UserHelper.GetCurrentShortName()
+            <ul>
+                <li data-icon="off" style="cursor: pointer; " onclick="taskLogOff()">Выйти</li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<script type="text/x-kendo-template" id="maintemplate">
+    <div class="product">
+        <img src="../content/web/foods/#= ProductID #.jpg" alt="#: ProductName # image" />
+        <h3>#:ProductName#</h3>
+        <p>#:kendo.toString(UnitPrice, "c")#</p>
+    </div>
+</script>
+<div data-role="layout" data-id="mobile-view">
+    @*<header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button" data-align="left" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+        </div>
+    </header>*@
+</div>
+
+@* Списки *@
+@* Новые задания *@
+<div data-role="view" id="task-new" data-title="Новые задания" data-layout="mobile-view" data-init="taskNewData">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-click="newBackClick" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+            <button class="nav-button" data-align="right" data-icon="refresh" data-role="button" onclick="taskNewDataReload()"></button>
+        </div>
+        <div class="km-listview-wrapper">
+            <div class="km-filter-form">
+                <div class="km-filter-wrap">
+                    <input type="search" id="newSearch" placeholder="Поиск...">
+                </div>
+            </div>
+        </div>
+    </header>
+    <ul id="task-new-list" class="pwTaskList"></ul>
+ 
+ 
+    <ul data-role="actionsheet" id="new-task-todo-agree-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="newExecutionPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="newAgreeButton"><a href="#" data-action="taskTrue">Согласовать</a></li>
+        <li id="newRejectButton"><a href="#" data-action="taskFalse">Отказать</a></li>
+    </ul>
+    <ul data-role="actionsheet" id="new-task-todo-resolution-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="newResolutionEPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="newResolutionButton"><a href="#" data-action="taskResolution">Резолюция</a></li>
+        <li id="newResolutionExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+    </ul>
+    <ul data-role="actionsheet" id="new-task-todo-assignment-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="newAssignmentPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="newAssignmentButton"><a href="#" data-action="taskAssignment">Поручение</a></li>
+        <li id="newAssignmentExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+    </ul>
+    <ul data-role="actionsheet" id="new-task-todo-move-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="newTranslatePathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="newTranslateButton"><a href="#" data-action="taskWorkToMove">Перевести</a></li>
+    </ul>
+  
+    <ul data-role="actionsheet" id="new-task-todo-register-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="newSendPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="newSendTranslateButton"><a href="#" data-action="taskSendToMove">Отправить на перевод</a></li>
+        <li id="newSendRegistryButton"><a href="#" data-action="taskSendToRegister">Отправить на регистрацию</a></li>
+    </ul>
+    <script type="text/x-kendo-tmpl" id="task-new-template">
+        <div class="pwTask">
+        
+            # if (Type==3 && TypeEx!=1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#new-task-todo-agree-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 0) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#new-task-todo-resolution-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==1 || Type==2) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#new-task-todo-assignment-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 3 && TypeEx==1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#new-task-todo-move-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==4) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#new-task-todo-register-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+              <h3 class="pwTaskDoc">#: DocumentNumber #</h3><h3>от&ensp;#:kendo.toString(kendo.parseDate(DocumentDate), "dd.MM.yyyy")#</h3>
+            <h2>#: Author #</h2>
+            <p>#: Text #</p>
+        </div>
+    </script>
+</div>
+@* Новые задания *@
+
+@* В работе *@
+<div data-role="view" id="task-in-work" data-title="В работе" data-init="taskInWorkRead" data-layout="mobile-view">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-click="inWorkBackClick" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+            <button class="nav-button" data-align="right" data-icon="refresh" data-role="button" onclick="taskInWorkReload()"></button>
+        </div>
+        <div class="km-listview-wrapper">
+            <div class="km-filter-form">
+                <div class="km-filter-wrap">
+                    <input type="search" id="taskInWorkSearch" placeholder="Поиск...">
+                </div>
+            </div>
+        </div>
+    </header>
+    <ul id="task-in-work-list" class="pwTaskList"></ul>
+
+    <ul data-role="actionsheet" id="in-work-task-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="inWorkPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="inWorkAgreeButton"><a href="#" data-action="taskTrue">Согласовать</a></li>
+        <li id="inWorkRejectButton"><a href="#" data-action="taskFalse">Отказать</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="in-work-task-resolution-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="inWorkResolutionPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="inWorkResolutionButton"><a href="#" data-action="taskResolution">Резолюция</a></li>
+        <li id="inWorkResolutionExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="in-work-task-assignment-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="inWorkAssignmentPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="inWorkAssignmentButton"><a href="#" data-action="taskAssignment">Поручение</a></li>
+        <li id="inWorkAssignmentExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="in-work-task-move-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="inWorkTranslatePathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="inWorkTranslateButton"><a href="#" data-action="taskWorkToMove">Перевести</a></li>
+
+    </ul>
+
+    <ul data-role="actionsheet" id="in-work-task-register-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="inWorkSendPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="inWorkSendTranslateButton"><a href="#" data-action="taskSendToMove">Отправить на перевод</a></li>
+        <li id="inWorkSendRegistryButton"><a href="#" data-action="taskSendToRegister">Отправить на регистрацию</a></li>
+
+    </ul>
+    <script id="task-in-work-template" type="text/x-kendo-template">
+        <div class="pwTask">
+            # if (Type==3 && TypeEx!=1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#in-work-task-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 0) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#in-work-task-resolution-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==1 || Type==2) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#in-work-task-assignment-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 3 && TypeEx==1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#in-work-task-move-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==4) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#in-work-task-register-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+            <h3 class="pwTaskDoc">#: DocumentNumber #</h3><h3>от&ensp;#:kendo.toString(kendo.parseDate(DocumentDate), "dd.MM.yyyy")#</h3>
+            <h2>#: Author #</h2>
+            <p>#: Text #</p>
+        </div>
+    </script>
+</div>
+@* В работе  *@
+
+@*  в отписанные *@
+<div data-role="view" id="task-unsubscribed" data-title="Отписанные" data-layout="mobile-view" data-init="taskUnsubscribedRead">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-click="unsubcribedBackClick" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+            <button class="nav-button" data-align="right" data-icon="refresh" data-role="button" onclick="taskUnsubscribedReload()"></button>
+        </div>
+        <div class="km-listview-wrapper">
+            <div class="km-filter-form">
+                <div class="km-filter-wrap">
+                    <input type="search" id="unsubscribedSearch" placeholder="Поиск...">
+                </div>
+            </div>
+        </div>
+    </header>
+    <ul id="task-unsubscribed-list" class="pwTaskList"></ul>
+
+    <ul data-role="actionsheet" id="unsubscribed-agree-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="unsubscribedPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="unsubscribedAgreeButton"><a href="#" data-action="taskTrue">Согласовать</a></li>
+        <li id="unsubscribedRejectButton"><a href="#" data-action="taskFalse">Отказать</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="unsubscribed-resolution-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="unsubscribedResolutionPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="unsubscribedResolutionButton"><a href="#" data-action="taskResolution">Резолюция</a></li>
+        <li id="unsubscribedResolutionExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="unsubscribed-assignment-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="unsubscribedAssignmentPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="unsubscribedAssignmentButton"><a href="#" data-action="taskAssignment">Поручение</a></li>
+        <li id="unsubscribedAssignmentExecuteButton"><a href="#" data-action="taskExecute">Исполнить</a></li>
+
+    </ul>
+    <ul data-role="actionsheet" id="unsubscribed-move-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="unsubscribedTranslatePathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="unsubscribedTranslateButton"><a href="#" data-action="taskWorkToMove">Перевести</a></li>
+
+    </ul>
+
+    <ul data-role="actionsheet" id="unsubscribed-register-actions" data-open="onOpen" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="unsubscribedSendPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+        <li id="unsubscribedSendTranslateButton"><a href="#" data-action="taskSendToMove">Отправить на перевод</a></li>
+        <li id="unsubscribedSendRegistryButton"><a href="#" data-action="taskSendToRegister">Отправить на регистрацию</a></li>
+
+    </ul>
+  
+    <script type="text/x-kendo-tmpl" id="task-unsubscribed-template">
+        <div class="pwTask">
+            # if (Type==3 && TypeEx!=1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#unsubscribed-agree-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 0) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#unsubscribed-resolution-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==1 || Type==2) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#unsubscribed-assignment-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type == 3 && TypeEx==1) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#unsubscribed-move-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+
+            # if (Type==4) { #
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#unsubscribed-register-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            # } #
+            <h3 class="pwTaskDoc">#: DocumentNumber #</h3><h3>от&ensp;#:kendo.toString(kendo.parseDate(DocumentDate), "dd.MM.yyyy")#</h3>
+            <h2>#: Author #</h2>
+            <p>#: Text #</p>
+        </div>
+    </script>
+</div>
+
+@*  в отписанные *@
+
+@* Исполненные задания  *@
+<div data-role="view" id="task-done" data-title="Исполненные" data-layout="mobile-view" data-init="taskDoneData">
+    <div data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-click="executedBackClick" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+            <button class="nav-button" data-align="right" data-icon="refresh" data-role="button" onclick="taskDoneDataReload()"></button>
+        </div>
+        <div class="km-listview-wrapper">
+            <div class="km-filter-form">
+                <div class="km-filter-wrap">
+                    <input type="search" id="executedSearch" placeholder="Поиск...">
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul id="task-done-list" class="pwTaskList"></ul>
+    <ul data-role="actionsheet" id="task-done-actions" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="donePathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+
+    </ul>
+</div>
+<script type="text/x-kendo-tmpl" id="task-done-template">
+    <div class="pwTask">
+        <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#task-done-actions" data-actionsheet-context="#:TaskId#"></a>
+        <h3 class="pwTaskDoc">#: DocumentNumber #</h3><h3>от&ensp;#:kendo.toString(kendo.parseDate(DocumentDate), "dd.MM.yyyy")#</h3>
+        <h2>#: Author #</h2>
+        <p>#: Text #</p>
+    </div>
+</script>
+@* Исполненные задания  *@
+
+@*  все *@
+<div data-role="view" id="task-all" data-title="Все" data-layout="mobile-view" data-init="taskAllRead">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-click="allBackClick" data-role="backbutton">Назад</a>
+            <span data-role="view-title"></span>
+            <button class="nav-button" data-align="right" data-icon="refresh" data-role="button" onclick="taskAllReload()"></button>
+        </div>
+        <div class="km-listview-wrapper">
+            <div class="km-filter-form">
+            <div class="km-filter-wrap">
+                <input type="search" id="allTaskSearch" placeholder="Поиск...">
+            </div>
+            </div>
+        </div>
+    </header>
+     <ul id="task-all-list" class="pwTaskList"></ul>
+    <ul data-role="actionsheet" id="task-all-actions" data-popup='{"direction": "left"}' data-cancel="Отмена">
+        <li class="km-actionsheet-title"></li>
+        <li><a href="#" data-action="taskDetails">Просмотр документа</a></li>
+        <li id="allPathButton"><a href="#" data-action="executionPath">Ход исполнения</a></li>
+    </ul>
+    <script type="text/x-kendo-tmpl" id="task-all-template">
+        <div class="pwTask">
+            <a class="pwTaskAction" data-role="button" data-rel="actionsheet" data-icon="more" data-id="#:TaskId#" href="\\#task-all-actions" data-actionsheet-context="#:TaskId#" style="float:right"></a>
+            <h3 class="pwTaskDoc">#: DocumentNumber #</h3><h3>от&ensp;#:kendo.toString(kendo.parseDate(DocumentDate), "dd.MM.yyyy")#</h3>
+            <h2>#: Author #</h2>
+            <p>#: Text #</p>
+        </div>
+    </script>
+</div>
+
+@*  все *@
+
+@* Списки *@
+
+@* forms *@
+
+<div data-role="view" id="executionPath-form">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+            <span data-role="view-title">Ход исполнения</span>
+            @*<a class="nav-button" data-align="right" data-role="button" id="done" onclick="detailclick()">Да</a>*@
+        </div>
+    </header>
+    <div data-role="scroller" data-use-native="true">
+        <div id="executionPath-result">
+        </div>
+    </div>
+</div>
+
+@* Форма просмотра *@
+<div data-role="view" id="detail-form">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+            <span data-role="view-title">Промотр документа</span>
+            @*<a class="nav-button" data-align="right" data-role="button" id="done" onclick="detailclick()">Да</a>*@
+        </div>
+    </header>
+    <div data-role="scroller" data-use-native="true">
+        <div id="taskDetailsResult">
+        </div>
+        <div id="taskFiles">
+        </div>
+    </div>
+    </div>
+@* Форма просмотра *@
+
+@* Форма ход исполнения *@
+
+
+    @* Форма  ход исполнения *@
+
+    @* Форма согласования *@
+    <div data-role="view" id="edit-detailview">
+    </div>
+    @* Форма согласования *@
+
+    @* Форма Отказа *@
+    <div data-role="view" id="reject-form">
+    </div>
+    @* Форма Отказа *@
+
+    @* Форма резолюции *@
+    <div data-role="view" id="resolution-form">
+
+    </div>
+    @* Форма резолюции *@
+
+    @* Форма поручения *@
+    <div id="assignment-form" data-role="view">
+
+    </div>
+    @* Форма поручения *@
+
+    @* Форма исполнения *@
+    <div data-role="view" id="execute-form">
+
+    </div>
+    @* Форма исполнения*@
+
+    @* Форма перевести *@
+    <div data-role="view" id="work-to-move-form">
+
+    </div>
+    @* Форма перевести*@
+
+    @* Форма отправить на перевод *@
+    <div data-role="view" id="send-to-move-form">
+
+    </div>
+    @* Форма отправить на перевод *@
+
+    @* Форма отправить на регистрацию *@
+    <div data-role="view" id="send-to-register-form">
+
+    </div>
+    @* Форма отправить на регистрацию *@
+    @*forms*@
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/Mobile/GetTaskCount',
+                contentType: 'application/json; charset=utf-8',
+                type: "GET",
+                dataType: "json",
+                //data: JSON.stringify(json),
+                success: function (response) {
+                    $("#newTaskCount").text(response[0]);
+                    $("#inWorkTaskCount").text(response[1]);
+                    $("#unsubscribedTaskCount").text(response[2]);
+                    $("#executedTaskCount").text(response[3]);
+                    $("#allTaskCount").text(response[4]);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        });
+
+        function taskNewData() {
+            dataSource = new kendo.data.DataSource({
+                pageSize: 30,
+                page: 1,
+                serverPaging: true,
+                transport: {
+                    read: {
+                        url: '/Mobile/GetNew',
+                        dataType: "json",
+                        type: 'GET',
+                        cache: false,
+                        data: function () {
+
+                            return { filterText: filterNew() }
+                        }
+                    }
+
+                },
+                parameterMap: function (options) {
+                    var parameters = {
+                        take: options.take,
+                        skip: options.skip,
+                        pageSize: options.pageSize,
+                        page: options.page
+                    };
+                    return parameters;
+                },
+                requestStart: function () {
+                    startLoadingLoader();
+                },
+                requestEnd: function () {
+                    kendo.mobile.application.pane.loader.hide();
+                },
+                schema: {
+                    data: function (data) {
+                        return data.Data;
+                    },
+                    total: function (data) {
+                        return data.Count;
+                    }
+                }
+            });
+            $("#task-new-list").kendoMobileListView({
+                dataSource: dataSource,
+                template: $("#task-new-template").text(),
+                //pullToRefresh: true,
+                //pullTemplate: "Потяните чтобы обновить",
+                //releaseTemplate: "Отпустите чтобы обновить",
+                //refreshTemplate: "Обновление...",
+                loadMore: true,
+                loadMoreText: "Еще"
+            });
+
+        }
+
+
+        //список в работе
+        function taskInWorkRead() {
+            dataSource = new kendo.data.DataSource({
+                pageSize: 30,
+                page: 1,
+                serverPaging: true,
+                transport: {
+                    read: {
+                        url: '/Mobile/GetInWork',
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        data: function () {
+
+                            return { filterText: filterInWork() }
+                        }
+
+                    }
+
+                },
+                parameterMap: function (options) {
+                    var parameters = {
+                        take: options.take,
+                        skip: options.skip,
+                        pageSize: options.pageSize,
+                        page: options.page
+                    };
+                    return parameters;
+                },
+
+                requestStart: function () {
+                    startLoadingLoader();
+                },
+                requestEnd: function () {
+                    kendo.mobile.application.pane.loader.hide();
+                },
+
+                schema: {
+                    data: function (data) {
+                        return data.Data;
+                    },
+                    total: function (data) {
+                        return data.Count;
+                    }
+                }
+            });
+            $("#task-in-work-list").kendoMobileListView({
+                dataSource: dataSource,
+                template: $("#task-in-work-template").text(),
+                //pullToRefresh: true,
+                //pullTemplate: "Потяните чтобы обновить",
+                //releaseTemplate: "Отпустите чтобы обновить",
+                //refreshTemplate: "Обновление...",
+                loadMore: true,
+                loadMoreText: "Еще"
+            })
+        }
+
+        // отписанные
+        function taskUnsubscribedRead() {
+            dataSource = new kendo.data.DataSource({
+                pageSize: 30,
+                page: 1,
+                serverPaging: true,
+                transport: {
+                    read: {
+                        url: '/Mobile/GetUsubscribed',
+                        dataType: "json",
+                        type: 'GET',
+                        cache: false,
+                        data: function () {
+
+                            return { filterText: filterUnsubscribed() }
+                        }
+                    }
+                },
+                parameterMap: function (options) {
+                    var parameters = {
+                        take: options.take,
+                        skip: options.skip,
+                        pageSize: options.pageSize,
+                        page: options.page
+                    };
+                    return parameters;
+                },
+                requestStart: function () {
+                    startLoadingLoader();
+                },
+                requestEnd: function () {
+                    kendo.mobile.application.pane.loader.hide();
+                },
+                schema: {
+                    data: function (data) {
+                        return data.Data;
+                    },
+                    total: function (data) {
+                        return data.Count;
+                    },
+                    model: {
+                        id: "TaskId",
+                        fields: {
+                            TaskId: { editable: false, nullable: false },
+                            DocumentNumber: "DocumentNumber",
+                            DocumentId: "DocumentId",
+                            DocumentDate: { type: "date" },
+                            Author: { type: "text" }
+                        }
+                    }
+                }
+            });
+            $("#task-unsubscribed-list").kendoMobileListView({
+                dataSource: dataSource,
+                template: $("#task-unsubscribed-template").text(),
+                //pullToRefresh: true,
+                //pullTemplate: "Потяните чтобы обновить",
+                //releaseTemplate: "Отпустите чтобы обновить",
+                //refreshTemplate: "Обновление...",
+                loadMore: true,
+                loadMoreText: "Еще"
+            })
+        }
+
+        //исполненные
+        function taskDoneData() {
+            dataSource = new kendo.data.DataSource({
+                pageSize: 30,
+                page: 1,
+                serverPaging: true,
+                transport: {
+                    read: {
+                        url: '/Mobile/GetDone',
+                        dataType: "json",
+                        type: 'GET',
+                        cache: false,
+                        data: function () {
+
+                            return { filterText: filterExecuted() }
+                        }
+                    }
+                },
+                parameterMap: function (options) {
+                    var parameters = {
+                        take: options.take,
+                        skip: options.skip,
+                        pageSize: options.pageSize,
+                        page: options.page
+                    };
+                    return parameters;
+                },
+                requestStart: function () {
+                    startLoadingLoader();
+
+                },
+                requestEnd: function () {
+                    kendo.mobile.application.hideLoading();
+                },
+                schema: {
+                    data: function (data) {
+                        return data.Data;
+                    },
+                    total: function (data) {
+                        return data.Count;
+                    }
+                }
+            });
+            $("#task-done-list").kendoMobileListView({
+                dataSource: dataSource,
+                template: $("#task-done-template").text(),
+                //pullToRefresh: true,
+                //pullTemplate: "Потяните чтобы обновить",
+                //releaseTemplate: "Отпустите чтобы обновить",
+                //refreshTemplate: "Обновление...",
+                loadMore: true,
+                loadMoreText: "Еще"
+            });
+        }
+
+        // все задания
+        function taskAllRead() {
+            dataSource = new kendo.data.DataSource({
+                data: { filterText: filterAllTask() },
+                pageSize: 30,
+                page: 1,
+                serverPaging: true,
+                transport: {
+                    read: {
+                        url: '/Mobile/GetAllTask',
+                        dataType: "json",
+                        type: 'GET',
+                        cache: false,
+                        data: function () {
+                            return { filterText: filterAllTask() }
+                        }
+
+                    }
+                },
+                parameterMap: function (options) {
+                    var parameters = {
+                        take: options.take,
+                        skip: options.skip,
+                        pageSize: options.pageSize,
+                        page: options.page
+
+                    };
+                    return parameters;
+                },
+                requestStart: function () {
+                    startLoadingLoader();
+                },
+                requestEnd: function () {
+                    kendo.mobile.application.pane.loader.hide();
+                },
+                schema: {
+                    data: function (data) {
+                        return data.Data;
+                    },
+                    total: function (data) {
+                        return data.Count;
+                    },
+                    model: {
+                        id: "TaskId",
+                        fields: {
+                            TaskId: { editable: false, nullable: false },
+                            DocumentNumber: { type: "string" },
+                            DocumentId: "DocumentId",
+                            DocumentDate: { type: "date" },
+                            Author: { type: "text" }
+                        }
+                    }
+                }
+
+            });
+            $("#task-all-list").kendoMobileListView({
+                dataSource: dataSource,
+                template: $("#task-all-template").text(),
+                //pullToRefresh: true,
+                //pullTemplate: "Потяните чтобы обновить",
+                //releaseTemplate: "Отпустите чтобы обновить",
+                //refreshTemplate: "Обновление...",
+                loadMore: true,
+                loadMoreText: "Еще"
+            });
+        }
+
+
+
+        //reload datasource
+        function taskNewDataReload() {
+            $("#task-new-list").data("kendoMobileListView").dataSource.page(0);
+            $("#task-new-list").data("kendoMobileListView").scroller().reset();
+            //$("#task-new-list").data("kendoMobileListView").dataSource.read();
+        }
+
+        function taskInWorkReload() {
+            $("#task-in-work-list").data("kendoMobileListView").dataSource.page(0);
+            $("#task-in-work-list").data("kendoMobileListView").scroller().reset();
+            //$("#task-in-work-list").data("kendoMobileListView").dataSource.read();
+        }
+
+        function taskUnsubscribedReload() {
+            $("#task-unsubscribed-list").data("kendoMobileListView").dataSource.page(0);
+            $("#task-unsubscribed-list").data("kendoMobileListView").scroller().reset();
+            //$("#task-unsubscribed-list").data("kendoMobileListView").dataSource.read();
+        }
+
+        function taskDoneDataReload() {
+            $("#task-done-list").data("kendoMobileListView").dataSource.page(0);
+            $("#task-done-list").data("kendoMobileListView").scroller().reset();
+            //$("#task-done-list").data("kendoMobileListView").dataSource.read();
+        }
+
+        function taskAllReload() {
+            $("#task-all-list").data("kendoMobileListView").dataSource.page(0);
+            $("#task-all-list").data("kendoMobileListView").scroller().reset();
+            //$("#task-all-list").data("kendoMobileListView").dataSource.read();
+        }
+        //reload datasource
+
+        //encode to utf 8
+        //function encode_utf8(s) {
+        //    return encodeURIComponent(s);
+        //}
+
+        //filtering
+        function filterNew() {
+            var searchText = $('#newSearch').val();
+            //searchText = encode_utf8(searchText);
+            return searchText;
+        }
+        $('#newSearch').keyup(function (e) {
+            if (e.keyCode == 13) {
+                taskNewDataReload();
+            }
+        });
+
+        function filterInWork() {
+            var searchText = $('#taskInWorkSearch').val();
+            //searchText = encode_utf8(searchText);
+            return searchText;
+        }
+        $('#taskInWorkSearch').keyup(function (e) {
+            if (e.keyCode == 13) {
+                taskInWorkReload();
+            }
+        });
+
+        function filterUnsubscribed() {
+            var searchText = $('#unsubscribedSearch').val();
+            //searchText = encode_utf8(searchText);
+            return searchText;
+        }
+        $('#unsubscribedSearch').keyup(function (e) {
+            if (e.keyCode == 13) {
+                taskUnsubscribedReload();
+            }
+        });
+
+
+
+        function filterExecuted() {
+            var searchText = $('#executedSearch').val();
+            //searchText = encode_utf8(searchText);
+            return searchText;
+        }
+        $('#executedSearch').keyup(function (e) {
+            if (e.keyCode == 13) {
+                taskDoneDataReload();
+            }
+        });
+
+        function filterAllTask() {
+            var searchText = $('#allTaskSearch').val();
+            //searchText = encode_utf8(searchText);
+            return searchText;
+        }
+        $('#allTaskSearch').keyup(function (e) {
+            if (e.which == 13) {
+                taskAllReload();
+            }
+        });
+        //filtering
+
+        //click task type
+        var flagTaskNew = false;
+        var flagTaskInWork = false;
+        var flagTaskUnsubscribed = false;
+        var flagTaskExecuted = false;
+        var flagTaskAll = false;
+
+        $('li#taskNewOpen').on('click touchstart', function () {
+            if (flagTaskNew == true) {
+                taskNewDataReload();
+                kendo.mobile.application.navigate("#task-new");
+            }
+        });
+
+        $('li#taskInWorkOpen').on('click touchstart', function () {
+            if (flagTaskInWork == true) {
+                taskInWorkReload();
+                kendo.mobile.application.navigate("#task-in-work");
+            }
+        });
+
+        $('li#taskUnsubscribedOpen').on('click touchstart', function () {
+            if (flagTaskUnsubscribed == true) {
+                taskUnsubscribedReload();
+                kendo.mobile.application.navigate("#task-unsubscribed");
+            }
+        });
+
+        $('li#taskExecutedOpen').on('click touchstart', function () {
+            if (flagTaskExecuted == true) {
+                taskDoneDataReload();
+                kendo.mobile.application.navigate("#task-done");
+            }
+        });
+
+        $('li#taskAllOpen').on('click touchstart', function () {
+            if (flagTaskAll == true) {
+                taskAllReload();
+                kendo.mobile.application.navigate("#task-all");
+            }
+        });
+        //function taskNewOpen() {
+        //    if (flagTaskNew == true) {
+        //        taskNewDataReload();
+        //    }
+        //}
+        //function taskInWorkOpen() {
+        //    if (flagTaskInWork == true) {
+        //        taskInWorkReload();
+        //    }
+        //}
+        //function taskUnsubscribedOpen() {
+        //    if (flagTaskUnsubscribed == true) {
+        //        taskUnsubscribedReload();
+        //    }
+        //} function taskExecutedOpen() {
+        //    if (flagTaskExecuted == true) {
+        //        taskDoneDataReload();
+        //    }
+        //}
+        //function taskAllOpen() {
+        //    if (flagTaskAll == true) {
+        //        taskAllReload();
+        //    }
+        //}
+        //click task type
+
+        //clear search field
+        function newBackClick() {
+            $("#newSearch").val(null);
+            flagTaskNew = true;
+        }
+
+        function inWorkBackClick() {
+            $("#taskInWorkSearch").val(null);
+            flagTaskInWork = true;
+        }
+
+        function unsubcribedBackClick() {
+            $("#unsubscribedSearch").val(null);
+            flagTaskUnsubscribed = true;
+        }
+
+        function executedBackClick() {
+            $("#executedSearch").val(null);
+            flagTaskExecuted = true;
+        }
+
+        function allBackClick() {
+            $("#allTaskSearch").val(null);
+            flagTaskAll = true;
+        }
+
+        //clear search field
+
+        function startLoadingLoader() {
+            kendo.mobile.application.changeLoadingMessage("Загрузка!");
+            kendo.mobile.application.showLoading();
+        }
+
+
+
+
+
+
+
+
+        //actionsheet----------------------------------
+
+        // Open actionsheet----------------------------------
+        function onOpen(e) {
+            var dataId = e.context;
+            this.element.find(".km-actionsheet-title").text(e.target.next().text());
+            var state, type, monitoringType, typeEx, stateType;
+            $.ajax({
+                type: 'POST',
+                url: '/Mobile/GetProperty?TaskId=' + dataId,
+                dataType: 'json',
+                success: function (result) {
+                    state = result.State;
+                    type = result.Type;
+                    monitoringType = result.MonitoringType;
+                    typeEx = result.TypeEx;
+                    stateType = result.StateType;
+                    kendo.mobile.init($(".km-actionsheet-title"));
+
+
+
+                    //resolution
+                    if (type == 0) {
+                        if (state == 4 || state == 0) {
+                            //resolution enabled
+                            $('#newResolutionButton').removeAttr('style');
+                            $('#newResolutionButton').find("a").removeAttr('style');
+                            $('#unsubscribedResolutionButton').removeAttr('style');
+                            $('#unsubscribedResolutionButton').find("a").removeAttr('style');
+                            $('#inWorkResolutionButton').removeAttr('style');
+                            $('#inWorkResolutionButton').find("a").removeAttr('style');
+
+                        }
+                        else {   //resolution disabled
+                            $('#newResolutionButton').css('pointer-events', 'none');
+                            $('#newResolutionButton').css('cursor', 'default');
+                            $('#newResolutionButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedResolutionButton').css('pointer-events', 'none');
+                            $('#unsubscribedResolutionButton').css('cursor', 'default');
+                            $('#unsubscribedResolutionButton').find("a").css("background-color", "gray");
+                            $('#inWorkResolutionButton').css('pointer-events', 'none');
+                            $('#inWorkResolutionButton').css('cursor', 'default');
+                            $('#inWorkResolutionButton').find("a").css("background-color", "gray");
+                        }
+                    }
+
+                    //assignment
+                    if (type == 1 || type == 2) {
+                        if (state == 0 || state == 1 || state == 3 || state == 4) {
+                            //assignment enabled
+                            $('#newAssignmentButton').removeAttr('style');
+                            $('#newAssignmentButton').find("a").removeAttr('style');
+                            $('#unsubscribedAssignmentButton').removeAttr('style');
+                            $('#unsubscribedAssignmentButton').find("a").removeAttr('style');
+                            $('#inWorkAssignmentButton').removeAttr('style');
+                            $('#inWorkAssignmentButton').find("a").removeAttr('style');
+                        }
+                        else {   //assignment disabled
+                            $('#newAssignmentButton').css('pointer-events', 'none');
+                            $('#newAssignmentButton').css('cursor', 'default');
+                            $('#newAssignmentButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedAssignmentButton').css('pointer-events', 'none');
+                            $('#unsubscribedAssignmentButton').css('cursor', 'default');
+                            $('#unsubscribedAssignmentButton').find("a").css("background-color", "gray");
+                            $('#inWorkAssignmentButton').css('pointer-events', 'none');
+                            $('#inWorkAssignmentButton').css('cursor', 'default');
+                            $('#inWorkAssignmentButton').find("a").css("background-color", "gray");
+
+                        }
+                    }
+
+                    //execute
+                    if (type == 0 || type == 1 || type == 2) {
+                        if (state == 0 || state == 1 || state == 3 || state == 4) {
+
+                            //execute enabled
+                            $('#newResolutionExecuteButton').removeAttr('style');
+                            $('#newResolutionExecuteButton').find("a").removeAttr('style');
+                            $('#unsubscribedResolutionExecuteButton').removeAttr('style');
+                            $('#unsubscribedResolutionExecuteButton').find("a").removeAttr('style');
+                            $('#newAssignmentExecuteButton').removeAttr('style');
+                            $('#newAssignmentExecuteButton').find("a").removeAttr('style');
+                            $('#unsubscribedAssignmentExecuteButton').removeAttr('style');
+                            $('#unsubscribedAssignmentExecuteButton').find("a").removeAttr('style');
+                            $('#inWorkAssignmentExecuteButton').removeAttr('style');
+                            $('#inWorkAssignmentExecuteButton').find("a").removeAttr('style');
+                            $('#inWorkResolutionExecuteButton').removeAttr('style');
+                            $('#inWorkResolutionExecuteButton').find("a").removeAttr('style');
+
+                        }
+                        else {
+                            //execute disabled
+                            $('#newResolutionExecuteButton').css('pointer-events', 'none');
+                            $('#newResolutionExecuteButton').css('cursor', 'default');
+                            $('#newResolutionExecuteButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedResolutionExecuteButton').css('pointer-events', 'none');
+                            $('#unsubscribedResolutionExecuteButton').css('cursor', 'default');
+                            $('#unsubscribedResolutionExecuteButton').find("a").css("background-color", "gray");
+                            $('#inWorkResolutionExecuteButton').css('pointer-events', 'none');
+                            $('#inWorkResolutionExecuteButton').css('cursor', 'default');
+                            $('#inWorkResolutionExecuteButton').find("a").css("background-color", "gray");
+                            $('#newAssignmentExecuteButton').css('pointer-events', 'none');
+                            $('#newAssignmentExecuteButton').css('cursor', 'default');
+                            $('#newAssignmentExecuteButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedAssignmentExecuteButton').css('pointer-events', 'none');
+                            $('#unsubscribedAssignmentExecuteButton').css('cursor', 'default');
+                            $('#unsubscribedAssignmentExecuteButton').find("a").css("background-color", "gray");
+                            $('#inWorkAssignmentExecuteButton').css('pointer-events', 'none');
+                            $('#inWorkAssignmentExecuteButton').css('cursor', 'default');
+                            $('#inWorkAssignmentExecuteButton').find("a").css("background-color", "gray");
+
+                        }
+                    }
+
+                    if (type == 3) {
+                        if (state == 4 || state == 0) {
+                            if (typeEx == 1) {
+                                //перевести доступно
+                                $('#newTranslateButton').removeAttr('style');
+                                $('#newTranslateButton').find("a").removeAttr('style');
+                                $('#unsubscribedTranslateButton').removeAttr('style');
+                                $('#unsubscribedTranslateButton').find("a").removeAttr('style');
+                                $('#inWorkTranslateButton').removeAttr('style');
+                                $('#inWorkTranslateButton').find("a").removeAttr('style');
+                            }
+                            else {
+                                //согласовать доступно
+                                $('#newAgreeButton').removeAttr('style');
+                                $('#newAgreeButton').find("a").removeAttr('style');
+                                $('#unsubscribedAgreeButton').removeAttr('style');
+                                $('#unsubscribedAgreeButton').find("a").removeAttr('style');
+                                $('#inWorkAgreeButton').removeAttr('style');
+                                $('#inWorkAgreeButton').find("a").removeAttr('style');
+                            }
+                        }
+                        else {
+                            if (typeEx == 1) {
+                                //перевести недоступно
+                                $('#newTranslateButton').css('pointer-events', 'none');
+                                $('#newTranslateButton').css('cursor', 'default');
+                                $('#newTranslateButton').find("a").css("background-color", "gray");
+                                $('#unsubscribedTranslateButton').css('pointer-events', 'none');
+                                $('#unsubscribedTranslateButton').css('cursor', 'default');
+                                $('#unsubscribedTranslateButton').find("a").css("background-color", "gray");
+                                $('#inWorkTranslateButton').css('pointer-events', 'none');
+                                $('#inWorkTranslateButton').css('cursor', 'default');
+                                $('#inWorkTranslateButton').find("a").css("background-color", "gray");
+                            }
+                            else {
+                                //согласовать недоступно
+                                $('#newAgreeButton').css('pointer-events', 'none');
+                                $('#newAgreeButton').css('cursor', 'default');
+                                $('#newAgreeButton').find("a").css("background-color", "gray");
+                                $('#unsubscribedAgreeButton').css('pointer-events', 'none');
+                                $('#unsubscribedAgreeButton').css('cursor', 'default');
+                                $('#unsubscribedAgreeButton').find("a").css("background-color", "gray");
+                                $('#inWorkAgreeButton').css('pointer-events', 'none');
+                                $('#inWorkAgreeButton').css('cursor', 'default');
+                                $('#inWorkAgreeButton').find("a").css("background-color", "gray");
+                            }
+                        }
+                    }
+
+                    if (type == 4) {
+                        if (state == 0 || state == 4) {
+                            // На регистрацию , на перевод доступно
+                            $('#newSendTranslateButton').removeAttr('style');
+                            $('#newSendTranslateButton').find("a").removeAttr('style');
+                            $('#unsubscribedSendTranslateButton').removeAttr('style');
+                            $('#unsubscribedSendTranslateButton').find("a").removeAttr('style');
+                            $('#inWorkSendTranslateButton').removeAttr('style');
+                            $('#inWorkSendTranslateButton').find("a").removeAttr('style');
+                            $('#newSendRegistryButton').removeAttr('style');
+                            $('#newSendRegistryButton').find("a").removeAttr('style');
+                            $('#unsubscribedSendRegistryButton').removeAttr('style');
+                            $('#unsubscribedSendRegistryButton').find("a").removeAttr('style');
+                            $('#inWorkSendRegistryButton').removeAttr('style');
+                            $('#inWorkSendRegistryButton').find("a").removeAttr('style');
+                        }
+                        else {
+                            // На регистрацию , на перевод недоступно
+                            $('#newSendTranslateButton').css('pointer-events', 'none');
+                            $('#newSendTranslateButton').css('cursor', 'default');
+                            $('#newSendTranslateButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedSendTranslateButton').css('pointer-events', 'none');
+                            $('#unsubscribedSendTranslateButton').css('cursor', 'default');
+                            $('#unsubscribedSendTranslateButton').find("a").css("background-color", "gray");
+                            $('#inWorkSendTranslateButton').css('pointer-events', 'none');
+                            $('#inWorkSendTranslateButton').css('cursor', 'default');
+                            $('#inWorkSendTranslateButton').find("a").css("background-color", "gray");
+                            $('#newSendRegistryButton').css('pointer-events', 'none');
+                            $('#newSendRegistryButton').css('cursor', 'default');
+                            $('#newSendRegistryButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedSendRegistryButton').css('pointer-events', 'none');
+                            $('#unsubscribedSendRegistryButton').css('cursor', 'default');
+                            $('#unsubscribedSendRegistryButton').find("a").css("background-color", "gray");
+                            $('#inWorkSendRegistryButton').css('pointer-events', 'none');
+                            $('#inWorkSendRegistryButton').css('cursor', 'default');
+                            $('#inWorkSendRegistryButton').find("a").css("background-color", "gray");
+                        }
+                    }
+
+
+                    if (type == 3 || type == 4) {
+                        if (state == 1 || state == 4 || state == 0) {
+                            //Отказать доступно
+                            $('#newRejectButton').removeAttr('style');
+                            $('#newRejectButton').find("a").removeAttr('style');
+                            $('#unsubscribedRejectButton').removeAttr('style');
+                            $('#unsubscribedRejectButton').find("a").removeAttr('style');
+                            $('#inWorkRejectButton').removeAttr('style');
+                            $('#inWorkRejectButton').find("a").removeAttr('style');
+                        }
+                        else {
+                            //Отказать недоступно
+                            $('#newRejectButton').css('pointer-events', 'none');
+                            $('#newRejectButton').css('cursor', 'default');
+                            $('#newRejectButton').find("a").css("background-color", "gray");
+                            $('#unsubscribedRejectButton').css('pointer-events', 'none');
+                            $('#unsubscribedRejectButton').css('cursor', 'default');
+                            $('#unsubscribedRejectButton').find("a").css("background-color", "gray");
+                            $('#inWorkRejectButton').css('pointer-events', 'none');
+                            $('#inWorkRejectButton').css('cursor', 'default');
+                            $('#inWorkRejectButton').find("a").css("background-color", "gray");
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+
+        }
+
+        //------------------------------------------------------- вложения
+        function getTaskFiles(res) {
+            if (typeof res === "object") {
+                var res = dataSource.getByUid(e.view.params.uid).TaskId;
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Mobile/GetFiles?TaskId=' + res,
+                success: function (response) {
+                    kendo.mobile.init($("#taskFiles"));
+                    $("#taskFiles").html(response);
+                    document.getElementById("attachmentsListView").setAttribute("data-role", "listview");
+                    document.getElementById("attachmentsListView").setAttribute("data-style", "inset");
+                    kendo.mobile.init($("#taskFiles"));
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+
+        function executionPath(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/ExecutionPathPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#executionPath-form"));
+                        $("#executionPath-result").html(response);
+                        kendo.mobile.application.navigate("#executionPath-form");
+                        kendo.mobile.init($("#executionPath-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        function taskDetails(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                getTaskFiles(dataId);
+                $.ajax({
+                    url: '/Mobile/DocumentDetails?id=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#detail-form"));
+                        $("#taskDetailsResult").html(response);
+                        kendo.mobile.application.navigate("#detail-form");
+                        kendo.mobile.init($("#detail-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //Согласовать
+        function taskTrue(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/AgreementPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#edit-detailview"));
+                        $("#edit-detailview").html(response);
+                        kendo.mobile.application.navigate("#edit-detailview");
+                        kendo.mobile.init($("#edit-detailview"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+
+        }
+
+        //Отказать
+        function taskFalse(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/RejectPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#reject-form"));
+                        $("#reject-form").html(response);
+                        kendo.mobile.application.navigate("#reject-form");
+                        kendo.mobile.init($("#reject-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //резолюция
+        function taskResolution(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/ResolutionPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#resolution-form"));
+                        $("#resolution-form").html(response);
+                        document.getElementById("resolutionListView").setAttribute("data-role", "listview");
+                        document.getElementById("resolutionListView").setAttribute("data-style", "inset");
+                        kendo.mobile.application.navigate("#resolution-form");
+                        kendo.mobile.init($("#resolution-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+
+        //поручение
+        function taskAssignment(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/AssignmentPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#assignment-form"));
+                        $("#assignment-form").html(response);
+                        document.getElementById("assignmentListView").setAttribute("data-role", "listview");
+                        document.getElementById("assignmentListView").setAttribute("data-style", "inset");
+                        kendo.mobile.application.navigate("#assignment-form");
+                        kendo.mobile.init($("#assignment-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //исполнить
+        function taskExecute(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/ExecutePopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#execute-form"));
+                        $("#execute-form").html(response);
+                        kendo.mobile.application.navigate("#execute-form");
+                        kendo.mobile.init($("#execute-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //Перевести
+        function taskWorkToMove(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/WorkToMovePopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#work-to-move-form"));
+                        $("#work-to-move-form").html(response);
+                        kendo.mobile.application.navigate("#work-to-move-form");
+                        kendo.mobile.init($("#work-to-move-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //Отправить на перевод
+        function taskSendToMove(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/TranslatePopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#send-to-move-form"));
+                        $("#send-to-move-form").html(response);
+                        document.getElementById("translateListview").setAttribute("data-role", "listview");
+                        document.getElementById("translateListview").setAttribute("data-style", "inset");
+                        kendo.mobile.application.navigate("#send-to-move-form");
+                        kendo.mobile.init($("#send-to-move-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //Отправить на регистрацию
+        function taskSendToRegister(e) {
+            var dataId = e.context;
+            if (dataId != null) {
+                $.ajax({
+                    url: '/Mobile/SigningPopup?taskId=' + dataId,
+                    contentType: 'application/html; charset=utf-8',
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (response) {
+                        kendo.mobile.init($("#send-to-register-form"));
+                        $("#send-to-register-form").html(response);
+                        kendo.mobile.application.navigate("#send-to-register-form");
+                        kendo.mobile.init($("#send-to-register-form"));
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            }
+        }
+
+        //actionsheet----------------------------------
+
+
+        function taskLogOff() {
+            $.ajax({
+                type: "POST",
+                url: '/Account/LogOff',
+                success: function (response) {
+                    location.href = '/Home/Index'
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+
+
+    </script>
+
+
+    <style>
+        .km-off:before, .km-off:after {
+            content: "\E0B9";
+        }
+
+        .km-executed:before, .km-executed:after {
+            content: "\E030";
+        }
+
+        .km-drawer-button:before, .km-drawer-button:after {
+            content: "\E077";
+        }
+    </style>

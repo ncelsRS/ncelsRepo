@@ -1,0 +1,205 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+
+@model Guid
+
+<script>
+    function panelTmcTypeSelect(e) {
+        var selectType = $(e.item).find("> .k-link").attr('ItemType');
+        if (selectType != null) {
+
+            var gridId = $(e.item).find("> .k-link").attr('ModelId');
+            var filter = new Array();
+
+            $("#TmcTypeId" + gridId).val(selectType);
+            filter.push({ field: "TmcTypeDicId", operator: "eq", value: selectType });
+
+            debugger;
+            var grid = $("#gridWriteoffTmc" + gridId).data("kendoGrid");
+            if (selectType == '') {
+                grid.dataSource.filter([]);
+            } else {
+                grid.dataSource.filter({
+                    filters: filter
+                });
+            }
+        }
+    }
+
+    var WriteoffTmcListGrid = {
+        onExportTmcList: function (e) {
+            window.open('/Tmc/ExportFile');
+        }
+    }
+</script>
+
+<style>
+    .k-edit-form-container {
+        width: 800px;
+    }
+    fieldset {
+        margin-left: 5px;
+    }
+
+    .k-grid  .k-grid-header  .k-header  .k-link {
+    height: auto;
+    }
+  
+    .k-grid  .k-grid-header  .k-header {
+        white-space: normal;
+    }
+</style>
+
+
+<input type="hidden" id="@("TmcTypeId" + Model)" />
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                   .Name("panelbar" + Model)
+                                   .ExpandMode(PanelBarExpandMode.Multiple)
+                                   .ExpandAll(true)
+                                   .HtmlAttributes(new { style = "width:auto;" })
+                                   .Events(e => e.Select("panelTmcTypeSelect"))
+                                   .Items(panelbar =>
+                                   {
+                                       panelbar.Add().Expanded(true);
+                                       panelbar.Add().Text("По виду")
+                                           .Items(panelbarItem =>
+                                           {
+                                               panelbarItem.Add().Text("Все")
+                                                   .LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", "" }, { "ModelId", Model.ToString() } });
+
+                                               foreach (Item dictionaryInfo in (List<Item>)ViewBag.TmcTypes)
+                                               {
+                                                   panelbarItem.Add().Text(dictionaryInfo.Name)
+                                                   .LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", dictionaryInfo.Id }, { "ModelId", Model.ToString() } });
+                                               }
+                                           });
+                                   })
+                        )
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block">
+                            <div id="pwOne">
+                                @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                            </div>
+
+                            <div id="pwTwo">
+
+                            </div>
+
+                            <div id="pwThree">
+                                @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                                   .ImageUrl("/Content/images/find.png"))
+                            </div>
+
+                            <div id="pwFour">
+                                @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" }).Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                    .ImageUrl("/Content/images/export.png").Events(e => e.Click("WriteoffTmcListGrid.onExportTmcList")))
+                            </div>
+                        </div>
+                        <div id="pwSix">
+                            @(Html.Kendo().Button().Name("reload" + Model)
+                                .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+                                .ImageUrl("/Content/images/reload.png"))
+                        </div>
+                        @(Html.Kendo().Grid<TmcView>()
+                          .Name("gridWriteoffTmc" + Model)
+                          .Columns(columns =>
+                          {
+                              columns.Bound(p => p.StatusIcon).ClientTemplate("<img src=\"/Content/images/tmc/#=StatusIcon#.png\" title=#=StatusIconStr# />")
+                                .Title("Статус срока годности").Filterable(false)
+                                .Sortable(false).Width(24);
+                              columns.Bound(p => p.Name).Title("Наименование").Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                              columns.Bound(p => p.Code).Title("Код").Width(150);
+                              columns.Bound(p => p.Manufacturer).Title("Производитель").Width(150);
+                              columns.Bound(p => p.Serial).Title("№ серии, партии, ГОСТ или LOT").Width(150);
+                              columns.Bound(p => p.MeasureTypeDicValue).Title("Единица измерения (по заявке)").Width(150);
+                              columns.Bound(p => p.CountFact).Title("Количество/объем (факт)").Width(150);
+                              columns.Bound(p => p.MeasureTypeConvertDicValue).Title("Единица измерения (конвертация)").Width(150);
+                              columns.Bound(p => p.CountConvert).Title("Количество/объем (конвертация)").Width(150);
+                              columns.Bound(p => p.CountActual).Title("Количество/объем (остаток)").Width(150);
+                              columns.Bound(p => p.ManufactureDate).Format("{0:dd.MM.yyyy}").Title("Дата изготовления").Width(150);
+                              columns.Bound(p => p.ExpiryDate).Format("{0:dd.MM.yyyy}").Title("Дата окончания срока действия").Width(150);
+                              columns.Bound(p => p.StorageDicValue).Title("Место хранения").Width(150);
+                              columns.Bound(p => p.OwnerEmployeeValue).Title("ФИО МОЛ").Width(150);
+                              //columns.Bound(p => p.Name).Title("Признак получения (для подразделения или в личное использование)").Width(150);
+                              columns.Bound(p => p.StateTypeValue).Title("Статус").Width(150);
+                          })
+                          .ColumnMenu(c => c.Columns(true))
+                          .Reorderable(reorder => reorder.Columns(true))
+                          .Editable(e => e.Mode(GridEditMode.PopUp))
+                          .Groupable()
+                          .Filterable()
+                          .Sortable()
+                          .Resizable(s => s.Columns(true))
+                          .Pageable(c => c.Refresh(true))
+                          .Scrollable()
+                          .HtmlAttributes(new { @class = "pwGrid" })
+                          .DataSource(dataSource => dataSource.Ajax().Model(model => { model.Id(p => p.Id); })
+                              .PageSize(20)
+                              .Read(read => read.Action("ReadWriteOffTmcListFirst", "Tmc"))
+                          ))
+                    </div>
+                );
+            }))
+
+<script>
+    resizeGrid3('@("#gridWriteoffTmc" + Model)', 150);
+
+    $('@("#reload" + Model)').click(function (e) {
+        var grid = $('@("#gridWriteoffTmc" + Model)').data("kendoGrid");
+        grid.dataSource.read();
+    });
+
+    var name = '@Model';
+
+    $("#find" + name).click(function (e) {
+
+        var text = $("#findText" + name).val();
+        var grid = $("#gridWriteoffTmc" + name).data("kendoGrid");
+        if (text != '') {
+            $filter = new Array();
+
+            $filter.push({ field: "Name", operator: "contains", value: text });
+            $filter.push({ field: "Code", operator: "contains", value: text });
+
+            grid.dataSource.filter({
+                logic: "or",
+                filters: $filter
+            });
+        } else {
+            grid.dataSource.filter([]);
+        }
+    });
+
+    $("#findText" + name).keypress(function (d) {
+        if (d.keyCode == 13) {
+            $("#find" + name).click();
+        }
+    });
+
+    $("#findText" + name).change(function (e) {
+        debugger;
+        if ($("#findText" + name).val() == '') {
+            var grid = $("#gridWriteoffTmc" + name).data("kendoGrid");
+            grid.dataSource.read();
+        }
+    });
+</script>
+

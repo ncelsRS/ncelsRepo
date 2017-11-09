@@ -1,0 +1,126 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Письмо-обоснование о неучастии в ГОБМП</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <a href="@Url.Action("PriceReject", "Project")"><strong>Создать письмо</strong></a>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId"/>
+<input type="hidden" ng-model="object.Project.RegisterId" id="registerId"/>
+<input type="hidden" ng-model="object.Project.RegisterDfId" id="registerDfId"/>
+
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="priceReject">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Письмо-обоснование о неучастии в ГОБМП
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                    <span class="label label-success pull-right">Новый</span>
+                </div>
+
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="editProject()"><i class="fa fa-save"></i> Сохранить</button>*@
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="open()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-check-square"></i> Подписать ЭЦП</button>*@
+                        @*<button class="btn btn-default btn-sm" type="button" ng-init="false" ng-disabled="!isEnableDownload" ng-click="sendAgree()" check-validate><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>*@
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-disabled="!isEnableDownload" ng-click="view()" @*onclick="location.href='@Url.Action("FileView", "Upload")'"*@><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" ng-init="false" ng-disabled="!isEnableDownload" ng-click="download()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-download"></i> Выгрузить файл на диск</button>
+                    </div>
+                </div>
+                <form name="priceLsForm">
+
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="tabs-container">
+                                    @*<ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#tab-0">Поиск</a></li>
+                                        <li><a data-toggle="tab" href="#tab-1">Детали письма</a></li>
+                                    </ul>*@
+                                    @*<div class="tab-content">*@
+                                        <div id="tab-0">
+                                            <div class="panel-body" ng-if="!isEnableDownload">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Причина отказа</label>
+                                                            <ui-select ng-model="object.rejectReason" theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in RejectReason | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Поля таблицы</label>
+                                                            <div style="border: 1px solid #ccc; height: 107px; overflow-y: scroll;">
+                                                                <table style="table-layout: fixed; width: 100%;">
+                                                                    <tr ng-repeat="model in dtColumns10Full ">
+                                                                        <td style="width: 95%;">&nbsp;{{model.sTitle}}&nbsp;</td>
+                                                                        <td style="width: 5%;"><input type="checkbox" checked="checked" ng-model="model.columnVisible" ng-change="model.columnVisible = cbChange(model.columnVisible, model.sClass)"/></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <button type="button" class="btn btn-w-m btn-success" ng-click="SetObjectReg()"><i class="fa fa-envelope"></i>&nbsp;&nbsp;<span class="bold">Сформировать письмо</span></button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <div style="overflow-y: scroll; height: 500px;">
+                                                                <grid-integration-object object-id="@Model" url="/Project/ReadSrReestrView?type=1" dt-id="gridIntegration" dt-selectfun="selectGridIntegration" reload-row="reloadGridIntegration" column-order="1" dt-options="dtOptions2" dt-columns="dtColumns10"></grid-integration-object>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-1" ng-if="isEnableDownload">
+                                            <div class="panel-body">
+                                                <h3 class="m-t-none m-b">Письмо успешно сформировано!</h3>
+                                                <div class="row">
+                                                    <p>
+                                                        <button class="btn btn-default" type="button" ng-click="view()">Просмотреть письмо</button>
+                                                        <button class="btn btn-default" type="button" ng-click="download()">Скачать письмо</button>
+                                                    </p>
+
+                                                    @Html.ActionLink("Вернуться в референтное ценообразование", "Pricing")
+
+                                                </div>
+                                            </div>
+                                        </div>    
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

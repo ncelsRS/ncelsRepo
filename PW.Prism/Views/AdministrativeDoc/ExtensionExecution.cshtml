@@ -1,0 +1,84 @@
+﻿
+@model PW.Ncels.Database.DataModel.ExtensionExecution
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formExecution" + Model.Id)">
+    @Html.HiddenFor(o => o.Id)
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconExecute"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Продлитьисполнение_67__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Number)</span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Date)</span> </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("ExecutionDateEx" + Model.Id)" data-bind="value:item.ExecutionDate" class="pwWidth100" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: item.Text, events: { change: change }" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+<script>
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        item: data,
+        hasChanges:false,
+        change: function () {
+            if (this.item.get('ExecutionDate') != null) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('item'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/IncomingDoc/ExtensionExecutionConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result== 'True') {
+                        var datepicker = $("#ExecutionDate" + '@Model.DocumentId').data("kendoDatePicker");
+                        datepicker.value($("#ExecutionDateEx"+ '@Model.Id').val());
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formExecution" + name), viewModel);
+    $("#ExecutionDateEx" + '@Model.Id').kendoDatePicker();
+</script>

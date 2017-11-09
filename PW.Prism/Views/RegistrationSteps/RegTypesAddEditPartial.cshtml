@@ -1,0 +1,51 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_RegistrationTypes
+@{
+    Layout = null;
+    var isEdit = ViewBag.IsEdit;
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new {id = "addEditRegTypeForm", @class = "form-horizontal"}))
+{
+    <fieldset>
+        @Html.AntiForgeryToken()
+
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+            @Html.HiddenFor(model => model.Id)
+
+            <div class="form-group">
+                <label for="name" class="control-label col-md-4">Наименование</label>
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.Name, new {htmlAttributes = new {@class = "form-control"}})
+                    @Html.ValidationMessageFor(model => model.Name, "", new {@class = "text-danger"})
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="parents" class="control-label col-md-4">Прикрепить к</label>
+                <div class="col-md-8">
+                    @(Html.Kendo().DropDownListFor(x => x.ParentId)
+                          .DataTextField("Name")
+                          .DataValueField("id")
+                          .OptionLabel(" ")
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetAvailableParentsToExpRegType", "RegistrationSteps", new {id = Model.Id});
+                              });
+                          })
+                          .Value(Model.ParentId.ToString())
+                          .HtmlAttributes(new {style = "width: 100%"})
+                          )
+                    @Html.ValidationMessageFor(model => model.ParentId, "", new {@class = "text-danger"})
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div cass="col-md-push-8 col-md-4">
+                    <input type="button" value="Сохранить" onclick="AddEditExpRegType('@isEdit')" class="btn btn-default form-control"/>
+                </div>
+            </div>
+    </fieldset>
+}
+

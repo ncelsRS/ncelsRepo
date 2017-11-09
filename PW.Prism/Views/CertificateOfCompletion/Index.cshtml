@@ -1,0 +1,323 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+<!-- Акт выполненых работ-->
+@model PW.Prism.ViewModels.CertificateOfCompletion.CertificateOfCompletionViewModel
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+
+    .list-unstyled {
+        padding-left: 0;
+        list-style: none;
+    }
+
+
+    .k-widget .templateCell
+    {
+        overflow: visible;
+    }
+    .templateCell .k-item {
+        width:100%;
+    }
+    .templateCell .k-item .k-icon {
+        float: right;
+    }
+</style>
+<script type="text/javascript">
+    var CertificateOfCompletionGrid = {
+        _callDialog: function (dataItem, url, text, callbackFn) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Акт выполненых работ',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'cocomplitionList' + '@Model.Id';
+            window.data("kendoWindow").dialogCallback = callbackFn;
+
+            window.data("kendoWindow").title('Акт выполненых работ');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _callRejectDialog: function (dataItem, url, text, payload) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Акт выполненых работ',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'cocomplitionList' + '@Model.Id';
+            window.data("kendoWindow").title('Акт выполненых работ');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("RejectDialog","Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text
+                + '&payload' + payload);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _sendToAgreement: function (e, id) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "650",
+                height: "auto",
+                modal: true,
+                title: "Отправка на согласование",
+                actions: ["Close"]
+            });
+            $("#TaskCommandWindow").data("kendoWindow").dialogCallback = function (status) {
+                ShowAlert('Сообщение', 'Документ отправлен на согласование', 'Info', 5000);
+                var gridId = '@("cocomplitionList" + Model.Id)';
+                var grid = $("#" + gridId).data("kendoGrid");
+                grid.dataSource.read();
+            }
+            window.data("kendoWindow").refresh('/DrugDeclaration/SendExpertiseDocumentToAgreement?docId=' + id + '&documentType=@(Dictionary.ExpAgreedDocType.CertificateOfCompletion)');
+            window.data("kendoWindow").title("Отправка на согласование");
+            window.data("kendoWindow").setOptions({
+                width: "650",
+                height: "auto"
+            });
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        create: function (e) {
+            var dataItem = {
+                Id: '@Model.DrugDeclarationId'
+            };
+            var text = "Сформировать?";
+            var url = encodeURIComponent('@Url.Action("CreateCertificateOfCompletion", "CertificateOfCompletion")?stageId=' +
+                @Model.StageId +
+                '&drugDeclarationId=' + '@Model.DrugDeclarationId');
+
+
+            var callBackFn = function (result) {
+                if (result.IsSuccess) {
+                    ShowAlert('Сообщение', "Акт выполненых работ сформирован", window.AlertType.InfoNEXp, 5000);
+                } else {
+                    ShowAlert('Сообщение', result.Message, window.AlertType.Error, 5000);
+                }
+            };
+
+            CertificateOfCompletionGrid._callDialog(dataItem, url, text, callBackFn);
+            return false;
+        },
+        sendToAgreement: function (e, id) {
+            e.preventDefault();
+            //            var dataItem = {
+            //                Id: id
+            //            };
+            //            var text = "Отправить?";
+            //            var url = encodeURIComponent('@Url.Action("SendToAgreement","Agreement")?documentId=' +
+            //                dataItem.Id +
+            //                '&documentTypeCode=' +
+            //                '@Dictionary.ExpAgreedDocType.CertificateOfCompletion' +
+            //                '&activityTypeCode=' +
+            //                '@Dictionary.ExpActivityType.CertificateOfComplitionAgreement');
+            CertificateOfCompletionGrid._sendToAgreement(e, id);
+        },
+        deleteCoc: function (e, id) {
+            e.preventDefault();
+            var dataItem = {
+                Id: id
+            };
+            var text = "Удалить?";
+            var url = encodeURIComponent('@Url.Action("Delete","CertificateOfCompletion")?id=' +
+                dataItem.Id);
+            CertificateOfCompletionGrid._callDialog(dataItem, url, text);
+        },
+        approve: function (e, id) {
+            e.preventDefault();
+            var dataItem = {
+                Id: id
+            };
+            var text = "Согласовать?";
+            var url = encodeURIComponent('@Url.Action("Approve", "Agreement")?documentId=' +
+                dataItem.Id +
+                '&activityTypeCode=' +
+                '@Dictionary.ExpActivityType.CertificateOfComplitionAgreement');
+
+            CertificateOfCompletionGrid._callDialog(dataItem, url, text);
+        },
+        reject: function (e, id) {
+            e.preventDefault();
+            var dataItem = {
+                Id: id
+            };
+            var text = "Отклонить?";
+            var url = encodeURIComponent('@Url.Action("Reject","Agreement")?documentId=' +
+                dataItem.Id +
+                '&activityTypeCode=' +
+                '@Dictionary.ExpActivityType.CertificateOfComplitionAgreement');
+
+
+            CertificateOfCompletionGrid._callRejectDialog(dataItem, url, text);
+        },
+        viewCoc: function (e, id) {
+            printDocumentNew(id, "Акт выполненых работ", "ActPrimary.mrt");
+        },
+        syncHandler: function (e) {
+            this.read();
+        },
+        onDataBoundHandler: function (e) {
+            $(".templateCell").each(function () {
+                eval($(this).children("script").last().html());
+            });
+
+            var grid = $("#cocomplitionList" + '@Model.Id').data("kendoGrid");
+            var gridData = grid.dataSource.view();
+
+            for (var i = 0; i < gridData.length; i++) {
+                var currentUid = gridData[i].uid;
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+
+                var menucell = $(currentRow).find(".templateCell").children()[0];
+                var menu = $(menucell).data("kendoMenu");
+
+                var viewItem = $(menucell).find('[data-action="view"]');
+                var sendtoagreeItem = $(menucell).find('[data-action="sendtoagree"]');
+                var agreedItem = $(menucell).find('[data-action="agreed"]');
+                var rejectItem = $(menucell).find('[data-action="reject"]');
+                var deleteItem = $(menucell).find('[data-action="delete"]');
+
+                if (gridData[i].StatusCode == '@Dictionary.CertificateOfCompletionStatusDic.New') {
+                    menu.remove(agreedItem);
+                    menu.remove(rejectItem);
+                } else if (gridData[i].StatusCode == '@Dictionary.CertificateOfCompletionStatusDic.OnAgreement'
+                    || gridData[i].StatusCode == '@Dictionary.CertificateOfCompletionStatusDic.Rejected') {
+                    menu.remove(sendtoagreeItem);
+                    menu.remove(deleteItem);
+                } else if (gridData[i].StatusCode == '@Dictionary.CertificateOfCompletionStatusDic.Sended') {
+                    menu.remove(sendtoagreeItem);
+                    menu.remove(agreedItem);
+                    menu.remove(rejectItem);
+                    menu.remove(deleteItem);
+                }
+            }
+        },
+        parameterToRead: function () {
+            return {
+                stageId: '@Model.StageId',
+                drugDeclarationId: '@Model.DrugDeclarationId'
+            };
+        },
+        selectMenuItem: function (e) {
+            var action = $(e.item).data('action');
+            var id = $(e.item).data('id');
+            if (action == 'view') {
+                // show output file
+                CertificateOfCompletionGrid.viewCoc(e, id);
+            }
+            if (action == 'sendtoagree') {
+                CertificateOfCompletionGrid.sendToAgreement(e, id);
+            }
+            if (action == 'agreed') {
+                CertificateOfCompletionGrid.approve(e, id);
+            }
+            if (action == 'reject') {
+                CertificateOfCompletionGrid.reject(e, id);
+            }
+            if (action == 'delete') {
+                CertificateOfCompletionGrid.deleteCoc(e, id);
+            }
+        }
+    }
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model.Id)
+        .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+        .ImageUrl("/Content/images/reload.png"))
+</div>
+
+@(Html.Kendo().Grid<EXP_CertificateOfCompletionView>()
+      .Name("cocomplitionList" + Model.Id)
+      .Columns(columns => {
+          columns.Bound(p => p.Id).HtmlAttributes(new { @class = "templateCell" }).ClientTemplate(
+                    Html.Kendo().Menu()
+                    .Name("menucoc_#=Id#")
+                    .Items(its =>
+                    {
+                        its.Add().Text("Операции").Items(nested =>
+                        {
+                            nested.Add().Text("Просмотр").HtmlAttributes(new { data_action = "view", data_id = "#=Id#" });
+                            nested.Add().Text("На согласование").HtmlAttributes(new { data_action = "sendtoagree", data_id = "#=Id#" });
+                            nested.Add().Text("Согласовать").HtmlAttributes(new { data_action = "agreed", data_id = "#=Id#" });
+                            nested.Add().Text("Отклонить").HtmlAttributes(new { data_action = "reject", data_id = "#=Id#" });
+                            nested.Add().Text("Удалить").HtmlAttributes(new { data_action = "delete", data_id = "#=Id#" });
+                        });
+                    }).Events(e => e.Select("CertificateOfCompletionGrid.selectMenuItem")).ToClientTemplate().ToHtmlString()
+                ).Title("").Filterable(false).Sortable(false).Width(120);
+          columns.Bound(p => p.Number).Title("Номер").Width(150);
+          columns.Bound(p => p.Stage).Title("Этап").Width(150);
+          columns.Bound(p => p.CreateEmployeeStr).Title("Автор").Width(150);
+          columns.Bound(p => p.TradeNameRu).Title("Торговое название").Width(150);
+          columns.Bound(p => p.ManufacturerNameRu).Title("Производитель").Width(150);
+          columns.Bound(p => p.CountryName).Title("Страна").Width(150);
+          columns.Bound(p => p.TotalPrice).Title("Сумма").Width(150);
+          columns.Bound(p => p.StatusStrLocal).Title("Статус").Width(150);
+          columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата создания").Width(150);
+      })
+      .Events(c =>
+      {
+          c.DataBound("CertificateOfCompletionGrid.onDataBoundHandler");
+      })
+      .ColumnMenu(c => c.Columns(true))
+      .ToolBar(toolbar =>
+      {
+          toolbar.Custom().Name("createCocBtn").Text("Сформировать").HtmlAttributes(new
+          {
+              href = "#",
+              onclick = "CertificateOfCompletionGrid.create();"
+          });
+      })
+      .Editable(editable => editable.Mode(GridEditMode.PopUp))
+      .Groupable()
+      .Filterable()
+      .Sortable()
+      .Pageable()
+      .Scrollable()
+      .HtmlAttributes(new { @class = "pwGrid" })
+      .DataSource(dataSource => dataSource.Ajax()
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+            })
+            .PageSize(20)
+            .Read(read => read.Action("ReadCertificateOfCompletionList", "CertificateOfCompletion").Data("CertificateOfCompletionGrid.parameterToRead"))
+            .Events(c =>
+            {
+                c.Sync("CertificateOfCompletionGrid.syncHandler");
+            }))
+      .Resizable(s => s.Columns(true))
+      )
+
+<script>
+    (function() {
+        resizeGrid3('@("#cocomplitionList" + Model.Id)', 360);
+
+        $('@("#reload" + Model.Id)').click(function (e) {
+            debugger;
+            var grid = $('@("#cocomplitionList" + Model.Id)').data("kendoGrid");
+            grid.dataSource.read();
+            return false;
+        });
+    })();
+</script>

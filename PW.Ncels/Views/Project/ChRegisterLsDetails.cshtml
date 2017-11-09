@@ -1,0 +1,706 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+@model PW.Ncels.Database.Models.PriceDetailsModel
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Заявление на внесение изменений лекарственного средства</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявления</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявление</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId" />
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="chRegisterLsDetail">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Заявление на внесение изменений лекарственного средства
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                    <span class="label label-success pull-right">Новый</span>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="editProject()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="editProject()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-check-square"></i> Подписать ЭЦП</button>*@
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="send()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>*@
+                        <button class="btn btn-default btn-sm" type="button" ng-click="view('@Model.Drug.Id')"><i class="fa fa-eye"></i> Просмотр </button>
+                        <button class="btn btn-default btn-sm" type="button" onclick="location.href='@Url.Action("CardDownload", "Upload",new {id=@Model.Drug.Id})'"><i class="fa fa-download"></i> Выгрузить файл на диск</button>
+                        @*<button class="btn btn-default btn-sm" type="button" ng-click="send()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-trash"></i> Удалить</button>*@
+                        <button ng-if="'@Model.IsEdit'"  class="btn btn-default btn-sm" type="button" onclick="location.href='@Url.Action("ChRegisterLs", "Project",new {id = @Model.Drug.Id})'"><i class="fa fa-edit"></i> Редактировать</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-2">Упаковка</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-3">Полный качественный и количественный состав</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-4">Дополнительная информация</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-5">Производитель(и) лекарственного препарата и участок(и) производства</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-6">Изменение типа 1</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-7">Вложения</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-8">Соглашение</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-9">Переписка</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tab-1" class="tab-pane active">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Данные по договору
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Договор</label>
+                                                                        @if (Model.Contract.Number != null)
+                                                                        {
+                                                                            <p>@Model.Contract.Number</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        @if (Model.Contract.EndDate.HasValue)
+                                                                        {
+                                                                            <p>@Model.Contract.EndDate.Value.ToString("dd.MM.yyyy")</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Данные по регистрационному удостоверению
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>№ регистрационного удостоверения</label>
+                                                                        <p>@Model.Drug.RegDocNumber</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    <div class="form-group">
+                                                                        <label>Дата регистрации</label>
+                                                                        @if (Model.Drug.RegDocDate.HasValue)
+                                                                        {
+                                                                            <p>@Model.Drug.RegDocDate.Value.ToString("dd.MM.yyyy")</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        @if (Model.Drug.RegDocExpiryDate.HasValue)
+                                                                        {
+                                                                            <p>@Model.Drug.RegDocExpiryDate.Value.ToString("dd.MM.yyyy")</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    <div class="form-group">
+                                                                        <label>№ нормативной документации</label>
+                                                                        <p>@Model.Drug.AccelerationNumber</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Тип ускоренной регистрации</label>
+                                                        <p>@Model.Drug.AccelerationTypeName</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>№ письма</label>
+                                                        <p>@Model.Drug.AccelerationNumber</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Дата письма</label>
+                                                        @if (Model.Drug.AccelerationDate.HasValue)
+                                                        {
+                                                            <p>@Model.Drug.AccelerationDate.Value.ToString("dd.MM.yyyy")</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Обоснование</label>
+                                                        <p>@Model.Drug.AccelerationNote</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Торговое название
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <p>@Model.Drug.NameKz</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <p>@Model.Drug.NameRu</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На английском языке</label>
+                                                                <p>@Model.Drug.NameEn</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Международное непатентованное название (МНН)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <p>@Model.Drug.MnnKz</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <p>@Model.Drug.MnnRu</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На английском языке</label>
+                                                                <p>@Model.Drug.MnnEn</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Торговое название на экспорт (для отечественных производителей)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <grid-light-object object-id="@Model.Drug.Id" url="/Organization/GetOrganizationType?type=18" dt-id="gridOrganizationType18" dt-selectfun="selectGridOrganizationType18" reload-row="reloadGridOrganizationType18" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Наличие патентной защиты</label>
+                                                        @if (Model.Drug.IsPatent)
+                                                        {
+                                                            <p>Да</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Нет</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>№</label>
+                                                        <p>@Model.Drug.PatentNumber</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Дата</label>
+                                                        @if (Model.Drug.PatentDate.HasValue)
+                                                        {
+                                                            <p>@Model.Drug.PatentDate.Value.ToString("dd.MM.yyyy")</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Срок действия охранного документа на изобретение или полезную модель (приложить копию документа)</label>
+                                                        @if (Model.Drug.PatentExpiryDate.HasValue)
+                                                        {
+                                                            <p>@Model.Drug.PatentExpiryDate.Value.ToString("dd.MM.yyyy")</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Лекарственная форма
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <p>@Model.Drug.LsFormNameKz</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <p>@Model.Drug.LsFormNameRu</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Анатомо-терапевтическо-химическая классификация (АТХ)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>Код</label>
+                                                                <p>@Model.Drug.AtxCode</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На государственном языке</label>
+                                                                <p>@Model.Drug.AtxNameKz</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>На русском языке</label>
+                                                                <p>@Model.Drug.AtxNameRu</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Лекарственное средство</label>
+                                                        <p>@Model.Drug.LsTypeDicName</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>&nbsp;</label>
+                                                        <p>@Model.Drug.LsType2Name</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Указать название оригинального лекартсвенного препарата</label>
+                                                        <p>@Model.Drug.OriginalName</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Форма отпуска в стране заявителя</label>
+                                                        <p>@Model.Drug.SaleTypeName</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label>Способы введения</label>
+                                                        <p>@Model.Drug.IntroductionMethodName</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Дозировка/концентрация (заполняется при наличии, объем заполняется в упаковке)
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Количество</label>
+                                                                        <p>@Model.Drug.Dosage</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <p>@Model.Drug.DosageMeasureTypeName</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                @*<div class="col-lg-3">
+                                                                        <div class="form-group">
+                                                                            <label>Описание фасовки (на рус)</label>
+                                                                            <p>@Model.Drug.DosageNoteRu</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-3">
+                                                                        <div class="form-group">
+                                                                            <label>Описание фасовки (на каз)</label>
+                                                                            <p>@Model.Drug.DosageNoteKz</p>
+                                                                        </div>
+                                                                    </div>*@
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Концентрация (на рус)</label>
+                                                                        <p>@Model.Drug.ConcentrationRu</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Концентрация (на каз)</label>
+                                                                        <p>@Model.Drug.ConcentrationKz</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-2" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <grid-light-object object-id="@Model.Drug.Id" url="/Packag/GetPackageType" dt-id="gridPackage" dt-selectfun="selectGridPackage" reload-row="reloadGridPackage" column-order="1" dt-options="dtOptions2" dt-columns="dtColumns2"></grid-light-object>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-3" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-light-object object-id="@Model.Drug.Id" url="/Composition/GetComposition" dt-id="gridComposition" dt-selectfun="selectGridComposition" reload-row="reloadGridComposition" column-order="1" dt-options="dtOptions3" dt-columns="dtColumns3"></grid-light-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-4" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Подана ли на государственную регистрацию лекарственная субстанция, произведенная не в условиях Надлежащей производственной практики, для отечественных производителей (кроме гомеопатических препаратов, иммунобиологических препаратов и лекарственного растительного сырья)</label>
+                                                        @if (Model.Drug.IsGrls)
+                                                        {
+                                                            <p>Да</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Нет</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Условия транспортирования</label>
+                                                        <p>@Model.Drug.Transportation</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <label>Производство</label>
+                                                        <p>@Model.Drug.ManufactureTypeName</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Срок хранения лекарственного средства
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый срок хранения</label>
+                                                                        <p>@Model.Drug.BestBefore</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <p>@Model.Drug.BestBeforeMeasureTypeName</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый период применения (после первого вскрытия контейнера)</label>
+                                                                        <p>@Model.Drug.AppPeriodOpen</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <p>@Model.Drug.AppPeriodOpenMeasureName</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Предлагаемый период применения (после растворения или разведения)</label>
+                                                                        <p>@Model.Drug.AppPeriodMix</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Единица измерения</label>
+                                                                        <p>@Model.Drug.AppPeriodMixMeasureName</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Условия хранения
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <label>Предлагаемые условия хранения</label>
+                                                                <p>@Model.Drug.StorageConditions1</p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Предлагаемые условия хранения после первого вскрытия упаковки</label>
+                                                                <p>@Model.Drug.StorageConditions2</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Данные по стоимости формы выпуска лекарственного средства
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Штрих-код вторичной упаковки (указывается при наличии)</label>
+                                                                        <p>@Model.Drug.Barcode</p>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Цена производи-теля, в тенге</label>
+                                                                        <p>@Model.Drug.ManufacturePrice</p>
+                                                                    </div>
+                                                                    @*<div class="form-group">
+                                                                            <label>Первичная упаковка</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во доз в первичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>*@
+                                                                </div>
+                                                                @*<div class="col-lg-4">
+                                                                        <div class="form-group">
+                                                                            <label>Вторичная упаковка</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во первичной упаковки во вторичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Кол-во доз во вторичной упаковке</label>
+                                                                            <input placeholder="Введите значение" class="form-control" type="text">
+                                                                        </div>
+                                                                    </div>*@
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Референтная цена страны производителя-владельца регистрационного удостоверения, юридического лица, имеющего статус официального представителя производителя в тенге </label>
+                                                                        <p>@Model.Drug.RefPrice</p>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Зарегистрированная цена (цена с учетом понесенных расходов на логистику, таможенных платежей и проведение оценки безопасности и качества), в тенге</label>
+                                                                        <p>@Model.Drug.RegPrice</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Наличие охранного документа на изобретение или полезную модель
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Название охранного документа</label>
+                                                                        <p>@Model.Drug.SecureDocument</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Номер охранного документа</label>
+                                                                        <p>@Model.Drug.SecureDocumentNumber</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Дата выдачи</label>
+                                                                        @if (Model.Drug.SecureDocumentDate.HasValue)
+                                                                        {
+                                                                            <p>@Model.Drug.SecureDocumentDate.Value.ToString("dd.MM.yyyy")</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Срок действия</label>
+                                                                        @if (Model.Drug.SecureDocumentExpiryDate.HasValue)
+                                                                        {
+                                                                            <p>@Model.Drug.SecureDocumentExpiryDate.Value.ToString("dd.MM.yyyy")</p>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading">
+                                                            Регистрация в стране-производителе и других странах
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <grid-light-object object-id="@Model.Drug.Id" url="/Organization/GetOrganizationType?type=20" dt-id="gridOrganizationType20" dt-selectfun="selectGridOrganizationType20" reload-row="reloadGridOrganizationType20" column-order="1" dt-options="dtOptions4" dt-columns="dtColumns4"></grid-light-object>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-5" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <grid-light-object object-id="@Model.Drug.Id" url="/Organization/GetOrganizationType?type=19" dt-id="gridOrganizationType19" dt-selectfun="selectGridOrganizationType19" reload-row="reloadGridOrganizationType19" column-order="1" dt-options="dtOptions5" dt-columns="dtColumns5"></grid-light-object>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-6" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-light-object object-id="@Model.Drug.Id" url="/Chang/GetChange" dt-id="gridChanges" dt-selectfun="selectGridChanges" reload-row="reloadGridChanges" column-order="1" dt-options="dtOptions6" dt-columns="dtColumns6"></grid-light-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-7" class="tab-pane">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-none m-b">3. Вложения</h3>
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-read url="/Upload/GetAttachList" type="sysAttachMaterialsDict" id="@Model.Drug.Id" path="@Model.Drug.Id" />
+                                        </div>
+                                    </div>
+                                    <div id="tab-8" class="tab-pane">
+                                        <div class="panel-body">
+                                            <p class="text-bold">Необходимо принять соглашение:</p>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="pw-text-area" rows="20" id="comment">@Html.Partial("Convention")</div>
+                                                    <br />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    @if (Model.Drug.IsConvention)
+                                                    {
+                                                        <p>Да</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>Нет</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-9" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-cor-object object-id="@Model" url="/Correspondence/GetCurrentList?id=@Model.Drug.Id" column-order="1"></grid-cor-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

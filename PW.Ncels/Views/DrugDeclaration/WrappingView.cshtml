@@ -1,0 +1,125 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDosage
+
+@{
+    var btnId = "addWrapBtn_" + Model.Position;
+    var pricebtnId = "addPriceBtn_" + Model.Position;
+}
+<div id="wrapPage">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Упаковка
+        </div>
+        <div class="panel-body" style="padding: 10px;">
+
+            <div class="CSSTableGenerator">
+                <table class="tableWrapping" style="width: 100%; text-align: center" dosageId ="@Model.Id">
+                    <thead>
+                        <tr>
+                            <td rowspan="2"></td>
+                            <td rowspan="2">Вид</td>
+                            <td rowspan="2">Наименование</td>
+                            <td colspan="2">Размер</td>
+                            <td colspan="2">Объем</td>
+                            <td style="width: 100px" rowspan="2">Кол-во единиц в упаковке</td>
+                            <td rowspan="2">Краткое описание</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 100px">Значение</td>
+                            <td style="width: 100px">Ед. изм.</td>
+                            <td style="width: 100px"> Значение</td>
+                            <td style="width: 100px">Ед. изм.</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.ExpDrugWrappings.Count; i++)
+                        {
+                            var code = CodeConstManager.EXP_DrugWrappingCode + "_" + Model.Id+ "_" + Model.ExpDrugWrappings[i].Id + "_";
+                            var wrappingTypeId = code + "WrappingTypeId";
+                            var wrappingKindId = code + "WrappingKindId";
+                            var sizeMeasureIdId = code + "SizeMeasureId";
+                            var volumeMeasureId = code + "VolumeMeasureId";
+                            var wrappingSizeId = code + "WrappingSizeStr";
+                            var wrappingVolumeId = code + "WrappingVolumeStr";
+                            var countUnitId = code + "CountUnit";
+                            var noteId = code + "Note";
+                            var idRecord = "";
+                            var wrapKindcss = "form-control edit-control wrapping-control";
+                            if (Model.Id > -1)
+                            {
+                                idRecord = Model.ExpDrugWrappings[i].Id.ToString();
+                                wrapKindcss += " chosen-wrap-kind";
+                            }
+                            <tr rowid="@Model.ExpDrugWrappings[i].Id" class="wrapping-row">
+                                <td><input type="checkbox" class="check-wrap"></td>
+                    <td>
+                        <div class="input-group">
+                            @Html.DropDownList("WrappingTypeId", (IEnumerable<SelectListItem>)(ViewData["WrappingTypes" + idRecord]), String.Empty, new { @class = "form-control edit-control wrapping-control", id = wrappingTypeId })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                                </td>
+                                <td>
+                                <div class="input-group">
+                                    @*                                        <div class="input chzn-select" style="margin-left: 0px;">*@
+                                    @Html.DropDownList("WrappingKindId", (IEnumerable<SelectListItem>)(ViewData["Boxes" + idRecord]), String.Empty, new { @class = @wrapKindcss, data_placeholder = "Выберите значение...", id = wrappingKindId })
+@*                                </div>*@
+                                    <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                    </div>
+                                </td>
+
+                                <td><div class="input-group">
+                                    @Html.TextBox("WrappingSizeStr", Model.ExpDrugWrappings[i].WrappingSizeStr, new { @class = "edit-control wrapping-control form-control", id = wrappingSizeId })
+                                    <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div></td>
+                                <td><div class="input-group">@Html.DropDownList("SizeMeasureId", (IEnumerable<SelectListItem>)(ViewData["SizeMeasureList" + idRecord]), String.Empty, new { @class = "form-control edit-control wrapping-control", id = sizeMeasureIdId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+                                <td><div class="input-group">
+                                        @Html.TextBox("WrappingVolumeStr", Model.ExpDrugWrappings[i].WrappingVolumeStr, new { @class = "edit-control wrapping-control form-control", id = wrappingVolumeId })
+                                    <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div></td>
+                                <td><div class="input-group">@Html.DropDownList("VolumeMeasureId", (IEnumerable<SelectListItem>)(ViewData["VolumeMeasureList" + idRecord]), String.Empty, new { @class = "form-control edit-control wrapping-control", id = volumeMeasureId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>
+                                <td><div class="input-group">
+                                        @Html.TextBox("CountUnit", Model.ExpDrugWrappings[i].CountUnit, new { @class = "edit-control wrapping-control form-control", id = countUnitId })
+                                    <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div></td>
+                                <td><div class="input-group">
+                                        @Html.TextBox("Note", Model.ExpDrugWrappings[i].Note, new { @class = "edit-control wrapping-control form-control growed", id = noteId })
+                                    <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div></td>
+
+                                @if (i == 0)
+                                {
+                                    <td><a class="deleteRow"></a></td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    <tfoot>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9" style="text-align: left;">
+                                <button type="button" class="btn btn-success btn-sm add-btn-from4 add-wrapping" id="@btnId" style="margin-top: 10px">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm add-price" id="@pricebtnId" style="margin-top: 10px">
+                                    <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> Добавить по стоимости формы выпуска
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+  @*  @Html.Partial("~/Views/DrugDeclaration/DrugPriceView.cshtml", @Model)*@           
+</div>

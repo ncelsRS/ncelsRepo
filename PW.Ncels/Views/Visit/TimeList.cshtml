@@ -1,0 +1,23 @@
+﻿@using PW.Ncels.Models.Visit;
+@model TimeListModels
+@{
+    var intervals = Model.Intervals;
+}
+@if (intervals == null || intervals.Count == 0)
+{
+    <h3>В этот день приём по данному типу не ведётся</h3>
+}
+@foreach (var interval in intervals.GroupBy(x => x.From))
+{
+    var begin = interval.First().From;
+    var freeCount = interval.Count(x => !x.IsExistsVisit);
+    var busyClass = "";
+    if (freeCount == 0)
+    {
+        busyClass = "time-select-all-busy";
+    }
+    <div class="label label-default time-select @busyClass" data-time="@(begin.Hour*60+begin.Minute)" onclick="SelectTime(this)">
+        @begin.ToString("HH:mm")
+        <span>@("(" + freeCount + ")")</span>
+    </div>
+}

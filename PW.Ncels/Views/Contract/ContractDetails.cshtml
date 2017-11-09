@@ -1,0 +1,838 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";    
+}
+@model PW.Ncels.Database.Models.ContractModel
+@if ((bool)ViewBag.CanSign)
+{
+    @Html.Partial("~/Views/Home/SignView.cshtml")
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Просмотр договора</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home" )">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Договоры</a>
+            </li>
+            <li class="active">
+                <strong>Просмотр договора</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="contractDetail">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        @if (Model.ApplicantContract.Number != null)
+                        {
+                            <span> Договор №@Model.ApplicantContract.Number</span>
+                        }
+                        @if (Model.ApplicantContract.ContractDate != null)
+                        {
+                            <span> от @Model.ApplicantContract.ContractDate.Value.ToString("dd.MM.yyyy")r</span>
+                        }
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction, "Contract")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button ng-if="'@Model.IsEdit'" class="btn btn-default btn-sm" type="button" onclick="location.href = '@Url.Action("Contract", "Contract", new {id = @Model.ApplicantContract.Id, listAction=ViewBag.ListAction})'"><i class="fa fa-edit"></i> Форма для редактирования</button>
+                        @if ((bool) ViewBag.CanSign)
+                        {
+                            <button ng-if="canSign" class="btn btn-default btn-sm" type="button" ng-click="sign('@Model.ApplicantContract.Id')"><i class="fa fa-check-square"></i> Подписать</button>
+                        }
+                        <button class="btn btn-default btn-sm" type="button" ng-click="view('@Model.ApplicantContract.Id')"><i class="fa fa-eye"></i> Просмотр </button>
+                        @*<button class="btn btn-default btn-sm" type="button" onclick="location.href='@Url.Action("CardDownload", "Upload" ,new {id=@Model.ApplicantContract.Id})'"><i class="fa fa-download"></i> Выгрузить файл на диск</button>*@
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#tab-1">Производитель</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-2">Заявитель</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-3">Держатель регистрационного удостоверения</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-4">Плательщик</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-5">Плательщик за перевод</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-6">Вложения</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-7"><h3 style="color: red">Замечания</h3></a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tab-1" class="tab-pane active">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-6 b-r">
+                                                    <div class="form-group">
+                                                        <label>Организационная форма</label>
+                                                        <p>@Model.Manufaturer.OpfTypeName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на русском языке</label>
+                                                        <p>@Model.Manufaturer.NameRu</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на английском языке</label>
+                                                        <p>@Model.Manufaturer.NameEn</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Страна</label>
+                                                        <p>@Model.Manufaturer.CountryName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Юридический адрес</label>
+                                                        <p>@Model.Manufaturer.AddressLegal</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Фактический адрес</label>
+                                                        <p>@Model.Manufaturer.AddressFact</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Телефон</label>
+                                                        <p>@Model.Manufaturer.Phone</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>e-mail</label>
+                                                        <p>@Model.Manufaturer.Email</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 b-l">
+                                                    <div class="form-group">
+                                                        <label>Фамилия первого руководителя</label>
+                                                        <p>@Model.Manufaturer.BossLastName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Имя первого руководителя</label>
+                                                        <p>@Model.Manufaturer.BossFirstName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Отчество первого руководителя</label>
+                                                        <p>@Model.Manufaturer.BossMiddleName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Должность первого руководителя</label>
+                                                        <p>@Model.Manufaturer.BossPosition</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Название банка</label>
+                                                        <p>@Model.Manufaturer.BankName</p>
+                                                    </div>
+                                                    @if (Model.Manufaturer.BankIik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИК</label>
+                                                            <p>@Model.Manufaturer.BankIik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Manufaturer.PaymentBill != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Расчетный счет</label>
+                                                            <p>@Model.Manufaturer.PaymentBill</p>
+                                                        </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Валюта</label>
+                                                        <p>@Model.Manufaturer.BankCurencyDicName</p>
+                                                    </div>
+                                                    @if (Model.Manufaturer.BankSwift != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>SWIFT</label>
+                                                            <p>@Model.Manufaturer.BankSwift</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Manufaturer.BankBik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИК</label>
+                                                            <p>@Model.Manufaturer.BankBik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Manufaturer.Bin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИН</label>
+                                                            <p>@Model.Manufaturer.Bin</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Manufaturer.Iin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИН</label>
+                                                            <p>@Model.Manufaturer.Iin</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-2" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-6 b-r">
+                                                    <div class="form-group">
+                                                        <label>Организационная форма</label>
+                                                        <p>@Model.Applicant.OpfTypeName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на русском языке</label>
+                                                        <p>@Model.Applicant.NameRu</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на английском языке</label>
+                                                        <p>@Model.Applicant.NameEn</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Страна</label>
+                                                        <p>@Model.Applicant.CountryName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Юридический адрес</label>
+                                                        <p>@Model.Applicant.AddressLegal</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Фактический адрес</label>
+                                                        <p>@Model.Applicant.AddressFact</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Телефон</label>
+                                                        <p>@Model.Applicant.Phone</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>e-mail</label>
+                                                        <p>@Model.Applicant.Email</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 b-l">
+                                                    <div class="form-group">
+                                                        <label>Фамилия подписывающего лица</label>
+                                                        <p>@Model.Applicant.BossLastName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Имя подписывающего лица</label>
+                                                        <p>@Model.Applicant.BossFirstName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Отчество подписывающего лицая</label>
+                                                        <p>@Model.Applicant.BossMiddleName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Должность подписывающего лица</label>
+                                                        <p>@Model.Applicant.BossPosition</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Название банка</label>
+                                                        <p>@Model.Applicant.BankName</p>
+                                                    </div>
+                                                    @if (Model.Applicant.BankIik != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>ИИК</label>
+                                                        <p>@Model.Applicant.BankIik</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Applicant.PaymentBill != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Расчетный счет</label>
+                                                        <p>@Model.Applicant.PaymentBill</p>
+                                                    </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Валюта</label>
+                                                        <p>@Model.Applicant.BankCurencyDicName</p>
+                                                    </div>
+                                                    @if (Model.Applicant.BankSwift != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>SWIFT</label>
+                                                        <p>@Model.Applicant.BankSwift</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Applicant.BankBik != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>БИК</label>
+                                                        <p>@Model.Applicant.BankBik</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Applicant.Bin != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>БИН</label>
+                                                        <p>@Model.Applicant.Bin</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Applicant.Iin != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>ИИН</label>
+                                                        <p>@Model.Applicant.Iin</p>
+                                                    </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="hr-line-dashed"></div>
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Вид документа</label>
+                                                        <p>@Model.ApplicantContract.DoverenostName</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Наличие номера</label>
+                                                        @if (Model.ApplicantContract.IsHasDoverennostNumber)
+                                                        {
+                                                        <p>Да</p>
+                                                        }
+                                                        else
+                                                        {
+                                                        <p>Нет</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                @if (Model.ApplicantContract.IsHasDoverennostNumber)
+                                                {
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Номер документа</label>
+                                                        <p>@Model.ApplicantContract.DoverennostNumber</p>
+                                                    </div>
+                                                </div>
+                                                }
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Срок действия с</label>
+                                                        @if (Model.ApplicantContract.DoverennostCreatedDate.HasValue)
+                                                        {
+                                                        <p>@Model.ApplicantContract.DoverennostCreatedDate.Value.ToString("dd.MM.yyyy")</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <div class="form-group">
+                                                        <label>Срок действия по</label>
+                                                        @if (Model.ApplicantContract.DoverennostExpiryDate.HasValue)
+                                                        {
+                                                        <p>@Model.ApplicantContract.DoverennostExpiryDate.Value.ToString("dd.MM.yyyy")</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-3" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-6 b-r">
+                                                    <div class="form-group">
+                                                        <label>Организационная форма</label>
+                                                        <p>@Model.Holder.OpfTypeName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на русском языке</label>
+                                                        <p>@Model.Holder.NameRu</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование на английском языке</label>
+                                                        <p>@Model.Holder.NameEn</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Страна</label>
+                                                        <p>@Model.Holder.CountryName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Юридический адрес</label>
+                                                        <p>@Model.Holder.AddressLegal</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Фактический адрес</label>
+                                                        <p>@Model.Holder.AddressFact</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Телефон</label>
+                                                        <p>@Model.Holder.Phone</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>e-mail</label>
+                                                        <p>@Model.Holder.Email</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 b-l">
+                                                    <div class="form-group">
+                                                        <label>Фамилия первого руководителя</label>
+                                                        <p>@Model.Holder.BossLastName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Имя первого руководителя</label>
+                                                        <p>@Model.Holder.BossFirstName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Отчество первого руководителя</label>
+                                                        <p>@Model.Holder.BossMiddleName</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Должность первого руководителя</label>
+                                                        <p>@Model.Holder.BossPosition</p>
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Название банка</label>
+                                                        <p>@Model.Holder.BankName</p>
+                                                    </div>
+                                                    @if (Model.Holder.BankIik != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>ИИК</label>
+                                                        <p>@Model.Holder.BankIik</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Holder.PaymentBill != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Расчетный счет</label>
+                                                        <p>@Model.Holder.PaymentBill</p>
+                                                    </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Валюта</label>
+                                                        <p>@Model.Holder.BankCurencyDicName</p>
+                                                    </div>
+                                                    @if (Model.Holder.BankSwift != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>SWIFT</label>
+                                                        <p>@Model.Holder.BankSwift</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Holder.BankBik != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>БИК</label>
+                                                        <p>@Model.Holder.BankBik</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Holder.Bin != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>БИН</label>
+                                                        <p>@Model.Holder.Bin</p>
+                                                    </div>
+                                                    }
+                                                    @if (Model.Holder.Iin != null)
+                                                    {
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>ИИН</label>
+                                                        <p>@Model.Holder.Iin</p>
+                                                    </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-4" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-6 b-r">
+                                                    <div class="form-group">
+                                                        <label>Резидент РК</label>
+                                                        @if (Model.Payer.IsResident)
+                                                        {
+                                                            <p>Да</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Нет</p>
+                                                        }
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Плательщик</label>
+                                                        @if (Model.Payer.Id == Model.Manufaturer.Id)
+                                                        {
+                                                            <p>Производитель</p>
+                                                        }
+                                                        else if (Model.Payer.Id == Model.Applicant.Id)
+                                                        {
+                                                            <p>Заявитель</p>
+                                                        }
+                                                        else if (Model.Payer.Id == Model.Holder.Id)
+                                                        {
+                                                            <p>Держатель регистрационного удостоверения</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Третье лицо</p>
+                                                        }
+
+                                                    </div>
+
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование</label>
+                                                        <p>@Model.Payer.NameRu</p>
+                                                    </div>
+                                                    @if (!(bool)ViewBag.PayerTypeOther)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на английском языке</label>
+                                                            <p>@Model.Payer.NameEn</p>
+                                                        </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Юридический адрес</label>
+                                                        <p>@Model.Payer.AddressLegal</p>
+                                                    </div>
+                                                    @if (!(bool)ViewBag.PayerTypeOther)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Фактический адрес</label>
+                                                            <p>@Model.Payer.AddressFact</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Телефон</label>
+                                                            <p>@Model.Payer.Phone</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>e-mail</label>
+                                                            <p>@Model.Payer.Email</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-lg-6 b-l">
+                                                    @if (!(bool)ViewBag.PayerTypeOther)
+                                                    {
+                                                        <div class="form-group">
+                                                            <label>Фамилия первого руководителя</label>
+                                                            <p>@Model.Payer.BossLastName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Имя первого руководителя</label>
+                                                            <p>@Model.Payer.BossFirstName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <p>@Model.Payer.BossMiddleName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Должность первого руководителя</label>
+                                                            <p>@Model.Payer.BossPosition</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                    }
+                                                    <div class="form-group">
+                                                        <label>Название банка</label>
+                                                        <p>@Model.Payer.BankName</p>
+                                                    </div>
+                                                    @if (Model.Payer.BankIik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИК</label>
+                                                            <p>@Model.Payer.BankIik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Payer.PaymentBill != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Расчетный счет</label>
+                                                            <p>@Model.Payer.PaymentBill</p>
+                                                        </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Валюта</label>
+                                                        <p>@Model.Payer.BankCurencyDicName</p>
+                                                    </div>
+                                                    @if (Model.Payer.BankSwift != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>SWIFT</label>
+                                                            <p>@Model.Payer.BankSwift</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Payer.BankBik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИК</label>
+                                                            <p>@Model.Payer.BankBik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Payer.Bin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИН</label>
+                                                            <p>@Model.Payer.Bin</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Payer.Iin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИН</label>
+                                                            <p>@Model.Payer.Iin</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-5" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-6 b-r">
+                                                    <div class="form-group">
+                                                        <label>Резидент РК</label>
+                                                        @if (Model.PayerTranslation.IsResident)
+                                                        {
+                                                            <p>Да</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Нет</p>
+                                                        }
+                                                    </div>
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Плательщик за перевод</label>
+                                                        @if (Model.PayerTranslation.Id == Model.Manufaturer.Id)
+                                                        {
+                                                            <p>Производитель</p>
+                                                        }
+                                                        else if (Model.PayerTranslation.Id == Model.Applicant.Id)
+                                                        {
+                                                            <p>Заявитель</p>
+                                                        }
+                                                        else if (Model.PayerTranslation.Id == Model.Holder.Id)
+                                                        {
+                                                            <p>Держатель регистрационного удостоверения</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Третье лицо</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Наименование</label>
+                                                        <p>@Model.PayerTranslation.NameRu</p>
+                                                    </div>
+                                                    @if (!(bool)ViewBag.PayerTranslationTypeOther)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на английском языке</label>
+                                                            <p>@Model.PayerTranslation.NameEn</p>
+                                                        </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Юридический адрес</label>
+                                                        <p>@Model.PayerTranslation.AddressLegal</p>
+                                                    </div>
+                                                    @if (!(bool)ViewBag.PayerTranslationTypeOther)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Фактический адрес</label>
+                                                            <p>@Model.PayerTranslation.AddressFact</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Телефон</label>
+                                                            <p>@Model.PayerTranslation.Phone</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>e-mail</label>
+                                                            <p>@Model.PayerTranslation.Email</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-lg-6 b-l">
+                                                    @if (!(bool)ViewBag.PayerTranslationTypeOther)
+                                                    {
+                                                        <div class="form-group">
+                                                            <label>Фамилия первого руководителя</label>
+                                                            <p>@Model.PayerTranslation.BossLastName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Имя первого руководителя</label>
+                                                            <p>@Model.PayerTranslation.BossFirstName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <p>@Model.PayerTranslation.BossMiddleName</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Должность первого руководителя</label>
+                                                            <p>@Model.PayerTranslation.BossPosition</p>
+                                                        </div>
+                                                        <div class="hr-line-dashed"></div>
+                                                    }
+                                                    <div class="form-group">
+                                                        <label>Название банка</label>
+                                                        <p>@Model.PayerTranslation.BankName</p>
+                                                    </div>
+                                                    @if (Model.PayerTranslation.BankIik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИК</label>
+                                                            <p>@Model.PayerTranslation.BankIik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.PayerTranslation.PaymentBill != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>Расчетный счет</label>
+                                                            <p>@Model.PayerTranslation.PaymentBill</p>
+                                                        </div>
+                                                    }
+                                                    <div class="hr-line-dashed"></div>
+                                                    <div class="form-group">
+                                                        <label>Валюта</label>
+                                                        <p>@Model.PayerTranslation.BankCurencyDicName</p>
+                                                    </div>
+                                                    @if (Model.PayerTranslation.BankSwift != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>SWIFT</label>
+                                                            <p>@Model.PayerTranslation.BankSwift</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.PayerTranslation.BankBik != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИК</label>
+                                                            <p>@Model.PayerTranslation.BankBik</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.PayerTranslation.Bin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>БИН</label>
+                                                            <p>@Model.PayerTranslation.Bin</p>
+                                                        </div>
+                                                    }
+                                                    @if (Model.PayerTranslation.Iin != null)
+                                                    {
+                                                        <div class="hr-line-dashed"></div>
+                                                        <div class="form-group">
+                                                            <label>ИИН</label>
+                                                            <p>@Model.PayerTranslation.Iin</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-6" class="tab-pane">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-none m-b">3. Вложения</h3>
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="sysAttachContractDict" id="@Model.ApplicantContract.Id" path="@Model.ApplicantContract.Id" />
+                                        </div>
+                                    </div>
+                                    <div id="tab-7" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <grid-object url="\Contract\ListComments?contractId=@(Model.ApplicantContract.Id)" column-order="0"></grid-object>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

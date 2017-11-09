@@ -1,0 +1,487 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+@*<link href="~/Content/css/plugins/select2/select2.css" rel="stylesheet" type="text/css" />*@
+@{
+    var mnnText = "";
+    var mnn_kz = "";
+    var mnn_ru = "";
+    var mnn_eng = "";
+    if (Model.sr_international_names != null)
+    {
+        mnnText = Model.sr_international_names.name_rus + "/" + Model.sr_international_names.name_eng + "/" + Model.sr_international_names.name_rus;
+        mnn_kz = Model.sr_international_names.name_kz;
+        mnn_ru = Model.sr_international_names.name_rus;
+        mnn_eng = Model.sr_international_names.name_eng;
+    }
+
+}
+@{ var stylenone = "display: none";}
+@if (Model.TypeId > 1)
+{
+    stylenone = "";
+}
+<div class="alert alert-success" role="alert" >
+
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="form-group">
+                <label for="name" class="col-lg-5">Тип регистрации:</label>
+                <div class="col-lg-7">
+                    <div class="input-group">
+                        @Html.DropDownList("TypeId", (IEnumerable<SelectListItem>)(ViewData["TypeList"]),
+                            String.Empty,
+                            new
+                            {
+                                @class = "form-control edit-control main-control"
+                            })
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="name" class="col-lg-4">№ заявление:</label>
+                <div class="col-lg-8">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.Number, new { @class = "form-control edit-control main-control", @readonly = "readonly" })
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="name" class="col-lg-5">Дата первой отпавки:</label>
+                <div class="col-lg-7">
+                    <div class="input-group">
+                        <input id="FirstSendDateStr" class="form-control edit-control main-control" readonly="readonly" value="@Model.FirstSendDateStr">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*   <div class="alert alert-warning" role="alert" style="@stylenone" id="changeReestrDiv">
+
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label for="name" class="col-lg-4">№ регистрационного удостоверения:</label>
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            <input data-val="true" data-val-number="The field refDocument must be a number." placeholder="Введите часть слова рег. номера" data-val-required="The refDocument field is required." id="RegisterId" name="RegisterId" type="text" class="edit-control  main-control" text="@Model.ReestrNumber">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="name" class="col-lg-4">Дата регистрации:</label>
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.ReestrRegDate, new { @class = "form-control edit-control main-control", @readonly = "readonly" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label for="name" class="col-lg-4">№ НД (Нормативная документация):</label>
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.NumberNd, new { @class = "form-control edit-control main-control", @readonly = "readonly" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+          
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="name" class="col-lg-4">Срок действия:</label>
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.ReestrExpirationDate, new { @class = "form-control edit-control main-control", @readonly = "readonly" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+@Html.Partial("~/Views/DrugDeclaration/ChangeOrReRegistrationView.cshtml", @Model)
+    @Html.Partial("~/Views/DrugDeclaration/ChangeTypeView.cshtml", @Model)
+    <div class="alert alert-info" role="alert">
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="name" class="col-lg-2">Договор:</label>
+
+                    <div class="col-lg-10">
+                        <div class="input-group">
+                            @Html.DropDownList("ContractId", (IEnumerable<SelectListItem>)(ViewData["ContractList"]),
+                        String.Empty,
+                        new
+                        {
+                            @class = "form-control edit-control main-control"
+                        })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="form-group">
+                    <label for="name" class="col-lg-5">Тип ускоренной регистрации:</label>
+                    <div class="col-lg-7">
+                        <div class="input-group">
+                            @Html.DropDownList("AccelerationTypeId", (IEnumerable<SelectListItem>)(ViewData["AccelerationTypeList"]),
+                        String.Empty,
+                        new
+                        {
+                            @class = "form-control edit-control main-control"
+                        })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group" id="AccelerationNumberDiv">
+                    <label for="name" class="col-lg-3">№ письма:</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.AccelerationNumber, new { @class = "form-control edit-control main-control" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group" id="AccelerationDateStrDiv">
+                    <label for="name" class="col-lg-4">Дата письма:</label>
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            <input id="AccelerationDateStr" class="form-control edit-control main-control date-control" value="@Model.AccelerationDateStr">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="input-group">
+            @Html.TextAreaFor(model => model.AccelerationNote, new { @class = "form-control edit-control main-control", placeholder = "Обоснование" })
+            <span class="input-group-addon">
+                <a class="commentDialog" href="#">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </a>
+            </span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Торговое название
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label>На государственном языке</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.NameKz, new { @class = "form-control edit-control main-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>На русском языке</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.NameRu, new { @class = "form-control edit-control main-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>На английском языке</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.NameEn, new { @class = "form-control edit-control main-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Международное непатентованное название (МНН)
+                </div>
+                <div class="panel-body">
+                    <div>
+                        <div class="input-group">
+                            <input data-val="true" data-val-number="The field refDocument must be a number." placeholder="Введите часть слова МНН" data-val-required="The refDocument field is required." id="MnnId" name="MnnId" type="text" class="edit-control  main-control" text="@mnnText">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>На государственном языке</label>
+                        <div class="input-group">
+                            <input class="form-control edit-control" type="text" readonly="readonly" id="mnn_kz" value="@mnn_kz">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>На русском языке</label>
+                        <div class="input-group">
+                            <input class="form-control edit-control" type="text" readonly="readonly" id="mnn_ru" value="@mnn_ru">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>На английском языке</label>
+                        <div class="input-group">
+                            <input class="form-control edit-control" type="text" readonly="readonly" id="mnn_eng" value="@mnn_eng">
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Комментарии</label>
+                        <div class="input-group">
+                            @Html.TextAreaFor(model => model.MnnComment, new { @class = "form-control edit-control main-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("~/Views/DrugDeclaration/ExportTradeView.cshtml", @Model)
+ 
+    @Html.Partial("~/Views/DrugDeclaration/DrugFormView.cshtml", @Model)
+    @*@Html.Partial("~/Views/DrugDeclaration/DosageView.cshtml", @Model)*@
+    @Html.Partial("~/Views/DrugDeclaration/AtcView.cshtml", @Model)
+    @Html.Partial("~/Views/DrugDeclaration/DrugTypeView.cshtml", @Model)
+    <div class="row" style="margin-bottom: 10px">
+        <div class="col-sm-12">
+            Способы введения
+            <div class="input-group">
+                <div class="chzn-select">
+                    @Html.ListBoxFor(x => Model.MethodUseIds, Model.MethodUseList,
+                    new { @class = "chzn-select form-control edit-control main-control", data_placeholder = "Выбирите значание...", @style = "width: 100%", @name = "MethodUseList" })
+                </div>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+     
+    </div>
+
+
+    <script type="text/javascript">
+        function setDateFormat(control) {
+            $(control).datepicker({
+                dateFormat: 'dd/mm/yy',
+                language: 'ru',
+                autoclose: true
+            });
+        }
+
+        $(document).ready(function () {
+            setDateFormat(".date-control");
+
+            $("#NameEn").keypress(function() {
+                var key = window.event.keyCode;
+                var allowed =
+                    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ :;,.?!"£$%^&*()_+-*{}~<>&"\'';
+
+                return allowed.indexOf(String.fromCharCode(key)) != -1;
+            });
+            $(".main-control").change(function () {
+                var controlId = $(this).attr('id');
+                var type = "string";
+                if ($(this).attr('typeField') != null) {
+                    type = $(this).attr('typeField');
+                }
+                var fieldDisplay = $(this).val();
+                var fieldValue = $(this).val();
+
+                if ($(this).is("select")) {
+                    fieldDisplay = $(this).find('option:selected').text();
+                }
+                if ($(this).hasClass("chzn-select") && fieldValue != null && fieldValue.length > 0) {
+                    fieldValue = fieldValue.join(',');
+                }
+                if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                    fieldDisplay = $(this).select2('data').text;
+                }
+                UpdateModel("main", null, null, controlId, fieldValue, type, fieldDisplay);
+            });
+            $("#AccelerationTypeId").change(function () {
+                var val = $(this).val();
+                if (val === "2") {
+                    $("#AccelerationNumberDiv").hide();
+                    $("#AccelerationDateStrDiv").hide();
+                    $("#AccelerationNote").hide();
+                } else {
+                    $("#AccelerationNumberDiv").show();
+                    $("#AccelerationDateStrDiv").show();
+                    $("#AccelerationNote").show();
+                }
+
+            });
+            var attendeeUrl = '@Url.Action("SelectMnn")';
+            var pageSize = 20;
+            $('#MnnId').select2(
+            {
+                placeholder: 'Введите часть слова',
+                minimumInputLength: 3,
+                allowClear: true,
+                ajax: {
+                    quietMillis: 150,
+                    url: attendeeUrl,
+                    dataType: 'jsonp',
+                    data: function (term, page) {
+                        return {
+                            pageSize: pageSize,
+                            pageNum: page,
+                            searchTerm: term
+                        };
+                    },
+                    results: function (data, page) {
+                        var more = (page * pageSize) < data.Total;
+                        return { results: data.Results, more: more };
+                    }
+                }
+            }).on("change",
+                function (e) {
+                    var val = e.val;
+                    if (val == null || val.length === 0) {
+                        $("#mnn_kz").val("");
+                        $("#mnn_ru").val("");
+                        $("#mnn_eng").val("");
+                        return;
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetMnnNames")',
+                        data: { 'id': val },
+                        dataType: 'json',
+                        cache: false,
+                        success: function (data) {
+                            if (data.isSuccess) {
+                                $("#mnn_kz").val(data.mnnKz);
+                                $("#mnn_ru").val(data.mnnRu);
+                                $("#mnn_eng").val(data.mnnEng);
+                            } else {
+                                $("#mnn_kz").val("");
+                                $("#mnn_ru").val("");
+                                $("#mnn_eng").val("");
+                            }
+                        },
+                        error: function () {
+                            alert("Connection Failed. Please Try Again");
+                        }
+                    });
+
+                });
+           
+            if ("@mnnText" != "") {
+                $("#MnnId").select2("data", { id: "@Model.MnnId", text: "@mnnText" });
+            }
+            $("#RegisterId").select2("data", { id: "@Model.RegisterId", text: "@Model.ReestrNumber" });
+        });
+    </script>

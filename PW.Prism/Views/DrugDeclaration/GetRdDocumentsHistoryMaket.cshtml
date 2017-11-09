@@ -1,0 +1,127 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Helpers
+@model PW.Ncels.Database.Models.Common.FileGroup
+@{
+    var maketGroup = Model;
+    var downloadActionGrp = "/Upload/FileDownload?";
+    var removeActionGrp = "/Upload/FileDelete?";
+    var path = (Guid)ViewBag.Path;
+    var currentEmployeeGuid = UserHelper.GetCurrentEmployee().Id;
+}
+<script>
+    function onBeforeMaketUploaded(e) {
+        e.data = { comment: $("#newMaketComment").val() };
+    }
+</script>
+
+<div class="panel panel-info">
+    @*<div class="panel-heading">
+        Заявка № 000
+    </div>*@
+    <div class="panel-body">
+        <table class="table table-bordered table-hover tbl_rdHist">
+            <thead>
+                <tr>
+                    <th>
+                        Источник
+                    </th>
+                    <th>
+                        Этап
+                    </th>
+                    <th>Дата</th>
+                    <th>Версия</th>
+                    <th>Файл</th>
+                    <th>Комментарий</th>
+                    <th>Статус</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (maketGroup != null)
+                {
+                    var origin = maketGroup.FileGroupItems.OrderByDescending(x => x.Version).FirstOrDefault();
+                    var uploadExists = maketGroup.FileGroupItems.Any(x => x.OwnerId == currentEmployeeGuid);
+                    foreach (var gr in maketGroup.FileGroupItems.OrderBy(x=>x.Version))
+                    {
+                        var currentDownloadAction = downloadActionGrp + gr.AttachId;
+                        var statusId = gr.MetadataId + "_status";
+                        <tr>
+                            <td>@gr.OwnerName</td>
+                            <td>@gr.Stage</td>
+                            <td>@gr.CreateDate</td>
+                            <td>@gr.Version</td>
+                            <td>@gr.AttachName</td>
+                            <td class="comment">@gr.Comment</td>
+                            <td id="@statusId">
+                                @gr.StatusName
+                            </td>
+                            <td>
+                                <div class="btn-group" style="float: right; margin-right: 10px; color: white; text-align: left">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Операции <span class="caret"></span></button>
+                                    <ul class="dropdown-menu btnmenu">
+
+                                        <li class="btn-info">
+                                            <a href="@currentDownloadAction" class="link-object" style="color: white; padding: 5px"><span class="glyphicon glyphicon-download" aria-hidden="true"></span> Скачать</a>
+                                        </li>
+                                        @if (gr.OwnerId == currentEmployeeGuid)
+                                        {
+                                            var currentRemoveAction = removeActionGrp + gr.AttachId;
+                                            if (gr.StatusCode == null || gr.StatusCode == CodeConstManager.STATUS_FILE_CODE_DRAFT)
+                                            {
+                                                <li class="btn-danger edit-li">
+                                                    <a href="#" data-link="@currentRemoveAction" data-activetab="instrTab" onclick="TryRemoveHistoryFile(this);" style="color: white; padding: 5px"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Удалить</a>
+                                                </li>
+                                            }
+                                            if (gr.StatusCode == null || gr.StatusCode == CodeConstManager.STATUS_FILE_CODE_DRAFT || gr.StatusCode == CodeConstManager.STATUS_FILE_CODE_REFUSED)
+                                            {
+                                                <li class="btn-primary edit-li">
+                                                    <a href="#" style="color: white; padding: 5px" onclick="sendTranslateOnAgreement(this, '@gr.MetadataId', '1','2')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> На согласование</a>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+
+
+@*
+                                <a href="@currentDownloadAction" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a>
+                                @if (gr.OwnerId == currentEmployeeGuid)
+                                {
+                                    var currentRemoveAction = removeActionGrp + gr.AttachId;
+                                    <a href="#" data-link="@currentRemoveAction" data-activetab="maketTab" onclick="TryRemoveHistoryFile(this);" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></a>
+                                }*@
+                            </td>
+                        </tr>
+                        //string id = null, string path = null, string name = null, string fileId = null
+                    }
+                    <tr>
+                        <td colspan="7">
+                            @if (!uploadExists)
+                            {
+                                @(Html.Kendo().Upload().Name("attachMaket").Multiple(false).HtmlAttributes(new { accept = "application/pdf,application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, image/jpeg", data_activetab = "maketTab" })
+                                    .Events(ev => ev.Success("SuccessMaketUploaded")
+                                    .Upload("onBeforeMaketUploaded"))
+                                    .Messages(m => m.Select("Выбрать макет для загрузки..."))
+                                    .Async(ac => ac.AutoUpload(false)
+                                          .Save("FilePostv2", "Upload", new
+                                          {
+                                              code = maketGroup.Id,
+                                              path = path,
+                                              saveMetadata = true,
+                                              originFileId = origin == null ? null : origin.MetadataId
+                                          })))
+                                <div class="form-group">
+                                    <label for="newMaketComment" class="control-label col-md-4">Комментарий</label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="newMaketComment" class="form-control" />
+                                    </div>
+                                </div>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

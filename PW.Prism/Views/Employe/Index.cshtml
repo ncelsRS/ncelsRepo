@@ -1,0 +1,396 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+<script id="treeview-template" type="text/kendo-ui-template">
+    # if (item.Type == 0) { #
+    <img src="../../Content/images/units/org.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 1) { #
+    <img src="../../Content/images/units/dep.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 2) { #
+    <img src="../../Content/images/units/pos.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 3) { #
+    # if (item.Sex == 0) { #
+    <img src="../../Content/images/units/user.png" height="16" width="16" />
+    # } #
+    # if (item.Sex == 1) { #
+    <img src="../../Content/images/units/man.png" height="16" width="16" />
+    # } #
+    # if (item.Sex == 2) { #
+    <img src="../../Content/images/units/woman.png" height="16" width="16" />
+    # } #
+    # } #
+    #: item.Name #
+</script>
+<script>
+    var name = '@Model';
+
+    function onSelectEmploye(e) {
+        var dataId = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).DataId;
+        var type = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).Type;
+        var uid = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).uid;
+       
+        $.ajax({
+            url: "/Employe/Edit?Id=" + dataId + '&Type=' + type + '&modelId=' + name + '&uid=' + uid,
+            //type: "POST",
+            success: function (result) {
+                // refreshes partial view
+                $('#EditUnits' + name).html(result);
+                var viewModel = kendo.observable({
+                    item: {
+                        type: type,
+                        parentId: dataId
+                    },
+                    change: function () {
+
+                    },
+                    initButton: function () {
+                        if (this.get('item.type') == 0) {
+                            this.set("hasOrg", true);
+                            this.set("hasDep", true);
+
+                        } else {
+                            this.set("hasOrg", false);
+                            this.set("hasDep", false);
+
+                        }
+                        if (this.get('item.type') == 1 || this.get('item.type') == 0) {
+                            this.set("hasPos", true);
+                            this.set("hasDep", true);
+                        } else {
+                            this.set("hasPos", false);
+                            this.set("hasDep", false);
+                        }
+
+                        if (this.get('item.type') == 2) {
+                            this.set("hasEmp", true);
+                            this.set("hasDel", true);
+
+                        } else {
+                            this.set("hasEmp", false);
+                            this.set("hasDel", false);
+                        }
+
+                        if (this.get('item.type') == 3) {
+                            this.set("hasSendEmp", true);
+                        } else {
+                            this.set("hasSendEmp", false);
+                        }
+                    },
+                    hasOrg: false,
+                    AddOrg: function () {
+                        $.ajax({
+                            url: "/Employe/Edit?Id=" + dataId + '&Type=' + type + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                // refreshes partial view
+                                $('#EditUnits' + name).html(res);
+                            }
+                        });
+                    },
+                    hasDep: false,
+                    AddDep: function () {
+                        $.ajax({
+                            url: "/Employe/Edit?Id=" + dataId + '&Type=' + 9 + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                // refreshes partial view
+                                $('#EditUnits' + name).html(res);
+                            }
+                        });
+                    },
+                    hasPos: false,
+                    AddPos: function () {
+                        $.ajax({
+                            url: "/Employe/Edit?Id=" + dataId + '&Type=' + 1 + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                // refreshes partial view
+                                $('#EditUnits' + name).html(res);
+
+                            }
+                        });
+                    },
+                    hasDel: false,
+                    DeletePos: function () {
+                        $.ajax({
+                            url: "/Employe/Delete?Id=" + dataId + '&Type=' + 1 + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                // refreshes partial view
+                                alert('Все хорошо');
+                                $("#treeview" + name).data("kendoTreeView").dataItem($("#treeview" + name).data("kendoTreeView").findByUid(uid)).parentNode().loaded(false);
+                                $("#treeview" + name).data("kendoTreeView").dataItem($("#treeview" + name).data("kendoTreeView").findByUid(uid)).parentNode().load();
+                                //$('#EditUnits' + name).html(res);
+                            }
+                        });
+                    },
+                    hasEmp: false,
+                    AddEmp: function () {
+                        $.ajax({
+                            url: "/Employe/Edit?Id=" + dataId + '&Type=' + type + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                if (res == 'False') {
+                                    alert('@PW.Ncels.Database.Recources.Messages.Property_Дляданнойдолжностипользовательужедобавлен_2__00');
+                                } else {
+                                    // refreshes partial view
+                                    $('#EditUnits' + name).html(res);
+                                }
+                            }
+                        });
+                    },
+                    hasSendEmp: false,
+                    SendEmp: function () {
+
+                        var window = $("#TaskCommandWindow");
+                        window.kendoWindow({
+                            width: "550px",
+                            height: "auto",
+                            modal: true,
+                            resizable: false,
+                            close: onCloseCommandWindow,
+                            title: 'Резолюция',
+                            actions: ["Close"]
+                        });
+
+                        window.data("kendoWindow").title('Перевод сотрудника');
+                        window.data("kendoWindow").setOptions({
+                            width: 550,
+                            height: 'auto'
+                        });
+                        window.data("kendoWindow").refresh('/Employe/SendEmploye?Id=' + dataId);
+
+                        window.data("kendoWindow").center();
+                        window.data("kendoWindow").open();
+                        @*$.ajax({
+                            url: "/Employe/Edit?Id=" + dataId + '&Type=' + type + '&ParentId=' + dataId + '&modelId=' + name,
+                            //type: "POST",
+                            success: function (res) {
+                                if (res == 'False') {
+                                    alert('@PW.Ncels.Database.Recources.Messages.Property_Дляданнойдолжностипользовательужедобавлен_2__00');
+                                } else {
+                                    // refreshes partial view
+                                    $('#EditUnits' + name).html(res);
+                                }
+                            }
+                        });*@
+                    },
+                });
+                viewModel.initButton();
+                kendo.bind($("#EditUnitsButton" + name), viewModel);
+            }
+        });
+    }
+
+
+
+</script>
+<div id="@("loader"+ Model)"></div>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+                panes.Add()
+                    .Size("420px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("420px")
+                    .Content(
+                    @<div class="pwPanelBar">
+                        <div class="input-group" style="width: 100%">
+                            <input id="@("filterText" + Model)" type="text" class="form-control" style="min-width: 315px" />
+                            <span class="input-group-btn" style="width: 0px;"></span>
+                            <button class="form-control btn btn-default" style="margin-left: -1px" type="button" onclick=" filterTreeOrg() "><span class="glyphicon glyphicon-search"></span></button>
+                            <span class="input-group-btn" style="width: 0px;"></span>
+                            <button class="form-control btn btn-default" style="margin-left: -2px" type="button" onclick=" refreshTreeOrg() "><span class="glyphicon glyphicon-refresh"></span></button>
+                        </div>
+                        @(Html.Kendo().TreeView()
+                                   .Name("treeview" + Model)
+                                   .TemplateId("treeview-template")
+                                                  .DataTextField("Name")
+                                   .Events(events => events.Select("onSelectEmploye"))
+
+
+                                                                   .DataSource(dataSource => dataSource
+
+                                                                .Read(read => read.Action("List", "Employe")
+                                                                )
+                                                       )
+
+                                   .HtmlAttributes(new { @class = "pwOs" })
+                        )
+
+                        @*<div id="@("treeview" + Model)"></div>*@
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwUnitsFooter k-block" id="@("EditUnitsButton" + Model)" hidden="@(!EmployePermissionHelper.IsEditOs)">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" data-bind="click: AddOrg, enabled: hasOrg, events: { change: change }">@PW.Ncels.Database.Recources.Messages.Property_Добавитьорганизацию_61__00</button>
+                                <button type="button" class="btn btn-default" data-bind="click: AddDep, enabled: hasDep, events: { change: change }">@PW.Ncels.Database.Recources.Messages.Property_Добавитьподразделение_44__00</button>
+                                <button type="button" class="btn btn-default" data-bind="click: AddPos, enabled: hasPos, events: { change: change }">@PW.Ncels.Database.Recources.Messages.Property_Добавитьдолжность_88__00</button>
+                                <button type="button" class="btn btn-default" data-bind="click: AddEmp, enabled: hasEmp, events: { change: change }">@PW.Ncels.Database.Recources.Messages.Property_Добавитьсотрудника_75__00</button>
+                                <button type="button" class="btn btn-default" data-bind="click: SendEmp, enabled: hasSendEmp, events: { change: change }">@PW.Ncels.Database.Recources.Messages.Перевестисотрудника</button>
+                                <button type="button" class="btn btn-default" data-bind="click: DeletePos, enabled: hasDel, events: { change: change }">x</button>
+                            </div>
+                        </div>
+                        <div id="@("EditUnits" + Model)">
+                            @PW.Ncels.Database.Recources.Messages.Property_Редактирование_184__00
+                        </div>
+                    </div>
+             );
+            }))
+<script>
+
+
+    function selectMenu(parameters) {
+        console.log('parame', parameters.sender);
+
+    }
+</script>
+@(Html.Kendo().ContextMenu()
+            .Name("menu" + Model)
+
+                .Target("#treeview" + Model)
+        // .Filter(".product")
+        .Orientation(ContextMenuOrientation.Vertical)
+            .Events(d => d.Select("selectMenu"))
+        .Animation(animation => {
+            animation.Open(open => {
+                open.Fade(FadeDirection.In);
+                open.Duration(500);
+            });
+        })
+        .Items(items => {
+
+            items.Add().Text("Удалить").HtmlAttributes(new { itemId = "Delete" });
+
+        })
+)
+<script type="text/javascript">
+    var id = '@Model';
+
+    //treeview
+
+    function getFilterText() {
+        var searchText = $("#filterText" + name).val();
+        return searchText;
+    }
+
+
+    var datasource = new kendo.data.HierarchicalDataSource({
+
+        transport: {
+            read: {
+                url: '/Employe/List',
+                dataType: "json",
+                type: 'GET',
+                cache: false
+            }
+        },
+        schema: {
+            model: {
+                id: "id",
+                hasChildren: "hasChildren",
+                expanded: "expanded"
+            }
+        },
+        requestStart: function () {
+            kendo.ui.progress($('#loader' + id), true);
+        },
+        requestEnd: function () {
+            kendo.ui.progress($('#loader' + id), false);
+
+        }
+
+    });
+
+    var datasourceWithCildren = new kendo.data.HierarchicalDataSource({
+        transport: {
+            read: {
+                url: '/Employe/List',
+                dataType: "json",
+                type: 'GET',
+                cache: false,
+                data: function () {
+
+                    return { text: getFilterText() }
+                }
+            }
+        },
+        schema: {
+            model: {
+                id: "id",
+                hasChildren: "hasChildren",
+                children: "items"
+            }
+        },
+        requestStart: function () {
+            kendo.ui.progress($('#loader' + id), true);
+        },
+        requestEnd: function () {
+            kendo.ui.progress($('#loader' + id), false);
+
+        }
+    });
+
+    $("#filterText" + id).keyup(function (e) {
+        var code = e.which; // recommended to use e.which, it's normalized across browsers
+        if (code == 32 || code == 13 || code == 188 || code == 186) {
+            filterTreeOrg();
+        }
+    });
+    //treeview
+
+    function FilterParamsTree() {
+        return {
+            text: $("#filterText" + id).val()
+        };
+    }
+
+    function refreshTreeOrg() {
+        var tree = $("#treeview" + id).data("kendoTreeView");
+        var selectedNode = tree.select();
+        var selectedDataItem = tree.dataItem(selectedNode);
+
+        if (selectedDataItem == undefined) {
+            tree.dataSource.read();
+        } else {
+              selectedDataItem.loaded(false);
+             selectedDataItem.load();
+        }
+       
+    }
+
+    function filterTreeOrg() {
+        var str = getFilterText();
+        var strLength = str.length;
+        var tree = $("#treeview" + id).data("kendoTreeView");
+
+        if (strLength > 2) {
+            tree.setDataSource(datasourceWithCildren);
+            tree.dataSource.read();
+        }
+        else if (strLength === 0) {
+            tree.setDataSource(datasource);
+            tree.dataSource.read();
+        } else {
+            alert("Для поиска введите минимум 3 буквы");
+        }
+    }
+
+    var viewModel = kendo.observable({
+        hasOrg: false,
+        hasDep: false,
+        AddPos: false,
+        AddEmp: false,
+        hasDel: false,
+    });
+    kendo.bind($("#EditUnitsButton" + name), viewModel);
+    var treeviewElement = $("#treeview" + '@Model');
+    treeviewElement.height($(window).height() - 170);
+</script>

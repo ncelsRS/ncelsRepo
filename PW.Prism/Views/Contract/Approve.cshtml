@@ -1,0 +1,63 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+<script>
+    $(document).ready(function () {
+        var viewModel = kendo.observable({
+            Approve: function (e) {
+                debugger;
+                kendo.ui.progress($("#contractAgreementLoader@(ViewBag.UiId)"), true);
+                var data = {
+                    documentId: $("#contractId@(ViewBag.UiId)").val(),
+                    activityTypeCode: $("#activityTypeCode@(ViewBag.UiId)").val(),
+                    comment: $("#comment@(ViewBag.UiId)").val()
+                };
+                var json = JSON.stringify(data);
+                $.ajax({
+                    type: 'POST',
+                    url: '/Agreement/Approve',
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        debugger;
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                        var callback = $("#TaskCommandWindow").data("kendoWindow").dialogCallback;
+                        if (callback) {
+                            callback();
+                        }
+                    },
+                    complete: function() {
+                        kendo.ui.progress($("#contractAgreementLoader@(ViewBag.UiId)"), false);
+                    }
+                });
+            },
+            Cancel: function (e) {
+                debugger;
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+        kendo.bind($("#contractApproveForm@(ViewBag.UiId)"), viewModel);
+    });
+</script>
+<div id="contractAgreementLoader@(ViewBag.UiId)"></div>
+<div class="row">
+    <form id="contractApproveForm@(ViewBag.UiId)" class="form-horizontal">
+        <input type="hidden" id="contractId@(ViewBag.UiId)" value="@Model" />
+        <input type="hidden" id="activityTypeCode@(ViewBag.UiId)" value="@Dictionary.ExpActivityType.ContractWithProcCenterHead"/>
+        <div class="form-group">
+            <label class="col-lg-4 control-label">Коментарий</label>
+            <div class="col-lg-8">
+                <textarea class="form-control" rows="3" id="comment@(ViewBag.UiId)"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button" data-bind="click: Cancel">Отмена</button>
+                </div>
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button k-primary" data-bind="click: Approve">Согласовать</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

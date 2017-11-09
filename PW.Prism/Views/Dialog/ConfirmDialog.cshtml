@@ -1,0 +1,64 @@
+﻿@model PW.Ncels.Database.Models.ConfirmDialogViewModel
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formConfirmDialog" + Model.Id)">
+
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <h1> @Model.Text </h1>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+
+    var name = '@Model.Id';
+    var viewModel = kendo.observable({
+        task:{},
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            //var json = JSON.stringify(viewModel.get('task'));
+
+            $.ajax({
+                type: 'POST',
+                url: '@Html.Raw(Model.Url)',
+                //contentType: 'application/json; charset=utf-8',
+                //data: json,
+                success: function (result) {
+                    debugger;
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+
+                    if ($("#TaskCommandWindow").data("kendoWindow").dialogCallback) {
+                        $("#TaskCommandWindow").data("kendoWindow").dialogCallback(result);
+                    }
+                    
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    if (id) {
+                        var grid = $("#" + id).data("kendoGrid");
+                        grid.dataSource.read();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+
+    });
+
+    kendo.bind($("#formConfirmDialog" + name), viewModel);
+
+</script>
+

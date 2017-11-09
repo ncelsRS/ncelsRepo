@@ -1,0 +1,121 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Enums.PriceProject
+@using PW.Ncels.Database.Helpers
+@model Guid
+
+@{
+    var currentUser = UserHelper.GetCurrentEmployee().Id;
+    var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
+}
+@helper GridToolbarTemplate() {
+    <div class="pull-left">
+        @( Html.Kendo().Button().Name("add" + Model)
+               .Content("Добавить")
+               .ImageUrl("/Content/images/add.png"))
+    </div>
+    <div class="pull-left">
+        @( Html.Kendo().Button().HtmlAttributes(new { @class = "k-state-disabled" }).Name("delete" + Model)
+                .Content("Удалить")
+                .ImageUrl("/Content/images/clearSearch.png"))
+    </div>
+    <div class="pull-right">
+        <div style="display: inline-block">
+            @( Html.Kendo().Button().Name("reload" + Model)
+                   .Content("")
+                   .ImageUrl("/Content/images/reload.png"))
+        </div>
+    </div>
+}
+
+
+@(Html.Kendo().Splitter()
+      .HtmlAttributes(new {@class = "pwSplitter k-block"})
+      .Name(("splitter" + Model.ToString()))
+      .Panes(panes => {
+          panes.Add()
+              .Size("250px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("250px")
+              .Content(
+                  @<div class="pwPanelBar">
+                      @( Html.Kendo().PanelBar().HtmlAttributes(new {@class = "pwPanelBar"})
+                             .Name("panelbar" + Model.ToString()) 
+                             //.ExpandMode(PanelBarExpandMode.Multiple)
+                             .ExpandAll(true)
+                             .HtmlAttributes(new {style = "width:auto;"})
+                             .Events(e => e.Select("panelProtocolsSelect"))
+                             .Items(panelbar => {
+                                 //panelbar.Add().Expanded(true);
+                                 panelbar.Add().Text("Статус")
+                                     .Items(projects => {
+                                         projects.Add().Text("Все").LinkHtmlAttributes(new Dictionary<string, object>() {
+                                             {"ItemId", ""}, {"ItemType", "Status"}, {"ModelId", Model.ToString()}, {"id", "all" + Model.ToString()}
+                                         }).Selected(true);
+                                         projects.Add().Text("Черновик").LinkHtmlAttributes(new Dictionary<string, object>() {
+                                             {"ItemId", (int)ProtocolStatus.Draft}, {"ItemType", "Status"}, {"ModelId", Model.ToString()}, {"id", "draft" + Model.ToString()}
+                                         });
+                                         projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>() {
+                                             {"ItemId", (int)ProtocolStatus.InWork}, {"ItemType", "Status"}, {"ModelId", Model.ToString()}, {"id", "inWork" + Model.ToString()}
+                                         });
+                                         projects.Add().Text("Завершенные").LinkHtmlAttributes(new Dictionary<string, object>() {
+                                             {"ItemId", (int)ProtocolStatus.Finished}, {"ItemType", "Status"}, {"ModelId", Model.ToString()}, {"id", "finished" + Model.ToString()}
+                                         });
+                                     });
+                             })
+                            )
+                  </div>
+              );
+          panes.Add().Scrollable(false).Size("100%").Content(
+              @<div class="pwPanelBar">
+                  @(Html.Kendo().Grid<PP_ProtocolListView>()
+                    .Name("gridPpProtocols" + Model.ToString())
+                    .Columns(columns =>{
+                        columns.Bound(p => p.Status).Width(20).ClientTemplate(
+                            "# if (Status > 0) { #" +
+                            "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button type='button' style='width:20px;' class='btn btn-default btn-xs' onclick=\"openProtocolDocument('#=Id#', '#=Number#', '" + Model + "')\"><span style=\"color:rgb(66,139,202);\"><img  src='" + Url.Content("~/Content/images/attachTrue.png") + "' /></span></button>" +
+                             "</div>" +
+                            "" +
+                            "# } else { #" + "# } #"
+                            ).Title("F").Lockable(false).Locked(true).Lockable(false).Filterable(false);
+                        columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                            "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"openProtocol('#=Id#', '#=Number#', '" + Model + "')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                             "</div>"
+                            ).Title("№ протокола").Locked(true).Lockable(false);
+                        columns.Bound(p => p.ProtocolDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(100);
+                        //columns.Bound(p => p.Number).Title("№ протокола").Width(150);
+                        columns.Bound(p => p.IsFinal).Title("Проведен").Hidden(true).ClientTemplate("<input type='checkbox' #= IsFinal ? checked='checked' :'' # />").Width(100).HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(p => p.TypeName).Title("Тип протокола").Width(100);
+                        columns.Bound(p => p.OwnerName).Title("Исполнитель").Width(150);
+                        columns.Bound(p => p.RequesterName).Title("Заявитель").Width(150);
+                        columns.Bound(p => p.StatusName).Title("Статус").Width(150);
+                    })
+                   //.AutoBind(false)
+                   .Reorderable(reorderable => reorderable.Columns(true))
+                   .Resizable(resizable => resizable.Columns(true))
+                   .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                   //.Groupable()
+                   .Sortable()
+                   .Filterable()
+                   .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                   //.Scrollable(scrollable => scrollable.Virtual(true))
+                   .Pageable()
+                   .HtmlAttributes(new {@class = "pwGrid"})
+                   .DataSource(dataSource => dataSource
+                   .Ajax()
+                   .Sort(sort => { sort.Add("ProtocolDate").Descending(); })
+                   .PageSize(50)
+                   .Read(read => read.Action("ListProtocol", "Protocol"))
+                   ))
+              </div>
+              );
+      })
+)
+<script>
+    $(document).ready(function() {
+        resizeGrid('@("#gridPpProtocols" + Model)');
+        InitFilterProtocols('@Model.ToString()');
+    });
+</script>

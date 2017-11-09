@@ -1,0 +1,149 @@
+﻿@{
+    Layout = null;
+}
+
+<title>SQL-управление</title>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/bootstrap.js"></script>
+
+<div class="pw-manage-wrapper">
+    <form class="form-horizontal" autocomplete="off">
+        <div class="form-group">
+            <label class="col-sm-1 control-label">Ключ</label>
+            <div class="col-sm-11">
+                <input class="form-control" placeholder="Введите ключ" type="password" id="key" autocomplete="off" value="">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">Запрос</label>
+            <div class="col-sm-11">
+                <textarea class="form-control" rows="3" placeholder="Введите запрос" id="text"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">Тип</label>
+            <div class="col-sm-11">
+                <select class="form-control" rows="3" placeholder="Выберите тип запроса" id="type">
+                    <option value="Select">SELECT</option>
+                    <option value="Update">UPDATE</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-1 col-sm-11">
+                <button id="execute" type="button" class="btn btn-default" onclick="Execute()">Выполнить</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">Ответ</label>
+            <div class="col-sm-11">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table class="table" id="result"></table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">Примеры</label>
+            <div class="col-sm-11">
+                <div class="alert alert-info" role="alert"><b>SELECT</b> TOP(10) Id <b>AS</b> td, Number <b>AS</b> td <b>FROM</b> Documents <b>WHERE</b> IsDeleted = 0
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label"></label>
+            <div class="col-sm-11">
+                <div class="alert alert-info" role="alert"><b>UPDATE</b> Documents <b>SET</b> Summary = 'new' <b>WHERE</b> Summary <b>LIKE</b> '%old%'</div>
+            </div>
+        </div>
+        
+    </form>
+</div>
+
+<div class="modal fade" id="allertError" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel2">
+                    Ошибка!
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert" id="error"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#allertError').css('overflow', 'hidden');
+    function Execute() {
+        $.ajax({
+            type: "POST",
+            url: "/Manage/Execute",
+            data: { key: document.getElementById("key").value, text: document.getElementById("text").value, type: document.getElementById("type").value },
+            dataType: "json",
+            success: function (result) {
+                if (result.success === false) {
+                    document.getElementById("error").textContent = result.text;
+                    $("#allertError").modal("show");
+                }
+                else {
+                    document.getElementById("result").innerHTML = result.text;
+                }
+            },
+            error: function (result) {
+                $("#allertError").modal("show");
+            }
+        });
+    }
+</script>
+
+<style>
+    .pw-manage-wrapper {
+        margin: 50px 200px;
+    }
+
+    textarea {
+        resize: none !important;
+        resize: vertical !important;
+    }
+ 
+    body.modal-open {
+        overflow: hidden;
+        position:fixed;
+        width: 100%;
+    }
+
+    table {
+        margin-bottom: 9px !important;
+    }
+
+    .panel {
+        margin-bottom: 0 !important;
+    }
+
+    .alert {
+        margin-bottom: 0 !important;
+    }
+
+    table > tbody > tr > td {
+        line-height: 0.5 !important;
+        font-size: small !important;
+        border-bottom: 1px solid #f5f1f1 !important;
+        border-top: 0px solid #ddd !important;
+    }
+
+    .panel-body {
+        max-height: 270px !important;
+        overflow-scrolling: auto !important;
+        overflow: auto !important;   
+    }
+</style>

@@ -1,0 +1,272 @@
+﻿@using PW.Ncels.Database.Enums
+@{
+    var pType = (PriceProjectType)ViewBag.PriceProjectType;
+}
+<div class="panel-body">
+    <h3 class="m-t-none m-b">2. Информация об изделиях медицинского назначения</h3>
+    <div class="row">
+        <div class="col-lg-6 b-r">
+            <div class="form-group has-warning">
+                <label class="control-label">Торговое наименование изделия медицинского назначения</label>
+                <input ng-model="object.Project.NameRu" title="{{object.Project.NameRu}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div class="form-group has-warning">
+                <label class="control-label">Номер и дата регистрационного удостоверения</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input ng-model="object.Project.RegNumber" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                            </div>
+                            <div class="col-md-6">
+                                <input ng-model="object.Project.RegDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected @*required*@ date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" readonly="readonly">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 b-l">
+            <div class="form-group has-warning">
+                <label class="control-label">Класс безопасности</label>
+                <ui-select ng-model="object.Project.ImnSecuryTypeDicId" ui-select-selected ng-disabled="true" theme="bootstrap">
+                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                    <ui-select-choices repeat="item.Id as item in ImnSecuryType | filter: $select.search">
+                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+    </div>
+    <div class="hr-line-dashed"></div>
+    <div class="row" ng-show="Parts.length > 0">
+        <div class="col-lg-12">
+            <p class="text-bold">
+                <input id="cbIsCompleteness" type="checkbox" ng-init="IsCompleteness = true" ng-model="IsCompleteness" ng-change="object.CurentPrice.MtPartsId = null" />
+                <label for="cbIsCompleteness">Комплектность</label>
+            </p>
+            <div class="form-group" ng-if="IsCompleteness">
+                <label>Наименование</label>
+                <div class="input-group">
+                    <select name="cpMtPartsId" id="cpMtPartsId" ng-model="object.CurentPrice.MtPartsId" class="form-control edit-control main-control">
+                        <option ng-repeat="item in Parts | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                    </select>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Цена производителя</label>
+                    <input name="cpManufacturerPrice" id="cpManufacturerPrice" ng-model="object.CurentPrice.ManufacturerPrice" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" zero-validate placeholder="Введите значение" class="form-control" ui-select-selected step="0.01" type="number" min="0">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Валюта</label>
+                    <ui-select name="cpManufacturerPriceCurrencyDicId" id="cpManufacturerPriceCurrencyDicId" ng-model="object.CurentPrice.ManufacturerPriceCurrencyDicId" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" ui-select-selected theme="bootstrap">
+                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>CIP цена</label>
+                    <input name="cpCipPrice" id="cpCipPrice" ng-model="object.CurentPrice.CipPrice" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" zero-validate placeholder="Введите значение" class="form-control" ui-select-selected step="0.01" type="number" min="0">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Валюта</label>
+                    <ui-select name="cpCipPriceCurrencyDicId" id="cpCipPriceCurrencyDicId" ng-model="object.CurentPrice.CipPriceCurrencyDicId" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" ui-select-selected theme="bootstrap">
+                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Тип референтной цены</label>
+                    <ui-select name="cpRefPriceTypeDicId" id="cpRefPriceTypeDicId" ng-model="object.CurentPrice.RefPriceTypeDicId" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" ui-select-selected theme="bootstrap">
+                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="item.Id as item in RefPriceType | filter: $select.search">
+                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <input name="cpRefPrice" id="cpRefPrice" ng-model="object.CurentPrice.RefPrice" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" zero-validate placeholder="Введите значение" class="form-control" ui-select-selected step="0.01" type="number" min="0">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Валюта</label>
+                    <ui-select name="cpRefPriceCurrencyDicId" id="cpRefPriceCurrencyDicId" ng-model="object.CurentPrice.RefPriceCurrencyDicId" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" ui-select-selected theme="bootstrap">
+                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <label>Цена заявителя (в тенге) для регистрации за упаковку</label>
+                        <input ng-model="object.CurentPrice.OwnerPrice" placeholder="Введите значение" class="form-control" type="number"  min="0">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Валюта</label>
+                        <ui-select ng-model="object.CurentPrice.OwnerPriceCurrencyDicId" ui-select-selected required theme="bootstrap">
+                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                            <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>*@
+        <div class="row">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Цена заявителя (в тенге) для регистрации за ед. изм</label>
+                            <input name="cpUnitPrice" id="cpUnitPrice" ng-model="object.CurentPrice.UnitPrice" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" zero-validate placeholder="Введите значение" class="form-control" ui-select-selected step="0.01" type="number" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Валюта</label>
+                            <ui-select name="cpUnitPriceCurrencyDicId" id="cpUnitPriceCurrencyDicId" ng-model="object.CurentPrice.UnitPriceCurrencyDicId" ng-required="object.CurentPrice.MtPartsId != null || !IsCompleteness" ui-select-selected theme="bootstrap" ng-disabled="true">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-show="object.CurentPrice.MtPartsId!=null && IsCompleteness">
+            <div class="col-lg-12">
+                <button class="btn btn-success" type="button" ng-click="addCurrentPrice()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                <button class="btn btn-success" check-validate type="button" ng-click="saveCurrentPrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                <button type="button" class="btn btn-w-m btn-danger" ng-click="deleteCurrentPrice()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+            </div>
+        </div>
+        @*<div class="row" ng-if="!IsCompleteness">
+                <div class="col-lg-12">
+                    <button class="btn btn-success" check-validate type="button" ng-click="savePriceType2_notCompleteness()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                </div>
+            </div>*@
+
+    </div>
+    <div class="row" ng-show="IsCompleteness">
+        @*ng-if="IsCompleteness"*@
+        <div class="col-lg-12">
+@if (pType == PriceProjectType.PriceImn)
+{
+    <grid-light-object object-id="@Model" url="/Price/GetPriceType2" dt-id="gridCurrentPrice" dt-selectfun="selectGridCurrentPrice" reload-row="reloadGridCurrentPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+}
+else
+{
+    <grid-light-object object-id="@Model" url="/Price/GetPriceType4" dt-id="gridCurrentPrice" dt-selectfun="selectGridCurrentPrice" reload-row="reloadGridCurrentPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+}
+            
+        </div>
+</div>
+<div class="hr-line-dashed"></div>
+<div class="row">
+    <div class="col-lg-12">
+        <p class="text-bold">Сведения о цене производителя в других странах, где имеется регистрация изделия медицинского назначения</p>
+        <div class="form-group">
+            <label>Страна</label>
+            <div class="input-group">
+                <select name="pCountryId" id="pCountryId" ng-model="object.Price.CountryId" class="form-control edit-control main-control">
+                    <option ng-repeat="item in Country | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                </select>
+                <span class="input-group-addon">
+                    <a class="commentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+            @*<ui-select name="pCountryId" id="pCountryId" ng-model="object.Price.CountryId" theme="bootstrap">
+                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>*@
+        </div>
+    </div>
+</div>
+<div ng-if="object.Price.CountryId!=null">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Цена производителя</label>
+                <input name="pManufacturerPrice" id="pManufacturerPrice" ng-model="object.Price.ManufacturerPrice" placeholder="Введите значение" class="form-control" ui-select-selected required zero-validate step="0.01" type="number" min="0">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Валюта</label>
+                <ui-select name="pManufacturerPriceCurrencyDicId" id="pManufacturerPriceCurrencyDicId" ng-model="object.Price.ManufacturerPriceCurrencyDicId" ui-select-selected required theme="bootstrap">
+                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                    <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label>Ссылка на источник информации</label>
+                <input name="pManufacturerPriceNote" id="pManufacturerPriceNote" ng-model="object.Price.ManufacturerPriceNote" placeholder="Введите значение" required class="form-control" type="text">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <button class="btn btn-success" type="button" ng-click="addPrice()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+            <button class="btn btn-success" check-validate type="button" ng-click="savePrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+            <button type="button" class="btn btn-w-m btn-danger" ng-click="deletePrice()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+@if (pType == PriceProjectType.PriceImn)
+{
+    <grid-light-object object-id="@Model" url="/Price/GetPriceType3" dt-id="gridPrice" dt-selectfun="selectGridPrice" reload-row="reloadGridPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns2"></grid-light-object>
+}
+else
+{
+    <grid-light-object object-id="@Model" url="/Price/GetPriceType5" dt-id="gridPrice" dt-selectfun="selectGridPrice" reload-row="reloadGridPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns2"></grid-light-object>
+}
+        
+    </div>
+</div>
+</div>

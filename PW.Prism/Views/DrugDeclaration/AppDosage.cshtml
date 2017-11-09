@@ -1,0 +1,306 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStageDosage
+@{
+    var tab1 = "tabDoasage-1" + Model.Id;
+    var tab1b = "#" + tab1;
+    var tab2 = "tabDoasage-2" + Model.Id;
+    var tab2b = "#" + tab2;
+    var tab3 = "tabDoasage-3" + Model.Id;
+    var tab3b = "#" + tab3;
+    var tab4 = "tabDoasage-4" + Model.Id;
+    var tab4b = "#" + tab4;
+    var tab5 = "tabDoasage-5" + Model.Id;
+    var tab5b = "#" + tab5;
+    var tab6 = "tabDoasage-6" + Model.Id;
+    var tab6b = "#" + tab6;
+
+    var dosageValue = Model.EXP_DrugDosage.Dosage.ToString(CultureInfo.InvariantCulture);
+    if (Model.EXP_DrugDosage.sr_measures != null)
+    {
+        dosageValue += " " + Model.EXP_DrugDosage.sr_measures.short_name;
+    }
+
+    var formUrl = "";
+    var formKzUrl = "";
+    switch (Model.EXP_ExpertiseStage.StageId)
+    {
+        case CodeConstManager.STAGE_PRIMARY:
+            formUrl = Url.Action("ExportFile", "DrugDeclaration", new { id = Model.EXP_ExpertisePrimaryFinalDoc.Id });
+            break;
+        case CodeConstManager.STAGE_PHARMACEUTICAL:
+            formUrl = Url.Action("ExportFilePdf", "Pharmaceutical", new { id = Model.PharmaceuticalFinalDoc.Id });
+            break;
+        case CodeConstManager.STAGE_PHARMACOLOGICAL:
+            formUrl = Url.Action("ExportFilePdf", "Pharmacological", new { id = Model.ExpertisePharmacologicalFinalDoc.Id });
+            break;
+        case CodeConstManager.STAGE_SAFETYREPORT:
+        case CodeConstManager.STAGE_TRANSLATE:
+            if (Model.ExpertiseSafetyreportFinalDoc != null)
+            {
+                formUrl = Url.Action("ExportSafetyReportFile", "Safetyreport", new {id = Model.ExpertiseSafetyreportFinalDoc.DosageStageId});
+                formKzUrl = Url.Action("ExportSafetyReportKzFile", "Safetyreport", new {id = Model.ExpertiseSafetyreportFinalDoc.DosageStageId});
+            }
+            break;
+    }
+
+    var sendFinalDocToAgreementBtn = "sendFinalDocToAgreementBtn" + @Model.Id;
+    var finalDocStatusInfo = "finalDocStatusInfo" + @Model.Id;
+    var expDosageStageResult = "expDosageStageResult" + @Model.Id;
+    var expDosageStageId = "expDosageStageId" + @Model.Id;
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+<div class="ibox-content dosage-id" rowid="@Model.Id">
+    <div class="row" style="margin: 10px">
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label for="name" class="col-lg-3" style="margin-top: 8px">№ заявки:</label>
+                <div class="col-lg-9">
+                    <input type="text" class="form-control" value="@Model.EXP_DrugDosage.RegNumber" readonly="readonly">
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label for="name" class="col-lg-3" style="margin-top: 8px">Дозировка:</label>
+                <div class="col-lg-9">
+                    <input type="text" class="form-control" value="@dosageValue" readonly="readonly">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label for="name" class="col-lg-4" style="margin-top: 8px">Концентрация:</label>
+                <div class="col-lg-8">
+                    <input type="text" class="form-control" value="@Model.EXP_DrugDosage.ConcentrationRu" readonly="readonly">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="@tab1b">Итоговые документы</a></li>
+                    @if (Model.ExpertiseSafetyreportFinalDoc != null)
+                    {
+                        <li class=""><a data-toggle="tab" href="@tab6b">Итоговые документы на государственном языке</a></li>
+                    }
+                    <li class=""><a data-toggle="tab" href="@tab5b">Дозировка</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab4b">Протоколы комиссий</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="@tab1" class="tab-pane active">
+                        <div style="margin-top: 20px; margin-bottom: 10px">
+                            <input type="hidden" id="@expDosageStageId" value="@(Model.Id)" />
+                            @if (Model.EXP_ExpertiseStage.StageId != CodeConstManager.STAGE_TRANSLATE || (Model.EXP_ExpertiseStage.StageId == CodeConstManager.STAGE_TRANSLATE && Model.ExpertiseSafetyreportFinalDoc != null))
+                            {
+                                <button class="btn btn-primary btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="cloneDosageFinalDoc('@Model.Id', '@controllerName')">
+                                    <i class="glyphicon glyphicon-save"></i> Применить ко всем заявкам
+                                </button>
+                                if(Model.EXP_ExpertiseStage.StageId != CodeConstManager.STAGE_TRANSLATE) { 
+                                     <button id="@sendFinalDocToAgreementBtn" @if (Model.EXP_DIC_StageResult == null || (Model.FinalDocStatus != null))
+                                                                              {
+                                                                                  <text> disabled</text>
+                                                                              }
+                                             class="btn btn-success btn-sm" type="button" security bp-type="project" bp-action="edit">
+                                         <i class="glyphicon glyphicon-ok"></i> На согласование
+                                     </button>
+                                }
+                                <button class="btn btn-info btn-sm" type="button" security bp-type="project" onclick="location.href = '@formUrl'">
+                                    <i class="glyphicon glyphicon-eye-open"></i> Сформировать
+                                </button>
+                            }
+                            <div style="float: right; min-width: 720px">
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="name" class="col-lg-3" style="margin-top: 8px">Статус:</label>
+                                            <div class="col-lg-9">
+                                                <input type="text" class="form-control" value="@(Model.FinalDocStatus != null ? Model.FinalDocStatus.Name : "")" readonly="readonly" id="@finalDocStatusInfo">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="name" class="col-lg-3" style="margin-top: 8px">Результат:</label>
+                                            <div class="col-lg-9">
+                                                @Html.DropDownList(expDosageStageResult, (IEnumerable<SelectListItem>)(ViewData["FinalyDocResultList" + @Model.EXP_DrugDosage.DrugDeclarationId]),
+                                                    String.Empty,
+                                                    new
+                                                    {
+                                                        @class = "form-control edit-control"
+                                                    })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                        @switch (Model.EXP_ExpertiseStage.StageId)
+                        {
+                            case CodeConstManager.STAGE_PRIMARY:
+                                @Html.Partial("~/Views/DrugDeclaration/AppDosage/DrugPrimaryFinalDocumentView.cshtml", Model.EXP_ExpertisePrimaryFinalDoc)
+                                break;
+                            case CodeConstManager.STAGE_PHARMACEUTICAL:
+                                @Html.Partial("~/Views/DrugDeclaration/AppDosage/ExpertisePharmaceuticalFinalDoc.cshtml", Model.PharmaceuticalFinalDoc)
+                                break;
+                            case CodeConstManager.STAGE_PHARMACOLOGICAL:
+                                @Html.Partial("~/Views/DrugDeclaration/AppDosage/ExpertisePharmacologicalFinalDocView.cshtml", Model.ExpertisePharmacologicalFinalDoc)
+                                break;
+                            case CodeConstManager.STAGE_SAFETYREPORT:
+                                if (Model.ExpertiseSafetyreportFinalDoc != null)
+                                {
+                                    @Html.Partial("~/Views/DrugDeclaration/AppDosage/SafetyreportFinalDocView.cshtml", Model.ExpertiseSafetyreportFinalDoc)
+                                }
+                                break;
+                            case CodeConstManager.STAGE_TRANSLATE:
+                                if (Model.ExpertiseSafetyreportFinalDoc != null)
+                                {
+                                    @Html.Partial("~/Views/DrugDeclaration/AppDosage/SafetyreportFinalDocView.cshtml", Model.ExpertiseSafetyreportFinalDoc)
+                                }
+                                break;
+                        }
+                    </div>
+                    <div id="@tab5" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/TempleDosageView.cshtml", Model.EXP_DrugDosage)
+                    </div>
+                    <div id="@tab4" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/StageDossageCommissionsView.cshtml", Model)
+                    </div>
+                    @if (Model.ExpertiseSafetyreportFinalDoc != null)
+                    {
+                        <div id="@tab6" class="tab-pane">
+                            <div style="margin-top: 20px; margin-bottom: 10px">
+                                <button class="btn btn-info btn-sm" type="button" security bp-type="project" onclick="location.href = '@formKzUrl'">
+                                    <i class="glyphicon glyphicon-eye-open"></i> Сформировать
+                                </button>
+                            </div>
+                            @switch (Model.EXP_ExpertiseStage.StageId)
+                            {
+                                case CodeConstManager.STAGE_PRIMARY:
+                                    break;
+                                case CodeConstManager.STAGE_PHARMACEUTICAL:
+                                    break;
+                                case CodeConstManager.STAGE_PHARMACOLOGICAL:
+                                    break;
+                                case CodeConstManager.STAGE_SAFETYREPORT:
+                                case CodeConstManager.STAGE_TRANSLATE:
+                                    @Html.Partial("~/Views/DrugDeclaration/AppDosage/SafetyreportFinalDocKzView.cshtml", Model.ExpertiseSafetyreportFinalDoc);
+                                    break;
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('#' + '@sendFinalDocToAgreementBtn').click(function () {
+            var window = $("#TaskCommandWindow");
+            var dosageStageId = $('#@expDosageStageId').val();
+            window.kendoWindow({
+                width: "650",
+                height: "auto",
+                modal: true,
+                title: "Отправка на согласование",
+                actions: ["Close"]
+            });
+            $("#TaskCommandWindow").data("kendoWindow").dialogCallback = function (status) {
+                ShowAlert('Сообщение', 'Документ отправлен на согласование', 'Info', 5000);
+                $('#' + '@sendFinalDocToAgreementBtn').attr('disabled', 'disabled');
+                $('#' + '@finalDocStatusInfo').val(status);
+            }
+            window.data("kendoWindow").refresh('/DrugDeclaration/SendExpertiseDocumentToAgreement?docId=' + dosageStageId + '&documentType=5');
+            window.data("kendoWindow").title("Отправка на согласование");
+            window.data("kendoWindow").setOptions({
+                width: "650",
+                height: "auto"
+            });
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        });
+        $('#@expDosageStageResult').change(function () {
+            debugger;
+            if ($('#@expDosageStageResult').val()) {
+                var dosageStageId = $('#@expDosageStageId').val();
+                $.ajax({
+                    type: "POST",
+                    url: "/@controllerName/SetExpertiseStageDosageResult",
+                    data: {
+                        dosageStageId: dosageStageId,
+                        resultId: $('#@expDosageStageResult').val()
+                    },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        $('#@sendFinalDocToAgreementBtn').removeAttr('disabled');
+                    },
+                    error: function (data) {
+                        alert("1Error" + data);
+                    }
+                });
+            }
+        });
+        $(".checked-final-document a").click(function (e) {
+                                if ($(this).hasClass("active")) {
+                                    return;
+                                }
+                                var yesControl = $(this).parent().children().eq(0);
+                                var noControl = $(this).parent().children().eq(1);
+                                var fieldName = $(this).attr("name");
+                                var objectId = $(this).attr("ObjectId");
+                                var fieldValue;
+
+            $(this).removeClass("btn-default");
+            $(this).addClass("active");
+                                if ($(this).attr("is") === "0") {
+                $(yesControl).removeClass("active");
+                $(yesControl).removeClass("btn-success");
+                $(yesControl).addClass("btn-default");
+                $(this).addClass("btn-danger");
+                                    fieldValue = "false";
+
+                                } else {
+                $(this).addClass("btn-success");
+                $(noControl).removeClass("active");
+                $(noControl).removeClass("btn-danger");
+                $(noControl).addClass("btn-default");
+                                    fieldValue = "true";
+                                }
+
+                                updateFinalDocument(fieldName, fieldValue, objectId, '@controllerName');
+                            });
+        $(".primary-final-doc").change(function () {
+                                var fieldName = $(this).attr("name");
+                                var objectId = $(this).attr("ObjectId");
+                                var fieldValue = $(this).val();
+                                updateFinalDocument(fieldName, fieldValue, objectId, '@controllerName');
+                            });
+        //        $('input:checkbox').attr('disabled', 'disabled');
+     $("select").each(function () {
+                                if ($(this).hasClass("dosage-control") || $(this).hasClass("wrapping-control") || $(this).hasClass("sub-control")) {
+                $(this).attr('disabled', 'disabled');
+                                }
+                            });
+                            var itemId = '@Model.Id.ToString()';
+
+     setDateFormat(".date-control");
+     $(".dosage-control").prop("readonly", true);
+     $(".wrapping-control").prop("readonly", true);
+     $(".price-control").prop("readonly", true);
+     $(".check-wrap").remove();
+     $(".deleteRow").remove();
+     $(".add-price").remove();
+     $(".add-btn-from4").remove();
+ //    $('.input-group-addon').hide();
+    });
+
+</script>

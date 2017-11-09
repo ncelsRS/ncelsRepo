@@ -1,0 +1,304 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+@model Guid
+
+<script>
+    var MaterialDirectionGrid = {
+        _callDialog: function(dataItem, url, text) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Направление',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'gridMaterialDirection' + '@Model';
+            window.data("kendoWindow").title('Направление');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _callRejectDialog: function (dataItem, url, text, payload) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Направление',
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").gridId = 'gridMaterialDirection' + '@Model';
+            window.data("kendoWindow").title('Направление');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("RejectDialog","Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text
+                + '&payload' + payload);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _disableElement: function(element) {
+            element.attr("disabled","disabled");
+            element.attr("disabled", "disabled");
+            element.addClass("k-state-disabled");
+        },
+        _hideElement: function(element) {
+            element.attr("disabled","disabled");
+            element.attr("disabled", "disabled");
+            element.addClass("k-state-hided");
+        },
+        _reload: function() {
+            var grid = $('@("#gridMaterialDirection" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        },
+        onDataBoundHandler: function (e) {
+            var grid = $("#gridMaterialDirection" + '@Model').data("kendoGrid");
+            var gridData = grid.dataSource.view();
+            for (var i = 0; i < gridData.length; i++) {
+                var currentUid = gridData[i].uid;
+                var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+
+                var sendButton = $(currenRow).find(".k-grid-materialdirection-send");
+                var approveButton = $(currenRow).find(".k-grid-materialdirection-accept");
+                var rejectButton = $(currenRow).find(".k-grid-materialdirection-reject");
+
+                if (gridData[i].StatusCode == "@Dictionary.MaterialDirectionStatusDic.Created" || gridData[i].StatusCode == "@Dictionary.MaterialDirectionStatusDic.Rejected") {
+                    approveButton.remove();
+                    rejectButton.remove();
+                } else if (gridData[i].StatusCode == "@Dictionary.MaterialDirectionStatusDic.Sended") {
+                    sendButton.remove();
+                } else {
+                    sendButton.remove();
+                    approveButton.remove();
+                    rejectButton.remove();
+                }
+            }
+        },
+        send: function(e) {
+            e.preventDefault();
+
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Отправить?";
+            var url = encodeURIComponent('@Url.Action("SendDirection", "MaterialDirection")?directionId=' +
+                dataItem.Id);
+
+            MaterialDirectionGrid._callDialog(dataItem, url, text);
+        },
+        reject: function (e) {
+            e.preventDefault();
+
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Отклонить?";
+            var url = encodeURIComponent('@Url.Action("RejectDirection", "MaterialDirection")?directionId=' +
+                dataItem.Id);
+
+            MaterialDirectionGrid._callRejectDialog(dataItem, url, text);
+        },
+        repeal: function (e) {
+            e.preventDefault();
+
+        },
+        accept: function (e) {
+            e.preventDefault();
+
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var text = "Принять?";
+            var url = encodeURIComponent('@Url.Action("AcceptDirection", "MaterialDirection")?directionId=' +
+                dataItem.Id);
+
+            MaterialDirectionGrid._callDialog(dataItem, url, text);
+        },
+        sync: function (e) {
+            this.read();
+        }
+    };
+</script>
+
+<style>
+    .k-edit-form-container {
+        width: 850px;
+    }
+
+    legend {
+        margin-bottom: 3px;
+    }
+
+    fieldset {
+        margin-left: 5px;
+    }
+
+    .k-grid .k-grid-header .k-header .k-link {
+        height: auto;
+    }
+
+    .k-grid .k-grid-header .k-header {
+        white-space: normal;
+    }
+
+    .k-datepicker {
+        width: 100%;
+    }
+
+    .k-dropdown {
+        width: 100%;
+    }
+
+    .editColumn {
+        vertical-align: top;
+        width: 33%;
+    }
+
+    dt, dd {
+        float: left;
+    }
+
+    dt {
+        clear: both;
+        width: 35%;
+    }
+
+    dd {
+        width: 65%;
+    }
+
+</style>
+
+@(Html.Kendo().Grid<EXP_MaterialDirectionsView>()
+        .Name("gridMaterialDirection" + Model)
+        .Columns(columns =>
+        {
+            columns.Command(command =>
+            {
+                command.Custom("materialdirection-send").Text(Messages.Action_Execute_Отправить).Click("MaterialDirectionGrid.send");
+                command.Custom("materialdirection-accept").Text("Принять").Click("MaterialDirectionGrid.accept");
+                command.Custom("materialdirection-reject").Text(Messages.Action_Reject_Отклонить).Click("MaterialDirectionGrid.reject");
+            }).Width(120).Title(Messages.Property_Номер_373__00);
+            columns.Bound(p => p.Number).Title("Номер направления").Width(120);
+            columns.Bound(p => p.RegistrationTypeRu).Title("Вид регистрации").Width(120);
+            columns.Bound(p => p.DdNumber).Title("Номер заявления").Width(120);
+            columns.Bound(p => p.RegisteredDate).Format("{0:dd.MM.yyyy}").Title("Дата регистрации заявления").Width(120);
+            columns.Bound(p => p.StatusStr).Title(Messages.Ncels_Статус_33).Width(120);
+            columns.Bound(p => p.TradeNameRu).Title("Торговое название").Width(120);
+            columns.Bound(p => p.DrugTypeNameRu).Title("Классификация").Width(120);
+            columns.Bound(p => p.DrugFormName).Title("Лекарственная форма").Width(120);
+            columns.Bound(p => p.Dosage).Title("Дозировка").Width(120);
+            columns.Bound(p => p.DosageMeasureTypeName).Title("ЕИ").Width(120);
+            columns.Bound(p => p.ConcentrationRu).Title("Концентрация").Width(120);
+            columns.Bound(p => p.ProducerNameRu).Title("Производитель").Width(120);
+            columns.Bound(p => p.CountryName).Title("Страна").Width(120);
+            columns.Bound(p => p.RegisteredDate).Format("{0:dd.MM.yyyy}").Title("Дата создания").Width(120);
+            columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата передачи").Width(120);
+            columns.Bound(p => p.Comment).Title("Комментарий").Width(120);
+        })
+        .ToolBar(toolbar =>
+        {            
+        })
+        .ColumnMenu(c => c.Columns(true))
+        .Reorderable(reorder => reorder.Columns(true))
+        .Editable(e => e.Mode(GridEditMode.PopUp))
+        .Resizable(s => s.Columns(true))
+        .Groupable()
+        .Filterable()
+        .Sortable()
+        .Pageable()
+        .Scrollable()
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .Events(c =>
+            {
+                c.DataBound("MaterialDirectionGrid.onDataBoundHandler");
+            })
+        .ClientDetailTemplateId("templateMaterialDirectionDetail")
+        .DataSource(dataSource => dataSource.Ajax()
+            .Model(model => { model.Id(p => p.Id); })
+            .Sort(c => c.Add(m => m.CreateDate).Descending())
+            .PageSize(20)
+            .Read(read => read.Action("ReadDirectionList", "MaterialDirection"))
+//.Events(c => c.RequestEnd("DirectionToPayGrid.onRequestEndHandler"))
+//.Create(create => create.Action("CreateDirection", "DirectionToPay"))
+))
+
+ <!-- Datail infortion-->
+<script id="templateMaterialDirectionDetail" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<EXP_Materials>()
+          .Name("gridMaterialList" + Model)
+          .Columns(columns =>
+          {
+              columns.Command(c =>
+              {
+                  c.Edit().UpdateText("Сохранить");
+              }).Width(50);
+              columns.Bound(p => p.IsAdditionalStr).Title("Донос").Width(50);
+              columns.Bound(p => p.ExternalStateStr).Title("Внешнее состояние").Width(50);
+              columns.Bound(p => p.RegistrationDate).Title("Дата регистрации").Format("{0:dd.MM.yyyy}").Width(100);
+              columns.Bound(p => p.Name).Title("Наименование").Width(100);
+              columns.Bound(p => p.Quantity).Title("Количество").Width(100);
+              columns.Bound(p => p.UnitName).Title("Единица измерения").Width(100);
+              columns.Bound(p => p.Batch).Title("Серия/Партия").Width(100);
+              columns.Bound(p => p.DateOfManufacture).Title("Дата изготовления").Format("{0:dd.MM.yyyy}").Width(100);
+              columns.Bound(p => p.IsCertificatePassportStr).Title("Серия/Паспорт").Width(100);
+              columns.Bound(p => p.StorageName).Title("Условия хранения").Width(100);
+              columns.Bound(p => p.StorageTemperatureStr).Title("Температура с ... по ...").Width(100);
+          })
+          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .Groupable()
+          .Filterable()
+          .Sortable()
+          .Pageable()
+          .Scrollable()
+          .Selectable(c => c.Mode(GridSelectionMode.Single))
+          .HtmlAttributes(new { @class = "pwGrid" })
+          .DataSource(dataSource => dataSource.Ajax()
+              .Model(model =>
+              {
+                  model.Id(p => p.Id);
+                  // model.Field(p => p.DrugDeclarationId).DefaultValue("#=DrugDeclarationId#");
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadMaterialList", "Material", new { ddId = "#=DrugDeclarationId#" }))
+              .Update(u => u.Action("UpdateMaterial", "Material"))
+              .Events(c =>
+              {
+                  c.Sync("MaterialDirectionGrid.sync");
+              }))
+         .ToClientTemplate()
+    )
+</script>
+
+<script>
+    (function () {
+        resizeGrid3('@("#gridMaterialDirection" + Model)', 160);
+    
+        var name = '@Model';
+
+        $('#reload' + name).click(function (e) {
+            MaterialDirectionGrid._reload();
+        });
+
+        @*
+
+        $("#gridDirectionToPay" + name).kendoTooltip({
+            filter: "td:nth-child(14)", //this filter selects the second column's cells
+            position: "left",
+            content: function (e) {
+                var dataItem = $("#gridDirectionToPay" + name).data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = dataItem.Comment;
+                return content;
+            }
+        }).data("kendoTooltip");
+        *@
+    })();
+</script>

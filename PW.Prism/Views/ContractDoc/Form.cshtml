@@ -1,0 +1,105 @@
+﻿@using System.Activities.Statements
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid[]
+
+<div class="pwToolbar" id="@("docToolbar"+ Model[0])">
+    <div class="btn-toolbar" role="toolbar">
+        
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: save, enabled: hasChanges" id="@("save"+ Model[0])"><span class="pwToolbarButtonSave"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</span></button>
+            <button type="button" class="btn btn-default" data-bind="click: register, enabled: hasRegister" id="@("register" + Model[0])"><span class="pwToolbarButtonRegister"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Зарегистрировать_116__00</span></button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" data-bind="click: review, enabled: hasReview" id="@("review" + Model[0])"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_ОтправитьУведомление</span></button>
+            @*<button type="button" class="btn btn-default" data-bind="click: extensionExecution, enabled: hasExtensionExecution" id="@("extensionExecution" + Model[0])"><span class="pwToolbarButtonExecuteEx"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Продлитьисполнение_67__00</span></button>*@
+            @*<button type="button" class="btn btn-default" data-bind="click: execute, enabled: hasExecute" id="@("execute" + Model[0])"><span class="pwToolbarButtonExecute"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнить_279__00</span></button>*@
+        </div>
+        <div class="btn-group">
+            @*<button type="button" class="btn btn-default" data-bind="click: print, enabled: hasPrint" id="@("print" + Model[0])"><span class="pwToolbarButtonPrint"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Печать_353__00</span></button>*@
+            <button type="button" class="btn btn-default" data-bind="click: deleteDoc" id="@("delete" + Model)"><span class="pwToolbarButtonDelete"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Удалить_334__00</span></button>
+       
+         </div>
+    </div>
+</div>
+<div class="pwPage" style="height: 350px !important">
+    <table class="pwDocTable">
+        <colgroup>
+            <col width="180px" />
+            <col width="265px" />
+            <col width="10px" />
+            <col width="180px" />
+            <col width="265px" />
+        </colgroup>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Номер_373__00:</td>
+            <td>
+                <input name="@("Number"+ Model[0])" id="@("Number"+ Model[0])" data-bind="value: document.Number" class="pwWidth100 pwTextBoxReadonly" />
+            </td>
+            <td></td>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("DocumentDate" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_От_393__00
+            </td>
+            <td>
+                <input name="@("DocumentDate"+ Model[0])" id="@("DocumentDate"+ Model[0])"  data-bind="value: document.DocumentDate, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00" class="pwWidth100" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ExecutorsId" + Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_ФИО_336__00
+            </td>
+            <td colspan="4">
+                <select name="@("ExecutorsId" + Model[0])" id="@("ExecutorsId" + Model[0])" data-bind="value: document.ExecutorsId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Адресат_308__00"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="position: relative;">
+                    <span data-for="@("ExecutionDate"+ Model[0])" class="k-invalid-msg"></span>
+                </div>
+                @PW.Ncels.Database.Recources.Messages.Property_ДатаОконч:
+            </td>
+            <td>
+                <div></div>
+                <input name="@("ExecutionDate" + Model[0])" id="@("ExecutionDate" + Model[0])" data-role="datepicker" data-bind="value: document.ExecutionDate, events: { change: change }" placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитедату_117__00" class="pwWidth100" data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00"/>
+            </td>
+            <td></td>
+        </tr>
+        <tr id="@("attachEdit" + Model[0])">
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00</td>
+            <td colspan="4">
+                <input name="files" id="@("files" + Model[0])" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" />
+            </td>
+        </tr>
+        <tr id="@("attachReadonly" + Model[0])">
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00</td>
+            <td colspan="4">
+                @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("filesReadonly" + Model[0])
+                                .TagName("div").HtmlAttributes(new { @style = "border:0;" })
+                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadonly", "Upload", new { docId = Model[0] })))
+                )
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    SetReadonlyDoc('@(Model[0])', '@(EmployePermissionHelper.IsEditDoc)');
+    InitializeDataContract('@Model[0].ToString()', '@(Model.Length==2?Model[1].ToString():null)');
+</script>
+

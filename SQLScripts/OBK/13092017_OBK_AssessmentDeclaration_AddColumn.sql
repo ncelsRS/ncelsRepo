@@ -1,0 +1,1 @@
+alter table OBK_AssessmentDeclaration add InvoiceContractDate datetime null

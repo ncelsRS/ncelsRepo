@@ -1,0 +1,144 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+
+
+
+<script>
+
+    function DicParams() {
+        return {
+            type: $('@("#typeDic" + Model)').val()
+        };
+    }
+    InitFilterCorRefGrid('@Model.ToString()');
+
+    function collapseGroupRows() {
+        var grid = $('@("#gridListOrg" + Model)');
+        if (grid != null)
+            grid.find(".k-icon.k-i-collapse").trigger("click");
+    }
+
+    function expandGroupRows() {
+        var grid = $('@("#gridListOrg" + Model)');
+        if (grid != null)
+            grid.find(".k-icon.k-i-expand").trigger("click");
+    }
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+                panes.Add()
+                    .Size("400px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("250px")
+                    .Content(
+                    @<div class="pwPanelBar">
+
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                                       .HtmlAttributes(new { style = "width:auto;" }).Events(e => e.Select("panelCorReferenceSelect"))
+                               .Items(panelbar => {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Тип_398__00)
+                                       .Items(projects => {
+                                           foreach (DictionaryInfo dictionaryInfo in ((List<DictionaryInfo>)ViewData["CorTypeList"])) {
+                                               projects.Add().Text(dictionaryInfo.Name).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", dictionaryInfo.Type }, { "ModelId", Model.ToString() } });
+                                           }
+                                       });
+                               })
+                        )
+
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwBlockAdd k-block">
+
+                            <div id="pwOne">
+                                @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                            </div>
+
+                            <div id="pwTwo" hidden="true">
+                                @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Покоду_345__00, Value = "2"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                                )
+                            </div>
+
+                            <div id="pwThree">
+                                @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                      .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                      .ImageUrl("/Content/images/find.png"))
+                            </div>
+
+                            <div id="pwFour2">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-default" onclick="collapseGroupRows()"><span class="glyphicon glyphicon-expand"></span></button>
+                                    <button type="button" class="btn btn-default" onclick="expandGroupRows()"><span class="glyphicon glyphicon-collapse-down"></span></button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="pwSix">
+                            @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("").ImageUrl("/Content/images/reload.png"))
+                        </div>
+                        @(Html.Kendo().Grid<UnitModel>()
+                                   .Name("gridListOrg" + Model)
+                                   .Columns(columns => {
+                                       columns.ForeignKey(p => p.Category, ((List<DictionaryInfo>)ViewData["CorTypeList"]).OrderBy(o=>o.NameRu), "Type", "Name")
+                                 .Title(PW.Ncels.Database.Recources.Messages.Property_Категория_301__00).Width(150);
+
+                                       columns.Bound(p => p.Name).Title(PW.Ncels.Database.Recources.Messages.Property_Наименованиенарусском_41__00).Width(150).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 +"#=count#");;
+                                       columns.Bound(p => p.NameKz).Title(PW.Ncels.Database.Recources.Messages.Property_Наименованиенаказахском_33__00).Width(150);
+                                       columns.Bound(p => p.Email).Title("Email").Width(90);
+                               columns.Command(command => { command.Edit(); command.Destroy(); }).Width(120);
+                           })
+                            .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                //.Sortable()
+                            .Filterable()
+                           .HtmlAttributes(new { @class = "pwGridRef" })
+                           .DataSource(dataSource => dataSource
+                                .Ajax()
+                                          .Aggregates(aggregates => aggregates.Add(p => p.Name).Count())
+                        .Model(model => model.Id(p => p.Id)).Model(m => m.Field(o => o.Id).Editable(false).DefaultValue(Guid.NewGuid()))
+
+
+                  .Sort(sort => sort.Add("Name").Ascending())
+                                  .Group(groups => groups.Add(p => p.Category))
+                               .Create(update => update.Action("UnitRefCreate", "Reference"))
+                                               .Read(read => read.Action("AllRefListUnits", "Reference").Data("DicParams"))
+                               .Update(update => update.Action("UnitRefUpdate", "Reference"))
+                       .Destroy(update => update.Action("UnitDestroy", "Reference"))
+                               )
+                        )
+                    </div>
+             );
+            }))
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid('@("#gridListOrg" + Model)');
+</script>

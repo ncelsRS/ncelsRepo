@@ -1,0 +1,151 @@
+﻿@using PW.Ncels.Database.Models
+@model PW.Ncels.Database.Models.MailSenderModel
+    
+<script>
+    var checkedIds = {};
+    function onDataBound(e) {
+        var view = this.dataSource.view();
+        for (var i = 0; i < view.length; i++) {
+            console.log('datat', view[i].Id);
+            checkedIds[view[i].name] = true;
+            if (checkedIds[view[i].id]) {
+                this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                    .addClass("k-state-selected")
+                    .find(".checkbox")
+                    .attr("checked", "checked");
+            }
+        }
+    }
+</script>
+<div class="pwWinTitle">
+    <div class="pwWinTitleIconMail"></div>
+    <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Отправитьписьмо_107__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.DocumenetNumber)</span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.DocumenetDate)</span> </div>
+</div>
+<div id="@("loaderSend"+ Model.Id)"></div>
+<form id ="@("formSend"+ Model.Id)">
+    <div class="pwWinContent2">
+
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLine1">
+                <div class="pwWinContentLeft2">
+                    <p>@PW.Ncels.Database.Recources.Messages.Property_Адрес_359__00</p>
+                </div>
+                <div class="pwWinContentRight2">
+                    <input id="@("Email" + Model.Id)"   data-bind="value:item.Email" class="k-textbox  pwWidth100"  />
+                    <p></p>
+                    <p></p>
+                </div>
+            </div>
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Заголовок_273__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("Title" + Model.Id)" data-bind="value: item.Title" class="k-textbox  pwWidth100" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: item.Text" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+
+    @(Html.Kendo().Grid<UploadInitialFile>().Name("gridFiles").Columns(columns => {
+    columns.Bound(p => p.Id).Width(3).ClientTemplate("<input  type='checkbox' class='checkbox'  checked/>").Title("#");
+      columns.Bound(p => p.name).Width(40).Title(PW.Ncels.Database.Recources.Messages.Property_Наименование_230__00);
+      columns.Bound(p => p.sizeStr).Width(8).Title(PW.Ncels.Database.Recources.Messages.Property_Размер_367__00);
+  }).HtmlAttributes(new { @class = "pwGridCor" })
+          .Scrollable(scr => scr.Height(400))
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .PageSize(50)
+                                       .Read(read => read.Action("Files", "Upload", new { id = Model.Id }))
+          ).Events(e => e.DataBound("onDataBound")))
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        //DataSource definition
+        grid = $("#gridFiles").data("kendoGrid");
+        //bind click event to the checkbox
+        grid.table.on("click", ".checkbox", selectRow);
+
+      
+    });
+
+    
+
+    //on click of the checkbox:
+    function selectRow() {
+        var checked = this.checked,
+            row = $(this).closest("tr"),
+            grid = $("#gridFiles").data("kendoGrid"),
+            dataItem = grid.dataItem(row);
+        console.log('dataItem.name', dataItem.name);
+        checkedIds[dataItem.name] = checked;
+        if (checked) {
+            //-select the row
+            row.addClass("k-state-selected");
+        } else {
+            //-remove selection
+            row.removeClass("k-state-selected");
+        }
+    }
+
+    //on dataBound event restore previous selected rows:
+
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        item: data,
+        hasChanges: true,
+        save: function (e) {
+
+            kendo.ui.progress($('#loaderSend' + name), true);
+            var checked = [];
+            for (var i in checkedIds) {
+                if (checkedIds[i]) {
+                    checked.push(i);
+                }
+            }
+            viewModel.set('item.Files', checked.join(';'));
+            var json = JSON.stringify(viewModel.get('item'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/OutgoingDoc/DocumentSendConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result == 'True') {
+
+
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        alert(result);
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loaderSend' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+
+    });
+   
+    kendo.bind($("#formSend" + name), viewModel);
+</script>

@@ -1,0 +1,64 @@
+﻿@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.DataModel
+@model Guid
+
+<div class="pwPage">
+    @(Html.Kendo().Grid<Document>()
+          .Name("gridOutgoing" + Model)
+      .Columns(columns => {
+          columns.Bound(p => p.Number).Title("Номер").Width(150);
+          columns.Bound(p => p.DocumentDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Срокисп_283__00).Width(100);
+          columns.Bound(p => p.Summary).Title("Текст").Width(150);
+          columns.Bound(p => p.CreatedUserValue).Title("Автор").Width(150);
+
+      })
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable().ClientDetailTemplateId("templateOutgoingList")
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .HtmlAttributes(new { @class = "pwGridHistory" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .PageSize(50)
+                               .Read(read => read.Action("ListOutgoing", "Application", new {id = Model}))
+                           )
+    )
+</div>
+<script id="templateOutgoingList" type="text/kendo-template">
+
+
+    @(Html.Kendo().TabStrip()
+          .Name("tabStripOutDoc_#=TaskId#").HtmlAttributes(new { @style = "height:300px; width: 862px; border:0;background: none repeat scroll 0 0 ; clear: both;" })
+          .Animation(false)
+          .SelectedIndex(0)
+          .Items(items => {
+          items.Add().Text("Исполнение").LoadContentFrom("DocumentOutDetails", "Application", new { id = "#=TaskId#" });
+          items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вложения_333__00).Content(
+                 @<div style="height:256px" id="DocumentFileTask_#=TaskId#">
+                <a onclick="DownloadAllFile('#=TaskId#')">Скачать все одним файлом</a>
+                      #if (DocumentType == 1 ) { #
+
+                @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listViewOutDoc_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadonly", "Upload", new { docId = "#=TaskId#" }))).ToClientTemplate()
+                )
+                      # } else {#
+                      @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listViewFileOutgoing_#=Id#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("fileReadProjectTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileProjectReadonly", "Upload", new { docId = "#=Id#", dicId = ViewBag.AttachDicId }))).ToClientTemplate()
+                      )
+                      # } #
+            </div>);
+
+
+
+          }).ToClientTemplate())
+
+</script>

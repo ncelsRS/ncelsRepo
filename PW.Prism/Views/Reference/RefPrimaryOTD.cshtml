@@ -1,0 +1,172 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+<script id="ref-treeview-template" type="text/kendo-ui-template">
+    <img src="../../Content/images/units/dep.png" height="16" width="16" />
+    #: item.Code + ' ' + item.NameRu #
+</script>
+<script>
+    var name = '@Model';
+
+    function onSelectRefRow(e) {
+        var dataId = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).id;
+        var uid = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).uid;
+
+        $.ajax({
+            url: "/Reference/RefPrimaryOtdEdit?Id=" + dataId + '&modelId=' + name + '&uid=' + uid,
+            //type: "POST",
+            success: function (result) {
+                // refreshes partial view
+                $('#EditUnits' + name).html(result);
+                var viewModel = kendo.observable({
+                    change: function () {
+                    },
+                    AddRow: function () {
+                        $.ajax({
+                            url: "/Reference/RefPrimaryOtdEdit?Id=" + dataId + '&ParentId=' + dataId + '&modelId=' + name + '&uid=' + uid,
+                            //type: "POST",
+                            success: function (res) {
+                                // refreshes partial view
+                                $('#EditUnits' + name).html(res);
+                            }
+                        });
+                    }
+                });
+                kendo.bind($("#EditRefButton" + name), viewModel);
+            }
+        });
+    }
+
+    var viewModel = kendo.observable({
+        AddRow: function () {
+            $.ajax({
+                url: "/Reference/RefPrimaryOtdEdit?"+'modelId=' + name,
+                //type: "POST",
+                success: function (res) {
+                    // refreshes partial view
+                    $('#EditUnits' + name).html(res);
+                }
+            });
+        }
+    });
+    kendo.bind($("#EditRefButton" + name), viewModel);
+
+</script>
+<div id="@("loader"+ Model)"></div>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("420px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("420px")
+                .Content(
+                @<div class="pwPanelBar">
+                    <div class="input-group" style="width: 100%">
+                        <button class="form-control btn btn-default" style="margin-left: -2px" type="button" onclick="refreshTreeOrg() "><span class="glyphicon glyphicon-refresh"></span></button>
+                    </div>
+                    @(Html.Kendo().TreeView()
+                                   .Name("treeview" + Model)
+                                   .TemplateId("ref-treeview-template")
+                                   .DataTextField("Code")
+                                   .Events(events => events.Select("onSelectRefRow"))
+                                        .DataSource(dataSource => dataSource
+                                            .Read(read => read.Action("ListPrimaryOTD", "Reference")
+                                        )
+                                    )
+                                   .HtmlAttributes(new { @class = "pwOs" })
+                    )
+                </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar">
+                        <div class="pwUnitsFooter k-block" id="@("EditRefButton" + Model)" hidden="@(!EmployePermissionHelper.IsEditRefPrimaryOtd)">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" data-bind="click: AddRow">Добавить</button>
+                            </div>
+                        </div>
+                        <div id="@("EditUnits" + Model)">
+                            @PW.Ncels.Database.Recources.Messages.Property_Редактирование_184__00
+                        </div>
+                    </div>
+             );
+            }))
+<script>
+    function selectMenu(parameters) {
+        console.log('parame', parameters.sender);
+    }
+</script>
+<script type="text/javascript">
+    var id = '@Model';
+
+    //treeview
+    var datasource = new kendo.data.HierarchicalDataSource({
+        transport: {
+            read: {
+                url: '/Reference/ListPrimaryOTD',
+                dataType: "json",
+                type: 'GET',
+                cache: false
+            }
+        },
+        schema: {
+            model: {
+                id: "id",
+                hasChildren: "hasChildren",
+                expanded: "expanded"
+            }
+        },
+        requestStart: function () {
+            kendo.ui.progress($('#loader' + id), true);
+        },
+        requestEnd: function () {
+            kendo.ui.progress($('#loader' + id), false);
+
+        }
+    });
+
+    var datasourceWithCildren = new kendo.data.HierarchicalDataSource({
+        transport: {
+            read: {
+                url: '/Reference/ListPrimaryOTD',
+                dataType: "json",
+                type: 'GET',
+                cache: false
+            }
+        },
+        schema: {
+            model: {
+                id: "id",
+                hasChildren: "hasChildren",
+                children: "items"
+            }
+        },
+        requestStart: function () {
+            kendo.ui.progress($('#loader' + id), true);
+        },
+        requestEnd: function () {
+            kendo.ui.progress($('#loader' + id), false);
+
+        }
+    });
+
+    //treeview
+    function refreshTreeOrg() {
+        var tree = $("#treeview" + id).data("kendoTreeView");
+        var selectedNode = tree.select();
+        var selectedDataItem = tree.dataItem(selectedNode);
+
+        if (selectedDataItem == undefined) {
+            tree.dataSource.read();
+        } else {
+            selectedDataItem.loaded(false);
+            selectedDataItem.load();
+        }
+    }
+
+    var treeviewElement = $("#treeview" + '@Model');
+    treeviewElement.height($(window).height() - 170);
+</script>

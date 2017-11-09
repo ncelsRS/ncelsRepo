@@ -1,0 +1,83 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStageRemark
+<link href="@Url.Content("~/Content/css/plugins/inputfile/jquery.inputfile.css")" rel="stylesheet" type="text/css" />
+
+@using (Ajax.BeginForm("FileUpload", "DrugDeclaration", new AjaxOptions() { HttpMethod = "POST", OnSuccess = "onSuccessUpload", }, new { id = "fileUploadForm", name = "fileUploadForm", enctype = "multipart/form-data" }))
+{
+    <table id="fileTable" class="file_list">
+
+        <tbody>
+            @if (Model.FileLinks != null)
+            {
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(model => model.Id)
+             
+                for (int i = 0; i < Model.FileLinks.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" name="AttachFiles" value="@Model.FileLinks[i]" />
+                            <a href="@Url.Action("FileDownload", "Upload", new {id=Model.RemarkCodeFile,  name= Model.FileLinks[i].FileName, path=@Model.EXP_ExpertiseStage.DeclarationId, })">
+                                <p class="docFileClass">@Model.FileLinks[i].FileName</p>
+                            </a>
+
+                        </td>
+                        <td>
+                            <i class="glyphicon glyphicon-remove deleteFile" title="Удалить"></i>
+                        </td>
+
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align: left;">
+
+                    <button type="button" class="btn btn-success btn-sm" id="addfileBtn">
+                        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>Добавить файл
+                    </button>
+                    <button type="submit" class="btn btn-success btn-sm" id="btnUploadFiles">
+                        <span class="glyphicon glyphicon glyphicon-upload" aria-hidden="true"></span>
+                        Загрузить файлы
+                    </button>
+
+
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}
+<script src="@Url.Content("~/Scripts/js/plugins/inputfile/jquery.inputfile.js")" type="text/javascript"> </script>
+<script type="text/javascript">
+    function wrapInputFile(fileInputId) {
+        $('#' + fileInputId).inputfile({
+            uploadText: '<span class="glyphicon glyphicon-upload"></span> Выбрать файл',
+            removeText: '<span class="glyphicon glyphicon-trash"></span>',
+            restoreText: '<span class="glyphicon glyphicon-remove"></span>',
+
+            uploadButtonClass: 'btn btn-primary',
+            removeButtonClass: 'btn btn-default'
+        });
+    }
+</script>
+<script type="text/javascript">
+    var counterBuff = 0;
+    $(document).ready(function () {
+
+        $("#addfileBtn").on("click", function () {
+            var fileInputId = 'fileUpload_' + counterBuff;
+            $("#fileTable tbody").append('<tr><td><input id="' + fileInputId + '" type="file" name="files" /></td></tr>');
+            counterBuff++;
+            wrapInputFile(fileInputId);
+        });
+
+        $("table.file_list").on("click", ".deleteFile", function () {
+            $(this).closest("tr").remove();
+            counterBuff -= 1;
+        });
+
+
+
+    });
+</script>

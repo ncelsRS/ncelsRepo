@@ -1,0 +1,120 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.Models.TmcInViewModel
+<style>
+    .k-widget.k-tooltip-validation {
+        display: flex;
+        position: absolute;
+        border-color: #ffe79e !important;
+        background-color: #fff4c9 !important;
+        color: red !important;
+        /* -webkit-box-shadow: none !important; */
+        -ms-box-shadow: none !important;
+        /* box-shadow: none !important; */
+        left: 200px;
+        top: auto;
+        font-weight: bold;
+    }
+</style>
+<dl class="pwEditRef">
+    @*@(Html.HiddenFor(p => p.Id))*@
+    
+    <dt>ФИО МОЛ</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.OwnerEmployeeId).ValuePrimitive(true).DataValueField("Id").DataTextField("Name").DataSource(source => source.Read("ListEmployeIc", "Reference")))
+        <span data-for="OwnerEmployeeId" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    <dt>Заявка на имя</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.ExecutorEmployeeId).ValuePrimitive(true).DataValueField("Id").DataTextField("Name").DataSource(source => source.Read("ListEmployeeHeaderAndFinanceDepHead", "Reference")))
+        <span data-for="ExecutorEmployeeId" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    <dt>Бухгалтер</dt>
+    <dd>
+         @(Html.Kendo().ComboBoxFor(p => p.AccountantEmployeeId).ValuePrimitive(true).DataValueField("Id").DataTextField("Name").DataSource(source => source.Read("ListEmployeeOfDepartmentByDepartmentCode", "Reference", new {code = OrganizationConsts.AccountantCode})))
+        <span data-for="ExecutorEmployeeId" class="k-invalid-msg"></span>
+    </dd>
+    <br />
+    <dt>Согласующий заявку</dt>
+    <dd>
+        @(Html.Kendo().ComboBoxFor(p => p.AgreementEmployeeId).ValuePrimitive(true).DataValueField("Id").DataTextField("Name").DataSource(source => source.Read("ListEmployeeOfDepartmentByDepartmentCode", "Reference", new { code = OrganizationConsts.ReasearchCenterHeadCode })))
+        <span data-for="AgreementEmployeeId" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    
+    <dt>Номер договора</dt>
+    <dd>
+        @(Html.Kendo().AutoCompleteFor(p => p.ContractNumber)
+          .DataTextField("ContractNumber")
+          .Filter("contains")
+          .HtmlAttributes(new { style = "width:100%" })
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("GetContractNumbers", "ApplicationPOA")
+                      .Data("PowerOfAttorneyList.onAdditionalData");
+              })
+              .ServerFiltering(true);
+          })
+          .Events(c => c.Change("PowerOfAttorneyList.onChangeContractNumber"))
+        )
+    </dd>
+    <br />
+
+    <dt>Наименование поставщика товара</dt>
+    <dd>
+        @(Html.EditorFor(p => p.Provider))
+        <span data-for="Provider" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    <dt>БИН поставщика товара</dt>
+    <dd>
+        @(Html.EditorFor(p => p.ProviderBin))
+        <span data-for="Provider" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+  
+    
+    <dt>Дата договора</dt>
+    <dd>
+        @(Html.Kendo().DatePickerFor(p => p.ContractDate).Max(DateTime.Now).HtmlAttributes(new {@class = "pwWidth100"})
+              .Events(action => action.Change("changeContractDate"))
+              )
+        <span data-for="ContractDate" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    <dt>Последний срок поставки по договору</dt>
+    <dd>
+        @Html.Kendo().DatePickerFor(p => p.LastDeliveryDate).Min(Model.ContractDate ?? DateTime.MinValue).HtmlAttributes(new {@class = "pwWidth100"})
+        <span data-for="LastDeliveryDate" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+    <table>
+        <tr>
+            <td><dt>Полная поставка&nbsp;&nbsp;</dt></td>
+            <td>
+                <dd>
+                    @Html.CheckBoxFor(x => x.IsFullDelivery, new {@class = "css-checkbox"})
+                    <span data-for="IsFullDelivery" class="k-invalid-msg"></span>
+                </dd>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table id="attachFileHolder">
+        <tr id="@("attachEdit" + Model.Id)">
+            <td>
+                <dt>
+                    @PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00
+                </dt>
+            </td>
+            <td colspan="4">
+                <dd>
+                    <input id="files" name="files" type="file" />
+                </dd>
+            </td>
+        </tr>
+    </table>
+</dl>

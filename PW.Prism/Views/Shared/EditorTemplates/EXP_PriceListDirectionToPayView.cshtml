@@ -1,0 +1,38 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_PriceListDirectionToPayView
+
+
+<div class="pwEditRef">
+    @(Html.HiddenFor(p => p.DirectionToPayId))
+    <dt>Прейскурант</dt>
+    <dd>
+        <!-- TODO не пойму почему но так работает нормально {data.Id} -->
+        @(Html.Kendo().ComboBoxFor(p => p.PriceListId).DataValueField("Id").DataTextField("Name")
+              .ValuePrimitive(true)
+              .DataSource(source => source.Read("GetPriceList", "DirectionToPay", new {directionId = "${data.Id}"}))
+              .Events(c => c.Select("EXP_PriceListDirectionToPayView.onSelect"))
+         )
+    </dd>
+    <br/>
+    
+    <dt>Цена</dt>
+    <dd>
+        @(Html.Kendo().NumericTextBoxFor(p => p.Price).Enable(false).Decimals(2))
+        <span data-for="Provider" class="k-invalid-msg"></span>
+    </dd>
+    <br />
+    
+
+    <dt>Количество</dt>
+    <dd>
+        @(Html.Kendo().NumericTextBoxFor(p => p.Count).Enable(true).Decimals(0).Events(c => c.Change("EXP_PriceListDirectionToPayView.onChange")))
+        <span data-for="Provider" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+
+    <dt>Итого</dt>
+    <dd>
+        @(Html.Kendo().NumericTextBoxFor(p => p.Total).Enable(true).Decimals(2))
+        <span data-for="Provider" class="k-invalid-msg"></span>
+    </dd>
+    <br/>
+</div>

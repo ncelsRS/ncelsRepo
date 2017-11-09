@@ -1,0 +1,76 @@
+﻿@model PW.Ncels.Database.DataModel.Task
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formJob"+ Model.Id)" style="height: 100%; width: 100%">
+
+    @Html.HiddenFor(o => o.Id)
+   
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconOnJob"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Отредатироватьпроект_53__00?</div>
+    </div>
+    <div class="pwWinContent">
+        <div class="pwWinContentLeft">
+            <p>@PW.Ncels.Database.Recources.Messages.Property_Номердокумента_132__00</p>
+            <p>@PW.Ncels.Database.Recources.Messages.Property_Датадокумента_158__00</p>
+        </div>
+        <div class="pwWinContentRight">
+            <p>@Html.DisplayFor(o => o.Document.Number)</p>
+            <p>@Html.DisplayFor(o => o.Document.DocumentDate)</p>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickJobCancel()">@PW.Ncels.Database.Recources.Messages.Property_Нет_396__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" onclick="clickJob()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+
+
+<script>
+
+    function clickJob() {
+        var name = '@Model.Id';
+        var type = '@Model.Type';
+        kendo.ui.progress($('#loader' + name), true);
+
+
+
+        $.ajax({
+            type: 'POST',
+            url: '/Task/JobEditConfirm?taskId=' + name,
+            success: function (result) {
+                if (result.State == true) {
+                    ActionTaskEnable(result.Task.State, result.Task.DocumentState, result.Task.Type, result.Task.MonitoringType, result.Task.Id);
+
+                
+                   // var item = $("#tabStrip_" + result.Task.Id).kendoTabStrip().data("kendoTabStrip");
+                    //var items = tabs.items();
+
+                    $.ajax({
+                        url: 'Task/JobEditFile?taskId=' + '@Model.Id',
+                        //type: "POST",
+                        success: function (resultFile) {
+                            // refreshes partial view
+                            $('#DocumentFileTask_' + name).html(resultFile);
+                        }
+                    });
+                
+                   
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loader' + name), false);
+            }
+        });
+    }
+
+    function clickJobCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

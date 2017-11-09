@@ -1,0 +1,187 @@
+﻿
+@model PW.Ncels.Database.Models.TaskAction
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReassignment" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconOnJob"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Поручениекдокументу_54__00 <span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: task.DocumenetNumber"></span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold" id="@("DocumenetDate" + Model.Id)" data-bind="text: task.DocumenetDate"></span> </div>
+    </div>
+    <div class="pwWinContent2">
+        @*<div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_115__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("ExecutionDate" + Model.Id)" data-bind="value:task.ExecutionDate" class="pwWidth100"/>
+                <p></p>
+                <p></p>
+            </div>
+        </div>*@
+            @*<div class="pwWinContentLine1">
+                <div class="pwWinContentLeft2">
+                    <p>Этапы референтного</p>
+                </div>
+                <div class="pwWinContentRight2">
+                    <input id="TypeReport" name="TypeReport" data-bind="value:task.Type" class="pwWidth100" />
+                    <p></p>
+                    <p></p>
+                </div>
+            </div>*@
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Исполнители_237__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("ExecutorsId"+ Model.Id)" data-bind="value: task.ExecutorId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model.Id)" data-bind="value: task.Text, events: { change: change }" class="pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+
+
+<script>
+    
+    var name = '@Model.Id';
+
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        task: data,
+        hasChanges:false,
+        change: function () {
+            if (this.task.get('ExecutorId') != null && this.task.get('ExecutorId').length > 0) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('task'));
+ 
+            $.ajax({
+                type: 'POST',
+                url: '/Task/ReassignmentConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result.State == true) {
+                        ActionTaskEnable(result.Task.State, result.Task.DocumentState, result.Task.Type, result.Task.MonitoringType, result.Task.Id);
+
+                        var treeTask = $("#treeviewTask_" + name).data("kendoTreeView");
+                        console.log('treeTask', treeTask);
+                        if (treeTask != null) {
+                            treeTask.dataSource.read();
+                        }
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+
+                    } else {
+
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close(); 
+        }
+
+    });
+
+
+    $("#ExecutorsId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        maxSelectedItems: 1,
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#ExecutionDate" + name).kendoDatePicker();
+    $("#ResponsibleId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#Text" + name).kendoAutoComplete({
+        filter: "contains",
+      //  dataTextField: "Name",
+        placeholder: "@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00",
+
+        autoBind: false,
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/ListAutoComplete',
+                    data: { text: "ReassignmentTypeDictionary" }
+                }
+            }
+        }
+    });
+
+    var dataReportType = [
+  { text: "На регистрации", value: "0" },
+  { text: "Зарегистрированный", value: "1" },
+  { text: "На анализе", value: "2" },
+  { text: "Переговоры", value: "3" },
+  { text: "На доработке у заявителя", value: "4" },
+  { text: "Завершено", value: "5" }
+    ];
+ 
+    $("#TypeReport" ).kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: 0,
+        dataSource: dataReportType
+    });
+  //  viewModel.set('task.ExecutionDate', new Date());
+    kendo.bind($("#formReassignment" + name), viewModel);
+    var temp = viewModel.get('task.ExecutionDate');
+    if (temp != null) {
+        var date = temp.toString();
+        viewModel.set('task.ExecutionDate', isoDateReviver(date));
+    }
+</script>

@@ -1,0 +1,113 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStage
+
+<link href="~/Content/css/custom/subform-comment-style.css" rel="stylesheet" type="text/css" />
+<script>
+    $(document).ready(function () {
+        $("input").prop("readonly", true);
+        $("textArea").prop("readonly", true);
+        $("#deSignNote").prop("readonly", false);
+        $('input:checkbox').attr('disabled', 'disabled');
+        $('#MnnId').select2("enable", false);
+        $('#IsConvention').attr('disabled', 'disabled');
+        $(".check-wrap").remove();
+        $(".deleteRow").remove();
+        $(".atc-btn").remove();
+        $(".add-price").remove();
+        $(".add-btn-from4").remove();
+        $('select').attr('disabled', 'disabled');
+
+
+        $('.is-not-found').each(function () {
+            if ($(this).attr('model-value') != null)
+                if($(this).attr('model-value') === "True") {
+                $(this).prop("checked", true);
+            }
+        });
+        $('.substance-names').each(function () {
+            var idcontrol = $(this).attr('idcontrol');
+            var code = '@CodeConstManager.EXP_DrugSubstanceCode' + "_" + idcontrol + "_SubstanceId";
+            $("#" + code).select2("data", { id: $(this).attr('substanceId'), text: $(this).attr('text') });
+        });
+
+    });
+</script>
+<div class="pwPage pwPageEx" style="margin-left: 10px; margin-right: 60px; width: 90%">
+    @if (Model.StageId == CodeConstManager.STAGE_COZ || Model.StageId == CodeConstManager.STAGE_PRIMARY)
+    {
+        <div class="pwToolbar" id="@("docToolbar" + Model.DeclarationId)">
+            <div class="btn-toolbar" role="toolbar">
+                @if (Model.StageId == CodeConstManager.STAGE_COZ)
+                {
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" data-bind="click: reject, enabled: hasReject " id="@("register" + Model.Id)"><span class="pwToolbarButtonRegister"></span><span class="pwToolbarButtonTitle">Вернуть</span></button>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" data-bind="click: review, enabled: hasReview" id="@("review" + Model.Id)"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">На экспертизу</span></button>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("ExportFilePdf", "DrugDeclaration", new { id = Model.EXP_DrugDeclaration.Id })'"><span class="pwToolbarButtonBuild"></span><span class="pwToolbarButtonTitle">Сформировать</span></button>
+                    </div>
+                }
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" id="@("stop" + Model.Id)"><span class="pwTaskButtonRej"></span><span class="pwToolbarButtonTitle">Отказать</span></button>
+                </div>
+            </div>
+        </div>
+        <textarea class="form-control" placeholder="Описание" id="deSignNote">@Model.EXP_DrugDeclaration.DesignNote</textarea>
+    }
+
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            Заявитель
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-6 fa-shield">
+                    <div class="form-group">
+                        <label>Заявитель</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.EXP_DrugDeclaration.Applicant.DisplayName, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>Организация</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.EXP_DrugDeclaration.Applicant.Organization.Name, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>Эл. почта</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.EXP_DrugDeclaration.Applicant.Email, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.EXP_DrugDeclaration.Applicant.Phone, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("~/Views/DrugDeclaration/DeclarationView.cshtml", @Model.EXP_DrugDeclaration)
+
+
+</div>
+
+<script>
+    InitializeDataDeclaraion('@Model.DeclarationId.ToString()', '@(null)', '@Model.EXP_DrugDeclaration.StatusId','@Model.StageId','@Model.Id.ToString()');
+</script>

@@ -1,0 +1,76 @@
+﻿@model PW.Ncels.Database.Models.ChangePasswordModel
+           
+<div id="loaderProfile"></div>
+<form id="profile">
+    
+    <table class="pwProfileTable">
+        <colgroup>
+            <col width="200"/>
+            <col width="300"/>
+        </colgroup>
+        <tr>
+            <td colspan="2">
+                <div style="text-align: center;">
+                    <span style="font-weight: bold;">
+                        @Html.DisplayFor(f => f.DisplayName)
+                    </span>
+                </div>    
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">@Html.ValidationSummary(true)</td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Старыйпароль_168__00</td>
+            <td>@Html.PasswordFor(o => o.OldPassword)</td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Новыйпароль_194__00</td>
+            <td>
+                @Html.PasswordFor(o => o.NewPassword)
+                @Html.ValidationMessageFor(model => model.NewPassword)
+            </td>
+        </tr>
+        <tr>
+            <td>@PW.Ncels.Database.Recources.Messages.Property_Подтвердитьпароль_66__00</td>
+            <td>
+                @Html.PasswordFor(o => o.ConfirmPassword)
+                @Html.ValidationMessageFor(model => model.ConfirmPassword)
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button class="k-button pwButtonProfile" type="button" onclick="ChangePassword()">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
+            </td>
+        </tr>
+    </table>
+</form>
+<script>
+  
+    function ChangePassword() {
+ 
+        kendo.ui.progress($('#loaderProfile'), true);
+        $.ajax({
+            type: 'POST',
+            url: '/Account/ChangePassword',
+            data:  $("#profile").serialize(),
+            success: function (result) {
+                if (result == 'True') {
+                    alert('@PW.Ncels.Database.Recources.Messages.Property_Парольизменен_169__00');
+                    var window = $("#ProfileCommandWindow");
+                    window.data("kendoWindow").close();
+                } else {
+                    alert('@PW.Ncels.Database.Recources.Messages.Property_Неверныеданные_114__00');
+                };
+            },
+            complete: function () {
+                kendo.ui.progress($('#loaderProfile'), false);
+            }
+        });
+    }
+</script>

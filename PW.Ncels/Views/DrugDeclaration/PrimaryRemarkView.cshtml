@@ -1,0 +1,224 @@
+﻿@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+<style type="text/css">
+    .primary-remark {
+    }
+
+    .growed {
+        height: 33px;
+    }
+
+    .attachSelect {
+        color: #2679b5;
+    }
+</style>
+@{
+    var btnId = "addDosageMark" + Model.ObjectId;
+    var dosageTypeDiv2 = "dosageTypeDiv2" + Model.ObjectId;
+    var tableId = "dosageTable" + Model.ObjectId;
+}
+
+@if (Model.ObjectId == null)
+{
+    return;
+}
+
+<div style="display: none;" id="@dosageTypeDiv2">
+    @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["RemarkTypes" + Model.ObjectId]), String.Empty, new { @class = "form-control primary-remark" })
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Замечания и уточнения
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="@tableId" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td style="width: 130px">Тип замечания</td>
+                        <td>Замечание</td>
+                        <td style="width: 100px">Эксперт</td>
+                        <td style="width: 100px">Дата замечания</td>
+                        <td>Ответ</td>
+                        <td style="width: 70px">Исправлено</td>
+                        <td style="width: 70px">Принята</td>
+                        <td style="width: 100px">Дата исправления</td>
+                        @*                    <td>Комментарии</td>*@
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.ExpExpertiseStageRemarks.Count; i++)
+                    {
+                        var code = CodeConstManager.EXP_DrugAppDosageRemarkCode + "_" + Model.ExpExpertiseStageRemarks[i].Id + "_";
+                        if (Model.ExpExpertiseStageRemarks[i].OtdId > 0)
+                        {
+                            code += Model.ExpExpertiseStageRemarks[i].OtdId + "_";
+                        }
+                        else
+                        {
+                            code += "0_";
+                        }
+                        var classatach = "glyphicon glyphicon-paperclip attachFile";
+                        if (Model.ExpExpertiseStageRemarks[i].AtthachId != null)
+                        {
+                            classatach = classatach + " attachSelect";
+                        }
+                        var nameResultId = code + "NameResult";
+                        var answerRemarkId = code + "AnswerRemark";
+                        var IdIsFixed = code + "IsFixed";
+                        var IdIsAccepted = code + "IsAccepted";
+                        var idremarkTypeId = code + "RemarkTypeId";
+                        var noteId = code + "Note";
+
+                        var idRemarkDateStr = code + "RemarkDateStr";
+
+                        var idFixedDateStr = code + "FixedDateStr";
+
+                        var wrapKindcss = "form-control edit-control primary-remark";
+                        var idRecord = Model.ObjectId + "_" + Model.ExpExpertiseStageRemarks[i].Id;
+                        wrapKindcss += " chosen-wrap-kind";
+
+                        <tr rowid="@Model.ExpExpertiseStageRemarks[i].Id">
+                            <td>
+                                @Html.DropDownList("RemarkTypeId", (IEnumerable<SelectListItem>)(ViewData["RemarkTypes" + idRecord]), String.Empty, new { @class = "form-control primary-remark", id = idremarkTypeId, disabled = "disabled" })
+                            </td>
+                            <td>
+                                @Html.TextArea("NameRemark", Model.ExpExpertiseStageRemarks[i].NameRemark, new { @class = "primary-remark form-control growed", id = nameResultId, @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpExpertiseStageRemarks[i].Employee.DisplayName, new { @class = "primary-remark form-control", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBox("RemarkDateStr", Model.ExpExpertiseStageRemarks[i].RemarkDateStr, new { @class = "primary-remark form-control remark-date", id = idRemarkDateStr, otdId = Model.ExpExpertiseStageRemarks[i].OtdId, @readonly = "readonly" })
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextArea("AnswerRemark", Model.ExpExpertiseStageRemarks[i].AnswerRemark, new { @class = "primary-remark form-control growed edit-control answer-remark", id = answerRemarkId })
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+
+                                        </a>
+                                        <i title="Прикрепить файл" onclick="attachFile(@Model.ExpExpertiseStageRemarks[i].Id)" class="@classatach"></i>
+                                    </span>
+                                </div>
+
+                            </td>
+                            <td>
+                                @Html.CheckBoxFor(model => model.ExpExpertiseStageRemarks[i].IsFixed, new { @class = "form-control primary-remark", @style = "", id = IdIsFixed })
+                            </td>
+                            <td>
+                                @Html.CheckBoxFor(model => model.ExpExpertiseStageRemarks[i].IsAccepted, new { @class = "form-control primary-remark", @style = "", id = IdIsAccepted, disabled = "disabled" })
+                            </td>
+                            <td>
+                                @Html.TextBox("FixedDateStr", Model.ExpExpertiseStageRemarks[i].FixedDateStr, new { @class = "primary-remark form-control ", @readonly = "readonly", id = idFixedDateStr })
+                            </td>
+                            @*<td>
+                                    @Html.TextBox("Note", Model.ExpPrimaryRemark[i].Note, new {@class = "primary-remark form-control", id = noteId})
+                                </td>*@
+
+
+                        </tr>
+                    }
+                <tfoot>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function attachFile(id) {
+        var url = "/DrugDeclaration/ShowAttach?recordId=" + id;
+        $("<div style=" +
+                '"' +
+                "text-align: center;" +
+                '"' +
+                "><img src=" +
+                '"' +
+                "../../content/img/spinner.gif" +
+                '"' +
+                " style=" +
+                '"' +
+                "display: block; margin: 0 auto;" +
+                '"' +
+                " /></br>" +
+                "....</div>")
+            .addClass("dialog")
+            .attr("id",
+                $(this)
+                .attr("data-dialog-id"))
+            .appendTo("body")
+            .dialog({
+                title: "Файлы",
+                closeText: "x",
+                open: function (event, ui) {
+                    $(event.target).parent().css('position', 'fixed');
+                    $(event.target).parent().css('top', '150px');
+                    $(event.target).parent().css('center');
+                    $(this).closest(".ui-dialog")
+                        .find(".ui-dialog-titlebar-close")
+                        //      .removeClass("ui-dialog-titlebar-close")
+                        .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
+
+
+                },
+                close: function () { $(this).remove(); },
+                width: 800,
+                height: 400,
+                modal: true,
+                //   open: function(event, ui) { $(".ui-dialog-titlebar-close").text(''); },
+                buttons: {
+
+                }
+            })
+            .load(url);
+    }
+
+    function growthControl(control) {
+        $(control).focusout(function () {
+            $(control).height(20);
+        });
+        $(control).focus(function () {
+            $(this).animate({ height: "200px" }, 500);
+        });
+
+    }
+
+    $(document).ready(function () {
+        growthControl(".growed");
+        var isShowSpecial = false;
+        if ('@Model.IsShowConclision' === "True") {
+            $("#conclusionBtn").show();
+            if ('@Model.StatusId' === "8") {
+                $("#conclusionPage").show();
+                isShowSpecial = true;
+            } 
+            
+        }
+        if ('@Model.IsShowRemark' === "True") {
+            $("#remarkBtn").show();
+            if ('@Model.StatusId' === "6") {
+                $("#remarkPage").show();
+                isShowSpecial = true;
+            }
+        }
+        if (isShowSpecial === true) {
+            setReadOnlyControl();
+            $("#mainPage").hide();
+        }
+        $(".answer-remark").prop("readonly", false);
+        $(".remark-date").each(function () {
+            var otdId = parseInt($(this).attr('otdId'), 10) || 0;
+            if (otdId > 0) {
+                $(this).prop("readonly", true);
+            }
+        });
+
+        changeFieldList(".primary-remark", "remark");
+    });
+</script>

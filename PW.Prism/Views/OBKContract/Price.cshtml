@@ -1,0 +1,171 @@
+﻿@model Guid
+@{
+    var guid = Guid.NewGuid();
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel">
+            <div class="panel-body">
+                Общая стоиомсть работ с НДС - <span id="sum_@guid"></span><br /><br />
+                <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProducts_@guid" width="100%"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+
+        $("#tableProducts_@guid").DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            "bLengthChange": false,
+            columns: [
+                { title: "Тип услуги" },
+                { title: "Продукция" },
+                { title: "Количество услуг" },
+                { title: "Цена за единицу без НДС" },
+                { title: "Стоимость без НДС" },
+                { title: "Стоимость с НДС" },
+                { title: "" }
+            ]
+        });
+
+        var val = '@Model';
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetContractPrices", "OBKContract")',
+            data: { 'contractId': val },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data) {
+                    calcSum(data);
+                    $("#tableProducts_@guid").DataTable({
+                        language: {
+                            url: "/Content/json/Russian.json"
+                        },
+                        data: data,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        "bLengthChange": false,
+                        "autoWidth": true,
+                        "columns": [
+                            { "data": "ServiceName" },
+                            { "data": "ProductName" },
+                            { "data": "Count" },
+                            { "data": "PriceWithoutTax" },
+                            { "data": "FinalCostWithoutTax" },
+                            { "data": "FinalCostWithTax" },
+                            {
+                                "render": function (data, type, full, meta) {
+                                    return '<span class="input-group-addon"><a priceId="' + full.Id + '" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+                                }
+                            }
+                        ]
+                    });
+                }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+
+        $("#tableProducts_@guid").on('click', '.obkpricedialog', function () {
+            var contractPriceId = $(this).attr("priceid");
+            var url = "/OBKContract/ShowCommentPrice?contractPriceId=" + contractPriceId;
+            var fieldValue = "";
+            var fieldDisplay = "";
+            $("<div style=" + '"' + "text-align: center;" + '"' + "><img src=" + '"' + "../../content/img/spinner.gif" + '"' + " style=" + '"' + "display: block; margin: 0 auto;" + '"' + " /></br>" + "....</div>")
+            .addClass("dialog")
+            .attr("id", $(this)
+                .attr("data-dialog-id"))
+            .appendTo("body")
+            .dialog({
+                title: "Описание",
+                closeText: "x",
+                open: function (event, ui) {
+                    $(event.target).parent().css('position', 'fixed');
+                    $(event.target).parent().css('top', '150px');
+                    $(event.target).parent().css('center');
+                    $(this).closest(".ui-dialog")
+                        .find(".ui-dialog-titlebar-close")
+//      .removeClass("ui-dialog-titlebar-close")
+                        .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
+
+
+                },
+                close: function () { $(this).remove(); },
+                width: 800,
+                height: 400,
+                modal: true,
+                //   open: function(event, ui) { $(".ui-dialog-titlebar-close").text(''); },
+                buttons: {
+                    Сохранить: function () {
+                        var comment = $("#NoteComment").val();
+                        var userId = $("#EditorId").val();
+                        var isError;
+                        if ($("#IsError").is(":checked")) {
+                            isError = true;
+                        } else {
+                            isError = false;
+                        }
+                        var params = JSON.stringify({ 'contractPriceId': contractPriceId, 'isError': isError, 'comment': comment, 'fieldValue': fieldValue, 'userId': userId, 'fieldDisplay': fieldDisplay });
+                        $.ajax({
+                            type: "POST",
+                            url: '/OBKContract/SaveCommentPrice',
+                            data: params,
+                            dataType: 'json',
+                            cache: false,
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                if (!thisControl.hasClass('mark-icon')) {
+                                    thisControl.addClass('mark-icon');
+                                }
+                                if (isError) {
+                                    if (!controlEdit.hasClass('control-error')) {
+                                        controlEdit.addClass('control-error');
+                                    }
+                                    if (controlEdit.hasClass('control-good')) {
+                                        controlEdit.removeClass('control-good');
+                                    }
+                                } else {
+                                    if (!controlEdit.hasClass('control-good')) {
+                                        controlEdit.addClass('control-good');
+                                    }
+                                    if (controlEdit.hasClass('control-error')) {
+                                        controlEdit.removeClass('control-error');
+                                    }
+                                }
+                            },
+                            error: function () {
+                                alert("Connection Failed. Please Try Again");
+                            }
+                        });
+                        $(this).dialog("close");
+                    }
+                },
+            })
+            .load(url);
+        });
+
+        function calcSum(data) {
+            var sum = 0.0;
+            if (data) {
+                for (var i = 0; i < data.length; i++) {
+                    sum += data[i].FinalCostWithTax;
+                }
+            }
+            $("#sum_@guid").text(sum);
+        }
+    });
+</script>

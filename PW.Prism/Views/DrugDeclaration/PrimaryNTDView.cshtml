@@ -1,0 +1,131 @@
+﻿@using Aspose.Slides
+@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.EXP_DrugPrimaryNTD
+@{
+    var code = CodeConstManager.EXP_DrugPrimaryNTDCode + "_" + Model.DrugDeclarationId + "_";
+    var idDateRegStr = code + "DateRegStr";
+    var idDateConfirmStr = code + "DateConfirmStr";
+    var idisNdConfirm = code + "isNdConfirm";
+    var idTypeNDId = code + "TypeNDId";
+    var idTypeNDIdCode = "#"+code + "TypeNDId";
+    var idTypeFileNDId = code + "TypeFileNDId";
+    var idNumberNd = code + "NumberNd";
+    var idNote = code + "Note";
+    var idRecord = Model.DrugDeclarationId;
+    var ntdGenerateBtn = "ntdGenerateBtn" + idRecord;
+}
+<style type="text/css">
+    .ntd-label {
+        margin-top: 5px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+       Нормативно-техническая документация
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="col-lg-5 ntd-label">Дата регистрации</label>
+                    <div class="col-lg-7">
+                        @Html.TextBox("DateRegStr", Model.DateRegStr, new { @class = "edit-control ntd-control form-control", id = idDateRegStr })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="col-lg-5 ntd-label">Дата утверждения</label>
+                    <div class="col-lg-7">
+                        @Html.TextBox("DateConfirmStr", Model.DateConfirmStr, new { @class = "edit-control ntd-control form-control", id = idDateConfirmStr })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        @Html.CheckBox("isNdConfirm", Model.isNdConfirm, new { @class = "edit-control ntd-control form-control ", @style = "width: 30px; height:20px", id = idisNdConfirm })
+                    </span>
+                    <input type="text" class="form-control" value="НТД утвержден" readonly="readonly">
+                </div><!-- /input-group -->
+                @* <div class="form-group">
+                        <label class="col-lg-5 ntd-label">НТД утвержден</label>
+                        <div class="col-lg-7">
+                            @Html.CheckBox("isNdConfirm", Model.isNdConfirm, new {@class = "edit-control ntd-control form-control", id = idisNdConfirm})
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="col-lg-5 ntd-label">Тип НД</label>
+                    <div class="col-lg-7">
+                        @Html.DropDownList("TypeNDId", (IEnumerable<SelectListItem>)(ViewData["TypeNDList" + idRecord]),
+                    String.Empty,
+                    new
+                    {
+                        @class = "form-control edit-control ntd-control",
+                        id = idTypeNDId
+                    })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="col-lg-5 ntd-label">Тип файла НД</label>
+                    <div class="col-lg-7">
+                        @Html.DropDownList("TypeFileNDId", (IEnumerable<SelectListItem>)(ViewData["TypeFileNDList" + idRecord]),
+                    String.Empty,
+                    new
+                    {
+                        @class = "form-control edit-control ntd-control",
+                        id = idTypeFileNDId
+                    })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label class="col-lg-3" style="margin-top: 10px">№ НТД</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            @Html.TextBox("NumberNd", Model.NumberNd, new { @class = "edit-control ntd-control form-control", @style = "margin-top:5px", id = idNumberNd, @readonly = "readonly" })
+                            <span class="input-group-addon" style="background: transparent;border: 0;">
+                                <button type="button" class="btn btn-success btn-sm" id="@ntdGenerateBtn">
+                                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>  Создать номер
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <label>Комментарий</label>
+                <div class="input-group" style="width: 100%">
+                    @Html.TextArea("Note", Model.Note, new { @class = "edit-control ntd-control form-control", id = idNote, placeholder = "Введите значение" })
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            changeFieldList(".ntd-control", '@CodeConstManager.EXP_DrugPrimaryNTDCode');
+            setDateFormat("#" + '@idDateRegStr');
+            setDateFormat("#" + '@idDateConfirmStr');
+            $("#" + '@ntdGenerateBtn').on("click",
+                function () {
+                    debugger;
+                    var typeId = $('@idTypeNDIdCode').val();
+                    if (typeId === null || typeId.length === 0) {
+                        showWarning("Укажите Тип НД");
+                        return;
+                    }
+
+                    createNdNumber('@idRecord', '@idNumberNd', typeId);
+                });
+        });
+    </script>

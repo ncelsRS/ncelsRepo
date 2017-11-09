@@ -1,0 +1,181 @@
+﻿@using Aspose.Words.Lists
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@model Guid[]
+
+<script>
+    var nameData = '@Model[0]';
+    var parentId = '@(Model.Length==2? Model[1].ToString():string.Empty)';
+    var modelId = '@ViewData["modelId"]';
+    var modelUid = '@ViewData["ModeUid"]';
+    var viewModel = kendo.observable({
+        item: {},
+        Save: function () {
+            Save();
+        }
+
+    });
+
+    function Save() {
+        var json = JSON.stringify(viewModel.get('item'));
+
+        $.ajax({
+            type: 'POST',
+            url: '/Employe/DepartamentUpdate',
+            data: json,
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+
+                if (result == 'True') {
+                    //treereload(modelId);
+                    $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).loaded(false);
+                    $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).load();
+                    alert('@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00');
+                };
+            },
+            complete: function () {
+
+            }
+        });
+    }
+    $.ajax({
+        type: 'get',
+        url: '/Employe/OrganizationRead?Id=' + nameData + '&ParentId=' + parentId,
+        contentType: 'application/json; charset=utf-8',
+        success: function (result) {
+            result = JSON.parse(result);
+            // alert(JSON.stringify(result));
+            viewModel.set("item", result);
+
+            //viewModel.person = JSON.stringify(result);
+            kendo.bind($("#formDepartment" + nameData), viewModel);
+
+        },
+        complete: function () {
+            //  alert('Success! User Loaded!');
+        }
+    });
+
+    $("#BossId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#SecretaryId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+
+    $("#CuratorId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#UnitTypeDictionaryId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        autoBind: false,
+        maxSelectedItems: 1,
+        filter: "contains",
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/List',
+                    data: { text: "DepartmentTypeDictionary" }
+                }
+            }
+        }
+    });
+    $("#rank" + nameData).kendoNumericTextBox({
+        format: "#"
+    });
+
+
+</script>
+<div class="pwUnitsPage">
+    <div class="pwUnitsHeader">@PW.Ncels.Database.Recources.Messages.Property_Подразделение_200__00</div>
+    <form id="@("formDepartment" + Model[0])" class="pwUnitsContent">
+        <table>
+            <colgroup>
+                <col width="30%" />
+                <col width="100%" />
+            </colgroup>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Код_385__00</td>
+                <td><input type="text" data-bind="value: item.Code" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Наименование_201__00</td>
+                <td><input type="text" data-bind="value: item.Name" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Сокращенноенаименование_28__00</td>
+                <td><input type="text" data-bind="value: item.ShortName" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Типподразделения_85__00</td>
+                <td><input id="@("UnitTypeDictionaryId" + Model[0])" data-bind="value: item.UnitTypeDictionaryId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Руководитель_202__00</td>
+                <td><input id="@("BossId" + Model[0])" data-bind="value: item.BossId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Секретарь_266__00</td>
+                <td><input id="@("SecretaryId" + Model[0])" data-bind="value: item.SecretaryId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Куратор_311__00</td>
+                <td><input id="@("CuratorId" + Model[0])" data-bind="value: item.CuratorId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Ранг_379__00</td>
+                <td><input id="@("rank" + Model[0])" type="number" min="0" max="9999" step="1" data-bind="value: item.Rank" class="pwWidth100" /></td>
+            </tr>
+     
+        </table>
+        <div hidden="@(!EmployePermissionHelper.IsEditOs)" class="pwUnitsFooter k-block">
+            <button type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    var treeviewElement3 = $("#formDepartment" + '@Model[0]');
+    treeviewElement3.height($(window).height() - 280);
+</script>

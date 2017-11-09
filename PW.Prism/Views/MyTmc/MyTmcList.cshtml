@@ -1,0 +1,175 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+
+@model Guid
+    
+<script type="text/javascript">
+    var MyTmcListScript = {
+        onEditHandler: function (e) {
+
+            var grid = $("#gridMyTmc" + '@Model').data("kendoGrid");
+
+            //Find parent grid current row
+            var parentRow = this.wrapper.closest("tr.k-detail-row").prev(".k-master-row");
+            //get the parent grid row DataItem
+            var parentDataItem = grid.dataItem(parentRow);
+
+            //check if model is new
+            if (e.model.isNew()) {
+                //set the parent grid dataItem field value to current ForeignKeyColumn field
+                e.model.set("TmcCount", parentDataItem.CountActual);
+
+            }
+            var numeric = e.container.find("input[name=Count]").data("kendoNumericTextBox");
+            numeric.max(parentDataItem.CountActual);
+        },
+        syncHandler: function (e) {
+            // e.sender.read();
+            $('#gridMyTmc' + '@Model').data("kendoGrid").dataSource.read();
+            //$('#gridMyTmc' + '@Model').data("kendoGrid").refresh();
+        },
+        detailExpand: function (e) {
+            //var eid = e.masterRow.data('uid');
+            var eid = e.masterRow[0].rowIndex;
+            if (!GeneralTmc.contains(GeneralTmc.expandedItemIDs, eid))
+                GeneralTmc.expandedItemIDs.push(eid);
+        },
+        detailCollapse: function (e) {
+            //var eid = e.masterRow.data('uid');
+            var eid = e.masterRow[0].rowIndex;
+            for (var i = 0; i < GeneralTmc.expandedItemIDs.length; i++)
+                if (GeneralTmc.expandedItemIDs[i] == eid){
+                    GeneralTmc.expandedItemIDs.splice(i, 1);
+                    break;
+                }
+        },
+        onDataBound: function (e) {
+            GeneralTmc.subgridChange('gridMyTmc' + '@Model');
+        },
+        _reload: function () {
+            var grid = $('@("#gridMyTmc" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        }
+    }
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+            .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+            .Content("")
+            .ImageUrl("/Content/images/reload.png")
+    )
+</div>
+
+<!-- Мои Реактив-->
+@(Html.Kendo().Grid<TmcOutCountView>()
+    .Name("gridMyTmc" + Model)
+    .Columns(columns => {
+        columns.Bound(p => p.Name).Title("Наименование").Width(150);
+        columns.Bound(p => p.Code).Title("Код").Width(150);
+        columns.Bound(p => p.Manufacturer).Title("Производитель").Width(150);
+        columns.Bound(p => p.Serial).Title("№ серии, партии, ГОСТ или LOT").Width(150);
+        //columns.Bound(p => p.TmcCount).Title("Поступило количество").Width(150);
+        //columns.Bound(p => p.TmcCountFact).Title("Поступило количество(факт)").Width(150);
+        //columns.Bound(p => p.MeasureTypeDicValue).Title("Единица измерения (по заявке)").Width(150);
+        columns.Bound(p => p.MeasureTypeConvertDicValue).Title("Единица измерения (конв)").Width(150);
+        columns.Bound(p => p.CountFact).Title("Выдано количество/объем (факт)").Format("{0:n6}").Width(250);
+        //columns.Bound(p => p.MeasureTypeConvertDicValue).Title("Единица измерения (конвертация)").Width(150);
+        //columns.Bound(p => p.CountConvert).Title("Выдано Количество/объем (конвертация)").Width(150);
+        columns.Bound(p => p.CountActual).Title("Количество/объем (остаток)").Format("{0:n6}").Width(300);
+        columns.Bound(p => p.ManufactureDate).Format("{0:dd.MM.yyyy hh:mm}").Title("Дата изготовления").Width(150);
+        columns.Bound(p => p.ExpiryDate).Format("{0:dd.MM.yyyy hh:mm}").Title("Дата окончания срока действия").Width(150);
+        columns.Bound(p => p.StorageDicValue).Title("Место хранения").Width(150);
+        //columns.Bound(p => p.OwnerEmployeeValue).Title("ФИО МОЛ").Width(150);
+        //columns.Bound(p => p.Name).Title("Признак получения (для подразделения или в личное использование)").Width(150);
+        // columns.Bound(p => p.StateTypeValue).Title("Статус").Width(150);
+        //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+    })
+    .ColumnMenu(c => c.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .Groupable()
+    .Filterable()
+    .Resizable(s=>s.Columns(true))
+    .Sortable()
+    .Pageable(s => s.Refresh(true))
+    .Scrollable()
+    .ClientDetailTemplateId("templateOff")
+    .HtmlAttributes(new { @class = "pwGrid" })
+    .Events(c =>
+    {
+        c.DetailExpand("MyTmcListScript.detailExpand");
+        c.DetailCollapse("MyTmcListScript.detailCollapse");
+        c.DataBound("MyTmcListScript.onDataBound");
+    })
+    .DataSource(dataSource => dataSource
+        .Ajax()
+             .Model(model =>
+             {
+                 model.Id(p => p.Id);
+             })
+        .PageSize(20)
+        .Read(read => read.Action("ReadMyTmcList", "MyTmc"))
+       )
+)
+
+<script id="templateOff" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<TmcOffViewModel>()
+          .Name("gridMyTmcCT_#=TmcOutId#") // template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Command(command =>
+              {
+                  command.Edit().UpdateText(PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00);
+                  command.Destroy();
+              }).Width(100);
+              columns.Bound(o => o.Count).Title("Количество/объем").Format("{0:n6}").Width(80);
+              columns.Bound(o => o.Note).Title("Для каких целей").Width(120);
+              columns.Bound(o => o.StateTypeValue).Title("Статус").Width(120);
+              columns.Bound(o => o.CreatedDate).Format("{0:dd.MM.yyyy hh:mm}").Title("Дата").Width(120);
+              columns.Bound(o => o.ExtertiseStatementNumber).Title("№ заявления на экспертизу").Width(120);
+          })
+          .Events(c =>
+          {
+              c.Edit("MyTmcListScript.onEditHandler");
+              c.Save("GeneralTmc.save");
+          })
+          .ColumnMenu(c => c.Columns(true))
+          .Reorderable(reorder => reorder.Columns(true))
+          .ToolBar(toolbar => toolbar.Create())
+          .HtmlAttributes(new { @class = "pwGrid" })
+          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Model(model =>
+              {
+                  model.Id(p => p.Id);
+                  model.Field(p => p.TmcOutIdString).DefaultValue("#=TmcOutId#");
+                  model.Field(p => p.CreatedDate).DefaultValue(DateTime.Now);
+                  //model.Field(p => p.TmcCount).DefaultValue("#=CountActual#");
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadTmcListChildrens", "MyTmc", new { tmcOutId = "#=TmcOutId#" }))
+              .Update(update => update.Action("UpdateTmcListChildrens", "MyTmc"))
+              .Destroy(destroy => destroy.Action("DestroyTmcListChildrens", "MyTmc"))
+              .Create(create => create.Action("CreateTmcListChildrens", "MyTmc"))
+              .Events(c => c.Sync("MyTmcListScript.syncHandler")))
+          .Sortable()
+          .Pageable()
+          .ToClientTemplate())
+</script>
+
+
+<script>
+    (function () {
+        var name = '@Model';
+
+        resizeGrid3('@("#gridMyTmc" + Model)', 110);
+
+        $('#reload' + name).click(function (e) {
+            MyTmcListScript._reload();
+        });
+    })();
+
+</script>
+

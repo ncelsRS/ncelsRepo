@@ -1,0 +1,57 @@
+﻿
+
+@model Guid
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formSendOneS" + Model)">
+
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <h1> Отправить в 1С? </h1>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+
+    var name = '@Model';
+    var viewModel = kendo.observable({
+        task:{},
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            //var json = JSON.stringify(viewModel.get('task'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/Tmc/ConfirmASendOneS?id=' + name,
+                //contentType: 'application/json; charset=utf-8',
+                //data: json,
+                success: function (result) {
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+
+    });
+
+    kendo.bind($("#formSendOneS" + name), viewModel);
+
+</script>

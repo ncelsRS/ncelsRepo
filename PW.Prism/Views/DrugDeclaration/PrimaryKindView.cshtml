@@ -1,0 +1,138 @@
+﻿@model PW.Ncels.Database.Models.Expertise.PrimaryEntity
+@{
+    var types = string.Join(",",Model.ExpDrugPrimaryKinds.Select(e=>e.PrimaryKindId));
+}
+<input type="hidden" value="@types" id="typeIds" />
+<style type="text/css">.mark-control { }</style>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Признаки
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control" value="1">
+                    </span>
+                    <input type="text" class="form-control" value="Сертификат GMP" readonly="readonly">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control"  value="2">
+                    </span>
+                    <input type="text" class="form-control" value="Патент РК" readonly="readonly">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control" value="3">
+                    </span>
+                    <input type="text" class="form-control" value="Новый производитель" readonly="readonly">
+                </div><!-- /input-group -->
+                
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control" value="4" >
+                    </span>
+                    <input type="text" class="form-control" value="Признак ОТД" readonly="readonly">
+                </div><!-- /input-group -->
+                
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control" value="5">
+                    </span>
+                    <input type="text" class="form-control" value="Товарный знак" readonly="readonly">
+                </div><!-- /input-group -->
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control" value="6">
+                    </span>
+                    <input type="text" class="form-control" value="Без аналитики" readonly="readonly">
+                </div><!-- /input-group -->
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input type="checkbox" class="mark-control"  value="7">
+                    </span>
+                    <input type="text" class="form-control" value="Бессрочность" readonly="readonly">
+                </div><!-- /input-group -->
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Вид ускоренной процедуры
+            </div>
+            <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <input type="checkbox" class="mark-control"  value="8">
+                        </span>
+                        <input type="text" class="form-control" value="Нет" readonly="readonly">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <input type="checkbox" class="mark-control"  value="9">
+                        </span>
+                        <input type="text" class="form-control" value="Ускорение сроков" readonly="readonly">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <input type="checkbox" class="mark-control"  value="10">
+                        </span>
+                        <input type="text" class="form-control" value="Исключение этапов" readonly="readonly">
+                    </div>
+                <div class="form-group">
+                    <label>Комментарии</label>
+                    <div class="input-group">
+                        @Html.TextAreaFor(model => model.ExpeditedType, new { @class = "form-control edit-control main-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                            </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var array = $("#typeIds").val().split(',');
+        for (var i = 0, l = array.length; i < l; i++) {
+            var keys = array[i];
+            $(".mark-control").each(function () {
+                if (keys === $(this).val()) {
+                    $(this).prop('checked', true);
+                }
+            });
+        }
+    $(".main-control").change(function () {
+        var controlId = $(this).attr('id');
+        var type = "string";
+        if ($(this).attr('typeField') != null) {
+            type = $(this).attr('typeField');
+        }
+        var fieldDisplay = $(this).val();
+        var fieldValue = $(this).val();
+
+        if ($(this).is("select")) {
+            fieldDisplay = $(this).find('option:selected').text();
+        }
+        if ($(this).hasClass("chzn-select") && fieldValue != null && fieldValue.length > 0) {
+            fieldValue = fieldValue.join(',');
+        }
+        if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+            fieldDisplay = $(this).select2('data').text;
+        }
+        UpdateModel("main", null, null, controlId, fieldValue, type, fieldDisplay);
+    });
+    $('.mark-control').change(function () {
+        UpdateModel("primaryKind", null, null, $(this).val(), $(this).prop('checked'), "string", null);
+       });
+   /* $('.mark-control input:checkbox').change(function () {
+        console.log($(this).val());
+        //UpdateModel("primaryKind", null, null, $(this).val(), $(this).prop('checked'), type, fieldDisplay);
+    });*/
+});
+</script>

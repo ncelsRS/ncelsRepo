@@ -1,0 +1,159 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.Recources
+<!-- Список отчетов-->
+@model Guid
+<style>
+</style>
+<script type="text/javascript">
+    function sync_handler(e) {
+        this.read();
+    }
+
+    function printTmcReporOnClick(e) {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        printTmcReport(dataItem.Id, "Форма", dataItem.ReportType, dataItem.PeriodStartDate
+            , dataItem.PeriodEndDate, dataItem.DepartmentId);
+    }
+
+    function agreeTmcReport(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "550px",
+            height: "auto",
+            modal: true,
+            title: 'Согласование',
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").gridId = 'gridTmcReportList' + '@Model';
+        window.data("kendoWindow").title('Согласование');
+        window.data("kendoWindow").setOptions({
+            width: 550,
+            height: 'auto'
+        });
+        window.data("kendoWindow").refresh('/Tmc/SendAgreement?id=' + dataItem.Id + '&url=@Url.Action("ConfirmReportAgreement", "Tmc")');
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    function rejectTmcReport(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "550px",
+            height: "auto",
+            modal: true,
+            title: 'Отлонить',
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").gridId = 'gridTmcReportList' + '@Model';
+        window.data("kendoWindow").title('Отлонить');
+        window.data("kendoWindow").setOptions({
+            width: 550,
+            height: 'auto'
+        });
+        window.data("kendoWindow").refresh('/Tmc/RejectAgreement?id=' + dataItem.Id
+            + '&type=0'
+            + '&url=@Url.Action("ConfirmRejectAgreement", "Tmc")');
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+
+    function tmcReportsDataBoundHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.ExecutorEmployeeId != '@(ViewBag.CurrentUserId)' || model.Operation == '@OperatorConsts.AgreedCode') {
+                $(this).find(".k-grid-agree").remove();
+                $(this).find(".k-grid-reject").remove();
+            }
+        });
+    }
+
+    var TmcReportList = {
+        _reload: function () {
+            var grid = $('@("#gridTmcReportList" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        }
+    }
+
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+          .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+          .Content("")
+          .ImageUrl("/Content/images/reload.png")
+    )
+</div>
+
+@(Html.Kendo().Grid<TmcReportsView>()
+      .Name("gridTmcReportList" + Model)
+      .Columns(columns => {
+          columns.Command(command =>
+          {
+              command.Custom("agree").Text("Согласовать").Click("agreeTmcReport");
+              command.Custom("reject").Text("Отклонить").Click("rejectTmcReport");
+              command.Custom("print").Text("Печать").Click("printTmcReporOnClick");
+          }).Width(200);
+          columns.Bound(p => p.Name).Title("Отчет").Width(150);
+          columns.Bound(p => p.PeriodStartDate).Format("{0:dd.MM.yyyy}").Title("Период (начало)").Width(150);
+          columns.Bound(p => p.PeriodEndDate).Format("{0:dd.MM.yyyy}").Title("Период (конец)").Width(150);
+          columns.Bound(p => p.DepartmentValue).Title("Департамент").Width(150);
+          columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title("Дата формирования").Width(150);
+          columns.Bound(p => p.CreateEmployeeValue).Title("Автор").Width(150);
+          columns.Bound(p => p.ExecutorEmployeeValue).Title("Исполнитель").Width(150);
+          columns.Bound(p => p.OperationStr).Title("Операция").Width(150);
+          columns.Bound(p => p.Note).Title("Комментарий").Width(150);
+          
+      })
+      .ColumnMenu(c => c.Columns(true))
+      .Reorderable(reorder => reorder.Columns(true))
+      .Groupable()
+      .Filterable()
+      .Sortable()
+      .Pageable()
+      .Scrollable()
+      .HtmlAttributes(new { @class = "pwGrid" })
+      .DataSource(dataSource => dataSource.Ajax()
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+            })
+          .PageSize(20)
+          .Read(read => read.Action("ReadTmcReportList", "Tmc"))
+          .Events(c =>
+          {
+              c.Sync("sync_handler");
+          }))
+      .Resizable(s => s.Columns(true))
+      .Events(c =>
+      {
+          c.DataBound("tmcReportsDataBoundHandler");
+      })
+)
+
+<script>
+    (function () {
+        var name = '@Model';
+
+        resizeGrid3('@("#gridTmcReportList" + Model)', 110);
+
+        $('#reload' + name).click(function (e) {
+            TmcReportList._reload();
+        });
+    })();
+</script>
+

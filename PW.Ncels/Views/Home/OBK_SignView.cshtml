@@ -1,0 +1,85 @@
+﻿@*<script src="~/Scripts/photon/crypto/jquery.js"></script>*@
+@*<script src="~/Scripts/photon/crypto/jquery.blockUI.js"></script>*@
+<script type="text/javascript" src="~/Scripts/photon/crypto/obk/obk_crypto_object_ext.js" charset="utf-8"></script>
+<script type="text/javascript" src="~/Scripts/photon/crypto/obk/obk_eds.js" charset="utf-8"></script>
+<script type="text/javascript" src="~/Scripts/photon/jqBlockUI/jquery.blockUI.js" charset="utf-8"></script>
+<style>
+    .blockPage {
+        opacity: 0.7 !important;
+    }
+
+    @*.modal-dialog {
+        width: 35% !important;
+        height: 25% !important;
+    }
+
+    *@
+</style>
+<p>
+    @Html.Hidden("hfStoragePath", "")
+    @Html.Hidden("hfKeyAlias", "")
+    @Html.Hidden("UserName", "")
+    @Html.Password("Password", "", new { hidden = "hidden" })
+
+    @Html.Hidden("hfXmlToSign",
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><login><timeTicket>"
+        + DateTime.Now.ToShortDateString()
+        + "</timeTicket></login>")
+    @Html.Hidden("Certificate", "")
+</p>
+<input id="namecontroller" type="hidden" value="@ViewContext.RouteData.GetRequiredString("controller")" />
+<input id="paramcontroller" type="hidden" value="" />
+<input id="singIdModel" type="hidden" value="" />
+<div id="dlgPasswordModal" class="modal fade">
+    <div class="modal-dialog" style="width: 35% !important; height: 25% !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Введите пароль ЭЦП
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="wrapper_logon" style="min-height: auto; margin-top: 0px;">
+                    <p>
+                        <label for="passwordCert" class="youpasswd" data-icon="p" style="width: 60px;">
+                            Пароль
+                        </label>
+                        <input id="passwordCert" name="passwordCert" required="required" type="password" placeholder='Введите ваш пароль' class="form-control">
+                    </p>
+
+                    <button type="button" class="btn btn-success btn-sm" id="btnAccept">
+                        Подтвердить
+                    </button>
+                    <button type="button" class="btn btn-warning btn-sm" id="btnCancel">
+                        Отмена
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('input:password:visible:first').focus();
+            });
+
+            $("#btnAccept").click(function () {
+                $("#formLogin").find("#Password").val($('#passwordCert').val());
+        if ($("#namecontroller").val() == "Account") {
+            fillKeys();
+        } else {
+            fillKeySign(doSign);
+        }
+                $("#dlgPasswordModal").modal('toggle');
+            });
+            $("#btnCancel").click(function () {
+                $("#dlgPasswordModal").modal('toggle');
+            });
+
+        });
+</script>
+

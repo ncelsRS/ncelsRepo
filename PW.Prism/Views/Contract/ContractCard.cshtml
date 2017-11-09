@@ -1,0 +1,181 @@
+﻿@using PW.Ncels.Database.DataModel
+
+@model PW.Prism.ViewModels.ContractViewModel
+<div id="@("contractCardLoader" + ViewBag.UiId)"></div>
+@(Html.Kendo().Splitter()
+                        .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + (string)ViewBag.UiId))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("300px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("300px")
+                .Content(
+                @<div class="pwPanelBar">
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + (string)ViewBag.UiId)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;", data_bind = "events: { select: contractCardTabSelect }" })
+                               .Items(panelbar =>
+                               {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(Model.Contract.ContractId == null ? "Структура договора" : "Структура доп. соглашения")
+                                                                   .Items(projects =>
+                                                                   {
+                                                                       projects.Add().Text(Model.Contract.ContractId == null ? "Карточка договора" : "Карточка доп. соглашения").HtmlAttributes(new { TabId = "contractDataTab1" + ViewBag.UiId }).Selected(true);
+                                                                       projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab2" + ViewBag.UiId });
+                                                                       projects.Add().Text("Замечания").HtmlAttributes(new { TabId = "contractDataTab3" + ViewBag.UiId });
+                                                                   });
+
+                               })
+                    )
+                </div>
+                );
+
+panes.Add().Scrollable(false).Size("100%").Content(
+    @<div id="@("contractDataTabs" + ViewBag.UiId)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
+        @Html.HiddenFor(c => c.Contract.Id, new { id = "contractId" + (string)ViewBag.UiId })
+        @Html.HiddenFor(c => c.Contract.ContractStatus.Code, new { id = "contractStatusCode" + (string)ViewBag.UiId })
+        <div id="@("contractDataTab1" + ViewBag.UiId)" class="row">
+            <div class="row">
+                @(Html.Kendo().ToolBar().Name("contractToolBar" + (string)ViewBag.UiId).Items(items =>
+            {
+                if (Model.IsExecutor && (new[] { Contract.StatusOnCorrection, Contract.StatusInWork, Contract.StatusCorrected }).Contains(Model.Contract.ContractStatus.Code))
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='addCommentBtn{0}' class='k-button' data-bind='click: addComment'><span class='glyphicon glyphicon-comment'></span> Добавить замечание</a>", (string)ViewBag.UiId));
+                if (Model.IsExecutor && (new[] { Contract.StatusInWork, Contract.StatusCorrected }).Contains(Model.Contract.ContractStatus.Code))
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToHeadAgreement{0}' class='k-button' data-bind='click: sendToHeadAgreement'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
+                if (Model.IsProcHeadContract && Model.HasAgreementTask && Model.Contract.ContractStatus.Code == Contract.StatusOnAgreement)
+                {
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='approveContract{0}' class='k-button' data-bind='click: approve'><span class='glyphicon glyphicon-check'></span> Согласовать</a>", (string)ViewBag.UiId));
+                }
+                if (Model.IsExecutor && Model.Contract.ContractStatus.Code == Contract.StatusApproved)
+                {
+                    items.Add().Type(CommandType.SplitButton).Text("Отправить на подписание").Id("sign" + (string)ViewBag.UiId)
+                    .MenuButtons(buttons =>
+                    {
+                        buttons.Add().Text("Без ЭЦП").Id("signWithoutDigCert" + (string)ViewBag.UiId);
+                        buttons.Add().Text("С ЭЦП").Id("signWithDigCert" + (string)ViewBag.UiId);
+                    });
+
+                }
+                if (Model.IsSigner && Model.Contract.ContractStatus.Code == Contract.StatusOnSigning && Model.HasSigningTask)
+                {
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContract{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
+                }
+                if (Model.IsExecutor && Model.Contract.ContractStatus.Code == Contract.StatusOnRegistration)
+                {
+                    if (Model.IsContractWithoutDc)
+                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerWithoutDc{0}' class='k-button' data-bind='click: registerWithoutDc'><span class='glyphicon glyphicon-check'></span> Отправить в бухгалтерию</a>", (string)ViewBag.UiId));
+                    else
+                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerWithDc{0}' class='k-button' data-bind='click: registerWithDc'><span class='glyphicon glyphicon-check'></span> Отправить в бухгалтерию</a>", (string)ViewBag.UiId));
+                }
+            }))
+            </div>
+            @if (Model.Contract.ContractId == null)
+            {
+                @Html.Action("ContractDetails", new { contractId = Model.Contract.Id, parentUiId = ViewBag.UiId })
+            }
+            else
+            {
+                @Html.Action("ContractAdditionDetails", new { contractId = Model.Contract.Id, parentUiId = ViewBag.UiId })
+            }
+        </div>
+        <div id="@("contractDataTab2" + ViewBag.UiId)" class="row hidden">
+            <div class="row">
+                @(Html.Kendo().ToolBar().Name("contractFilesToolBar" + (string)ViewBag.UiId).Items(items =>
+            {
+                if (Model.IsExecutor && (new[] { Contract.StatusOnCorrection, Contract.StatusInWork, Contract.StatusCorrected }).Contains(Model.Contract.ContractStatus.Code))
+                {
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='addNewFile{0}' class='k-button' data-bind='click: addNewFileVersion'><span class='glyphicon glyphicon-upload'></span> Добавить новую версию {1}</a>", (string)ViewBag.UiId, (Model.Contract.ContractId == null ? "договора" : "доп. соглашения")));
+                }
+                if ((new[] { Contract.StatusOnCorrection, Contract.StatusInWork, Contract.StatusCorrected }).Contains(Model.Contract.ContractStatus.Code))
+                {
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='viewTemplate{0}' class='k-button' href='/Contract/GetFilledTemplate/?contractId={1}'><span class='glyphicon glyphicon-download'></span> Скачать заполненный шаблон {2}</a>", (string)ViewBag.UiId, Model.Contract.Id, (Model.Contract.ContractId == null ? "договора" : "доп. соглашения")));
+                }
+            }))
+            </div>
+            <div class="row">
+                @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.FileLinkView>()
+                  .Name("contractAttachesGrid" + (string)ViewBag.UiId)
+                  .Columns(columns =>
+                  {
+                      columns.Bound(p => p.Category).Title("Категория").Hidden(true);
+                      columns.Bound(p => p.Version).Title("Версия").Width(200);
+                      columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата загрузки").Width(100);
+                      columns.Bound(p => p.FileName).Title("Файл").ClientTemplate("<a href='/Upload/FileDownload?path=#= DocumentId #&id=#= CategoryId #&fileId=#= FilePath #'>#= FileName #'</a>");
+                      columns.Bound(p => p.ParentFileName).Title("Название оригинала").Hidden(true);
+                  })
+
+                  .Resizable(resizable => resizable.Columns(true))
+                  .Scrollable(scrollable => scrollable.Enabled(false))
+                  .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                  .HtmlAttributes(new { @class = "pwGrid", style = "height: 500px" })
+                  .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(200)
+                      .Aggregates(aggregates =>
+                      {
+                          aggregates.Add(f => f.Version).Count();
+                      })
+                      .Group(g => g.Add(f => f.Category))
+                      .Sort(sort =>
+                      {
+                          sort.Add("ParentFileName").Ascending();
+                          sort.Add("Version").Ascending();
+                      })
+                      .Read(read => read.Action("ListAttaches", "Contract", new { contractId = Model.Contract.Id }))
+                  ))
+            </div>
+        </div>
+        <div id="@("contractDataTab3" + ViewBag.UiId)" class="row hidden">
+            <div class="row">
+                @(Html.Kendo().ToolBar().Name("contractCommentsToolBar" + (string)ViewBag.UiId).Items(items =>
+            {
+                if (Model.IsExecutor && (new[] {Contract.StatusOnCorrection, Contract.StatusInWork, Contract.StatusCorrected}).Contains(Model.Contract.ContractStatus.Code))
+                {
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='addCommentBtn1{0}' class='k-button' data-bind='click: addComment'><span class='glyphicon glyphicon-comment'></span> Добавить замечание</a>", (string) ViewBag.UiId));
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='editCommentBtn{0}' class='k-button' data-bind='click: editComment'><span class='glyphicon glyphicon-edit'></span> Редактировать замечание</a>", (string)ViewBag.UiId));
+                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendCommentsBtn{0}' class='k-button' data-bind='click: sendComments'><span class='glyphicon glyphicon-share'></span> Отправить замечания</a>", (string)ViewBag.UiId));
+                }
+            }))
+            </div>
+            <div class="row">
+                @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.ContractComment>()
+                      .Name("contractCommentsGrid" + (string)ViewBag.UiId)
+                      .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(12).Title("").Filterable(false).Sortable(false);
+                          columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата замечания").Width(100);
+                          columns.Bound(p => p.Author.DisplayName).Title("Автор").Width(200);
+                          columns.Bound(p => p.Comment).Title("Замечание").Width(300);
+                          columns.Bound(p => p.Sended).Title("Отправлено").Width(55).ClientTemplate("#= Sended ? 'Да' : 'Нет' #").Filterable(false).Sortable(false);
+                      })
+
+                      .Reorderable(reorderable => reorderable.Columns(true))
+                      .Resizable(resizable => resizable.Columns(true))
+                      .Sortable(sortable => sortable.AllowUnsort(false))
+                      .Scrollable(scrollable => scrollable.Virtual(true))
+                      .Filterable()
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                      .HtmlAttributes(new { @class = "pwGrid" })
+                      .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Sort(sort => { sort.Add("CreateDate").Descending(); })
+                          .PageSize(1000)
+                          .Read(read => read.Action("ListComments", "Contract", new { contractId = Model.Contract.Id }))
+                      ))
+            </div>
+        </div>
+    </div>
+             );
+            }))
+
+<script>
+    $(document).ready(function () {
+        InitContractCard('@ViewBag.UiId');
+        resizeGrid('@("#contractCommentsGrid" + Model)');
+    });
+</script>

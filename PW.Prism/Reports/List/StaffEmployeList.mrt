@@ -1,0 +1,857 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism</Alias>
+        <ConnectionStringEncrypted>+XT7CUVZQtXiR+WYetjrY5lw2YjJVHudz0m5yeVcJWvd8stJSAPT3W9NzRhNcORPwlrRiE8Yws1FE+WAZAT2e956</ConnectionStringEncrypted>
+        <Name>prism</Name>
+      </prism>
+    </Databases>
+    <DataSources isList="true" count="5">
+      <Employees Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees</Alias>
+        <Columns isList="true" count="3">
+          <value>Line,System.Int32</value>
+          <value>Name,System.String</value>
+          <value>ItemCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_OrganizationId,OrganizationId,12,150</value>
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>SELECT 
+
+	1 as Line,
+	'Штатная числиность' as Name,
+	sum (case when pos.PositionState in (1,2,3,4,6) then 1 else 0 end ) as ItemCount
+	  FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId
+
+  group by org.Name
+  union
+  --, as NewWorkCount 
+	 --, as DismissedWorkCount
+	 --, as ActivWorkCount
+	 -- ,cast(sum (case when pos.PositionState in (1) then 1 else 0 end ) as decimal) /cast(sum (case when pos.PositionState in (1,2,3,4,6) then 1 else 0 end ) as decimal) *100 as PrecentWorkCount
+select
+	2 as Line,
+	'Принято на работу' as Name,
+	sum (case when e.DateFile between @DateStart and @DateEnd  then 1 else 0 end ) as ItemCount
+	  FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId
+  union
+select
+	3 as Line,
+	'Уволено с работы' as Name,
+	sum (case when e.TerminationDate between @DateStart and @DateEnd then 1 else 0 end )as ItemCount
+	  FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId
+  union
+select
+	4 as Line,
+	'Число работающих сотружников' as Name,
+	sum (case when pos.PositionState in (1) then 1 else 0 end ) as ItemCount
+	  FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId
+
+    union
+select
+	5 as Line,
+	'% укомплектованности кадрами' as Name,
+	cast( cast(sum (case when pos.PositionState in (1) then 1 else 0 end ) as decimal) /cast(sum (case when pos.PositionState in (1,2,3,4,6) then 1 else 0 end ) as decimal) *100 as int) as ItemCount
+	  FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where org.Id =@OrganizationId</SqlCommand>
+      </Employees>
+      <Employees1 Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees1</Alias>
+        <Columns isList="true" count="2">
+          <value>Name,System.String</value>
+          <value>ItemCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees1</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_OrganizationId,OrganizationId,12,150</value>
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>select d.Name ,
+	sum(case when pos.PositionState in (1,3,4,6) and e.OrganizationId=@OrganizationId then 1 else 0 end ) as ItemCount
+  from 
+  Dictionaries as d
+
+  left join Employees as e on e.DegreeNameId= cast( d.Id as nvarchar(max))
+left join Units as pos on pos.Id = e.PositionId
+  where  d.Type = 'DegreeNameDictionary' 
+   group by d.Name</SqlCommand>
+      </Employees1>
+      <Employees2 Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees2</Alias>
+        <Columns isList="true" count="2">
+          <value>Name,System.String</value>
+          <value>ItemCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees2</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_OrganizationId,OrganizationId,12,150</value>
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>select d.Name ,
+	sum(case when pos.PositionState in (1,3,4,6) and e.OrganizationId=@OrganizationId then 1 else 0 end ) as ItemCount
+  from 
+  Dictionaries as d
+
+  left join Employees as e on e.AcademicNameId= cast( d.Id as nvarchar(max))
+left join Units as pos on pos.Id = e.PositionId
+  where  d.Type = 'AcademicNameDictionary' 
+   group by d.Name</SqlCommand>
+      </Employees2>
+      <Employees3 Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees3</Alias>
+        <Columns isList="true" count="2">
+          <value>Name,System.String</value>
+          <value>ItemCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees3</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_OrganizationId,OrganizationId,12,150</value>
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>select 
+	'до 1 года' as Name
+	,count(*) as ItemCount
+	FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId and pos.PositionState in (1,3,4,6) and e.ExperienceSpec &lt; 1
+
+  group by org.Name
+
+  union 
+select 
+	'от 1 до 10 лет' as Name
+	,count(*) as ItemCount
+	FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId and pos.PositionState in (1,3,4,6) and e.ExperienceSpec  &gt;=1 and e.ExperienceSpec  &lt;10
+
+  group by org.Name
+ 
+  union 
+select 
+	'от 10 до 20 лет' as Name
+	,count(*) as ItemCount
+	FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId and pos.PositionState in (1,3,4,6) and e.ExperienceSpec  &gt;=10 and e.ExperienceSpec  &lt;20
+
+  group by org.Name
+    union 
+select 
+	'Свыше 20 лет' as Name
+	,count(*) as ItemCount
+	FROM [Units] as org
+	left join Employees as e on e.OrganizationId= org.Id
+	left join Units as pos on pos.Id = e.PositionId
+  where  org.Id = @OrganizationId and pos.PositionState in (1,3,4,6) and e.ExperienceSpec  &gt;=20
+
+  group by org.Name</SqlCommand>
+      </Employees3>
+      <Employees4 Ref="7" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees4</Alias>
+        <Columns isList="true" count="2">
+          <value>Name,System.String</value>
+          <value>ItemCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees4</Name>
+        <NameInSource>prism</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_OrganizationId,OrganizationId,12,150</value>
+          <value>_x0040_DateStart,DateStart,4,0</value>
+          <value>_x0040_DateEnd,DateEnd,4,0</value>
+        </Parameters>
+        <SqlCommand>select d.Name ,
+	sum(case when pos.PositionState in (1,3,4,6) and e.OrganizationId=@OrganizationId then 1 else 0 end ) as ItemCount
+  from 
+  Dictionaries as d
+
+  left join Employees as e on e.AcademicNameId= cast( d.Id as nvarchar(max))
+left join Units as pos on pos.Id = e.PositionId
+  where  d.Type = 'AcademicNameDictionary' 
+   group by d.Name</SqlCommand>
+      </Employees4>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="3">
+      <value>,OrganizationId,OrganizationId,System.String,_x0038_F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE,False,False</value>
+      <value>,DateStart,DateStart,System.DateTime,_x0037__x002F_29_x002F_2014_x0020_2:45:12_x0020_PM,False,False</value>
+      <value>,DateEnd,DateEnd,System.DateTime,_x0037__x002F_29_x002F_2014_x0020_2:46:07_x0020_PM,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="8" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="10">
+        <Text3 Ref="9" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>22.2,0.4,5.4,0.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text3</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <Text>{Time}</Text>
+          <TextBrush>Black</TextBrush>
+          <VertAlignment>Center</VertAlignment>
+        </Text3>
+        <ReportTitleBand1 Ref="10" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text1 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,0,5,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="8" />
+              <Parent isRef="10" />
+              <Text>{Time}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text2 Ref="12" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.6,19,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <Guid>ed9a07c146524d63880af2e20ba9940b</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="8" />
+              <Parent isRef="10" />
+              <Text>Отчет о работе с кадрами за период с {DateStart.ToString("dd.MM.yyyy")} по {DateEnd.ToString("dd.MM.yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>ReportTitleBand1</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+        </ReportTitleBand1>
+        <HeaderEmployees Ref="13" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <HeaderEmployees_Line Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderEmployees_Line</Name>
+              <Page isRef="8" />
+              <Parent isRef="13" />
+              <Text>№</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderEmployees_Line>
+            <HeaderEmployees_Name Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderEmployees_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="13" />
+              <Text>Наименование сведений</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderEmployees_Name>
+            <HeaderEmployees_ItemCount Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderEmployees_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="13" />
+              <Text>Показатели</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderEmployees_ItemCount>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderEmployees</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+        </HeaderEmployees>
+        <DataEmployees Ref="17" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,4.6,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataEmployees_Line Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees_Line</Name>
+              <Page isRef="8" />
+              <Parent isRef="17" />
+              <Text>{Employees.Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees_Line>
+            <DataEmployees_Name Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="17" />
+              <Text>{Employees.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees_Name>
+            <DataEmployees_ItemCount Ref="20" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="17" />
+              <Text>{Employees.ItemCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees_ItemCount>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Employees</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataEmployees</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <Sort isList="true" count="0" />
+        </DataEmployees>
+        <HeaderEmployees1 Ref="21" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,6.2,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <HeaderEmployees1_Name Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderEmployees1_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="21" />
+              <Text>Ученая степень:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderEmployees1_Name>
+            <HeaderEmployees1_ItemCount Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>HeaderEmployees1_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="21" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </HeaderEmployees1_ItemCount>
+            <Text5 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>8bfd81020e6947a6af32e9917dc1c72d</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="8" />
+              <Parent isRef="21" />
+              <Text>11</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>HeaderEmployees1</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderEmployees1>
+        <DataEmployees1 Ref="25" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,7.8,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataEmployees1_Name Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees1_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="25" />
+              <Text>{Employees1.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees1_Name>
+            <DataEmployees1_ItemCount Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees1_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="25" />
+              <Text>{Employees1.ItemCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees1_ItemCount>
+            <Text4 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>ceb9f133642f4210bf246b25e1a45ad1</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="8" />
+              <Parent isRef="25" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Employees1</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataEmployees1</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <Sort isList="true" count="0" />
+        </DataEmployees1>
+        <HeaderBand1 Ref="29" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,9.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text6 Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Guid>798ee7cf054c424e94047c9551cb035e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="8" />
+              <Parent isRef="29" />
+              <Text>Ученое звание:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="31" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>b18da38ad9ed4d2295a5c7d17f1bc123</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="8" />
+              <Parent isRef="29" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>75f0c18abf464f6b98ce51a331ac1b0f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="8" />
+              <Parent isRef="29" />
+              <Text>12</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>534bb58c618b4c4e8963782d3ced8ad9</Guid>
+          <Name>HeaderBand1</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand1>
+        <DataEmployees2 Ref="33" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,11,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataEmployees2_Name Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees2_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="33" />
+              <Text>{Employees2.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees2_Name>
+            <DataEmployees2_ItemCount Ref="35" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees2_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="33" />
+              <Text>{Employees2.ItemCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees2_ItemCount>
+            <Text9 Ref="36" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>1d24066d5427404f81aec1f2556e6fc0</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="8" />
+              <Parent isRef="33" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Employees2</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataEmployees2</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <Sort isList="true" count="0" />
+        </DataEmployees2>
+        <HeaderBand2 Ref="37" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,12.6,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text10 Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Guid>3c1563f731da4784beb219bc26d4acac</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="8" />
+              <Parent isRef="37" />
+              <Text>Стаж работы в сфере здравоохранения</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text11 Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>0621a51affd3432885da15894f26e2b6</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="8" />
+              <Parent isRef="37" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text12 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>5fa7c78852664bb3b20db642ed22bfcc</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="8" />
+              <Parent isRef="37" />
+              <Text>13</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>956a025b41254d5a91b5119ae01db96a</Guid>
+          <Name>HeaderBand2</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <PrintOnAllPages>False</PrintOnAllPages>
+        </HeaderBand2>
+        <DataEmployees3 Ref="41" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,14.2,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataEmployees3_Name Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>1.4,0,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees3_Name</Name>
+              <Page isRef="8" />
+              <Parent isRef="41" />
+              <Text>{Employees3.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees3_Name>
+            <DataEmployees3_ItemCount Ref="43" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.8,0,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataEmployees3_ItemCount</Name>
+              <Page isRef="8" />
+              <Parent isRef="41" />
+              <Text>{Employees3.ItemCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataEmployees3_ItemCount>
+            <Text13 Ref="44" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>d785200081c34ee48cc1619a9c916746</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="8" />
+              <Parent isRef="41" />
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Employees3</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataEmployees3</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <Sort isList="true" count="0" />
+        </DataEmployees3>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>47553d0ad71d47499addf1b32b87eaf5</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="45" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="46" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>8/1/2014 3:01:45 PM</ReportChanged>
+  <ReportCreated>7/29/2014 2:43:47 PM</ReportCreated>
+  <ReportFile>D:\Spring\trunk\src\PW.Prism\PW.Prism\Reports\List\StaffEmployeList.mrt</ReportFile>
+  <ReportGuid>3c501750fe8e40a3884e0ff103082fc5</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2013.3.1800</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

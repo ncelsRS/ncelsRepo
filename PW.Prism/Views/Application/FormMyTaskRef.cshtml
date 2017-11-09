@@ -1,0 +1,246 @@
+﻿@using System.Collections
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@model Guid
+@*<div class="pwToolbar" id="@("taskToolbar" + Model)">
+    <div class="btn-toolbar" role="toolbar" id="@("taskButton" + Model)">
+
+        <div class="btn-group">
+            <button disabled type="button" data-bind="click: reasigment" class="btn btn-default" id="@("reasigment" + Model)"><span class="pwToolbarButtonReasigment"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Поручение_304__00</span></button>
+        </div>
+        <div class="btn-group">
+            <button disabled type="button" data-bind="click: execute" class="btn btn-default" id="@("execute" + Model)"><span class="pwToolbarButtonExecute"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнение_276__00</span></button>
+            <button disabled type="button" data-bind="click: execute" class="btn btn-default" id="@("executeRef" + Model)"><span class="pwToolbarButtonExecute"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнение_276__00</span></button>
+        </div>
+    </div>
+</div>*@
+<script type="text/x-kendo-tmpl" id="CommentTemplate">
+    <div style="clear: both;">
+
+        <span>#=Text#</span>
+ 
+    </div>
+</script>
+<script id="taskTree-template" type="text/kendo-ui-template">
+    # if (item.Type > -1) { #
+    <table id="pwTableTaskView">
+        <tr class="pwActivityStyle">
+            <td style="padding: 2px 4px;"><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            <td style="padding: 2px 4px;">#: item.CreateDateTime #</td>
+            #if (item.ExecutionDateTime!="") {#
+            <td style="padding: 2px 4px;">#: item.ExecutionDateTime #</td>
+            # } #
+            <td style="padding: 2px 4px; white-space: pre-line;">#: item.Executor #</td>
+            #if (item.Text!=null) {#
+            <td style="padding: 2px 4px; width: 250px; white-space: pre-line;">#: item.Text #</td>
+            # } #
+            # if (item.IsAllowEdit) { #
+            <td style="padding: 2px 4px;">
+                <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-default" onclick='taskEditDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" onclick='taskDeleteDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+            </td>
+            # } #
+        </tr>
+    </table>
+    # } else { #
+    <table>
+        <tr class="pwTaskStyle">
+            <td style="padding: 2px 4px !important;"><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            @*<td style="padding: 2px 4px !important;">#: item.Number #</td>*@
+            # if (item.IsResponsible) { #
+            # if (item.IsMineLine) { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwIsMineLine pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } else { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } #
+            <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsibleX">
+                <img src="../../Content/images/FunctionType_Responsible.png" height="16" width="16" title="@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00" />
+            </td>
+            # } else { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible4">#: item.Executor #</td>
+            # } #
+
+        </tr>
+        # for (var i = 0; i < item.Reports.length; i++) { #
+        <tr class="pwTaskStyle">
+            <td style="padding: 2px 4px !important;" colspan="2">#: item.Reports[i].ReportDate #</td>
+            <td style="padding: 2px 4px !important; width: 200px; white-space: pre-line;" colspan="2">#: item.Reports[i].ReportText #</td>
+        </tr>
+        # } #
+    </table>
+    # } #
+</script>
+<div class="pwPage">
+    @(Html.Kendo().Grid<Task>()
+          .Name("gridMyTask" + Model)
+      .Columns(columns => {
+
+          columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Срокисп_283__00).Width(100);
+          columns.Bound(p => p.Text).Title("Текст").Width(150);
+          columns.Bound(p => p.AuthorValue).Title("Автор").Width(150);
+          columns.ForeignKey(p => p.State, ((IEnumerable)ViewData["StateList"]), "Id", "Name").Title("Статус").Width(150);
+
+      })
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable().ClientDetailTemplateId("templateGrid")
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable()
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .HtmlAttributes(new { @class = "pwGridHistory" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .PageSize(50)
+                               .Read(read => read.Action("ListMyTask", "Application", new {id = Model}))
+                           )
+    )
+</div>
+<script id="templateGrid" type="text/kendo-template">
+
+    <div class="btn-group pwTaskCommandWrapper">
+
+        # if (Type == 0) { #
+        # if (State == 4 || State == 0 ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonResolution_#=TaskId#" onclick="taskOnReassignmentRef('#=TaskId#')"><span class="pwTaskButtonRes"></span><span class="pwToolbarButtonTitle">Поручение</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonResolution_#=TaskId#" onclick="taskOnReassignmentRef('#=TaskId#')" disabled><span class="pwTaskButtonRes"></span><span class="pwToolbarButtonTitle">Поручение</span></button></div>
+        # } #
+        # } #
+        # if (Type == 1 || Type == 2) { #
+        # if (State == 1 || State == 4|| State == 3|| State == 0 ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonReasigment_#=TaskId#" onclick="taskOnReassignmentRef('#=TaskId#')"><span class="pwTaskButtonRea"></span><span class="pwToolbarButtonTitle">Отправить на согласование</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonReasigment_#=TaskId#" onclick="taskOnReassignmentRef('#=TaskId#')" disabled><span class="pwTaskButtonRea"></span><span class="pwToolbarButtonTitle">Отправить на согласование</span></button></div>
+        # } #
+        # } #
+        # if (Type == 3) { #
+        # if ( State == 4|| State == 0 ) { #
+        # if (TypeEx == 1) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement1('#=TaskId#')"><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Перевести_306__00</span></button></div>
+        # } else { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement('#=TaskId#')"><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Согласовать_260__00</span></button></div>
+        # } #
+        # } else {#
+        # if (TypeEx == 1) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement1('#=TaskId#')" disabled><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Перевести_306__00</span></button></div>
+        # } else { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement('#=TaskId#')" disabled><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Согласовать_260__00</span></button></div>
+        # } #
+        # } #
+        # } #
+        # if (Type == 4) { #
+        # if (State == 0 || State == 4 ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonSigning_#=TaskId#" onclick="taskOnSing('#=TaskId#')"><span class="pwTaskButtonSig"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Нарегистрацию_192__00</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonSigning_#=TaskId#" onclick="taskOnSing('#=TaskId#')" disabled><span class="pwTaskButtonSig"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Нарегистрацию_192__00</span></button></div>
+        # } #
+        # } #
+        # if (Type == 4) { #
+        # if (State == 0 || State == 4 ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonTranslate_#=TaskId#" onclick="taskOnTranslate('#=TaskId#')"><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Наперевод_277__00</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonTranslate_#=TaskId#" onclick="taskOnTranslate('#=TaskId#')" disabled><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Наперевод_277__00</span></button></div>
+        # } #
+        # } #
+        # if (Type == 0 || Type == 1 || Type == 2) { #
+        # if ((State == 1 || State == 4|| State == 3|| State == 0 )  ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteTrue_#=TaskId#" onclick="taskOnExcludeTask('#=TaskId#')"><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнение_276__00</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteTrue_#=TaskId#" onclick="taskOnExcludeTask('#=TaskId#')" disabled><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Исполнение_276__00</span></button></div>
+        # } #
+        # } #
+        # if (Type == 0 || Type == 1 || Type == 2) { #
+        # if ((State == 1 || State == 4|| State == 3|| State == 0 )  ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteCommentTrue_#=TaskId#" onclick="taskOnExcludeCommentTask('#=TaskId#')"><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">Замечания</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteCommentTrue_#=TaskId#" onclick="taskOnExcludeCommentTask('#=TaskId#')" disabled><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">Замечания</span></button></div>
+        # } #
+        # } #
+        # if ((Type == 3) && IsAddBp && ( State == 4|| State == 0)) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAddAgreement_#=TaskId#" onclick="taskOnAddAgreement('#=TaskId#')"><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Добавитьсогласование_51__00</span></button></div>
+        # } #
+
+        # if (Type == 3 || Type == 4) { #
+        # if (State == 1 || State == 4|| State == 0  ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteFalse_#=TaskId#" onclick="taskOnReject('#=TaskId#')"><span class="pwTaskButtonRej"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отказать_332__00</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteFalse_#=TaskId#" onclick="taskOnReject('#=TaskId#')" disabled><span class="pwTaskButtonRej"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отказать_332__00</span></button></div>
+        # } #
+        # } #
+
+        # if (Type == 0 || Type == 1 || Type == 2) { #
+        # if (State == 1 || State == 4|| State == 3|| State == 0 ) { #
+        <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle pwWidthAuto" data-toggle="dropdown" id="ButtonCreateProject_#=TaskId#">
+                <span class="pwTaskCommandPrjAdd"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Создатьпроект_191__00</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a onclick='addProjectOutClickByTask("#=TaskId#")'>Отправить замечания заявителю</a></li>
+            </ul>
+        </div>
+        # } else {#
+        <div class="btn-group">
+            <button type="button" disabled class="btn btn-default dropdown-toggle pwWidthAuto" data-toggle="dropdown" id="ButtonCreateProject_#=TaskId#">
+                <span class="pwTaskCommandPrjAdd"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Создатьпроект_191__00</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a onclick='addProjectOutClickByTask("#=TaskId#")'>Отправить замечания заявителю</a></li>
+            </ul>
+            # } #
+            # } #
+        </div>
+    </div>
+    @(Html.Kendo().TabStrip()
+          .Name("tabStripGridMyTask_#=TaskId#").HtmlAttributes(new { @style = "height:300px; width: 862px; border:0;background: none repeat scroll 0 0 ; clear: both;" })
+          .Animation(false)
+          .SelectedIndex(0)
+          .Items(items => {
+          items.Add().Text("Замечания").Content(
+            @<div style="height:256px" id="DocumentComment_#=TaskId#">
+
+                @(Html.Kendo().ListView<Report>()
+                                .Name("listViewGridMyComment_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("CommentTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("ReportCommentTask", "Application", new { taskId = "#=TaskId#" }))).ToClientTemplate()
+                )
+
+            </div>);
+    items.Add().Text("Исполнение").LoadContentFrom("ReportDetails", "Application", new { id = "#=TaskId#" });
+    items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вложения_333__00).Content(
+                @<div style="height:256px" id="DocumentFileTask_#=TaskId#">
+                    @*<a onclick="DownloadAllFile('#=TaskId#')">Скачать все одним файлом</a>*@
+                    
+                    @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listViewGridMyTask_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadTask", "Upload", new { taskId = "#=TaskId#" }))).ToClientTemplate()
+                    )
+          
+                </div>);
+
+              items.Add().Text("Поручения").Content(
+                @<text>
+                    @(Html.Kendo().TreeView()
+                                              .Name("treeviewGridTask_MyTask#=TaskId#")
+                                      .HtmlAttributes(new { @class = "pwTaskTree2" })
+                                      .TemplateId("taskTree-template")
+                                      .ExpandAll(true)
+                                      .DataSource(dataSource => dataSource
+                                          .Model(m => m.Id("Id").HasChildren("HasChildren").Children("Children"))
+                                                  .Read(read => read.Action("BpTasksMyTask", "Task", new { id = "#=DocumentId#", taskId = "#=TaskId#" }))
+                                      ).ToClientTemplate())
+                </text>);
+          }).ToClientTemplate())
+
+</script>

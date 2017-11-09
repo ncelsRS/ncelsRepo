@@ -1,0 +1,213 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.Models.Expertise.IStageEntity
+@{
+    var exampleModal = Model.DrugDeclarationId + "exampleModal";
+    var numberLetter = Model.DrugDeclarationId + "_NumberLetter";
+    var dateSend = Model.DrugDeclarationId + "_DateSend";
+    var subject = Model.DrugDeclarationId + "_Subject";
+    var note = Model.DrugDeclarationId + "_Note";
+    var submit = Model.DrugDeclarationId + "_submit";
+    var tableName = Model.DrugDeclarationId + "_tableName";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Переписка
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table style="width: 100%; text-align: center" id="@tableName">
+                <thead>
+                    <tr>
+                        <td style="width: 160px">Этап</td>
+                        <td style="width: 100px">Тип</td>
+                        @*                        <td>Вид</td>*@
+                        <td style="width: 100px">№ письма</td>
+                        <td>Автор</td>
+                        <td style="width: 100px">Статус</td>
+                        <td style="width: 120px">Дата создания</td>
+                        <td style="width: 120px">Дата отправки</td>
+                        <td style="width: 120px">Дата прочтения</td>
+                        @*                    <td>Комментарии</td>*@
+                        <td style="width: 100px"></td>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.ExpDrugCorespondences.Count; i++)
+                    {
+                        var number = Model.ExpDrugCorespondences[i].Id + "_Number";
+                        var status = Model.ExpDrugCorespondences[i].Id + "_Status";
+                        var datesend = Model.ExpDrugCorespondences[i].Id + "_DateSend";
+
+                        <tr rowid="@Model.ExpDrugCorespondences[i].Id">
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].EXP_DIC_Stage.NameRu, new { @class = "form-control", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].EXP_DIC_CorespondenceType.NameRu, new { @class = "form-control", @readonly = "readonly" })
+                            </td>
+                            @* <td>
+                                    @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].EXP_DIC_CorespondenceKind.NameRu, new { @class = "form-control", @readonly = "readonly" })
+                                </td>*@
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].NumberLetter, new { @class = "form-control", @readonly = "readonly", id = number })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].Employee.DisplayName, new { @class = "form-control", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].Dictionary.Name, new { @class = "form-control", @readonly = "readonly", id= status })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].DateCreate, new { @class = "form-control", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].DateSend, new { @class = "form-control", @readonly = "readonly", id= datesend })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(e => Model.ExpDrugCorespondences[i].DateRead, new { @class = "form-control", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                <div class="btn-group" style="float: right; margin-right: 10px; color: white; text-align: left">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Операции <span class="caret"></span></button>
+                                    <ul class="dropdown-menu btnmenu">
+
+                                        <li class="btn-info">
+                                            <a href="#" class="link-object" onclick="location.href = '@Url.Action("ExportFile", "DrugPrimary", new { id = @Model.ExpDrugCorespondences[i].Id })'" @*onclick="showDialogCorespondence('@Model.ExpDrugCorespondences[i].Id','@Model.DrugDeclarationId',true, '@controllerName')"*@ style="color: white; padding: 5px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Просмотр</a>
+                                        </li>
+                                        @if (!Model.ExpDrugCorespondences[i].IsReadOnly)
+                                        {
+                                            if(Model.ExpDrugCorespondences[i].Dictionary.Code == CodeConstManager.STATUS_DRAFT)
+                                             {
+                                                 <li class="btn-primary edit-li">
+                                                     <a href="#" style="color: white; padding: 5px" onclick="sendExpertiseLetterOnAgreement(this, '@Model.ExpDrugCorespondences[i].Id', '1')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> На согласование</a>
+                                                 </li>
+                                             }
+                                            if(Model.ExpDrugCorespondences[i].Dictionary.Code == CodeConstManager.STATUS_AGREED)
+                                            {
+                                                <li class="btn-primary edit-li">
+                                                    <a href="#" style="color: white; padding: 5px" onclick="sendExpertiseLetterOnAgreement(this, '@Model.ExpDrugCorespondences[i].Id', '2')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> На подписание</a>
+                                                </li>
+                                            }
+                                            if (Model.ExpDrugCorespondences[i].Dictionary.Code == CodeConstManager.STATUS_SIGNED)
+                                            {
+                                                <li class="btn-success edit-li">
+                                                    <a href="#" class="sendExpRow" style="color: white; padding: 5px" object-id="@Model.ExpDrugCorespondences[i].Id"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Отправить</a>
+                                                </li>
+                                            }
+                                            <li class="btn-warning edit-li">
+                                                <a href="#"  class="editExpRow" onclick="showDialogCorespondence('@Model.ExpDrugCorespondences[i].Id','@Model.DrugDeclarationId',false, '@controllerName')" class="link-object" style="color: white; padding: 5px"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Редактировать</a>
+                                            </li>
+                                            <li class="btn-danger edit-li">
+                                                <a href="#" class="deleteExpRow" style="color: white; padding: 5px"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Удалить</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                <tfoot>
+                    @*  <tfoot>
+                            <tr>
+                                <td colspan="9" style="text-align: left;">
+                                    <button type="button" class="btn btn-success btn-sm" style="margin-top: 10px">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                                    </button>
+                                </td>
+                            </tr>
+                        </tfoot>*@
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="@exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" currentId="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Переписка</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="@numberLetter" class="control-label">№ письма:</label>
+                        <input type="text" class="form-control" id="@numberLetter" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="@dateSend" class="control-label">Дата отправки:</label>
+                        <input id="@dateSend" name="@dateSend" />
+                    </div>
+                    <div class="form-group">
+                        <label for="@subject" class="control-label">Тема:</label>
+                        <input type="text" class="form-control" id="@subject" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="@note" class="control-label">Сообщение:</label>
+                        <textarea class="form-control" id="@note" rows="8"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-success" onclick="submitCorespondence('@Model.DrugDeclarationId', '@controllerName')" id="@submit">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#@dateSend").kendoDatePicker();
+
+        $("#" + '@tableName').on("click", ".deleteExpRow", function () {
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                removeCorespondence(entityId, '@controllerName');
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+
+        $("#" + '@tableName').on("click", ".sendExpRow", function () {
+            var row = $(this).closest('tr');
+            var ul = $(this).closest('ul');
+            var modelId = row.attr('rowid');
+            var objectId = "#" + $(this).attr('object-id');
+            var success = function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/DrugPrimary/SendMailRemark",
+                    data: { 'id': modelId },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        $(ul).find(".edit-li").each(function() {
+                            $(this).hide();
+                        });
+                        var status = objectId + "_Status";
+                        var datesend = objectId + "_DateSend";
+                        $(status).val(data.statusName);
+                        $(datesend).val(data.sendDate);
+                    },
+                    error: function (data) {
+                        alert("1Error" + data);
+                    }
+                });
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Подтверждение", "Вы уверены что хотите отправить письмо?", success, cancel);
+        });
+    });
+</script>

@@ -1,0 +1,182 @@
+﻿@using PW.Ncels.Database.Constants 
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@model PW.Prism.ViewModels.Expertise.ExpertiseEntity
+@{
+    var currentUser = UserHelper.GetCurrentEmployee().Id;
+    var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
+}
+@helper GridToolbarTemplate()
+{
+    if (EmployePermissionHelper.CanDrugDeclarationExecutorsAssignment)
+    {
+        <div class="pull-left">
+            @( Html.Kendo().Button().Name("toWork" + Model.Guid)
+                   .Content("Распределить"))
+        </div>
+    }
+    <div class="pull-left">
+        @( Html.Kendo().Button().Name("find" + Model.Guid)
+               .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+               .ImageUrl("/Content/images/find.png"))
+    </div>
+    <div class="pull-left">
+        @( Html.Kendo().Button().Name("clearSearch" + Model.Guid)
+               .Content("Очистить форму поиска")
+               .ImageUrl("/Content/images/clearSearch.png"))
+    </div>
+    <div class="pull-right">
+        <div style="display: inline-block" id="columnMenu@( Model.Guid)" class="custom-grid-menu"></div>
+        <div style="display: inline-block">
+            @( Html.Kendo().Button().Name("reload" + Model.Guid)
+                   .Content("")
+                   .ImageUrl("/Content/images/reload.png"))
+        </div>
+    </div>
+}
+
+@(Html.Kendo().Splitter()
+      .HtmlAttributes(new {@class = "pwSplitter k-block"})
+      .Name(("splitter" + Model.Guid))
+      .Panes(panes =>
+      {
+          panes.Add()
+              .Size("250px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("250px")
+              .Content(
+                  @<div class="pwPanelBar">
+                      @( Html.Kendo().PanelBar().HtmlAttributes(new {@class = "pwPanelBar"})
+                             .Name("panelbar" + Model.Guid)
+                             .ExpandMode(PanelBarExpandMode.Multiple)
+                             .ExpandAll(true)
+                             .HtmlAttributes(new {style = "width:auto;"})
+                             .Events(e => e.Select("panelDrugDecalarationSelect"))
+                             .Items(panelbar =>
+                             {
+                                 panelbar.Add().Expanded(true);
+                                 panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                     .Items(projects =>
+                                     {
+                                         if (EmployePermissionHelper.CanDrugDeclarationExecutorsAssignment)
+                                             projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>()
+                                             {
+                                                 {"ItemId", EXP_DIC_StageStatus.New}, {"ItemType", "StatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "new" + Model.Guid.ToString()}
+                                             }).Selected(true);
+
+                                         projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", EXP_DIC_StageStatus.InWork}, {"ItemType", "StatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inWork" + Model.Guid.ToString()}
+                                         }).Selected(!EmployePermissionHelper.CanDrugDeclarationExecutorsAssignment);
+
+                                         projects.Add().Text("На доработке").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", EXP_DIC_StageStatus.InReWork}, {"ItemType", "StatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inReWork" + Model.Guid.ToString()}
+                                         });
+
+                                         projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", EXP_DIC_StageStatus.Completed}, {"ItemType", "StatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "completed" + Model.Guid.ToString()}
+                                         });
+                                     });
+                             })
+                            )
+                  </div>
+              );
+
+          panes.Add().Scrollable(false).Size("100%").Content(
+              @<div class="pwPanelBar">
+                  <div class="pwBlockAdd k-block">
+                      <div id="pwOne">
+
+                      </div>
+                      <div id="pwTwo">
+
+                      </div>
+                      <div id="pwFour">
+                          @( Html.Kendo().Button().Name("export" + Model.Guid).HtmlAttributes(new {@class = "pwWidth100"})
+                                 .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                 .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
+                      </div>
+                  </div>
+                  @( Html.Kendo().Grid<EXP_DrugDeclarationRegisterView>()
+                         .Name("gridDrugDecalaration" + Model.Guid)
+                         .Columns(columns =>
+                         {
+                             columns.Bound(p => p.StageId).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
+                                 .HeaderHtmlAttributes(new{@class= "not-visible-custom-column" });
+                             columns.Bound(p => p.Number).Width(125).ClientTemplate(
+                                 "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getDeclarationDetails('#=StageId#', '#=Number#','" + controllerName + "')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                 "</div>"
+                                 ).Title("№ заявления");
+                             columns.Bound(p => p.TypeNameRu).Title("Вид регистрации").Width(150);
+                             columns.Bound(p => p.NameRu).Title("Наименование ЛС").Width(200).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.FirstSendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи").Width(120);
+                             columns.Bound(p => p.ProducerRu).Title("Производитель").Width(200).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.PackerRu).Title("Упаковщик").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.ReleaseControlRu).Title("Выпускающий контроль").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.CountryRu).Title("Страна").Width(175);
+                             columns.Bound(p => p.ApplicantRu).Title("Заявитель").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.StageResultRu).Title("Результат").Width(150).ClientTemplate(string.Format("#= StageCode=='{0}' ? '' : StageResultRu #", EXP_DIC_Stage.ProcCenter));
+                             columns.Bound(p => p.DrugTypeRu).Title("Классификация").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.MnnRu).Title("МНН").Width(200).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.DrugFormRu).Title("Лек. форма").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.DosageRu).Title("Дозировка и концентрация").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             columns.Bound(p => p.StageRu).Title("Этап экспертизы").ClientTemplate(string.Format("#= StageCode=='{0}' ? '' : StageRu #", EXP_DIC_Stage.ProcCenter)).Width(200).Hidden(true);
+                             columns.Bound(p => p.ExpertInitials).Title("Эксперт").ClientTemplate(string.Format("#= StageCode=='{0}' ? '' : ExpertInitials #", EXP_DIC_Stage.ProcCenter)).Width(200).Hidden(true);
+                             columns.Bound(p => p.Suspended).Title("Приостановлено").Hidden(true).ClientTemplate("<input type='checkbox' #= Suspended ? checked='checked' :'' # onclick='return false;' />").Width(150).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.SuspensionPeriod).Hidden(true).Title("Срок приостановки").Width(100);
+                             columns.Bound(p => p.Paid).Title("Пр. оплаты").Hidden(true).ClientTemplate("<input type='checkbox' #= Paid ? checked='checked' :'' # />").Width(120).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.OnBoard).Title("На ЭС").Hidden(true).ClientTemplate("<input type='checkbox' #= OnBoard ? checked='checked' :'' # />").Width(100).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.ProductionEvaluation).Hidden(true).Title("Оценка производства").ClientTemplate("<input type='checkbox' #= ProductionEvaluation ? checked='checked' :'' # />").Width(140).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.PaymentDate).Hidden(true).Format("{0:dd.MM.yyyy}").Title("Дата оплаты").Width(120);
+                             columns.Bound(p => p.PaymentNumber).Hidden(true).Title("Номер направления").Width(120);
+                             columns.Bound(p => p.InvoiceNumber1C).Hidden(true).Title("Номер счета").Width(120);
+                             columns.Bound(p => p.StageStartDate).Hidden(true).Format("{0:dd.MM.yyyy}").Title("Дата начала").Width(120);
+                             columns.Bound(p => p.StageControlDate).Hidden(true).Format("{0:dd.MM.yyyy}").Title("Контрольная дата").Width(130);
+                             columns.Bound(p => p.ConclusionDate).Hidden(true).Format("{0:dd.MM.yyyy}").Title("Дата заключения").Width(130);
+                             columns.Bound(p => p.StageCompleted).Hidden(true).Title("Этап завершен").ClientTemplate("<input type='checkbox' #= StageCompleted ? checked='checked' :'' # />").Width(100).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.StageEndDate).Hidden(true).Format("{0:dd.MM.yyyy}").Title("Дата завершения").Width(130);
+                             columns.Bound(p => p.StageOverdue).Hidden(true).Title("Этап просрочен").ClientTemplate("<input type='checkbox' #= StageOverdue ? checked='checked' :'' # />").Width(135).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.OverdueDays).Hidden(true).Title("Просрочено дней").Width(150);
+                             columns.Bound(p => p.LetterNumber).Hidden(true).Title("Исх. Письмо").Width(150);
+                             columns.Bound(p => p.StageDays).Hidden(true).Title("Количество дней").Width(150);
+                             columns.Bound(p => p.StatusCode).Hidden(true).Title("Код статуса").Width(150).HeaderHtmlAttributes(new{@class= "not-visible-custom-column" });
+                             columns.Bound(p => p.IsNewProducer).Hidden(true).Title("Новый производитель").ClientTemplate("<input type='checkbox' #= IsNewProducer ? checked='checked' :'' # />").Width(175).HtmlAttributes(new {style = "text-align: center;"});
+                             columns.Bound(p => p.ActiveSubstanceRu).Hidden(true).Title("Состав").Width(300).ClientTemplate("#= ActiveSubstanceRu? ActiveSubstanceRu: ''# #=SecondarySubstanceRu? SecondarySubstanceRu: ''#")
+                                 .HtmlAttributes(new {@class = "need-cell-tooltip"});
+                         })
+                         .AutoBind(false)
+                         .Reorderable(reorderable => reorderable.Columns(true))
+                         .Resizable(resizable => resizable.Columns(true))
+                         .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                         .Groupable()
+                         .Sortable()
+                         .Filterable()
+                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .Scrollable(scrollable => scrollable.Virtual(true))
+                         .Pageable()
+                         .HtmlAttributes(new {@class = "pwGrid"})
+                         .DataSource(dataSource => dataSource
+                             .Ajax()
+                             .Sort(sort => { sort.Add("FirstSendDate").Descending(); })
+                             .PageSize(50)
+                             .Read(read => read.Action("ListRegister", "DrugDeclaration", new {type = 0, stage = Model.DicStageId}))
+                         ))
+
+              </div>
+              );
+      }))
+<script>
+    $(document).ready(function() {
+        resizeGrid('@("#gridDrugDecalaration" + Model.Guid)');
+        InitFilterDrugDecalaration('@Model.Guid.ToString()');
+        $('#@((EmployePermissionHelper.CanDrugDeclarationExecutorsAssignment?"new":"inWork")+Model.Guid)').click();
+        initCustomColumnMenu('@("gridDrugDecalaration" + Model.Guid)',
+            '@("columnMenu" + Model.Guid)',
+            'DrugDeclarationRegister',
+            '@(currentUser)');
+    });
+</script>

@@ -1,0 +1,455 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model EXP_Materials
+
+<style>
+    .k-datepicker {
+        width: 100%;
+    }
+
+    .k-dropdown {
+        width: 100%;
+    }
+
+    legend {
+        margin-bottom: 3px;
+    }
+
+    fieldset {
+        margin-left: 5px;
+    }
+
+    .k-grid .k-grid-header .k-header .k-link {
+        height: auto;
+    }
+
+    .k-grid .k-grid-header .k-header {
+        white-space: normal;
+    }
+
+    .editColumn {
+        vertical-align: top;
+        width: 33%;
+    }
+
+    dt, dd {
+        float: left;
+    }
+
+    dt {
+        clear: both;
+        width: 35%;
+    }
+
+    dd {
+        width: 65%;
+    }
+</style>
+
+<div class="k-content">
+@Html.HiddenFor(model => model.Id, new {Id = "EXP_MaterialsId"})
+@Html.HiddenFor(model => model.DrugDeclarationId, new {Id = "EXP_Materials_DdId"})
+<fieldset>
+    <legend>Общие сведения</legend>
+    <table style="width: 100%">
+        <tr style="vertical-align: top;">
+            <td class="editColumn">
+                <dl class="pwEditRef">
+                    <dt>
+                        Направление
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+
+                    <dt>
+                        Вид регистрации
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+
+                    <dt>
+                        Дата регистрации
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+
+                    <dt>
+                        Торговое название
+                    </dt>
+                    <dd>
+
+                    </dd>
+                </dl>
+            </td>
+            <td>
+                <dl class="pwEditRef">
+                    <dt>
+                        Номер направления
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+
+                    <dt>
+                        Документ
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+
+                    <dt>
+                        Номер документа
+                    </dt>
+                    <dd>
+
+                    </dd>
+                    <br/>
+                </dl>
+            </td>
+        </tr>
+    </table>
+</fieldset>
+@(
+    Html.Kendo().TabStrip()
+        .Name("tabstripDirectionToPay")
+        .Animation(animation =>
+            animation.Open(effect =>
+                effect.Fade(FadeDirection.In)))
+        .Items(tabstrip =>
+        {
+            tabstrip.Add().Text("Сведения о материале")
+                .Selected(true)
+                .Content(@<table style="width: 100%">
+                         <tr style="vertical-align: top;">
+                         <td class="editColumn">
+                             <dl class="pwEditRef">
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Id)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().TextBoxFor(model => model.Id).Enable(false).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.IsAdditional)
+                                 </dt>
+                                 <dd>
+                                     @Html.CheckBoxFor(model => model.IsAdditional)
+                                     <span data-for="IsAdditional" class="k-invalid-msg"></span>
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.TypeId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(model => model.TypeId)
+                                            .ValuePrimitive(true)
+                                            .DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .HtmlAttributes(new {required = "required"})
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = Dictionary.MaterialRdType.DicCode})).ToClientTemplate()
+                                           )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Name)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().TextBoxFor(model => model.Name).HtmlAttributes(new {required = "required"}).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.DrugFormId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().ComboBoxFor(p => p.DrugFormId)
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetDrugFormNodes", "Material")).ToClientTemplate()
+                                           )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Dosage)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.Dosage).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.DosageUnitId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.DosageUnitId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = Dictionary.MeasureType.DicCode})).ToClientTemplate()
+                                           )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Concentration)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().TextBoxFor(model => model.Concentration).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Volume)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.Volume).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.VolumeUnitId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.VolumeUnitId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = Dictionary.MeasureType.DicCode})).ToClientTemplate())
+                                     
+                                 </dd>
+                                 <br/>
+
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.DosageQuantity)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.DosageQuantity).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.IsContainNPP)
+                                 </dt>
+                                 <dd>
+                                     @Html.CheckBoxFor(model => model.IsContainNPP)
+                                     <span data-for="IsAdditional" class="k-invalid-msg"></span>
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ProducerId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.ProducerId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true)
+                                            .DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .HtmlAttributes(new {required = "required"})
+                                            .DataSource(source => source.Read("GetOrganizations", "Dictionaries"))
+                                            .ToClientTemplate()
+                                           )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.CountryId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.CountryId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .HtmlAttributes(new {required = "required"})
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = Dictionary.CountryDic.DicCode}))
+                                            .ToClientTemplate()
+                                      )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Quantity)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.Quantity).HtmlAttributes(new {required = "required"}).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.UnitId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.UnitId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .HtmlAttributes(new {required = "required"})
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = Dictionary.MeasureType.DicCode}))
+                                            .ToClientTemplate()
+                                      )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.Batch)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().TextBoxFor(model => model.Batch).HtmlAttributes(new {required = "required"}).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+                             </dl>
+
+                         </td>
+                         <td class="editColumn">
+                             <dl class="pwEditRef">
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.DateOfManufacture)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().DatePickerFor(model => model.DateOfManufacture).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ExpirationDate)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().DatePickerFor(model => model.ExpirationDate).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.RetestDate)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().DatePickerFor(model => model.RetestDate).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.IsCertificatePassport)
+                                 </dt>
+                                 <dd>
+                                     @Html.CheckBoxFor(model => model.IsCertificatePassport)
+                                     <span data-for="IsCertificatePassport" class="k-invalid-msg"></span>
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.StorageConditionId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.StorageConditionId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = "StorageCondition"}))
+                                            .ToClientTemplate()
+                                      )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.StorageTemperatureFrom)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.StorageTemperatureFrom).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.StorageTemperatureTo)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.StorageTemperatureTo).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ExternalStateId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.ExternalStateId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = "MaterialRdExternalState"}))
+                                            .ToClientTemplate()
+                                      )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ActiveSubstancePercent)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.ActiveSubstancePercent).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.WaterContentPercent)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().NumericTextBoxFor(model => model.WaterContentPercent).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ConcordanceStatementId)
+                                 </dt>
+                                 <dd>
+                                     @( Html.Kendo().DropDownListFor(p => p.ConcordanceStatementId)
+                                            .OptionLabel("Выберите...")
+                                            .ValuePrimitive(true).DataValueField("Id")
+                                            .DataTextField("Name")
+                                            .DataSource(source => source.Read("GetReference", "Dictionaries", new {type = "MaterialRdExternalState"}))
+                                            .ToClientTemplate()
+                                           )
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.OpeningDate)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().DatePickerFor(model => model.OpeningDate).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                                 <dt>
+                                     @Html.DisplayNameFor(model => model.ExpirationAfterOpeningDate)
+                                 </dt>
+                                 <dd>
+                                     @Html.Kendo().DatePickerFor(model => model.ExpirationAfterOpeningDate).ToClientTemplate()
+                                 </dd>
+                                 <br/>
+
+                             </dl>
+                         </td>
+                         </tr>
+                         </table>);
+
+            tabstrip.Add().Text("Сведения об остатках").Content("В работе");
+
+            tabstrip.Add().Text("Журнал событий").Content("В работе");
+
+            tabstrip.Add().Text("История изменений").Content("В работе");
+        }).ToClientTemplate()
+)
+</div>

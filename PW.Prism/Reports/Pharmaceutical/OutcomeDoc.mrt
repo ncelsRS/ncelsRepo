@@ -1,0 +1,1973 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <ncels Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>ncels</Alias>
+        <ConnectionStringEncrypted>9Fz1z01KcoH5CE3MRwBpJ9F0y89IA1Gky0ztBOFE4RvFbrXrV127XfVGnJzDSaRn31b7jEZro9VoR7nsYXjge9Fa+QlDXdNd4Xyc8Muod2f54ssC1wXDzUZBnHjqgOAv2RI=</ConnectionStringEncrypted>
+        <Name>ncels</Name>
+      </ncels>
+    </Databases>
+    <DataSources isList="true" count="4">
+      <EXP_DrugWrapping Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EXP_DrugWrapping</Alias>
+        <Columns isList="true" count="12">
+          <value>DrugDosageId,System.Int64</value>
+          <value>Id,System.Int64</value>
+          <value>WrappingTypeId,System.Int32</value>
+          <value>WrappingKindId,System.Int32</value>
+          <value>WrappingSize,System.Single</value>
+          <value>SizeMeasureId,System.Int64</value>
+          <value>WrappingVolume,System.Single</value>
+          <value>VolumeMeasureId,System.Int64</value>
+          <value>CountUnit,System.Int32</value>
+          <value>Note,System.String</value>
+          <value>boxName,System.String</value>
+          <value>wrappingTypeName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EXP_DrugWrapping</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>PharmaceuticalFinalDocId,PharmaceuticalFinalDocId,14,0</value>
+        </Parameters>
+        <SqlCommand>select dw.*
+	,b.name as boxName
+	,wt.NameRu as wrappingTypeName
+from dbo.EXP_ExpertisePharmaceuticalFinalDoc as epfd
+left join dbo.EXP_ExpertiseStageDosage as esd on esd.Id = epfd.DosageStageId 
+left join dbo.EXP_DrugDosage as ddos on ddos.Id = esd.DosageId
+left join dbo.EXP_DrugWrapping as dw on dw.DrugDosageId = ddos.Id
+left join dbo.sr_boxes as b on b.Id = dw.WrappingKindId
+left join dbo.EXP_DIC_WrappingType as wt on wt.Id = dw.WrappingTypeId
+where epfd.Id = @PharmaceuticalFinalDocId</SqlCommand>
+      </EXP_DrugWrapping>
+      <EXP_DrugOrganizations Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EXP_DrugOrganizations</Alias>
+        <Columns isList="true" count="39">
+          <value>Id,System.Int64</value>
+          <value>DrugDeclarationId,System.Int64</value>
+          <value>Type,System.Int32</value>
+          <value>IsResident,System.Boolean</value>
+          <value>PayerTypeDicId,System.Int64</value>
+          <value>BossLastName,System.String</value>
+          <value>BossFirstName,System.String</value>
+          <value>BossMiddleName,System.String</value>
+          <value>PaymentBill,System.String</value>
+          <value>Iin,System.String</value>
+          <value>BankBik,System.String</value>
+          <value>NameKz,System.String</value>
+          <value>NameRu,System.String</value>
+          <value>NameEn,System.String</value>
+          <value>CountryDicId,System.Int64</value>
+          <value>AddressLegal,System.String</value>
+          <value>AddressFact,System.String</value>
+          <value>Phone,System.String</value>
+          <value>Fax,System.String</value>
+          <value>Email,System.String</value>
+          <value>BossFio,System.String</value>
+          <value>BossPosition,System.String</value>
+          <value>ContactFio,System.String</value>
+          <value>ContactPosition,System.String</value>
+          <value>ContactPhone,System.String</value>
+          <value>ContactFax,System.String</value>
+          <value>ContactEmail,System.String</value>
+          <value>OrgManufactureTypeDicId,System.Int64</value>
+          <value>DocNumber,System.String</value>
+          <value>DocDate,System.DateTime</value>
+          <value>DocExpiryDate,System.DateTime</value>
+          <value>ObjectId,System.Int64</value>
+          <value>OpfTypeDicId,System.Int64</value>
+          <value>BankName,System.String</value>
+          <value>BankIik,System.String</value>
+          <value>BankCurencyDicId,System.Int64</value>
+          <value>BankSwift,System.String</value>
+          <value>Bin,System.String</value>
+          <value>Country,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EXP_DrugOrganizations</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>PharmaceuticalFinalDocId,PharmaceuticalFinalDocId,14,0</value>
+        </Parameters>
+        <SqlCommand>select dorg.*,
+	dic.Name as Country
+from dbo.EXP_ExpertisePharmaceuticalFinalDoc as epfd
+left join dbo.EXP_ExpertiseStageDosage as esd on esd.Id = epfd.DosageStageId 
+left join dbo.EXP_DrugDosage as ddos on ddos.Id = esd.DosageId
+left join dbo.EXP_DrugDeclaration as dd on dd.Id = ddos.DrugDeclarationId
+left join dbo.EXP_DrugOrganizations as dorg on dorg.DrugDeclarationId = dd.Id
+left join dbo.Dictionaries as dic on dic.Id = dorg.CountryDicId
+where epfd.Id = @PharmaceuticalFinalDocId
+
+</SqlCommand>
+      </EXP_DrugOrganizations>
+      <EXP_DrugOtherCountry Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EXP_DrugOtherCountry</Alias>
+        <Columns isList="true" count="7">
+          <value>Id,System.Int64</value>
+          <value>DrugDeclarationId,System.Int64</value>
+          <value>RegNumber,System.String</value>
+          <value>IssueDate,System.DateTime</value>
+          <value>ExpireDate,System.DateTime</value>
+          <value>CountryId,System.Int64</value>
+          <value>CountryName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EXP_DrugOtherCountry</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>PharmaceuticalFinalDocId,PharmaceuticalFinalDocId,14,0</value>
+        </Parameters>
+        <SqlCommand>select doc.RegNumber as RegNumber
+	,doc.IssueDate as IssueDate
+	,doc.ExpireDate as ExpireDate
+	,c.full_name as CountryName
+from dbo.EXP_ExpertisePharmaceuticalFinalDoc as epfd
+left join dbo.EXP_ExpertiseStageDosage as esd on esd.Id = epfd.DosageStageId
+left join dbo.EXP_DrugDosage as ddos on ddos.Id = esd.DosageId
+left join dbo.EXP_DrugDeclaration as dd on dd.Id = ddos.DrugDeclarationId
+left join dbo.EXP_DrugOtherCountry as doc on doc.DrugDeclarationId = dd.Id
+left join dbo.sr_countries as c on c.Id = doc.CountryId
+where epfd.Id = @PharmaceuticalFinalDocId</SqlCommand>
+      </EXP_DrugOtherCountry>
+      <EXP_ExpertisePharmaceuticalFinalDoc Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EXP_ExpertisePharmaceuticalFinalDoc</Alias>
+        <Columns isList="true" count="41">
+          <value>Id,System.Int64</value>
+          <value>DosageStageId,System.Int64</value>
+          <value>Indicator1_1,System.String</value>
+          <value>Indicator2_1,System.String</value>
+          <value>Indicator2_2,System.String</value>
+          <value>Indicator2_3,System.String</value>
+          <value>Indicator2_4,System.String</value>
+          <value>Indicator3_1,System.String</value>
+          <value>Indicator3_2,System.String</value>
+          <value>Indicator3_3,System.String</value>
+          <value>Indicator4,System.String</value>
+          <value>Indicator5,System.String</value>
+          <value>Indicator6,System.String</value>
+          <value>Indicator7,System.String</value>
+          <value>Indicator12,System.String</value>
+          <value>Indicator13_1,System.String</value>
+          <value>Indicator13_2,System.String</value>
+          <value>Indicator13_3,System.String</value>
+          <value>Indicator14,System.String</value>
+          <value>Indicator15,System.String</value>
+          <value>Indicator16,System.String</value>
+          <value>Indicator17,System.String</value>
+          <value>Indicator18,System.String</value>
+          <value>Indicator19,System.String</value>
+          <value>Indicator20,System.String</value>
+          <value>RegNumber,System.String</value>
+          <value>ConcentrationRu,System.String</value>
+          <value>Dosage,System.Decimal</value>
+          <value>SaleType,System.String</value>
+          <value>NameRu,System.String</value>
+          <value>AtxCode,System.String</value>
+          <value>AtxName,System.String</value>
+          <value>DrugFormRu,System.String</value>
+          <value>MnnName,System.String</value>
+          <value>OrganizationName,System.String</value>
+          <value>OrganizationLegalAddress,System.String</value>
+          <value>CountryName,System.String</value>
+          <value>DrugName,System.String</value>
+          <value>DrugTypeName,System.String</value>
+          <value>DrugTypeKindName,System.String</value>
+          <value>ResultId,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EXP_ExpertisePharmaceuticalFinalDoc</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>PharmaceuticalFinalDocId,PharmaceuticalFinalDocId,14,0</value>
+        </Parameters>
+        <SqlCommand>select epfd.* 
+	,esd.ResultId as ResultId
+	,ddos.RegNumber as RegNumber
+	,ddos.ConcentrationRu as ConcentrationRu
+	,ddos.Dosage as Dosage
+	,dst.NameRu as SaleType
+	,dd.NameRu as NameRu
+	,atc.code as AtxCode
+	,atc.name as AtxName
+	,df.full_name as DrugFormRu
+	,sin.name_rus as MnnName
+	,u.Name as OrganizationName
+	,u.LegalAddress as OrganizationLegalAddress
+	,d.Name as CountryName
+	,dt.DrugName as DrugName
+	,ddt.NameRu as DrugTypeName
+	,ddtk.NameRu as DrugTypeKindName
+from dbo.EXP_ExpertisePharmaceuticalFinalDoc as epfd
+left join dbo.EXP_ExpertiseStageDosage as esd on esd.Id = epfd.DosageStageId
+left join dbo.EXP_DrugDosage as ddos on ddos.Id = esd.DosageId
+left join dbo.EXP_DIC_SaleType as dst on dst.Id = ddos.SaleTypeId
+left join dbo.EXP_DrugDeclaration as dd on dd.Id = ddos.DrugDeclarationId
+left join dbo.sr_drug_forms as df on df.Id = dd.DrugFormId
+left join dbo.sr_atc_codes as atc on atc.Id = dd.AtxId 
+left join dbo.sr_international_names as sin on sin.Id = dd.MnnId
+left join dbo.Employees as emp on emp.Id = dd.OwnerId
+left join dbo.Units as u on u.Id = emp.OrganizationId
+left join dbo.Dictionaries as d on d.Id = u.CountryId
+left join dbo.EXP_DrugType as dt on dt.DrugDeclarationId = dd.Id
+left join dbo.EXP_DIC_DrugType as ddt on ddt.Id = dt.DrugTypeId
+left join dbo.EXP_DIC_DrugTypeKind as ddtk on ddtk.Id = dt.DrugTypeKind
+where epfd.Id = @PharmaceuticalFinalDocId</SqlCommand>
+      </EXP_ExpertisePharmaceuticalFinalDoc>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Resources isList="true" count="0" />
+    <Variables isList="true" count="3">
+      <value>,EmployeeName,EmployeeName,,System.String,,False,False,False,False</value>
+      <value>,EmployeePosition,EmployeePosition,,System.String,,False,False,False,False</value>
+      <value>,PharmaceuticalFinalDocId,PharmaceuticalFinalDocId,,System.Guid,,False,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="4">
+    <Page2 Ref="7" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="4">
+        <DataBand2 Ref="8" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,14</ClientRectangle>
+          <Components isList="true" count="33">
+            <Text48 Ref="9" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,3,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>df74e53c706c4493a05949d91047d2e6</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text48</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Фамилия, имя, отчество эксперта</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text48>
+            <Text49 Ref="10" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,3,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>b751113051354c29996edfdc9067d39b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text49</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EmployeeName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text49>
+            <Text50 Ref="11" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,3.6,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>fcec5bdf6f6f4cc588788173364d50e5</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text50</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Ученая степень, звание</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text50>
+            <Text51 Ref="12" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,3.6,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>0e2889d86f84466aa248e78a8553e102</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text51</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EmployeePosition}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text51>
+            <Text53 Ref="13" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,4.2,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>d41cbdb2ae3440fba938761a8c669db6</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text53</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>№ заявки</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text53>
+            <Text54 Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,4.2,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>4718f478f86e4b9ab2b9110c966e26e8</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text54</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.RegNumber}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text54>
+            <Text55 Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,4.8,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>d6907bb668724172ab33a6c1ca5b7f42</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text55</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Дата</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text55>
+            <Text56 Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,4.8,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>d102824bd44e470e89c28e865d30f857</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text56</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{Today.ToString("dd MMMM yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text56>
+            <Text57 Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,5.4,6.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>9e9e7a2b01714534ae85ba3adda1d969</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text57</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Торговое наименование препарата</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text57>
+            <Text58 Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,5.4,11.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>0626aa926f1046fc802b8bb4fccbe626</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text58</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.NameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text58>
+            <Text59 Ref="19" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,10.8,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>df48a336501345c28d9ea4a70fe63a72</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text59</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Лекарственная форма</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text59>
+            <Text60 Ref="20" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,10.8,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>47e236177b0e44abbd701e553b786386</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text60</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.DrugFormRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text60>
+            <Text61 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,11.4,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>2299cd75ae0044179f0517d0240deae5</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text61</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Дозировка</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text61>
+            <Text62 Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,11.4,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>092e50ffe2ea4e71a3dc0925ade4712c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text62</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Dosage}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text62>
+            <Text63 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,12,6.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>d469e3293a7b4a10961354f1e443f686</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text63</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Концентрация</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text63>
+            <Text64 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,12,11.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>ff6f39be7e7140f6ab78f49d31679ca1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text64</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.ConcentrationRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text64>
+            <Text9 Ref="25" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.2,17.8,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11,Bold</Font>
+              <Guid>a0ecc3880cbd4a0db456755738e7f29f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Заключение
+        эксперта Управления фармацевтической экспертизы о качестве
+     и безопасности лекарственного средства, поданного на экспертизу
+</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,7.2,6.4,2.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>8a89ef1ed80240c8bd4ee0d9d5d75f5a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Лекарственный препарат является</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text10>
+            <Text11 Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,7.2,11.4,2.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>42dd8d26538b479395cf914efcbfc408</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text11>
+            <Text12 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,6.2,6.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>c36fcf01c9ea41b98a99af3545a50fb7</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Международное непатентованное название (МНН)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text12>
+            <Text13 Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,6.2,11.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>cb767c02c31d4370a64c3738827c86fe</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.MnnName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text13>
+            <Text1 Ref="30" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,1.8,17.8,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>   1. Проведена экспертиза нормативных документов, характеризующих
+ качество лекарственного средства 
+</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Bottom</VertAlignment>
+            </Text1>
+            <Text171 Ref="31" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,13.2,5.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>415ec4b25c4d48db9dee9ddd068ee69d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text171</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Наименование упаковки</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text171>
+            <Text172 Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.8,13.2,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>b43670f548274ec09e03e9c944fda2d2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text172</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Вид упаковки (первичная экспертиза)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text172>
+            <Text173 Ref="33" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,13.2,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>4c428ed3fc98450d9bd642852bf0130f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text173</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Размер</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text173>
+            <Text174 Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.4,13.2,4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>bcf2218e11114862ab2d589c73e36353</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text174</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Кол-во единиц 
+в упаковке</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text174>
+            <Text192 Ref="35" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,7.6,10,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text192</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.DrugTypeName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text192>
+            <Text193 Ref="36" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,8.6,10,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>3fe04a1feacf47d5b2c5eb882a5e6068</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text193</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.DrugTypeKindName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text193>
+            <CheckBox3 Ref="37" type="CheckBox" isKey="true">
+              <Brush>Transparent</Brush>
+              <Checked>{true}</Checked>
+              <ClientRectangle>7.2,7.4,0.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <ContourColor>Black</ContourColor>
+              <Guid>2b300272933f41e6b2d3fb6a841fb72f</Guid>
+              <Name>CheckBox3</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <TextBrush>Black</TextBrush>
+            </CheckBox3>
+            <CheckBox1 Ref="38" type="CheckBox" isKey="true">
+              <Brush>Transparent</Brush>
+              <Checked>{true}</Checked>
+              <ClientRectangle>7.2,8.4,0.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <ContourColor>Black</ContourColor>
+              <Guid>0b9bd19ded8d448d94bb03e5f5c43230</Guid>
+              <Name>CheckBox1</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <TextBrush>Black</TextBrush>
+            </CheckBox1>
+            <Text5 Ref="39" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,9.4,6.4,1.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>96202da74573474e84c0315057bb2934</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>Для генерика указать название оригинального лекарственного препарата</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text5>
+            <Text6 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,9.4,11.4,1.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>e802d9d6f09146fda7b2bd51bfdfe0e2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.DrugName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text6>
+            <Text8 Ref="41" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,12.6,17.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>3d11235f54bb4ef19b292cc3c4de8f33</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="7" />
+              <Parent isRef="8" />
+              <Text>   2.Упаковка</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Bottom</VertAlignment>
+            </Text8>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <Filters isList="true" count="0" />
+          <Name>DataBand2</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+        <DataBand1 Ref="42" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,15.2,19,0.8</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text2 Ref="43" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0,5.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>47bf15edd74e44768029dff0a3e1253f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="7" />
+              <Parent isRef="42" />
+              <Text>{EXP_DrugWrapping.boxName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text2>
+            <Text3 Ref="44" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.8,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>752402e26e524e0e8fad3308d0dd484c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="7" />
+              <Parent isRef="42" />
+              <Text>{EXP_DrugWrapping.wrappingTypeName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text3>
+            <Text4 Ref="45" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,0,4.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>868ac153a2cf442eb8c8504bf8499208</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="7" />
+              <Parent isRef="42" />
+              <Text>{EXP_DrugWrapping.WrappingSize}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text4>
+            <Text7 Ref="46" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.4,0,4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>1d656d9eae3243c1b4d7e946b0081c9b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="7" />
+              <Parent isRef="42" />
+              <Text>{EXP_DrugWrapping.CountUnit}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text7>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>EXP_DrugWrapping</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Sort isList="true" count="0" />
+        </DataBand1>
+        <DataBand3 Ref="47" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,16.8,19,5.8</ClientRectangle>
+          <Components isList="true" count="19">
+            <Text179 Ref="48" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,2.2,4.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>8853ee35d1974c3193354732852cd191</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text179</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Заявитель</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text179>
+            <Text180 Ref="49" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.2,2.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>879a14c63f3c48b59035f971ed291421</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text180</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.OrganizationName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text180>
+            <Text181 Ref="50" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,2.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>91b7a07ea255487a8c4848980252a6a0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text181</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.CountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text181>
+            <Text182 Ref="51" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,2.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>bdf14588eb544685be0121f13126e4f2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text182</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_ExpertisePharmaceuticalFinalDoc.OrganizationLegalAddress}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text182>
+            <Text183 Ref="52" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,3.2,4.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>1474e74a7b714c759e51a89ef7e2eca3</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text183</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Производитель</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text183>
+            <Text184 Ref="53" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.2,3.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>65cac87c7eb84e69b480c1344ad13f5b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text184</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_DrugOrganizations.NameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text184>
+            <Text185 Ref="54" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,3.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>4f51722a74f54c93ba460002db386f1f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text185</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_DrugOrganizations.Country}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text185>
+            <Text186 Ref="55" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,3.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>d92432e39a5c40a89675a3df18339451</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text186</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>{EXP_DrugOrganizations.AddressLegal}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text186>
+            <Text187 Ref="56" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;1;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,1.2,4.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>3aa12b8d62e24b44a5d0ed8b5c2b513b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text187</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Тип организации или участок производства</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text187>
+            <Text188 Ref="57" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.2,1.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>76d2d98c989142cabc481242522b9f0c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text188</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Наименование организации</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text188>
+            <Text189 Ref="58" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,1.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>88c7014f9309464f9f285d45bd1ad922</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text189</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Страна</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text189>
+            <Text190 Ref="59" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,1.2,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>bb73aa48ad1e40ceb65f6e88252e2440</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text190</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Юридический адрес</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text190>
+            <Text191 Ref="60" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.6,17.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11,Bold</Font>
+              <Guid>6905e53136f445cc82735279f27b56a7</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text191</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Данные о производителе</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text191>
+            <Text14 Ref="61" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0,17.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>2b965d5e966047dc9de9a509a3896804</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>   3. Данные о производителе</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Bottom</VertAlignment>
+            </Text14>
+            <Text194 Ref="62" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,4.2,17.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>0f7cc513b3b0494b8ad87c16320f1879</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text194</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>4. Регистрация в стране-производителе и других странах</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text194>
+            <Text195 Ref="63" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;1;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,4.8,4.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>ad577441034f45ee850f567a5276876c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text195</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Название страны</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text195>
+            <Text196 Ref="64" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.2,4.8,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>9c348eaa0a6e48c594dcf7427ad459fe</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text196</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>№ регистрационного удостоверения</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text196>
+            <Text197 Ref="65" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,4.8,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>16de49cdb1cf4f1cba89d99870ea3478</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text197</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Дата выдачи</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Text197>
+            <Text198 Ref="66" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,4.8,4.4,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>304a5a47ca1a4f65982e272676c2fb8f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text198</Name>
+              <Page isRef="7" />
+              <Parent isRef="47" />
+              <Text>Срок действия</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text198>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <Filters isList="true" count="0" />
+          <Guid>2777caa659934fa7afd4fb74bfddcc0b</Guid>
+          <Name>DataBand3</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Sort isList="true" count="0" />
+        </DataBand3>
+        <DataBand5 Ref="67" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,23.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text199 Ref="68" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>78c1854576864eeda88220a5dc8a19ff</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text199</Name>
+              <Page isRef="7" />
+              <Parent isRef="67" />
+              <Text>{EXP_DrugOtherCountry.CountryName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text199>
+            <Text200 Ref="69" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.2,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>02c865e042b94e6eaae283315541c502</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text200</Name>
+              <Page isRef="7" />
+              <Parent isRef="67" />
+              <Text>{EXP_DrugOtherCountry.RegNumber}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text200>
+            <Text201 Ref="70" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>74287addd39940eea16da043460e06a7</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text201</Name>
+              <Page isRef="7" />
+              <Parent isRef="67" />
+              <Text>{EXP_DrugOtherCountry.IssueDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text201>
+            <Text202 Ref="71" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14,0,4.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,11</Font>
+              <Guid>2b48fe3c06d64e7e96f22edc71456017</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text202</Name>
+              <Page isRef="7" />
+              <Parent isRef="67" />
+              <Text>{EXP_DrugOtherCountry.ExpireDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text202>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>EXP_DrugOtherCountry</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>4f191690825740bebbefcb42fa6dc25d</Guid>
+          <Name>DataBand5</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Sort isList="true" count="0" />
+        </DataBand5>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>6ea4a72c721346d6947231909481cd51</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page2</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="72" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page2>
+    <Page1 Ref="73" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="21">
+        <Text15 Ref="74" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,0.4,17.8,2.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text15</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>      В результате проведенной экспертизы установлено
+      Состав лекарственного средства и заключение о его рациональности
+и совместимости ингредиентов (указать лекарственные субстанции и
+вспомогательные вещества, включая консерванты, составные вещества
+оболочки препаратов и другое):
+</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text15>
+        <Text16 Ref="75" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,2.6,8.4,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>4f89fe686c3f4356bf433352b8c67453</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text16</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Нормативный документ по контролю качества и безопасности лекарственных средств, или Государственная фармакопея Республики Казахстан, зарубежные фармакопеи, признанные действующими на территории Республики Казахстан:</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text16>
+        <Text17 Ref="76" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,2.6,9.4,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>6ddabe16934d40b18ba3b249f73450a5</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text17</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator1_1}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text17>
+        <Text18 Ref="77" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,5.4,17.8,0.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>9e361aa8b6a84d5ba087206f8ea67573</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text18</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>     Для лекарственного растительного сырья</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text18>
+        <Text19 Ref="78" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,6,8.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>2116bccc335049f099792401fe227f3a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text19</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Ботанические латинские названия растений, входящих в состав сбора</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text19>
+        <Text20 Ref="79" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,6,9.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>5214930507a6460bac654bae7c4e0fe3</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text20</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator2_1}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text20>
+        <Text21 Ref="80" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,7,8.4,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>ce94abdb2d5643cb904d91f02d012a64</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text21</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Нормативный документ по контролю качества и безопасности лекарственных средств, или Государственная фармакопея Республики Казахстан и зарубежные фармакопеи, признанные действующими на территории Республики Казахстан</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text21>
+        <Text22 Ref="81" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,7,9.4,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>c64162145f814f71b199b5cd63a1a27c</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text22</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator2_2}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text22>
+        <Text23 Ref="82" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,9.8,8.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>31bb039352fb4218ae243f1ff57b3933</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text23</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Дикорастущее или культивируемое</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text23>
+        <Text24 Ref="83" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,9.8,9.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>47f5c420e14a46ef8f2c2886b4de8557</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text24</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator2_3}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text24>
+        <Text25 Ref="84" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,10.8,8.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>2e105f17a14346cb8f6df8670a7533d4</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text25</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Место произрастания</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text25>
+        <Text26 Ref="85" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,10.8,9.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>fd7982a94eb94a98a15a0a51ed1030ad</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text26</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator2_4}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text26>
+        <Text27 Ref="86" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,11.8,17.8,1.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text27</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>В случае наличия в составе лекарственного средства вещества, подлежащего контролю в соответствии с Законом Республики Казахстан «О наркотических средствах, психотропных веществах, прекурсорах и мерах противодействия их незаконному обороту и злоупотреблению ими»</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text27>
+        <Text28 Ref="87" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,13.2,8.4,7.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>63eee0753e914df9abfbd0166fb1f23e</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text28</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>заключение о принадлежности к подконтрольным веществам (на основании изучения международного непатентованного наименования, торгового названия, химического названия, структурной формулы о принадлежности к подконтрольным веществам с указанием позиции Таблиц Списка, является ли вещество стереоизомером наркотических средств Таблицы II, в тех случаях, когда существование таких изомеров возможно в рамках данного конкретного химического обозначения (если таковые определенно не исключены), солью всех наркотических средств, перечисленных в Таблице II, включая соли изомеров, как предусмотрено выше, во всех случаях, когда существование таких солей возможно; солью психотропных веществ Таблицы II и Таблицы III, когда существование таких солей возможно</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text28>
+        <Text29 Ref="88" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,13.2,9.4,7.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>2054d12e4ec94466aa76e8adb440e5ae</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text29</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator3_1}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text29>
+        <Text30 Ref="89" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,21,8.4,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>a24671d45dce433781bae6e8d531551b</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text30</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>заключение о возможности или невозможности извлечения легкодоступным способом подконтрольного вещества в количествах, достаточных для злоупотребления</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text30>
+        <Text31 Ref="90" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,21,9.4,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>b5a4e15a20734d068ca9063eabe7002d</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text31</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator3_2}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text31>
+        <Text32 Ref="91" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;1;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,23,8.4,1.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>faa0b8fe7ea7459d82cbca108bc09042</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text32</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>заключение в том, что в отношении препарата могут быть сняты некоторые меры контроля</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text32>
+        <Text33 Ref="92" type="Text" isKey="true">
+          <Border>All;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9,23,9.4,1.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>a0e80437e5a14a00a077d394e12fdf2e</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text33</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator3_3}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text33>
+        <Text34 Ref="93" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.6,24.2,17.8,1.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>3d313b8f85dc4593b231c61c21ad1eca</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text34</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>Анализ сведений о происхождении, регистрации в Республике
+Казахстан, качестве и выводы о возможности использования субстанции
+(при отсутствии сертификата GMP)
+</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text34>
+        <Text35 Ref="94" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,25.6,17.8,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>ddeb000f18094c35b6da7c1ac645da15</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text35</Name>
+          <Page isRef="73" />
+          <Parent isRef="73" />
+          <Text>{EXP_ExpertisePharmaceuticalFinalDoc.Indicator4}
+____________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text35>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>abfdac71051b4319bde52c663021bdae</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="95" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+    <Page3 Ref="96" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="12">
+        <Text37 Ref="97" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,0.6,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>d604e1da2f2e4144bff5f2413d4349bc</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text37</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Анализ сведений о качестве, количестве с выводами о допустимости использования используемых вспомогательных веществ
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator5}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text37>
+        <Text36 Ref="98" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,2.6,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>2d2368b450674a049778531b8ac922b6</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text36</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Заключение о производстве (производственная формула, описание технологии производства, контроль в процессе производства, валидация производственных процессов)
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator6}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text36>
+        <Text38 Ref="99" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,4.6,17.8,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>406a2ecea1c44091a08ba859f41cf3a2</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text38</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Характеристика готового продукта (соответствие представленных параметров в сертификате качества на готовую продукцию или в паспорте организации-производителя описанным методикам контроля качества в нормативной документации, соответствие серий представленных образцов сериям, указанным в сертификате)
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator7}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text38>
+        <Text39 Ref="100" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,7.4,17.8,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>fb3fe3bf84ab4e71b9a89a59ee3ba787</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text39</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text> Заключение о маркировке и упаковке на предмет их достаточности для обеспечения сохранения качества лекарственного средства во время хранения и транспортировки, (необходимость дополнительных надписей), наличие спецификаций на первичную и вторичную упаковку. Гигиеническое заключение на упаковку (для отечественных производителей)
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator12}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text39>
+        <Text40 Ref="101" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,10.2,17.8,0.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>757cb0a0f1f24912b6c6dad1173806a0</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text40</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Заключение о наличии или отсутствии в названии лекарственного средства</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text40>
+        <Text41 Ref="102" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,11,17.8,1.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>d9a787bbc10d4d75a0bc51689dea3d86</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text41</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>графических сходств с ранее зарегистрированными лекарственными препаратами и слов с неблагозвучными выражениями
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator13_1}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text41>
+        <Text42 Ref="103" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,12.8,17.8,1.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>f69003773e304528b214005c13b92a6f</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text42</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>способности ввести в заблуждение относительно истинного состава и действия препарата
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator13_2}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text42>
+        <Text43 Ref="104" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,14.4,17.8,1.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>544b5799d4f14dcf848a8124388ea4e7</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text43</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>сходства МНН и/или сходные с ними названия для лекарственного средства другого химического состава или действия
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator13_3}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text43>
+        <Text44 Ref="105" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,16.2,17.8,1.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>f7d1db95a9804befbd195fae2c62b2d4</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text44</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Спецификация готового продукта
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator14}
+___________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text44>
+        <Text45 Ref="106" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,17.8,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>c07bf447b6ac465aa8644caa2271b31a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text45</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Заключение о данных химической, фармацевтической и биологической (ин витро) эквивалентности, представленных фирмой на лекарственное средство
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator15}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text45>
+        <Text46 Ref="107" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,19.8,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>8fd2279e73e941138adafaf5ab771eb7</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text46</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Заключение о стабильности лекарственного средства, обоснованность заявленного срока хранения, периода применения после
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator16}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text46>
+        <Text52 Ref="108" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,21.8,17.8,2.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>f0368e2ef4a04aba878496f6f0455838</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text52</Name>
+          <Page isRef="96" />
+          <Parent isRef="96" />
+          <Text>Анализ и оценка проектов инструкции по медицинскому применению лекарственного средства, макетов упаковок и этикеток, проверка на идентичность указаний условий хранения и транспортирования, указанных в проекте нормативного документа по контролю за качеством и безопасностью лекарственного средства и вышеуказанных проектах
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator17}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text52>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>1ad0177555df456b8adbcc010da94cfd</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page3</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="109" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page3>
+    <Page4 Ref="110" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <Text65 Ref="111" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,0.6,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>744e0137427e42b6bd8dab3c80fda8c3</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text65</Name>
+          <Page isRef="110" />
+          <Parent isRef="110" />
+          <Text>Заключение об условиях хранения и транспортирования лекарственного средства и необходимость введения дополнительных требований с целью обеспечения сохранения качества лекарственного средства
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator18}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text65>
+        <Text66 Ref="112" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,2.6,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>de4f7a1f766b400e9c96f4f3ac820a1c</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text66</Name>
+          <Page isRef="110" />
+          <Parent isRef="110" />
+          <Text>Анализ нормативного документа по контролю качества и безопасности лекарственного средства и методик контроля качества готового продукта и оценка протокола испытательной лаборатории
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator19}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text66>
+        <Text67 Ref="113" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.6,4.6,17.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>693f47fda4e640fe9beea93034b74c0d</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text67</Name>
+          <Page isRef="110" />
+          <Parent isRef="110" />
+          <Text>Сравнение с аналогами, зарегистрированными в Республике Казахстан. Сравнительная характеристика основных показателей качества
+{EXP_ExpertisePharmaceuticalFinalDoc.Indicator20}
+__________________________________________________________________________________________</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text67>
+        <Text47 Ref="114" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0.6,6.6,17.8,4.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>7512fbf3bfa444e9867393b635b3cd90</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text47</Name>
+          <Page isRef="110" />
+          <Parent isRef="110" />
+          <Text>Рекомендации
+{IIF(EXP_ExpertisePharmaceuticalFinalDoc.ResultId == 5,"не рекомендовать лекарственный препарат к государственной регистрации, перерегистрации (с обоснованием в отказе)","")} {IIF(EXP_ExpertisePharmaceuticalFinalDoc.ResultId == 6,"рассмотреть документы повторно после предоставления дополнительных материалов по запросу эксперта (с обоснованием необходимости представления дополнительных материалов или проведения дополнительных испытаний)","")} {IIF(EXP_ExpertisePharmaceuticalFinalDoc.ResultId == 4,"рекомендовать лекарственный препарат к государственной регистрации, перерегистрации (с указанием срока регистрации, перерегистрации лекарственного средства, необходимости согласования нормативного документа по контролю качества и безопасности, макетов упаковок и этикеток)","")}</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text47>
+        <Text68 Ref="115" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0.6,11,17.8,3.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11</Font>
+          <Guid>3d32ed5eaf984d7ba26ed192fb57230e</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text68</Name>
+          <Page isRef="110" />
+          <Parent isRef="110" />
+          <Text>      Дата поступления документов эксперту {Today.ToString("dd MMMM yyyy")}
+      Дата завершения экспертизы документов {Today.ToString("dd MMMM yyyy")}
+      Все данные, приведенные в экспертном заключении, достоверны и
+соответствуют современным требованиям, что подтверждаю личной подписью.
+      Фамилия, имя, отчество, эксперта {EmployeeName} {EmployeePosition}
+      Подпись _______________
+      Дата {Today.ToString("dd MMMM yyyy")}
+</Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text68>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>11711074368c4ab9967de48c843cad70</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page4</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="116" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page4>
+  </Pages>
+  <PrinterSettings Ref="117" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>5/3/2017 5:27:16 PM</ReportChanged>
+  <ReportCreated>4/14/2014 10:21:23 AM</ReportCreated>
+  <ReportFile>A:\ncels\PW.Prism\Reports\Pharmaceutical\OutcomeDoc.mrt</ReportFile>
+  <ReportGuid>d243d4b0795f487d8a28bf36be9a1876</ReportGuid>
+  <ReportImage isNull="true" />
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2016.3.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

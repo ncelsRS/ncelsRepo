@@ -1,0 +1,130 @@
+﻿@using PW.Ncels.Database.Helpers
+@model int[]
+
+<script>
+    var nameData = '@(Model.Length > 0 ? Model[0] : 0)';
+    var parentId = '@(Model.Length==2? Model[1].ToString():string.Empty)';
+    var modelId = '@ViewData["modelId"]';
+    var modelUid = '@ViewData["ModeUid"]';
+    var viewModel = kendo.observable({
+        item: {},
+        Save: function () {
+            Save();
+        },
+        Delete: function () {
+            Delete();
+        }
+
+    });
+
+    function Save() {
+        var json = JSON.stringify(viewModel.get('item'));
+
+        $.ajax({
+            type: 'POST',
+            url: '/Reference/RefPrimaryOtdUpdate',
+            data: json,
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+
+                if (result == 'True') {
+                    //treereload(modelId);
+                    if (modelId && modelUid) {
+                        $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).loaded(false);
+                        $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).load();
+                    }
+                    //alert('@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00');
+                    ShowAlert('Сообщение', '@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00', 'Success');
+                };
+            },
+            complete: function () {
+
+            }
+        });
+    }
+
+    function Delete() {
+        var r = confirm("Вы уверены что хотите удалить запись?");
+        if (r != true)
+            return;
+        $.ajax({
+            type: 'POST',
+            url: '/Reference/RefPrimaryOtdDelete',
+            data: '{rowId:' + nameData + '}',
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                if (result == 'True') {
+                    //treereload(modelId);
+                    if (modelId && modelUid) {
+                        $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).loaded(false);
+                        $("#treeview" + modelId).data("kendoTreeView").dataItem($("#treeview" + modelId).data("kendoTreeView").findByUid(modelUid)).load();
+                    }
+                    //alert('Запись успешно удалена');
+                    ShowAlert('Сообщение', 'Запись успешно удалена', 'Success');
+                };
+            },
+            complete: function () {
+            }
+        });
+    }
+
+    //Read data from server
+    $.ajax({
+        type: 'get',
+        url: '/Reference/RefPrimaryOtdRead?Id=' + nameData + '&ParentId=' + parentId,
+        contentType: 'application/json; charset=utf-8',
+        success: function (result) {
+            result = JSON.parse(result);
+            viewModel.set("item", result);
+
+            kendo.bind($("#formReferenceRow" + nameData), viewModel);
+            $("#windowTitle").html(result.WindowTitle);
+        },
+        complete: function () {
+        }
+    });
+
+    $("#rank" + nameData).kendoNumericTextBox({
+        format: "#"
+    });
+
+
+</script>
+<div class="pwUnitsPage" id="pwUnitsPage">
+    <div class="pwUnitsHeader"><span id="windowTitle"></span></div>
+    <form id="@("formReferenceRow" + (Model.Length > 0 ? Model[0] : 0))" class="pwUnitsContent">
+        <table>
+            <colgroup>
+                <col width="30%" />
+                <col width="100%" />
+            </colgroup>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Код_385__00</td>
+                <td><input type="text" data-bind="value: item.Code" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Наименованиенарусском_41__00</td>
+                <td><input type="text" data-bind="value: item.NameRu" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Наименованиенаказахском_33__00</td>
+                <td><input type="text" data-bind="value: item.NameKz" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>Блок</td>
+                <td><label data-bind="text: item.ParentFullName"></label></td>
+            </tr> 
+        </table>
+        <div hidden="@(!EmployePermissionHelper.IsEditRefPrimaryOtd)" class="pwUnitsFooter k-block">
+            @if (ViewBag.IsDeleted){
+                <button type="button" class="btn btn-default" data-bind="click: Delete">Удалить</button>
+            }
+            <button type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    var treeviewElement3 = $("#formReferenceRow" + '@(Model.Length > 0 ? Model[0] : 0)');
+    treeviewElement3.height($(window).height() - 280);
+</script>

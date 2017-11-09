@@ -1,0 +1,762 @@
+﻿@using PW.Ncels.Database.Enums
+@using PW.Ncels.Database.Recources
+@{
+    var pType = (PriceProjectType)ViewBag.PriceProjectType;
+}
+<style>
+   
+    /*.modal-dialog {
+        width: 90% !important;
+        height: 25% !important;
+    }*/
+</style>
+<div class="panel-body">
+    <h3 class="m-t-none m-b">2. Информация о лекарственном средстве</h3>
+
+    <div class="row">
+        <div class="col-lg-6 b-r">
+            <div ng-if="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Торговое название на государственном языке</label>
+                <input ng-model="object.Project.NameKz" title="{{object.Project.NameKz}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div ng-if="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Торговое название на русском языке</label>
+                <input ng-model="object.Project.NameRu" title="{{object.Project.NameRu}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Торговое название на государственном языке</label>
+                <div class="input-group">
+                    <input ng-model="object.Project.NameKz" title="{{object.Project.NameKz}}" placeholder="Введите значение" class="form-control edit-control main-control"
+                           name="prNameKz" id="prNameKz" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Торговое название на русском языке</label>
+                <div class="input-group">
+                    <input ng-model="object.Project.NameRu" title="{{object.Project.NameRu}}" placeholder="Введите значение" class="form-control edit-control main-control"
+                           name="prNameRu" id="prNameRu" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div ng-if="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Номер и дата регистрационного удостоверения в Республике Казахстан</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input ng-model="object.Project.RegNumber" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                            </div>
+                            <div class="col-md-6">
+                                <input ng-model="object.Project.RegDate" type="datetime" name="Date" class="form-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected @*required*@ date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" readonly="readonly">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Номер и дата регистрационного удостоверения в Республике Казахстан</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input ng-model="object.Project.RegNumber" placeholder="Введите значение" class="form-control edit-control main-control"
+                                           name="prRegNumber" id="prRegNumber" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input ng-model="object.Project.RegDate" type="datetime" name="Date" class="form-control edit-control main-control"
+                                           id="prRegDate" placeholder="ДД.ММ.ГГГГ" changeble="{{isProjectSaved}}" ui-select-selected ng-required="object.Project.IsOrfan" date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" @*readonly="readonly"*@>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Лекарственный препарат является</label>
+                <div class="input-group">
+                    <select name="lsTypeDicId" id="lsTypeDicId" ng-model="object.Project.LsTypeDicId" class="form-control edit-control main-control" required>
+                        <option ng-repeat="item in LsType | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                    </select>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Для генерика, биосимиляра указать название оригинального лекарственного препарата</label>
+                <input id="cbNameOriginal" type="checkbox" ng-model="ndNameOriginalModel" ng-change="object.Project.NameOriginal = cbNoDataChange(ndNameOriginalModel)" />
+                <label for="cbNameOriginal">нет данных</label>
+                <div class="input-group">
+                    <input ng-model="object.Project.NameOriginal" placeholder="Введите значение" ng-disabled="ndNameOriginalModel" ng-required="!ndNameOriginalModel"
+                           name="nameOriginal" id="nameOriginal" class="form-control edit-control main-control" type="text" ui-select-selected>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div ng-show="!object.Project.IsOrfan" class="form-group has-warning">
+                <label class="control-label">Международное непатентованное название (МНН) при наличии на русском языке</label>
+                <input ng-model="object.Project.MnnRu" title="{{object.Project.MnnRu}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+            </div>
+            <div ng-show="object.Project.IsOrfan" class="form-group">
+                <label class="control-label">Международное непатентованное название (МНН) при наличии на русском языке</label>
+                <div class="input-group">
+                    <input ng-model="object.Project.MnnRu" placeholder="Введите значение" name="prMnnRu" id="prMnnRu" class="form-control edit-control main-control" type="text" ui-select-selected ng-required="object.Project.IsOrfan">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div ng-show="!object.Project.IsOrfan">
+                <div class="form-group has-warning">
+                    <label class="control-label">Международное непатентованное название (МНН) при наличии латинскими буквами</label>
+                    <input ng-model="object.Project.MnnEn" title="{{object.Project.MnnEn}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Лекарственная форма на государственном языке</label>
+                    <input ng-model="object.Project.FormNameKz" title="{{object.Project.FormNameKz}}" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+            </div>
+            <div ng-show="object.Project.IsOrfan">
+                <div class="form-group">
+                    <label class="control-label">Международное непатентованное название (МНН) при наличии латинскими буквами</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.MnnEn" placeholder="Введите значение" name="prMnnEn" id="prMnnEn" class="form-control edit-control main-control" type="text" ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Лекарственная форма на государственном языке</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.FormNameKz" placeholder="Введите значение" name="prFormNameKz" id="prFormNameKz" class="form-control edit-control main-control" type="text" ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!object.Project.IsOrfan">
+                <div class="form-group has-warning">
+                    <label class="control-label">Лекарственная форма на русском языке</label>
+                    <input ng-model="object.Project.FormNameRu" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Дозировка</label>
+                    <input ng-model="object.Project.Dosage" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Объем</label>
+                    <input ng-model="object.Project.Volume" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Количество во вторичной (потребительской) упаковке</label>
+                    <input ng-model="object.Project.CountPackage" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Концентрация</label>
+                    <input ng-model="object.Project.Concentration" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label class="control-label">Код согласно Анатомо-терапевтическо-химической классификации (АТХ код)</label>
+                    <input ng-model="object.Project.CodeAtx" placeholder="Заполняется автоматически" class="form-control" type="text" readonly="readonly" ui-select-selected @*required*@>
+                </div>
+                <div class="form-group has-warning">
+                    <label>Способы введения</label>
+                    <ui-select ng-model="object.Project.IntroducingMethodDicId" ng-disabled="true" ui-select-selected @*required*@ theme="bootstrap">
+                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="item.Id as item in IntroducingMethod | filter: $select.search">
+                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div ng-show="object.Project.IsOrfan">
+                <div class="form-group">
+                    <label class="control-label">Лекарственная форма на русском языке</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.FormNameRu" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prFormNameRu" id="prFormNameRu" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Дозировка</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.Dosage" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prDosage" id="prDosage" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Объем</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.Volume" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prVolume" id="prVolume" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Количество во вторичной (потребительской) упаковке</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.CountPackage" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prCountPackage" id="prCountPackage" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Концентрация</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.Concentration" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prConcentration" id="prConcentration" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Код согласно Анатомо-терапевтическо-химической классификации (АТХ код)</label>
+                    <div class="input-group">
+                        <input ng-model="object.Project.CodeAtx" placeholder="Введите значение" class="form-control edit-control main-control"
+                               name="prCodeAtx" id="prCodeAtx" type="text" @*readonly="readonly"*@ ui-select-selected ng-required="object.Project.IsOrfan">
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Способы введения</label>
+                    <div class="input-group">
+                        @*<ui-select ng-model="object.Project.IntroducingMethodDicId" ui-select-selected required theme="bootstrap">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in IntroducingMethod | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>*@
+                        <select name="prIntroducingMethodDicId" id="prIntroducingMethodDicId"
+                                ng-model="object.Project.IntroducingMethodDicId" class="form-control edit-control main-control" @*required*@>
+                            <option ng-repeat="item in IntroducingMethod | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                        </select>
+                        <span class="input-group-addon">
+                            <a class="commentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 b-l">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Цена производителя</label>
+                                <div class="input-group">
+                                    <input ng-model="object.CurentPrice.ManufacturerPrice" placeholder="Введите значение" class="form-control edit-control main-control price"
+                                           name="cpManufacturerPrice" id="cpManufacturerPrice" step="0.01" zero-validate min="0" ui-select-selected required
+                                           ng-pattern="decimalRegex" ng-class="{'valid-error': priceLsForm.cpManufacturerPrice.$error.pattern}">
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Валюта</label>
+                                <div class="input-group">
+                                    <select name="cpManufacturerPriceCurrencyDicId" id="cpManufacturerPriceCurrencyDicId"
+                                            ng-model="object.CurentPrice.ManufacturerPriceCurrencyDicId" class="form-control edit-control main-control" required>
+                                        <option ng-repeat="item in Currency | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>CIP цена</label>
+                                <div class="input-group">
+                                    <input ng-model="object.CurentPrice.CipPrice" placeholder="Введите значение" class="form-control edit-control main-control"
+                                           name="cpCipPrice" id="cpCipPrice" type="number" step="0.01" zero-validate min="0" ui-select-selected required>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Валюта</label>
+                                <div class="input-group">
+                                    <select name="cpCipPriceCurrencyDicId" id="cpCipPriceCurrencyDicId"
+                                            ng-model="object.CurentPrice.CipPriceCurrencyDicId" class="form-control edit-control main-control" required>
+                                        <option ng-repeat="item in Currency | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Выбрать нужное</label>
+                <div class="input-group">
+                    <select name="cpRefPriceTypeDicId" id="cpRefPriceTypeDicId"
+                            ng-model="object.CurentPrice.RefPriceTypeDicId" class="form-control edit-control main-control" required>
+                        <option ng-repeat="item in RefPriceType | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                    </select>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Референтная цена</label>
+                                <div class="input-group">
+                                    <input ng-model="object.CurentPrice.RefPrice" placeholder="Введите значение" class="form-control edit-control main-control"
+                                           name="cpRefPrice" id="cpRefPrice" type="number" step="0.01" zero-validate min="0" ui-select-selected required>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Валюта</label>
+                                <div class="input-group">
+                                    <select name="cpRefPriceCurrencyDicId" id="cpRefPriceCurrencyDicId"
+                                            ng-model="object.CurentPrice.RefPriceCurrencyDicId" class="form-control edit-control main-control" required>
+                                        <option ng-repeat="item in Currency | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Цена заявителя (в тенге) для регистрации за упаковку</label>
+                                <div class="input-group">
+                                    <input ng-model="object.CurentPrice.OwnerPrice" placeholder="Введите значение" class="form-control edit-control main-control"
+                                           name="cpOwnerPrice" id="cpOwnerPrice" type="number" step="0.01" zero-validate min="0" ng-disabled="object.Project.CountPackage==null" ng-required="object.Project.CountPackage!=null" ng-keyup="unitPriceCalc()" ui-select-selected>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group" ng-init="object.CurentPrice.OwnerPriceCurrencyDicId = Currency[0]">
+                                <label>Валюта</label>
+                                <div class="input-group">
+                                    <select name="cpOwnerPriceCurrencyDicId" id="cpOwnerPriceCurrencyDicId" ng-disabled="true"
+                                            ng-model="object.CurentPrice.OwnerPriceCurrencyDicId" class="form-control edit-control main-control">
+                                        <option ng-repeat="item in Currency | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Цена заявителя (в тенге) для регистрации за ед. изм</label>
+                                <div class="input-group">
+                                    <input ng-model="object.CurentPrice.UnitPrice" placeholder="Введите значение" class="form-control edit-control main-control"
+                                           name="cpUnitPrice" id="cpUnitPrice" step="0.01" type="number" zero-validate min="0" ng-keyup="ownerPriceCalc()" ui-select-selected required>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Валюта</label>
+                                <div class="input-group">
+                                    <select name="cpUnitPriceCurrencyDicId" id="cpUnitPriceCurrencyDicId" ng-disabled="true"
+                                            ng-model="object.CurentPrice.UnitPriceCurrencyDicId" class="form-control edit-control main-control">
+                                        <option ng-repeat="item in Currency | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input id="cbBritish" type="checkbox" ng-model="ndBritishModel" ng-change="object.CurentPrice.BritishCost = ''; object.CurentPrice.BritishPrice = ''; " />
+            <label for="cbBritish">нет данных</label>
+            <div class="form-group">
+                <label>Цена, зарегистрированная в Британском национальном формуляре (при наличии) в фунтах стерлинга £ за упаковку</label>
+                <div class="input-group">
+                    <input ng-model="object.CurentPrice.BritishPrice" ng-disabled="ndBritishModel" ng-required="!ndBritishModel" placeholder="Введите значение"
+                           class="form-control edit-control main-control" type="number" step="0.01" min="0" ng-keyup="unitBritishPriceCalc()"
+                           name="cpBritishPrice" id="cpBritishPrice" ui-select-selected>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Цена, зарегистрированная в Британском национальном формуляре (при наличии) в фунтах стерлинга £ за за единицу измерения</label>
+                <div class="input-group">
+                    <input ng-model="object.CurentPrice.BritishCost" ng-disabled="ndBritishModel" ng-required="!ndBritishModel" placeholder="Введите значение"
+                           class="form-control edit-control main-control" type="number" step="0.01" min="0" ng-keyup="ownerBritishPriceCalc()"
+                           name="cpBritishCost" id="cpBritishCost" ui-select-selected>
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hr-line-dashed"></div>
+    <div class="modal fade" id="priceCountyDiv" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" currentId="" style="width: 100%">
+        <div class="modal-dialog" role="document" style="width: 90%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">Сведения о зарегистрированной цене</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="text-bold">Сведения о зарегистрированной цене производителя, предельной, оптовой, розничной цене (при наличии) в других странах, где имеется регистрация лекарственного средства</p>
+                            <div class="form-group">
+                                <label>Страна</label>
+                                <div class="input-group">
+                                    <select name="pCountryId" id="pCountryId"
+                                            ng-model="object.Price.CountryId" class="form-control edit-control main-control">
+                                        <option ng-repeat="item in Country | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                    </select>
+                                    <span class="input-group-addon">
+                                        <a class="commentDialog" href="#">
+                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form name="drugCountryForm">
+                        <div ng-if="object.Price.CountryId!=null">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <input type="radio" ng-model="object.Price.IsUnitPrice" ng-value="true" ng-init="pricePackage = 'unitPrice'" value="unitPrice" /> указать цену за ед.изм.
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="radio" ng-model="object.Price.IsUnitPrice" ng-value="false" value="ownerPrice"> указать цену за упаковку
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <input id="cbManufacturerPrice" type="checkbox" ng-model="object.Price.IsManufacturerPrice" ng-change="object.Price.ManufacturerPrice = ''; object.Price.ManufacturerPriceCurrencyDicId=''; object.Price.ManufacturerPriceNote=''" />
+                                <label for="cbManufacturerPrice">нет данных</label>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Зарегистрированная цена производителя</label>
+                                            <input ng-model="object.Price.ManufacturerPrice" id="pManufacturerPrice" name="pManufacturerPrice" ng-disabled="object.Price.IsManufacturerPrice" ng-required="!object.Price.IsManufacturerPrice && priceWindowOpened" placeholder="Введите значение" class="form-control" type="number" step="0.01" zero-validate min="0" ui-select-selected>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Валюта</label>
+                                            <ui-select ng-model="object.Price.ManufacturerPriceCurrencyDicId" id="pManufacturerPriceCurrencyDicId" name="pManufacturerPriceCurrencyDicId" ng-disabled="object.Price.IsManufacturerPrice" ng-required="!object.Price.IsManufacturerPrice && priceWindowOpened" ui-select-selected theme="bootstrap">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Указать год, ссылку на источник информации</label>
+                                            <input ng-model="object.Price.ManufacturerPriceNote" id="pManufacturerPriceNote" name="pManufacturerPriceNote" ng-disabled="object.Price.IsManufacturerPrice" ng-required="!object.Price.IsManufacturerPrice && priceWindowOpened" placeholder="Введите значение" class="form-control" type="text" ui-select-selected>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <input id="cbLimitPrice" type="checkbox" ng-model="object.Price.IsLimitPrice" ng-change="object.Price.LimitPrice = ''; object.Price.LimitPriceCurrencyDicId=''; object.Price.LimitPriceNote=''" />
+                                    <label for="cbLimitPrice">нет данных</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Предельная цена</label>
+                                                <input ng-model="object.Price.LimitPrice" id="pLimitPrice" name="pLimitPrice" ng-disabled="object.Price.IsLimitPrice" ng-required="!object.Price.IsLimitPrice && priceWindowOpened" placeholder="Введите значение" class="form-control" type="number" step="0.01" zero-validate min="0" ui-select-selected>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Валюта</label>
+                                                <ui-select ng-model="object.Price.LimitPriceCurrencyDicId" id="pLimitPriceCurrencyDicId" name="pLimitPriceCurrencyDicId" ng-disabled="object.Price.IsLimitPrice" ng-required="!object.Price.IsLimitPrice && priceWindowOpened" ui-select-selected theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label>Указать год, ссылку на источник информации</label>
+                                                <input ng-model="object.Price.LimitPriceNote" id="pLimitPriceNote" name="pLimitPriceNote" ng-disabled="object.Price.IsLimitPrice" ng-required="!object.Price.IsLimitPrice && priceWindowOpened" placeholder="Введите значение" ui-select-selected class="form-control" type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <input id="cbAvgOptPrice" type="checkbox" ng-model="object.Price.IsAvgOptPrice" ng-change="object.Price.AvgOptPrice = ''; object.Price.AvgOptPriceCurrencyDicId=''; object.Price.AvgOptPriceNote=''" />
+                                    <label for="cbAvgOptPrice">нет данных</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Средняя оптовая цена (за последний квартал)</label>
+                                                <input ng-model="object.Price.AvgOptPrice" id="pAvgOptPrice" name="pAvgOptPrice" ng-disabled="object.Price.IsAvgOptPrice" ng-required="!object.Price.IsAvgOptPrice && priceWindowOpened" placeholder="Введите значение" ui-select-selected class="form-control" step="0.01" zero-validate type="number" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Валюта</label>
+                                                <ui-select ng-model="object.Price.AvgOptPriceCurrencyDicId" id="pAvgOptPriceCurrencyDicId" name="pAvgOptPriceCurrencyDicId" ng-disabled="object.Price.IsAvgOptPrice" ng-required="!object.Price.IsAvgOptPrice && priceWindowOpened" ui-select-selected theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label>Указать год, ссылку на источник информации</label>
+                                                <input ng-model="object.Price.AvgOptPriceNote" id="pAvgOptPriceNote" name="pAvgOptPriceNote" ng-disabled="object.Price.IsAvgOptPrice" ng-required="!object.Price.IsAvgOptPrice && priceWindowOpened" placeholder="Введите значение" ui-select-selected class="form-control" type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <input id="cbAvgRozPrice" type="checkbox" ng-model="object.Price.IsAvgRozPrice" ng-change="object.Price.AvgRozPrice = ''; object.Price.AvgRozPriceCurrencyDicId=''; object.Price.AvgRozPriceNote=''" />
+                                    <label for="cbAvgRozPrice">нет данных</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Средняя розничная цена (за последний квартал)</label>
+                                                <input ng-model="object.Price.AvgRozPrice" id="pAvgRozPrice" name="pAvgRozPrice" ng-disabled="object.Price.IsAvgRozPrice" ng-required="!object.Price.IsAvgRozPrice && priceWindowOpened" placeholder="Введите значение" ui-select-selected class="form-control" step="0.01" zero-validate type="number" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Валюта</label>
+                                                <ui-select ng-model="object.Price.AvgRozPriceCurrencyDicId" id="pAvgRozPriceCurrencyDicId" name="pAvgRozPriceCurrencyDicId" ng-disabled="object.Price.IsAvgRozPrice" ng-required="!object.Price.IsAvgRozPrice && priceWindowOpened" ui-select-selected theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label>Указать год, ссылку на источник информации</label>
+                                                <input ng-model="object.Price.AvgRozPriceNote" id="pAvgRozPriceNote" name="pAvgRozPriceNote" ng-disabled="object.Price.IsAvgRozPrice" ng-required="!object.Price.IsAvgRozPrice && priceWindowOpened" placeholder="Введите значение" ui-select-selected class="form-control" type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+@*
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    @if (pType == PriceProjectType.RePriceLs)
+                                    {
+                                        <button class="btn btn-success" type="button" ng-click="addPriceType7()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>
+                                        <button class="btn btn-success" check-validate type="button" ng-click="savePriceType7()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                        <button type="button" class="btn btn-w-m btn-danger" ng-click="deletePriceType7()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+
+                                    }
+                                    else
+                                    {
+                                $1$                    <button class="btn btn-success " type="button" ng-click="addPrice()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>#1#
+                                        <button class="btn btn-success " type="button" check-validate ng-click="savePrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                                        <button type="button" class="btn btn-w-m btn-danger" ng-click="deletePrice()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+                                    }
+                                </div>
+                            </div>*@
+
+
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    @if (pType == PriceProjectType.RePriceLs)
+                    {
+                        <button class="btn btn-success" check-validate type="button" ng-click="savePrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+
+                    }
+                    else
+                    {
+                        @*                    <button class="btn btn-success " type="button" ng-click="addPrice()"><i class="fa fa-eraser"></i>&nbsp;&nbsp;<span class="bold">Очистить</span></button>*@
+                        <button class="btn btn-success " type="button" check-validate ng-click="savePrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Сохранить</span></button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="row">
+    <div class="col-lg-12">
+        @if (pType == PriceProjectType.RePriceLs)
+        {
+            <grid-light-object object-id="@Model" url="/Price/GetPriceCountryRepriceLs" dt-id="gridPrice" dt-selectfun="selectGridPrice" reload-row="reloadGridPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+        }
+        else
+        {
+            <grid-light-object object-id="@Model" url="/Price/GetPriceCountry" dt-id="gridPrice" dt-selectfun="selectGridPrice" reload-row="reloadGridPrice" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns1"></grid-light-object>
+        }
+
+    </div>
+
+</div>
+<div class="row">
+    <button type="button" class="btn btn-w-m btn-success" ng-click="createPrice()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<span class="bold">Создать</span></button>
+    <button type="button" class="btn btn-w-m btn-warning" ng-click="editPrice()"><i class="fa fa-edit"></i>&nbsp;&nbsp;<span class="bold">Редактировать</span></button>
+    <button type="button" class="btn btn-w-m btn-danger" ng-click="deletePrice()"><i class="fa fa-minus"></i>&nbsp;&nbsp;<span class="bold">Удалить</span></button>
+
+  
+</div>
+</div>

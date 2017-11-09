@@ -1,0 +1,184 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@{ var stylenone = "display: none";}
+@if (Model.IsShowChange)
+{
+    stylenone = "";
+}
+<style type="text/css">.change-type { }
+
+ .change-number { }
+</style>
+<div style="display: none;" id="changeTypeDefaultDiv">
+    <div class="input-group">
+        @Html.DropDownList("ChangeTypeId", (IEnumerable<SelectListItem>)(ViewData["ChangeTypes"]), String.Empty, new { @class = "form-control edit-control change-number" })
+        <span class="input-group-addon">
+            <a class="commentDialog" href="#">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </a>
+        </span>
+    </div>
+</div>
+<div class="panel panel-warning" id="changeTypeDiv" style="@stylenone">
+    <div class="panel-heading">
+        Изменение типа 1
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+        <div class="CSSTableGenerator">
+            <table id="tableChangeType"  style="width: 100%; text-align: center">
+                <thead>
+                <tr>
+                    <td>№ п/п</td>
+                    <td>Изменение</td>
+                    <td>Тип</td>
+                    <td>Условия/Замечания</td>
+                    <td></td>
+                </tr>
+                </thead>
+                <tbody id="tbodyChangeType">
+                @for (var i = 0; i < Model.ExpDrugChangeTypes.Count; i++)
+                {
+                    var index = i + 1;
+                    var code = CodeConstManager.EXP_DrugChangeTypeCode + "_" + Model.ExpDrugChangeTypes[i].Id + "_";
+                    var countryId = code + "ChangeTypeId";
+                    var nameKzId = code + "RegNumber";
+                    var issueDateStrId = code + "IssueDateStr";
+                    var expireDateStrId = code + "ExpireDateStr";
+
+                    <tr rowid="@Model.ExpDrugChangeTypes[i].Id" rowindex="@index" rowkind="1">
+                        <td>
+                            <div class="input-group">
+                                @Html.DropDownList("ExpDrugChangeTypes[" + @i + "].ChangeTypeId", (IEnumerable<SelectListItem>)(ViewData["ChangeTypes" + i.ToString(CultureInfo.InvariantCulture)]), String.Empty, new { @class = "form-control change-number edit-control", @id = @countryId })
+                                <span class="input-group-addon">
+                                    <a class="commentDialog" href="#">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            @Html.TextAreaFor(model => model.ExpDrugChangeTypes[i].EXP_DIC_ChangeType.ChangeType, new { @class = "form-control edit-control", @readonly="readonly" })
+                        </td>
+                        <td>
+                            @Html.TextAreaFor(model => model.ExpDrugChangeTypes[i].EXP_DIC_ChangeType.ChangeName, new { @class = " edit-control  form-control ", @readonly = "readonly" })
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                @Html.TextAreaFor(model => model.ExpDrugChangeTypes[i].Condition, new { @class = "change-type edit-control  form-control " })
+                                <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                            </div>
+                        </td>
+                        @if (i == 0)
+                        {
+                            <td><a class="deleteRow"></a></td>
+                        }
+                        else
+                        {
+                            <td>
+                                <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                            </td>
+                        }
+                    </tr>
+                }
+                <tr>
+                    <td colspan="6" style="text-align: left;">
+                        <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addChangeType" style="margin-top: 10px">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    function changeNumberType(control) {
+       
+        changeFieldList(control, '@CodeConstManager.EXP_DrugChangeTypeCode');
+        $(control).change(function () {
+            debugger;
+            var row = $(this).closest("tr");
+            var changeType = row.find("td").eq(1).find("textarea");
+            var changeName = row.find("td").eq(2).find("textarea");
+            var val = $(this).val();
+            if (val == null || val.length === 0) {
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetChangeType")',
+                data: { 'id': val },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        changeType.text(data.changeName);
+                        changeName.text(data.changeType);
+                    } else {
+                        changeType.text("");
+                        changeName.text("");
+                    }
+                },
+                error: function () {
+                    alert("Connection Failed. Please Try Again");
+                }
+            });
+        });
+    }
+    //bird
+    $(document).ready(function () {
+
+        changeNumberType(".change-number");
+        changeFieldList(".change-type", '@CodeConstManager.EXP_DrugChangeTypeCode');
+        $("#addChangeType").on("click", function () {
+            var row = $(this).closest("tr").prev();
+            var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+            var nextIndex = rowindex + 1;
+            var kindObject = "";
+            kindObject = "ExpDrugChangeTypes";
+
+            var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+            var eventDiv = document.getElementById("changeTypeDefaultDiv");
+
+            var idEvent = kindObject + '_' + nextIndex + '_ChangeTypeId';
+            var nameEvent = kindObject + '[' + nextIndex + '].ChangeTypeId';
+            var envetStr = replaceAll('id="ChangeTypeId"', 'id="' + idEvent + '"', eventDiv.innerHTML);
+            envetStr = replaceAll('name="ChangeTypeId"', 'name="' + nameEvent + '"', envetStr);
+
+
+
+            var idCondition = "changeType_a" + nextIndex + "_Condition";
+
+            cols += '<td>' + envetStr + '</td>';
+
+            cols += '<td><div class="input-group"><textarea type="text" name="ChangeType" id="ChangeType" class="edit-control form-control" readonly="readonly"></textarea></td>';
+            cols += '<td><div class="input-group"><textarea type="text" name="ChangeName" id="ChangeName" class="edit-control form-control"  readonly="readonly"></textarea></td>';
+            cols += '<td><div class="input-group"><textarea type="text" name="' + kindObject + '[' + nextIndex + '].ExpireDateStr" id="' + idCondition + '" class="change-type edit-control form-control  date-control"></textarea><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+            cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+            cols += '</tr>';
+            row.after(cols);
+            changeNumberType("#" + idEvent);
+            changeFieldList("#" + idCondition, '@CodeConstManager.EXP_DrugChangeTypeCode');
+        });
+
+
+        $("#tableChangeType").on("click", ".deleteRow", function () {
+
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                DeleteRecord('@CodeConstManager.EXP_DrugChangeTypeCode', entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+    });
+</script>
