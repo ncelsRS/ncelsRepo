@@ -1,0 +1,256 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                               .Events(e => e.Select("panelObkContractSelect"))
+                               .Items(panelbar =>
+                               {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                                      .Items(projects =>
+                                                      {
+                                                          if (EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Нераспределенные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.New }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } }).Selected(true)
+                                                              .Items(i =>
+                                                              {
+                                                                  //i.Add().Text("1");
+                                                                  //i.Add().Text("2");
+                                                              }
+                                                              );
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts)
+                                                          {
+                                                              projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.InWork }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } }).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts);
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemOnCorrectionOBKContracts)
+                                                          {
+                                                              projects.Add().Text("На корректировке у заявителя").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.OnCorrection }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemOnAgreementOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Требуют согласования").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.OnAgreement }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemAgreedOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Согласованные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresRegistration }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemNotAgreedOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Несогласованные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.NotAgreed }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemRefusedOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Отказанные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.NotAgreed }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Требуют подписания").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresSigning }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } }).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts && !EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts);
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemRequiresRegistrationOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Требуют регистрации").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresRegistration }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemActiveOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Активные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.Active }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } }).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts && !EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts && !EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts);
+                                                          }
+                                                          if (EmployePermissionHelper.CanViewMenuItemPastOBKContracts)
+                                                          {
+                                                              projects.Add().Text("Истекшие").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.ToString() } });
+                                                          }
+                                                      });
+
+                               })
+                    )
+                </div>
+                );
+
+panes.Add().Scrollable(false).Size("100%").Content(
+    @<div class="pwPanelBar">
+        <div class="pwBlockAdd k-block">
+            <div style="float: left" id="@("lblStateBlock" + Model)">
+                    @*@(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))*@
+                    @Html.Label("Статус", new { @class = "pwWidth100", style = "line-height: 30px; margin-right: 5px; font-weight: normal;" })
+                </div>
+                <div id="pwTwo">
+                    @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .DataTextField("Text")
+                                       .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                           new SelectListItem() {
+                                               Text = "Все", Value = "0"
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Согласованные", Value = "1"
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Требуют корректировки", Value = "2"
+                                           }
+                                       })
+                                       .SelectedIndex(0)
+                    )
+                    @(Html.Kendo().DropDownList().Name("findTypeActiveContract" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .DataTextField("Text")
+                                       .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                           new SelectListItem() {
+                                               Text = "Все", Value = "0"
+                                           },
+                                           new SelectListItem() {
+                                               Text = "На формировании счета", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_INVOCE_GENERATING.ToString()
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Ожидает оплаты", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT.ToString()
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Оплачен", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_ACTIVE.ToString()
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Оплачен не полностью", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_NOT_FULL_PAYMENT.ToString()
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Срок оплаты истек", Value =  PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED.ToString()
+                                           }
+                                       })
+                                       .SelectedIndex(0)
+                    )
+                </div>
+            <div id="pwThree">
+                    @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                       .ImageUrl("/Content/images/find.png"))
+                @(Html.Kendo().Button().Name("findTypeActiveBtn" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                       .ImageUrl("/Content/images/find.png"))
+                </div>
+            @if (EmployePermissionHelper.CanAssignOBKContract)
+            {
+                <div style="float: left">
+                    @(Html.Kendo().Button().Name("toWork" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content("Распределить"))
+                </div>
+            }
+            <div id="pwFour">
+                @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                      .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                      .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
+            </div>
+            <div>
+                @(Html.Kendo().Button().Name("toPay" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                      .Content("На оплату"))
+            </div>
+        </div>
+        <div id="pwSix">
+            @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+        </div>
+        @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.OBK_ContractRegisterView>()
+                                   .Name("gridContractAll" + Model)
+                           .Columns(columns =>
+                           {
+                               columns.Bound(p => p.ContractNumber).Width(150).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getObkContractDetails('#=ContractId#', '#=ContractNumber#',);\"><span style=\"color:rgb(66,139,202);\">#=ContractNumber#</span></button>" +
+                                    "</div>"
+                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#").Locked(true).Lockable(false);
+                               columns.Bound(p => p.ContractSendDate).Format("{0:dd.MM.yyyy}").Title("Дата отправки заявителем").Width(100);
+                               columns.Bound(p => p.ContractStartDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_начала_18).Width(100);
+                               columns.Bound(p => p.ContractEndDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Датаокончания_101).Width(100);
+                               columns.Bound(p => p.DeclarantNameRu).Title("Заявитель").Width(100);
+                               columns.Bound(p => p.ContractTypeRu).Title("Тип договора").Width(100);
+                               columns.Bound(p => p.StageUOBKResult).Title("УОБК").ClientTemplate(
+                                   "# if (StageUOBKResult == 1) { #" +
+                                        "<span class='glyphicon glyphicon-ok'></span> #= StageUOBKExecutor #" +
+                                    "# } else if (StageUOBKResult == 2) { #" +
+                                        "<span class='glyphicon glyphicon-remove'></span> #= StageUOBKExecutor #" +
+                                    "# } else if (StageUOBKExecutor != null) { #" +
+                                    "<span class='glyphicon glyphicon-unchecked'></span> #= StageUOBKExecutor #" +
+                                    "# } else { #" +
+                                        "<span class='glyphicon glyphicon-unchecked'></span>" +
+                                    "# } #"
+                                   ).Width(200);
+                               columns.Bound(p => p.StageUOBKResult).Title("ДЭФ").ClientTemplate(
+                               "# if (StageDEFResult == 1) { #" +
+                                    "<span class='glyphicon glyphicon-ok'></span> #= StageDEFExecutor #" +
+                                "# } else if (StageDEFResult == 2) { #" +
+                                    "<span class='glyphicon glyphicon-remove'></span> #= StageDEFExecutor #" +
+                                "# } else if (StageDEFExecutor != null) { #" +
+                                    "<span class='glyphicon glyphicon-unchecked'></span> #= StageDEFExecutor #" +
+                                "# } else { #" +
+                                    "<span class='glyphicon glyphicon-unchecked'></span>" +
+                                "# } #"
+                               ).Width(200);
+                               //columns.Bound(p => p.StageUOBKResult).ClientTemplate(
+                               //     "# if (StageUOBKResult != null) { #" +
+                               //         "<input type='checkbox' checked src='" + Url.Content("~/Content/icons/") + "#= ContractId #.png' alt='#= DeclarantNameRu # icon' />" +
+                               //     "# } else { #" +
+                               //         "#: DeclarantNameRu #" +
+                               //     "# } #"
+                               // ).Width(100);
+                           })
+
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable()
+
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => { aggregates.Add(p => p.ContractNumber).Count(); })
+                               .Sort(sort => { sort.Add("ContractSendDate").Descending(); })
+                               .PageSize(50)
+                               .Read(read => read.Action("ListContract", "OBKContract"))
+                               .Filter(filters =>
+                               {
+                                   if (EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts)
+                                   {
+                                       filters.Add(p => p.StageStatusCode).IsEqualTo(PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.New);
+                                   }
+                                   else if (EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts)
+                                   {
+                                       filters.Add(p => p.StageStatusCode).IsEqualTo(PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.InWork);
+                                   }
+                                   else if (EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts)
+                                   {
+                                       filters.Add(p => p.StageStatusCode).IsEqualTo(PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresSigning);
+                                   }
+                                   else if (EmployePermissionHelper.CanViewMenuItemActiveOBKContracts)
+                                   {
+                                       filters.Add(p => p.StageStatusCode).IsEqualTo(PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.Active);
+                                   }
+                               })
+                           )
+        )
+    </div>
+             );
+            }))
+
+
+<script>
+    $(document).ready(function () {
+        resizeGrid('@("#gridContractAll" + Model)');
+        initFilterOBKContract('@Model.ToString()');
+    });
+</script>

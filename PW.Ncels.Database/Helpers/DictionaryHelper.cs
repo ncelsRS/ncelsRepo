@@ -82,6 +82,26 @@ namespace PW.Ncels.Database.Helpers
                 }).OrderBy(o => o.Name).ToList();
         }
 
+        public static List<DictionaryInfo> GetOBKList()
+        {
+
+
+            XmlReader reader = XmlReader.Create(HttpContext.Current.Server.MapPath(@"..\Content\Xml\OBKDictionaries.xml"));
+            XDocument doc = XDocument.Load(reader);
+            XElement xElement = doc.Element("Dictionaries");
+            if (xElement == null)
+                return new List<DictionaryInfo>();
+            return xElement.
+                Elements().Select(o => new DictionaryInfo
+                {
+                    NameRu = o.Attribute("Name").Value,
+                    TypeRu = o.Attribute("Type").Value,
+                    NameKz = o.Attribute("NameKz").Value,
+                    TypeKz = o.Attribute("Type").Value,
+                    Description = o.Attribute("Description").Value
+                }).OrderBy(o => o.Name).ToList();
+        }
+
         public static List<DictionaryInfo> GetNomenclatureList()
         {
 

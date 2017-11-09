@@ -32,5 +32,6 @@ namespace PW.Ncels.Database.Constants
         /// Управление бухгалтерского учета и отчетности
         /// </summary>
         public const string AccountantCode = "accounting";
+
     }
 }

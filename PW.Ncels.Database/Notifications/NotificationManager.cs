@@ -51,6 +51,18 @@ namespace PW.Ncels.Database.Notifications
             return CreateNotification(notificationText, forObjectType.GetDescription(), objectId, forEmployee.ToString(), employeeEmail, null, objectState);
         }
 
+        public Notification SendNotificationFromCompany(string notificationText, ObjectType forObjectType, string objectId,
+            Guid forEmployee, string employeeEmail = null, int? objectState = null)
+        {
+            employeeEmail = string.IsNullOrEmpty(employeeEmail)
+                ? _dbContext.Employees.Where(e => e.Id == forEmployee).Select(e => e.Email).FirstOrDefault()
+                : employeeEmail;
+            var organization = string.IsNullOrEmpty(forEmployee.ToString())
+                ? _dbContext.Units.Where(e => e.Employee.Id == forEmployee).Select(e => e.DisplayName).FirstOrDefault()
+                : "РГП на ПХВ «Национальный Центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники»";
+            return CreateNotification(notificationText, forObjectType.GetDescription(), objectId, forEmployee.ToString(), employeeEmail, organization, objectState);
+        }
+
         /// <summary>
         /// Пробуем сгенерировать и отправить уведомление
         /// </summary>

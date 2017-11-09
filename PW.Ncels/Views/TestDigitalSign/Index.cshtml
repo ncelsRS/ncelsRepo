@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = "../Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+}
+@Html.Partial("~/Views/Home/OBK_SignView.cshtml")
+@Html.Partial("~/Views/Home/MessageDialogBox.cshtml")
+<h2>Index</h2>
+
+<button class="btn btn-success btn-sm" type="button" security bp-type="project" style="background-color: #47a447" bp-action="edit" id="signBtn"><i class="fa fa-send"></i> Подписать и отправить</button>
+
+<div style="height: 500px;"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#signBtn").click(function () {
+            var valid = true;
+            if (!valid) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            //var id = $("#modelId").val();
+            var id = 999;
+            startSign('/TestDigitalSign/SignOperation', id);
+        });
+    });
+
+    function doSign() {
+        $.blockUI({
+            message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
+            css: { opacity: 1 }
+        });
+        signXmlCall(function () {
+            var model = { preambleId: $("#modelId").val(), xmlAuditForm: $("#Certificate").val() };
+            $.ajax({
+                url: '/TestDigitalSign/SignForm',
+                type: "POST",
+                dataType: 'json',
+                contentType: "application/json",
+                async: false,
+                data: JSON.stringify(model),
+                success: function (data) {
+
+                    if (data.success) {
+                        window.location.href = '@Url.Action("Index", "TestDigitalSign")';
+                    }
+                    else {
+                        alert(data.message);
+                        $("#formCertValidation").show();
+                    }
+                    $.unblockUI();
+                },
+                error: function (data) {
+                    $.unblockUI();
+                }
+            });
+        },
+            $("#hfXmlToSign").val());
+    }
+</script>

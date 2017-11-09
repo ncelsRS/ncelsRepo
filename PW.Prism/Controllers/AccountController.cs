@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Security;
-using Ncels.Core.Web;
 using Newtonsoft.Json.Schema;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Models;
@@ -12,78 +11,60 @@ using ncelsEntities = PW.Ncels.Database.DataModel.ncelsEntities;
 
 namespace PW.Prism.Controllers
 {
-    public class AccountController : Controller
-    {
+	public class AccountController : Controller
+	{
 
 
-        private void SaveUserName()
-        {
-            // Associate shopping cart items with logged-in user
-            Employee employee = UserHelper.GetCurrentEmployee();
-            if (employee != null)
-            {
-                Session[UserHelper.PrismSessionKey] = employee.DisplayName;
-            }
+		private void SaveUserName()
+		{
+			// Associate shopping cart items with logged-in user
+			Employee employee = UserHelper.GetCurrentEmployee();
+			if (employee != null)
+			{
+				Session[UserHelper.PrismSessionKey] = employee.DisplayName;
+			}
 
-        }
+		}
 
-        //
-        // GET: /Account/LogOn
+		//
+		// GET: /Account/LogOn
 
-        public ActionResult LogOn()
-        {
+		public ActionResult LogOn()
+		{
 
-            return View();
-        }
+                return View();
+		}
 
-        public ActionResult SelectWorkProfile(string returnUrl)
-        {
-            ViewBag.ReturnUrl = returnUrl;
-            return View();
-        }
+		public ActionResult Profile() {
 
-        public ActionResult WorkProfileSelected(string workProfile, string returnUrl)
-        {
-            Session["workProfile"] = Enum.Parse(typeof(WorkProfileType), workProfile);
-            if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction("Index", "Home");
-        }
+			ChangePasswordModel model = new ChangePasswordModel();
+			model.DisplayName = UserHelper.GetCurrentName();
 
-        public ActionResult Profile()
-        {
+			return PartialView(model);
+		}
 
-            ChangePasswordModel model = new ChangePasswordModel();
-            model.DisplayName = UserHelper.GetCurrentName();
+		[Authorize]
+		[HttpPost]
+		
+		public ActionResult ChangePassword(ChangePasswordModel model)
+		{
+			if (ModelState.IsValid)
+			{
 
-            return PartialView(model);
-        }
-
-        [Authorize]
-        [HttpPost]
-
-        public ActionResult ChangePassword(ChangePasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-
-                Employee employee = UserHelper.GetCurrentEmployee();
-                if (employee != null)
-                {
-                    MembershipUser user = Membership.GetUser(employee.Login);
-                    if (user != null)
-                    {
-                        user.ChangePassword(model.OldPassword, model.NewPassword);
+				Employee employee = UserHelper.GetCurrentEmployee();
+				if (employee != null)
+				{
+					MembershipUser user = Membership.GetUser(employee.Login);
+					if (user != null)
+					{
+						user.ChangePassword(model.OldPassword, model.NewPassword);
                         ActionLogger.WriteInt("Сменил себе пароль");
-                        return Content(bool.TrueString);
+						return Content(bool.TrueString);
                     }
-                }
-            }
+				}
+			}
             ActionLogger.WriteInt("Пытался сменить себе пароль");
-            return Content(bool.FalseString);
+			return Content(bool.FalseString);
 
 
         }
@@ -115,7 +96,15 @@ namespace PW.Prism.Controllers
 
                         ActionLogger.WriteInt("Вход в систему: " + model.UserName, "Успех");
 
-                        return RedirectToAction("SelectWorkProfile", new { returnUrl });
+                        if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                            && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                        {
+                            return Redirect(returnUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
                     }
                     else
                     {
@@ -143,16 +132,30 @@ namespace PW.Prism.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/LogOff
+		//
+		// GET: /Account/LogOff
 
-        public ActionResult LogOff()
+		public ActionResult LogOff()
+		{
+			FormsAuthentication.SignOut();
+			Session[UserHelper.PrismSessionKey] = "";
+			return RedirectToAction("Index", "Home");
+		}
+
+        public ActionResult GetIinOfUser()
         {
-            FormsAuthentication.SignOut();
-            Session[UserHelper.PrismSessionKey] = "";
-            return RedirectToAction("Index", "Home");
+            string iin = null;
+            Employee employee = UserHelper.GetCurrentEmployee();
+            if (employee != null)
+            {
+                iin = employee.Iin;
+            }
+            return Json(iin != null ? iin : "", JsonRequestBehavior.AllowGet);
         }
 
-
+        public ActionResult GetDateTime()
+        {
+            return Json(DateTime.Now, JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -19,6 +19,7 @@ using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Models;
+using PW.Ncels.Database.Repository.OBK;
 using Cell = Aspose.Cells.Cell;
 using Document = Aspose.Words.Document;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
@@ -326,17 +327,19 @@ namespace PW.Ncels.Database.Helpers
             //File.Delete(pathImage);
         }
 
-        public static string GetRoot(bool? isArhive){
-            if (!isArhive.HasValue || isArhive.Value == false){
+        public static string GetRoot(bool? isArhive)
+        {
+            if (!isArhive.HasValue || isArhive.Value == false)
+            {
                 return PathRoot;
             }
+            {
+                ncelsEntities entities = UserHelper.GetCn();
 
-            ncelsEntities entities = UserHelper.GetCn();
-
-            var archive = entities.Archives.FirstOrDefault(o => o.IsCurrent);
-            if (archive != null && archive.Path != null)
-                return archive.Path;
-
+                var archive = entities.Archives.FirstOrDefault(o => o.IsCurrent);
+                if (archive != null)
+                    return archive.Path;
+            }
             return PathRoot;
         }
 
@@ -381,8 +384,8 @@ namespace PW.Ncels.Database.Helpers
                 return 0;
             }
         }
-
-        /// <summary>
+		
+		/// <summary>
         /// Сохраняем файл
         /// </summary>
         /// <param name="stream"></param>
@@ -485,14 +488,16 @@ namespace PW.Ncels.Database.Helpers
         {
             return Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root, objectId ?? "", categoryId ?? "", name ?? fileId ?? "");
         }
-        public static string DeleteAttach(string id, string path, string name){
-            if (id != null){
+        public static string DeleteAttach(string id, string path, string name)
+        {
+            if (id != null)
+            {
                 var data = Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root, id, path, name);
                 File.Delete(data);
             }
             return "ОК";
         }
-        public static string DeleteProtocolFiles(string id){
+		public static string DeleteProtocolFiles(string id){
             string path = Path.Combine(PathRoot, Root, id);
             var dir = new DirectoryInfo(path);
             if (dir.Exists) {
@@ -640,8 +645,8 @@ namespace PW.Ncels.Database.Helpers
                 return null;
             }
         }
-
-        public static FileInfo GetProtocolAttachFile(ncelsEntities db, Guid protocolId) {
+		
+		public static FileInfo GetProtocolAttachFile(ncelsEntities db, Guid protocolId) {
             try {
                 var protocol = db.PP_Protocols.FirstOrDefault(x => x.Id == protocolId);
                 if (protocol == null)
@@ -705,13 +710,12 @@ namespace PW.Ncels.Database.Helpers
                 var dicListQuery = exludeItems != null
                     ? db.Dictionaries.Where(o => o.Type == type && !exludeItems.Contains(o.Code))
                     : db.Dictionaries.Where(o => o.Type == type);
-                if (byMetadata)
+            if (byMetadata)
                 {
                     var docId = Guid.Parse(doc);
                     var markList = db.FileLinksCategoryComs.Where(e => e.DocumentId == docId).ToList();
-                    var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code, ShowComment = isShowComment, o.AdditionalInfo}).OrderBy(e => e.Code).ThenBy(x => x.Name).ToList();
+                        var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code, ShowComment = isShowComment}).OrderBy(e => e.Code).ThenBy(x => x.Name).ToList();
                     var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
-                    
                     var fileMetadatas =
                         db.FileLinks.Where(e => e.DocumentId == docId && categoryCodes.Contains(e.FileCategory.Code))
                             .ToList();
@@ -723,7 +727,6 @@ namespace PW.Ncels.Database.Helpers
                             o.Id,
                             o.Name,
                             o.Code,
-                            o.AdditionalInfo,
                             o.ShowComment,
                             MarkClassName =
                             markList.FirstOrDefault(e => e.CategoryId == o.Id) == null
@@ -731,8 +734,6 @@ namespace PW.Ncels.Database.Helpers
                                 : fileLinksCategoryCom != null && fileLinksCategoryCom.IsError
                                     ? "control-error"
                                     : "control-good",
-                            IsNotApplicable =
-                            markList.FirstOrDefault(e => e.CategoryId == o.Id) != null && (fileLinksCategoryCom?.IsNotApplicable != null && fileLinksCategoryCom.IsNotApplicable.Value),
                             Items =
                             (new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root,
                                 doc ?? "", o.Id.ToString()))).Exists
@@ -756,7 +757,6 @@ namespace PW.Ncels.Database.Helpers
                                         CreateDate = k.FileMetadata.CreateDate.ToString(CultureInfo.InvariantCulture),
                                         MetadataId = k.FileMetadata.Id,
                                         k.FileMetadata.IsSigned,
-                                       // k.FileMetadata.IsNotApplicable,
                                         StatusCode =  k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.Code : "",
                                         StatusName =  k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.NameRu : "",
                                        
@@ -808,7 +808,7 @@ namespace PW.Ncels.Database.Helpers
                 //    .Select(o => new { o.Key.Id, o.Key.Name, Items = o.Select(k => new { k.AttachId, k.sysCreatedDate, k.AttachName, k.AttachSize }) });
                 int count = result.Where(item => item.Code == "dover" || item.Code == "letter" || item.Code == "manprice").Count(item => item.Items.Any());
 
-                return count == 3;
+                return count == 2;
             }
             catch (Exception ex)
             {
@@ -1486,7 +1486,7 @@ namespace PW.Ncels.Database.Helpers
                         int? currentStageId = null;
                         var pathGuid = Guid.Parse(path);
                         var stage =
-                            db.EXP_ExpertiseStage.Where((x => x.EXP_ExpertiseStageExecutors.Select(y => y.ExecutorId).Contains(ownId) && !x.IsHistory && x.EXP_DIC_StageStatus.Code == "inWork" && x.DeclarationId == pathGuid));
+                            db.EXP_ExpertiseStage.Where((x => x.Executors.Select(y => y.Id).Contains(ownId) && !x.IsHistory && x.EXP_DIC_StageStatus.Code == "inWork" && x.DeclarationId == pathGuid));
                         if (stage.Any())
                         {
                             currentStageId = stage.First().StageId;

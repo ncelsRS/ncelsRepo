@@ -1,0 +1,132 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+
+
+<div class="pwBlockAdd k-block">
+
+    <div id="pwOne">
+        @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+    </div>
+
+    <div id="pwTwo" hidden="true">
+        @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .DataTextField("Text")
+                                       .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                           },
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                           },
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Покоду_345__00, Value = "2"
+                                           },
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Попримечанию_215__00, Value = "3"
+                                           }
+                                       })
+                                       .SelectedIndex(0)
+        )
+    </div>
+
+    <div id="pwThree">
+        @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+    </div>
+
+
+
+</div>
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+</div>
+@(Html.Kendo().Grid<OBKReferenceValAdTaxModel>()
+                                   .Name("gridListDic" + Model)
+                           .Columns(columns =>
+                           {
+
+                               columns.Bound(p => p.Value).Title(PW.Ncels.Database.Recources.Messages.NDS_Value).Width(80);
+                               columns.Bound(p => p.Year).Title(PW.Ncels.Database.Recources.Messages.Year).Width(150);
+                               columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+
+                           })
+                            .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                            .Reorderable(reorderable => reorderable.Columns(true))
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Scrollable(scrollable => scrollable.Virtual(true))
+                             .Filterable()
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .HtmlAttributes(new { @class = "pwGridRef" })
+                            .DataSource(dataSource => dataSource
+                               .Ajax()
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    model.Field(f => f.Value as double?);
+                                    model.Field(f => f.Year as int?);
+                                })
+                            .PageSize(50)
+                            .Sort(sort => sort.Add("Value").Ascending())
+                            .Create(update => update.Action("DicCreate", "OBK_Ref_ValueAddedTax"))
+                            .Read(read => read.Action("AllList", "OBK_Ref_ValueAddedTax"))
+                            .Update(update => update.Action("DicUpdate", "OBK_Ref_ValueAddedTax"))
+                            .Destroy(update => update.Action("DicDestroy", "OBK_Ref_ValueAddedTax"))
+
+                           ))
+
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+
+    function InitFilterOBKDictionaryGrid(nameRu) {
+
+        $("#reload" + nameRu).click(function (e) {
+            var grid = $("#gridListDic" + nameRu).data("kendoGrid");
+            grid.dataSource.read();
+        });
+        $("#findText" + nameRu).keypress(function (d) {
+            if (d.keyCode == 13) {
+                $("#find" + nameRu).click();
+            }
+        });
+        $("#find" + nameRu).click(function (e) {
+
+            var text = $("#findText" + nameRu).val();
+            var findType = $("#findType" + nameRu).val();
+            var grid = $("#gridListDic" + nameRu).data("kendoGrid");
+            if (text != '') {
+                $filter = new Array();
+                if (findType == 0) {
+                    
+                    $filter.push({ field: "Year", operator: "equal", value: text });
+
+                }
+                if (findType == 1) {
+                    $filter.push({ field: "Year", operator: "equal", value: text });
+                }
+                grid.dataSource.filter({
+                    logic: "or",
+                    filters: $filter
+                });
+            } else {
+
+                grid.dataSource.filter([]);
+            }
+        });
+
+        $("#findText" + nameRu).change(function (e) {
+            if ($("#findText" + nameRu).val() == '') {
+                var grid = $("#gridListDic" + nameRu).data("kendoGrid");
+                grid.dataSource.read();
+            }
+        });
+    }
+
+    InitFilterOBKDictionaryGrid('@Model.ToString()');
+</script>

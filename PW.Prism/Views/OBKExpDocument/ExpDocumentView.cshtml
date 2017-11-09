@@ -1,0 +1,51 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+    
+
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body" id="productExpertiseId">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <label class="control-label">Результат</label>
+                                    @Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["UObkExpertiseResult"],
+                                        String.Empty, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4" style="margin: 10px;">
+                                    <label class="control-label"> </label>
+                                    <button type="button" style="margin: 10px" class="btn btn-default" onclick="saveExpDoc()">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function saveExpDoc() {
+        debugger;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveExpDocument")',
+            data: { expResult: $("#ExpertiseResult").val(), modelId: '@Model.Id' },
+            cache: false,
+            success: function (result) {
+                if (result.isSuccess) {
+                    //alert("Результат сохранен");
+                } else { alert("Error!"); }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    };
+</script>

@@ -26,6 +26,12 @@ namespace PW.Ncels.Controllers {
         {
             return PartialView();
         }
+
+        public ActionResult OBK_SignView()
+        {
+            return PartialView();
+        }
+
         public ActionResult InstructionRef()
         {
             return View();

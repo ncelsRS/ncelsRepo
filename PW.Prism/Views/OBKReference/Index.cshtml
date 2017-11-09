@@ -1,0 +1,44 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+                panes.Add()
+                    .Size("250px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("250px")
+                    .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                                       .Events(e => e.Select("panelDictionarySelect"))
+                               .Items(panelbar => {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Типысправочников_108__00)
+                                       .Items(projects => {
+                                           foreach (DictionaryInfo dictionaryInfo in (List<DictionaryInfo>)ViewData["DictionaryList"]) {
+                                               projects.Add().Text(dictionaryInfo.Name).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", dictionaryInfo.Type } });
+                                           }
+
+                                       });
+
+
+                               }).Events(e => e.Select("onSelectOBK"))
+                        )
+
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPanelBar" id="OBK_Reference_bar">
+                       
+                    </div>
+             );
+            }))

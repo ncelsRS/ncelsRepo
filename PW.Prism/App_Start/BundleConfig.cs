@@ -63,8 +63,10 @@ namespace PW.Prism
                       "~/Scripts/js/plugins/dataTables/jquery.dataTables.rowReordering.js"
                       )
                     );
+            //bundles.Add(new ScriptBundle("~/bundles/crypto").Include(
+            //    "~/Scripts/crypto/eds.js", "~/Scripts/crypto/crypto_object_ext.js"));
             bundles.Add(new ScriptBundle("~/bundles/crypto").Include(
-                "~/Scripts/crypto/eds.js", "~/Scripts/crypto/crypto_object_ext.js"));
+                "~/Scripts/crypto/obk/obk_eds.js", "~/Scripts/crypto/crypto_object_ext.js"));
             /*  bundles.Add(new ScriptBundle("~/bundles/js")
               .IncludeDirectory("~/Scripts/js/", "*.js", true));*/
 

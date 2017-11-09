@@ -19,6 +19,7 @@
     var parentId = '@(Model.Length==2? Model[1].ToString():string.Empty)';
     var modelId = '@ViewData["modelId"]';
     var modelUid = '@ViewData["ModeUid"]';
+    var validIIN = true;
     function PermissionParams() {
         return {
             employeeId: '@Model[0]'
@@ -57,6 +58,7 @@
     }
 
     function changePermissionRole(e) {
+        debugger;
         var x = $("#PermissionRoleCombobox").data("kendoDropDownList").text();
         var y = $("#PermissionRoleCombobox").val();
         console.log(y + ' ' + x);
@@ -84,6 +86,13 @@
     });
     function Save() {
         var json = JSON.stringify(viewModel.get('item'));
+
+        if (!validIIN)
+            return alert("Недопустимое значение поля ИИН");
+
+        var iin = viewModel.get('item.Iin');
+        if (iin == null)
+            return alert("ИИН обязательное поле для заполнения");
 
         $.ajax({
             type: 'POST',
@@ -502,38 +511,41 @@
                 removeUrl: "/Upload/remove",
                 autoUpload: true
             },
-            upload: function (e) {
+            upload: function(e) {
                 e.data = { documentId: nameData };
             },
-            remove: function (e) {
+            remove: function(e) {
                 e.data = { documentId: nameData };
             },
-            complete: function (e) {
+            complete: function(e) {
                 var files = $("#files" + nameData).closest(".k-upload").find("a");
-                $.each(files, function (i, file) {
-                    file.onclick = function () {
-                        fileView(nameData, file.getAttribute('fileName'));
-                    };
-                });
+                $.each(files,
+                    function(i, file) {
+                        file.onclick = function() {
+                            fileView(nameData, file.getAttribute('fileName'));
+                        };
+                    });
                 var filesButton = $("#files" + nameData).closest(".k-upload").find("button");
 
-                $.each(filesButton, function (i, file) {
-                    if (file.className == 'file-edit') {
-                        file.onclick = function () {
-                            fileEdit(nameData, file.getAttribute('fileName'));
+                $.each(filesButton,
+                    function(i, file) {
+                        if (file.className == 'file-edit') {
+                            file.onclick = function() {
+                                fileEdit(nameData, file.getAttribute('fileName'));
+                            };
                         };
-                    };
-                });
+                    });
                 var filesDownload = $("#files" + nameData).closest(".k-upload").find("button");
-                $.each(filesDownload, function (i, file) {
-                    if (file.className == 'file-download') {
-                        file.onclick = function () {
-                            fileDownload(nameData, file.getAttribute('fileName'));
+                $.each(filesDownload,
+                    function(i, file) {
+                        if (file.className == 'file-download') {
+                            file.onclick = function() {
+                                fileDownload(nameData, file.getAttribute('fileName'));
+                            };
                         };
-                    };
-                });
+                    });
             },
-            select: function (e) { },
+            select: function(e) {},
             template: kendo.template($('#fileTemplate').html()),
             files: initialFiles1
         });
@@ -556,6 +568,22 @@
         }
 
     }
+
+    $("#Iin").on("change",
+        function () {
+            var row = $(this).val();
+            if (row.length > 12 || row.length < 12) {
+                alert("Поле должно содержать 12 цифр");
+                validIIN = false;
+                return;
+            }
+            if (row.match(/[^0-9'".]/)) {
+                alert("Поле должно содержать только цифры");
+                validIIN = false;
+                return;
+            }
+            validIIN = true;
+        });
 </script>
 <div class="pwUnitsPage">
     <div class="pwUnitsHeader">@PW.Ncels.Database.Recources.Messages.Property_Сотрудник_288__00</div>
@@ -574,6 +602,10 @@
                                                 <col width="30%" />
                                                 <col width="100%" />
                                             </colgroup>
+                                            <tr>
+                                                <td>@PW.Ncels.Database.Recources.Messages.Property_ИИН_388__00</td>
+                                                <td><input type="text" id="Iin" data-bind="value: item.Iin" class="k-textbox pwWidth100"/></td>
+                                            </tr>
                                             <tr>
                                                 <td>@PW.Ncels.Database.Recources.Messages.Property_Фамилия_312__00</td>
                                                 <td><input type="text" data-bind="value: item.LastName" class="k-textbox pwWidth100" /></td>
@@ -617,12 +649,12 @@
                                         </table>
                                       
                                     </div>
-                                    <div hidden="@(!EmployeePermissionHelper.IsEditOs)" class="pwEmployeeFooter k-block">
+                                    <div hidden="@(!EmployePermissionHelper.IsEditOs)" class="pwEmployeeFooter k-block">
                                         <button id="saveButtonEmployee" type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
                                     </div>
                                 </form>
                             </text>);
-              if (EmployeePermissionHelper.IsEditOs) {
+              if (EmployePermissionHelper.IsEditOs) {
                   tabstrip.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Профиль_343__00)
                       .Content(@<text>
                                     <form id="@("formProfile" + Model[0])" class="pwEmployeeContent" style="overflow: auto">

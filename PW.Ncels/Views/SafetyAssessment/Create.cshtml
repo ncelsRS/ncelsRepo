@@ -1,0 +1,392 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/SignView.cshtml")
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Создать заявку на проведение оценки безопасности качества</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Заявки</a>
+            </li>
+            <li class="active">
+                <strong>Создать заявку</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5 id="safetyTitle">
+                        Заявка
+                    </h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group" style="width: 100%">
+                        <button class="btn btn-info btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="location.href='@Url.Action("RegisterSafetyAssessmentList", "SafetyAssessment")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button type="button" class="btn btn-default btn-sm" id="HideInform" value="show">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true" id="HideInformCheck"></span> <span id="HideInformText">Скрыть примечание</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="button" security bp-type="project" bp-action="edit" id="checkBtn"><i class="fa fa-check"></i> Проверить </button>
+                        <button class="btn btn-default btn-sm" type="button" security bp-type="project" bp-action="edit" id="viewBtn"><i class="fa fa-eye"></i> Просмотр </button>
+                        @if (Model.StatusId == CodeConstManager.STATUS_OBK_SIGN_ACT)
+                        {
+                            <button class="btn btn-default btn-sm" type="button" security bp-type="project" bp-action="edit" id="actBtn"> Акт выполненных работ </button>
+                        }
+                        <div style="float: right">
+                            <button class="btn btn-success btn-sm" type="button" security bp-type="project" style="background-color: #47a447" bp-action="edit" id="signBtn" ><i class="fa fa-send"></i> Подписать и отправить</button>
+                            <button class="btn btn-warning btn-sm" type="button" security bp-type="project" bp-action="edit" id="notSignBtn"><i class="fa fa-send-o"></i> Отправить без подписи</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="safetyDeclarationDiv">
+                    @Html.Partial("~/Views/SafetyAssessment/DeclarationView.cshtml", @Model)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/custom/common.js"></script>
+<script src="~/Scripts/js/custom/spin.js"></script>
+<script src="~/Scripts/photon/crypto/obk/obk_eds.js"></script>
+<script type="text/javascript">
+    
+    function doSign() {
+        $.blockUI({
+            message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
+            css: { opacity: 1 }
+        });
+        signXmlCall(function () {
+                var model = { preambleId: $("#modelId").val(), xmlAuditForm: $("#Certificate").val() };
+                $.ajax({
+                    url: '/SafetyAssessment/SignForm',
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: "application/json",
+                    async: false,
+                    data: JSON.stringify(model),
+                    success: function (data) {
+
+                        if (data.success) {
+                            window.location.href = '@Url.Action("RegisterSafetyAssessmentList", "SafetyAssessment")';
+                        }
+                        else {
+                            $("#formCertValidation").show();
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (data) {
+                        $.unblockUI();
+                    }
+                });
+            },
+            $("#hfXmlToSign").val());
+    }
+    
+    $(document).ready(function () {
+
+        $("#viewBtn").click(function() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportFileTemplate", new { id = Model.Id, url = "ExportFilePdf" })',
+                dataType: 'html',
+                cache: false,
+                success: function (data) {
+                    debugger;
+                    showReport(data);
+                },
+                error: function(data) {
+                    alert("Ошибка");
+                }
+            });
+        });
+
+        $("#actBtn").click(function() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportFileTemplate", new { id = Model.Id, url = "CertOfComplectFilePdf" })',
+                dataType: 'html',
+                cache: false,
+                success: function (data) {
+                    debugger;
+                    showReport(data);
+                },
+                error: function (data) {
+                    alert("Ошибка");
+                }
+            });
+        })
+
+        $("#signBtn").click(function () {
+            if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var id = $("#modelId").val();
+            debugger;
+            startSign('/SafetyAssessment/SignOperation', id);
+        });
+        $("#notSignBtn").click(function () {
+            if (!checkDeclaraionValidation()) {
+                showWarning("Заполните объязательные поля");
+                return;
+            }
+            var success = function () {
+                var modelId = $("#modelId").val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SendNotSign")',
+                    data: { 'modelId': modelId },
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        window.location.href = '@Url.Action("RegisterSafetyAssessmentList", "SafetyAssessment")';
+                    },
+                    error: function () {
+                        alert("Connection Failed. Please Try Again");
+                    }
+                });
+
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Подтверждение", "Вы уверены что хотите отправить без подписи?", success, cancel);
+        });
+
+        $("#checkBtn").click(function() {
+            if (!checkDeclaraionValidation()) {
+                alert("Заполните обязательные поля");
+            } else {
+                alert("Заявка успешно заполнена");
+            };
+
+        });
+    });
+</script>
+
+
+<!--Валидация-->
+<script type="text/javascript">
+
+    function checkDeclaraionValidation() {
+        var validAttach = checkAttachFile();
+        var validDeclaration = checkWrapping();
+        var validProducts = checkProductWrapping();
+        if (!validDeclaration || !validProducts) {
+            $("#OBKSaDeclarationBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#OBKSaDeclarationBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        valid = validDeclaration && validAttach && validProducts;
+        return valid;
+    }
+
+    function checkValueFromIsNull(value) {
+        if (value == null || value.length === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    function setMarkValidation(control, value) {
+        if (checkValueFromIsNull(value)) {
+            $(control).addClass("pw-select-invalid");
+            return false;
+        }
+        if ($(control).hasClass("pw-select-invalid")) {
+            $(control).removeClass("pw-select-invalid");
+        }
+        return true;
+    }
+
+    function checkWrapping() {
+        var validFile = true;
+        var contract = $("#ContractId").val();
+        var cerGMPCheck = $("#CertificateGMPCheck").val();
+        var certNumber = $("#CertificateGMP").val();
+        var surname = $("#InvoiceAgentLastName").val();
+        var name = $("#InvoiceAgentFirstName").val();
+        var position = $("#InvoiceAgentPositionName").val();
+        var cerCountry = $("#CertificateCountryId option:selected").val();
+        var cerOrgan = $("#CertificateOrganization").val();
+        var cerManufactir = $("#CertificateManufacturName").val();
+        var certType = $("#CertificateTypeId").val();
+        var certStartDate = $("#CertificateStartDate").val();
+        var certEndDate = $("#CertificateDate").val();
+
+        var assur = $("#AssuranceCheck").prop('checked');
+        var order = $("#OrderCheck").prop('checked');
+        var stability = $("#StabilityCheck").prop('checked');
+        var payment = $("#PaymentCheck").prop('checked');
+        if (contract == null || contract.length === 0) {
+            $("#ContractIdLabel").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#ContractIdLabel").css({ 'color': '#555' });
+        }
+        if (cerGMPCheck == null || cerGMPCheck.length === 0) {
+            $("#CertificateCheckId").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#CertificateCheckId").css({ 'color': '#555' });
+        }
+        if (cerGMPCheck === "True") {
+            if (cerCountry === "") {
+                $("#CertificateCountryLabelId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateCountryLabelId").css({ 'color': '#555' });
+            }
+            if (cerOrgan === "") {
+                $("#CertificateOrganizationLabelId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateOrganizationLabelId").css({ 'color': '#555' });
+            }
+            if (cerManufactir === "") {
+                $("#CertificateManufacturNameLabelId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateManufacturNameLabelId").css({ 'color': '#555' });
+            }
+            if (certNumber === "") {
+                $("#CertificateId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateId").css({ 'color': '#555' });
+            }
+            if (certType === "") {
+                $("#CertificateTypeLableId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateTypeLableId").css({ 'color': '#555' });
+            }
+            if (certStartDate === "") {
+                $("#CertificateStartDateId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateStartDateId").css({ 'color': '#555' });
+            }
+            if (certEndDate === "") {
+                $("#CertificateEndDateId").css({ 'color': '#a94442' });
+                validFile = false;
+            } else {
+                $("#CertificateEndDateId").css({ 'color': '#555' });
+            }
+        } else {
+            $("#CertificateCountryLabelId").css({ 'color': '#555' });
+            $("#CertificateOrganizationLabelId").css({ 'color': '#555' });
+            $("#CertificateId").css({ 'color': '#555' });
+        }
+        if (surname === "") {
+            $("#surnameLabel").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#surnameLabel").css({ 'color': '#555' });
+        }
+        if (name === "") {
+            $("#nameLabel").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#nameLabel").css({ 'color': '#555' });
+        }
+        if (position === "") {
+            $("#positionLabel").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#positionLabel").css({ 'color': '#555' });
+        }
+        if (!assur) {
+            $("#assuranceChek").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#assuranceChek").css({ 'color': '#555' });
+        }
+        if (!order) {
+            $("#orderCheck").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#orderCheck").css({ 'color': '#555' });
+        }
+        if (!stability) {
+            $("#stabilityCheck").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#stabilityCheck").css({ 'color': '#555' });
+        }
+        if (!payment) {
+            $("#paymentCheck").css({ 'color': '#a94442' });
+            validFile = false;
+        } else {
+            $("#paymentCheck").css({ 'color': '#555' });
+        }
+        return validFile;
+    }
+
+    function checkProductWrapping() {
+        debugger;
+        var validFile = true;
+        var data = $('#tableProducts').DataTable().data();
+        data.each(function(val) {
+            if (val.Price == null || val.Price === "") {
+                validFile = false;
+                $("#PriceLabel").css({ 'color': '#a94442' });
+            } else {
+                $("#PriceLabel").css({ 'color': '#555' });
+            }
+            if (val.CurrencyId == null || val.CurrencyId === "") {
+                validFile = false;
+                $("#CurrencyLabel").css({ 'color': '#a94442' });
+            } else {
+                $("#CurrencyLabel").css({ 'color': '#555' });
+            }
+        });
+        return validFile;
+    }
+
+    function checkAttachFile() {
+        var validFile = true;
+        $('.file-validation').each(function () {
+            var ct = $(this).attr('countFile');
+            var attcode = $(this).attr('attcode');
+            var attId = $(this).attr('attId');
+            var dataq = $("#tableProducts").DataTable().data();
+            var count = parseInt(ct, 10) || 0;
+
+            if (count === 0 && attcode === '@CodeConstManager.ATTACH_OPTIONAL_OBK_FILE_CODE' && (attId === '462110ce-fefd-451d-9c4c-ee05704ccfce' || attId === '7ed9da5a-45ec-4499-b713-2e503189db0b')) {
+                debugger;
+                dataq.each(function (val) {
+                    debugger;
+                    if (val.RegTypeId === 1 && attId === '462110ce-fefd-451d-9c4c-ee05704ccfce') {
+                        attcode = '@CodeConstManager.ATTACH_REQUIRED_OBK_FILE_CODE';
+                    } if (val.RegTypeId === 2 && attId === '7ed9da5a-45ec-4499-b713-2e503189db0b') {
+                        attcode = '@CodeConstManager.ATTACH_REQUIRED_OBK_FILE_CODE';
+                    }
+                });
+            }
+
+            if (count === 0 && attcode === '@CodeConstManager.ATTACH_REQUIRED_OBK_FILE_CODE') {
+                $(this).text("Необходимо вложить файлы");
+                validFile = false;
+            } else {
+                $(this).text("");
+            }
+        });
+        if (!validFile) {
+            $("#OBKSaAttachBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
+        } else {
+            $("#OBKSaAttachBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
+        }
+        return validFile;
+    }
+</script>

@@ -1,0 +1,87 @@
+﻿@model PW.Ncels.Database.Models.UnitSignerModel
+    
+
+<div style="padding: 10px; font-size: 12px;">
+    @Html.HiddenFor(o => o.UnitSignerId)
+    @Html.HiddenFor(o => o.SignerId)
+    @Html.HiddenFor(o => o.Signer)
+    @Html.HiddenFor(o => o.DocumentType)
+    
+    <label>Подписывающее лицо</label>
+    @(Html.Kendo().DropDownList().Name("UnitsSignerCombobox")
+          .HtmlAttributes(new {@class = "pwWidth100"})
+          .AutoBind(false)
+          .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(dataSource => dataSource.Read(read => read.Action("UnitsSignerValueList", "Employe").Data("PermissionParams")))
+          .Events(o => o.Change("changeUnitsSigner"))
+          )
+    <label>Вид документа</label>
+    @*<input id="@("DocType")" data-bind="value: item.Type" style = "width: 380px;" />*@
+        @*@Html.HiddenFor(o => o.DocType, new { style = "width: 380px;" })*@
+    @(Html.Kendo().DropDownList().Name("UnitsSignerDocTypeCombobox")
+              .HtmlAttributes(new {@class = "pwWidth100"})
+              .AutoBind(false)
+              .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .DataSource(dataSource => dataSource.Read(read => read.Action("UnitsSignerDocTypeList", "Employe")))
+              .Events(o => o.Change("changeUnitsSignerDocType"))
+              )
+
+    <label>Наличие номера</label>
+        @*<input id="@("DocNumberCheck")" data-bind="value: item.NumberCheck" style="width: 380px;" />*@
+        @*@Html.HiddenFor(o => o.DocAvailable, new { style = "width: 380px;" })*@
+    @(Html.Kendo().DropDownList().Name("UnitsSignerDocAvailableCombobox")
+              .HtmlAttributes(new { @class = "pwWidth100" })
+              .AutoBind(false)
+              .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+              .DataTextField("Name")
+              .DataValueField("Type")
+              .DataSource(dataSource => dataSource.Read(read => read.Action("UnitsSignerDocAvailableList", "Employe")))
+              .Events(o => o.Change("changeUnitsSignerDocAvailable"))
+        )
+    <label>Номер документа</label>
+    <div class="input-group">
+        @(Html.TextBoxFor(p => p.DocNumber, new {@class = "form-control", style = "width: 380px;"}))
+    </div>
+    <label>Дата действия записи с</label>
+    <div class="input-group">
+        @(Html.Kendo().DatePickerFor(p => p.StartDate))
+    </div>
+    <label>Дата действия записи по</label>
+    <div class="input-group">
+        @(Html.Kendo().DatePickerFor(p => p.EndDate))
+    </div>
+</div>
+
+<script>
+    
+    var dataType = [
+        { text: "", value: "-1"},
+        { text: "Приказ", value: "0" },
+        { text: "Письмо", value: "1" }
+    ];
+
+    var dataDocNumberAvailable = [
+        { text: "Да", value: true },
+        { text: "Нет", value: false }
+    ];
+    
+    $("#DocType").kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: -1,
+        dataSource: dataType
+    });
+
+    $("#DocAvailable").kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: false,
+        dataSource: dataDocNumberAvailable
+    });
+</script>
+
+

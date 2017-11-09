@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Models.Expertise;
+using PW.Ncels.Database.Models.OBK;
 
 namespace PW.Ncels.Database.Repository.Common
 {
@@ -79,6 +80,22 @@ namespace PW.Ncels.Database.Repository.Common
             var list = new List<BoooleanEntity>();
             list.Add(new BoooleanEntity { IsSign = false, NameRu = "Нет" });
             list.Add(new BoooleanEntity { IsSign = true, NameRu = "Да" });
+            return list;
+        }
+
+        public List<BoolenGMPCheck> GetCertificateGMPCheck()
+        {
+            var list = new List<BoolenGMPCheck>();
+            list.Add(new BoolenGMPCheck { CertificateGMPCheck = false, NameRu = "Нет" });
+            list.Add(new BoolenGMPCheck { CertificateGMPCheck = true, NameRu = "Да" });
+            return list;
+        }
+
+        public List<OBK_Ref_Result> GetUOBKCheck()
+        {
+            var list = new List<OBK_Ref_Result>();
+            list.Add(new OBK_Ref_Result { ExpertiseResult = true, Name = "Соответствует требованиям"});
+            list.Add(new OBK_Ref_Result { ExpertiseResult = false, Name = "Не соответствует требованиям" });
             return list;
         }
 

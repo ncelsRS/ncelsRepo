@@ -1,0 +1,50 @@
+﻿<script>
+    $(document).ready(function () {
+        var contractId = '@(ViewBag.ContractId)';
+        var uiId = '@(ViewBag.UiId)';
+        var viewModel = kendo.observable({
+            Cancel: function (e) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+        kendo.bind($("#uploadForm@(ViewBag.UiId)"), viewModel);
+    });
+
+    function onComplete@(ViewBag.UiId.Replace("-", string.Empty)) () {
+        if ($("#TaskCommandWindow").data("kendoWindow").dialogCallback) {
+            $("#TaskCommandWindow").data("kendoWindow").dialogCallback(true);
+        }
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>
+<div class="row">
+    <div id="loader@(ViewBag.UiId)"></div>
+    <form id="uploadForm@(ViewBag.UiId)" class="form-horizontal">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <div class="col-lg-8">
+                        @(Html.Kendo().Upload().Name("attachContract").Multiple(false).HtmlAttributes(new { accept = "application/pdf,application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, image/jpeg", data_activetab = "maketTab" })
+                                    .Messages(m => m.Select("Выбрать файл для загрузки..."))
+                                    .Async(ac => ac.AutoUpload(false)
+                                          .Save("UploadContract", "OBKContract", new
+                                          {
+                                              contractId = ViewBag.ContractId
+                                          }))
+                                            .Events(events => events
+                                              .Complete("onComplete" + (ViewBag.UiId.Replace("-", string.Empty)))
+                                          )
+                                          )
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button" data-bind="click: Cancel">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

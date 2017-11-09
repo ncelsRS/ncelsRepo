@@ -1,0 +1,41 @@
+﻿@model Guid
+
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formReview" + Model)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText"> Выдать результат заявителю?<span style="font-weight: bold" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="closeSendExpert()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="sendExpertConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model';
+
+    function closeSendExpert() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+
+    function sendExpertConfirm() {
+
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/OutputResult',
+            data: { id: name },
+            success: function (result) {
+                $("#reject" + name).prop("enable", false);
+                $("#review" + name).prop("enable", false);
+                $("#reject" + name).attr('disabled', 'disabled');
+                $("#review" + name).attr('disabled', 'disabled');
+                $("#deSignNote").prop("readonly", true);
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+    }
+
+</script>
