@@ -1,3 +1,0 @@
-ALTER TABLE dbo.I1c_lims_ApplicationEAdmissions ADD
-	PowerOfAttorneyDatetime_1C datetime NULL
-GO

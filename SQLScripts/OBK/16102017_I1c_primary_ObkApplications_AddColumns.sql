@@ -1,2 +1,0 @@
-alter table I1c_primary_ObkApplications add InvoiceNumber1C nvarchar(512) null
-alter table I1c_primary_ObkApplications add InvoiceDatetime1C datetime null
