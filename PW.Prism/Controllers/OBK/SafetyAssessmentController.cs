@@ -61,10 +61,15 @@ namespace PW.Prism.Controllers.OBK
             }
             var model = GetAssessmentStage(id[0]);
             model.OBK_AssessmentDeclaration.Applicant = new EmployeesRepository().GetById(model.OBK_AssessmentDeclaration.EmployeeId);
-            //ViewBag.CanRefuseExpertise =
-            //    model.StageId == CodeConstManager.STAGE_PRIMARY /*&& model.EXP_DIC_StageStatus.Code != EXP_DIC_StageStatus.Completed*/ &&
-            //    model.OBK_AssessmentDeclaration.StatusId != CodeConstManager.STATUS_EXP_ON_REFUSING_ID
-            //    && model.OBK_AssessmentDeclaration.StatusId != CodeConstManager.STATUS_EXP_REFUSED_ID;
+
+            //проверка для кнопки выдать результат
+            var certificateOfComplection = model.OBK_AssessmentDeclaration.OBK_CertificateOfCompletion.FirstOrDefault(
+                    e => e.AssessmentDeclarationId == model.DeclarationId);
+            if (certificateOfComplection == null)
+                ViewBag.outputResultAct = false;
+            else
+                ViewBag.outputResultAct = certificateOfComplection.ActReturnedBack;
+
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
             ActionLogger.WriteInt(stageName + ": Получение заявления №" + model.OBK_AssessmentDeclaration.Number);

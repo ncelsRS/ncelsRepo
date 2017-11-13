@@ -186,17 +186,17 @@ namespace PW.Ncels.Database.Repository.OBK
             //else
             //{
             //}
-            List<ContractPriceSignData> contractPriceSign = AppContext.OBK_ContractPrice
-                .Where(e => e.ContractId == contract.Id)
-                .Select(e => new ContractPriceSignData
-                {
-                    ContractPriceName = e.OBK_RS_Products.NameRu,
-                    ContractPriceDicName = e.OBK_Ref_PriceList.NameRu,
-                    ContractPrice = e.OBK_Ref_PriceList.Price * TaxHelper.GetNdsRef() + e.OBK_Ref_PriceList.Price,
-                    ContractPriceCount = e.Count,
-                    ContractPriceTotal = (e.OBK_Ref_PriceList.Price * TaxHelper.GetNdsRef() + e.OBK_Ref_PriceList.Price) * e.Count
-                })
-                .ToList();
+            //List<ContractPriceSignData> contractPriceSign = AppContext.OBK_ContractPrice
+            //    .Where(e => e.ContractId == contract.Id)
+            //    .Select(e => new ContractPriceSignData
+            //    {
+            //        ContractPriceName = e.OBK_RS_Products.NameRu,
+            //        ContractPriceDicName = e.OBK_Ref_PriceList.NameRu,
+            //        ContractPrice = e.OBK_Ref_PriceList.Price * TaxHelper.GetNdsRef() + e.OBK_Ref_PriceList.Price,
+            //        ContractPriceCount = e.Count,
+            //        ContractPriceTotal = (e.OBK_Ref_PriceList.Price * TaxHelper.GetNdsRef() + e.OBK_Ref_PriceList.Price) * e.Count
+            //    })
+            //    .ToList();
             var result = new OBKPaymentSignData
             {
                 Id = id,
