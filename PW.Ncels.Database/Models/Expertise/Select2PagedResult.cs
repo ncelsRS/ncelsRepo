@@ -29,7 +29,12 @@ namespace PW.Ncels.Database.Models.Expertise
         public string NameRu { get; set; }
     }
 
- 
+    public class BoolenGMPCheck
+    {
+        public bool CertificateGMPCheck { get; set; }
+        public string NameRu { get; set; }
+    }
+
     public class SubUpdateField
     {
         public string ModelId { get; set; }

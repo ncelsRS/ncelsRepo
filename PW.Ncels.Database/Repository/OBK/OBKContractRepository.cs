@@ -1705,13 +1705,6 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 var ownId = UserHelper.GetCurrentEmployee().Id;
                 int? currentStageId = null;
-                var pathGuid = Guid.Parse(path);
-                var stage =
-                    db.EXP_ExpertiseStage.Where((x => x.Executors.Select(y => y.Id).Contains(ownId) && !x.IsHistory && x.EXP_DIC_StageStatus.Code == "inWork" && x.DeclarationId == pathGuid));
-                if (stage.Any())
-                {
-                    currentStageId = stage.First().StageId;
-                }
                 string root = ConfigurationManager.AppSettings["AttachPath"];
                 string fullName = Path.Combine(root, FileHelper.Root, path ?? "", code ?? "", savedFileName);
                 DirectoryInfo info = new DirectoryInfo(Path.Combine(root, FileHelper.Root, path ?? "", code ?? ""));

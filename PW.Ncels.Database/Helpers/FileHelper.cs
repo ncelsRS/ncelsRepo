@@ -1460,7 +1460,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
         public static object SaveNextFileVersion(string code, string path, string originFile,
-            HttpRequestBase requestBase, ncelsEntities db,string lang="",string comment="",int? numOfPages = null)
+            HttpRequestBase requestBase, ncelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
         {
             if (!string.IsNullOrEmpty(originFile)
                 &&
@@ -1486,7 +1486,7 @@ namespace PW.Ncels.Database.Helpers
                         int? currentStageId = null;
                         var pathGuid = Guid.Parse(path);
                         var stage =
-                            db.EXP_ExpertiseStage.Where((x => x.Executors.Select(y => y.Id).Contains(ownId) && !x.IsHistory && x.EXP_DIC_StageStatus.Code == "inWork" && x.DeclarationId == pathGuid));
+                            db.EXP_ExpertiseStage.Where((x => x.EXP_ExpertiseStageExecutors.Select(y => y.ExecutorId).Contains(ownId) && !x.IsHistory && x.EXP_DIC_StageStatus.Code == "inWork" && x.DeclarationId == pathGuid));
                         if (stage.Any())
                         {
                             currentStageId = stage.First().StageId;
@@ -1507,9 +1507,9 @@ namespace PW.Ncels.Database.Helpers
                                 oldFileNewName = nameWithouExt + ".pdf";
                             }
                         }
-                            //File.Move(Path.Combine(root, Root, path ?? "", code ?? "", originFileName ?? ""),
-                            //    Path.Combine(root, Root, path ?? "", code ?? "", historyFileName ?? ""));
-                            file.SaveAs(Path.Combine(root, Root, path ?? "", code ?? "", newVersionFileName ?? ""));
+                        //File.Move(Path.Combine(root, Root, path ?? "", code ?? "", originFileName ?? ""),
+                        //    Path.Combine(root, Root, path ?? "", code ?? "", historyFileName ?? ""));
+                        file.SaveAs(Path.Combine(root, Root, path ?? "", code ?? "", newVersionFileName ?? ""));
                         var newVersionFileLink = new FileLink()
                         {
                             Id = newVersionId,

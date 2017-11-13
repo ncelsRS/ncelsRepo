@@ -1814,6 +1814,7 @@
     };
 
     $scope.tab3click = function () {
+        debugger;
         $interval(function () {
             $scope.gridOptionsCalculatorApi.core.handleWindowResize();
         }, 500, 10);

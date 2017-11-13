@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Security;
+using Ncels.Core.Web;
 using Newtonsoft.Json.Schema;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Models;
@@ -35,7 +36,24 @@ namespace PW.Prism.Controllers
                 return View();
 		}
 
-		public ActionResult Profile() {
+	    public ActionResult SelectWorkProfile(string returnUrl)
+	    {
+	        ViewBag.ReturnUrl = returnUrl;
+	        return View();
+	    }
+
+	    public ActionResult WorkProfileSelected(string workProfile, string returnUrl)
+	    {
+	        Session["workProfile"] = Enum.Parse(typeof(WorkProfileType), workProfile);
+	        if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+	            && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+	        {
+	            return Redirect(returnUrl);
+	        }
+	        return RedirectToAction("Index", "Home");
+	    }
+
+        public ActionResult Profile() {
 
 			ChangePasswordModel model = new ChangePasswordModel();
 			model.DisplayName = UserHelper.GetCurrentName();
@@ -96,15 +114,7 @@ namespace PW.Prism.Controllers
 
                         ActionLogger.WriteInt("Вход в систему: " + model.UserName, "Успех");
 
-                        if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                            && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                        {
-                            return Redirect(returnUrl);
-                        }
-                        else
-                        {
-                            return RedirectToAction("Index", "Home");
-                        }
+                        return RedirectToAction("SelectWorkProfile", new { returnUrl });
                     }
                     else
                     {

@@ -20,6 +20,10 @@
         /// <summary>
         /// Общий профиль
         /// </summary>
-        General
+        General,
+        /// <summary>
+        /// Оценка безопасности и качества
+        /// </summary>
+        Safety
     }
 }

@@ -20,7 +20,9 @@
         'oitozero.ngSweetAlert',
         'cgNotify',
         'angular-storage',
-            'ui.mask'
+            'ui.mask',
+            'ui.grid',
+            'ui.grid.selection'
     ]);
 })();
 
