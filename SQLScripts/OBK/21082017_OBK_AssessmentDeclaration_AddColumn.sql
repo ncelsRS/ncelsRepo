@@ -1,0 +1,1 @@
+ALTER TABLE OBK_AssessmentDeclaration ADD DesignNote nvarchar(MAX) 

@@ -1,0 +1,8 @@
+﻿insert into EXP_DIC_StageStatus (Id, Code, DateCreate, NameRu, NameKz, IsDeleted)
+values(1, 'inQueue', DATEFROMPARTS(2017,1,1), N'На распределение', N'На распределение', 0)
+insert into EXP_DIC_StageStatus (Id, Code, DateCreate, NameRu, NameKz, IsDeleted)
+values(2, 'inWork', DATEFROMPARTS(2017,1,1), N'В работе', N'В работе', 0)
+insert into EXP_DIC_StageStatus (Id, Code, DateCreate, NameRu, NameKz, IsDeleted)
+values(3, 'inReWork', DATEFROMPARTS(2017,1,1), N'На даработке', N'На даработке', 0)
+insert into EXP_DIC_StageStatus (Id, Code, DateCreate, NameRu, NameKz, IsDeleted)
+values(4, 'completed', DATEFROMPARTS(2017,1,1), N'Выполнен', N'Выполнен', 0)

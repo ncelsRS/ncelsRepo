@@ -1,0 +1,3 @@
+﻿ALTER TABLE [OBK_Contract]
+ADD [SendDate] DATETIME NULL
+
