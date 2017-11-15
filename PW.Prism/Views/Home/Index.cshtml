@@ -19,6 +19,25 @@
 
 <script>
 
+    function onSelectOBK(e) {
+
+        if ($(e.item).children(".k-link").attr('ItemId')) {
+
+            var tabStrip = $("#tabstrip").data("kendoTabStrip");
+            var header = $(e.item).children(".k-link").text();
+            var parametr = $(e.item).children(".k-link").attr('ItemId');
+
+            $.ajax({
+                url: "/" + parametr + "/Index",
+                //type: "POST", параметр для определения справочника
+                success: function (result) {
+                    // refreshes partial view
+                    $('#OBK_Reference_bar').html(result);
+                }
+            });
+        }
+    }
+
     function onSelectMenu(e) {
         if ($(e.item).children(".k-link").attr('ItemId')) {
 
@@ -360,6 +379,9 @@
             }
             if (parametr == 'RequestOrders') {
                 url = "/Project/RequestOrders";
+            }
+            if (parametr == 'OBKDic') {
+                url = "/OBKReference/index";
             }
             if (parametr == 'RequestOrderBaseReportAll') {
                 url = '@Url.Action("RequestOrderBaseReport","Project", new {reportName = "RequestOrderAllRows" })';
