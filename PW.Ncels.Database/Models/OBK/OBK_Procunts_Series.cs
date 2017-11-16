@@ -35,5 +35,16 @@ namespace PW.Ncels.Database.DataModel
         public string SeriesNameKz { get; set; }
         public string SeriesShortNameRu { get; set; }
         public string SeriesShortNameKz { get; set; }
+
+        #region product
+
+        public string NameRu { get; set; }
+        public string NameKz { get; set; }
+        public string ProducerNameRu { get; set; }
+        public string ProducerNameKz { get; set; }
+        public string CountryNameRu { get; set; }
+        public string CountryNameKz { get; set; }
+
+        #endregion
     }
 }
