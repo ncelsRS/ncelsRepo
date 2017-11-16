@@ -791,6 +791,11 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.ProductSeriesId == prodSerId);
         }
 
+        public OBK_StageExpDocument GetStageExpDocumentByAssessmentDeclarationId(Guid id)
+        {
+            return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.AssessmentDeclarationId == id);
+        }
+
         public void SendOutputResult(Guid id)
         {
             var stages = AppContext.OBK_AssessmentStage.Where(e => e.OBK_AssessmentDeclaration.Id == id);
