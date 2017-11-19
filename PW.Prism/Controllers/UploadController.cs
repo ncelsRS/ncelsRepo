@@ -163,6 +163,22 @@ namespace PW.Prism.Controllers
             return Content("");
         }
 
+        public ActionResult SaveFile(IEnumerable<HttpPostedFileBase> files, string certificateId)
+        {
+            // The Name of the Upload component is "files"
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+
+                    UploadHelper.Upload(file.InputStream, file.FileName, certificateId);
+                }
+            }
+
+            // Return an empty string to signify success
+            return Content("");
+        }
+
         public ActionResult Remove(string[] fileNames, string documentId)
         {
             // The parameter of the Remove action must be called "fileNames"
@@ -181,6 +197,23 @@ namespace PW.Prism.Controllers
                     //	// The files are not actually removed in this demo
                     //	// System.IO.File.Delete(physicalPath);
                     //}
+                }
+            }
+
+            // Return an empty string to signify success
+            return Content("");
+        }
+
+        public ActionResult RemoveFile(string[] fileNames, string certificateId)
+        {
+            // The parameter of the Remove action must be called "fileNames"
+
+            if (fileNames != null)
+            {
+                foreach (var fullName in fileNames)
+                {
+                    var fileName = Path.GetFileName(fullName);
+                    UploadHelper.DeleteFile(certificateId, fileName);
                 }
             }
 

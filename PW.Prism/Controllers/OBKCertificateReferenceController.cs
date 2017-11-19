@@ -30,7 +30,7 @@ namespace PW.Prism.Controllers
     public class OBKCertificateReferenceController : Controller
     {
         private ncelsEntities db = UserHelper.GetCn();
-
+        private OBKCertificateReferenceFieldSaver fieldSaver = new Ncels.Database.Helpers.OBKCertificateReferenceFieldSaver();
         // GET: /Reference/
         public ActionResult Index()
         {
@@ -41,10 +41,10 @@ namespace PW.Prism.Controllers
 
         public ActionResult AllList([DataSourceRequest] DataSourceRequest request, string status)
         {
-            var list = db.OBK_CertificateReference.ToList();
+            var list = db.OBK_CertificateReference.Include(o => o.OBK_CertificateValidityType).ToList();
             foreach (var obj in list)
             {
-                if (obj.EndDate < DateTime.Now)
+                if (obj.EndDate < DateTime.Now && !"Recalled".Equals(obj.OBK_CertificateValidityType.Code))
                 {
                     OBK_CertificateReference d = db.OBK_CertificateReference.First(o => o.Id == obj.Id);
                     d.OBK_CertificateValidityType = db.OBK_CertificateValidityType.First(o => o.Code == "Passive");
@@ -71,7 +71,7 @@ namespace PW.Prism.Controllers
                            CertificateCountryId = certRef.CertificateCountryId,
                            CertificateCountry = dic.Name,
                            LastInspection = certRef.LastInspection,
-                           DocumentId = certRef.DocumentId,
+                           AttachPath = certRef.AttachPath,
                            CertificateValidityType = validityType.Name,
                            CertificateValidityCode = validityType.Code
                        };
@@ -94,8 +94,7 @@ namespace PW.Prism.Controllers
 
 
         [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DicCreate([DataSourceRequest] DataSourceRequest request, OBKCertificateReferenceModel dictionary,
-            string type)
+        public ActionResult DicCreate([DataSourceRequest] DataSourceRequest request, OBKCertificateReferenceModel dictionary)
         {
 
             if (dictionary != null && ModelState.IsValid)
@@ -103,7 +102,7 @@ namespace PW.Prism.Controllers
 
                 OBK_CertificateReference d = new OBK_CertificateReference()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = (Guid)dictionary.Id,
                     Number = dictionary.Number,
                     CertificateNumber = dictionary.CertificateNumber,
                     StartDate = dictionary.StartDate,
@@ -112,7 +111,7 @@ namespace PW.Prism.Controllers
                     CertificateOrganization = dictionary.CertificateOrganization,
                     CertificateTypeId = dictionary.CertificateTypeId,
                     LastInspection = dictionary.LastInspection,
-                    DocumentId = dictionary.DocumentId,
+                    AttachPath = dictionary.AttachPath,
                 };
                 if (dictionary.EndDate >= DateTime.Now)
                 {
@@ -127,6 +126,32 @@ namespace PW.Prism.Controllers
 
                 db.OBK_CertificateReference.Add(d);
                 db.SaveChanges();
+
+                fieldSaver.FieldSave(new OBK_CertificateReference(), d, UserHelper.GetCurrentEmployee().Id);
+
+                List<UploadInitialFile> physicalfiles = UploadHelper.GetFilesInfo(dictionary.AttachPath.ToString(), false);
+
+                List<FileLink> oldList = db.FileLinks.Where(o => o.DocumentId == dictionary.Id).ToList();
+
+                foreach(var file in physicalfiles)
+                {
+                    if (!oldList.Any( o => o.FileName == file.name))
+                    {
+                        FileLink dbFile = new FileLink
+                        {
+                            Id = Guid.NewGuid(),
+                            FileName = file.name,
+                            CreateDate = DateTime.Now,
+                            DocumentId = dictionary.Id,
+                            OwnerId = UserHelper.GetCurrentEmployee().Id,
+                            IsDeleted = false,
+                        };
+                        db.FileLinks.Add(dbFile);
+                        fieldSaver.LogChange("FileLinks", dbFile.FileName, UserHelper.GetCurrentEmployee().Id,
+                            dictionary.Id, "добавлен");
+                    }
+                }
+                db.SaveChanges();
                 dictionary.Id = d.Id;
             }
 
@@ -134,12 +159,28 @@ namespace PW.Prism.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DicUpdate([DataSourceRequest] DataSourceRequest request, OBKCertificateReferenceModel dictionary,
-            string type)
+        public ActionResult DicUpdate([DataSourceRequest] DataSourceRequest request, OBKCertificateReferenceModel dictionary)
         {
             if (dictionary != null && ModelState.IsValid)
             {
                 OBK_CertificateReference d = db.OBK_CertificateReference.First(o => o.Id == dictionary.Id);
+
+                if (!d.OBK_CertificateValidityType.Code.Equals("Recalled"))
+                {
+                    if (dictionary.EndDate >= DateTime.Now)
+                    {
+                        OBK_CertificateValidityType t = db.OBK_CertificateValidityType.First(o => o.Code == "active");
+                        d.OBK_CertificateValidityType = t;
+                    }
+                    else
+                    {
+                        OBK_CertificateValidityType t = db.OBK_CertificateValidityType.First(o => o.Code == "passive");
+                        d.OBK_CertificateValidityType = t;
+                    }
+                }
+
+                var oldCopy = fieldSaver.CopyObject(d);
+
                 d.Number = dictionary.Number;
                 d.CertificateNumber = dictionary.CertificateNumber;
                 d.StartDate = dictionary.StartDate;
@@ -148,9 +189,48 @@ namespace PW.Prism.Controllers
                 d.CertificateOrganization = dictionary.CertificateOrganization;
                 d.CertificateTypeId = dictionary.CertificateTypeId;
                 d.LastInspection = dictionary.LastInspection;
-                d.DocumentId = dictionary.DocumentId;
+                d.AttachPath = dictionary.AttachPath;
                 db.SaveChanges();
+
+                fieldSaver.FieldSave(oldCopy, d, UserHelper.GetCurrentEmployee().Id);
             }
+
+            List<UploadInitialFile> physicalfiles = UploadHelper.GetFilesInfo(dictionary.AttachPath.ToString(), false);
+
+            List<FileLink> oldList = db.FileLinks.Where(o => o.DocumentId == dictionary.Id).ToList();
+
+            foreach (var file in physicalfiles)
+            {
+                if (!oldList.Any(o => o.FileName == file.name))
+                {
+                    FileLink dbFile = new FileLink
+                    {
+                        Id = Guid.NewGuid(),
+                        FileName = file.name,
+                        CreateDate = DateTime.Now,
+                        DocumentId = dictionary.Id,
+                        OwnerId = UserHelper.GetCurrentEmployee().Id,
+                        IsDeleted = false,
+                    };
+                    db.FileLinks.Add(dbFile);
+                    fieldSaver.LogChange("FileLinks", dbFile.FileName, UserHelper.GetCurrentEmployee().Id,
+                        dictionary.Id, "добавлен");
+                }
+            }
+            db.SaveChanges();
+
+            List<FileLink> newList = db.FileLinks.Where(o => o.DocumentId == dictionary.Id).ToList();
+
+            foreach (var file in newList)
+            {
+                if (!physicalfiles.Any(o => o.name == file.FileName))
+                {
+                    db.FileLinks.Remove(file);
+                    fieldSaver.LogChange("FileLinks", file.FileName, UserHelper.GetCurrentEmployee().Id,
+                        dictionary.Id, "удален");
+}
+            }
+            db.SaveChanges();
 
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
         }
@@ -162,7 +242,7 @@ namespace PW.Prism.Controllers
             if (dictionary != null)
             {
                 OBK_CertificateReference d = db.OBK_CertificateReference.First(o => o.Id == dictionary.Id);
-                Document doc = db.Documents.First(o => o.Id == d.DocumentId);
+                //Document doc = db.Documents.First(o => o.Id == d.DocumentId);
 
                 db.OBK_CertificateReference.Remove(d);
                 db.SaveChanges();
@@ -185,62 +265,36 @@ namespace PW.Prism.Controllers
 
         public ActionResult DocumentRead(Guid id)
         {
-            Document document = db.Documents.Find(id);
-            if (document == null)
-            {
-                document = new Document()
-                {
-                    Id = id,
-                    DocumentType = 1,
-                    DocumentDate = DateTime.Now,
-                    OutgoingType = 0,
-                    AttachPath = FileHelper.GetObjectPathRoot()
+            OBK_CertificateReference reference = db.OBK_CertificateReference.Find(id);
+            OBKCertificateFileModel fileModel = new OBKCertificateFileModel();
 
-                };
+            if (reference != null)
+            {
+                fileModel.AttachPath = reference.AttachPath;
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
+            }
+            else
+            {
+                fileModel.AttachPath = FileHelper.GetObjectPathRoot();
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
             }
 
-            DocumentModel model = new DocumentModel(document);
-            return Content(JsonConvert.SerializeObject(model, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
+            return Content(JsonConvert.SerializeObject(fileModel, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
 
         }
-
-        [HttpPost]
-        public ActionResult DocumentUpdate(DocumentModel document)
-        {
-            if (document != null)
-            {
-
-                Document baseDocument = db.Documents.Find(document.Id);
-                if (baseDocument == null)
-                {
-                    baseDocument = new Document()
-                    {
-                        Id = document.Id,
-                        DocumentType = 1,
-                        CreatedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        DocumentDate = DateTime.Now,
-                    };
-                    db.Documents.Add(baseDocument);
-                }
-                baseDocument = document.GetDocument(baseDocument);
-
-                db.SaveChanges();
-                return Content(bool.TrueString);
-            }
-
-            return Content(bool.FalseString);
-        }
-
 
         [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult Recall([DataSourceRequest] DataSourceRequest request, Guid? Id)
         {
             OBK_CertificateReference obj = db.OBK_CertificateReference.FirstOrDefault(o => o.Id == Id);
+            var oldCopy = fieldSaver.CopyObject(obj);
             if (obj != null)
             {
                 obj.OBK_CertificateValidityType = db.OBK_CertificateValidityType.First(o => o.Code == "Recalled");
                 db.SaveChanges();
+
+                fieldSaver.FieldSave(oldCopy,obj,UserHelper.GetCurrentEmployee().Id);
+
                 return Json(new
                 {
                     success = true

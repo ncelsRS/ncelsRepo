@@ -20,6 +20,7 @@ namespace PW.Ncels.Database.Models
         public DateTime? LastInspection { get; set; }
         public string CertificateValidityType { get; set; }
         public string CertificateValidityCode { get; set; }
-        public Guid? DocumentId { get; set; }
+        public string AttachPath { get; set; }
+        public string fileChanged { get; set; }
     }
 }

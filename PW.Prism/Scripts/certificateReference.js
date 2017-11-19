@@ -1,7 +1,6 @@
 ﻿
 function InitializeCertificate(name) {
     var validator = $("#outDocForm" + name).kendoValidator().data("kendoValidator");
-
     var viewModel = kendo.observable({
         document: {},
         change: function () {
@@ -59,14 +58,8 @@ function InitializeCertificate(name) {
         dictionaryView: function (e) {
             e.preventDefault();
             DictionaryView(name, 'True', this);
-        },
-        save: function (e) {
-            e.preventDefault();
-            this.set("hasChanges", false);
-            sendData();
         }
     });
-
     function loadDocument() {
         kendo.ui.progress($('#loader' + name), true);
         $.ajax({
@@ -85,118 +78,21 @@ function InitializeCertificate(name) {
                 kendo.ui.progress($('#loader' + name), false);
             },
             complete: function () {
-				//InitializeStatusBar(name, viewModel);
+                //InitializeStatusBar(name, viewModel);
             }
         });
     }
-    function sendDoc() {
-        var window = $("#TaskCommandWindow");
-        window.kendoWindow({
-            width: "550px",
-            height: "auto",
-            modal: true, resizable: false,
-            close: onCloseCommandWindow,
-            title: 'Резолюция',
-            actions: ["Close"]
-        });
-
-        window.data("kendoWindow").title('Отправка документа');
-        window.data("kendoWindow").setOptions({
-            width: 550,
-            height: 'auto'
-        });
-        window.data("kendoWindow").refresh('/OutgoingDoc/DocumentSend?id=' + viewModel.get("document.Id"));
-
-        window.data("kendoWindow").center();
-        window.data("kendoWindow").open();
-
-        $("#TaskCommandWindow").closest(".k-window").css({
-            top: 55,
-        
-        });
-    }
-    function registerData() {
-        kendo.ui.progress($('#loader' + name), true);
-
-        var json = JSON.stringify(viewModel.get('document'));
-
-
-        $.ajax({
-            type: 'POST',
-            url: '/OutgoingDoc/DocumentRegister',
-            data: json,
-            contentType: 'application/json; charset=utf-8',
-            success: function (result) {
-                result = JSON.parse(result);
-                if (result.State == true) {
-                    viewModel.set("document", result.document);
-                    viewModel.initButton();
-                    CardRegisterSuccess(result.document.Number, result.document.DocumentDate);
-                };
-            },
-            complete: function () {
-                kendo.ui.progress($('#loader' + name), false);
-            }
-        });
-    };
-
-    function reviewData() {
-        kendo.ui.progress($('#loader' + name), true);
-
-        var json = JSON.stringify(viewModel.get('document'));
-
-
-        $.ajax({
-            type: 'POST',
-            url: '/OutgoingDoc/DocumentSend',
-            data: json,
-            contentType: 'application/json; charset=utf-8',
-            success: function (result) {
-              //  result = JSON.parse(result);
-                if (result == 'True') {
-
-                    CardReviewSuccess();
-                };
-            },
-            complete: function () {
-                kendo.ui.progress($('#loader' + name), false);
-            }
-        });
-    };
-    function sendData() {
-        kendo.ui.progress($('#loader' + name), true);
-
-        var json = JSON.stringify(viewModel.get('document'));
-
-
-        $.ajax({
-            type: 'POST',
-            url: '/OBKCertificateReference/DocumentUpdate',
-            data: json,
-            contentType: 'application/json; charset=utf-8',
-            success: function (result) {
-                console.log("Файл успешно сохранен!");
-            },
-            complete: function () {
-                kendo.ui.progress($('#loader' + name), false);
-            }
-        });
-    };
     loadDocument();
-
-    $('.k-grid-update').on('click', function () {
-        setGuid(docId);
-        sendData();
-    });
 }
 
+
 function InitializePropertyCertificate(name, viewModel) {
-    var dataOutgoingType = [
-       { text: "Инициативный", value: "0" },
-       { text: "Ответный", value: "1" },
-       { text: "Промежуточный", value: "2" }
-    ];
+    
     var initialFiles = viewModel.get('document.AttachFiles');
+    
+    if ($("#AttachPath").val() == null || $("#AttachPath").val() == ""){
+        $("#AttachPath").val(viewModel.get('document.AttachPath')).change();
+    }
 
     $("#files" + name).kendoUpload({
         localization: {
@@ -208,22 +104,22 @@ function InitializePropertyCertificate(name, viewModel) {
         },
         // multiple: true,
         async: {
-            saveUrl: "/Upload/save",
-            removeUrl: "/Upload/remove",
+            saveUrl: "/Upload/SaveFile",
+            removeUrl: "/Upload/removeFile",
             autoUpload: true
         }
         , upload: function (e) {
-            e.data = { documentId: viewModel.get('document.AttachPath') };
+            $('.k-grid-update').hide();
+            $("#simulationUpdate").show();
+            e.data = { certificateId: viewModel.get('document.AttachPath') };
+            $("#fileChanged").val(guid()).change();
         },
         remove: function (e) {
-            e.data = { documentId: viewModel.get('document.AttachPath') };
+            e.data = { certificateId: viewModel.get('document.AttachPath') };
+            $("#fileChanged").val(guid()).change();
         },
         complete: function (e) {
-            //console.log('.k-upload', $("#files" + name).closest(".k-upload").find("a"));
-            //var data =
-            //data[0].onclick = function() {
-            //    fileView(viewModel.get('document.Id'), data[0].getAttribute('fileName'));
-            //};
+
             var files = $("#files" + name).closest(".k-upload").find("a");
             $.each(files, function (i, file) {
                 file.onclick = function () {
@@ -236,7 +132,6 @@ function InitializePropertyCertificate(name, viewModel) {
                 if (file.className == 'file-edit') {
                     file.onclick = function () {
                         fileEdit(viewModel.get('document.AttachPath'), file.getAttribute('fileName'));
-
                     };
                 };
             });
@@ -248,20 +143,12 @@ function InitializePropertyCertificate(name, viewModel) {
                     };
                 };
             });
-            // e.files[0]["documentId"] = viewModel.get('document.Id');
-        },
-        select: function (e) {
-            // console.log('.k-upload', $("#files" + name).closest(".k-upload").find("a"));
+            $('.k-grid-update').show();
+            $("#simulationUpdate").hide();
 
-            //var files = e.files;
-            //$.each(files, function (i, file) {
-            //    file["documentId"] = viewModel.get('document.Id');
-            //    file.rawFile["documentId"] = viewModel.get('document.Id');
-            //    //$('span.k-filename[title="' + file.name + '"]').parent().remove();
-            //});
-            // e.files[0]["documentId"] = viewModel.get('document.Id');
         },
         template: kendo.template($('#fileTemplate').html()),
         files: initialFiles
     });
 }
+

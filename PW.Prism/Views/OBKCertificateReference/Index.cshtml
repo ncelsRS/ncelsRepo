@@ -22,25 +22,24 @@
     }
 
     function refresh() {
-        var valid = $("#CertificateValidityType").val();
-        if (valid != "Не действующий") {
-            $("#CertificateValidityType").val("Действующий").change();
-        }
-
+        $('#gridListCertificateDic' + '@Model').data('kendoGrid').dataSource.read();
     }
 
     function addDeleteButton() {
 
         var id = $("#Id").val();
         var CertificateValidityType = $("#CertificateValidityType").val();
+        $('<a class="k-button k-button-icontext k-state-disabled" id="simulationUpdate" href="\\#"><span></span>Обновить</a>').insertBefore(".k-grid-update");
+        $("#simulationUpdate").hide();
+
         if (id != null && id != "" && CertificateValidityType == "Действующий") {
             $('<a class="k-button k-button-icontext k-grid-delete" id="Recall" href="\\#"><span></span>Отозвать</a>').insertBefore(".k-grid-update");
         }
 
         initFileUpload();
-        
+
         $("#Recall").click(function () {
-                
+
                 var r = confirm("Подтвердите");
                 if (r == true) {
                     $.ajax({
@@ -50,7 +49,7 @@
                         contentType: 'application/json; charset=utf-8',
                         success: function (result) {
                             $("#Recall").hide();
-                            $("#CertificateValidityType").val("Отозван").change();
+                           // $("#CertificateValidityType").val("Отозван").change();
                             $('#gridListCertificateDic' + '@Model').data('kendoGrid').dataSource.read();
                         }
                     });
@@ -136,9 +135,8 @@ panes.Add().Scrollable(false).Size("100%").Content(
                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
                             .HtmlAttributes(new { @class = "pwGridRef" })
                             .Events(ev => ev.Edit("addDeleteButton"))
-                            .Events(ev => ev.Save("refresh"))
                             .DataSource(dataSource => dataSource
-                               .Ajax()
+                               .Ajax().Events(e => e.Sync("refresh"))
                                 .Model(model =>
                                 {
                                     model.Id(p => p.Id);
@@ -150,8 +148,8 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                     model.Field(f => f.CertificateTypeId);
                                     model.Field(f => f.EndDate);
                                     model.Field(f => f.StartDate);
-                                    model.Field(f => f.DocumentId);
                                     model.Field(f => f.CertificateValidityType);
+
                                 })
                             .PageSize(50)
                             .Sort(sort => sort.Add("CertificateCountry").Ascending())
