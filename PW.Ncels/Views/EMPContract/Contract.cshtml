@@ -1,0 +1,906 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@model Guid?
+@{
+    ViewBag.Title = "Contract";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/OBK_SignView.cshtml")
+
+@{
+    var GeneratedGuid = Guid.NewGuid().ToString();
+    var ModelGuid = "";
+    if (Model == null)
+    {
+        ModelGuid = GeneratedGuid;
+    }
+    else
+    {
+        ModelGuid = Model.ToString();
+    }
+}
+
+<style>
+    * {
+        white-space: normal !important;
+        height: auto;
+    }
+    .grid-calculator {
+        width: 100%;
+        height: 300px;
+    }
+</style>
+
+
+<div ng-controller="empContractForm">
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-12">
+            <h2 ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">Новый договор</h2>
+            <h2 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID) && object.Number == 'б/н'">Договор {{object.Number}}</h2>
+            <h2 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID) && object.Number != 'б/н'">Договор №{{object.Number}}</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+                </li>
+                <li>
+                    <a>Договоры</a>
+                </li>
+                <li class="active" ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">
+                    <strong>Создать договор</strong>
+                </li>
+                <li class="active" ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID)">
+                    <strong>Просмотр договора</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+    <input type="hidden" value="@Model" id="projectId" />
+    <input type="hidden" value="@GeneratedGuid" id="generatedGuid" />
+    <input type="hidden" value="@ModelGuid" id="modelGuid" />
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+        <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5 ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">
+                Новый договор
+                <small>Заполните все поля формы</small>
+            </h5>
+            <h5 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID)">
+                Договор
+                <small ng-show="object.Status == @CodeConstManager.STATUS_OBK_ONCORRECTION">Внесите изменения на форму</small>
+            </h5>
+            <div ibox-tools></div>
+        </div>
+        <div class="ibox-content ibox-heading">
+            <div class="note-font btn-group">
+                <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction)'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                <button class="btn btn-default btn-sm" type="button" ng-click="saveBtnClick()" @*check-validate ng-disabled="object.viewMpde" ng-if="!object.Contract.ContractStatus || object.Contract.ContractStatus.Code=='@Contract.StatusNew' || object.Contract.ContractStatus.Code=='@Contract.StatusOnCorrection'"*@>
+                    <i class="fa fa-save"></i>
+                    Сохранить
+                </button>
+                @*<button class="btn btn-default btn-sm" type="button" ng-click="sendWithDigitalSign();" check-validate ng-disabled="object.viewMpde"><i class="fa fa-send-o"></i> Подписать ЭЦП и отправить в ЦОЗ</button>
+                <button class="btn btn-default btn-sm" type="button" ng-click="sendWithoutDigitalSign();" check-validate ng-disabled="object.viewMpde"><i class="fa fa-send-o"></i> Отправить в ЦОЗ без подписи</button>
+                <button class="btn btn-default btn-sm" type="button" ng-click="viewContract('@ModelGuid')"><i class="fa fa-eye"></i> Просмотр</button>
+                <button class="btn btn-default btn-sm" type="button" ng-click="viewInvoicePayment('@ModelGuid')" check-validate ng-hide="object.Status != ('@CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT' || '@CodeConstManager.STATUS_OBK_NOT_FULL_PAYMENT' || '@CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED')"><i class="fa fa-file-text-o"></i> Счет на оплату</button>*@
+            </div>
+        </div>
+        <input type="hidden" value="@GeneratedGuid" id="declarantGuid" />
+        <input type="hidden" value="@GeneratedGuid" id="declarantContractGuid" />
+        <form name="contractCreateForm">
+        <div class="ibox-content">
+        <div class="row">
+        <div class="col-lg-12">
+            <div class="form-horizontal row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="control-label col-lg-4">Договор составляется с</label>
+                        <div class="col-lg-8">
+                            <ui-select ng-model="object.HolderType" theme="bootstrap" name="type" ui-select-selected required > @*ng-change="editProject();"*@
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in HolderType | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tab-1">Производитель</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-2">Заявитель</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-3" @*ng-click="tab3click();"*@>Плательщик</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-4">Стоимость работ</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-5">Вложения</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-6 b-r">
+
+                                    <div class="form-group">
+                                        <div class="radio-inline">
+                                            <label><input type="radio" name="manufacturisresident" ng-model="object.Manufactur.IsResident" ng-value="true" ng-change="residentChange('Manufactur');">Резидент РК</label>
+                                        </div>
+                                        <div class="radio-inline">
+                                            <label><input type="radio" name="manufacturisresident" ng-model="object.Manufactur.IsResident" ng-value="false" ng-change="residentChange('Manufactur');">Нерезидент РК</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group" ng-show="object.Manufactur.IsResident == true">
+                                        <label>ИИН/БИН *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input maxlength="12" id="bin" ng-model="object.Manufactur.Bin" class="form-control edit-control" type="text" ui-select-selected name="bin" ng-required="object.Manufactur.IsResident == true" ng-disabled="iinSearchActive" ng-pattern="iinPattern" ng-minlength="iinMinLength" ng-maxlength="iinMaxLength" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_">
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-success" ng-disabled="object.Manufactur.Bin == null || object.Manufactur.Bin.length !== 12 || iinSearchActiveManufactur" ng-click="findDeclarant('Manufactur');">Найти</button>
+                                        <button type="button" class="btn btn-sm btn-success" ng-click="cancelFind('Manufactur');" ng-disabled="!iinSearchActiveManufactur">Отмена</button>
+                                    </div>
+                                    
+                                    <div class="form-group" ng-show="object.Manufactur.IsResident == false">
+                                        <label>Страна</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.Country" theme="bootstrap" ui-select-selected ng-required="object.Manufactur.IsResident == false" ng-change="nonResidentCountryChange('Manufactur');">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="object.Manufactur.IsResident == false">
+                                        <label>Наименование на русском языке *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.NameNonResident" theme="bootstrap" ui-select-selected ng-required="object.Manufactur.IsResident == false" ng-disabled="object.Manufactur.Country == null" ng-change="nameNonResidentChange('Manufactur');">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in NamesNonResidents | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="manufacturNotFound && object.Manufactur.IsResident == true">
+                                        По Ващему запросу ничего не найдено!
+                                    </div>
+                                    <div class="form-group" ng-show="manufacturNotFound">
+                                        <button type="button" class="btn btn-sm btn-success" ng-click="addManufactur('Manufactur');" ng-disabled="addManufacturDisabled">Добавить</button>
+                                    </div>
+                                    
+                                    
+                                    <div class="form-group">
+                                        <h4>Производитель</h4>
+                                        <label>Организационная форма</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.OrganizationFormId" theme="bootstrap" ui-select-selected name="organizationForm" ng-disabled="showContactInformationManufactur" ng-change="editDeclarant();">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Наименование на государственном языке *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturNameKz" ng-model="object.Manufactur.NameKz" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="manufacturNameKz" ng-disabled="showContactInformationManufactur" ng-blur="editDeclarant();">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Наименование на русском языке *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturNameRu" ng-model="object.Manufactur.NameRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="manufacturNameRu" ng-disabled="showContactInformationManufactur" ng-blur="editDeclarant($event);">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Наименование на английском языке</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturNameEn" ng-model="object.Manufactur.NameEn" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="manufacturNameEn" ng-disabled="showContactInformationManufactur" ng-blur="editDeclarant();">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Страна</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.CountryId" theme="bootstrap" ui-select-selected name="manufacturCountryId" ng-disabled="showContactInformationManufactur" ng-change="editDeclarant();">
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <h4>Адрес</h4>
+                                        <label>Юридический адрес * </label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturAddressLegalRu" ng-model="object.Manufactur.AddressLegalRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="manufacturAddressLegalRu" ng-disabled="showContactInformationManufactur" @*required ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Фактический адрес * </label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturAddressFact" ng-model="object.Manufactur.AddressFact" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="manufacturAddressFact" ng-disabled="showContactInformationManufactur" @*required ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Номер телефона * </label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturPhone" ng-model="object.Manufactur.Phone" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-select-selected name="manufacturPhone" required ng-blur="validatePhone(); " @*editProject();*@ ng-pattern="phonePattern" ng-model-options="{ allowInvalid: true}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Адрес электронной почты * </label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturEmail" ng-model="object.Manufactur.Email" placeholder="example@mail.ru" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-select-selected name="manufacturEmail" ng-pattern="emailPattern" @*required ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 b-l">
+                                    <div class="form-group" >
+                                        <h4>Подписывающее лицо</h4>
+                                        <label>Фамилия первого руководителя *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBossLastName" ng-model="object.Manufactur.BossLastName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Имя первого руководителя *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBossFirstName" ng-model="object.Manufactur.BossFirstName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Отчество первого руководителя</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBossMiddleName" ng-model="object.Manufactur.BossMiddleName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Должность первого руководителя на русском языке *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBossPosition" ng-model="object.Manufactur.BossPosition" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Должность первого руководителя на государственном языке *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBossPositionKz" ng-model="object.Manufactur.BossPositionKz" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" >
+                                        <h4>Банковские реквизиты</h4>
+                                        <label>Наименование банка</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.BankId" theme="bootstrap" ui-select-selected name="BankId" ng-disabled="showContactInformationManufactur" ng-change="changeBank('Manufactur');">
+                                                <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Bank | filter: $select.search">
+                                                    <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="addNewBankName">
+                                        <label>Наименование банка на русском</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBankNameRu" ng-model="object.Manufactur.BankNameRu" placeholder="Введите значение" class="form-control edit-control" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="addNewBankName">
+                                        <label>Наименование банка на казахском</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="manufacturBankNameKz" ng-model="object.Manufactur.BankNameKz" placeholder="Введите значение" class="form-control edit-control" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="addNewBankName">
+                                        <button type="button" class="btn btn-sm btn-success" ng-click="addNewBank('Manufactur');">Сохранить</button>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Рассчетный счет *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="BankAccount" ng-model="object.Manufactur.BankAccount" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValid" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Валюта *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <ui-select ng-model="object.Manufactur.CurrencyId" ui-select-selected name="CurrencyId" required theme="bootstrap"  ng-disabled="bankValid" > @*ng-change="editProject();"*@
+                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>SWIFT *</label>
+                                        <div ng-class="{'input-group': showComments}">
+                                            <input id="SWIFT" ng-model="object.Manufactur.SWIFT" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValid" required ui-select-selected @*ng-blur="editProject();"*@>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <div id="tab-2" class="tab-pane">
+                <div class="panel-body">
+                <div class="row">
+                <div class="col-lg-6 b-r">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" ng-model="IsManufactur" ng-change="isManufacturer();" value="">Является производителем</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="radio-inline">
+                            <label><input type="radio" name="declarantisresident" ng-model="object.Declarant.IsResident" ng-value="true" ng-disabled="IsManufactur" ng-change="residentChange('Declarant');">Резидент РК</label>
+                        </div>
+                        <div class="radio-inline">
+                            <label><input type="radio" name="declarantisresident" ng-model="object.Declarant.IsResident" ng-value="false" ng-disabled="IsManufactur" ng-change="residentChange('Declarant');">Нерезидент РК</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" ng-show="object.Declarant.IsResident == true">
+                        <label>ИИН/БИН *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input maxlength="12" id="binDeclarant" ng-model="object.Declarant.Bin" class="form-control edit-control" type="text" ui-select-selected name="bin" ng-required="object.Declarant.IsResident == true" ng-disabled="iinSearchActiveDeclarant" ng-pattern="iinPattern" ng-minlength="iinMinLength" ng-maxlength="iinMaxLength" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_">
+                        </div>
+                        <button type="button" class="btn btn-sm btn-success" ng-disabled="object.Declarant.Bin == null || object.Declarant.Bin.length !== 12 || iinSearchActiveDeclarant" ng-click="findDeclarant('Declarant');">Найти</button>
+                        <button type="button" class="btn btn-sm btn-success" ng-click="cancelFind('Declarant');" ng-disabled="!iinSearchActiveDeclarant">Отмена</button>
+                    </div>
+                    
+                    <div class="form-group" ng-show="object.Declarant.IsResident == false">
+                        <label>Страна</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.Country" theme="bootstrap" ui-select-selected ng-required="object.Declarant.IsResident == false" ng-change="nonResidentCountryChange('Declarant');">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="object.Declarant.IsResident == false">
+                        <label>Наименование на русском языке *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.NameNonResident" theme="bootstrap" ui-select-selected ng-required="object.Declarant.IsResident == false" ng-disabled="object.Declarant.Country == null" ng-change="nameNonResidentChange('Declarant');">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in NamesNonResidents | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="declarantNotFound && object.Declarant.IsResident == true">
+                        По Ващему запросу ничего не найдено!
+                    </div>
+                    <div class="form-group" ng-show="declarantNotFound">
+                        <button type="button" class="btn btn-sm btn-success" ng-click="addManufactur('Declarant');" ng-disabled="addDeclarantDisabled">Добавить</button>
+                    </div>
+
+                    <h4>Заявитель</h4>
+                    <div class="form-group">
+                        <label>Организационная форма</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.OrganizationFormId" theme="bootstrap" ui-select-selected name="organizationForm" ng-disabled="showContactInformationDeclarant" ng-change="editDeclarant('Declarant');">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Наименование на государственном языке *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="declarantNameKz" ng-model="object.Declarant.NameKz" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-select-selected name="declarantNameKz" ng-blur="editDeclarant();">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Наименование на русском языке *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="declarantNameRu" ng-model="object.Declarant.NameRu" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-select-selected name="declarantNameRu" ng-blur="editDeclarant($event);">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Наименование на английском языке</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="declarantNameEn" ng-model="object.Declarant.NameEn" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-select-selected name="declarantNameEn" ng-blur="editDeclarant();">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Страна</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.CountryId" theme="bootstrap" ui-select-selected name="declarantCountryId" ng-disabled="showContactInformationDeclarant" ng-change="editDeclarant();">
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <h4>Адрес</h4>
+                        <label>Юридический адрес * </label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="DeclarantAddressLegalRu" ng-model="object.Declarant.AddressLegalRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="AddressLegalRu" ng-disabled="showContactInformationDeclarant" @*required ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Фактический адрес * </label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="AddressFact" ng-model="object.Declarant.AddressFact" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="AddressFact" ng-disabled="showContactInformationDeclarant" @*required ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Номер телефона * </label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="Phone" ng-model="object.Declarant.Phone" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="Phone" ng-disabled="showContactInformationDeclarant" required ng-blur="validatePhone();" @*editProject();*@ ng-pattern="phonePattern" ng-model-options="{ allowInvalid: true}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Адрес электронной почты * </label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="Email" ng-model="object.Declarant.Email" placeholder="example@mail.ru" class="form-control edit-control" type="text" ui-select-selected name="Email" ng-disabled="showContactInformationDeclarant" ng-pattern="emailPattern" @*required ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 b-l">
+                    <div class="form-group">
+                        <h4>Подписывающее лицо</h4>
+                        <label>Фамилия первого руководителя *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BossLastName" ng-model="object.Declarant.BossLastName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Имя первого руководителя *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BossFirstName" ng-model="object.Declarant.BossFirstName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Отчество первого руководителя</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BossMiddleName" ng-model="object.Declarant.BossMiddleName" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Должность первого руководителя на русском языке *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BossPosition" ng-model="object.Declarant.BossPosition" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Должность первого руководителя на государственном языке *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BossPositionKz" ng-model="object.Declarant.BossPositionKz" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h4>Банковские реквизиты</h4>
+                        <label>Название банка</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.BankId" theme="bootstrap" ui-select-selected name="BankId" ng-disabled="showContactInformationDeclarant" ng-change="editDeclarant();">
+                                <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in Bank | filter: $select.search">
+                                    <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Рассчетный счет *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="BankAccount" ng-model="object.Declarant.BankAccount" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Валюта *</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <ui-select ng-model="object.Declarant.CurrencyId" ui-select-selected name="CurrencyId" ng-disabled="showContactInformationDeclarant" required theme="bootstrap" > @*ng-change="editProject();"*@
+                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>SWIFT</label>
+                        <div ng-class="{'input-group': showComments}">
+                            <input id="SWIFT1" ng-model="object.Declarant.SWIFT" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" required ui-select-selected @*ng-blur="editProject();"*@>
+                        </div>
+                    </div>
+                </div> 
+                                
+                <div class="col-lg-12">
+                    <h4>Действующее на основании</h4>
+                </div>
+                                
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Доверенность *</label>
+                                <div ng-class="{'input-group': showComments}">
+                                    <ui-select ng-model="object.Declarant.BossDocType" ui-select-selected theme="bootstrap" name="SignDocType" @*ng-change="editProject();"*@>
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in OBKContractDocumentType | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Тип</label>
+                                <div ng-class="{'input-group': showComments}">
+                                    <ui-select ng-model="object.Declarant.SignDocType" ui-select-selected theme="bootstrap" name="SignDocType" @*ng-change="editProject();"*@>
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in OBKContractDocumentType | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value="" ng-model="object.Declarant.SignDocUnlimited">Бессрочный</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value="" ng-model="object.Declarant.SignDocUnlimited">Без номера</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>№ документа</label>
+                                <div ng-class="{'input-group': showComments}">
+                                    <input id="SWIFT2" ng-model="object.Declarant.SWIFT" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected @*ng-blur="editProject();"*@>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Дата начала действия *</label>
+                                <div class="input-group date">
+                                    <input id="BossDocCreatedDate" ng-model="object.Declarant.BossDocCreatedDate" class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected required date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" @*ng-change="editProject();"*@>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Дата окончания действия *</label>
+                                <div class="input-group date">
+                                    <input id="BossDocEndDate" ng-model="object.Declarant.BossDocEndDate" class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected ng-required="object.BossDocUnlimited == false" date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" @*ng-change="editProject();"*@>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>   
+                                             
+                </div>
+                </div>
+                </div>
+                    
+                    
+                    
+                    
+
+                <div id="tab-3" class="tab-pane">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6 b-r">
+                                
+                                <div class="form-group">
+                                    <label>Плательщик</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="Payer.ChoosePayer" ui-select-selected theme="bootstrap" name="Payer.ChoosePayer" ng-change="editPayer();">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in ChoosePayers | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="payerisresident" ng-model="object.Payer.IsResident" ng-value="true" ng-disabled="showContactInformationPayer" ng-change="residentChange('Payer');">Резидент РК</label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="payerisresident" ng-model="object.Payer.IsResident" ng-value="false" ng-disabled="showContactInformationPayer" ng-change="residentChange('Payer');">Нерезидент РК</label>
+                                    </div>
+                                </div>
+                    
+                                <div class="form-group" ng-show="object.Payer.IsResident == true">
+                                    <label>ИИН/БИН *</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input maxlength="12" id="binDeclarant" ng-model="object.Payer.Bin" class="form-control edit-control" type="text" ui-select-selected name="bin" ng-required="object.Payer.IsResident == true" ng-disabled="showContactInformationPayerPayer" ng-pattern="iinPattern" ng-minlength="iinMinLength" ng-maxlength="iinMaxLength" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_">
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" ng-disabled="object.Payer.Bin == null || object.Payer.Bin.length !== 12 || iinSearchActivePayer" ng-click="findDeclarant('Payer');">Найти</button>
+                                    <button type="button" class="btn btn-sm btn-success" ng-click="cancelFind('Payer');" ng-disabled="!iinSearchActivePayer">Отмена</button>
+                                </div>
+                    
+                                <div class="form-group" ng-show="object.Payer.IsResident == false">
+                                    <label>Страна</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.Country" theme="bootstrap" ui-select-selected ng-required="object.Payer.IsResident == false" ng-change="nonResidentCountryChange('Payer');">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="object.Payer.IsResident == false">
+                                    <label>Наименование на русском языке *</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.NameNonResident" theme="bootstrap" ui-select-selected ng-required="object.Payer.IsResident == false" ng-disabled="object.Payer.Country == null" ng-change="nameNonResidentChange('Payer');">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in NamesNonResidents | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="payerNotFound && object.Payer.IsResident == true">
+                                    По Ващему запросу ничего не найдено!
+                                </div>
+                                <div class="form-group" ng-show="payerNotFound">
+                                    <button type="button" class="btn btn-sm btn-success" ng-click="addManufactur('Payer');" ng-disabled="addPayerDisabled">Добавить</button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Организационная форма</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.OrganizationFormId" theme="bootstrap" ui-select-selected name="organizationForm" ng-disabled="showContactInformationPayer" ng-change="editDeclarant();">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Наименование</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.NameNonResident" theme="bootstrap" ui-select-selected ng-required="Payer.IsResident == false" ng-disabled="showContactInformationPayer" ng-change="nameNonResidentChange('Payer');">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in NamesNonResidents | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Страна</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.CountryId" theme="bootstrap" ui-select-selected ng-required="Payer.IsResident == false" ng-disabled="showContactInformationPayer" ng-change="nonResidentCountryChange('Payer');">
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Юридический адрес</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="PayerAddressLegalRu" ng-model="object.Payer.AddressLegalRu" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" ui-select-selected name="AddressLegalRu" @*required ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 b-l">
+                                
+                                <div class="form-group">
+                                    <label>Название банка</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.BankId" theme="bootstrap" ui-select-selected name="BankId" ng-disabled="showContactInformationPayer" ng-change="editDeclarant();">
+                                            <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in Bank | filter: $select.search">
+                                                <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>ИИК</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="BankAccount1" ng-model="object.Payer.IIK" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected @*ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Валюта *</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="object.Payer.CurrencyId" ui-select-selected name="CurrencyId" required theme="bootstrap" ng-disabled="showContactInformationPayer" @*ng-change="editProject();"*@>
+                                            <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>БИН</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="BankAccount2" ng-model="object.Payer.BIN" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected @*ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>БИК</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="SWIFT3" ng-model="object.Payer.SWIFT" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected @*ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>ИИН</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="BankAccount3" ng-model="object.Payer.IIN" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected @*ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Рассчетный счет</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="BankAccount4" ng-model="object.Payer.BankAccount" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected @*ng-blur="editProject();"*@>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    
+
+                    
+                <div id="tab-4" class="tab-pane">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6 b-r">
+                                
+                                <div class="form-group">
+                                    <label>Тип заявки</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="Calulator.ServiceType" theme="bootstrap" ui-select-selected ng-change="editServiceType();">
+                                            <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in ServiceTypes | filter: $select.search">
+                                                <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Тип услуги</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="Calulator.ServiceTypeName" theme="bootstrap" ui-select-selected ng-disabled="showServiceTypeName" ng-change="editServiceTypeName();">
+                                            <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in ServiceTypeNames | filter: $select.search">
+                                                <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Дополнительные услуги</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="Calulator.ServiceTypeNameModif" theme="bootstrap" ui-select-selected ng-disabled="showServiceTypeNameModif" ng-change="editServiceTypeNameModif();">@*ng-change="editPriceType();"*@
+                                            <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in ServiceTypeNameModifs | filter: $select.search">
+                                                <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 b-l">
+                                <div class="form-group">
+                                    <label>Наименование ИМН/МТ</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="NameIMN" ng-model="object.MedicalDeviceName" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Количетсво</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <input id="Count" ng-model="Calulator.Count" placeholder="Введите значение" ng-disabled="showCalculatorForm" class="form-control edit-control" type="text" required ui-select-selected>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="isimport" ng-model="Calulator.IsImport" ng-disabled="showRadioIsImport" ng-value="false" ng-change="calulatorChange(false);">Стоимость отечественного производителя</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="isimport" ng-model="Calulator.IsImport" ng-disabled="showRadioIsImport" ng-value="true" ng-change="calulatorChange(true);">Стоимость зарубежного производителя</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-sm btn-success" ng-disabled="Calulator.Count == null || showRadioIsImport" ng-click="calculation();">Узнать цену</button>
+                                            <button type="button" class="btn btn-sm btn-success" ng-disabled="Calulator.Count == null || showRadioIsImport" ng-click="clearCalculation();">Очистить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    @*<div id="gridOptionsCalc" ui-grid="gridOptionsCalc" ui-grid-selection class="grid-calculator"></div>*@
+                                    <grid-light-object object-id="@ModelGuid" url="/EMPContract/GetContractPriceList" dt-id="gridCalculator" dt-selectfun="selectGridCalculator" reload-row="reloadGridCalculator" column-order="1" dt-options="dtOptions1" dt-columns="dtColumns2"></grid-light-object>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                            <div id="tab-5" class="tab-pane">
+                                <div class="panel-body">
+                                    <h3 class="m-t-none m-b">Вложения</h3>
+                                    <div ng-show="declarant.Id == null" id="filesWarning">
+                                        <p class="text-bold">Для загрузки вложений выберите заявителя</p>
+                                    </div>
+                                    <div ng-show="declarant.Id != null && declarant.IsResident == true" id="filesResident">
+                                        <div ng-show="!object.viewMpde">
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" path="@ModelGuid" />
+                                        </div>
+                                        <div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                        </div>
+                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                        </div>
+                                    </div>
+                                    <div ng-show="declarant.Id != null && declarant.IsResident == false" id="filesNonResident">
+                                        <div ng-show="!object.viewMpde">
+                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" path="@ModelGuid" />
+                                        </div>
+                                        <div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                        </div>
+                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
+                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+        </div>
+        </div>
+        </form>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>

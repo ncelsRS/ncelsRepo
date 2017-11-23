@@ -113,7 +113,8 @@ namespace PW.Ncels {
 
             bundles.Add(new ScriptBundle("~/bundles/baseCtrl").Include(
                         "~/Scripts/photon/base/*.js",
-                        "~/Scripts/photon/base/obk/*.js"
+                        "~/Scripts/photon/base/obk/*.js",
+                        "~/Scripts/photon/base/emp/*.js"
                         ));
 
             // Angular UI Grid
