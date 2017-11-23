@@ -62,8 +62,8 @@ namespace PW.Prism.Controllers
                 OBK_Ref_ValueAddedTax d = new OBK_Ref_ValueAddedTax()
                 {
                     Id = Guid.NewGuid(),
-                    Year = dictionary.Year,
-                    Value = dictionary.Value,
+                    Year = (int)dictionary.Year,
+                    Value = (double)dictionary.Value,
                 };
                 db.OBK_Ref_ValueAddedTax.Add(d);
                 db.SaveChanges();
@@ -80,8 +80,8 @@ namespace PW.Prism.Controllers
             if (dictionary != null && ModelState.IsValid)
             {
                 OBK_Ref_ValueAddedTax d = db.OBK_Ref_ValueAddedTax.First(o => o.Id == dictionary.Id);
-                d.Value = dictionary.Value;
-                d.Year = dictionary.Year;
+                d.Value = (double)dictionary.Value;
+                d.Year = (int)dictionary.Year;
                 
                 db.SaveChanges();
             }

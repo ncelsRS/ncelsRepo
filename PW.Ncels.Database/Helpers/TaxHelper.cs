@@ -25,6 +25,11 @@ namespace PW.Ncels.Database.Helpers
             return price * GetNdsRef() + price;
         }
 
+        public static decimal GetCalculationTax(decimal price)
+        {
+            return price * (decimal)GetNdsRef() + price;
+        }
+
         public static decimal GetTaxWithPrice(decimal price)
         {
             return price * (decimal)GetNdsRef();

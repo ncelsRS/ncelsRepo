@@ -2,6 +2,11 @@
 @model Guid
 
 
+<script>
+    function initStyle(){
+        $('#ExpertiseResult').attr('style','margin-left: 50px; margin-top: 10px;');
+    }
+</script>
 
 <div class="pwBlockAdd k-block">
 
@@ -54,7 +59,8 @@
                                columns.Bound(p => p.Code).Title(PW.Ncels.Database.Recources.Messages.Property_Код_399__00).Width(80);
                                columns.Bound(p => p.NameKz).Title(PW.Ncels.Database.Recources.Messages.NameOfSolutionKz).Width(150);
                                columns.Bound(p => p.NameRu).Title(PW.Ncels.Database.Recources.Messages.NameOfSolutionRu).Width(150);
-                               columns.Bound(p => p.ExpertiseResult).Title(PW.Ncels.Database.Recources.Messages.SolutionView).Width(50);
+                               columns.Bound(p => p.ExpertiseResult).Title(PW.Ncels.Database.Recources.Messages.SolutionView).Width(50)
+                               .ClientTemplate(" #= ExpertiseResult ? 'Соответствует требованиям' : 'Не соответствует требованиям' #");
 
                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
 
@@ -67,6 +73,7 @@
                              .Filterable()
                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
                             .HtmlAttributes(new { @class = "pwGridRef" })
+                            .Events(ev => ev.Edit("initStyle"))
                             .DataSource(dataSource => dataSource
                                .Ajax()
                                 .Model(model =>

@@ -1,0 +1,121 @@
+﻿@model PW.Ncels.Database.Models.OBKCertificateReferenceModel
+
+<style type="text/css">
+    .col-md-4 {
+        padding-left: 0px;
+    }
+</style>
+
+
+<div style="padding: 10px; font-size: 12px;">
+
+    @Html.HiddenFor(o => o.CertificateCountryId)
+    @Html.HiddenFor(o => o.CertificateTypeId)
+    @Html.HiddenFor(o => o.CertificateCountry)
+    @Html.HiddenFor(o => o.CertificateType)
+    @Html.HiddenFor(o => o.Id)
+    @Html.HiddenFor(o => o.fileChanged)
+    @Html.HiddenFor(o => o.AttachPath)
+
+    <label>@PW.Ncels.Database.Recources.Messages.Number</label>
+    <div class="input-group">
+        @(Html.TextBoxFor(p => p.Number, new { @class = "form-control", style = "width: 380px;" }))
+    </div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.CertificateNumber</label>
+    <div class="input-group">
+        @(Html.TextBoxFor(p => p.CertificateNumber, new { @class = "form-control", style = "width: 380px;" }))
+    </div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.CertificateTermStart</label>
+
+    <div class="input-group">
+        @(Html.Kendo().DatePicker()
+      .Name("StartDate")
+      .Value(Model.StartDate)
+      .HtmlAttributes(new { style = "width: 380px;", title = "datepicker" })
+        )
+</div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.CertificateTermEnd</label>
+
+    <div class="input-group">
+        @(Html.Kendo().DatePicker()
+      .Name("EndDate")
+      .Value(Model.StartDate)
+      .HtmlAttributes(new { style = "width: 380px;", title = "datepicker" })
+        )
+    </div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.CertificateCountry</label>
+    @(Html.Kendo().DropDownList().Name("CountryCombobox")
+              .HtmlAttributes(new { @class = "pwWidth100" })
+              .AutoBind(false)
+              .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .DataSource(dataSource => dataSource.Read(read => read.Action("CountryList", "OBKCertificateReference"))).Events(o => o.Change("changeCountry")))
+
+
+    <label>@PW.Ncels.Database.Recources.Messages.Type</label>
+    @(Html.Kendo().DropDownList().Name("TypeCombobox")
+              .HtmlAttributes(new { @class = "pwWidth100" })
+              .AutoBind(false)
+              .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+              .DataTextField("Name")
+              .DataValueField("Id")
+              .DataSource(dataSource => dataSource.Read(read => read.Action("TypeList", "OBKCertificateReference"))).Events(o => o.Change("changeType")))
+
+
+    <label>@PW.Ncels.Database.Recources.Messages.ProducerName</label>
+    <div class="input-group">
+        @(Html.TextBoxFor(p => p.CertificateOrganization, new { @class = "form-control", style = "width: 380px;" }))
+    </div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.LastInspection</label>
+    <div class="input-group">
+        @(Html.Kendo().DatePicker()
+      .Name("LastInspection")
+      .Value(Model.LastInspection)
+      .HtmlAttributes(new { style = "width: 380px;", title = "datepicker" })
+        )
+    </div>
+
+    <label>@PW.Ncels.Database.Recources.Messages.Status</label>
+    <div class="input-group">
+        @(Html.TextBoxFor(p => p.CertificateValidityType, new { @class = "form-control", style = "width: 380px;" , @disabled = "disabled"} ))
+    </div>
+
+    <input name="files" id="@("files" + Model.Id)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" />
+</div>
+
+<script>
+
+    var certificateId = null;
+
+    function initFileUpload() {
+
+        certificateId = $("#Id").val();
+
+        if (certificateId == null || certificateId == '') {
+            certificateId = guid();
+            $("#Id").val(certificateId).change();
+        }
+
+        $('input[name="files"]').attr('id', 'files' + certificateId);
+
+        InitializeCertificate(certificateId);
+    }
+
+    function guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
+    
+    
+</script>

@@ -80,7 +80,7 @@ namespace PW.Prism.Controllers
                     NameKz = dictionary.NameKz,
                     TypeId = dictionary.TypeId,
                     UnitId = dictionary.UnitId,
-                    Price = dictionary.Price,
+                    Price = (double)dictionary.Price,
                     ServiceTypeId = dictionary.ServiceTypeId,
                     DegreeRiskId = dictionary.DegreeRiskId
                 };
@@ -103,7 +103,7 @@ namespace PW.Prism.Controllers
                 d.NameKz = dictionary.NameKz;
                 d.TypeId = dictionary.TypeId;
                 d.UnitId = dictionary.UnitId;
-                d.Price = dictionary.Price;
+                d.Price = (double)dictionary.Price;
                 d.ServiceTypeId = dictionary.ServiceTypeId;
                 d.DegreeRiskId = dictionary.DegreeRiskId;
 
@@ -133,8 +133,24 @@ namespace PW.Prism.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        //[Route("/OBK_Ref_PriceList/UnitList/{accountNum:int}")]
         public ActionResult UnitList()
         {
+            //string str = Request.Url.PathAndQuery;
+
+            //int startIndex = str.IndexOf("?");
+            //int endIndex = str.Length;
+            //var subStr = str.Substring(startIndex + 2);
+            //string[] arr = subStr.Split(new string[] { "&%" }, StringSplitOptions.RemoveEmptyEntries);
+
+            //var stInx = arr[0].IndexOf("s");
+
+            //string[] arr1 = arr[0].Split(new string[] { "=" }, StringSplitOptions.None);
+            //int skipp = int.Parse(arr1[1]);
+
+            //string[] arr2 = arr[1].Split(new string[] { "=" }, StringSplitOptions.None);
+            //int topp = int.Parse(arr2[1]);
+
             var data = db.Dictionaries.Select(o => new { Id = o.Id, Name = o.Name }).OrderBy(x => x.Name).ToList();
             return Json(data, JsonRequestBehavior.AllowGet);
         }

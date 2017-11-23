@@ -115,6 +115,60 @@ namespace PW.Ncels.Database.Recources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Действующий.
+        /// </summary>
+        public static string Activ {
+            get {
+                return ResourceManager.GetString("Activ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Страна выдачи сертификата.
+        /// </summary>
+        public static string CertificateCountry {
+            get {
+                return ResourceManager.GetString("CertificateCountry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Номер сертификата.
+        /// </summary>
+        public static string CertificateNumber {
+            get {
+                return ResourceManager.GetString("CertificateNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Справочники сертификатов.
+        /// </summary>
+        public static string CertificateReferences {
+            get {
+                return ResourceManager.GetString("CertificateReferences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Срок окончания действия.
+        /// </summary>
+        public static string CertificateTermEnd {
+            get {
+                return ResourceManager.GetString("CertificateTermEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Срок начала действия.
+        /// </summary>
+        public static string CertificateTermStart {
+            get {
+                return ResourceManager.GetString("CertificateTermStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Пароли не совпадают.
         /// </summary>
         public static string ChangePasswordModel_ConfirmPassword_Пароли_не_совпадают {
@@ -381,6 +435,15 @@ namespace PW.Ncels.Database.Recources {
         public static string IsSigned {
             get {
                 return ResourceManager.GetString("IsSigned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Дата последней инспекции.
+        /// </summary>
+        public static string LastInspection {
+            get {
+                return ResourceManager.GetString("LastInspection", resourceCulture);
             }
         }
         
@@ -943,11 +1006,38 @@ namespace PW.Ncels.Database.Recources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Номер.
+        /// </summary>
+        public static string Number {
+            get {
+                return ResourceManager.GetString("Number", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Срок устранения замечаний.
         /// </summary>
         public static string PassedDays {
             get {
                 return ResourceManager.GetString("PassedDays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Не действующий.
+        /// </summary>
+        public static string Passive {
+            get {
+                return ResourceManager.GetString("Passive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Наименование производителя.
+        /// </summary>
+        public static string ProducerName {
+            get {
+                return ResourceManager.GetString("ProducerName", resourceCulture);
             }
         }
         
@@ -5098,6 +5188,15 @@ namespace PW.Ncels.Database.Recources {
         public static string SolutionView {
             get {
                 return ResourceManager.GetString("SolutionView", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Статус.
+        /// </summary>
+        public static string Status {
+            get {
+                return ResourceManager.GetString("Status", resourceCulture);
             }
         }
         

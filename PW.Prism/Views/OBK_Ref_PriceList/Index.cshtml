@@ -1,7 +1,41 @@
 ﻿@using PW.Ncels.Database.Models
-@model Guid
+@model Guid?
 
+<script>
+    function initUnitCombo() {
 
+        $("#UnitCombobox").igCombo({
+            loadOnDemandSettings: {
+                enabled: true,
+                pageSize: 25
+            },
+            responseTotalRecCountKey: "30",
+            dataSource: "/OBK_Ref_PriceList/UnitList",
+            width: "380px",
+            textKey: "Name",
+            valueKey: "Id",
+            virtualization: true,
+            autoComplete: true,
+            headerTemplate: "<div class='dropDownHeaderFooter'>Записи</div>",
+            footerTemplate: "<div class='dropDownHeaderFooter'>Загружено записей: {0} / {3}</div>",
+            itemTemplate: "<div>${Name} </div>",
+            placeHolder: "Выберите из справочника",
+            filterExprUrlKey: 'startsWith',
+            highlightMatchesMode: "startsWith",
+            filteringCondition: "startsWith",
+            selectionChanged: function (evt, ui) {
+                if (ui.items && ui.items[0]) {
+                     var itemData = ui.items[0].data;
+                     $("#UnitId").val(itemData[ui.owner.options.valueKey]).change();
+                     $("#Unit").val(itemData[ui.owner.options.textKey]).change();
+                }
+            }
+        });
+
+        $("#UnitCombobox").attr("placeholder", "Выберите");
+    }
+    
+</script>
 
 <div class="pwBlockAdd k-block">
 
@@ -66,6 +100,7 @@
                             .Editable(editable => editable.Mode(GridEditMode.PopUp))
                             .Reorderable(reorderable => reorderable.Columns(true))
                             .Resizable(resizable => resizable.Columns(true))
+                            .Events(ev => ev.Edit("initUnitCombo"))
                             .Scrollable(scrollable => scrollable.Virtual(true))
                              .Filterable()
                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
@@ -123,7 +158,7 @@
                     $filter.push({ field: "NameKz", operator: "contains", value: text });
 
                 }
-                
+
                 if (findType == 2) {
                     $filter.push({ field: "NameRu", operator: "contains", value: text });
                 }

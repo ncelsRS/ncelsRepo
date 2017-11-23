@@ -399,7 +399,7 @@ namespace PW.Ncels.Controllers
                     doc.Save(pdfFile, SaveFormat.Pdf);
                     pdfFile.Position = 0;
                     stream.Close();
-                    return File(pdfFile, "application/pdf", name);
+                    return new FileStreamResult(pdfFile, "application/pdf");
                 }
                 catch (Exception e)
                 {

@@ -1176,6 +1176,7 @@ function priceImnGrid($scope, DTColumnBuilder, $http, $uibModal) {
 
     };
     $scope.savePrice = function () {
+        debugger;
         var isValid = true;
         if (!$scope.object.Price.IsManufacturerPrice) {
             isValid = $scope.object.Price.ManufacturerPrice > 0 &&
@@ -1188,6 +1189,7 @@ function priceImnGrid($scope, DTColumnBuilder, $http, $uibModal) {
                 method: "POST",
                 data: JSON.stringify($scope.object.Price)
             }).success(function (response) {
+                debugger;
                 $scope.addPrice();
                 $scope.reloadGridPrice();
                 $("#priceCountyDiv").modal('hide');

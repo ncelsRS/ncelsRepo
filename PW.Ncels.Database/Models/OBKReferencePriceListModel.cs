@@ -18,7 +18,7 @@ namespace PW.Ncels.Database.Models
         public Guid UnitId { get; set; }
         public string Unit { get; set; }
         [Required]
-        public float Price { get; set; }
+        public float? Price { get; set; }
         [Required]
         public Guid ServiceTypeId { get; set; }
         public string ServiceType { get; set; }
