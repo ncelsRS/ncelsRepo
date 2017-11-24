@@ -258,7 +258,7 @@
         if ($scope.object.Status == 1) {
             $scope.object.viewMode = false;
         }
-            // 7 На корректировке у заявителя
+        // 7 На корректировке у заявителя
         else if ($scope.object.Status == 7) {
             $scope.object.viewMode = false;
             $scope.showComments = true;
@@ -472,7 +472,16 @@ function modalSendContractAddition($scope, $http, $window, $uibModalInstance) {
     $scope.sendProject = function () {
         var projectId = $scope.contractAddition.Id;
         if (projectId) {
-
+            $http({
+                url: '/OBKContract/SendContractInProcessing',
+                method: 'POST',
+                data: { contractId: projectId }
+            }).success(function (response) {
+                $scope.object.Status = response;
+                $scope.changeViewMode();
+                $uibModalInstance.close();
+                $window.location.href = '/OBKContract';
+            });
         }
     };
 
