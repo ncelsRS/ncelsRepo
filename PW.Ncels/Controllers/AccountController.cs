@@ -246,7 +246,7 @@ namespace PW.Ncels.Controllers
                         Type = 2,
                         HeadMessage = "Регистрация",
                         Title = "Экспертиза лекарственных средств, изделий медицинского назначения и медицинской техники",
-                        Message = $"Ваш логин для входа {Environment.NewLine} логин: {login}"
+                        Message = $"Ваш логин для входа{Environment.NewLine}: {login}"
                         // , {Environment.NewLine} пароль: {user.Message}
                     });
                     LogHelper.Log.DebugFormat("Успешно зарегистрирован пользователь с логином {0}, ФИО {1} {2} {3}", request.Iin, request.LastName, request.FirstName, request.MiddleName);
