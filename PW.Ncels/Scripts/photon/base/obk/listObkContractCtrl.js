@@ -183,7 +183,7 @@
         if ($scope.object.Status == 1) {
             $scope.object.viewMpde = false;
         }
-            // 7 На корректировке у заявителя
+        // 7 На корректировке у заявителя
         else if ($scope.object.Status == 7) {
             $scope.object.viewMpde = false;
             $scope.showComments = true;
@@ -318,27 +318,27 @@
 
 
     $scope.gridOptions.columnDefs = [
-    { name: 'ProductId', displayName: 'ProductId', visible: false },
-    { name: 'RegNumber', displayName: 'Рег. номер' },
-    { name: 'RegNumberKz', displayName: 'Рег. номер - KZ', visible: false },
-    { name: 'RegTypeName', displayName: 'Тип' },
-    { name: 'RegTypeId', displayName: 'Тип - ИД', visible: false },
-    { name: 'Name', displayName: 'Торговое название' },
-    { name: 'NameKz', displayName: 'Торговое название на казахском', visible: false },
-    { name: 'RegDate', displayName: 'Дата регистрации' },
-    { name: 'ExpireDate', displayName: 'Дата истечения' },
-    { name: 'ProducerName', displayName: 'Производитель' },
-    { name: 'ProducerNameKz', displayName: 'Производитель на казахском', visible: false },
-    { name: 'CountryName', displayName: 'Страна' },
-    { name: 'CountryNameKz', displayName: 'Страна на казахском', visible: false },
-    { name: 'TnvedCode', displayName: 'ТН ВЭД', visible: false },
-    { name: 'KpvedCode', displayName: 'КП ВЭД', visible: false },
-    { name: 'Price', displayName: 'Цена', visible: false },
-    { name: 'Currency', displayName: 'Валюта', visible: false },
-    { name: 'DegreeRiskId', displayName: 'Класс ИМН', visible: false },
-    { name: 'NdName', displayName: 'NdName', visible: false },
-    { name: 'NdNumber', displayName: 'NdNumber', visible: false },
-    { name: 'RegisterId', displayName: 'RegisterId', visible: false }
+        { name: 'ProductId', displayName: 'ProductId', visible: false },
+        { name: 'RegNumber', displayName: 'Рег. номер' },
+        { name: 'RegNumberKz', displayName: 'Рег. номер - KZ', visible: false },
+        { name: 'RegTypeName', displayName: 'Тип' },
+        { name: 'RegTypeId', displayName: 'Тип - ИД', visible: false },
+        { name: 'Name', displayName: 'Торговое название' },
+        { name: 'NameKz', displayName: 'Торговое название на казахском', visible: false },
+        { name: 'RegDate', displayName: 'Дата регистрации' },
+        { name: 'ExpireDate', displayName: 'Дата истечения' },
+        { name: 'ProducerName', displayName: 'Производитель' },
+        { name: 'ProducerNameKz', displayName: 'Производитель на казахском', visible: false },
+        { name: 'CountryName', displayName: 'Страна' },
+        { name: 'CountryNameKz', displayName: 'Страна на казахском', visible: false },
+        { name: 'TnvedCode', displayName: 'ТН ВЭД', visible: false },
+        { name: 'KpvedCode', displayName: 'КП ВЭД', visible: false },
+        { name: 'Price', displayName: 'Цена', visible: false },
+        { name: 'Currency', displayName: 'Валюта', visible: false },
+        { name: 'DegreeRiskId', displayName: 'Класс ИМН', visible: false },
+        { name: 'NdName', displayName: 'NdName', visible: false },
+        { name: 'NdNumber', displayName: 'NdNumber', visible: false },
+        { name: 'RegisterId', displayName: 'RegisterId', visible: false }
     ];
 
     // gridSeries
@@ -359,14 +359,14 @@
     };
 
     $scope.gridOptionsSeries.columnDefs = [
-{ name: 'Id', displayName: 'ID', visible: false },
-{ name: 'Series', displayName: 'Номер серии' },
-{ name: 'CreateDate', displayName: 'Произведена' },
-{ name: 'ExpireDate', displayName: 'Истекает' },
-{ name: 'Part', displayName: 'Размер партии' },
-{ name: 'UnitName', displayName: 'Ед. измерения' },
-{ name: 'UnitId', displayName: 'Ед. измерения - код', visible: false },
-{ name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        { name: 'Id', displayName: 'ID', visible: false },
+        { name: 'Series', displayName: 'Номер серии' },
+        { name: 'CreateDate', displayName: 'Произведена' },
+        { name: 'ExpireDate', displayName: 'Истекает' },
+        { name: 'Part', displayName: 'Размер партии' },
+        { name: 'UnitName', displayName: 'Ед. измерения' },
+        { name: 'UnitId', displayName: 'Ед. измерения - код', visible: false },
+        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
 
     $scope.gridOptionsSeries.data = $scope.productSeries;
@@ -462,11 +462,11 @@
     $scope.gridOptionsCalculatorAdditional.columnDefs = [
         { name: 'Id', displayName: 'ИД', width: "*", visible: false },
         { name: 'ServiceName', displayName: 'Тип услуги', width: "*", cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col)}}</div>' },
-		{ name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
+        { name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
         { name: "ProductId", displayName: "Продукция - ИД", width: "*", visible: false },
         { name: "ProductName", displayName: "Продукция", width: "*", visible: false },
         { name: 'UnitOfMeasurementName', displayName: 'Единица измерения', width: "*", visible: false },
-		{ name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
+        { name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*", visible: false },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
@@ -652,7 +652,7 @@
                         $scope.addedServices.splice(i, 1);
                     }
                 }
-                
+
 
                 $scope.deleteProductInformation(id);
 
@@ -723,7 +723,7 @@
             !expireDate ||
             !$scope.object.partValue ||
             !$scope.object.seriesUnit
-            ) {
+        ) {
             alert("Заполните поля серии");
         }
         else {
@@ -2074,11 +2074,11 @@ function initCalculator($scope, $interval, $http) {
     $scope.gridOptionsCalculator.columnDefs = [
         { name: 'Id', displayName: 'ИД', width: "*", visible: false },
         { name: 'ServiceName', displayName: 'Тип услуги', width: "*", cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col)}}</div>' },
-		{ name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
+        { name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
         { name: "ProductId", displayName: "Продукция - ИД", width: "*", visible: false },
         { name: "ProductName", displayName: "Продукция", width: "*" },
         { name: 'UnitOfMeasurementName', displayName: 'Единица измерения', width: "*" },
-		{ name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
+        { name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*" },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
@@ -2190,9 +2190,9 @@ function initProductServiceModule($scope, $http, $interval) {
     $scope.gridOptionsProductServices.columnDefs = [
         { name: 'Id', displayName: 'ИД', width: "*", visible: false },
         { name: 'ServiceName', displayName: 'Тип услуги', width: "*" },
-		{ name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
+        { name: 'ServiceId', displayName: 'Тип услуги - ИД', width: "*", visible: false },
         { name: 'UnitOfMeasurementName', displayName: 'Единица измерения', width: "*" },
-		{ name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
+        { name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*" },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
