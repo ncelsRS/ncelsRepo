@@ -28,7 +28,7 @@ namespace PW.Ncels.Controllers
     {
 
 
-
+        //entity
         private ncelsEntities _context;
 
         public AccountController()
