@@ -27,7 +27,7 @@ namespace Ncels.Scheduler.Jobs
                 //отправка уведоления
                 new NotificationManager().SendNotificationFromCompany(
                     string.Format("По заявке №{0} вынесено решение. Просим распечатать акт выполненных работ и предоставить Исполнителю с подписью и печатью.", act.OBK_AssessmentDeclaration.Number),
-                    ObjectType.Unknown, act.OBK_AssessmentDeclaration.Id.ToString(), act.OBK_AssessmentDeclaration.EmployeeId);
+                    ObjectType.ObkDeclaration, act.OBK_AssessmentDeclaration.Id.ToString(), act.OBK_AssessmentDeclaration.EmployeeId);
                 repo.UpdateNotificationToAct(act);
             }
         }

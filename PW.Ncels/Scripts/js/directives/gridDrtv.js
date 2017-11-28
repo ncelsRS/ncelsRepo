@@ -92,6 +92,7 @@ function gridLightObject(DTOptionsBuilder) {
          
             return {
                 pre: function preLink(scope, iElement, iAttrs, controller) {
+                    debugger;
                     var dtOptions = iAttrs.dtOptions;
                     var url = iAttrs.url;
                     var id = iAttrs.objectId;

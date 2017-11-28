@@ -114,7 +114,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public Guid GetContractIdGuid(Guid id)
         {
-            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
+            var declaration = AppContext.OBK_Contract.FirstOrDefault(e => e.Id == id);
             return declaration.Id;
         }
 

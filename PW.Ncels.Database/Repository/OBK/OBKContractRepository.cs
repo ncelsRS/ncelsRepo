@@ -392,7 +392,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 ExpirationDate = x.ExpirationDate,
                 NdName = x.NdName,
                 NdNumber = x.NdNumber,
-                ServiceName = AppContext.OBK_ContractPrice.Where(y => y.ProductId == x.Id).FirstOrDefault().PriceRefId,
+                ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
                 Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
                 {
                     Id = y.Id,
@@ -564,6 +564,7 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 return tax.Value;
             }
+            LogHelper.Log.Error("Ошибка, НДС неопределен на текущий год");
             throw new Exception("НДС неопределен на текущий год");
         }
         private void DeleteMtParts(int productId)
