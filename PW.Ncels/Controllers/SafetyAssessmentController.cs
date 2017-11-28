@@ -733,12 +733,19 @@ namespace PW.Ncels.Controllers
             return PartialView("MeasureSelectView", measureId);
         }
 
-        public ActionResult GetSamples(Guid Id)
+        public ActionResult GetSamples(Guid? Id)
         {
             SafetyAssessmentRepository repository = new SafetyAssessmentRepository();
-            var result = repository.GetProductSeries(Id).AsEnumerable().ToArray();
 
-            return Json(new { isSuccess = true, data = result });
+            if (Id != null)
+            {
+                var result = repository.GetProductSeries(Id).AsEnumerable().ToArray();
+                return Json(new { isSuccess = true, data = result });
+
+            }
+
+            return Json(new { isSuccess = false});
+
         }
 
     }
