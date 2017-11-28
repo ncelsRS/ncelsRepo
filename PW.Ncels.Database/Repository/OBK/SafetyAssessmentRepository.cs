@@ -69,6 +69,88 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <param name="employeeId">владелец</param>
+        /// <returns></returns>
+        public IEnumerable<Dictionary> GetProductSamples()
+        {
+            return AppContext.Dictionaries.Where(o => o.Type == "ProductSample");
+        }
+
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Dictionaries> GetInspectionInstalls()
+        {
+            return AppContext.OBK_Dictionaries.Where(o => o.Type == "InspectionInstalled");
+        }
+
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Dictionaries> GetStorageConditions()
+        {
+            return AppContext.OBK_Dictionaries.Where(o => o.Type == "StorageConditions");
+        }
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Dictionaries> GetPackageConditions()
+        {
+            return AppContext.OBK_Dictionaries.Where(o => o.Type == "PackageCondition");
+        }
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Dictionaries> GetMarkings()
+        {
+            return AppContext.OBK_Dictionaries.Where(o => o.Type == "Marking");
+        }
+
+
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <param name="employeeId">владелец</param>
+        /// <returns></returns>
+        public IEnumerable<sr_measures> GetMeasures()
+        {
+            return AppContext.sr_measures;
+        }
+
+        /// <summary>
+        /// Показать список c проставлением дополнительной информации по владельцу
+        /// </summary>
+        /// <param name="employeeId">владелец</param>
+        /// <returns></returns>
+        public IQueryable<object> GetProductSeries(Guid contractId)
+        {
+            var data = from series in AppContext.OBK_Procunts_Series
+                       join product in AppContext.OBK_RS_Products on series.OBK_RS_ProductsId equals product.Id
+                       join contract in AppContext.OBK_Contract on product.ContractId equals contract.Id
+                       join measure in AppContext.sr_measures on series.SeriesMeasureId equals measure.id
+                       where contract.Id == contractId
+                       select new
+                       {
+                           serieId = series.Id,
+                           name = product.DrugFormFullName,
+                           measure = measure.name,
+                           measureId = series.SeriesMeasureId,
+                           serie = series.Series,
+                           serieParty = series.SeriesParty,
+                           seriesStartDate = series.SeriesStartdate,
+                           seriesEndDate = series.SeriesEndDate,
+                           quantity = series.Quantity
+                       };
+            return data;
+        }
+
+        /// <summary>
         /// Поиск договора по id
         /// </summary>
         public OBK_Contract GetContractById(Guid? id)
@@ -266,7 +348,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             catch (Exception e)
             {
-                return new {IsError = true, Message = e.Message};
+                return new { IsError = true, Message = e.Message };
             }
 
         }
@@ -306,13 +388,22 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (code)
             {
                 case "main":
-                {
-                    return UpdateMain(isNew, model, fieldName, fieldValue, userId, fieldDisplay);
-                }
+                    {
+                        return UpdateMain(isNew, model, fieldName, fieldValue, userId, fieldDisplay);
+                    }
                 case "product":
-                {
-                    return UpdateProduct(model, recordId, fieldName, fieldValue, userId, fieldDisplay);
-                }
+                    {
+                        return UpdateProduct(model, recordId, fieldName, fieldValue, userId, fieldDisplay);
+                    }
+                case "act":
+                    {
+                        return UpdateAct(isNew, model,  fieldName, fieldValue, userId, fieldDisplay);
+
+                    }
+                case "act-series":
+                    {
+                        return UpdateActProduct( model, fieldName, recordId, fieldValue, userId, fieldDisplay);
+                    }
             }
             return null;
         }
@@ -354,10 +445,96 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
 
             SaveHistoryField(model.Id, fieldName, fieldValue, new Guid(userId), fieldDisplay);
-            
+
             var subUpdateField = new SubUpdateField();
             subUpdateField.ModelId = model.ObjectId;
             subUpdateField.RecordId = entity.Id;
+
+            return subUpdateField;
+        }
+
+        private SubUpdateField UpdateAct(bool isNew, OBK_AssessmentDeclaration model, string fieldName,
+           string fieldValue, string userId, string fieldDisplay)
+        {
+            var entity = new OBK_ActReception();
+            if (model != null && model.OBK_ActReception != null)
+            {
+                entity = model.OBK_ActReception;
+            }
+
+            var property = entity.GetType().GetProperty(fieldName);
+            if (property != null)
+            {
+                var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                object safeValue;
+                if (string.IsNullOrEmpty(fieldValue))
+                {
+                    fieldValue = null;
+                }
+                if (t == typeof(Guid))
+                {
+                    safeValue = fieldValue == null ? null : Convert.ChangeType(new Guid(fieldValue), t);
+                }
+                else
+                {
+                    safeValue = fieldValue == null ? null : Convert.ChangeType(fieldValue, t);
+
+                }
+                property.SetValue(entity, safeValue, null);
+            }
+            if (isNew)
+            {
+                AppContext.OBK_AssessmentDeclaration.Add(model);
+                AppContext.SaveChanges();
+            }
+            if (entity.Id == Guid.Empty)
+            {
+                entity.Id = model.Id;
+                AppContext.OBK_ActReception.Add(entity);
+            }
+            AppContext.SaveChanges();
+
+            SaveHistoryField(model.Id, fieldName, fieldValue, new Guid(userId), fieldDisplay);
+
+            var subUpdateField = new SubUpdateField();
+            subUpdateField.ModelId = model.ObjectId;
+            
+            return subUpdateField;
+        }
+
+        private SubUpdateField UpdateActProduct(OBK_AssessmentDeclaration model, string fieldName, long? recordId,
+           string fieldValue, string userId, string fieldDisplay)
+        {
+            var entity = AppContext.OBK_Procunts_Series.First(o => o.Id == recordId);
+            var property = entity.GetType().GetProperty(fieldName);
+            if (property != null)   
+            {
+                var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                object safeValue;
+                if (string.IsNullOrEmpty(fieldValue))
+                {
+                    fieldValue = null;
+                }
+                if (t == typeof(Guid))
+                {
+                    safeValue = fieldValue == null ? null : Convert.ChangeType(new Guid(fieldValue), t);
+                }
+                else
+                {
+                    safeValue = fieldValue == null ? null : Convert.ChangeType(fieldValue, t);
+
+                }
+                property.SetValue(entity, safeValue, null);
+            }
+
+            AppContext.SaveChanges();
+
+            SaveHistoryField(model.Id, fieldName, fieldValue, new Guid(userId), fieldDisplay);
+
+            var subUpdateField = new SubUpdateField();
+            subUpdateField.ModelId = model.ObjectId;
 
             return subUpdateField;
         }
@@ -378,6 +555,10 @@ namespace PW.Ncels.Database.Repository.OBK
                 if (t == typeof(Guid))
                 {
                     safeValue = fieldValue == null ? null : Convert.ChangeType(new Guid(fieldValue), t);
+                }
+                if (t == typeof(Boolean))
+                {
+                    safeValue = Boolean.Parse(fieldValue);
                 }
                 else
                 {
@@ -476,7 +657,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 DesignDate = oldModel.DesignDate,
                 ObkContracts = oldModel.ObkContracts
             };
-            
+
             AppContext.OBK_AssessmentDeclaration.Add(model);
             AppContext.SaveChanges();
             return model;
@@ -772,7 +953,8 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             // добавить этап обк (stage)
             var query =
-                AppContext.OBK_AssessmentDeclarationRegisterView.Where(e=>e.ExecutorId == userId && e.StageCode == stage.ToString());
+                AppContext.OBK_AssessmentDeclarationRegisterView.Where(e => e.ExecutorId == userId && e.StageCode == stage.ToString());
+                
             return query;
         }
 
@@ -800,7 +982,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var stages = AppContext.OBK_AssessmentStage.Where(e => e.OBK_AssessmentDeclaration.Id == id);
             var declarant = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
-            if(declarant == null)
+            if (declarant == null)
                 return;
             foreach (var stage in stages)
             {

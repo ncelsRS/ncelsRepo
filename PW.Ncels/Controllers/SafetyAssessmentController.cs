@@ -23,6 +23,7 @@ using Stimulsoft.Report.Dictionary;
 using System.Web.Script.Serialization;
 using PW.Ncels.Database.Controller;
 using PW.Ncels.Database.Models.OBK;
+using PW.Ncels.Database.Models.Expertise;
 
 namespace PW.Ncels.Controllers
 {
@@ -48,9 +49,10 @@ namespace PW.Ncels.Controllers
                 EmployeeId = UserHelper.GetCurrentEmployee().Id,
                 StatusId = CodeConstManager.STATUS_DRAFT_ID,
                 ObkContracts = new OBK_Contract(),
-                ObkRsProductses = new List<OBK_RS_Products>()
+                ObkRsProductses = new List<OBK_RS_Products>(),
+                OBK_ActReception = new OBK_ActReception()
             };
-            
+
             model.CertificateDate = null;
             model.CreatedDate = DateTime.Now;
 
@@ -232,8 +234,10 @@ namespace PW.Ncels.Controllers
             var repository = new SafetyAssessmentRepository();
             var contract = repository.GetContractById(new Guid(id));
             var model = repository.FindDeclarationByContract(new Guid(id));
-            if (model == null) {
-                model = new OBK_AssessmentDeclaration {
+            if (model == null)
+            {
+                model = new OBK_AssessmentDeclaration
+                {
                     EmployeeId = UserHelper.GetCurrentEmployee().Id,
                     TypeId = contract.OBK_Ref_Type.Id,
                     Id = Guid.NewGuid(),
@@ -252,16 +256,16 @@ namespace PW.Ncels.Controllers
         [HttpGet]
         public ActionResult ShowDetails(string id)
         {
-          var model = GetSaDeclarationById(id);
-          return View(model);
+            var model = GetSaDeclarationById(id);
+            return View(model);
         }
 
         public OBK_AssessmentDeclaration GetSaDeclarationById(string id)
         {
-          var repository = new SafetyAssessmentRepository();
-          var model = repository.GetById(id);
-          FillDeclarationControl(model);
-          return model;
+            var repository = new SafetyAssessmentRepository();
+            var model = repository.GetById(id);
+            FillDeclarationControl(model);
+            return model;
         }
 
         private void FillDeclarationControl(OBK_AssessmentDeclaration model)
@@ -271,13 +275,16 @@ namespace PW.Ncels.Controllers
                 new SelectList(safetyRepository.GetActiveContractListWithInfo(model.EmployeeId, model.TypeId), "Id",
                     "ContractInfo", model.ContractId);
 
-            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_SERIAL)) {
+            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_SERIAL))
+            {
                 ViewData["TypeList"] = new SelectList(safetyRepository.GetObkRefTypes(), "Id", "NameRu", model.TypeId = safetyRepository.GetObkRefTypes(CodeConstManager.OBK_SA_SERIAL).Id);
             }
-            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_PARTY)) {
+            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_PARTY))
+            {
                 ViewData["TypeList"] = new SelectList(safetyRepository.GetObkRefTypes(), "Id", "NameRu", model.TypeId = safetyRepository.GetObkRefTypes(CodeConstManager.OBK_SA_PARTY).Id);
             }
-            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_DECLARATION)) {
+            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_DECLARATION))
+            {
                 ViewData["TypeList"] = new SelectList(safetyRepository.GetObkRefTypes(), "Id", "NameRu", model.TypeId = safetyRepository.GetObkRefTypes(CodeConstManager.OBK_SA_DECLARATION).Id);
             }
 
@@ -290,20 +297,24 @@ namespace PW.Ncels.Controllers
 
                 //справочник стран
                 var countries = safetyRepository.GetCounties();
-                if (declarant?.CountryId == null) {
+                if (declarant?.CountryId == null)
+                {
                     ViewData["Counties"] = new SelectList(countries, "Id", "Name");
                 }
-                else {
+                else
+                {
                     ViewData["Counties"] = new SelectList(countries, "Id", "Name",
                         model.CountryId = declarant.CountryId);
                 }
 
                 //Валюта
                 var currency = safetyRepository.GetObkCurrencies();
-                if (declarantContact?.CurrencyId == null) {
+                if (declarantContact?.CurrencyId == null)
+                {
                     ViewData["Courrency"] = new SelectList(currency, "Id", "Name");
                 }
-                else {
+                else
+                {
                     ViewData["Courrency"] = new SelectList(currency, "Id", "Name",
                         model.CurrencyId = declarantContact.CurrencyId);
                 }
@@ -315,18 +326,23 @@ namespace PW.Ncels.Controllers
                     model.CertificateGMPCheck);
 
                 var certType = safetyRepository.GetCertificateType();
-                if (model.CertificateTypeId == null) {
+                if (model.CertificateTypeId == null)
+                {
                     ViewData["CertificateType"] = new SelectList(certType, "Id", "NameRu");
-                } else {
+                }
+                else
+                {
                     ViewData["CertificateType"] = new SelectList(certType, "Id", "NameRu", model.CertificateTypeId);
                 }
 
                 //организационная форма
                 var orgForm = safetyRepository.GetOrganizationForm();
-                if (declarant?.OrganizationFormId == null) {
+                if (declarant?.OrganizationFormId == null)
+                {
                     ViewData["OrganizationForm"] = new SelectList(orgForm, "Id", "Name");
                 }
-                else {
+                else
+                {
                     ViewData["OrganizationForm"] = new SelectList(orgForm, "Id", "Name",
                         model.OrganizationFormId = declarant.OrganizationFormId);
                 }
@@ -430,16 +446,17 @@ namespace PW.Ncels.Controllers
         {
             var contract = new SafetyAssessmentRepository().GetContractById(id);
 
-            if (contract == null) {
+            if (contract == null)
+            {
                 return Json(new { isSuccess = false });
             }
 
             var declarant = new SafetyAssessmentRepository().GetDeclarantById(contract.DeclarantId);
             var declarantContact = new SafetyAssessmentRepository().GetDeclarantContactById(contract.DeclarantContactId);
             var products = new SafetyAssessmentRepository().GetRsProductsAndSeries(contract.Id);
-            
+
             var result = new OBK_AssessmentDeclaration();
-            
+
             result.StartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
             result.EndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
             result.OrganizationFormId = declarant?.OrganizationFormId ?? null;
@@ -503,7 +520,7 @@ namespace PW.Ncels.Controllers
                 resultProducts.Add(prod);
             }
             result.ObkRsProductses = resultProducts;
-            return Json(new { isSuccess = true , result });
+            return Json(new { isSuccess = true, result });
         }
         [HttpPost]
         public virtual ActionResult GetHistory(Guid modelId)
@@ -517,7 +534,7 @@ namespace PW.Ncels.Controllers
                     model.StatusId == 9)
                 {
                     var history = new OBK_DeclarationHistory();
-                    history.StartDateHistory = DateHelper.GetDate(model.StartDate); 
+                    history.StartDateHistory = DateHelper.GetDate(model.StartDate);
                     history.EndDateHistory = DateHelper.GetDate(model.EndDate);
                     history.Note = model.Note;
                     history.StatusName = repository.GetStatus(model.StatusId).NameRu;
@@ -525,7 +542,7 @@ namespace PW.Ncels.Controllers
                     result.Add(history);
                 }
             }
-            return Json(new {isSuccess = true, result});
+            return Json(new { isSuccess = true, result });
         }
 
 
@@ -645,5 +662,84 @@ namespace PW.Ncels.Controllers
                 isSuccess = true
             });
         }
+
+        public ActionResult ActReception(string id)
+        {
+            var assess = GetSaDeclarationById(id);
+            var model = new OBK_ActReception();
+            if (assess != null && assess.OBK_ActReception != null)
+            {
+                model = assess.OBK_ActReception;
+                ViewData["ContractId"] = assess.ContractId;
+            }
+
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["ProductSampleList"] =
+                new SelectList(safetyRepository.GetProductSamples(), "Id", "Name");
+
+            ViewData["InspectionInstalledList"] =
+                new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
+
+            ViewData["PackageConditionList"] =
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+
+            ViewData["StorageConditionsList"] =
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+
+            ViewData["MarkingList"] =
+                new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+
+            return PartialView("ActDeclarationView", model);
+        }
+
+        public ActionResult ActSelection(string id)
+        {
+            var assess = GetSaDeclarationById(id);
+            var model = new OBK_ActReception();
+            if (assess != null && assess.OBK_ActReception != null)
+            {
+                model = assess.OBK_ActReception;
+                ViewData["ContractId"] = assess.ContractId;
+            }
+
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["ProductSampleList"] =
+                new SelectList(safetyRepository.GetProductSamples(), "Id", "Name");
+
+            ViewData["InspectionInstalledList"] =
+                new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
+
+            ViewData["PackageConditionList"] =
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+
+            ViewData["StorageConditionsList"] =
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+
+            ViewData["MarkingList"] =
+                new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+
+            return PartialView("ActSelectionView", model);
+        }
+
+        public ActionResult MeasureSelect(int measureId)
+        {
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["MeasureList"] =
+                new SelectList(safetyRepository.GetMeasures(), "id", "name", measureId);
+
+            return PartialView("MeasureSelectView", measureId);
+        }
+
+        public ActionResult GetSamples(Guid Id)
+        {
+            SafetyAssessmentRepository repository = new SafetyAssessmentRepository();
+            var result = repository.GetProductSeries(Id).AsEnumerable().ToArray();
+
+            return Json(new { isSuccess = true, data = result });
+        }
+
     }
 }

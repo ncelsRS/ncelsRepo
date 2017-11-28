@@ -1,4 +1,5 @@
 ﻿function setReadOnlyControl() {
+
     $("input").prop("readonly", true);
     $("textArea").prop("readonly", true);
     $("#deSignNote").prop("readonly", false);
@@ -11,7 +12,10 @@
     $(".atc-btn").remove();
     $("#addPriceBtn").remove();
     $(".add-btn-from4").remove();
-    $('select').attr('disabled', 'disabled');
+    $('#KfSelection').attr('disabled', 'disabled');
+    $('#GDPItself').attr('disabled', 'disabled');
+    $('#DomesticProducer').attr('disabled', 'disabled');
+    
 }
 
 

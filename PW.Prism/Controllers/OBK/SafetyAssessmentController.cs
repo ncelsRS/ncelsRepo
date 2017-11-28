@@ -21,6 +21,7 @@ using PW.Ncels.Database.Repository.Security;
 using PW.Prism.ViewModels.Expertise;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
+using Newtonsoft.Json;
 
 namespace PW.Prism.Controllers.OBK
 {
@@ -130,7 +131,8 @@ namespace PW.Prism.Controllers.OBK
                 var list = repository.GetAttachListEdit(id, CodeConstManager.ATTACH_SERIAL_SA_FILE_CODE);
                 return PartialView(list);
             }
-            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_PARTY)) {
+            if (model.TypeId == int.Parse(CodeConstManager.OBK_SA_PARTY))
+            {
                 var repository = new UploadRepository();
                 var list = repository.GetAttachListEdit(id, CodeConstManager.ATTACH_PARTY_SA_FILE_CODE);
                 return PartialView(list);
@@ -144,7 +146,105 @@ namespace PW.Prism.Controllers.OBK
             return PartialView(null);
         }
 
-        
+        public ActionResult GetActReception(Guid id)
+        {
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
+            var model = new OBK_ActReception();
+            if (stage != null)
+            {
+                model = db.OBK_ActReception.First(o => o.Id == stage.OBK_AssessmentDeclaration.Id);
+                ViewData["ContractId"] = stage.OBK_AssessmentDeclaration.ContractId;
+                ViewData["AssessmentDeclarationId"] = stage.OBK_AssessmentDeclaration.Id;
+                ViewData["ProductSampleList"] =
+                    new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
+            }
+
+
+            return PartialView("ActReception", model);
+        }
+
+        public ActionResult LoadActData(Guid id, Guid AssessmentDeclarationId)
+        {
+            var model = db.OBK_ActReception.First(o => o.Id == id);
+            ViewData["ProductSampleList"] =
+                new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
+
+            var AssessmentDeclaration = db.OBK_AssessmentDeclaration.First(o => o.Id == AssessmentDeclarationId);
+
+            ViewData["KfSelection"] = AssessmentDeclaration.KfSelection;
+
+            if (AssessmentDeclaration.KfSelection == true)
+            {
+                var safetyRepository = new SafetyAssessmentRepository();
+
+                ViewData["InspectionInstalledList"] =
+                    new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
+
+                ViewData["PackageConditionList"] =
+                    new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+
+                ViewData["StorageConditionsList"] =
+                    new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+
+                ViewData["MarkingList"] =
+                    new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+            }
+
+            return PartialView("ActData", model);
+        }
+
+
+        public ActionResult GetSamples(Guid Id)
+        {
+            var result = from series in db.OBK_Procunts_Series
+                         join product in db.OBK_RS_Products on series.OBK_RS_ProductsId equals product.Id
+                         join contract in db.OBK_Contract on product.ContractId equals contract.Id
+                         join measure in db.sr_measures on series.SeriesMeasureId equals measure.id
+                         where contract.Id == Id
+                         select new
+                         {
+                             serieId = series.Id,
+                             name = product.DrugFormFullName,
+                             measure = measure.name,
+                             measureId = series.SeriesMeasureId,
+                             serie = series.Series,
+                             serieParty = series.SeriesParty,
+                             seriesStartDate = series.SeriesStartdate,
+                             seriesEndDate = series.SeriesEndDate,
+                             quantity = series.Quantity,
+                             available = series.Available == true ? true : false,
+                             comment = series.Comment
+                         };
+
+            return Json(new { isSuccess = true, data = result });
+        }
+
+        [HttpPost]
+        public virtual ActionResult UpdateProductSeries(string productSeries, Guid actReceptionId)
+        {
+            
+            var series  =JsonConvert.DeserializeObject<List<ProductSeriesModel>>(productSeries).OrderBy(o => o.SerieId).ToList();
+            var serIds = series.Select(x => x.SerieId);
+            var dbSeries = db.OBK_Procunts_Series.Where(o => serIds.Contains(o.Id)).OrderBy(o => o.Id).ToList();
+
+            for (int i = 0; i < dbSeries.Count; i++)
+            {
+                var ob1 = series.ElementAt(i);
+                var ob2 = dbSeries.ElementAt(i);
+                if (!ob1.Comment.Equals(ob2.Comment) || !ob1.Available == ob2.Available)
+                {
+                    ob2.Available = ob1.Available;
+                    ob2.Comment = ob1.Comment;
+                }
+            }
+            var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+            act.Accept = true;
+
+            db.SaveChanges();
+
+            return Json(new { Success = true });
+        }
+
         public virtual ActionResult GetContract(Guid id)
         {
             var contract = new SafetyAssessmentRepository().GetContractById(id);
