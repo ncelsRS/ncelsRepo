@@ -27,6 +27,18 @@
         });
     }
 
+    function showActReception(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/SafetyAssessment/GetActReception?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
     function showDeclarationSteps(event) {
         //GetRdDocumentsHistory
         @*var itemId = '@Model.DeclarationId';
@@ -137,6 +149,11 @@
     <div class="list-group panel">
         <a href="#" onclick="showDeclaration(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span> Заявление</a>
         <a href="#" onclick="showAttachFile(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Перечень документов</a>
+        @{if (Model.OBK_AssessmentDeclaration.OBK_ActReception != null)
+            {
+                <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
+
+            } }
         @if (Model.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
         {
             @*<a href="#" onclick="showExpDoc(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов</a>*@
@@ -146,7 +163,8 @@
                 <a href="#" onclick="showExpDocDeclarationResponse(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов результат</a>
             }
         }
-        @if(@Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION) {
+        @if (@Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)
+        {
             <a href="#" onclick="showMaterial(event)" class="list-group-item"><span class="glyphicon glyphicon-briefcase"></span> Образцы</a>
         }
         <a href="#" onclick="showDeclarationSteps(event)" class="list-group-item"><span class="glyphicon glyphicon-ok-circle"></span> Этапы заявления</a>
