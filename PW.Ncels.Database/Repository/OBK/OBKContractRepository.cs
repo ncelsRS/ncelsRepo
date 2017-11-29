@@ -374,56 +374,136 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKContractProductViewModel> GetProducts(Guid contractId)
         {
-            return AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).Select(x => new OBKContractProductViewModel
+            var results = AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).ToList();
+            
+            if (results.Count > 0)
             {
-                ProductId = null,
-                Id = x.Id,
-                RegTypeId = x.RegTypeId,
-                DegreeRiskId = x.DegreeRiskId,
-                NameRu = x.NameRu,
-                NameKz = x.NameKz,
-                ProducerNameRu = x.ProducerNameRu,
-                ProducerNameKz = x.ProducerNameKz,
-                CountryNameRu = x.CountryNameRu,
-                CountryNameKz = x.CountryNameKZ,
-                Price = x.Price,
-                DrugFormBoxCount = x.DrugFormBoxCount,
-                DrugFormFullName = x.DrugFormFullName,
-                DrugFormFullNameKz = x.DrugFormFullNameKz,
-                RegisterId = x.RegisterId,
-                RegNumber = x.RegNumber,
-                RegNumberKz = x.RegNumberKz,
-                RegDate = x.RegDate,
-                ExpirationDate = x.ExpirationDate,
-                NdName = x.NdName,
-                NdNumber = x.NdNumber,
-                ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
-                Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
+                List<OBKContractProductViewModel> contractProducts = new List<OBKContractProductViewModel>();
+
+                foreach (var result in results)
                 {
-                    Id = y.Id,
-                    Series = y.Series,
-                    CreateDate = y.SeriesStartdate,
-                    ExpireDate = y.SeriesEndDate,
-                    Part = y.SeriesParty,
-                    UnitId = y.SeriesMeasureId,
-                    UnitName = y.sr_measures.short_name
-                }).ToList()
-                ,
-                MtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == x.Id).Select(y => new OBKContractMtPartViewModel
-                {
-                    Id = y.Id,
-                    PartNumber = y.PartNumber,
-                    Model = y.Model,
-                    Specification = y.Specification,
-                    SpecificationKz = y.SpecificationKz,
-                    Name = y.Name,
-                    NameKz = y.NameKz,
-                    ProducerName = y.ProducerName,
-                    CountryName = y.CountryName,
-                    ProducerNameKz = y.ProducerNameKz,
-                    CountryNameKz = y.CountryNameKz
-                }).ToList()
-            }).ToList();
+                    OBKContractProductViewModel contractProduct = new OBKContractProductViewModel
+                    {
+                        ProductId = null,
+                        Id = result.Id,
+                        RegTypeId = result.RegTypeId,
+                        DegreeRiskId = result.DegreeRiskId,
+                        NameRu = result.NameRu,
+                        NameKz = result.NameKz,
+                        ProducerNameRu = result.ProducerNameRu,
+                        ProducerNameKz = result.ProducerNameKz,
+                        CountryNameRu = result.CountryNameRu,
+                        CountryNameKz = result.CountryNameKZ,
+                        Price = result.Price,
+                        DrugFormBoxCount = result.DrugFormBoxCount,
+                        DrugFormFullName = result.DrugFormFullName,
+                        DrugFormFullNameKz = result.DrugFormFullNameKz,
+                        RegisterId = result.RegisterId,
+                        RegNumber = result.RegNumber,
+                        RegNumberKz = result.RegNumberKz,
+                        RegDate = result.RegDate,
+                        ExpirationDate = result.ExpirationDate,
+                        NdName = result.NdName,
+                        NdNumber = result.NdNumber
+                    };
+                    var contractPrice = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == result.Id);
+                    contractProduct.ServiceName = contractPrice?.PriceRefId ?? Guid.Parse("00000000-0000-0000-0000-000000000000");
+                    
+                    var resultSerieses = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == result.Id).ToList();
+                    List<OBKContractSeriesViewModel> contractSerieses = new List<OBKContractSeriesViewModel>();
+                    foreach (var resultSeries in resultSerieses)
+                    {
+                        OBKContractSeriesViewModel contractSeries = new OBKContractSeriesViewModel
+                        {
+                            Id = resultSeries.Id,
+                            Series = resultSeries.Series,
+                            CreateDate = resultSeries.SeriesStartdate,
+                            ExpireDate = resultSeries.SeriesEndDate,
+                            Part = resultSeries.SeriesParty,
+                            UnitId = resultSeries.SeriesMeasureId,
+                            UnitName = resultSeries.sr_measures.short_name
+                        };
+                        contractSerieses.Add(contractSeries);
+                    }
+                    contractProduct.Series = contractSerieses;
+                    
+                    List<OBKContractMtPartViewModel> contractMtParts = new List<OBKContractMtPartViewModel>();
+                    var mtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == result.Id).ToList();
+                    foreach (var mtPart in mtParts)
+                    {
+                        OBKContractMtPartViewModel contractMtPart = new OBKContractMtPartViewModel
+                        {
+                            Id = mtPart.Id,
+                            PartNumber = mtPart.PartNumber,
+                            Model = mtPart.Model,
+                            Specification = mtPart.Specification,
+                            SpecificationKz = mtPart.SpecificationKz,
+                            Name = mtPart.Name,
+                            NameKz = mtPart.NameKz,
+                            ProducerName = mtPart.ProducerName,
+                            CountryName = mtPart.CountryName,
+                            ProducerNameKz = mtPart.ProducerNameKz,
+                            CountryNameKz = mtPart.CountryNameKz
+                        };
+                        //contractProduct.MtParts.Add(contractMtPart);
+                        contractMtParts.Add(contractMtPart);
+                    }
+                    contractProduct.MtParts = contractMtParts;
+                    contractProducts.Add(contractProduct);
+                }
+                return contractProducts;
+            }
+            return null;
+            //return AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).Select(x => new OBKContractProductViewModel
+            //{
+            //    ProductId = null,
+            //    Id = x.Id,
+            //    RegTypeId = x.RegTypeId,
+            //    DegreeRiskId = x.DegreeRiskId,
+            //    NameRu = x.NameRu,
+            //    NameKz = x.NameKz,
+            //    ProducerNameRu = x.ProducerNameRu,
+            //    ProducerNameKz = x.ProducerNameKz,
+            //    CountryNameRu = x.CountryNameRu,
+            //    CountryNameKz = x.CountryNameKZ,
+            //    Price = x.Price,
+            //    DrugFormBoxCount = x.DrugFormBoxCount,
+            //    DrugFormFullName = x.DrugFormFullName,
+            //    DrugFormFullNameKz = x.DrugFormFullNameKz,
+            //    RegisterId = x.RegisterId,
+            //    RegNumber = x.RegNumber,
+            //    RegNumberKz = x.RegNumberKz,
+            //    RegDate = x.RegDate,
+            //    ExpirationDate = x.ExpirationDate,
+            //    NdName = x.NdName,
+            //    NdNumber = x.NdNumber,
+            //    ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
+            //    Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
+            //    {
+            //        Id = y.Id,
+            //        Series = y.Series,
+            //        CreateDate = y.SeriesStartdate,
+            //        ExpireDate = y.SeriesEndDate,
+            //        Part = y.SeriesParty,
+            //        UnitId = y.SeriesMeasureId,
+            //        UnitName = y.sr_measures.short_name
+            //    }).ToList()
+            //    ,
+            //    MtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == x.Id).Select(y => new OBKContractMtPartViewModel
+            //    {
+            //        Id = y.Id,
+            //        PartNumber = y.PartNumber,
+            //        Model = y.Model,
+            //        Specification = y.Specification,
+            //        SpecificationKz = y.SpecificationKz,
+            //        Name = y.Name,
+            //        NameKz = y.NameKz,
+            //        ProducerName = y.ProducerName,
+            //        CountryName = y.CountryName,
+            //        ProducerNameKz = y.ProducerNameKz,
+            //        CountryNameKz = y.CountryNameKz
+            //    }).ToList()
+            //}).ToList();
         }
 
         public OBKContractServiceViewModel SaveContractPrice(Guid contractId, OBKContractServiceViewModel service)

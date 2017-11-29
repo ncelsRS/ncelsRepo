@@ -40,6 +40,13 @@ namespace PW.Ncels.Database.Helpers
             return priceList;
         }
 
+        public static List<EMP_Ref_PriceType> GetPriceType()
+        {
+            ncelsEntities entities = UserHelper.GetCn();
+            var priceType = entities.EMP_Ref_PriceType.ToList();
+            return priceType;
+        }
+
         public static List<EMP_Ref_PriceType> GetPriceType(IEnumerable<Guid> priceLists)
         {
             ncelsEntities entities = UserHelper.GetCn();

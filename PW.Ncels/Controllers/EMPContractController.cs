@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
+using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Models.EMP;
 using PW.Ncels.Database.Repository.EMP;
 
 namespace PW.Ncels.Controllers
 {
-    [Authorize]
+    [Authorize()]
     public class EMPContractController : Controller
     {
         EMPContractRepository emp = new EMPContractRepository();
@@ -21,10 +23,20 @@ namespace PW.Ncels.Controllers
             return View();
         }
 
-        public ActionResult Contract()
+        public ActionResult Contract(Guid? id)
         {
             ViewBag.ListAction = "Index";
-            return View();
+            return View(id);
+        }
+
+        /// <summary>
+        /// Получение списка договоров
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<JsonResult> ReadContract(ModelRequest request)
+        {
+            return Json(await emp.GetContractList(request, true), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -75,6 +87,13 @@ namespace PW.Ncels.Controllers
             var result = emp.GetPriceList(Guid.Parse(serviceTypeId), isImport, count);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public ActionResult GetClearCostWork(Guid contractId)
+        {
+            emp.GetClearCostWork(contractId);
+            return Json(new {IsSuccess = true, JsonRequestBehavior.AllowGet});
+        }
         [HttpGet]
         public ActionResult FindDeclarant(string bin)
         {
@@ -106,6 +125,8 @@ namespace PW.Ncels.Controllers
                         organization.NameRu,
                         organization.NameEn,
                         organization.CountryId,
+                        
+                        DeclarantContractId = declarantContact.Id,
                         declarantContact.AddressLegalRu,
                         declarantContact.AddressLegalKz,
                         declarantContact.AddressFact,
@@ -159,19 +180,17 @@ namespace PW.Ncels.Controllers
             }
             return null;
         }
-
-
+        
         public ActionResult ContractSave(Guid Guid, EMPContractViewModel contractViewModel)
         {
             EMPContractViewModel savedContract = emp.SaveContract(Guid, contractViewModel);
             return Json(savedContract);
         }
-
-        public ActionResult GetContractPriceList(Guid modelGuid)
+        [HttpGet]
+        public ActionResult LoadContract(Guid contractId)
         {
-            object result = new object();
-            return Json(result, JsonRequestBehavior.AllowGet);
+            EMPContractViewModel view = emp.LoadContract(contractId);
+            return Json(view, JsonRequestBehavior.AllowGet);
         }
-
     }
 }
