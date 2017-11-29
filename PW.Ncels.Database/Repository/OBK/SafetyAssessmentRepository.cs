@@ -128,7 +128,7 @@ namespace PW.Ncels.Database.Repository.OBK
         /// </summary>
         /// <param name="employeeId">владелец</param>
         /// <returns></returns>
-        public IQueryable<object> GetProductSeries(Guid contractId)
+        public IQueryable<object> GetProductSeries(Guid? contractId)
         {
             var data = from series in AppContext.OBK_Procunts_Series
                        join product in AppContext.OBK_RS_Products on series.OBK_RS_ProductsId equals product.Id
@@ -552,13 +552,13 @@ namespace PW.Ncels.Database.Repository.OBK
                 {
                     fieldValue = null;
                 }
-                if (t == typeof(Guid))
-                {
-                    safeValue = fieldValue == null ? null : Convert.ChangeType(new Guid(fieldValue), t);
-                }
                 if (t == typeof(Boolean))
                 {
                     safeValue = Boolean.Parse(fieldValue);
+                }
+                if (t == typeof(Guid))
+                {
+                    safeValue = fieldValue == null ? null : Convert.ChangeType(new Guid(fieldValue), t);
                 }
                 else
                 {
