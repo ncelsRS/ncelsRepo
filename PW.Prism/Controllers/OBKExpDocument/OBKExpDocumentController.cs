@@ -312,6 +312,10 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         series.ExpApplication = obkStageExpDocumentSeries.ExpApplication;
                         series.ExpApplicationNumber = obkStageExpDocumentSeries.ExpApplicationNumber;
                     }
+                    else
+                    {
+                        series.ExpConclusionNumber = expRepo.GenerateNumber(id);
+                    }
                     results.Add(series);
                 }
             }
