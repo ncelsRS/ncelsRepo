@@ -5,6 +5,7 @@ using System.Data.Entity.Migrations;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
 using Aspose.Cells;
@@ -221,6 +222,83 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         #endregion
+
+
+
+        #region MyRegion
+
+        private string KZ = "KZ";
+        private string ZZ = "ZZ";
+
+        /// <summary>
+        /// Генерация уникальных номеров для сертификатов ОБК 
+        /// KZ.XXXX.YY.ZZ.NNNNNNNN
+        /// KZ – постоянная часть
+        /// XXXX – код филиала
+        /// YY – 01 – декларирование
+        ///     02 – партия
+        ///     03 - серийная
+        /// ZZ - 01
+        /// NNNNNNNN – порядковый номер в каждом филиале свой сквозной
+        /// </summary>
+        /// <param name="id">уникальный номер заявления</param>
+        /// <returns></returns>
+        public string GenerateNumber(Guid id)
+        {
+            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
+            if (declaration == null)
+                return null;
+
+            //тип заявки
+            var typeCode = "";
+            switch (declaration.OBK_Ref_Type.Code) {
+                case "3":
+                    typeCode = "01";
+                    break;
+                case "2":
+                    typeCode = "02";
+                    break;
+                case "1":
+                    typeCode = "03";
+                    break;
+            }
+
+            //код региона
+            var regionCode = ""; 
+            switch (declaration.OBK_Contract.Unit.Code) {
+                case "00":
+                    regionCode = "7500";
+                    break;                   
+            }
+
+            var lastNumber = AppContext.OBK_UniqueNumber.Max(e => e.Number);
+            string number = null;
+            string newNumber = null;
+            string template = "00000000";
+            if (lastNumber == null)
+            {
+                number = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + "00000001";              
+            }
+            else
+            {
+                var result = (Convert.ToInt32(lastNumber)+1).ToString();
+                newNumber = template.Substring(0, template.Length - result.Length) + result;
+                number = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + newNumber;
+            }
+            OBK_UniqueNumber uniqueNumber = new OBK_UniqueNumber
+            {
+                Id = Guid.NewGuid(),
+                DeclarantId = id,
+                Code = KZ + "." + regionCode + "." + typeCode + "." + ZZ + ".",
+                Number = newNumber ?? "00000001"
+            };
+            AppContext.OBK_UniqueNumber.Add(uniqueNumber);
+            AppContext.SaveChanges();
+            return number;
+        }
+
+        #endregion
+
 
 
 

@@ -6,28 +6,9 @@ using System.Threading.Tasks;
 
 namespace PW.Ncels.Database.Models.EMP
 {
-    public class Declarations
+    public class Contacts
     {
-
-        public Guid Id { get; set; }
-        public bool IsResident { get; set; }
-        public Guid? OrganizationFormId { get; set; }
-        public string Bin { get; set; }
-        public string NameKz { get; set; }
-        public string NameRu { get; set; }
-        public string NameEn { get; set; }
-        public Guid? CountryId { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public string Number { get; set; }
-        public int Type { get; set; }
-        public Guid? ExpertOrganization { get; set; }
-        public Guid? Signer { get; set; }
-        public int Status { get; set; }
-
-
-        public Guid? DeclarantContractId { get; set; }
+        public Guid? Id { get; set; }
         public string AddressLegalRu { get; set; }
         public string AddressLegalKz { get; set; }
         public string AddressFact { get; set; }
