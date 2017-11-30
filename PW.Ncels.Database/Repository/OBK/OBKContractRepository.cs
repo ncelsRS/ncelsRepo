@@ -35,7 +35,32 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public int CommentCount(Guid modelId)
         {
-            return AppContext.OBK_ContractCom.Count(x => x.ContractId == modelId);
+            var emp = UserHelper.GetCurrentEmployee();
+            var data = AppContext.OBK_ContractStage.Where(x => x.ContractId == modelId).FirstOrDefault();
+            if (data != null)
+            {
+                var Executor = AppContext.OBK_ContractStageExecutors.Where(x => x.ContractStageId == data.Id && x.ExecutorId == emp.Id).FirstOrDefault();
+                if (Executor != null)
+                {
+                    var recordID= AppContext.OBK_ContractCom.Where(x=>x.ContractId==modelId).FirstOrDefault();
+                    if (recordID != null)
+                    {
+                        return AppContext.OBK_ContractComRecord.Where(x => x.CommentId == recordID.Id && x.UserId == emp.Id).FirstOrDefault() != null ? 1 : 0;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public OBKContractRepository(ncelsEntities context) : base(context) { }
