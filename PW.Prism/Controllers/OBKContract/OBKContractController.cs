@@ -916,6 +916,16 @@ namespace PW.Prism.Controllers.OBKContract
             return Json(new { data = _data }, JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet]
+        public JsonResult CommentCount(string contractId)
+        {
+            int countComment = 0;
+            var data = new Guid(contractId);
+            countComment = obkRepo.CommentCount(data);
+            return Json(new { countComment }, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult SaveSignedContract(Guid contractId, string signedData)
         {
             obkRepo.SignContractCeo(contractId, signedData);

@@ -33,6 +33,11 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext = CreateDatabaseContext(isProxy);
         }
 
+        public int CommentCount(Guid modelId)
+        {
+            return AppContext.OBK_ContractCom.Count(x => x.ContractId == modelId);
+        }
+
         public OBKContractRepository(ncelsEntities context) : base(context) { }
 
         public IEnumerable<OBK_ProductInfo> GetSearchReestr(int regType, string regNumber, string tradeName, bool drugEndDateExpired)

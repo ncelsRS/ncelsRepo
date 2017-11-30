@@ -50,44 +50,87 @@ function InitObkContractCard(uiId) {
             }
         },
         meetsRequirements: function (e) {
-            var question = "Вы подтверждаете действие \"Соответствует требованиям\"?";
-            if (confirm(question)) {
-                var modelId = $("#modelId").val();
-                kendo.ui.progress($("#loader" + uiId), true);
-                $.ajax({
-                    type: 'POST',
-                    url: '/OBKContract/MeetsRequirements',
-                    data: JSON.stringify({ contractId: modelId }),
-                    contentType: 'application/json; charset=utf-8',
-                    success: function (result) {
-                        $(e.target).hide();
-                        $("#doesNotMeetRequirementsBtn" + uiId).hide();
-                    },
-                    complete: function () {
-                        kendo.ui.progress($("#loader" + uiId), false);
+            var modelIdF = $("#modelId").val();
+
+            $.ajax({
+                type: 'GET',
+                url: '/OBKContract/CommentCount',
+                data: { contractId: modelIdF },
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    if (result.countComment == 0) {
+                        var question = "Вы подтверждаете действие \"Соответствует требованиям\"?";
+                        if (confirm(question)) {
+                            var modelId = $("#modelId").val();
+                            kendo.ui.progress($("#loader" + uiId), true);
+                            $.ajax({
+                                type: 'POST',
+                                url: '/OBKContract/MeetsRequirements',
+                                data: JSON.stringify({ contractId: modelId }),
+                                contentType: 'application/json; charset=utf-8',
+                                success: function (result) {
+                                    $(e.target).hide();
+                                    $("#doesNotMeetRequirementsBtn" + uiId).hide();
+                                },
+                                complete: function () {
+                                    kendo.ui.progress($("#loader" + uiId), false);
+                                }
+                            });
+                        }
+
                     }
-                });
-            }
+                    else {
+                        alert("Невозможно согласовать договор  с замечаниями!");
+                    }
+
+                },
+                complete: function () {
+
+                }
+            });
+
+
         },
         doesNotMeetRequirements: function (e) {
-            var question = "Вы подтверждаете действие \"Несоответствует требованиям\"?";
-            if (confirm(question)) {
-                var modelId = $("#modelId").val();
-                kendo.ui.progress($("#loader" + uiId), true);
-                $.ajax({
-                    type: 'POST',
-                    url: '/OBKContract/DoesNotMeetRequirements',
-                    data: JSON.stringify({ contractId: modelId }),
-                    contentType: 'application/json; charset=utf-8',
-                    success: function (result) {
-                        $(e.target).hide();
-                        $("#meetsRequirementsBtn" + uiId).hide();
-                    },
-                    complete: function () {
-                        kendo.ui.progress($("#loader" + uiId), false);
+
+
+            var modelIdF = $("#modelId").val();
+
+            $.ajax({
+                type: 'GET',
+                url: '/OBKContract/CommentCount',
+                data: { contractId: modelIdF },
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    if (result.countComment == 0) {
+                        alert("Чтобы отказать в согласовании необходимо добавить замечание!");
                     }
-                });
-            }
+                    else {
+                        var question = "Вы подтверждаете действие \"Несоответствует требованиям\"?";
+                        if (confirm(question)) {
+                            var modelId = $("#modelId").val();
+                            kendo.ui.progress($("#loader" + uiId), true);
+                            $.ajax({
+                                type: 'POST',
+                                url: '/OBKContract/DoesNotMeetRequirements',
+                                data: JSON.stringify({ contractId: modelId }),
+                                contentType: 'application/json; charset=utf-8',
+                                success: function (result) {
+                                    $(e.target).hide();
+                                    $("#meetsRequirementsBtn" + uiId).hide();
+                                },
+                                complete: function () {
+                                    kendo.ui.progress($("#loader" + uiId), false);
+                                }
+                            });
+                        }
+                    }
+
+                },
+                complete: function () {
+
+                }
+            });
         },
         returnToApplicant: function (e) {
             var question = "Вы подтверждаете действие \"Вернуть на доработку\"?";
