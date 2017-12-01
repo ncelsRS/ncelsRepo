@@ -63,11 +63,11 @@ namespace PW.Ncels.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                list = portalEdo.getSearchResult(searchString).Select(x => new LetterModel { ID = x.ID, contractName = x.OBK_Contract.Number, nomerPisma = x.OBK_LetterRegistration.LetterRegName, CreatedDate = x.CreatedDate, LetterContent = x.LetterContent }).ToList();
+                list = portalEdo.getSearchResult(searchString).Select(x => new LetterModel {LetterStatusId=x.LetterStatusId, ID = x.ID, contractName = x.OBK_Contract.Number, nomerPisma = x.OBK_LetterRegistration.LetterRegName, CreatedDate = x.CreatedDate, LetterContent = x.LetterContent }).ToList();
             }
             else
             {
-                list = portalEdo.getLetters(sortOrder).Select(x => new LetterModel { ID = x.ID, contractName = x.OBK_Contract.Number, nomerPisma = x.OBK_LetterRegistration.LetterRegName, CreatedDate = x.CreatedDate, LetterContent = x.LetterContent }).ToList();
+                list = portalEdo.getLetters(sortOrder).Select(x => new LetterModel { LetterStatusId = x.LetterStatusId, ID = x.ID, contractName = x.OBK_Contract.Number, nomerPisma = x.OBK_LetterRegistration.LetterRegName, CreatedDate = x.CreatedDate, LetterContent = x.LetterContent }).ToList();
             }
 
             int pageSize = 10;
@@ -121,8 +121,13 @@ namespace PW.Ncels.Controllers
             {
                 var employee = db.Employees.FirstOrDefault(x => x.Login == User.Identity.Name);
                 model.AuthorID = employee.Id;
+                var Contracts =db.OBK_Contract.Where(x => x.EmployeeId == employee.Id).ToList();
                 if (employee != null)
-                    ViewData["Contract"] = new SelectList(db.OBK_Contract.Where(x=>x.EmployeeId==employee.Id).ToList(), "Id", "Number");
+                    ViewData["Contract"] = new SelectList(Contracts, "Id", "Number");
+                if (Contracts.Count != 0)
+                    ViewBag.AtLeastOne = true;
+                else
+                    ViewBag.AtLeastOne = false;
             }
             return View(model);
         }
@@ -181,12 +186,14 @@ namespace PW.Ncels.Controllers
                     OBK_LetterAttachments attach = db.OBK_LetterAttachments.Where(x => x.ID == id).FirstOrDefault();
                     attach.SignXmlBigData = xmlAuditForm;
                     db.SaveChanges();
-                    var countSigned = db.OBK_LetterAttachments.Count(x => x.SignXmlBigData == null || x.SignXmlBigData=="");
+                    var countSigned = db.OBK_LetterAttachments.Count((x => (x.SignXmlBigData == null || x.SignXmlBigData=="") && x.LetterId== attach.LetterId));
                     counter = countSigned;
                     if (counter == 0)
                     {
                         OBK_LetterPortalEdo partal = db.OBK_LetterPortalEdo.Where(x => x.ID == attach.LetterId).FirstOrDefault();
                         partal.LetterStatusId = 2;
+                        db.SaveChanges();
+                        //CallWebServiceWithEDO
                     }
                 }
                 catch (Exception e)
@@ -220,7 +227,7 @@ namespace PW.Ncels.Controllers
                     data.AuthorID = model.AuthorID;
                     data.LetterContent = model.LetterContent;
                     data.OBKLetterRegID = letterRegistartin.ID;
-                    data.LetterStatusId = 1;//Pismo prosto sohranen na base
+                    data.LetterStatusId = model.LetterStatusId;//Pismo prosto sohranen na base
                     db.OBK_LetterPortalEdo.Add(data);
                     db.SaveChanges();
 
@@ -240,20 +247,34 @@ namespace PW.Ncels.Controllers
                     }
                     model.ID = data.ID;
                     db.SaveChanges();
-                    var dataDocs = db.OBK_LetterAttachments.Where(x => x.LetterId == model.ID).Select(x => new AttachDoc
+                    if (model.LetterStatusId == 2)
                     {
-                        AttachmentName = x.AttachmentName,
-                        ID = x.ID,
-                        isSigned = string.IsNullOrEmpty(x.SignXmlBigData) ? false : true,
-                    }).ToList();
-                    model.listDoc = dataDocs;
+                        var dataDocs = db.OBK_LetterAttachments.Where(x => x.LetterId == model.ID).Select(x => new AttachDoc
+                        {
+                            AttachmentName = x.AttachmentName,
+                            ID = x.ID,
+                            isSigned = string.IsNullOrEmpty(x.SignXmlBigData) ? false : true,
+                        }).ToList();
+                        model.listDoc = dataDocs;
+                       
+                    }
                     db.SaveChanges();
-
 
                 }
 
             }
-            return View("SignViewStart",model);
+            if (model.LetterStatusId == 2)
+            {
+                if (model.listDoc.Count != 0)
+                    return View("SignViewStart", model);
+                else
+                {
+                    //WebSerice
+                    return RedirectToAction("Index");
+                }
+            }
+            else
+                return RedirectToAction("Index");
         }
 
 
@@ -273,6 +294,7 @@ namespace PW.Ncels.Controllers
                     model.RegName = dataFromDB.OBK_LetterRegistration.LetterRegName;
                     model.LetterRegDate = dataFromDB.OBK_LetterRegistration.LetterRegDate;
                     model.AuthorID = dataFromDB.AuthorID;
+                    model.LetterStatusId = dataFromDB.LetterStatusId;
                     ViewData["Contract"] = new SelectList(db.OBK_Contract.Where(x => x.EmployeeId == dataFromDB.AuthorID).ToList(), "Id", "Number", dataFromDB.ContractId);
                     var dataDocs = db.OBK_LetterAttachments.Where(x => x.LetterId == model.ID).Select(x => new AttachDoc
                     {

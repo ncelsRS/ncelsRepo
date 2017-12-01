@@ -38,6 +38,7 @@ function startSign(xmlData, docId, saveSignCallback) {
             });
         $("#loadKeys" + docId).bind("click",
             function () {
+                debugger;
                 fillKeySign(docId);
             });
     });
