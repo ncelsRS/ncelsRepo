@@ -43,10 +43,8 @@
                             <label>Договор:</label>
                             <div class="input-group">
                                 <input class="form-control" type="text" readonly="readonly" id="contract" value="@contract">
-                                <span class="input-group-addon k-button">
-                                    <a href="/OBKContract/GetContractTemplatePdf?id=@contractId">
-                                        <i class="glyphicon glyphicon-new-window"></i>
-                                    </a>
+                                <span class="input-group-addon k-button" onclick="showContractTemplate('@contractId')">
+                                    <i class="glyphicon glyphicon-new-window"></i>
                                 </span>
                             </div>
                         </div>
@@ -143,6 +141,30 @@
             }
         });
     });
+
+    function showContractTemplate(contractId) {
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "90%",
+            height: "auto",
+            modal: true, resizable: false,
+            close: onCloseCommandWindow,
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").dialogCallback = function () {
+            alert('dialogCallback');
+        };
+        //window.data("kendoWindow").gridSelectedIds = id;
+        window.data("kendoWindow").title('@contract');
+        //window.data("kendoWindow").setOptions({
+        //    width: 550,
+        //    height: 'auto'
+        //});
+        //window.data("kendoWindow").refresh('/OBKPayment/SetChiefAccountant');
+        window.data('kendoWindow').content('<object data="/OBKContract/GetContractTemplatePdf?id=@contractId&isStream=true" type="application/pdf" style="width:100%;height:550px"></object>');
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
 
     function setDateFormat(control) {
         $(control).datepicker({

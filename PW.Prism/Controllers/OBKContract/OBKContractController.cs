@@ -853,7 +853,7 @@ namespace PW.Prism.Controllers.OBKContract
             return HttpNotFound();
         }
 
-        public ActionResult GetContractTemplatePdf(Guid id)
+        public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
             var db = new ncelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
@@ -905,8 +905,10 @@ namespace PW.Prism.Controllers.OBKContract
             doc.Save(file, Aspose.Words.SaveFormat.Pdf);
             file.Position = 0;
 
-            //return new FileStreamResult(stream, "application/pdf");
-            return File(file, "application/pdf", name);
+            if (isStream != null && isStream.Value)
+                return new FileStreamResult(file, "application/pdf");
+            else
+                return File(file, "application/pdf", name);
         }
 
         [HttpGet]
