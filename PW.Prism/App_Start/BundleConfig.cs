@@ -10,6 +10,7 @@ namespace PW.Prism
         {
             BundleTable.EnableOptimizations = false;
 
+
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/kendo/2014.2.716/jquery.min.js",
                         "~/Scripts/jquery.signalR-0.5.2.min.js"
