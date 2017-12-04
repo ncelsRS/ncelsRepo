@@ -82,9 +82,9 @@ namespace PW.Ncels.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetCalculation(string serviceTypeId, bool isImport, int count)
+        public ActionResult GetCalculation(string serviceTypeId, string serviceTypeModifId, bool isImport, int count)
         {
-            var result = emp.GetPriceList(Guid.Parse(serviceTypeId), isImport, count);
+            var result = emp.GetPriceList(Guid.Parse(serviceTypeId), Guid.Parse(serviceTypeModifId), isImport, count);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -92,7 +92,7 @@ namespace PW.Ncels.Controllers
         public ActionResult GetClearCostWork(Guid contractId)
         {
             emp.GetClearCostWork(contractId);
-            return Json(new {IsSuccess = true, JsonRequestBehavior.AllowGet});
+            return Json(new {IsSuccess = true}, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult FindDeclarant(string bin)

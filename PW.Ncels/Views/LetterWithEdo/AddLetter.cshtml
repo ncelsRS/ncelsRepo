@@ -7,14 +7,26 @@
     $(document).ready(function () {
         $('#datetimepicker1').datetimepicker({ format: 'DD.MM.YYYY', locale: 'ru' });
     });
+
+    function setJustSave()
+    {
+        document.getElementById("statusId").value = 1;
+    }
+    function saveAndSend()
+    {
+        document.getElementById("statusId").value = 2;
+    }
 </script>
 @*using System.Data.Entity.Core.Objects.DataClasses;*@
-@using (Html.BeginForm("AddLetter", "LetterWithEdo", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@if (ViewBag.AtLeastOne==true)
+{
+using (Html.BeginForm("AddLetter", "LetterWithEdo", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.AuthorID)
+        @Html.HiddenFor(model => model.LetterStatusId, new { id = "statusId" })
         <div class="form-group">
             <label class="col-md-2 control-label">Номер договора</label>
             <div class="col-md-10 selectContainer">
@@ -66,11 +78,20 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-4">
-                <button type="submit" class="btn btn-primary" style="width:100%;">Сохранить</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;" onclick="setJustSave()">Сохранить</button>
             </div>
             <div class="col-md-4">
-                <button type="submit" class="btn btn-primary" style="width:100%;" id="signAndSend">Подписать</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;" id="signAndSend" onclick="saveAndSend()">Подписать ЭЦП и отправить в ЦОЗ</button>
             </div>
+        </div>
+    </div>
+}
+}
+else
+{
+    <div class="form-group" style="height:40px;">
+        <div class="col-md-12">
+            <h3  style="width:100%; text-align:center;">У Вас нет действующих договоров</h3>
         </div>
     </div>
 }

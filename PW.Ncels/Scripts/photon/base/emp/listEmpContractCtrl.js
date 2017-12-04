@@ -106,6 +106,39 @@
         });
     }
 
+    $scope.Types = [
+        {
+            Id: "1",
+            Name: "Регистрация"
+        },
+        {
+            Id: "2",
+            Name: "Перерегистрация"
+        },
+        {
+            Id: "3",
+            Name: "Внесение изменений"
+        }
+    ];
+
+    $scope.IsBossDocTypes = [
+        {
+            Id: true,
+            Name: "Да"
+        }, {
+            Id: false,
+            Name: "Нет"
+        }];
+
+    $scope.BossDocTypes = [
+        {
+            Id: '1',
+            Name: "Представительство"
+        }, {
+            Id: '2',
+            Name: "Доверенное лицо"
+        }];
+
     //choose Payer
     $scope.ChoosePayers = [{
         Id: 'Manufactur',
@@ -127,12 +160,12 @@
             case 'Manufactur':
                 $scope.object['Payer'] = angular.copy($scope.object['Manufactur']);
                 $scope.showContactInformationPayer = true;
-                $scope.object['Payer'].IsResident = null; //todo временно для тестирования
+                //$scope.object['Payer'].IsResident = null; //todo временно для тестирования
                 break;
             case 'Declarant':
                 $scope.object['Payer'] = angular.copy($scope.object['Declarant']);
                 $scope.showContactInformationPayer = true;
-                $scope.object['Payer'].IsResident = null; //todo временно для тестирования
+                //$scope.object['Payer'].IsResident = null; //todo временно для тестирования
                 break;
             case 'Payer':
                 $scope.showContactInformationPayer = true;
@@ -145,7 +178,7 @@
     $scope.isManufacturer = function () {
         if ($scope.IsManufactur) {
             $scope.object['Declarant'] = angular.copy($scope.object['Manufactur']);
-            $scope.object['Declarant'].IsResident = null; //todo временно для тестирования
+            //$scope.object['Declarant'].IsResident = null; //todo временно для тестирования
         }
         if (!$scope.IsManufactur) {
             $scope.clearForm('Declarant');
@@ -232,7 +265,7 @@
         $scope.object[obj].NameRu = null;
         $scope.object[obj].NameEn = null;
         $scope.object[obj].CountryId = null;
-
+        
         $scope.object[obj].Contact.AddressLegalRu = null;
         $scope.object[obj].Contact.AddressLegalKz = null;
         $scope.object[obj].Contact.AddressFact = null;
@@ -540,19 +573,36 @@
             method: "GET",
             url: "/EMPContract/GetCalculation",
             params: {
-                serviceTypeId: serviceType,
+                serviceTypeId: $scope.Calulator.ServiceTypeName,
+                serviceTypeModifId: $scope.Calulator.ServiceTypeNameModif,
                 isImport: $scope.Calulator.IsImport,
                 count: $scope.Calulator.Count
             }
         }).success(function(response) {
             debugger;
             if (response) {
-                $scope.object.ServicePrices.push(response);
+                debugger;
+                $scope.clearCalc();
+                $scope.object.ServicePrices.length = 0;
+                $scope.object.ServicePrices.push.apply($scope.object.ServicePrices, response);
             } else {
                 alert("Данных не найдено");
             }
         });
     };
+
+    $scope.clearCalc = function() {
+        if ($scope.object.Id != null && $scope.object.Id != "00000000-0000-0000-0000-000000000000") {
+            $http({
+                method: "GET",
+                url: "/EMPContract/GetClearCostWork",
+                params: {
+                    contractId: $scope.object.Id
+                }
+            }).success(function (response) {
+            });
+        }
+    }
 
     $scope.clearCalculation = function () {
         debugger;

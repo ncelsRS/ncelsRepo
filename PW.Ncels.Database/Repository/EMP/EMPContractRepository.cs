@@ -484,25 +484,67 @@ namespace PW.Ncels.Database.Repository.EMP
             return priceTypes;
         }
 
-        public ServicePrice GetPriceList(Guid serviceTypeId, bool isImport, int count)
+        public List<ServicePrice> GetPriceList(Guid serviceTypeId, Guid serviceTypeModifId, bool isImport, int count)
         {
             var result =
                 AppContext.EMP_Ref_PriceList.FirstOrDefault(
                     e => e.ServiceTypeId == serviceTypeId && e.Import == isImport);
 
-            if (result != null)
+            if (serviceTypeModifId == Guid.Parse("00000000-0000-0000-0000-000000000000"))
             {
-                var totalCount = TaxHelper.GetCalculationTax((decimal)result.Price) * count;
-                var returnResult = new ServicePrice
+                if (result != null)
                 {
-                    Id = Guid.NewGuid(),
-                    Price = (decimal)result.Price,
-                    Count = count,
-                    TotalPrice = totalCount,
-                    ServiceTypeNameRu = result.EMP_Ref_ServiceType.NameRu,
-                    PriceListId = result.Id
-                };
-                return returnResult;
+                    List<ServicePrice> servicePrices = new List<ServicePrice>();
+                    var totalCount = TaxHelper.GetCalculationTax((decimal) result.Price) * 1;
+                    var returnResult = new ServicePrice
+                    {
+                        Id = Guid.NewGuid(),
+                        Price = (decimal) result.Price,
+                        Count = 1,
+                        TotalPrice = totalCount,
+                        ServiceTypeNameRu = result.EMP_Ref_ServiceType.NameRu,
+                        PriceListId = result.Id
+                    };
+                    servicePrices.Add(returnResult);
+                    return servicePrices;
+                }
+            }
+            else
+            {
+                if (result != null)
+                {
+                    List<ServicePrice> servicePrices = new List<ServicePrice>();
+                    var totalCount = TaxHelper.GetCalculationTax((decimal) result.Price) * 1;
+                    var returnResult = new ServicePrice
+                    {
+                        Id = Guid.NewGuid(),
+                        Price = (decimal) result.Price,
+                        Count = 1,
+                        TotalPrice = totalCount,
+                        ServiceTypeNameRu = result.EMP_Ref_ServiceType.NameRu,
+                        PriceListId = result.Id
+                    };
+                    servicePrices.Add(returnResult);
+
+                    var resultModif =
+                        AppContext.EMP_Ref_PriceList.FirstOrDefault(
+                            e => e.ServiceTypeId == serviceTypeModifId && e.Import == isImport);
+                    if (resultModif != null)
+                    {
+                        var totalCountModif = TaxHelper.GetCalculationTax((decimal) resultModif.Price) * count;
+                        var returnResultModif = new ServicePrice
+                        {
+                            Id = Guid.NewGuid(),
+                            Price = (decimal) resultModif.Price,
+                            Count = count,
+                            TotalPrice = totalCountModif,
+                            ServiceTypeNameRu = resultModif.EMP_Ref_ServiceType.NameRu,
+                            PriceListId = resultModif.Id
+                        };
+                        servicePrices.Add(returnResultModif);
+                    }
+                    return servicePrices;
+                }
             }
             return null;
         }

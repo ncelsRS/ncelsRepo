@@ -228,7 +228,7 @@ namespace PW.Ncels.Database.Repository.OBK
         #region MyRegion
 
         private string KZ = "KZ";
-        private string ZZ = "ZZ";
+        private string ZZ = "01";
 
         /// <summary>
         /// Генерация уникальных номеров для сертификатов ОБК 
@@ -273,7 +273,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var lastNumber = AppContext.OBK_UniqueNumber.Max(e => e.Number);
             string number = null;
-            string newNumber = null;
+            string result = null;
             string template = "00000000";
             if (lastNumber == null)
             {
@@ -281,8 +281,8 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             else
             {
-                var result = (Convert.ToInt32(lastNumber)+1).ToString();
-                newNumber = template.Substring(0, template.Length - result.Length) + result;
+                result = (Convert.ToInt32(lastNumber)+1).ToString();
+                var newNumber = template.Substring(0, template.Length - result.Length) + result;
                 number = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + newNumber;
             }
             OBK_UniqueNumber uniqueNumber = new OBK_UniqueNumber
@@ -290,7 +290,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 Id = Guid.NewGuid(),
                 DeclarantId = id,
                 Code = KZ + "." + regionCode + "." + typeCode + "." + ZZ + ".",
-                Number = newNumber ?? "00000001"
+                Number = result ?? "1"
             };
             AppContext.OBK_UniqueNumber.Add(uniqueNumber);
             AppContext.SaveChanges();
