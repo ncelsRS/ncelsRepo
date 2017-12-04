@@ -299,6 +299,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             OBKContractViewModel contractViewModel = new OBKContractViewModel();
             contractViewModel.Id = OBKContract.Id;
+            contractViewModel.ParentId = OBKContract.ParentId;
             contractViewModel.Type = OBKContract.Type;
             contractViewModel.ExpertOrganization = OBKContract.ExpertOrganization;
             contractViewModel.Signer = OBKContract.Signer;

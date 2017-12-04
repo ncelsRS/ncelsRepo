@@ -77,7 +77,23 @@ namespace PW.Prism.Controllers.OBKContract
             var prices = obkRepo.GetContractPrices(id.Value);
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
-            obkContract.ObkRsProductCount = productInfo.Count;
+            if (obkContract.ParentId == null)
+                obkContract.ObkRsProductCount = productInfo.Count;
+            else
+            {
+                var parentContracts = db.OBK_Contract.Where(x => x.Id == obkContract.ParentId).Select(x => new
+                {
+                    Id = x.Id,
+                    Number = x.Number
+                });
+                ViewBag.ParentContracts = new SelectList(parentContracts, "Id", "Number", obkContract.ParentId);
+                var contractAdditionTypes = db.Dictionaries.Where(x => x.Id == obkContract.ContractAdditionType).Select(x => new
+                {
+                    id = x.Id,
+                    Name = x.Name
+                });
+                ViewBag.ContractAdditionTypes = new SelectList(contractAdditionTypes, "Id", "Name", obkContract.ContractAdditionType);
+            }
             ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
