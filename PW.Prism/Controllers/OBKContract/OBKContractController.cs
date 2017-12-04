@@ -34,6 +34,8 @@ namespace PW.Prism.Controllers.OBKContract
         // GET: OBKContract
         public ActionResult Index()
         {
+            var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
+            ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name");
             return PartialView(Guid.NewGuid());
         }
 

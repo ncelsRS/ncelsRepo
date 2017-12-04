@@ -36,31 +36,17 @@ namespace PW.Ncels.Database.Repository.OBK
         public int CommentCount(Guid modelId)
         {
             var emp = UserHelper.GetCurrentEmployee();
-            var data = AppContext.OBK_ContractStage.Where(x => x.ContractId == modelId).FirstOrDefault();
-            if (data != null)
-            {
-                var Executor = AppContext.OBK_ContractStageExecutors.Where(x => x.ContractStageId == data.Id && x.ExecutorId == emp.Id).FirstOrDefault();
-                if (Executor != null)
-                {
-                    var recordID= AppContext.OBK_ContractCom.Where(x=>x.ContractId==modelId).FirstOrDefault();
-                    if (recordID != null)
+            var balance = (from a in AppContext.OBK_ContractCom
+                           join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                           where a.ContractId == modelId && c.UserId==emp.Id select c).Count();    
+                    if (balance != 0)
                     {
-                        return AppContext.OBK_ContractComRecord.Where(x => x.CommentId == recordID.Id && x.UserId == emp.Id).FirstOrDefault() != null ? 1 : 0;
+                        return 1;
                     }
                     else
                     {
                         return 0;
                     }
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            else
-            {
-                return 0;
-            }
         }
 
         public OBKContractRepository(ncelsEntities context) : base(context) { }
@@ -247,14 +233,74 @@ namespace PW.Ncels.Database.Repository.OBK
                 {
                     v =
                         v.Where(
-                            a => a.Number.Contains(request.SearchValue));
+                            a => a.Number.Contains(request.SearchValue) || a.OBK_Declarant.NameRu.Contains(request.SearchValue));
                 }
 
 
                 //sort
                 if (!(string.IsNullOrEmpty(request.SortColumn) && string.IsNullOrEmpty(request.SortColumnDir)))
                 {
-                    v = v.OrderByDescending(x => x.CreatedDate);
+
+
+                    if (request.SortColumn.Equals("Number") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Number);
+                    }
+                    else if (request.SortColumn.Equals("Number") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Number);
+                    }
+                    else if (request.SortColumn.Equals("CreatedDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.CreatedDate);
+                    }
+                    else if (request.SortColumn.Equals("CreatedDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.CreatedDate);
+                    }
+                    else if (request.SortColumn.Equals("Status") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Status);
+                    }
+                    else if (request.SortColumn.Equals("Status") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Status);
+                    }
+                    else if (request.SortColumn.Equals("DeclarantName") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.OBK_Declarant.NameRu);
+                    }
+                    else if (request.SortColumn.Equals("DeclarantName") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.OBK_Declarant.NameRu);
+                    }
+                    else if (request.SortColumn.Equals("Type") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Type);
+                    }
+                    else if (request.SortColumn.Equals("Type") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Type);
+                    }
+                    else if (request.SortColumn.Equals("StartDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.StartDate);
+                    }
+                    else if (request.SortColumn.Equals("StartDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.StartDate);
+                    }
+                    else if (request.SortColumn.Equals("EndDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.EndDate);
+                    }
+                    else if (request.SortColumn.Equals("EndDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.EndDate);
+                    }
+
+
+
                 }
 
                 int recordsTotal = await v.CountAsync();
