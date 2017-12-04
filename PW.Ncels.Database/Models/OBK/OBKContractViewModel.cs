@@ -9,6 +9,7 @@ namespace PW.Ncels.Database.Models.OBK
     public class OBKContractViewModel
     {
         public Guid Id { get; set; }
+        public Guid? ParentId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

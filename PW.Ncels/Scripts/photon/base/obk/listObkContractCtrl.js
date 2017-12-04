@@ -1078,7 +1078,7 @@
             $scope.declarant.CountryId = null;
 
             $scope.object.AddressLegalRu = null;
-            $scope.object.AddressLegalKz = null
+            $scope.object.AddressLegalKz = null;
             $scope.object.AddressFact = null;
             $scope.object.Phone = null;
             $scope.object.Email = null;
@@ -1115,7 +1115,7 @@
 
     $scope.clearContactForm = function () {
         $scope.object.AddressLegalRu = null;
-        $scope.object.AddressLegalKz = null
+        $scope.object.AddressLegalKz = null;
         $scope.object.AddressFact = null;
         $scope.object.Phone = null;
         $scope.object.Email = null;

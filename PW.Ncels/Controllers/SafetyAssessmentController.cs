@@ -347,8 +347,8 @@ namespace PW.Ncels.Controllers
                         model.OrganizationFormId = declarant.OrganizationFormId);
                 }
 
-                model.StartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
-                model.EndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
+                model.ContractStartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
+                model.ContractEndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
                 model.NameKz = declarant?.NameKz ?? "нет данных";
                 model.NameRu = declarant?.NameRu ?? "нет данных";
                 model.NameEn = declarant?.NameEn ?? "нет данных";
@@ -457,8 +457,8 @@ namespace PW.Ncels.Controllers
 
             var result = new OBK_AssessmentDeclaration();
 
-            result.StartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
-            result.EndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
+            result.ContractStartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
+            result.ContractEndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
             result.OrganizationFormId = declarant?.OrganizationFormId ?? null;
             result.NameKz = declarant?.NameKz ?? "нет данных";
             result.NameRu = declarant?.NameRu ?? "нет данных";
