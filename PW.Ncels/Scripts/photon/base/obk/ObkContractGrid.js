@@ -20,7 +20,6 @@ function dateformatHtml(data, type, full, meta) {
 }
 
 function obkContractGrid($scope, $http, DTColumnBuilder) {
-
     function renderNumFunc(data, type, full, meta) {
         return actionsObkContractListHtmlAction(data, type, full, meta, $scope);
     };

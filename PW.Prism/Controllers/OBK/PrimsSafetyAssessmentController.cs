@@ -147,8 +147,8 @@ namespace PW.Prism.Controllers.OBK
                     ViewData["CertificateType"] = new SelectList(certType, "Id", "NameRu", model.CertificateTypeId);
                 }
 
-                model.StartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
-                model.EndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
+                model.ContractStartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
+                model.ContractEndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
                 model.NameKz = declarant?.NameKz ?? "нет данных";
                 model.NameRu = declarant?.NameRu ?? "нет данных";
                 model.NameEn = declarant?.NameEn ?? "нет данных";

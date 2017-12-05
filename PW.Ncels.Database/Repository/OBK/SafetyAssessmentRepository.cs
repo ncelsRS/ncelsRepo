@@ -982,6 +982,16 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.ProductSeriesId == prodSerId);
         }
 
+        public OBK_StageExpDocument GetStageExpDocument(Guid assessmentDeclaraiontId)
+        {
+            return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.AssessmentDeclarationId == assessmentDeclaraiontId && !e.ExpResult);
+        }
+
+        public OBK_StageExpDocumentResult GetStageExpDocumentResult(Guid assessmentDeclarationId)
+        {
+            return AppContext.OBK_StageExpDocumentResult.FirstOrDefault(e => e.AssessmetDeclarationId == assessmentDeclarationId);
+        }
+
         public OBK_StageExpDocument GetStageExpDocumentByAssessmentDeclarationId(Guid id)
         {
             return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.AssessmentDeclarationId == id);

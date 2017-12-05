@@ -1,16 +1,22 @@
 ﻿@model PW.Ncels.Database.DataModel.OBK_Contract
-    
+
 
 @{
-    var invoice1c = Model.OBK_DirectionToPayments.FirstOrDefault(e=>e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceNumber1C;
+    var invoice1c = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceNumber1C;
     var invoice1cDate = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceDatetime1C;
     var contract = Model.Number + (Model.StartDate != null ? " от " + Model.StartDate : "") + " " + Model.OBK_Ref_Type.NameRu;
+    var contractId = Model.Id;
     var provider = "БИН/ИИН " + Model.Unit.Bin + " " + Model.Unit.DisplayName + " " + Model.Unit.LegalAddress;
     var buyer = "БИН/ИИН " + Model.OBK_Declarant.Bin + " " + Model.OBK_Declarant.NameRu + " " + Model.OBK_DeclarantContact.AddressLegalRu;
 }
 <style>
-    .input-group { width: 100% !important }
-    #invoice1c #provider #contract #invoice1cDate #buyer { width: 100% !important }
+    .input-group {
+        width: 100% !important
+    }
+
+    #invoice1c #provider #contract #invoice1cDate #buyer {
+        width: 100% !important
+    }
 </style>
 
 
@@ -30,13 +36,16 @@
                         <div class="form-group">
                             <label>Поставщик:</label>
                             <div class="input-group">
-                                <textarea class="form-control" readonly="readonly"  rows="3" id="provider">@provider</textarea>
+                                <textarea class="form-control" readonly="readonly" rows="3" id="provider">@provider</textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Договор:</label>
                             <div class="input-group">
                                 <input class="form-control" type="text" readonly="readonly" id="contract" value="@contract">
+                                <span class="input-group-addon k-button" onclick="showContractTemplate('@contractId')">
+                                    <i class="glyphicon glyphicon-new-window"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -132,6 +141,30 @@
             }
         });
     });
+
+    function showContractTemplate(contractId) {
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "90%",
+            height: "auto",
+            modal: true, resizable: false,
+            close: onCloseCommandWindow,
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").dialogCallback = function () {
+            alert('dialogCallback');
+        };
+        //window.data("kendoWindow").gridSelectedIds = id;
+        window.data("kendoWindow").title('@contract');
+        //window.data("kendoWindow").setOptions({
+        //    width: 550,
+        //    height: 'auto'
+        //});
+        //window.data("kendoWindow").refresh('/OBKPayment/SetChiefAccountant');
+        window.data('kendoWindow').content('<object data="/OBKContract/GetContractTemplatePdf?id=@contractId&isStream=true" type="application/pdf" style="width:100%;height:550px"></object>');
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
 
     function setDateFormat(control) {
         $(control).datepicker({

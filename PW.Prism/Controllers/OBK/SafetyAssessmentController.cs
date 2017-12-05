@@ -102,18 +102,19 @@ namespace PW.Prism.Controllers.OBK
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
-            var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
-            var assessmentDeclarationHistory = assessmentDeclaration.OBK_AssessmentDeclarationHistory.Where(dh => dh.XmlSign != null)
-                .OrderByDescending(dh => dh.DateCreate).FirstOrDefault();
-            if (assessmentDeclarationHistory != null)
-            {
-                Aspose.Words.Document doc = new Aspose.Words.Document(stream);
-                doc.InserQrCodesToEnd("ExecutorSign", assessmentDeclarationHistory.XmlSign);
-                var pdfFile = new MemoryStream();
-                pdfFile.Position = 0;
-                stream.Close();
-                return new FileStreamResult(pdfFile, "application/pdf");
-            }
+            //var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
+            //var assessmentDeclarationHistory = assessmentDeclaration.OBK_AssessmentDeclarationHistory.Where(dh => dh.XmlSign != null)
+            //    .OrderByDescending(dh => dh.DateCreate).FirstOrDefault();
+            //if (assessmentDeclarationHistory != null)
+            //{
+            //    report.ExportDocument(StiExportFormat.Word2007, stream);
+            //    Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+            //    doc.InserQrCodesToEnd("ExecutorSign", assessmentDeclarationHistory.XmlSign);
+            //    var pdfFile = new MemoryStream();
+            //    pdfFile.Position = 0;
+            //    stream.Close();
+            //    return File(pdfFile, "application/pdf");
+            //}
             return File(stream, "application/pdf", name);
         }
 

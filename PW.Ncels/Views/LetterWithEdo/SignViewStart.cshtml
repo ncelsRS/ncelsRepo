@@ -1,0 +1,93 @@
+﻿@model PW.Ncels.Models.LetterModel
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "../Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/SignView.cshtml")
+<script type="text/javascript">
+    $(document).ready(function () {
+
+    });
+    var currentid;
+    function signStarts(idDoc)
+    {
+        currentid = idDoc;
+            startSign('/LetterWithEdo/SignOperation', idDoc);
+    }
+
+
+    function doSign() {
+        $.blockUI({
+            message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
+            css: { opacity: 1 }
+        });
+        signXmlCall(function () {
+            var model = { id: currentid, xmlAuditForm: $("#Certificate").val() };
+            $.ajax({
+                url: '/LetterWithEdo/SignForm',
+                type: "POST",
+                dataType: 'json',
+                contentType: "application/json",
+                async: false,
+                data: JSON.stringify(model),
+                success: function (data) {
+                    if (data.success && data.counter!=0) {
+                        window.location.href = '@Url.Action("SignViewStart", "LetterWithEdo",Model)';
+                    }
+                    else if(data.success && data.counter==0)
+                    {
+                        alert("Спасибо! Ваше сообщение успешно отправлено.");
+                        window.location.href = '@Url.Action("Index", "LetterWithEdo")';
+                    }
+                    else {
+                        $("#formCertValidation").show();
+                    }
+                    $.unblockUI();
+                },
+                error: function (data) {
+                    $.unblockUI();
+                }
+            });
+        },
+            $("#hfXmlToSign").val());
+    }
+</script>
+    <div class="container" style="height:300px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-lg-4">Файл</th>
+                    <th class="col-lg-4">Подписан</th>
+                    <th class="col-lg-4">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+@foreach (var data in Model.listDoc)
+{
+                <tr>
+                    <td class="col-lg-4">@data.AttachmentName</td>
+                    @if (data.isSigned)
+                    {
+                    <td class="col-lg-4">Да</td>
+                    <td class="col-lg-4">-</td>
+                    }
+                    else
+                    {
+                    <td class="col-lg-4">Нет</td>
+                    <td class="col-lg-4"><button type="button" class="btn btn-primary" onclick="signStarts(@data.ID)">Подписать</button></td>
+                    }
+                </tr>
+}
+            </tbody>
+        </table>
+    </div>
+
+@section Scripts {
+    <script src="~/Scripts/js/custom/common.js"></script>
+    <script src="~/Scripts/js/custom/spin.js"></script>
+    <script src="~/Scripts/photon/crypto/obk/obk_eds.js"></script>
+}
+
+
+
+

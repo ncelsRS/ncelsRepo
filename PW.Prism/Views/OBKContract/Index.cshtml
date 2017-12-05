@@ -85,6 +85,9 @@
 panes.Add().Scrollable(false).Size("100%").Content(
     @<div class="pwPanelBar">
         <div class="pwBlockAdd k-block">
+            <div style="float: left">
+                <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchView('@Model')">Расширенный поиск</button>
+            </div>
             <div style="float: left" id="@("lblStateBlock" + Model)">
                     @*@(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))*@
                     @Html.Label("Статус", new { @class = "pwWidth100", style = "line-height: 30px; margin-right: 5px; font-weight: normal;" })
@@ -152,10 +155,10 @@ panes.Add().Scrollable(false).Size("100%").Content(
                       .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
                       .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
             </div>
-            <div>
+            @*<div>
                 @(Html.Kendo().Button().Name("toPay" + Model).HtmlAttributes(new { @class = "pwWidth100" })
                       .Content("На оплату"))
-            </div>
+            </div>*@
         </div>
         <div id="pwSix">
             @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
@@ -246,7 +249,69 @@ panes.Add().Scrollable(false).Size("100%").Content(
     </div>
              );
             }))
+<div class="modal" id="modalSearch">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="modal-dialog">
 
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Расширенный поиск</h4>
+                        </div>
+                        <div class="modal-body" id="bodyMessage">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <ul>
+                                            <li>
+                                                <h4>Дата отправки с</h4>@(Html.Kendo().DatePicker()
+          .Name("SentDateStart")
+          .Events(e =>
+          {
+
+          })
+         .HtmlAttributes(new { style = "width: 100%" })
+                                                )
+                                            </li>
+                                            <li>
+                                                <h4>по</h4> @(Html.Kendo().DatePicker()
+          .Name("SentDateEnd")
+          .Events(e =>
+          {
+
+          })
+         .HtmlAttributes(new { style = "width: 100%" })
+                                                )
+                                            </li>
+                                            <li>
+                                                <h4>
+                                                    Тип договора
+                                                </h4>
+                                                @Html.DropDownList("TypeContract", (SelectList)ViewBag.ContractTypes, new { style = "width:100%; height:30px;" })
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-offset-4 col-md-4">
+                                    <button type="button" class="btn btn-primary" style="width:100%;" onclick="searchFilter('@Model')">Найти</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {

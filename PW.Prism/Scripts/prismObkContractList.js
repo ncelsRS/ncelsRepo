@@ -50,44 +50,87 @@ function InitObkContractCard(uiId) {
             }
         },
         meetsRequirements: function (e) {
-            var question = "Вы подтверждаете действие \"Соответствует требованиям\"?";
-            if (confirm(question)) {
-                var modelId = $("#modelId").val();
-                kendo.ui.progress($("#loader" + uiId), true);
-                $.ajax({
-                    type: 'POST',
-                    url: '/OBKContract/MeetsRequirements',
-                    data: JSON.stringify({ contractId: modelId }),
-                    contentType: 'application/json; charset=utf-8',
-                    success: function (result) {
-                        $(e.target).hide();
-                        $("#doesNotMeetRequirementsBtn" + uiId).hide();
-                    },
-                    complete: function () {
-                        kendo.ui.progress($("#loader" + uiId), false);
+            var modelIdF = $("#modelId").val();
+
+            $.ajax({
+                type: 'GET',
+                url: '/OBKContract/CommentCount',
+                data: { contractId: modelIdF },
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    if (result.countComment == 0) {
+                        var question = "Вы подтверждаете действие \"Соответствует требованиям\"?";
+                        if (confirm(question)) {
+                            var modelId = $("#modelId").val();
+                            kendo.ui.progress($("#loader" + uiId), true);
+                            $.ajax({
+                                type: 'POST',
+                                url: '/OBKContract/MeetsRequirements',
+                                data: JSON.stringify({ contractId: modelId }),
+                                contentType: 'application/json; charset=utf-8',
+                                success: function (result) {
+                                    $(e.target).hide();
+                                    $("#doesNotMeetRequirementsBtn" + uiId).hide();
+                                },
+                                complete: function () {
+                                    kendo.ui.progress($("#loader" + uiId), false);
+                                }
+                            });
+                        }
+
                     }
-                });
-            }
+                    else {
+                        alert("Невозможно согласовать договор  с замечаниями!");
+                    }
+
+                },
+                complete: function () {
+
+                }
+            });
+
+
         },
         doesNotMeetRequirements: function (e) {
-            var question = "Вы подтверждаете действие \"Несоответствует требованиям\"?";
-            if (confirm(question)) {
-                var modelId = $("#modelId").val();
-                kendo.ui.progress($("#loader" + uiId), true);
-                $.ajax({
-                    type: 'POST',
-                    url: '/OBKContract/DoesNotMeetRequirements',
-                    data: JSON.stringify({ contractId: modelId }),
-                    contentType: 'application/json; charset=utf-8',
-                    success: function (result) {
-                        $(e.target).hide();
-                        $("#meetsRequirementsBtn" + uiId).hide();
-                    },
-                    complete: function () {
-                        kendo.ui.progress($("#loader" + uiId), false);
+
+
+            var modelIdF = $("#modelId").val();
+
+            $.ajax({
+                type: 'GET',
+                url: '/OBKContract/CommentCount',
+                data: { contractId: modelIdF },
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    if (result.countComment == 0) {
+                        alert("Чтобы отказать в согласовании необходимо добавить замечание!");
                     }
-                });
-            }
+                    else {
+                        var question = "Вы подтверждаете действие \"Несоответствует требованиям\"?";
+                        if (confirm(question)) {
+                            var modelId = $("#modelId").val();
+                            kendo.ui.progress($("#loader" + uiId), true);
+                            $.ajax({
+                                type: 'POST',
+                                url: '/OBKContract/DoesNotMeetRequirements',
+                                data: JSON.stringify({ contractId: modelId }),
+                                contentType: 'application/json; charset=utf-8',
+                                success: function (result) {
+                                    $(e.target).hide();
+                                    $("#meetsRequirementsBtn" + uiId).hide();
+                                },
+                                complete: function () {
+                                    kendo.ui.progress($("#loader" + uiId), false);
+                                }
+                            });
+                        }
+                    }
+
+                },
+                complete: function () {
+
+                }
+            });
         },
         returnToApplicant: function (e) {
             var question = "Вы подтверждаете действие \"Вернуть на доработку\"?";
@@ -337,25 +380,30 @@ function InitObkContractCard(uiId) {
 
 function initFilterOBKContract(uiId) {
 
-    $("#toPay" + uiId).click(function () {
-        debugger;
-        var grid = $('#gridContractAll' + uiId).data("kendoGrid");
-        var selectedItem = grid.dataItem(grid.select());
-        $.ajax({
-            type: 'POST',
-            url: '/OBKContract/SendToPay',
-            data: JSON.stringify({ contractId: selectedItem.ContractId }),
-            contentType: 'application/json; charset=utf-8',
-            success: function (result) {
-            },
-            complete: function () {
+    //$("#toPay" + uiId).click(function () {
+    //    debugger;
+    //    var grid = $('#gridContractAll' + uiId).data("kendoGrid");
+    //    var selectedItem = grid.dataItem(grid.select());
+    //    $.ajax({
+    //        type: 'POST',
+    //        url: '/OBKContract/SendToPay',
+    //        data: JSON.stringify({ contractId: selectedItem.ContractId }),
+    //        contentType: 'application/json; charset=utf-8',
+    //        success: function (result) {
+    //        },
+    //        complete: function () {
 
-            }
-        });
+    //        }
+    //    });
+    //});
+
+    $("#reload" + uiId).click(function () {
+        //debugger;
+        var grid = $("#gridContractAll" + uiId).data("kendoGrid");
+        grid.dataSource.read();
     });
 
-
-    $('#toWork' + uiId).click(function () {
+   $('#toWork' + uiId).click(function () {
         var grid = $('#gridContractAll' + uiId).data("kendoGrid");
         var selectedItem = grid.dataItem(grid.select());
         if (selectedItem) {
@@ -491,6 +539,40 @@ function setFindAreaVisibility(uiId) {
             $("#findTypeActiveContract" + uiId).data("kendoDropDownList").select(0);
         }
     }
+}
+
+function callSearchView(e)
+{
+    var dates = new Date();
+    $('#SentDateStart').val(convertDate(dates));
+    $('#SentDateEnd').val(convertDate(dates));
+    $('#modalSearch').modal('show');  
+}
+
+function convertDate(date) {
+    var day = date.getDate();
+    day = day < 10 ? "0" + day : day;
+    var month = date.getMonth() + 1;
+    month = month < 10 ? "0" + month : month;
+    var year = date.getFullYear();
+    return day + "." + month + "." + year;
+}
+
+function searchFilter(e)
+{
+    var startDate = $('#SentDateStart').val();
+    var endDate = $('#SentDateEnd').val();
+    var type=$("#TypeContract option:selected").text();
+    var startDateReal = new Date(startDate.split(".")[2] + '-' + startDate.split(".")[1]+'-'+startDate.split(".")[0]);
+    var endDateReal = new Date(endDate.split(".")[2] + '-' + endDate.split(".")[1] + '-' + endDate.split(".")[0]);
+    var grid = $("#gridContractAll" + e).data("kendoGrid");
+    var filter = new Array();
+    filter.push({ field: "ContractSendDate", operator: "gte", value: startDateReal }, { field: "ContractSendDate", operator: "lte", value: endDateReal }, { field: "ContractTypeRu", operator: "eq", value: type });
+
+    grid.dataSource.filter({
+        logic: "and",
+        filters: filter
+    });
 }
 
 function panelObkContractSelect(e) {

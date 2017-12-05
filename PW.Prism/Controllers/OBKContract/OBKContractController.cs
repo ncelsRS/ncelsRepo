@@ -34,6 +34,8 @@ namespace PW.Prism.Controllers.OBKContract
         // GET: OBKContract
         public ActionResult Index()
         {
+            var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
+            ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name");
             return PartialView(Guid.NewGuid());
         }
 
@@ -77,7 +79,23 @@ namespace PW.Prism.Controllers.OBKContract
             var prices = obkRepo.GetContractPrices(id.Value);
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
-            obkContract.ObkRsProductCount = productInfo.Count;
+            if (obkContract.ParentId == null)
+                obkContract.ObkRsProductCount = productInfo.Count;
+            else
+            {
+                var parentContracts = db.OBK_Contract.Where(x => x.Id == obkContract.ParentId).Select(x => new
+                {
+                    Id = x.Id,
+                    Number = x.Number
+                });
+                ViewBag.ParentContracts = new SelectList(parentContracts, "Id", "Number", obkContract.ParentId);
+                var contractAdditionTypes = db.Dictionaries.Where(x => x.Id == obkContract.ContractAdditionType).Select(x => new
+                {
+                    id = x.Id,
+                    Name = x.Name
+                });
+                ViewBag.ContractAdditionTypes = new SelectList(contractAdditionTypes, "Id", "Name", obkContract.ContractAdditionType);
+            }
             ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
@@ -853,7 +871,7 @@ namespace PW.Prism.Controllers.OBKContract
             return HttpNotFound();
         }
 
-        public ActionResult GetContractTemplatePdf(Guid id)
+        public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
             var db = new ncelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
@@ -905,8 +923,10 @@ namespace PW.Prism.Controllers.OBKContract
             doc.Save(file, Aspose.Words.SaveFormat.Pdf);
             file.Position = 0;
 
-            //return new FileStreamResult(stream, "application/pdf");
-            return File(file, "application/pdf", name);
+            if (isStream != null && isStream.Value)
+                return new FileStreamResult(file, "application/pdf");
+            else
+                return File(file, "application/pdf", name);
         }
 
         [HttpGet]
@@ -914,6 +934,16 @@ namespace PW.Prism.Controllers.OBKContract
         {
             var _data = obkRepo.GetDataForSign(contractId);
             return Json(new { data = _data }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        public JsonResult CommentCount(string contractId)
+        {
+            int countComment = 0;
+            var data = new Guid(contractId);
+            countComment = obkRepo.CommentCount(data);
+            return Json(new { countComment }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult SaveSignedContract(Guid contractId, string signedData)

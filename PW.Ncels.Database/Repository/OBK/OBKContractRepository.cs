@@ -33,6 +33,22 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext = CreateDatabaseContext(isProxy);
         }
 
+        public int CommentCount(Guid modelId)
+        {
+            var emp = UserHelper.GetCurrentEmployee();
+            var balance = (from a in AppContext.OBK_ContractCom
+                           join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                           where a.ContractId == modelId && c.UserId==emp.Id select c).Count();    
+                    if (balance != 0)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+        }
+
         public OBKContractRepository(ncelsEntities context) : base(context) { }
 
         public IEnumerable<OBK_ProductInfo> GetSearchReestr(int regType, string regNumber, string tradeName, bool drugEndDateExpired)
@@ -217,14 +233,74 @@ namespace PW.Ncels.Database.Repository.OBK
                 {
                     v =
                         v.Where(
-                            a => a.Number.Contains(request.SearchValue));
+                            a => a.Number.Contains(request.SearchValue) || a.OBK_Declarant.NameRu.Contains(request.SearchValue));
                 }
 
 
                 //sort
                 if (!(string.IsNullOrEmpty(request.SortColumn) && string.IsNullOrEmpty(request.SortColumnDir)))
                 {
-                    v = v.OrderByDescending(x => x.CreatedDate);
+
+
+                    if (request.SortColumn.Equals("Number") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Number);
+                    }
+                    else if (request.SortColumn.Equals("Number") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Number);
+                    }
+                    else if (request.SortColumn.Equals("CreatedDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.CreatedDate);
+                    }
+                    else if (request.SortColumn.Equals("CreatedDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.CreatedDate);
+                    }
+                    else if (request.SortColumn.Equals("Status") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Status);
+                    }
+                    else if (request.SortColumn.Equals("Status") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Status);
+                    }
+                    else if (request.SortColumn.Equals("DeclarantName") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.OBK_Declarant.NameRu);
+                    }
+                    else if (request.SortColumn.Equals("DeclarantName") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.OBK_Declarant.NameRu);
+                    }
+                    else if (request.SortColumn.Equals("Type") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.Type);
+                    }
+                    else if (request.SortColumn.Equals("Type") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.Type);
+                    }
+                    else if (request.SortColumn.Equals("StartDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.StartDate);
+                    }
+                    else if (request.SortColumn.Equals("StartDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.StartDate);
+                    }
+                    else if (request.SortColumn.Equals("EndDate") && request.SortColumnDir.Equals("desc"))
+                    {
+                        v = v.OrderByDescending(x => x.EndDate);
+                    }
+                    else if (request.SortColumn.Equals("EndDate") && request.SortColumnDir.Equals("asc"))
+                    {
+                        v = v.OrderBy(x => x.EndDate);
+                    }
+
+
+
                 }
 
                 int recordsTotal = await v.CountAsync();
@@ -269,6 +345,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             OBKContractViewModel contractViewModel = new OBKContractViewModel();
             contractViewModel.Id = OBKContract.Id;
+            contractViewModel.ParentId = OBKContract.ParentId;
             contractViewModel.Type = OBKContract.Type;
             contractViewModel.ExpertOrganization = OBKContract.ExpertOrganization;
             contractViewModel.Signer = OBKContract.Signer;
@@ -369,56 +446,136 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKContractProductViewModel> GetProducts(Guid contractId)
         {
-            return AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).Select(x => new OBKContractProductViewModel
+            var results = AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).ToList();
+            
+            if (results.Count > 0)
             {
-                ProductId = null,
-                Id = x.Id,
-                RegTypeId = x.RegTypeId,
-                DegreeRiskId = x.DegreeRiskId,
-                NameRu = x.NameRu,
-                NameKz = x.NameKz,
-                ProducerNameRu = x.ProducerNameRu,
-                ProducerNameKz = x.ProducerNameKz,
-                CountryNameRu = x.CountryNameRu,
-                CountryNameKz = x.CountryNameKZ,
-                Price = x.Price,
-                DrugFormBoxCount = x.DrugFormBoxCount,
-                DrugFormFullName = x.DrugFormFullName,
-                DrugFormFullNameKz = x.DrugFormFullNameKz,
-                RegisterId = x.RegisterId,
-                RegNumber = x.RegNumber,
-                RegNumberKz = x.RegNumberKz,
-                RegDate = x.RegDate,
-                ExpirationDate = x.ExpirationDate,
-                NdName = x.NdName,
-                NdNumber = x.NdNumber,
-                ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
-                Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
+                List<OBKContractProductViewModel> contractProducts = new List<OBKContractProductViewModel>();
+
+                foreach (var result in results)
                 {
-                    Id = y.Id,
-                    Series = y.Series,
-                    CreateDate = y.SeriesStartdate,
-                    ExpireDate = y.SeriesEndDate,
-                    Part = y.SeriesParty,
-                    UnitId = y.SeriesMeasureId,
-                    UnitName = y.sr_measures.short_name
-                }).ToList()
-                ,
-                MtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == x.Id).Select(y => new OBKContractMtPartViewModel
-                {
-                    Id = y.Id,
-                    PartNumber = y.PartNumber,
-                    Model = y.Model,
-                    Specification = y.Specification,
-                    SpecificationKz = y.SpecificationKz,
-                    Name = y.Name,
-                    NameKz = y.NameKz,
-                    ProducerName = y.ProducerName,
-                    CountryName = y.CountryName,
-                    ProducerNameKz = y.ProducerNameKz,
-                    CountryNameKz = y.CountryNameKz
-                }).ToList()
-            }).ToList();
+                    OBKContractProductViewModel contractProduct = new OBKContractProductViewModel
+                    {
+                        ProductId = null,
+                        Id = result.Id,
+                        RegTypeId = result.RegTypeId,
+                        DegreeRiskId = result.DegreeRiskId,
+                        NameRu = result.NameRu,
+                        NameKz = result.NameKz,
+                        ProducerNameRu = result.ProducerNameRu,
+                        ProducerNameKz = result.ProducerNameKz,
+                        CountryNameRu = result.CountryNameRu,
+                        CountryNameKz = result.CountryNameKZ,
+                        Price = result.Price,
+                        DrugFormBoxCount = result.DrugFormBoxCount,
+                        DrugFormFullName = result.DrugFormFullName,
+                        DrugFormFullNameKz = result.DrugFormFullNameKz,
+                        RegisterId = result.RegisterId,
+                        RegNumber = result.RegNumber,
+                        RegNumberKz = result.RegNumberKz,
+                        RegDate = result.RegDate,
+                        ExpirationDate = result.ExpirationDate,
+                        NdName = result.NdName,
+                        NdNumber = result.NdNumber
+                    };
+                    var contractPrice = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == result.Id);
+                    contractProduct.ServiceName = contractPrice?.PriceRefId ?? Guid.Parse("00000000-0000-0000-0000-000000000000");
+                    
+                    var resultSerieses = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == result.Id).ToList();
+                    List<OBKContractSeriesViewModel> contractSerieses = new List<OBKContractSeriesViewModel>();
+                    foreach (var resultSeries in resultSerieses)
+                    {
+                        OBKContractSeriesViewModel contractSeries = new OBKContractSeriesViewModel
+                        {
+                            Id = resultSeries.Id,
+                            Series = resultSeries.Series,
+                            CreateDate = resultSeries.SeriesStartdate,
+                            ExpireDate = resultSeries.SeriesEndDate,
+                            Part = resultSeries.SeriesParty,
+                            UnitId = resultSeries.SeriesMeasureId,
+                            UnitName = resultSeries.sr_measures.short_name
+                        };
+                        contractSerieses.Add(contractSeries);
+                    }
+                    contractProduct.Series = contractSerieses;
+                    
+                    List<OBKContractMtPartViewModel> contractMtParts = new List<OBKContractMtPartViewModel>();
+                    var mtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == result.Id).ToList();
+                    foreach (var mtPart in mtParts)
+                    {
+                        OBKContractMtPartViewModel contractMtPart = new OBKContractMtPartViewModel
+                        {
+                            Id = mtPart.Id,
+                            PartNumber = mtPart.PartNumber,
+                            Model = mtPart.Model,
+                            Specification = mtPart.Specification,
+                            SpecificationKz = mtPart.SpecificationKz,
+                            Name = mtPart.Name,
+                            NameKz = mtPart.NameKz,
+                            ProducerName = mtPart.ProducerName,
+                            CountryName = mtPart.CountryName,
+                            ProducerNameKz = mtPart.ProducerNameKz,
+                            CountryNameKz = mtPart.CountryNameKz
+                        };
+                        //contractProduct.MtParts.Add(contractMtPart);
+                        contractMtParts.Add(contractMtPart);
+                    }
+                    contractProduct.MtParts = contractMtParts;
+                    contractProducts.Add(contractProduct);
+                }
+                return contractProducts;
+            }
+            return null;
+            //return AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).Select(x => new OBKContractProductViewModel
+            //{
+            //    ProductId = null,
+            //    Id = x.Id,
+            //    RegTypeId = x.RegTypeId,
+            //    DegreeRiskId = x.DegreeRiskId,
+            //    NameRu = x.NameRu,
+            //    NameKz = x.NameKz,
+            //    ProducerNameRu = x.ProducerNameRu,
+            //    ProducerNameKz = x.ProducerNameKz,
+            //    CountryNameRu = x.CountryNameRu,
+            //    CountryNameKz = x.CountryNameKZ,
+            //    Price = x.Price,
+            //    DrugFormBoxCount = x.DrugFormBoxCount,
+            //    DrugFormFullName = x.DrugFormFullName,
+            //    DrugFormFullNameKz = x.DrugFormFullNameKz,
+            //    RegisterId = x.RegisterId,
+            //    RegNumber = x.RegNumber,
+            //    RegNumberKz = x.RegNumberKz,
+            //    RegDate = x.RegDate,
+            //    ExpirationDate = x.ExpirationDate,
+            //    NdName = x.NdName,
+            //    NdNumber = x.NdNumber,
+            //    ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
+            //    Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
+            //    {
+            //        Id = y.Id,
+            //        Series = y.Series,
+            //        CreateDate = y.SeriesStartdate,
+            //        ExpireDate = y.SeriesEndDate,
+            //        Part = y.SeriesParty,
+            //        UnitId = y.SeriesMeasureId,
+            //        UnitName = y.sr_measures.short_name
+            //    }).ToList()
+            //    ,
+            //    MtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == x.Id).Select(y => new OBKContractMtPartViewModel
+            //    {
+            //        Id = y.Id,
+            //        PartNumber = y.PartNumber,
+            //        Model = y.Model,
+            //        Specification = y.Specification,
+            //        SpecificationKz = y.SpecificationKz,
+            //        Name = y.Name,
+            //        NameKz = y.NameKz,
+            //        ProducerName = y.ProducerName,
+            //        CountryName = y.CountryName,
+            //        ProducerNameKz = y.ProducerNameKz,
+            //        CountryNameKz = y.CountryNameKz
+            //    }).ToList()
+            //}).ToList();
         }
 
         public OBKContractServiceViewModel SaveContractPrice(Guid contractId, OBKContractServiceViewModel service)
@@ -1048,41 +1205,45 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 AppContext.SaveChanges();
 
-                var obkContractStageUOBK = new OBK_ContractStage()
+                if (contract.ParentId == null)
                 {
-                    Id = Guid.NewGuid(),
-                    ContractId = contractId,
-                    StageId = CodeConstManager.STAGE_OBK_UOBK,
-                    StageStatusId = stageStatus.Id,
-                    ParentStageId = obkContractStageCoz.Id,
-                    ResultId = null
-                };
 
-                // Руководитель УОБК
-                Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
-                var stageExecutorUOBK = new OBK_ContractStageExecutors()
-                {
-                    OBK_ContractStage = obkContractStageUOBK,
-                    ExecutorId = bossUobkGuid,
-                    ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
-                };
+                    var obkContractStageUOBK = new OBK_ContractStage()
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = contractId,
+                        StageId = CodeConstManager.STAGE_OBK_UOBK,
+                        StageStatusId = stageStatus.Id,
+                        ParentStageId = obkContractStageCoz.Id,
+                        ResultId = null
+                    };
 
-                AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
+                    // Руководитель УОБК
+                    Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                    var stageExecutorUOBK = new OBK_ContractStageExecutors()
+                    {
+                        OBK_ContractStage = obkContractStageUOBK,
+                        ExecutorId = bossUobkGuid,
+                        ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
+                    };
 
-                AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
+                    AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
 
-                SendNotificationToUobkBoss(contract, bossUobkGuid);
+                    AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
 
-                if (!addDigitalSign)
-                {
-                    AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    SendNotificationToUobkBoss(contract, bossUobkGuid);
+
+                    if (!addDigitalSign)
+                    {
+                        AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    }
+
+                    AddHistorySentByApplicant(contractId);
+
+                    AddExtHistoryInprocessing(contractId);
+
+                    AppContext.SaveChanges();
                 }
-
-                AddHistorySentByApplicant(contractId);
-
-                AddExtHistoryInprocessing(contractId);
-
-                AppContext.SaveChanges();
             }
             else if (contract.Status == CodeConstManager.STATUS_OBK_ONCORRECTION)
             {
