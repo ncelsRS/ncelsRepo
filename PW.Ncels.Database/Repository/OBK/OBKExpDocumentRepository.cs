@@ -252,10 +252,11 @@ namespace PW.Ncels.Database.Repository.OBK
 
 
 
-        #region MyRegion
+        #region GenerateNumber
 
         private string KZ = "KZ";
         private string ZZ = "01";
+        private string template = "00000000";
 
         /// <summary>
         /// Генерация уникальных номеров для сертификатов ОБК 
@@ -269,8 +270,9 @@ namespace PW.Ncels.Database.Repository.OBK
         /// NNNNNNNN – порядковый номер в каждом филиале свой сквозной
         /// </summary>
         /// <param name="id">уникальный номер заявления</param>
+        /// <param name="productSeriesId">id серии продукции</param>
         /// <returns></returns>
-        public string GenerateNumber(Guid id)
+        public string GenerateNumber(Guid id, int productSeriesId)
         {
             var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
             if (declaration == null)
@@ -297,31 +299,33 @@ namespace PW.Ncels.Database.Repository.OBK
                     regionCode = "7500";
                     break;                   
             }
-
-            var lastNumber = AppContext.OBK_UniqueNumber.Max(e => e.Number);
-            string number = null;
-            string result = null;
-            string template = "00000000";
-            if (lastNumber == null)
+            //поиск присвоенного номера
+            var productNumber =
+                AppContext.OBK_UniqueNumber.FirstOrDefault(e => e.ProductSeriesId == productSeriesId && e.DeclarantId == id);
+            if (productNumber == null)
             {
-                number = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + "00000001";              
+                var uniNumber = AppContext.OBK_UniqueNumber.Max(e => e.Number);
+                var result = uniNumber + 1;
+                var newUniNumber = template.Substring(0, template.Length - result.ToString().Length) + result;
+                var newFullNumber = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + newUniNumber;
+                OBK_UniqueNumber firstUniqueNumber = new OBK_UniqueNumber
+                {
+                    Id = Guid.NewGuid(),
+                    DeclarantId = id,
+                    ProductSeriesId = productSeriesId,
+                    Code = KZ + "." + regionCode + "." + typeCode + "." + ZZ + ".",
+                    Number = result
+                };
+                AppContext.OBK_UniqueNumber.Add(firstUniqueNumber);
+                AppContext.SaveChanges();
+                return newFullNumber;
             }
             else
             {
-                result = (Convert.ToInt32(lastNumber)+1).ToString();
-                var newNumber = template.Substring(0, template.Length - result.Length) + result;
-                number = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + newNumber;
+                var newUniNumber = template.Substring(0, template.Length - productNumber.Number.ToString().Length) + productNumber.Number;
+                var returnNumber = KZ + "." + regionCode + "." + typeCode + "." + ZZ + "." + newUniNumber;
+                return returnNumber;
             }
-            OBK_UniqueNumber uniqueNumber = new OBK_UniqueNumber
-            {
-                Id = Guid.NewGuid(),
-                DeclarantId = id,
-                Code = KZ + "." + regionCode + "." + typeCode + "." + ZZ + ".",
-                Number = result ?? "1"
-            };
-            AppContext.OBK_UniqueNumber.Add(uniqueNumber);
-            AppContext.SaveChanges();
-            return number;
         }
 
         #endregion
