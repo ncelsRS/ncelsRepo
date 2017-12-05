@@ -62,7 +62,7 @@
 <script type="text/javascript">
 
     function doSign() {
-        debugger;
+        
         $.blockUI({
             message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет подпись отчета...</h1>',
             css: { opacity: 1 }
@@ -103,7 +103,7 @@
                 dataType: 'html',
                 cache: false,
                 success: function (data) {
-                    debugger;
+                    
                     showReport(data);
                 },
                 error: function(data) {
@@ -119,7 +119,7 @@
                 dataType: 'html',
                 cache: false,
                 success: function (data) {
-                    debugger;
+                    
                     showReport(data);
                 },
                 error: function (data) {
@@ -135,7 +135,7 @@
                 return;
             }
             var id = $("#modelId").val();
-            debugger;
+            
             startSign('/SafetyAssessment/SignOperation', id);
         });
         $("#notSignBtn").click(function () {
@@ -185,12 +185,73 @@
         var validAttach = checkAttachFile();
         var validDeclaration = checkWrapping();
         var validProducts = checkProductWrapping();
-        if (!validDeclaration || !validProducts) {
+        var validationCheckBox = checkValidationCheckBox();
+        debugger;
+        var validateRadioAttributes = validateRadioAttr();
+
+        if (!validDeclaration || !validProducts || !validationCheckBox || !validateRadioAttributes) {
             $("#OBKSaDeclarationBtn").css({ 'color': '#a94442', 'background-color': '#f2dede' });
         } else {
             $("#OBKSaDeclarationBtn").css({ 'color': '#555', 'background-color': '#ffffff' });
         }
-        valid = validDeclaration && validAttach && validProducts;
+
+        valid = validDeclaration && validAttach && validProducts && validationCheckBox && validateRadioAttributes;
+        return valid;
+    }
+
+    function checkAttr(attr, valid) {
+        var val = $("#" + attr + "").val();
+        if (val == "") {
+            $("#" + attr + "-label").css({ 'color': '#a94442' });
+            valid = false;
+        } else {
+            $("#" + attr + "-label").css({ 'color': '#555' });
+        }
+        return valid;
+    }
+
+    function validateRadioAttr() {
+
+        var valid = true;
+
+        if ($('#KfSelection').is(':checked')) {
+            
+            valid = checkAttr("Number", valid);
+            valid = checkAttr("ActDate", valid);
+            valid = checkAttr("Address", valid);
+            valid = checkAttr("Worker", valid);
+            valid = checkAttr("ApplicantId", valid);
+            valid = checkAttr("ProductSamplesId", valid);
+            valid = checkAttr("Producer", valid);
+            valid = checkAttr("Provider", valid);
+            valid = checkAttr("InspectionInstalledId", valid);
+            valid = checkAttr("PackageConditionId", valid);
+            valid = checkAttr("StorageConditionsId", valid);
+            valid = checkAttr("MarkingId", valid);
+
+            if (valid == false) {
+                $("#tab-6-title").css({ 'color': '#a94442' });
+            } else {
+                $("#tab-6-title").css({ 'color': '#555' });
+            }
+        }
+
+        if ($('#GDPItself').is(':checked')) {
+
+            valid = checkAttr("Number", valid);
+            valid = checkAttr("ActDate", valid);
+            valid = checkAttr("Address", valid);
+            valid = checkAttr("Worker", valid);
+            valid = checkAttr("ProductSamplesId", valid);
+            valid = checkAttr("Producer", valid);
+            valid = checkAttr("Provider", valid);
+            if (valid == false) {
+                $("#tab-5-title").css({ 'color': '#a94442' });
+            } else {
+                $("#tab-5-title").css({ 'color': '#555' });
+            }
+        }
+
         return valid;
     }
 
@@ -210,6 +271,40 @@
             $(control).removeClass("pw-select-invalid");
         }
         return true;
+    }
+
+    function checkValidationCheckBox() {
+
+        var result = true;
+        var $j_object = $(".act-input-control");
+        
+        $j_object.each(function () {
+            var ch = $(this).val();
+            if (ch === "") {
+                result = false;
+            }
+        });
+
+        var $m_object = $(".act-select-control");
+        $m_object.each(function () {
+            var ch = $(this).val();
+            if (ch === "") {
+                result = false;
+            }
+        });
+
+        if (result == false) {
+            $("#tab-5-title").css({ 'color': '#a94442' });
+            $("#tab-6-title").css({ 'color': '#a94442' });
+            $("#samples-label").css({ 'color': '#a94442' });
+
+        } else {
+            $("#tab-5-title").css({ 'color': '#555' });
+            $("#tab-6-title").css({ 'color': '#555' });
+            $("#samples-label").css({ 'color': '#555' });
+        }
+
+        return result;
     }
 
     function checkWrapping() {
@@ -337,7 +432,7 @@
     }
 
     function checkProductWrapping() {
-        debugger;
+
         var validFile = true;
         var data = $('#tableProducts').DataTable().data();
         data.each(function(val) {
@@ -367,9 +462,9 @@
             var count = parseInt(ct, 10) || 0;
 
             if (count === 0 && attcode === '@CodeConstManager.ATTACH_OPTIONAL_OBK_FILE_CODE' && (attId === '462110ce-fefd-451d-9c4c-ee05704ccfce' || attId === '7ed9da5a-45ec-4499-b713-2e503189db0b')) {
-                debugger;
+                
                 dataq.each(function (val) {
-                    debugger;
+                    
                     if (val.RegTypeId === 1 && attId === '462110ce-fefd-451d-9c4c-ee05704ccfce') {
                         attcode = '@CodeConstManager.ATTACH_REQUIRED_OBK_FILE_CODE';
                     } if (val.RegTypeId === 2 && attId === '7ed9da5a-45ec-4499-b713-2e503189db0b') {

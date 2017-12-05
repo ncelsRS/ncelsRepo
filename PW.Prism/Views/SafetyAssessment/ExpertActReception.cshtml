@@ -1,0 +1,132 @@
+﻿@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.DataModel.OBK_ActReception
+
+@{
+    OBK_StageExpDocumentResult expDocumentResult = (OBK_StageExpDocumentResult)ViewData["expDocResult"];
+}
+
+<div style="margin-left: 10px; margin-right: 60px; width: 90%" class="pwPage pwPageEx">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-8">
+                <label>Данные по дате и месту сбора образцов</label>
+                <table class="table table-striped table-bordered table-hover dataTable">
+                    <thead>
+                        <tr>
+                            <th>№ Дата и время сбора образцов</th>
+                            <th>Место сбора образцов</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@expDocumentResult.SelectionTime</td>
+                            <td>@expDocumentResult.SelectionPlace</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-lg-6">
+                <label>Акт отбора</label>
+                <table class="table table-striped table-bordered table-hover dataTable">
+                    <thead>
+                        <tr>
+                            <th>№ акта отбора </th>
+                            <th>Дата отбора</th>
+                            <th>Эксперт проводивший отбор</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Id == null)
+                        {
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td id="ModelNumber">@Model.Number</td>
+                                <td id="ModelActDate">@Model.ActDate</td>
+                                <td id="ModelWorker">@Model.Worker</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6">
+                <div class="row" style="margin-top: 25px;">
+                    <div class="col-lg-12">
+                        <a href="#" onclick="editActReception(event)" id="editActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Изменить</a>
+                        <a href="#" onclick="deleteActReception(event)" id="deleteActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Удалить</a>
+                        <a href="#" onclick="printActReception(event)" id="printActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Печать</a>
+                        <a href="#" onclick="viewActReception(event)" id="viewActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Просмотр</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <input type="hidden" value="@Model.Id" id="ActReceptionId">
+            <div id="act-data-@ViewData["AssessmentDeclarationId"]" style="margin-top:20px;">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    if('@Model.Id' == '@Guid.Empty'){
+        $("#deleteActReceptionBtn").hide();
+        $("#printActReceptionBtn").hide();
+        $("#viewActReceptionBtn").hide();
+    }
+
+    function
+
+    function editActReception() {
+        $.ajax({
+            type : 'POST',
+            url : '/SafetyAssessment/ExpertActData/',
+            data : { assessmentId: '@ViewData["AssessmentDeclarationId"]' },
+            success: function (result) {
+                $("#act-data-@ViewData["AssessmentDeclarationId"]").html(result);
+                $("#act-data-@ViewData["AssessmentDeclarationId"]").css('border-style', 'groove');
+                $("#editActReceptionBtn").hide();
+                $("#deleteActReceptionBtn").hide();
+                $("#printActReceptionBtn").hide();
+                $("#viewActReceptionBtn").hide();
+            }
+
+        });
+    }
+
+    function deleteActReception(){
+        $.ajax({
+            type : 'POST',
+            url : '/SafetyAssessment/DeleteExpertActReception/',
+            data: { actReceptionId: '@ViewData["AssessmentDeclarationId"]' },
+            success: function (result) {
+                $("#act-data-@ViewData["AssessmentDeclarationId"]").html("");
+                $("#editActReceptionBtn").show();
+                $("#deleteActReceptionBtn").hide();
+                $("#printActReceptionBtn").hide();
+                $("#viewActReceptionBtn").hide();
+                $("#ModelNumber").html("");
+                $("#ModelActDate").html("");
+                $("#ModelWorker").html("");
+            }
+        });
+    }
+
+</script>
+
+

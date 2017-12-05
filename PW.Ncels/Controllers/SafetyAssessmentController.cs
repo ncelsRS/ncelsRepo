@@ -24,12 +24,14 @@ using System.Web.Script.Serialization;
 using PW.Ncels.Database.Controller;
 using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Models.Expertise;
+using PW.Ncels.Database.Notifications;
 
 namespace PW.Ncels.Controllers
 {
     [Authorize]
     public class SafetyAssessmentController : ComAssessmentController
     {
+        private ncelsEntities db = UserHelper.GetCn();
 
         // GET: SafetyAssessment
         public ActionResult Index()
@@ -670,7 +672,15 @@ namespace PW.Ncels.Controllers
             if (assess != null && assess.OBK_ActReception != null)
             {
                 model = assess.OBK_ActReception;
-                ViewData["ContractId"] = assess.ContractId;
+            }
+
+            ViewData["ContractId"] = assess.ContractId;
+            var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
+
+            if (model.Producer == null && product != null)
+            {
+                model.Producer = product.ProducerNameRu;
+                ViewData["ProducerNull"] = true;
             }
 
             var safetyRepository = new SafetyAssessmentRepository();
@@ -700,8 +710,18 @@ namespace PW.Ncels.Controllers
             if (assess != null && assess.OBK_ActReception != null)
             {
                 model = assess.OBK_ActReception;
-                ViewData["ContractId"] = assess.ContractId;
             }
+
+            if (model.Producer == null)
+            {
+                var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
+                if (product != null)
+                {
+                    model.Producer = product.ProducerNameRu;
+                    ViewData["ProducerNull"] = true;
+                }
+            }
+            ViewData["ContractId"] = assess.ContractId;
 
             var safetyRepository = new SafetyAssessmentRepository();
 
@@ -719,6 +739,9 @@ namespace PW.Ncels.Controllers
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+
+            ViewData["OBKApplicants"] =
+                new SelectList(safetyRepository.OBKApplicants(), "Id", "NameRU");
 
             return PartialView("ActSelectionView", model);
         }
@@ -748,5 +771,53 @@ namespace PW.Ncels.Controllers
 
         }
 
+        public ActionResult SelectionPlace(Guid id)
+        {
+            OBK_StageExpDocumentResult model = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == id);
+            var declaration =  db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            ViewData["ApplicantAgreement"] = declaration.ApplicantAgreement;
+
+            return PartialView(model);
+        }
+
+        public void AgreeRequest(Guid id)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            declaration.ApplicantAgreement = true;
+
+            NotificationManager notification = new NotificationManager();
+
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == id && o.StageId == 2);
+            var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
+
+            foreach (OBK_AssessmentStageExecutors exec in executors)
+            {
+                notification.SendNotification("Пользователь согласовал заявку №" + declaration.Number, ObjectType.ObkDeclaration,
+                    declaration.Id, exec.ExecutorId);
+            }
+
+            db.SaveChanges();
+        }
+
+        public void RefuseRequest(Guid id)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            declaration.ApplicantAgreement = false;
+
+
+            NotificationManager notification = new NotificationManager();
+
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == id && o.StageId == 2);
+            var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
+
+            foreach (OBK_AssessmentStageExecutors exec in executors)
+            {
+                notification.SendNotification("По заявке №" + declaration.Number.ToString() +"заяавитель отказалсяв проведении отбора образцов", 
+                    ObjectType.ObkDeclaration, declaration.Id, exec.ExecutorId);
+            }
+
+            db.SaveChanges();
+
+        }
     }
 }

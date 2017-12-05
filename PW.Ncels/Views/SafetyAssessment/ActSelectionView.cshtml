@@ -1,6 +1,12 @@
 ﻿@using PW.Ncels.Database.Constants
 @model PW.Ncels.Database.DataModel.OBK_ActReception
-
+@{ 
+    if (Model.ActDate == null)
+    {
+        Model.ActDate = DateTime.Now;
+    }
+}
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
 
 <div class="panel-body">
     <div class="row">
@@ -9,15 +15,16 @@
                 <div class="panel-body">
                     <div class="form-group" style="margin-bottom: 5px">
                         <div class="col-lg-6">
-                            <label>№ Акт приема передач проведения*</label>
+                            <label id="Number-label">№ Акта приема-передачи*</label>
                             <div class="input-group" id="typeIds">
                                 @Html.TextBoxFor(model => model.Number, new { @class = "form-control edit-control act-control", placeholder = "Введите значение" })
                             </div>
                         </div>
                         <div class="col-lg-6">
-                            <label>Дата акта*</label>
+                            <label id="ActDate-label">Дата акта*</label>
                             <div class="input-group">
-                                @Html.TextBoxFor(model => model.ActDate, new { @class = "form-control edit-control act-control date-control", placeholder = "Введите значение" })
+                                @Html.TextBoxFor(model => model.ActDate, "{0:dd.MM.yyyy}", 
+                               new { @class = "form-control edit-control act-control date-control", placeholder = "Введите значение" })
                                 <span class="input-group-addon">
                                     <a class="OBKcommentDialog" href="#">
                                         <i class="glyphicon glyphicon-info-sign"></i>
@@ -31,8 +38,8 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-12">
-            <label>Адрес и места отбора*</label>
+        <div class="col-lg-6">
+            <label id="Address-label">Адрес и места отбора*</label>
             <div class="input-group">
                 @Html.TextBoxFor(model => model.Address, new { @class = "form-control edit-control act-control ", placeholder = "Введите значение" })
                 <span class="input-group-addon">
@@ -42,10 +49,26 @@
                 </span>
             </div>
         </div>
-    </div>
+        <div class="col-lg-6">
+            <label id="ApplicantId-label">Представитель органа*</label>
+            <div class="input-group">
+                @Html.DropDownList("ApplicantId", (IEnumerable<SelectListItem>)(ViewData["OBKApplicants"]),
+                                        String.Empty,
+                                        new
+                                        {
+                                            @class = "form-control edit-control act-table-cont act-control"
+                                        })
+                <span class="input-group-addon">
+                    <a class="OBKcommentDialog" href="#">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>  
     <div class="row">
-        <div class="col-lg-12">
-            <label>Отбор проб призвел*</label>
+        <div class="col-lg-6">
+            <label id="Worker-label">Отбор проб призвел*</label>
             <div class="input-group">
                 @Html.TextBoxFor(model => model.Worker, new { @class = "form-control edit-control act-control ", placeholder = "Введите значение" })
                 <span class="input-group-addon">
@@ -55,10 +78,8 @@
                 </span>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <label >Образцы предьявленной продукции отобраны соответсвии с*</label>
+        <div class="col-lg-6">
+            <label id="ProductSamplesId-label">Образцы предьявленной продукции отобраны соответсвии с*</label>
             <div class="input-group">
                 @Html.DropDownList("ProductSamplesId", (IEnumerable<SelectListItem>)(ViewData["ProductSampleList"]),
                                         String.Empty,
@@ -76,9 +97,9 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-12">
-            <label>Производитель*</label>
-            <div class="input-group">
+        <div class="col-lg-6">
+            <label id="Producer-label">Производитель*</label>
+            <div class="input-group">   
                 @Html.TextBoxFor(model => model.Producer, new { @class = "form-control edit-control act-control ", placeholder = "Введите значение" })
                 <span class="input-group-addon">
                     <a class="OBKcommentDialog" href="#">
@@ -87,11 +108,8 @@
                 </span>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <label>Поставщик*</label>
+        <div class="col-lg-6">
+            <label id="Provider-label">Поставщик*</label>
             <div class="input-group">
                 @Html.TextBoxFor(model => model.Provider, new { @class = "form-control edit-control act-control ", placeholder = "Введите значение" })
                 <span class="input-group-addon">
@@ -104,8 +122,8 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-12">
-            <label>Осмотром установлено*</label>
+        <div class="col-lg-6">
+            <label id="InspectionInstalledId-label">Осмотром установлено*</label>
             <div class="input-group">
                 @Html.DropDownList("InspectionInstalledId", (IEnumerable<SelectListItem>)(ViewData["InspectionInstalledList"]),
                                         String.Empty,
@@ -120,11 +138,9 @@
                 </span>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <label>Условия хранения*</label>
+        <div class="col-lg-6">
+            <label id="PackageConditionId-label">Условия отбора и доставки*</label>
             <div class="input-group">
                 @Html.DropDownList("PackageConditionId", (IEnumerable<SelectListItem>)(ViewData["PackageConditionList"]),
                                         String.Empty,
@@ -141,9 +157,10 @@
         </div>
     </div>
 
+
     <div class="row">
-        <div class="col-lg-12">
-            <label>Состояние упаковки*</label>
+        <div class="col-lg-6">
+            <label id="StorageConditionsId-label">Состояние упаковки*</label>
             <div class="input-group">
                 @Html.DropDownList("StorageConditionsId", (IEnumerable<SelectListItem>)(ViewData["StorageConditionsList"]),
                                         String.Empty,
@@ -158,11 +175,8 @@
                 </span>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <label>Маркировка*</label>
+        <div class="col-lg-6">
+            <label id="MarkingId-label">Маркировка*</label>
             <div class="input-group">
                 @Html.DropDownList("MarkingId", (IEnumerable<SelectListItem>)(ViewData["MarkingList"]),
                                         String.Empty,
@@ -181,7 +195,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <label>Образцы</label>
+            <label id="samples-label">Образцы</label>
             <div class="panel panel-default">
                 <div class="panel-body">
                     <table id="samples" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
@@ -193,3 +207,10 @@
 
 </div>
 
+<script>
+
+    if('@ViewData["ProducerNull"]' == "True"){
+         UpdateModel("act", null, null, "Producer", $("#Producer").val(), "string", "Producer");
+    }
+
+</script>

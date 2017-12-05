@@ -112,6 +112,15 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Dictionaries.Where(o => o.Type == "Marking");
         }
 
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Applicant> OBKApplicants()
+        {
+            return AppContext.OBK_Applicant.ToList();
+        }
+
 
         /// <summary>
         /// Показать список 

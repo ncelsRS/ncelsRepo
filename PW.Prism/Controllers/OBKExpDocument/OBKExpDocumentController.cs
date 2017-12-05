@@ -16,13 +16,15 @@ using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.Controllers.OBK;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
+using PW.Ncels.Database.Models;
+using Newtonsoft.Json;
 
 namespace PW.Prism.Controllers.OBKExpDocument
 {
     public class OBKExpDocumentController : Controller
     {
         OBKExpDocumentRepository expRepo = new OBKExpDocumentRepository();
-
+        private ncelsEntities db = UserHelper.GetCn();
 
         public ActionResult ExpDocumentView(Guid id)
         {
@@ -30,21 +32,31 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var model = stage.OBK_AssessmentDeclaration;
 
             var expDocResult = expRepo.GetStageExpDocResult(model.Id);
-            if (expDocResult != null) {
+            if (expDocResult != null)
+            {
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name", expDocResult.ExpResult);
             }
-            else {
+            else
+            {
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name");
             }
-            
+
             //// номерклатура
             //var nomeclature = new AssessmentStageRepository().GetRefNomenclature();
             //ViewData["UObkNomenclature"] = new SelectList(nomeclature, "Id", "Name");
             ////основание
             //var reasons = new SafetyAssessmentRepository().GetRefReasons();
             //ViewData["UObkReasons"] = new SelectList(reasons, "ExpertiseResult", "Name");
+
+            OBK_StageExpDocumentResult result = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == stage.OBK_AssessmentDeclaration.Id);
+            if (result != null)
+            {
+                ViewData["selectionPlace"] = result.SelectionPlace;
+                ViewData["selectionDate"] = result.SelectionDate;
+                ViewData["selectionTime"] = result.SelectionTime;
+            }
 
             return PartialView(model);
         }
@@ -63,7 +75,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
         //    {
         //        ViewData["UObkReasons"] = new SelectList(reasons, "Id", "Name", model.OBK_StageExpDocument.FirstOrDefault()?.OBK_Ref_Reason);
         //    }
-            
+
         //    return PartialView(model);
         //}
 
@@ -316,6 +328,32 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 }
             }
             return Json(new { isSuccess = true, results });
+        }
+
+        public ActionResult SaveSelectionPlace(DateTime selectionDate, DateTime selectionTime, string selectionAddress, Guid? assessmentId)
+        {
+            expRepo.SavePlace(selectionDate, selectionTime, selectionAddress, assessmentId);
+            return Json(true);
+        }
+
+        public ActionResult DocumentRead(Guid id)
+        {
+            OBK_ActReception reception = db.OBK_ActReception.Find(id);
+            OBKCertificateFileModel fileModel = new OBKCertificateFileModel();
+
+            if (reception.AttachPath != null)
+            {
+                fileModel.AttachPath = reception.AttachPath;
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
+            }
+            else
+            {
+                fileModel.AttachPath = FileHelper.GetObjectPathRoot();
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
+            }
+
+            return Content(JsonConvert.SerializeObject(fileModel, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
+
         }
 
     }
