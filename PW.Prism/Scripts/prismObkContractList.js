@@ -398,7 +398,7 @@ function initFilterOBKContract(uiId) {
     //});
 
     $("#reload" + uiId).click(function () {
-        debugger;
+        //debugger;
         var grid = $("#gridContractAll" + uiId).data("kendoGrid");
         grid.dataSource.read();
     });
