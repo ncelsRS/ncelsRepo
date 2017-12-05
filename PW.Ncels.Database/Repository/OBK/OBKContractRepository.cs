@@ -1205,41 +1205,45 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 AppContext.SaveChanges();
 
-                var obkContractStageUOBK = new OBK_ContractStage()
+                if (contract.ParentId == null)
                 {
-                    Id = Guid.NewGuid(),
-                    ContractId = contractId,
-                    StageId = CodeConstManager.STAGE_OBK_UOBK,
-                    StageStatusId = stageStatus.Id,
-                    ParentStageId = obkContractStageCoz.Id,
-                    ResultId = null
-                };
 
-                // Руководитель УОБК
-                Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
-                var stageExecutorUOBK = new OBK_ContractStageExecutors()
-                {
-                    OBK_ContractStage = obkContractStageUOBK,
-                    ExecutorId = bossUobkGuid,
-                    ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
-                };
+                    var obkContractStageUOBK = new OBK_ContractStage()
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = contractId,
+                        StageId = CodeConstManager.STAGE_OBK_UOBK,
+                        StageStatusId = stageStatus.Id,
+                        ParentStageId = obkContractStageCoz.Id,
+                        ResultId = null
+                    };
 
-                AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
+                    // Руководитель УОБК
+                    Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                    var stageExecutorUOBK = new OBK_ContractStageExecutors()
+                    {
+                        OBK_ContractStage = obkContractStageUOBK,
+                        ExecutorId = bossUobkGuid,
+                        ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
+                    };
 
-                AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
+                    AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
 
-                SendNotificationToUobkBoss(contract, bossUobkGuid);
+                    AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
 
-                if (!addDigitalSign)
-                {
-                    AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    SendNotificationToUobkBoss(contract, bossUobkGuid);
+
+                    if (!addDigitalSign)
+                    {
+                        AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    }
+
+                    AddHistorySentByApplicant(contractId);
+
+                    AddExtHistoryInprocessing(contractId);
+
+                    AppContext.SaveChanges();
                 }
-
-                AddHistorySentByApplicant(contractId);
-
-                AddExtHistoryInprocessing(contractId);
-
-                AppContext.SaveChanges();
             }
             else if (contract.Status == CodeConstManager.STATUS_OBK_ONCORRECTION)
             {
