@@ -64,6 +64,12 @@ namespace PW.Ncels.Controllers
             return Json(result);
         }
         [HttpGet]
+        public ActionResult GetChangeType()
+        {
+            var result = emp.GetChangeType();
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public ActionResult GetServiceType()
         {
             var result = emp.GetServiceType();

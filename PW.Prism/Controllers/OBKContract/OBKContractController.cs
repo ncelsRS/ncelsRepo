@@ -80,7 +80,7 @@ namespace PW.Prism.Controllers.OBKContract
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
             if (obkContract.ParentId == null)
-                obkContract.ObkRsProductCount = productInfo.Count;
+                obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
             else
             {
                 var parentContracts = db.OBK_Contract.Where(x => x.Id == obkContract.ParentId).Select(x => new
@@ -95,8 +95,7 @@ namespace PW.Prism.Controllers.OBKContract
                     Name = x.Name
                 });
                 ViewBag.ContractAdditionTypes = new SelectList(contractAdditionTypes, "Id", "Name", obkContract.ContractAdditionType);
-            }
-            ViewBag.Contract = obkContract;
+            }            ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
             ViewBag.Signers = new SelectList(signers, "Id", "Name", obkContract.Signer);

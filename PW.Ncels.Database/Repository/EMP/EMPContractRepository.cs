@@ -450,10 +450,16 @@ namespace PW.Ncels.Database.Repository.EMP
             return noServiceType;
         }
 
+        public List<EMP_Ref_ChangeType> GetChangeType()
+        {
+            var result = EmpReferenceHelper.GetChangeType();
+            return result;
+        }
+
         public List<object> GetServiceType()
         {
             List<object> serviceTypes = new List<object> {NoData()};
-            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId});
+            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId, e.ChangeType});
             serviceTypes.AddRange(result);
             return serviceTypes;
         }
