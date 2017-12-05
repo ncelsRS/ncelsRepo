@@ -114,6 +114,33 @@ namespace PW.Ncels.Database.Repository.OBK
             return xmlData.Replace("utf-16", "utf-8");
         }
 
+        public void SavePlace(DateTime selectionDate, DateTime selectionTime, string selectionAddress, Guid? assessmentId)
+        {
+            OBK_StageExpDocumentResult result = AppContext.OBK_StageExpDocumentResult.First(o => o.AssessmetDeclarationId == assessmentId);
+            NotificationManager notification = new NotificationManager();
+
+            if (result != null)
+            {
+                result.SelectionDate = selectionDate;
+                result.SelectionTime = selectionTime;
+                result.SelectionPlace = selectionAddress;
+
+                OBK_AssessmentDeclaration declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == assessmentId);
+                declaration.ExpertRequest = true;
+
+                var text = "Заявка №" + declaration.Number + ". Вы прошли этап экспертизы документов. Просим согласовать дату и место выезда на отбор образцов.";
+                notification.SendNotificationFromCompany(text, ObjectType.ObkDeclaration, declaration.Id.ToString(), declaration.EmployeeId);
+
+                SafetyAssessmentRepository repository = new SafetyAssessmentRepository();
+                OBK_AssessmentStage stage = declaration.OBK_AssessmentStage.FirstOrDefault(o => o.StageId == 2);
+                stage.StageStatusId = repository.GetStageStatusByCode(OBK_Ref_StageStatus.DocumentReviewCompleted).Id;
+
+            }
+
+            AppContext.SaveChanges();
+
+        }
+
         public string SaveSignExpDoc(Guid id, string signedData)
         {
             var msg = "";
