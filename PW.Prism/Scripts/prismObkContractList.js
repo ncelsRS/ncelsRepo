@@ -541,6 +541,40 @@ function setFindAreaVisibility(uiId) {
     }
 }
 
+function callSearchView(e)
+{
+    var dates = new Date();
+    $('#SentDateStart').val(convertDate(dates));
+    $('#SentDateEnd').val(convertDate(dates));
+    $('#modalSearch').modal('show');  
+}
+
+function convertDate(date) {
+    var day = date.getDate();
+    day = day < 10 ? "0" + day : day;
+    var month = date.getMonth() + 1;
+    month = month < 10 ? "0" + month : month;
+    var year = date.getFullYear();
+    return day + "." + month + "." + year;
+}
+
+function searchFilter(e)
+{
+    var startDate = $('#SentDateStart').val();
+    var endDate = $('#SentDateEnd').val();
+    var type=$("#TypeContract option:selected").text();
+    var startDateReal = new Date(startDate.split(".")[2] + '-' + startDate.split(".")[1]+'-'+startDate.split(".")[0]);
+    var endDateReal = new Date(endDate.split(".")[2] + '-' + endDate.split(".")[1] + '-' + endDate.split(".")[0]);
+    var grid = $("#gridContractAll" + e).data("kendoGrid");
+    var filter = new Array();
+    filter.push({ field: "ContractSendDate", operator: "gte", value: startDateReal }, { field: "ContractSendDate", operator: "lte", value: endDateReal }, { field: "ContractTypeRu", operator: "eq", value: type });
+
+    grid.dataSource.filter({
+        logic: "and",
+        filters: filter
+    });
+}
+
 function panelObkContractSelect(e) {
     var selectType = $(e.item).find("> .k-link").attr('ItemType');
     if (selectType !== null) {
