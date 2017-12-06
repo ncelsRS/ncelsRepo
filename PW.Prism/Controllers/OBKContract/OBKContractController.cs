@@ -79,7 +79,7 @@ namespace PW.Prism.Controllers.OBKContract
             var prices = obkRepo.GetContractPrices(id.Value);
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
-<<<<<<< Updated upstream
+
             if (obkContract.ParentId == null)
                 obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
             else
@@ -98,11 +98,11 @@ namespace PW.Prism.Controllers.OBKContract
                 ViewBag.ContractAdditionTypes = new SelectList(contractAdditionTypes, "Id", "Name", obkContract.ContractAdditionType);
             }            
 			ViewBag.Contract = obkContract;
-=======
+
             obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
             ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
->>>>>>> Stashed changes
+
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
             ViewBag.Signers = new SelectList(signers, "Id", "Name", obkContract.Signer);
             ViewBag.Countries = new SelectList(countries, "Id", "Name", declarant.CountryId);

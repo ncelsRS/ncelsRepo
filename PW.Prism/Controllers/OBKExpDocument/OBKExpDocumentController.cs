@@ -16,13 +16,15 @@ using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.Controllers.OBK;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
+using Newtonsoft.Json;
+using PW.Ncels.Database.Models;
 
 namespace PW.Prism.Controllers.OBKExpDocument
 {
     public class OBKExpDocumentController : Controller
     {
         OBKExpDocumentRepository expRepo = new OBKExpDocumentRepository();
-
+        private ncelsEntities db = UserHelper.GetCn();
 
         public ActionResult ExpDocumentView(Guid id)
         {
@@ -231,6 +233,32 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var result = expRepo.GetReturnToExecutor(id, CodeConstManager.STAGE_OBK_EXPERTISE_DOC);
             return Json(new { result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveSelectionPlace(DateTime selectionDate, DateTime selectionTime, string selectionAddress, Guid? assessmentId)
+        {
+            expRepo.SavePlace(selectionDate, selectionTime, selectionAddress, assessmentId);
+            return Json(true);
+        }
+
+        public ActionResult DocumentRead(Guid id)
+        {
+            OBK_ActReception reception = db.OBK_ActReception.Find(id);
+            OBKCertificateFileModel fileModel = new OBKCertificateFileModel();
+
+            if (reception.AttachPath != null)
+            {
+                fileModel.AttachPath = reception.AttachPath;
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
+            }
+            else
+            {
+                fileModel.AttachPath = FileHelper.GetObjectPathRoot();
+                fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
+            }
+
+            return Content(JsonConvert.SerializeObject(fileModel, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
+
         }
 
         public ActionResult ActExportFilePdf(Guid id)
@@ -501,6 +529,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
             //        results.Add(series);
             //    }
             //}
+
+
+     
 
         }
     }

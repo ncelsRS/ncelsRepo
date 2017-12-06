@@ -683,6 +683,12 @@ namespace PW.Ncels.Controllers
                 ViewData["ProducerNull"] = true;
             }
 
+            if (model.ActDate == null)
+            {
+                model.ActDate = DateTime.Now;
+                ViewData["ActDateNull"] = true;
+            }
+
             var safetyRepository = new SafetyAssessmentRepository();
 
             ViewData["ProductSampleList"] =
@@ -712,15 +718,20 @@ namespace PW.Ncels.Controllers
                 model = assess.OBK_ActReception;
             }
 
-            if (model.Producer == null)
+            var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
+
+            if (model.Producer == null && product != null)
             {
-                var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
-                if (product != null)
-                {
-                    model.Producer = product.ProducerNameRu;
-                    ViewData["ProducerNull"] = true;
-                }
+                model.Producer = product.ProducerNameRu;
+                ViewData["ProducerNull"] = true;
             }
+
+            if (model.ActDate == null)
+            {
+                model.ActDate = DateTime.Now;
+                ViewData["ActDateNull"] = true;
+            }
+
             ViewData["ContractId"] = assess.ContractId;
 
             var safetyRepository = new SafetyAssessmentRepository();
