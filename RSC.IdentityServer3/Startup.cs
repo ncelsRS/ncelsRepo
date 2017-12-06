@@ -3,6 +3,7 @@ using Owin;
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer3.Core.Services;
 
 namespace RSC.IdentityServer3
 {
@@ -10,16 +11,19 @@ namespace RSC.IdentityServer3
     {
         public void Configuration(IAppBuilder app)
         {
+            var factory = new IdentityServerServiceFactory()
+                .UseInMemoryClients(Clients.Get())
+                .UseInMemoryScopes(Scopes.Get());
+            
+            factory.UserService = new Registration<IUserService, LocalAuthenticationService>();
+
             app.UseIdentityServer(new IdentityServerOptions
             {
                 SiteName = "Identity server",
                 RequireSsl = false,
                 SigningCertificate = LoadCertificate(),
-                
-                Factory = new IdentityServerServiceFactory()
-                    .UseInMemoryUsers(Users.Get())
-                    .UseInMemoryClients(Clients.Get())
-                    .UseInMemoryScopes(Scopes.Get())
+
+                Factory = factory
             });
         }
 
