@@ -116,7 +116,7 @@
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#tab-1">Производитель</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-2">Заявитель</a></li>
-                    <li class=""><a data-toggle="tab" href="#tab-3" @*ng-click="tab3click();"*@>Плательщик</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-3">Плательщик</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-4">Стоимость работ</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-5">Вложения</a></li>
                 </ul>
@@ -821,6 +821,18 @@
                                     </div>
                                 </div>
                                 
+                                <div class="form-group" ng-show="Calulator.showChangeType">
+                                    <label>Тип изменения</label>
+                                    <div ng-class="{'input-group': showComments}">
+                                        <ui-select ng-model="Calulator.ChangeType" theme="bootstrap" ui-select-selected ng-change="editChangeType();">
+                                            <ui-select-match>{{$select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in ChangeTypes | filter: $select.search">
+                                                <div ng-bind-html="item.NameRu| highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </div>
+                                
                                 <div class="form-group">
                                     <label>Тип услуги</label>
                                     <div ng-class="{'input-group': showComments}">
@@ -900,7 +912,15 @@
                                             <td>{{ ServicePrice.Count }}</td> 
                                             <td>{{ ServicePrice.TotalPrice }}</td> 
                                         </tr> 
-                                        </tbody> 
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <th colspan="2" style="text-align:right">Итого:</th>
+                                            <th>{{ totalPrice() }}</th>
+                                            <th>{{ totalCount() }}</th>
+                                            <th>{{ totalTotalPrice() }}</th>
+                                        </tr>
+                                        </tfoot>
                                     </table> 
                                 </div>
                             </div>
@@ -914,11 +934,11 @@
                 <div id="tab-5" class="tab-pane">
                     <div class="panel-body">
                         <h3 class="m-t-none m-b">Вложения</h3>
-                        @*<div ng-show="declarant.Id == null" id="filesWarning">
-                                        <p class="text-bold">Для загрузки вложений выберите заявителя</p>
-                                    </div>*@
+                        <div ng-show="object.ServicePrices.length == 0">
+                            <p class="text-bold">Для загрузки вложений заполните вкладку "Стоимость работ"</p>
+                        </div>
                         @*<div ng-show="declarant.Id != null && declarant.IsResident == true" id="filesResident">*@
-                        <div>
+                        <div ng-show="object.ServicePrices.length > 0">
                             <p class="text-bold">Прикрепите необходимые файлы ниже</p>
                             <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@EmpCodeConsts.ATTACH_CONTRACT_FILE" path="@ModelGuid" />
                         </div>

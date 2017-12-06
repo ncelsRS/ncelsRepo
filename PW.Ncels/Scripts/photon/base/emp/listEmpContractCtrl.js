@@ -34,6 +34,7 @@
     $scope.showRadioIsImport = true;
     $scope.Calulator.IsImport = false;
     $scope.Calulator.Count = 1;
+    $scope.Calulator.showChangeType = false;
 
     $scope.bankValidManufactur = true;
     $scope.bankValidDeclarant = true;
@@ -64,7 +65,7 @@
     loadBanks($scope, $http);
 
     loadServiceType($scope, $http);
-
+    
     $scope.loadContract = function () {
         var projectId = $("#projectId").val();
         debugger;
@@ -504,7 +505,17 @@
         debugger;
         if ($scope.Calulator.ServiceType == "00000000-0000-0000-0000-000000000000") {
             $scope.showServiceTypeName = true;
+            $scope.Calulator.showChangeType = false;
+            $scope.Calulator.ChangeType = null;
         } else {
+            var serviceType = $scope.ServiceTypes.find(item => item.Id === $scope.Calulator.ServiceType);
+            if (serviceType.ChangeType) {
+                loadChangeType($scope, $http);
+                $scope.Calulator.showChangeType = true;
+            } else {
+                $scope.Calulator.showChangeType = false;
+                $scope.Calulator.ChangeType = null;
+            }
             $scope.Calulator.ServiceTypeName = null;
             $scope.Calulator.ServiceTypeNameModif = null;
             $scope.Calulator.Count = 1;
@@ -554,6 +565,31 @@
             $scope.showCalculatorForm = false;
             $scope.showRadioIsImport = false;
         }
+    }
+
+    $scope.totalPrice = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+            var servicePrice = $scope.object.ServicePrices[i];
+            total += (servicePrice.Price);
+        }
+        return total;
+    }
+    $scope.totalCount = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+            var servicePrice = $scope.object.ServicePrices[i];
+            total += (servicePrice.Count);
+        }
+        return total;
+    }
+    $scope.totalTotalPrice = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+            var servicePrice = $scope.object.ServicePrices[i];
+            total += (servicePrice.TotalPrice);
+        }
+        return total;
     }
 
     $scope.calulatorChange = function (bool) {
@@ -817,6 +853,16 @@ function loadServiceType($scope, $http) {
         data: "JSON"
     }).success(function(result) {
         $scope.ServiceTypes = result;
+    });
+}
+
+function loadChangeType($scope, $http) {
+    $http({
+        method: "GET",
+        url: "/EMPContract/GetChangeType",
+        data: "JSON"
+    }).success(function (result) {
+        $scope.ChangeTypes = result;
     });
 }
 
