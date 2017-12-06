@@ -38,15 +38,16 @@ namespace PW.Ncels.Database.Repository.OBK
             var emp = UserHelper.GetCurrentEmployee();
             var balance = (from a in AppContext.OBK_ContractCom
                            join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
-                           where a.ContractId == modelId && c.UserId==emp.Id select c).Count();    
-                    if (balance != 0)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                           where a.ContractId == modelId && c.UserId == emp.Id
+                           select c).Count();
+            if (balance != 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public OBKContractRepository(ncelsEntities context) : base(context) { }
@@ -447,7 +448,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public List<OBKContractProductViewModel> GetProducts(Guid contractId)
         {
             var results = AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).ToList();
-            
+
             if (results.Count > 0)
             {
                 List<OBKContractProductViewModel> contractProducts = new List<OBKContractProductViewModel>();
@@ -480,7 +481,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
                     var contractPrice = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == result.Id);
                     contractProduct.ServiceName = contractPrice?.PriceRefId ?? Guid.Parse("00000000-0000-0000-0000-000000000000");
-                    
+
                     var resultSerieses = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == result.Id).ToList();
                     List<OBKContractSeriesViewModel> contractSerieses = new List<OBKContractSeriesViewModel>();
                     foreach (var resultSeries in resultSerieses)
@@ -498,7 +499,7 @@ namespace PW.Ncels.Database.Repository.OBK
                         contractSerieses.Add(contractSeries);
                     }
                     contractProduct.Series = contractSerieses;
-                    
+
                     List<OBKContractMtPartViewModel> contractMtParts = new List<OBKContractMtPartViewModel>();
                     var mtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == result.Id).ToList();
                     foreach (var mtPart in mtParts)
@@ -1785,7 +1786,10 @@ namespace PW.Ncels.Database.Repository.OBK
             var contract = AppContext.OBK_Contract.Where(x => x.Id == contractId).FirstOrDefault();
             var digitalSign = AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId).FirstOrDefault();
 
-            contract.Number = number;
+            string parentNumber = null;
+            if (contract.ParentId != null)
+                parentNumber = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId)?.Number;
+            contract.Number = number + (parentNumber == null ? "" : $"-{parentNumber}");
             contract.StartDate = DateTime.Now;
             AppContext.SaveChanges();
 
@@ -1798,6 +1802,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 foreach (var dtage in stages)
                 {
                     dtage.StageStatusId = stageStatus.Id;
+                }
+
+                if (contract.ParentId != null)
+                {
+                    var parent = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId);
+                    parent.OBK_DeclarantContact = contract.OBK_DeclarantContact;
                 }
 
                 // Формирование вложения
@@ -1946,6 +1956,13 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             var contract = AppContext.OBK_Contract.Where(x => x.Id == contractId).FirstOrDefault();
             contract.Status = CodeConstManager.STATUS_OBK_INVOCE_GENERATING;
+
+            if (contract.ParentId != null)
+            {
+                var parent = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId);
+                parent.OBK_DeclarantContact = contract.OBK_DeclarantContact;
+            }
+
             AddHistoryAttached(contractId);
             AddExtHistoryActive(contractId);
             AppContext.SaveChanges();

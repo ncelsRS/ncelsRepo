@@ -323,6 +323,7 @@ namespace PW.Prism.Controllers.OBKContract
             return result;
         }
 
+
         private bool IsShowSendToBossForApprovalBtnAllowed(Guid contractId)
         {
             bool result = false;
