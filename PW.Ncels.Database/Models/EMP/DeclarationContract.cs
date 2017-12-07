@@ -20,6 +20,7 @@ namespace PW.Ncels.Database.Models.EMP
         public string BossPosition { get; set; }
         public string BossPositionKz { get; set; }
         public Guid? BossDocType { get; set; }
+        public bool IsBossDocType { get; set; }
         public bool IsHasBossDocNumber { get; set; }
         public string BossDocNumber { get; set; }
         public DateTime? BossDocCreatedDate { get; set; }
@@ -37,6 +38,12 @@ namespace PW.Ncels.Database.Models.EMP
         public DateTime? SignDocCreatedDate { get; set; }
         public DateTime? SignDocEndDate { get; set; }
         public bool SignDocUnlimited { get; set; }
+
+
+        public int? BankId { get; set; }
+        public string BankAccount { get; set; }
+
+
         public string BankIik { get; set; }
         public string BankBik { get; set; }
         public Guid? CurrencyId { get; set; }
