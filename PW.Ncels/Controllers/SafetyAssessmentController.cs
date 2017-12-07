@@ -669,9 +669,19 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null )
             {
-                model = assess.OBK_ActReception;
+                if (assess.OBK_ActReception != null)
+                {
+                    model = assess.OBK_ActReception;
+                }
+                else
+                {
+                    model.Id = assess.Id;
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
             }
 
             ViewData["ContractId"] = assess.ContractId;
@@ -713,9 +723,19 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null)
             {
-                model = assess.OBK_ActReception;
+                if (assess.OBK_ActReception != null)
+                {
+                    model = assess.OBK_ActReception;
+                }
+                else
+                {
+                    model.Id = assess.Id;
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
             }
 
             var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
