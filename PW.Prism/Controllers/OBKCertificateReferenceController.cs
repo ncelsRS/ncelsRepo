@@ -66,6 +66,7 @@ namespace PW.Prism.Controllers
                            EndDate = certRef.EndDate,
                            country = dic.NameKz,
                            CertificateOrganization = certRef.CertificateOrganization,
+                           CertificateProducer = certRef.CertificateProducer,
                            CertificateType = certType.NameRu,
                            CertificateTypeId = certRef.CertificateTypeId,
                            CertificateCountryId = certRef.CertificateCountryId,
@@ -109,6 +110,7 @@ namespace PW.Prism.Controllers
                     EndDate = dictionary.EndDate,
                     CertificateCountryId = dictionary.CertificateCountryId,
                     CertificateOrganization = dictionary.CertificateOrganization,
+                    CertificateProducer = dictionary.CertificateProducer,
                     CertificateTypeId = dictionary.CertificateTypeId,
                     LastInspection = dictionary.LastInspection,
                     AttachPath = dictionary.AttachPath,
@@ -187,6 +189,7 @@ namespace PW.Prism.Controllers
                 d.EndDate = dictionary.EndDate;
                 d.CertificateCountryId = dictionary.CertificateCountryId;
                 d.CertificateOrganization = dictionary.CertificateOrganization;
+                d.CertificateProducer = dictionary.CertificateProducer;
                 d.CertificateTypeId = dictionary.CertificateTypeId;
                 d.LastInspection = dictionary.LastInspection;
                 d.AttachPath = dictionary.AttachPath;
