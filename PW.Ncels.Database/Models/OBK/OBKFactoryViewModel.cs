@@ -7,6 +7,10 @@ namespace PW.Ncels.Database.Models.OBK
         public Guid? Id { get; set; }
         public String Name { get; set; }
 
-        public String Location { get; set; }
+        public String LegalLocation { get; set; }
+
+        public String ActualLocation { get; set; }
+
+        public int Count { get; set; }
     }
 }

@@ -2620,7 +2620,9 @@ namespace PW.Ncels.Database.Repository.OBK
                  {
                      Id = x.Id,
                      Name = x.Name,
-                     Location = x.Location
+                     LegalLocation = x.LegalLocation,
+                     ActualLocation = x.ActualLocation,
+                     Count = x.Count
                  }).ToList();
         }
 
@@ -2631,7 +2633,9 @@ namespace PW.Ncels.Database.Repository.OBK
                 Id = Guid.NewGuid(),
                 ContractId = contractId,
                 Name = factory.Name,
-                Location = factory.Location
+                LegalLocation = factory.LegalLocation,
+                ActualLocation = factory.ActualLocation,
+                Count = factory.Count
             };
             AppContext.OBK_ContractFactory.Add(newFactory);
             AppContext.SaveChanges();
@@ -2659,34 +2663,31 @@ namespace PW.Ncels.Database.Repository.OBK
         private void UpdateAdditionalPrice(Guid contractId)
         {
             var factories = AppContext.OBK_ContractFactory.Where(x => x.ContractId == contractId).ToList();
-            if (factories.Count > 0)
+            var contractPrices = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).ToList();
+
+            if (contractPrices.Count > factories.Count)
             {
-                OBK_ContractPrice contractPrice = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).FirstOrDefault();
-                if (contractPrice == null)
-                {
-                    contractPrice = new OBK_ContractPrice();
-                    contractPrice.Id = Guid.NewGuid();
-                    contractPrice.ContractId = contractId;
-                    contractPrice.ProductId = null;
-                    FillContractPriceAdditional(factories.Count, contractPrice);
-                    AppContext.OBK_ContractPrice.Add(contractPrice);
-                    AppContext.SaveChanges();
-                }
-                else
-                {
-                    FillContractPriceAdditional(factories.Count, contractPrice);
-                    AppContext.SaveChanges();
-                }
+                var factoryIds = factories.Select(x => x.Id);
+                var price = contractPrices.FirstOrDefault(x => !factoryIds.Contains(x.Id));
+                AppContext.OBK_ContractPrice.Remove(price);
             }
             else
             {
-                OBK_ContractPrice contractPrice = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).FirstOrDefault();
-                if (contractPrice != null)
+                var priceIds = contractPrices.Select(x => x.Id);
+                var factory = factories.FirstOrDefault(x => !priceIds.Contains(x.Id));
+
+                if (factory == null) return;
+
+                var price = new OBK_ContractPrice
                 {
-                    AppContext.OBK_ContractPrice.Remove(contractPrice);
-                    AppContext.SaveChanges();
-                }
+                    Id = factory.Id,
+                    ContractId = contractId,
+                    ProductId = null
+                };
+                FillContractPriceAdditional(factory.Count, price);
+                AppContext.OBK_ContractPrice.Add(price);
             }
+            AppContext.SaveChanges();
         }
 
         private void FillContractPriceAdditional(int count, OBK_ContractPrice price)

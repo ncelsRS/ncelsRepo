@@ -424,7 +424,9 @@
     $scope.gridOptionsFactories.columnDefs = [
         { name: 'Id', displayName: 'Id', visible: false },
         { name: 'Name', displayName: 'Наименование цеха' },
-        { name: 'Location', displayName: 'Месторасположение цеха' }
+        { name: 'LegalLocation', displayName: 'Юридический адрес' },
+        { name: 'ActualLocation', displayName: 'Фактический адрес' },
+        { name: 'Count', displayName: 'Количество цехов' }
     ]
 
     $scope.selectedFactoryIndex = null;
@@ -1275,17 +1277,25 @@
     }
 
     $scope.addFactory = function () {
-        if ($scope.factory.Name && $scope.factory.Location) {
-            var factory = {
-                Id: null,
-                Name: $scope.factory.Name,
-                Location: $scope.factory.Location
-            }
-            $scope.postFactory(factory);
-        }
-        else {
-            alert("Введите наименование и месторасположение цеха");
-        }
+        var factory = $scope.factory;
+        if (!factory.Name)
+            return alert('Введите наименование');
+        if (!factory.LegalLocation)
+            return alert('Введите юридический адрес');
+        if (!factory.ActualLocation)
+            return alert('Введите фактический адрес');
+        if (!factory.Count || isNaN(factory.Count * 1))
+            return alert('Введите количество цехов (целое число)');
+
+        var f = {
+            Id: null,
+            Name: factory.Name,
+            LegalLocation: factory.LegalLocation,
+            ActualLocation: factory.ActualLocation,
+            Count: factory.Count
+        };
+
+        $scope.postFactory(f);
     }
 
     $scope.postFactory = function (factory) {
@@ -1320,8 +1330,7 @@
     }
 
     $scope.clearFactoryFields = function () {
-        $scope.factory.Name = null;
-        $scope.factory.Location = null;
+        $scope.factory = {};
     }
 
     $scope.postDeleteFactory = function (factory) {
@@ -1814,7 +1823,7 @@
     };
 
     $scope.tab3click = function () {
-        debugger;
+        //debugger;
         $interval(function () {
             $scope.gridOptionsCalculatorApi.core.handleWindowResize();
         }, 500, 10);
