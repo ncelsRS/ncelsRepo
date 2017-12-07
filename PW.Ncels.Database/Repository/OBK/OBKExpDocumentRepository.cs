@@ -161,6 +161,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     // руководитель
                     if (executor.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
                     {
+                        //результат экпертизы документов
+                        var expResult = stage.OBK_AssessmentDeclaration.OBK_StageExpDocumentResult.FirstOrDefault();
                         var stageSign =
                             AppContext.OBK_AssessmentStageSignData.FirstOrDefault(
                                 e => e.AssessmentStageId == stage.Id &&
@@ -176,7 +178,8 @@ namespace PW.Ncels.Database.Repository.OBK
                                 SignDateTime = DateTime.Now
                             };
                             stage.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.Completed).Id;
-                            stage.ResultId = CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE;
+
+                            stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
                             stage.OBK_AssessmentStageSignData.Add(stageSignData);
 
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
@@ -187,7 +190,8 @@ namespace PW.Ncels.Database.Repository.OBK
                             stageSign.SignXmlData = signedData;
                             stageSign.SignDateTime = DateTime.Now;
                             stage.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.Completed).Id;
-                            stage.ResultId = CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE;
+
+                            stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
 
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
                             AppContext.SaveChanges();

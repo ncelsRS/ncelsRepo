@@ -34,8 +34,6 @@ namespace PW.Prism.Controllers.OBKContract
         // GET: OBKContract
         public ActionResult Index()
         {
-            var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
-            ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name");
             return PartialView(Guid.NewGuid());
         }
 
@@ -79,7 +77,6 @@ namespace PW.Prism.Controllers.OBKContract
             var prices = obkRepo.GetContractPrices(id.Value);
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
-
             if (obkContract.ParentId == null)
                 obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
             else
@@ -96,13 +93,9 @@ namespace PW.Prism.Controllers.OBKContract
                     Name = x.Name
                 });
                 ViewBag.ContractAdditionTypes = new SelectList(contractAdditionTypes, "Id", "Name", obkContract.ContractAdditionType);
-            }            
-			ViewBag.Contract = obkContract;
-
-            obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
+            }
             ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
-
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
             ViewBag.Signers = new SelectList(signers, "Id", "Name", obkContract.Signer);
             ViewBag.Countries = new SelectList(countries, "Id", "Name", declarant.CountryId);
@@ -322,7 +315,6 @@ namespace PW.Prism.Controllers.OBKContract
 
             return result;
         }
-
 
         private bool IsShowSendToBossForApprovalBtnAllowed(Guid contractId)
         {

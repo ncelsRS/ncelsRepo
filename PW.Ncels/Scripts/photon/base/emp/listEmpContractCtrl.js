@@ -23,7 +23,7 @@
     $scope.addDeclarantNewBankName = false;
     $scope.addPayerNewBankName = false;
 
-    $scope.IsManufactur = null;
+    $scope.DeclarantIsManufactur = null;
 
     $scope.showFindInformationPayer = true;
 
@@ -58,10 +58,12 @@
     debugger;
     // loadRefs
     loadHolderTypes($scope, $http);
+    loadContractTypes($scope, $http);
     loadExpertOrganizations($scope, $http);
     loadDictionary($scope, 'OpfType', $http);
     loadDictionary($scope, 'Country', $http);
     loadDictionary($scope, 'Currency', $http);
+    loadCurrency($scope, $http);
     loadBanks($scope, $http);
 
     loadServiceType($scope, $http);
@@ -107,21 +109,6 @@
         });
     }
 
-    $scope.Types = [
-        {
-            Id: "1",
-            Name: "Регистрация"
-        },
-        {
-            Id: "2",
-            Name: "Перерегистрация"
-        },
-        {
-            Id: "3",
-            Name: "Внесение изменений"
-        }
-    ];
-
     $scope.IsBossDocTypes = [
         {
             Id: true,
@@ -157,7 +144,7 @@
         debugger;
         if ($scope.object['Payer'] != null)
             $scope.clearForm('Payer');
-        switch ($scope.Payer.ChoosePayer) {
+        switch ($scope.object.ChoosePayer) {
             case 'Manufactur':
                 $scope.object['Payer'] = angular.copy($scope.object['Manufactur']);
                 $scope.showContactInformationPayer = true;
@@ -177,11 +164,12 @@
     }
 
     $scope.isManufacturer = function () {
-        if ($scope.IsManufactur) {
+        debugger;
+        if ($scope.object.DeclarantIsManufactur) {
             $scope.object['Declarant'] = angular.copy($scope.object['Manufactur']);
             //$scope.object['Declarant'].IsResident = null; //todo временно для тестирования
         }
-        if (!$scope.IsManufactur) {
+        if (!$scope.object.DeclarantIsManufactur) {
             $scope.clearForm('Declarant');
         }
     }
@@ -266,41 +254,47 @@
         $scope.object[obj].NameRu = null;
         $scope.object[obj].NameEn = null;
         $scope.object[obj].CountryId = null;
-        
-        $scope.object[obj].Contact.AddressLegalRu = null;
-        $scope.object[obj].Contact.AddressLegalKz = null;
-        $scope.object[obj].Contact.AddressFact = null;
-        $scope.object[obj].Contact.Phone = null;
-        $scope.object[obj].Contact.Email = null;
-        $scope.object[obj].Contact.BossLastName = null;
-        $scope.object[obj].Contact.BossFirstName = null;
-        $scope.object[obj].Contact.BossMiddleName = null;
-        $scope.object[obj].Contact.BossPosition = null;
-        $scope.object[obj].Contact.BossPositionKz = null;
-        $scope.object[obj].Contact.BossDocType = null;
-        $scope.object[obj].Contact.IsHasBossDocNumber = null;
-        $scope.object[obj].Contact.BossDocNumber = null;
-        $scope.object[obj].Contact.BossDocCreatedDate = getDate(null);
-        $scope.object[obj].Contact.BossDocEndDate = getDate(null);
-        $scope.object[obj].Contact.BossDocUnlimited = false;
-        $scope.object[obj].Contact.SignerIsBoss = false;
-        $scope.object[obj].Contact.SignLastName = null;
-        $scope.object[obj].Contact.SignFirstName = null;
-        $scope.object[obj].Contact.SignMiddleName = null;
-        $scope.object[obj].Contact.SignPosition = null;
-        $scope.object[obj].Contact.SignPositionKz = null;
-        $scope.object[obj].Contact.SignDocType = null;
-        $scope.object[obj].Contact.IsHasSignDocNumber = null;
-        $scope.object[obj].Contact.SignDocNumber = null;
-        $scope.object[obj].Contact.SignDocCreatedDate = getDate(null);
-        $scope.object[obj].Contact.SignDocEndDate = getDate(null);
-        $scope.object[obj].Contact.SignDocUnlimited = false;
-        $scope.object[obj].Contact.BankId = null;
-        $scope.object[obj].Contact.BankIik = null;
-        $scope.object[obj].Contact.BankBik = null;
-        $scope.object[obj].Contact.CurrencyId = null;
-        $scope.object[obj].Contact.BankNameRu = null;
-        $scope.object[obj].Contact.BankNameKz = null;
+
+        //$scope.object[obj].IsManufactur = null;
+        //$scope.object[obj].ChoosePayer = null;
+
+        if ($scope.object[obj].Contact != null) {
+            $scope.object[obj].Contact.AddressLegalRu = null;
+            $scope.object[obj].Contact.AddressLegalKz = null;
+            $scope.object[obj].Contact.AddressFact = null;
+            $scope.object[obj].Contact.Phone = null;
+            $scope.object[obj].Contact.Email = null;
+            $scope.object[obj].Contact.BossLastName = null;
+            $scope.object[obj].Contact.BossFirstName = null;
+            $scope.object[obj].Contact.BossMiddleName = null;
+            $scope.object[obj].Contact.BossPosition = null;
+            $scope.object[obj].Contact.BossPositionKz = null;
+            $scope.object[obj].Contact.BossDocType = null;
+            $scope.object[obj].Contact.IsHasBossDocNumber = null;
+            $scope.object[obj].Contact.BossDocNumber = null;
+            $scope.object[obj].Contact.BossDocCreatedDate = getDate(null);
+            $scope.object[obj].Contact.BossDocEndDate = getDate(null);
+            $scope.object[obj].Contact.BossDocUnlimited = false;
+            $scope.object[obj].Contact.SignerIsBoss = false;
+            $scope.object[obj].Contact.SignLastName = null;
+            $scope.object[obj].Contact.SignFirstName = null;
+            $scope.object[obj].Contact.SignMiddleName = null;
+            $scope.object[obj].Contact.SignPosition = null;
+            $scope.object[obj].Contact.SignPositionKz = null;
+            $scope.object[obj].Contact.SignDocType = null;
+            $scope.object[obj].Contact.IsHasSignDocNumber = null;
+            $scope.object[obj].Contact.SignDocNumber = null;
+            $scope.object[obj].Contact.SignDocCreatedDate = getDate(null);
+            $scope.object[obj].Contact.SignDocEndDate = getDate(null);
+            $scope.object[obj].Contact.SignDocUnlimited = false;
+            $scope.object[obj].Contact.BankId = null;
+            $scope.object[obj].Contact.BankIik = null;
+            $scope.object[obj].Contact.BankBik = null;
+            $scope.object[obj].Contact.CurrencyId = null;
+            $scope.object[obj].Contact.BankNameRu = null;
+            $scope.object[obj].Contact.BankNameKz = null;
+        }
+       
     }
 
     $scope.addManufactur = function (obj) {
@@ -314,8 +308,6 @@
         switch (obj) {
             case 'Manufactur':
                 debugger;
-                //$scope.object[obj].Id = $("#manufacturGuid").val();
-                //$scope.object[obj].Contact.Id = $("#manufacturContractGuid").val();
                 $scope.showContactInformationManufactur = false;
                 $scope.addManufacturDisabled = true;
                 break;
@@ -347,8 +339,6 @@
         });
     }
 
-    //$scope.loadNamesNonResidents();
-
     $scope.nonResidentCountryChange = function (obj) {
         
         $scope.loadNamesNonResidents(obj);
@@ -369,12 +359,6 @@
                 break;
             default:
         }
-
-        //$scope.clearDeclarantForm();
-        //$scope.removeDeclarantId();
-
-        //$scope.clearContactForm();
-        //$scope.clearContactData();
     }
 
     $scope.nameNonResidentChange = function (obj) {
@@ -396,11 +380,6 @@
                         default:
                 }
                 
-                
-                //$scope.clearDeclarantForm();
-                //$scope.removeDeclarantId();
-                //$scope.clearContactForm();
-                //$scope.clearContactData();
             }
             else {
                 switch (obj) {
@@ -569,25 +548,34 @@
 
     $scope.totalPrice = function () {
         var total = 0;
-        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
-            var servicePrice = $scope.object.ServicePrices[i];
-            total += (servicePrice.Price);
+        if ($scope.object.ServicePrices != null) {
+            for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+                var servicePrice = $scope.object.ServicePrices[i];
+                total += (servicePrice.Price);
+            }
+            return total;
         }
         return total;
     }
     $scope.totalCount = function () {
         var total = 0;
-        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
-            var servicePrice = $scope.object.ServicePrices[i];
-            total += (servicePrice.Count);
+        if ($scope.object.ServicePrices != null) {
+            for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+                var servicePrice = $scope.object.ServicePrices[i];
+                total += (servicePrice.Count);
+            }
+            return total;
         }
         return total;
     }
     $scope.totalTotalPrice = function () {
         var total = 0;
-        for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
-            var servicePrice = $scope.object.ServicePrices[i];
-            total += (servicePrice.TotalPrice);
+        if ($scope.object.ServicePrices != null) {
+            for (var i = 0; i < $scope.object.ServicePrices.length; i++) {
+                var servicePrice = $scope.object.ServicePrices[i];
+                total += (servicePrice.TotalPrice);
+            }
+            return total;
         }
         return total;
     }
@@ -814,6 +802,26 @@
     }
 
     
+}
+
+function loadCurrency($scope, $http) {
+    $http({
+        method: "GET",
+        url: "/EMPContract/GetCurrency",
+        data: "JSON"
+    }).success(function (result) {
+        $scope.Currency = result;
+    });
+}
+
+function loadContractTypes($scope, $http) {
+    $http({
+        method: "GET",
+        url: "/EMPContract/GetContractTypes",
+        data: "JSON"
+    }).success(function (result) {
+        $scope.ContractTypes = result;
+    });
 }
 
 function loadHolderTypes($scope, $http) {
