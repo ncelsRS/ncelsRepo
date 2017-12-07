@@ -9,8 +9,11 @@ namespace PW.Ncels.Database.Models.EMP
     public class EMPContractViewModel
     {
         public Guid Id { get; set; }
-        //public Guid? HolderType { get; set; }
+        public Guid? HolderType { get; set; }
+        public Guid? ContractType { get; set; }
         public string MedicalDeviceName { get; set; }
+        public bool DeclarantIsManufactur { get; set; }
+        public string ChoosePayer { get; set; }
         public Declarants Manufactur { get; set; }
         public Declarants Declarant { get; set; }
         public Declarants Payer { get; set; }

@@ -84,9 +84,20 @@ namespace PW.Ncels.Database.Repository.EMP
             }
         }
 
-        public List<Dictionary> GetHolderTypes()
+        public List<EMP_Ref_HolderType> GetHolderTypes()
         {
-            return AppContext.Dictionaries.Where(e => e.Type == "ContractHolderType" && e.Code != "holder").ToList();
+            return AppContext.EMP_Ref_HolderType.Where(e => !e.IsDeleted).ToList();
+        }
+
+        public List<EMP_Ref_ContractType> GetContractType()
+        {
+            return AppContext.EMP_Ref_ContractType.Where(e => !e.IsDeleted)
+                .ToList();
+        }
+
+        public List<Dictionary> GetCurrency()
+        {
+            return AppContext.Dictionaries.Where(e => e.Type == "Currency").ToList();
         }
 
         public IQueryable<object> GetExpertOrganizations()
@@ -159,7 +170,11 @@ namespace PW.Ncels.Database.Repository.EMP
                 contract.Number = "б/н";
                 contract.CreatedDate = DateTime.Now;
                 contract.Status = CodeConstManager.STATUS_DRAFT_ID;
+                contract.ContractType = contractViewModel.ContractType;
+                contract.HolderType = contractViewModel.HolderType;
                 contract.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                contract.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
+                contract.ChoosePayer = contractViewModel.ChoosePayer;
 
                 if (contractViewModel.Manufactur != null) {
                     FillDec(contractViewModel.Manufactur, "Manufactur", contract);
@@ -167,16 +182,41 @@ namespace PW.Ncels.Database.Repository.EMP
                         FillDecContact(contractViewModel.Manufactur.Contact, contractViewModel.Manufactur.Id, contract, "Manufactur");
                     }
                 }
-                if (contractViewModel.Declarant != null) {
-                    FillDec(contractViewModel.Declarant, "Declarant", contract);
-                    if (contractViewModel.Declarant.Contact != null) {
-                        FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id, contract, "Declarant");
+                if (contractViewModel.Declarant != null)
+                {
+                    if (contractViewModel.DeclarantIsManufactur)
+                    {
+                        contract.OBK_Declarant = contract.OBK_DeclarantManufactur;
+                        contract.OBK_DeclarantContact = contract.OBK_DeclarantContactManufactur;
                     }
+                    else
+                    {
+                        FillDec(contractViewModel.Declarant, "Declarant", contract);
+                        if (contractViewModel.Declarant.Contact != null)
+                        {
+                            FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id,
+                                contract, "Declarant");
+                        }
+                    }
+                   
                 }
                 if (contractViewModel.Payer != null) {
-                    FillDec(contractViewModel.Payer, "Payer", contract);
-                    if (contractViewModel.Payer.Contact != null) {
-                        FillDecContact(contractViewModel.Payer.Contact, contractViewModel.Payer.Id, contract, "Payer");
+                    switch (contractViewModel.ChoosePayer)
+                    {
+                        case "Manufactur":
+                            contract.OBK_DeclarantPayer = contract.OBK_DeclarantManufactur;
+                            contract.OBK_DeclarantContactPayer = contract.OBK_DeclarantContactManufactur;
+                            break;
+                        case "Declarant":
+                            contract.OBK_DeclarantPayer = contract.OBK_Declarant;
+                            contract.OBK_DeclarantContactPayer = contract.OBK_DeclarantContact;
+                            break;
+                        case "Payer":
+                            FillDec(contractViewModel.Payer, "Payer", contract);
+                            if (contractViewModel.Payer.Contact != null) {
+                                FillDecContact(contractViewModel.Payer.Contact, contractViewModel.Payer.Id, contract, "Payer");
+                            }
+                            break;
                     }
                 }
                 if (contractViewModel.ServicePrices?.Count > 0) {
@@ -187,7 +227,11 @@ namespace PW.Ncels.Database.Repository.EMP
                 AppContext.SaveChanges();
             } else {
 
+                model.ContractType = contractViewModel.ContractType;
+                model.HolderType = contractViewModel.HolderType;
                 model.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                model.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
+                model.ChoosePayer = contractViewModel.ChoosePayer;
 
                 if (contractViewModel.Manufactur != null) {
                     FillDec(contractViewModel.Manufactur, "Manufactur", model);
@@ -196,15 +240,42 @@ namespace PW.Ncels.Database.Repository.EMP
                     }
                 }
                 if (contractViewModel.Declarant != null) {
-                    FillDec(contractViewModel.Declarant, "Declarant", model);
-                    if (contractViewModel.Declarant.Contact != null) {
-                        FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id, model, "Declarant");
+                    if (contractViewModel.DeclarantIsManufactur)
+                    {
+                        model.OBK_Declarant = model.OBK_DeclarantManufactur;
                     }
+                    else
+                    {
+                        FillDec(contractViewModel.Declarant, "Declarant", model);
+                        if (contractViewModel.Declarant.Contact != null)
+                        {
+                            FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id,
+                                model, "Declarant");
+                        }
+                    }
+                    //FillDec(contractViewModel.Declarant, "Declarant", model);
+                    //if (contractViewModel.Declarant.Contact != null) {
+                    //    FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id, model,"Declarant");
+                    //}
                 }
                 if (contractViewModel.Payer != null) {
-                    FillDec(contractViewModel.Payer, "Payer", model);
-                    if (contractViewModel.Payer.Contact != null) {
-                        FillDecContact(contractViewModel.Payer.Contact, contractViewModel.Payer.Id, model, "Payer");
+                    switch (contractViewModel.ChoosePayer)
+                    {
+                        case "Manufactur":
+                            model.OBK_DeclarantPayer = model.OBK_DeclarantManufactur;
+                            model.OBK_DeclarantContactPayer = model.OBK_DeclarantContactManufactur;
+                            break;
+                        case "Declarant":
+                            model.OBK_DeclarantPayer = model.OBK_Declarant;
+                            model.OBK_DeclarantContactPayer = model.OBK_DeclarantContact;
+                            break;
+                        case "Payer":
+                            FillDec(contractViewModel.Payer, "Payer", model);
+                            if (contractViewModel.Payer.Contact != null)
+                            {
+                                FillDecContact(contractViewModel.Payer.Contact, contractViewModel.Payer.Id, model, "Payer");
+                            }
+                            break;
                     }
                 }
                 if (contractViewModel.ServicePrices?.Count > 0) {
@@ -332,6 +403,8 @@ namespace PW.Ncels.Database.Repository.EMP
                     AddressFact = contact.AddressFact,
                     Phone = contact.Phone,
                     Email = contact.Email,
+                    BankId = contact.BankId,
+                    BankAccount = contact.BankAccount,
                     BankNameRu = contact.BankNameRu,
                     BankNameKz = contact.BankNameKz,
                     BankIik = contact.BankIik,
@@ -387,6 +460,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 declarantContact.AddressFact = contact.AddressFact;
                 declarantContact.Phone = contact.Phone;
                 declarantContact.Email = contact.Email;
+                declarantContact.BankId = contact.BankId;
+                declarantContact.BankAccount = contact.BankAccount;
                 declarantContact.BankNameRu = contact.BankNameRu;
                 declarantContact.BankNameKz = contact.BankNameKz;
                 declarantContact.BankIik = contact.BankIik;

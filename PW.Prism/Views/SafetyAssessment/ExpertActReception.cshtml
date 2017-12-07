@@ -70,12 +70,13 @@
                     <div class="col-lg-12">
                         <a href="#" onclick="editActReception(event)" id="editActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Изменить</a>
                         <a href="#" onclick="deleteActReception(event)" id="deleteActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Удалить</a>
-                        <a href="#" onclick="printActReception(event)" id="printActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Печать</a>
+                        <a href="/SafetyAssessment/PrintActReception?contractId=@ViewData["ContractId"]&actReceptionId=@Model.Id&view=false" id="printActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Печать</a>
                         <a href="#" onclick="viewActReception(event)" id="viewActReceptionBtn" class="k-button" style="background-color: #0066cc; color: white;font-weight: 700; margin-left: 20px; width: 120px;">Просмотр</a>
                     </div>
                 </div>
             </div>
         </div>
+
         <br>
         <br>
         <div class="row">
@@ -84,8 +85,11 @@
 
             </div>
         </div>
-
     </div>
+</div>
+
+<div id="windowFrame">
+
 </div>
 
 <script>
@@ -94,6 +98,18 @@
         $("#deleteActReceptionBtn").hide();
         $("#printActReceptionBtn").hide();
         $("#viewActReceptionBtn").hide();
+        initPrintWindow('@Model.Id');
+    }
+
+    function initPrintWindow(_actReceptionId) {
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/ActTemplete/',
+            data: { actReceptionId: _actReceptionId },
+            success: function (data) {
+                $("#windowFrame").html(data);
+            }
+        });
     }
 
     function editActReception() {
@@ -113,6 +129,15 @@
         });
     }
 
+
+    function showReport(content) {
+        var modal = $("#modal_view");
+        modal.find(".modal-body").html(content).end()
+            .modal({ backdrop: 'static', keyboard: false })
+            .on('hidden.bs.modal', function () {
+                modal.unbind();
+            });
+    }
     function deleteActReception(){
         $.ajax({
             type : 'POST',
@@ -131,6 +156,14 @@
         });
     }
 
+    function viewActReception() {
+        myWindow.data("kendoWindow").center().open();
+    }
+
 </script>
+
+
+
+
 
 

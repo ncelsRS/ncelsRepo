@@ -157,7 +157,9 @@ namespace PW.Prism.Controllers.OBK
             {
                 model = new OBK_ActReception();
             }
+
             ViewData["AssessmentDeclarationId"] = declaration.Id;
+            ViewData["ContractId"] = declaration.ContractId;
 
             if (declaration.ApplicantAgreement == true)
             {
@@ -168,7 +170,6 @@ namespace PW.Prism.Controllers.OBK
 
             if (stage != null)
             {
-                ViewData["ContractId"] = stage.OBK_AssessmentDeclaration.ContractId;
                 ViewData["AssessmentDeclarationId"] = stage.OBK_AssessmentDeclaration.Id;
                 ViewData["ProductSampleList"] =
                     new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
@@ -648,18 +649,52 @@ namespace PW.Prism.Controllers.OBK
             return Json(new { Success = true });
         }
 
-        //public ActionResult PrintActReception(Guid contractId, Guid actReceptionId)
-        //{
-        //    StiReport report = new StiReport();
-        //    report.Load(Server.MapPath("../Report/Mrts/OBK/OBKActReception.mrt"));
-        //    report["@ContractId"] = contractId;
-        //    report["@ActReceptionId"] = actReceptionId;
+        public ActionResult PrintActReception(Guid contractId, Guid actReceptionId, bool view)
+        {
+            var db = new ncelsEntities();
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/ObkActReception.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+                report.Dictionary.Variables["ContractId"].ValueObject = contractId;
+                report.Dictionary.Variables["ActReceptionId"].ValueObject = actReceptionId;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
 
-        //    var stream = new MemoryStream();
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
 
-        //    report.ExportDocument(StiExportFormat.Pdf, stream);
-        //    var reportname = "Акт_отбора_" + DateTime.Now.ToString("yyyy-mm-dd hh.mm.ss") + ".pdf";
-        //    return File(stream, "application/pdf", reportname);
-        //}
+            string name = "Акт отбора" + DateTime.Now.ToString() + ".pdf";
+
+            if (view)
+            {
+                return new FileStreamResult(stream, "application/pdf");
+
+            }
+            else
+            {
+                return File(stream, "application/pdf", name);
+            }
+
+        }
+
+        public ActionResult ActTemplete(Guid actReceptionId)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == actReceptionId);
+
+            ViewData["ContractId"] = declaration.ContractId;
+            ViewData["ActReceptionId"] = actReceptionId;
+
+            return PartialView("ActTemplete");
+        }
     }
 }
