@@ -47,7 +47,7 @@ namespace PW.Ncels.Database.Helpers
         public static List<EMP_Ref_ServiceType> GetServiceTypeParentId(Guid id)
         {
             ncelsEntities entities = UserHelper.GetCn();
-            var serviceType = entities.EMP_Ref_ServiceType.Where(e=>e.ParentId == id).ToList();
+            var serviceType = entities.EMP_Ref_ServiceType.Where(e=>e.ParentId == id && !e.IsDeleted).ToList();
             return serviceType;
         }
         /// <summary>
