@@ -110,6 +110,10 @@
                                         items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContractBtn{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
                                     }
                                     items.Add().Type(CommandType.Button).Template(string.Format("<a id='printFormBtn{0}' class='k-button' data-bind='click: printForm'><span class='glyphicon glyphicon-print'></span> Печать формы договора</a>", (string)ViewBag.UiId));
+                                    if (Model.ParentId != null)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showFormBtn{0}' class='k-button' data-bind='click: showForm'><span class='glyphicon glyphicon-print'></span>Посмотреть договор</a>", (string)ViewBag.UiId));
+                                    }
                                 }))
                                     <span id="@("question" + ViewBag.UiId)" style="display: none">@ViewBag.QuestionMessage</span>
                                 </div>
@@ -156,6 +160,7 @@
                                             </ul>
                                             <div class="tab-content">
                                                 <input type="hidden" id="modelId" value="@Model.Id.ToString()" />
+                                                <input type="hidden" id="parentId" value="@Model.ParentId.ToString()" />
                                                 <div id="@tab1" class="tab-pane active">
                                                     <div class="panel-body">
                                                         <div class="row">
@@ -752,6 +757,14 @@
         </div>
     </div>
 </div>
+
+@{
+    if (@Model.ParentId != null)
+    {
+        <div id="@("windowFrame" +Model.ParentId)">
+        </div>
+    }
+}
 
 <script>
     $(document).ready(function () {

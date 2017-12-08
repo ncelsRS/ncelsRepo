@@ -687,14 +687,14 @@ namespace PW.Prism.Controllers.OBK
 
         }
 
-        public ActionResult ActTemplete(Guid actReceptionId)
+        public ActionResult ActTemplate(Guid actReceptionId)
         {
             var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == actReceptionId);
 
             ViewData["ContractId"] = declaration.ContractId;
             ViewData["ActReceptionId"] = actReceptionId;
 
-            return PartialView("ActTemplete");
+            return PartialView("ActTemplate");
         }
     }
 }
