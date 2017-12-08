@@ -729,13 +729,15 @@
         var createDate = convertDateToString($scope.object.seriesCreateDate);
         var expireDate = convertDateToString($scope.object.seriesExpireDate);
 
+        if ($scope.object.Type != 1)
+            $scope.object.expertisePlace = "0";
+
         if (!$scope.object.seriesValue ||
             !createDate ||
             !expireDate ||
             !$scope.object.partValue ||
             !$scope.object.seriesUnit ||
-            !$scope.object.expertisePlace
-        ) {
+            !$scope.object.expertisePlace) {
             alert("Заполните поля серии");
         }
         else {
