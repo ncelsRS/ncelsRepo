@@ -67,3 +67,24 @@ function panelEmpContractSelect(e) {
         //setFindAreaVisibility(uiId);
     }
 }
+
+function InitEmpContractCard(uiId) {
+    var viewModel = kendo.observable({
+        contractCardTabSelect: function (e) {
+            debugger;
+            var tabid = $(e.item).attr('tabid');
+            $('#contractDataTabs' + uiId + ' > .row').each(function (i, el) {
+                if (!$(el).hasClass("hidden")) {
+                    $(el).addClass("hidden");
+                }
+            });
+            $('#' + tabid).removeClass("hidden");
+
+            if (tabid == "contractDataTab3" + uiId) {
+                $("#contracHistoryGrid" + uiId).data("kendoGrid").dataSource.read();
+            }
+        }
+    });
+
+    kendo.bind($("#splitter" + uiId), viewModel);
+}

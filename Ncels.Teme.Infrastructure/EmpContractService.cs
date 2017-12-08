@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using Ncels.Teme.Contracts;
 using Ncels.Teme.Contracts.ViewModels;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 
 namespace Ncels.Teme.Infrastructure
@@ -16,9 +20,12 @@ namespace Ncels.Teme.Infrastructure
         private const string Declarant = "Заявитель";
         private const string Payer = "Третье лицо";
 
-        private const string ManufacturCode = "Производитель";
-        private const string DeclarantCode = "Заявитель";
-        private const string PayerCode = "Третье лицо";
+        private const string ManufacturCode = "Manufactur";
+        private const string DeclarantCode = "Declarant";
+        private const string PayerCode = "Payer";
+
+        private const string Root = "Attachments";
+        private const string AttachPath = "AttachPath";
 
         public EmpContractService()
         {
@@ -80,8 +87,72 @@ namespace Ncels.Teme.Infrastructure
                     WorkName = x.EMP_Ref_PriceList.EMP_Ref_ServiceType.NameRu,
                     Price = x.Price ?? 0,
                     Count = x.Count ?? 0
-                }).ToList()
+                }).ToList(),
+                Attachments = GetContractAttachments(contractId)
             };
+        }
+
+        private IEnumerable<EmpContractFileAttachmentViewModel> GetContractAttachments(Guid contractId)
+        {
+            var doc = contractId.ToString();
+            var list = new List<EmpContractFileAttachmentViewModel>();
+
+            var info = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc));
+            if (!info.Exists) info.Create();
+            var dicListQuery = _uow.GetQueryable<Dictionary>().Where(o => o.Type == EmpCodeConsts.ATTACH_CONTRACT_FILE);
+
+            var markList = _uow.GetQueryable<FileLinksCategoryCom>().Where(e => e.DocumentId == contractId).ToList();
+            var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code }).ToList();
+            var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
+            var fileMetadatas = _uow.GetQueryable<FileLink>().Where(e => e.DocumentId == contractId && categoryCodes.Contains(e.FileCategory.Code)).ToList();
+
+            foreach (var dictionary in dicListQuery)
+            {
+                var dirInfo = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc, dictionary.Id.ToString()));
+                if (!dirInfo.Exists) continue;
+
+                var fileLinksCategoryCom = markList.FirstOrDefault(e => e.CategoryId == dictionary.Id);
+                var group = new EmpContractFileAttachmentViewModel();
+                group.Id = dictionary.Id;
+                group.Code = dictionary.Code;
+                group.Name = dictionary.Name;
+                group.MarkClassName = markList.FirstOrDefault(e => e.CategoryId == dictionary.Id) == null
+                    ? "control-default"
+                    : fileLinksCategoryCom != null && fileLinksCategoryCom.IsError
+                        ? "control-error"
+                        : "control-good";
+
+                group.IsNotApplicable = markList.FirstOrDefault(e => e.CategoryId == dictionary.Id) != null &&
+                                        fileLinksCategoryCom?.IsNotApplicable != null &&
+                                        fileLinksCategoryCom.IsNotApplicable.Value;
+
+                group.Items = dirInfo.GetFiles().Join(fileMetadatas, f => f.Name,
+                        f => string.Format("{0}{1}", f.Id, Path.GetExtension(f.FileName)),
+                        (f, fm) => new { File = f, FileMetadata = fm })
+                    .ToList().Select(k => new EmpContractFileAttachmentItemViewModel
+                    {
+                        AttachId = string.Format("id={0}&path={1}&fileId={2}", dictionary.Id, doc,
+                                string.Format("{0}{1}", k.FileMetadata.Id, Path.GetExtension(k.FileMetadata.FileName))),
+                        AttachName = k.FileMetadata.FileName,
+                        AttachSize = k.File.Length,
+                        Version = k.FileMetadata.Version,
+                        OriginFileId = k.FileMetadata.ParentId,
+                        OwnerName = k.FileMetadata.OwnerName,
+                        OwnerId = (Guid)k.FileMetadata.OwnerId,
+                        CreateDate = k.FileMetadata.CreateDate.ToString(CultureInfo.InvariantCulture),
+                        MetadataId = k.FileMetadata.Id,
+                        Comment = k.FileMetadata.Comment,
+                        StatusCode = k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.Code : string.Empty,
+                        StatusName = k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.NameRu : string.Empty,
+                        Language = k.FileMetadata.Language,
+                        NumOfPages = k.FileMetadata.PageNumbers,
+                        Stage = k.FileMetadata.EXP_DIC_Stage != null ? k.FileMetadata.EXP_DIC_Stage.NameRu : string.Empty
+                    }).ToList();
+
+
+                list.Add(group);
+            }
+            return list;
         }
 
         private EmpContractDeclarantViewModel GetDeclarant(OBK_Declarant declarant, OBK_DeclarantContact declarantContact)

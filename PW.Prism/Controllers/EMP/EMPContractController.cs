@@ -33,6 +33,7 @@ namespace PW.Prism.Controllers.EMP
             if (id == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
+            
             var model = _service.GetContractDetailsViewModel(id.Value);
 
 
