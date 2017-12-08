@@ -63,7 +63,7 @@ namespace PW.Ncels.Database.Repository.EMP
                         x.Id,
                         x.Number,
                         x.CreatedDate,
-                        Status = "Черновик",//x.Status.NameRu,
+                        Status = x.EMP_Ref_Status != null ? x.EMP_Ref_Status.NameRu : string.Empty,
                         ManufacturName = x.OBK_DeclarantManufactur.NameRu,
                         x.MedicalDeviceName,
                         //x.StartDate
@@ -164,6 +164,8 @@ namespace PW.Ncels.Database.Repository.EMP
             if (model == null)
             {
                 EMP_Contract contract = new EMP_Contract();
+                contract.ContractStatusId = AppContext.EMP_Ref_Status.Where(x =>
+                    x.Code == CodeConstManager.EmpContractStatus.Draft).Select(x => x.Id).FirstOrDefault();
 
                 contract.Id = Guid;
                 contract.EmployeeId = UserHelper.GetCurrentEmployee().Id;

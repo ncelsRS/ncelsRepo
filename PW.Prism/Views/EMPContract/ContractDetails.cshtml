@@ -1,0 +1,367 @@
+﻿@model Ncels.Teme.Contracts.ViewModels.EmpContractDetailsViewModel
+
+@{
+    var tab1 = "tab-1" + Model.Id;
+    var tab1b = "#" + tab1;
+    var tab2 = "tab-2" + Model.Id;
+    var tab2b = "#" + tab2;
+    var tab3 = "tab-3" + Model.Id;
+    var tab3b = "#" + tab3;
+    var tab4 = "tab-4" + Model.Id;
+    var tab4b = "#" + tab4;
+}
+
+<script src="~/Scripts/js/custom/subform-comment.js"></script>
+<script src="~/Scripts/js/custom/atach-comment.js"></script>
+
+@(Html.Kendo().Splitter().HtmlAttributes(new { @class = "pwSplitter k-block" })
+      .Name("splitter" + Model.Id)
+      .Panes(pane =>
+      {
+          pane.Add()
+              .Size("300px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("300px").Content(
+            @<div class="pwPanelBar">
+                @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                            .Name("panelbar" + Model.Id)
+                            .ExpandMode(PanelBarExpandMode.Multiple)
+                            .ExpandAll(true)
+                            .HtmlAttributes(new { style = "width:auto;", data_bind = "events: { select: contractCardTabSelect }" })
+                            .Items(panelbar =>
+                            {
+                                panelbar.Add().Expanded(true);
+                                panelbar.Add().Text("Структура договора")
+                                    .Items(projects =>
+                                    {
+                                        projects.Add().Text("Карточка договора").HtmlAttributes(new { TabId = "contractDataTab1" + Model.Id }).Selected(true);
+                                        projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab2" + Model.Id });
+                                        projects.Add().Text("История согласования").HtmlAttributes(new { TabId = "contractDataTab3" + Model.Id });
+                                    });
+
+                            })
+                )
+            </div>
+              );
+          pane.Add().Scrollable(false).Size("100%").Content(
+
+            @<div id="@("contractDataTabs" + Model.Id)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
+
+                <div id="@("contractDataTab1" + Model.Id)" class="row">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="@tab1b">Производитель</a></li>
+
+
+                                        <li class=""><a data-toggle="tab" href="@tab2b">Заявитель</a></li>
+                                        <li class=""><a data-toggle="tab" href="@tab3b">Плательщик</a></li>
+                                        <li class=""><a data-toggle="tab" href="@tab4b">Стоимость работ</a></li>
+
+                                    </ul>
+                                    <div class="tab-content">
+                                        <input type="hidden" id="modelId" value="@Model.Id" />
+                                        <div id="@tab1" class="tab-pane active">
+                                            @Html.Partial("ContractDeclarant", Model.Manufacturer)
+                                        </div>
+                                        <div id="@tab2" class="tab-pane">
+                                            @Html.Partial("ContractDeclarant", Model.Declarant)
+                                        </div>
+                                        <div id="@tab3" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="form-group">
+                                                            <label>Плательщик</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("OrganizationForm", Model.Payers, string.Empty,
+                            new { @class = "form-control edit-control main-control", disabled = "disabled" })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            @{
+                                                                var @checkedResident = Model.Payer.IsResident ? "checked" : "";
+                                                                var @checkedNonResident = !Model.Payer.IsResident ? "checked" : "";
+                                                            }
+                                                            <div class="radio-inline">
+                                                                <label><input type="radio" name="@(Model.Payer.Code+"resident")" value="true" disabled="disabled" @checkedResident />Резидент РК</label>
+                                                            </div>
+                                                            <div class="radio-inline">
+                                                                <label><input type="radio" name="@(Model.Payer.Code+"resident")" value="false" disabled="disabled" @checkedNonResident />Нерезидент РК</label>
+                                                            </div>
+                                                        </div>
+                                                        @{
+                                                            if (Model.Payer.IsResident)
+                                                            {
+                                                                <div class="form-group">
+                                                                    <label>ИИН/БИН *</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="bin" name="bin" disabled value="@Model.Payer.Bin">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="form-group">
+                                                                    <label>Страна</label>
+                                                                    <div class="input-group">
+                                                                        @Html.DropDownList("CountryNonResident", Model.Payer.Countries, string.Empty,
+                                    new { @class = "form-control edit-control main-control", disabled = "disabled" })
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Наименование на русском языке *</label>
+                                                                    <div class="input-group">
+                                                                        @Html.DropDownList("NameNonResident", Model.Payer.NonResidentsNames, string.Empty,
+                                    new { @class = "form-control edit-control main-control", disabled = "disabled" })
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        <div class="form-group">
+                                                            <label>Организационная форма</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("OrganizationForm", Model.Payer.OrganizationForms, string.Empty,
+                            new { @class = "form-control edit-control main-control", disabled = "disabled" })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на русском языке *</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="declarantNameRu" name="declarantNameRu" disabled value="@Model.Payer.NameRu">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Страна</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("CountryNonResident", Model.Payer.Countries, string.Empty,
+                            new { @class = "form-control edit-control main-control", disabled = "disabled" })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Юридический адрес</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="AddressLegalRu" name="AddressLegalRu" disabled value="@Model.Payer.AddressLegal">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label>Наименование банка</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.BankName">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        @{
+                                                            if (Model.ChoosPayer != "Declarant")
+                                                            {
+                                                                <div class="form-group">
+                                                                    <label>ИИК</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.BankIik">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+
+                                                        <div class="form-group">
+                                                            <label>Валюта *</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("Currency", Model.Payer.Currencies, string.Empty,
+                            new { @class = "form-control edit-control main-control", @disabled = "disabled" })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        @{
+                                                            if (Model.ChoosPayer != "Declarant")
+                                                            {
+                                                                <div class="form-group">
+                                                                    <label>SWIFT</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.BankBik">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="form-group">
+                                                                    <label>БИН</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.Bin">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>БИК</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.BankBik">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>ИИН</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.Payer.Iin">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+
+                                                        <div class="form-group">
+                                                            <label>Расчетный счет</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="BankIik" name="BankIik" disabled value="@Model.Payer.BankAccount">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="@tab4" class="tab-pane">
+                                            <table class="table table-bordered dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>№</th>
+                                                        <th>Наименование работ по Прейскуранту</th>
+                                                        <th>Цена в тенге, без НДС</th>
+                                                        <th>Количество</th>
+                                                        <th>Всего</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @{
+                                                        for (int i = 0; i < Model.WorkCosts.Count; i++)
+                                                        {
+                                                            var row = Model.WorkCosts[i];
+                                                            <tr>
+                                                                <td>@(i + 1)</td>
+                                                                <td>@row.WorkName</td>
+                                                                <td>@row.Price</td>
+                                                                <td>@row.Count</td>
+                                                                <td>@row.TotalPrice</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2" align="right">Итого:</td>
+                                                        <td>@Model.WorkCosts.Select(x => x.Price).Sum()</td>
+                                                        <td>@Model.WorkCosts.Select(x => x.Count).Sum()</td>
+                                                        <td>@Model.WorkCosts.Select(x => x.TotalPrice).Sum()</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="@("contractDataTab2" + Model.Id)" class="row hidden">
+                    @Html.Partial("ContractAttachment", Model.Attachments)
+                </div>
+
+
+            </div>
+
+
+
+
+
+
+
+                );
+      }))
+
+<script>
+    $(document).ready(function () {
+        InitEmpContractCard('@Model.Id');
+
+    });
+</script>
