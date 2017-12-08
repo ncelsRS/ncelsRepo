@@ -14,6 +14,8 @@
 
     $scope.Payer = {};
 
+    $scope.showAttach = false;
+
     $scope.iinSearchActiveManufactur = false;
     $scope.showContactInformationManufactur = true;
     $scope.showContactInformationDeclarant = true;
@@ -478,7 +480,7 @@
             default:
         }
         
-    }
+    };
 
     $scope.editServiceType = function () {
         debugger;
@@ -511,6 +513,12 @@
         }
     }
 
+    $scope.editChangeType = function () {
+        debugger;
+        var changeType = $scope.ChangeTypes.find(item => item.Id === $scope.Calulator.ChangeType);
+        $scope.ChangeTypeCode = changeType.Code;
+        $scope.DegreeRiskCode = null;
+    }
 
     $scope.editServiceTypeName = function() {
         debugger;
@@ -528,8 +536,15 @@
                     id: $scope.Calulator.ServiceTypeName
                 }
             }).success(function (result) {
+                debugger;
                 $scope.ServiceTypeNameModifs = result;
-
+                var degreeRisk = $scope.ServiceTypeNames.find(item => item.Id === $scope.Calulator.ServiceTypeName);
+                if ($scope.ChangeTypeCode != null) {
+                    $scope.DegreeRiskCode = null;
+                } else {
+                    $scope.DegreeRiskCode = degreeRisk.Code;
+                    $scope.ChangeTypeCode = null;
+                }
             });
         }
     }
@@ -544,6 +559,10 @@
             $scope.showCalculatorForm = false;
             $scope.showRadioIsImport = false;
         }
+    }
+
+    $scope.tab5click = function() {
+        $scope.showAttach = true;
     }
 
     $scope.totalPrice = function () {
@@ -648,6 +667,8 @@
 
     $scope.clearCalculationForm = function () {
         $scope.Calulator.ServiceType = null;
+        $scope.Calulator.ChangeType = null;
+        $scope.Calulator.showChangeType = false;
         $scope.Calulator.ServiceTypeName = null;
         $scope.Calulator.ServiceTypeNameModif = null;
         $scope.Calulator.Count = null;
@@ -657,6 +678,9 @@
         $scope.showRadioIsImport = true;
         $scope.Calulator.Count = 1;
         $scope.object.ServicePrices.length = 0;
+
+        $scope.DegreeRiskCode = null;
+        $scope.ChangeTypeCode = null;
     }
 
     //todo незабыть перечислить поля
