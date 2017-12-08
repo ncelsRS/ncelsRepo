@@ -59,6 +59,8 @@
     $scope.showBin = false;
     $scope.showResidentsBlock = false;
 
+    $scope.viewRationaleFile = true;
+
     $scope.productSeries = [];
 
     $scope.addedProducts = [];
@@ -366,7 +368,14 @@
         { name: 'Part', displayName: 'Размер партии' },
         { name: 'UnitName', displayName: 'Ед. измерения' },
         { name: 'UnitId', displayName: 'Ед. измерения - код', visible: false },
-        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        {
+            name: 'ExpertisePlace',
+            displayName: 'Место проведения экспертизы',
+            minWidth: 200,
+            visible: $scope.viewRationaleFile,
+            cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col) == 1 ? "Лаборатория производителя" : "Лаборатория НЦЭЛС"}}</div>'
+        },
+        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>', maxWidth: 30 }
     ];
 
     $scope.gridOptionsSeries.data = $scope.productSeries;
@@ -724,16 +733,27 @@
             !createDate ||
             !expireDate ||
             !$scope.object.partValue ||
-            !$scope.object.seriesUnit
+            !$scope.object.seriesUnit ||
+            !$scope.object.expertisePlace
         ) {
             alert("Заполните поля серии");
         }
         else {
-            var obj = { Id: null, Series: $scope.object.seriesValue, CreateDate: createDate, ExpireDate: expireDate, Part: $scope.object.partValue, UnitId: $scope.object.seriesUnit.Id, UnitName: $scope.object.seriesUnit.Name };
+            var obj = {
+                Id: null,
+                Series: $scope.object.seriesValue,
+                CreateDate: createDate,
+                ExpireDate: expireDate,
+                Part: $scope.object.partValue,
+                UnitId: $scope.object.seriesUnit.Id,
+                UnitName: $scope.object.seriesUnit.Name,
+                ExpertisePlace: $scope.object.expertisePlace
+            };
             $scope.productSeries.push(obj);
             $scope.object.seriesValue = null;
             $scope.object.partValue = null;
             $scope.object.seriesUnit = null;
+            $scope.object.expertisePlace = null;
         }
     };
 
@@ -859,7 +879,22 @@
         }
     }
 
+    function updateViewRationaleFile() {
+        $scope.viewRationaleFile = false;
+        if ($scope.addedProducts.length === 0) return;
+        for (var i = 0; i < $scope.addedProducts.length; i++) {
+            for (var j = 0; j < $scope.addedProducts[i].Series.length; j++) {
+                if ($scope.addedProducts[i].Series[j].ExpertisePlace == 1) {
+                    $scope.viewRationaleFile = true;
+                    break;
+                }
+            }
+            if ($scope.viewRationaleFile) break;
+        }
+    }
+
     $scope.saveProductInformation = function (product) {
+        updateViewRationaleFile();
         var projectId = $scope.object.Id;
         if (projectId) {
             $http({
@@ -1478,6 +1513,8 @@
                     resp.data[i].ExpirationDate = getDate(resp.data[i].ExpirationDate);
                 }
                 $scope.addedProducts.push.apply($scope.addedProducts, resp.data);
+                // Показать загрузку обоснования
+                updateViewRationaleFile();
             }
         });
 
@@ -1498,6 +1535,24 @@
     $scope.checkFileValidation = function () {
         var invalidFiles = 0;
 
+        function checkFiles(containerName) {
+            var result = 0;
+            var rationaleFile = $(containerName + ' .file-validation');
+            rationaleFile.text('');
+            rationaleFile.each(function () {
+                var ct = $(this).attr('countFile');
+                var attcode = $(this).attr('attcode');
+                var count = parseInt(ct, 10) || 0;
+                if (count === 0 && attcode === "1") {
+                    $(this).text("Необходимо вложить файлы");
+                    result++;
+                } else {
+                    $(this).text("");
+                }
+            });
+            return result;
+        }
+
         var containerName = "";
         if ($scope.declarant.IsResident === true) {
             containerName = "#filesResident";
@@ -1506,18 +1561,10 @@
             containerName = "#filesNonResident";
         }
 
-        $(containerName + ' .file-validation').text("");
-        $(containerName + ' .file-validation').each(function () {
-            var ct = $(this).attr('countFile');
-            var attcode = $(this).attr('attcode');
-            var count = parseInt(ct, 10) || 0;
-            if (count === 0 && attcode === "1") {
-                $(this).text("Необходимо вложить файлы");
-                invalidFiles++;
-            } else {
-                $(this).text("");
-            }
-        });
+        invalidFiles += checkFiles(containerName);
+        if ($scope.viewRationaleFile)
+            invalidFiles += checkFiles('#filesRationalePlace');
+
         return invalidFiles === 0;
     }
 

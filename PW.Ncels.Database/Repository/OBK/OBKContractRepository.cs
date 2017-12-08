@@ -408,8 +408,8 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 DeleteMtParts(productInfo.Id);
                 SaveMtParts(productInfo.Id, product.MtParts);
-
-                SaveProductService(productInfo.Id, product.ServiceName, contractId, product.Series.Count);
+                var count = product.Series.Where(x => x.ExpertisePlace == 0).Count();
+                SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
             }
@@ -423,7 +423,8 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 SaveSeries(productInfo.Id, product.Series);
                 SaveMtParts(productInfo.Id, product.MtParts);
-                SaveProductService(productInfo.Id, product.ServiceName, contractId, product.Series.Count);
+                var count = product.Series.Where(x => x.ExpertisePlace == 0).Count();
+                SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
             }
@@ -494,7 +495,8 @@ namespace PW.Ncels.Database.Repository.OBK
                             ExpireDate = resultSeries.SeriesEndDate,
                             Part = resultSeries.SeriesParty,
                             UnitId = resultSeries.SeriesMeasureId,
-                            UnitName = resultSeries.sr_measures.short_name
+                            UnitName = resultSeries.sr_measures.short_name,
+                            ExpertisePlace = resultSeries.ExpertisePlace
                         };
                         contractSerieses.Add(contractSeries);
                     }
@@ -635,6 +637,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     newSerie.SeriesStartdate = item.CreateDate;
                     newSerie.SeriesEndDate = item.ExpireDate;
                     newSerie.SeriesParty = item.Part;
+                    newSerie.ExpertisePlace = item.ExpertisePlace;
                     newSerie.SeriesMeasureId = item.UnitId;
                     newSerie.OBK_RS_ProductsId = productId;
                     AppContext.OBK_Procunts_Series.Add(newSerie);
