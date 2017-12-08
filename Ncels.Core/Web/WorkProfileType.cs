@@ -24,6 +24,10 @@
         /// <summary>
         /// Оценка безопасности и качества
         /// </summary>
-        Safety
+        Safety,
+        /// <summary>
+        /// Экспертиза
+        /// </summary>
+        Emp
     }
 }
