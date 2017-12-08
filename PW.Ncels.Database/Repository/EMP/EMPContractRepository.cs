@@ -534,7 +534,7 @@ namespace PW.Ncels.Database.Repository.EMP
         public List<object> GetServiceType()
         {
             List<object> serviceTypes = new List<object> {NoData()};
-            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId, e.ChangeType});
+            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null && !e.IsDeleted).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId, e.ChangeType});
             serviceTypes.AddRange(result);
             return serviceTypes;
         }
@@ -542,7 +542,7 @@ namespace PW.Ncels.Database.Repository.EMP
         public List<object> GetServiceTypeParentId(string id)
         {
             List<object> serviceTypes = new List<object> { NoData() };
-            var result = EmpReferenceHelper.GetServiceTypeParentId(Guid.Parse(id)).Select(e => new { e.Id, e.NameRu, e.NameKz, e.ParentId });
+            var result = EmpReferenceHelper.GetServiceTypeParentId(Guid.Parse(id)).Select(e => new { e.Id, e.NameRu, e.NameKz, e.ParentId, Code = e.EMP_Ref_DegreeRisk == null ? "9" : e.EMP_Ref_DegreeRisk.Code });
             serviceTypes.AddRange(result);
             return serviceTypes;
         }
