@@ -36,15 +36,20 @@ namespace Ncels.Teme.Infrastructure
         public IQueryable<EmpContractViewModel> GetContracts()
         {
             return _uow.GetQueryable<EMP_Contract>()
-                //.Where(x => x.DeclarantId != null && x.DeclarantContactId != null)
+                .Where(x => x.ContractType != null)
                 .Where(x => x.ManufacturId != null && x.ManufacturContactId != null)
                 .Where(x => x.DeclarantId != null && x.DeclarantContactId != null)
                 .Where(x => x.PayerId != null && x.PayerContactId != null)
+                .OrderByDescending(x => x.CreatedDate)
                 .Select(x => new EmpContractViewModel
                 {
                     Id = x.Id,
                     Number = x.Number,
                     CreateDate = x.CreatedDate,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Declarant = x.OBK_Declarant.NameRu,
+                    ContractType = x.EMP_Ref_ContractType.NameRu,
                     //StageStatusCode = x.
                 });
         }
@@ -99,12 +104,14 @@ namespace Ncels.Teme.Infrastructure
 
             var info = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc));
             if (!info.Exists) info.Create();
-            var dicListQuery = _uow.GetQueryable<Dictionary>().Where(o => o.Type == EmpCodeConsts.ATTACH_CONTRACT_FILE);
+
+            var codes = new[] { EmpCodeConsts.ATTACH_CONTRACT_FILE, EmpCodeConsts.ATTACH_CONTRACT_DEGREERISK_FILE };
+            var dicListQuery = _uow.GetQueryable<Dictionary>().Where(o => codes.Contains(o.Type));
 
             var markList = _uow.GetQueryable<FileLinksCategoryCom>().Where(e => e.DocumentId == contractId).ToList();
-            var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code }).ToList();
-            var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
-            var fileMetadatas = _uow.GetQueryable<FileLink>().Where(e => e.DocumentId == contractId && categoryCodes.Contains(e.FileCategory.Code)).ToList();
+            //var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code }).ToList();
+            //var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
+            var fileMetadatas = _uow.GetQueryable<FileLink>().Where(e => e.DocumentId == contractId /*&& categoryCodes.Contains(e.FileCategory.Code)*/).ToList();
 
             foreach (var dictionary in dicListQuery)
             {
@@ -125,6 +132,7 @@ namespace Ncels.Teme.Infrastructure
                 group.IsNotApplicable = markList.FirstOrDefault(e => e.CategoryId == dictionary.Id) != null &&
                                         fileLinksCategoryCom?.IsNotApplicable != null &&
                                         fileLinksCategoryCom.IsNotApplicable.Value;
+
 
                 group.Items = dirInfo.GetFiles().Join(fileMetadatas, f => f.Name,
                         f => string.Format("{0}{1}", f.Id, Path.GetExtension(f.FileName)),
