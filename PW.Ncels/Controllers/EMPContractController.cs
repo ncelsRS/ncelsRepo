@@ -38,11 +38,24 @@ namespace PW.Ncels.Controllers
         {
             return Json(await emp.GetContractList(request, true), JsonRequestBehavior.AllowGet);
         }
-
         [HttpGet]
         public ActionResult GetHolderTypes()
         {
             var result = emp.GetHolderTypes();
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetContractTypes()
+        {
+            var result = emp.GetContractType().Select(e => new { e.Id, e.NameRu, e.NameKz });
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetCurrency()
+        {
+            string[] note = {"KZT","RUB","USD", "EUR" };
+            var result = emp.GetCurrency().Where(e=> note.Contains(e.Note)).Select(o => new { o.Id, o.Name, o.Code, o.NameKz });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -54,7 +67,7 @@ namespace PW.Ncels.Controllers
         [HttpGet]
         public ActionResult GetBanks()
         {
-            var result = emp.GetBanks();
+            var result = emp.GetBanks().Select(e => new { e.Id, e.NameRu, e.NameKz }); ;
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]

@@ -334,7 +334,7 @@
                     <div class="form-group">
                         <label id="CertificateTypeLableId">Тип сертификата:</label>
                         <div class="input-group">
-                            @Html.DropDownList("CertificateTypeId", (IEnumerable<SelectListItem>)(ViewData["CertificateType"]), String.Empty, new { @class = "form-control edit-control main-control", @readonly = true })
+                            @Html.DropDownList("CertificateTypeId", (IEnumerable<SelectListItem>)(ViewData["CertificateType"]), String.Empty, new { @class = "form-control edit-control main-control gmp-cert-control", @readonly = true })
                             <span class="input-group-addon">
                                 <a class="OBKcommentDialog" href="#">
                                     <i class="glyphicon glyphicon-info-sign"></i>
@@ -347,7 +347,7 @@
                     <div class="form-group">
                         <label id="CertificateId">Номер сертификата:</label>
                         <div class="input-group">
-                            @Html.TextBoxFor(model => model.CertificateGMP, new {@class = "form-control edit-control main-control", @readonly = true})
+                            @Html.TextBoxFor(model => model.CertificateGMP, new {@class = "form-control edit-control main-control gmp-cert-control", @readonly = true})
                             <span class="input-group-addon">
                                 <a class="OBKcommentDialog" href="#">
                                     <i class="glyphicon glyphicon-info-sign"></i>
@@ -436,7 +436,37 @@
             });
         }
 
-        $("#CertificateGMPCheck").change(function() { checkCert(); });
+        $(".gmp-cert-control").change(function () {
+            var _number = $("#CertificateGMP").val();
+            var _type = $("#CertificateTypeId").val();
+
+            if (_number != "" && _type != ""){
+                $.ajax({
+                    type: 'POST',
+                    url: '/SafetyAssessment/GetCertificate/',
+                    data: { number: _number, type: _type },
+                    success: function (result) {
+                        debugger;
+                        if (result.success == true) {
+                            $("#CertificateStartDate").val(result.data.StartDate);
+                            $("#CertificateDate").val(result.data.EndDate);
+                            $("#CertificateManufacturName").val(result.data.CertificateOrganization);
+                            $("#CertificateOrganization").val(result.data.CertificateProducer);
+                            $("#CertificateCountryId").val(result.data.CertificateCountryId);
+
+                            $("#CertificateStartDate").change();
+                            $("#CertificateDate").change();
+                            $("#CertificateManufacturName").change();
+                            $("#CertificateOrganization").change();
+                            $("#CertificateCountryId").change();
+                        }
+                    }
+                });
+            }
+
+        });
+
+        $("#CertificateGMPCheck").change(function () { checkCert(); });
 
         function checkCert() {
             var cerGMPCheck = null;
@@ -449,12 +479,12 @@
             }
             if (cerGMPCheck === "True") {
                 $("#CertificateGMP").attr("readonly", false);
-                $("#CertificateDate").attr("readonly", false).attr("disabled", false);
-                $("#CertificateStartDate").attr("readonly", false).attr("disabled", false);
+                $("#CertificateDate").attr("readonly", true).attr("disabled", true);
+                $("#CertificateStartDate").attr("readonly", true).attr("disabled", true);
                 $("#CertificateTypeId").attr("readonly", false).attr("disabled", false);
-                $("#CertificateCountryId").attr("readonly", false).attr("disabled", false);
-                $("#CertificateOrganization").attr("readonly", false);
-                $("#CertificateManufacturName").attr("readonly", false);
+                $("#CertificateCountryId").attr("readonly", true).attr("disabled", true);
+                $("#CertificateOrganization").attr("readonly", true);
+                $("#CertificateManufacturName").attr("readonly", true);
             } else {
                 $("#CertificateGMP").attr("readonly", true);
                 $("#CertificateDate").attr("readonly", true).attr("disabled", true);

@@ -669,9 +669,19 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null )
             {
-                model = assess.OBK_ActReception;
+                if (assess.OBK_ActReception != null)
+                {
+                    model = assess.OBK_ActReception;
+                }
+                else
+                {
+                    model.Id = assess.Id;
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
             }
 
             ViewData["ContractId"] = assess.ContractId;
@@ -713,9 +723,19 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null)
             {
-                model = assess.OBK_ActReception;
+                if (assess.OBK_ActReception != null)
+                {
+                    model = assess.OBK_ActReception;
+                }
+                else
+                {
+                    model.Id = assess.Id;
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
             }
 
             var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
@@ -778,14 +798,14 @@ namespace PW.Ncels.Controllers
 
             }
 
-            return Json(new { isSuccess = false});
+            return Json(new { isSuccess = false });
 
         }
 
         public ActionResult SelectionPlace(Guid id)
         {
             OBK_StageExpDocumentResult model = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == id);
-            var declaration =  db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
             ViewData["ApplicantAgreement"] = declaration.ApplicantAgreement;
 
             return PartialView(model);
@@ -823,12 +843,34 @@ namespace PW.Ncels.Controllers
 
             foreach (OBK_AssessmentStageExecutors exec in executors)
             {
-                notification.SendNotification("По заявке №" + declaration.Number.ToString() +"заяавитель отказалсяв проведении отбора образцов", 
+                notification.SendNotification("По заявке №" + declaration.Number.ToString() + "заяавитель отказалсяв проведении отбора образцов",
                     ObjectType.ObkDeclaration, declaration.Id, exec.ExecutorId);
             }
 
             db.SaveChanges();
 
+        }
+
+        public ActionResult GetCertificate(string number, int type)
+        {
+            var certificate = db.OBK_CertificateReference.FirstOrDefault(o => o.CertificateNumber.Equals(number) && o.CertificateTypeId == type);
+
+            if (certificate == null)
+            {
+                return Json(new { success = false });
+            }
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
+                    StartDate = ((DateTime)certificate.StartDate).ToString("dd.MM.yyyy"),
+                    EndDate = ((DateTime)certificate.EndDate).ToString("dd.MM.yyyy"),
+                    CertificateCountryId = certificate.CertificateCountryId,
+                    CertificateOrganization = certificate.CertificateOrganization,
+                    CertificateProducer = certificate.CertificateProducer
+                }
+            });
         }
     }
 }
