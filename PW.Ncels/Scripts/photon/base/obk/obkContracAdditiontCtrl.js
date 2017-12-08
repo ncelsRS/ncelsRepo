@@ -20,6 +20,18 @@
         }
     }
 
+    $scope.viewContract = function () {
+        debugger;
+        if ($scope.object.Type == null) {
+            alert("Выберите тип договра");
+            return;
+        }
+        var modalInstance = $uibModal.open({
+            templateUrl: '/OBKContract/ContractTemplate?Id=' + $scope.contractAddition.ContractId + "&Url=" + "GetContractTemplatePdf",
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+
     $scope.loadContract = function (contractId) {
         $http({
             method: 'GET',

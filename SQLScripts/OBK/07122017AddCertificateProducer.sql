@@ -1,0 +1,1 @@
+AlTER TABLE [ncels].[dbo].[OBK_CertificateReference] ADD CertificateProducer NVARCHAR(500) NULL

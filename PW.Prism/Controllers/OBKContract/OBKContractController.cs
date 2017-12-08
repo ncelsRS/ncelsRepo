@@ -869,6 +869,11 @@ namespace PW.Prism.Controllers.OBKContract
             return HttpNotFound();
         }
 
+        public ActionResult ContractTemplateWindow(Guid contractId)
+        {
+            return PartialView("ContractTemplate", contractId);
+        }
+
         public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
             var db = new ncelsEntities();

@@ -114,7 +114,7 @@
                     <li class=""><a data-toggle="tab" href="#tab-2">Заявитель</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-3">Плательщик</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-4">Стоимость работ</a></li>
-                    <li class=""><a data-toggle="tab" href="#tab-5">Вложения</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-5" ng-click="tab5click();">Вложения</a></li>
                 </ul>
                 <div class="tab-content">
                     <div id="tab-1" class="tab-pane active">
@@ -880,7 +880,7 @@
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-sm btn-success" ng-disabled="Calulator.ServiceType == null || Calulator.ServiceTypeName == null || Calulator.ServiceTypeNameModif == null || Calulator.Count == null || showRadioIsImport" ng-click="calculation();">Узнать цену</button>
+                                            <button type="button" class="btn btn-sm btn-success" ng-disabled="Calulator.ServiceType == null || Calulator.ServiceTypeName == null || Calulator.ServiceTypeNameModif == null || Calulator.Count == null || showRadioIsImport || object.ServicePrices.length > 0" ng-click="calculation();">Узнать цену</button>
                                             <button type="button" class="btn btn-sm btn-success" ng-click="clearCalculation();">Очистить</button>
                                         </div>
                                     </div>
@@ -923,10 +923,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
-
                 <div id="tab-5" class="tab-pane">
                     <div class="panel-body">
                         <h3 class="m-t-none m-b">Вложения</h3>
@@ -934,16 +930,13 @@
                             <p class="text-bold">Для загрузки вложений заполните вкладку "Стоимость работ"</p>
                         </div>
                         <div ng-show="object.ServicePrices.length > 0">
-                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
-                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@EmpCodeConsts.ATTACH_CONTRACT_FILE" path="@ModelGuid" />
+                            <p class="text-bold" ng-if="ChangeTypeCode != null && object.ServicePrices.length > 0 && showAttach">Прикрепите необходимые файлы ниже</p>
+                            <attach-edit ng-if="ChangeTypeCode != null && object.ServicePrices.length > 0 && showAttach" metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListWithCodeEdit?excludeCodes={{ChangeTypeCode}}" type="@EmpCodeConsts.ATTACH_CONTRACT_FILE" path="@ModelGuid" />
                         </div>
-                        @*<div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
-                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
-                                        </div>
-                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
-                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
-                                        </div>*@
-                        @*</div>*@
+                        <div ng-show="object.ServicePrices.length > 0">
+                            <p class="text-bold" ng-if="DegreeRiskCode != null && object.ServicePrices.length > 0 && showAttach">Прикрепите необходимые файлы ниже</p>
+                            <attach-edit ng-if="DegreeRiskCode != null && object.ServicePrices.length > 0 && showAttach" metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes={{DegreeRiskCode}}" type="@EmpCodeConsts.ATTACH_CONTRACT_DEGREERISK_FILE" path="@ModelGuid" />
+                        </div>
                     </div>
                 </div>
                         </div>

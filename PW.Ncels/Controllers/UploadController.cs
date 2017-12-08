@@ -71,6 +71,10 @@ namespace PW.Ncels.Controllers
         {
             return Json(FileHelper.GetAttachListEdit(db, id, type, byMetadata, excludeCodes, isShowComment), JsonRequestBehavior.AllowGet);
         }
+        public JsonResult GetAttachListWithCodeEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListWithCodeEdit(db, id, type, byMetadata, excludeCodes, isShowComment), JsonRequestBehavior.AllowGet);
+        }
 
         public bool CheckAttachList(string id, string type)
         {

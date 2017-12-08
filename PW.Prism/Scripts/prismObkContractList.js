@@ -331,6 +331,16 @@ function InitObkContractCard(uiId) {
         printForm: function (e) {
             var modelId = $("#modelId").val();
             window.open('/OBKContract/GetContractTemplatePdf?id=' + modelId);
+        },
+        showForm: function (e) {
+            var modelId = $("#parentId").val();
+            $.ajax({
+                type: 'POST',
+                url: '/OBKContract/ContractTemplateWindow?contractId=' + modelId,
+                success: function (data) {
+                    $("#windowFrame" + modelId).html(data);
+                }
+            });
         }
     });
     kendo.bind($("#splitter" + uiId), viewModel);

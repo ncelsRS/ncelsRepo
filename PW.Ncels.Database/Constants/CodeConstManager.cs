@@ -556,5 +556,16 @@ namespace PW.Ncels.Database.Constants
         #endregion
 
         #endregion
+
+        /// <summary>
+        /// Статусы договора ИМН и МТ
+        /// </summary>
+        public static class EmpContractStatus
+        {
+            /// <summary>
+            /// Черновик
+            /// </summary>
+            public const string Draft = "1";
+        }
     }
 }
