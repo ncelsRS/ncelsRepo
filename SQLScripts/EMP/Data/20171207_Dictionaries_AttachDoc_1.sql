@@ -1,5 +1,7 @@
 delete from FileLinks where CategoryId in(select id from Dictionaries where Type= 'sysAttachEMPContract')
+go
 delete from Dictionaries where Type= 'sysAttachEMPContract'
+go
 
 INSERT INTO [dbo].[Dictionaries]
            ([Id]

@@ -2,8 +2,10 @@ USE [ncels]
 GO
 
 alter table EMP_Ref_ChangeType add Code nvarchar(10) null
+go
 
 delete from EMP_Ref_ChangeType
+go
 
 INSERT INTO [dbo].[EMP_Ref_ChangeType]
            ([Id]
