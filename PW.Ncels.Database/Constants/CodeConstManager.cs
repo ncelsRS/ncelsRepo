@@ -218,6 +218,8 @@ namespace PW.Ncels.Database.Constants
         public const string ATTACH_CONTRACT_FILE_RESIDENT = "sysAttachOBKContractResident";
         public const string ATTACH_CONTRACT_FILE_NON_RESIDENT = "sysAttachOBKContractNonResident";
 
+        public const string ATTACH_CONTRACT_FILE_RATIONALE_EXPERTISE_PLASE = "sysAttachOBKContractRationaleExpertisePlase";
+
         public const string ATTACH_CONTRACT_ADDITION_FILE_BANK_INFO_CHANGE = "sysAttachOBKContractAdditionBankInfoChange";
         public const string ATTACH_CONTRACT_ADDITION_FILE_ADDRESS_CHANGE_RESIDENT = "sysAttachOBKContractAdditionAddressChangeResident";
         public const string ATTACH_CONTRACT_ADDITION_FILE_ADDRESS_CHANGE_NON_RESIDENT = "sysAttachOBKContractAdditionAddressChangeNonResident";
