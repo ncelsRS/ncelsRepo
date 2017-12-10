@@ -35,7 +35,7 @@
 
 
         <div class="row">
-            <div id="act-data-@Model.Id" style="margin-top:20px;">
+            <div id="@("act-data"+@Model.Id)" style="margin-top:20px;">
 
             </div>
         </div>
@@ -51,8 +51,8 @@
         $.ajax({
             url: "/SafetyAssessment/LoadActData?Id=" + itemId +"&AssessmentDeclarationId="+ '@ViewData["AssessmentDeclarationId"]',
             success: function (result) {
-                $("#act-data-@Model.Id").css('border-style', 'groove');
-                $("#act-data-@Model.Id").html(result);
+                $("#act-data"+ "@Model.Id").css('border-style', 'groove');
+                $("#act-data"+"@Model.Id").html(result);
                 $("#loading").hide();
 
                                 $.ajax({
@@ -78,7 +78,7 @@
 
 
     function initSamplesTable(data) {
-        $("#samples-@Model.Id").DataTable({
+        $("#samples"+"@Model.Id").DataTable({
             autoWidth: false,
             searching: false,
             paging: false,
@@ -102,7 +102,7 @@
                     render: function (data, type, row, meta) {
 
                         var res = '<input type="checkbox" id= "Available" ' + checkChecked(row.available)
-                            + '" class="avalable-control" name="Available" data-serieId="' + row.serieId + '"  >'
+                            + '" class="avalable-control'+'@Model.Id'+'" name="Available" data-serieId="' + row.serieId + '"  >'
                         return res;
                     }
                 },
@@ -110,7 +110,7 @@
                     data: 'comment', sWidth: "150px", title: "Примечание",
                     render: function(data, type, row, meta) {
                         var res = '<input type="text" id= "Comment" value="' + checkNull(row.comment)
-                            + '" class="comment-control" name="Comment" data-serieId="' + row.serieId +'"  >'
+                            + '" class="comment-control'+'@Model.Id'+'" name="Comment" data-serieId="' + row.serieId +'"  >'
                         return res;
                     }
 
@@ -121,8 +121,8 @@
         initActControl();
 
         if('@Model.Accept' == 'True'){
-            $(".avalable-control").attr('disabled', 'disabled');
-            $(".comment-control").attr('disabled', 'disabled');
+            $(".avalable-control"+"@Model.Id").attr('disabled', 'disabled');
+            $(".comment-control"+"@Model.Id").attr('disabled', 'disabled');
         }
     }
 
@@ -145,8 +145,8 @@
     var r = confirm("После нажатия Принять данные не подлежать к изменению ");
         if (r == true) {
  if(checkValidationCheckBox() == true){
-                var $j_availables = $(".avalable-control");
-                var $j_comments = $(".comment-control");
+                var $j_availables = $(".avalable-control"+"@Model.Id");
+                var $j_comments = $(".comment-control"+"@Model.Id");
                 var arr_availables = new Map();
                 var arr_comments = new Map();
 
@@ -182,8 +182,8 @@
 
                             if(data.Success === true){
                                 $("#commandRow").hide();
-                                $(".avalable-control").attr('disabled', 'disabled');
-                                $(".comment-control").attr('disabled', 'disabled');
+                                $(".avalable-control"+"@Model.Id").attr('disabled', 'disabled');
+                                $(".comment-control"+"@Model.Id").attr('disabled', 'disabled');
                             }
                         },
                         error: function(data) {
@@ -199,12 +199,12 @@
 
         var ch = true;
 
-        var $j_object = $(".avalable-control");
+        var $j_object = $(".avalable-control"+"@Model.Id");
             $j_object.each( function(){
             ch = $(this).is(':checked');
             if(ch == false){
                 $(this).parent().addClass("redBackground");
-                $("#checkBoxLabel").show();
+                $("#checkBoxLabel"+"@Model.Id").show();
             }
         });
 
@@ -212,7 +212,7 @@
     }
 
     function initActControl() {
-        $(".avalable-control").change(function () {
+        $(".avalable-control"+"@Model.Id").change(function () {
 
             if ($(this).is(':checked')) {
                     $(this).parent().removeClass("redBackground");

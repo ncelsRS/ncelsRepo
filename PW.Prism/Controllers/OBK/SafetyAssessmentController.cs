@@ -152,7 +152,7 @@ namespace PW.Prism.Controllers.OBK
         {
             var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
             var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
-            var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == stage.OBK_AssessmentDeclaration.Id);
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == stage.OBK_AssessmentDeclaration.Id);
             if (model == null)
             {
                 model = new OBK_ActReception();
@@ -170,7 +170,6 @@ namespace PW.Prism.Controllers.OBK
 
             if (stage != null)
             {
-                ViewData["AssessmentDeclarationId"] = stage.OBK_AssessmentDeclaration.Id;
                 ViewData["ProductSampleList"] =
                     new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
             }
@@ -510,7 +509,7 @@ namespace PW.Prism.Controllers.OBK
 
         public ActionResult ExpertActData(Guid assessmentId)
         {
-            var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == assessmentId);
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == assessmentId);
             var assessment = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == assessmentId);
 
             ViewData["ContractId"] = assessment.ContractId;
@@ -518,13 +517,13 @@ namespace PW.Prism.Controllers.OBK
             if (model == null)
             {
                 model = new OBK_ActReception();
-                model.Id = assessmentId;
+                model.Id = Guid.NewGuid();
                 var exp = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == assessmentId);
 
                 model.Number = assessment.Number;
                 model.ActDate = exp.SelectionDate;
                 model.Address = exp.SelectionPlace;
-
+                model.OBK_AssessmentDeclarationId = assessmentId;
                 var employee = db.Employees.FirstOrDefault(o => o.Id == assessment.EmployeeId);
                 model.Declarer = employee.DisplayName;
 
@@ -563,8 +562,13 @@ namespace PW.Prism.Controllers.OBK
             return PartialView(model);
         }
 
-        public ActionResult SaveExpertActReception(OBK_ActReception reception)
+        public ActionResult SaveExpertActReception(OBK_ActReception reception, string actDate)
         {
+            DateTime? actD = null;
+            if (actDate != null || !actDate.Equals(""))
+            {
+                actD = DateTime.Parse(actDate);
+            }
             var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == reception.Id);
             model.InspectionInstalledId = reception.InspectionInstalledId;
             model.MarkingId = reception.MarkingId;
@@ -576,7 +580,7 @@ namespace PW.Prism.Controllers.OBK
             model.Declarer = reception.Declarer;
             model.AttachPath = reception.AttachPath;
             model.ApplicantId = reception.ApplicantId;
-            model.ActDate = model.ActDate;
+            model.ActDate = actD;
             model.Address = model.Address;
 
             db.SaveChanges();
@@ -590,7 +594,17 @@ namespace PW.Prism.Controllers.OBK
 
             if (model != null)
             {
-                db.OBK_ActReception.Remove(model);
+                model.InspectionInstalledId = null;
+                model.MarkingId = null;
+                model.Producer = null;
+                model.Provider = null;
+                model.PackageConditionId = null;
+                model.ProductSamplesId = null;
+                model.StorageConditionsId = null;
+                model.AttachPath = null;
+                model.ApplicantId = null;
+                model.Address = null;
+
                 db.SaveChanges();
             }
             else
@@ -689,7 +703,9 @@ namespace PW.Prism.Controllers.OBK
 
         public ActionResult ActTemplate(Guid actReceptionId)
         {
-            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == actReceptionId);
+            var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == act.OBK_AssessmentDeclarationId);
 
             ViewData["ContractId"] = declaration.ContractId;
             ViewData["ActReceptionId"] = actReceptionId;
