@@ -45,14 +45,14 @@ namespace PW.Ncels.Controllers
         /// <returns></returns>
         public ActionResult Create(string type)
         {
+            var actId = Guid.NewGuid();
             var model = new OBK_AssessmentDeclaration
             {
                 Id = Guid.NewGuid(),
                 EmployeeId = UserHelper.GetCurrentEmployee().Id,
                 StatusId = CodeConstManager.STATUS_DRAFT_ID,
                 ObkContracts = new OBK_Contract(),
-                ObkRsProductses = new List<OBK_RS_Products>(),
-                OBK_ActReception = new OBK_ActReception()
+                ObkRsProductses = new List<OBK_RS_Products>()
             };
 
             model.CertificateDate = null;
@@ -432,9 +432,9 @@ namespace PW.Ncels.Controllers
         }
 
         [HttpPost]
-        public virtual ActionResult UpdateModel(string code, int typeId, string modelId, string userId, long? recordId, string fieldName, string fieldValue, string fieldDisplay)
+        public virtual ActionResult UpdateModel(string code, int typeId, string modelId, string userId, long? recordId, string fieldName, string fieldValue, string fieldDisplay, Guid? actId)
         {
-            var filter = new SafetyAssessmentRepository().UpdateModel(code, typeId, modelId, userId, recordId, fieldName, fieldValue, fieldDisplay);
+            var filter = new SafetyAssessmentRepository().UpdateModel(code, typeId, modelId, userId, recordId, fieldName, fieldValue, fieldDisplay, actId);
             return Json(new { Success = true, modelId = filter.ModelId, recordId = filter.RecordId, controlId = filter.ControlId });
         }
 
@@ -670,15 +670,18 @@ namespace PW.Ncels.Controllers
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
 
-            if (assess != null )
+            if (assess != null)
             {
-                if (assess.OBK_ActReception != null)
+                var temp = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == new Guid(id));
+
+                if (temp != null)
                 {
-                    model = assess.OBK_ActReception;
+                    model = temp;
                 }
                 else
                 {
-                    model.Id = assess.Id;
+                    model.Id = Guid.NewGuid();
+                    model.OBK_AssessmentDeclarationId = new Guid(id);
                     db.OBK_ActReception.Add(model);
                     db.SaveChanges();
                 }
@@ -697,6 +700,13 @@ namespace PW.Ncels.Controllers
             {
                 model.ActDate = DateTime.Now;
                 ViewData["ActDateNull"] = true;
+            }
+
+
+            if (model.Declarer == null)
+            {
+                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
+                ViewData["DeclarerNull"] = true;
             }
 
             var safetyRepository = new SafetyAssessmentRepository();
@@ -726,13 +736,16 @@ namespace PW.Ncels.Controllers
 
             if (assess != null)
             {
-                if (assess.OBK_ActReception != null)
+                var temp = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == new Guid(id));
+
+                if (temp != null)
                 {
-                    model = assess.OBK_ActReception;
+                    model = temp;
                 }
                 else
                 {
-                    model.Id = assess.Id;
+                    model.Id = Guid.NewGuid();
+                    model.OBK_AssessmentDeclarationId = new Guid(id);
                     db.OBK_ActReception.Add(model);
                     db.SaveChanges();
                 }
@@ -750,6 +763,12 @@ namespace PW.Ncels.Controllers
             {
                 model.ActDate = DateTime.Now;
                 ViewData["ActDateNull"] = true;
+            }
+
+            if (model.Declarer == null)
+            {
+                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
+                ViewData["DeclarerNull"] = true;
             }
 
             ViewData["ContractId"] = assess.ContractId;
