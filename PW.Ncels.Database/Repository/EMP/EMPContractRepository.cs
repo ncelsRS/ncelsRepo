@@ -653,7 +653,10 @@ namespace PW.Ncels.Database.Repository.EMP
             EMPContractViewModel contractView = new EMPContractViewModel
             {
                 Id = contract.Id,
-                MedicalDeviceName = contract.MedicalDeviceName
+                MedicalDeviceName = contract.MedicalDeviceName,
+                HolderType = contract.HolderType,
+                ContractType = contract.ContractType,
+                ChoosePayer = contract.ChoosePayer
             };
             if (contract.OBK_DeclarantManufactur != null)
             {
@@ -678,8 +681,10 @@ namespace PW.Ncels.Database.Repository.EMP
                         AddressFact = contract.OBK_DeclarantContactManufactur.AddressFact,
                         AddressLegalRu = contract.OBK_DeclarantContactManufactur.AddressLegalRu,
                         AddressLegalKz = contract.OBK_DeclarantContactManufactur.AddressLegalKz,
+                        BankId = contract.OBK_DeclarantContactManufactur.BankId,
                         BankBik = contract.OBK_DeclarantContactManufactur.BankBik,
                         BankIik = contract.OBK_DeclarantContactManufactur.BankIik,
+                        BankAccount = contract.OBK_DeclarantContactManufactur.BankAccount,
                         BankNameRu = contract.OBK_DeclarantContactManufactur.BankNameRu,
                         BankNameKz = contract.OBK_DeclarantContactManufactur.BankNameKz,
                         Phone = contract.OBK_DeclarantContactManufactur.Phone,
@@ -694,6 +699,7 @@ namespace PW.Ncels.Database.Repository.EMP
                         IsHasBossDocNumber = contract.OBK_DeclarantContactManufactur.IsHasBossDocNumber,
                         BossDocCreatedDate = contract.OBK_DeclarantContactManufactur.BossDocCreatedDate,
                         BossPositionKz = contract.OBK_DeclarantContactManufactur.BossPositionKz
+                        
                     };
                     contractView.Manufactur.Contact = declarantContractManufactur;
                 }
