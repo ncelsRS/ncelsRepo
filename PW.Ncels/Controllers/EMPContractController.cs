@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -210,6 +211,20 @@ namespace PW.Ncels.Controllers
         {
             EMPContractViewModel view = emp.LoadContract(contractId);
             return Json(view, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult SendToCoz(Guid contractId)
+        {
+            try
+            {
+                emp.SendToCoz(contractId);
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

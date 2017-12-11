@@ -18,5 +18,7 @@ namespace Ncels.Teme.Contracts.ViewModels
         public IList<EmpContractWorkCostViewModel> WorkCosts { get; set; }
 
         public IEnumerable<EmpContractFileAttachmentViewModel> Attachments { get; set; }
+
+        public string StageStatusCode { get; set; }
     }
 }

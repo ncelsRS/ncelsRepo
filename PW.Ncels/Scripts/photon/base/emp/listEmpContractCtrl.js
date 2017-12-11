@@ -91,11 +91,28 @@
         $scope.loadContract();
     };
 
-    $scope.saveBtnClick = function () {
+    $scope.saveBtnClick = function() {
         debugger;
         //todo будет валидация
         $scope.editProject();
-    }
+    };
+
+    $scope.btnSendToCozDisabled = false;
+    $scope.sendToCoz = function() {
+        // todo будет валидация
+        $scope.btnSendToCozDisabled = true;
+        $http({
+            url: '/EMPContract/SendToCoz',
+            method: 'POST',
+            data: { contractId: $("#modelGuid").val() }
+        }).success(function() {
+            alert("Договор отправлен успешно");
+            $scope.btnSendToCozDisabled = false;
+        }).error(function() {
+            alert("Возникла ошибка при отправке в ЦОЗ");
+            $scope.btnSendToCozDisabled = false;
+        });
+    };
 
     // saveContract
     $scope.editProject = function () {
