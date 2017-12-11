@@ -321,7 +321,26 @@
     $scope.doSign = function () {
         var id = $scope.contractAddition.Id;
         if (id) {
+            var funcSign = function signData() {
+                debugger;
+                $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Выполняется подпись...</h1>', css: { opacity: 1 } });
+                signXmlCall(function () {
+                    $http({
+                        url: '/OBKContract/SignContract',
+                        method: 'POST',
+                        data: JSON.stringify({ contractId: id, signedData: $("#Certificate").val() })
+                    }).success(function (response) {
+                        $scope.contractAddition.Status = response;
+                        $scope.changeViewMode();
+                        $window.location.href = '/OBKContract';
+                    }).error(function () {
+                        alert("error");
+                        $.unblockUI();
+                    });
+                });
+            };
 
+            startSign('/OBKContract/SignData', id, funcSign);
         }
     }
 
