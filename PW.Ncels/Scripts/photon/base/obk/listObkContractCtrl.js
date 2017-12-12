@@ -368,13 +368,6 @@
         { name: 'Part', displayName: 'Размер партии' },
         { name: 'UnitName', displayName: 'Ед. измерения' },
         { name: 'UnitId', displayName: 'Ед. измерения - код', visible: false },
-        {
-            name: 'ExpertisePlace',
-            displayName: 'Место проведения экспертизы',
-            minWidth: 200,
-            visible: $scope.viewRationaleFile,
-            cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col) == 1 ? "Лаборатория производителя" : "Лаборатория НЦЭЛС"}}</div>'
-        },
         { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>', maxWidth: 30 }
     ];
 
@@ -405,10 +398,23 @@
         { name: 'Id', displayName: 'Id', visible: false },
         { name: 'ProductId', displayName: 'ProductId', visible: false },
         { name: 'NameRu', displayName: 'Наименование' },
+        { name: 'Dimension', displayName: 'Размер ность', visible: $scope.object.Type == 1, maxWidth: 60 },
         { name: 'ProducerNameRu', displayName: 'Производитель' },
         { name: 'CountryNameRu', displayName: 'Страна-производитель' },
-        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductdialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        {
+            name: 'ExpertisePlace',
+            displayName: 'Место проведения аналитической экспертизы',
+            visible: $scope.object.Type == 1,
+            minWidth: 250,
+            cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col) == 0 ? "Лаборатория экспертной организации" : "Лаборатория производителя"}}</div>'
+        },
+        { maxWidth: 50, name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductdialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
+
+    function updateProductTableView() {
+        $scope.gridOptionsProducts.columnDefs[3].visible = $scope.object.Type == 1;
+        $scope.gridOptionsProducts.columnDefs[6].visible = $scope.object.Type == 1;
+    }
 
     $scope.addedProducts = [];
 
@@ -614,6 +620,8 @@
 
             var selectedObj = $scope.addedProducts[$scope.selectedProductIndex];
 
+            $scope.product.expertisePlace = selectedObj.ExpertisePlace + '';
+            $scope.product.Dimension = selectedObj.Dimension;
             $scope.product.Id = selectedObj.Id;
             $scope.product.ProductId = selectedObj.ProductId;
             $scope.product.RegTypeId = selectedObj.RegTypeId;
@@ -729,15 +737,11 @@
         var createDate = convertDateToString($scope.object.seriesCreateDate);
         var expireDate = convertDateToString($scope.object.seriesExpireDate);
 
-        if ($scope.object.Type != 1)
-            $scope.object.expertisePlace = "0";
-
         if (!$scope.object.seriesValue ||
             !createDate ||
             !expireDate ||
             !$scope.object.partValue ||
-            !$scope.object.seriesUnit ||
-            !$scope.object.expertisePlace) {
+            !$scope.object.seriesUnit) {
             alert("Заполните поля серии");
         }
         else {
@@ -749,13 +753,11 @@
                 Part: $scope.object.partValue,
                 UnitId: $scope.object.seriesUnit.Id,
                 UnitName: $scope.object.seriesUnit.Name,
-                ExpertisePlace: $scope.object.expertisePlace
             };
             $scope.productSeries.push(obj);
             $scope.object.seriesValue = null;
             $scope.object.partValue = null;
             $scope.object.seriesUnit = null;
-            $scope.object.expertisePlace = null;
         }
     };
 
@@ -770,12 +772,16 @@
     }
 
     $scope.saveProduct = function saveProduct() {
+        if (!$scope.product.expertisePlace && $scope.object.Type == 1)
+            return alert('Выберите место проведения аналитической экспертизы');
+        if (!$scope.product.Dimension && $scope.object.Type == 1 && $scope.product.RegTypeId == 2)
+            return alert('Внесите размерность');
         if ($scope.mode == 1) {
             var id = $scope.product.ProductId;
             if (id) {
                 if (!$scope.existInArray($scope.addedProducts, id)) {
                     if ($scope.drugForms.length == 0 || ($scope.drugForms.length > 0 && $scope.product.DrugFormId)) {
-                        if ($scope.productSeries.length > 0) {
+                        if ($scope.productSeries.length > 0 || $scope.object.Type == 1) {
                             if ($scope.product.ServiceName) {
                                 var product = {
                                     Id: null,
@@ -802,7 +808,9 @@
                                     DrugFormFullNameKz: $scope.product.DrugFormFullNameKz,
                                     Series: [],
                                     MtParts: [],
-                                    ServiceName: $scope.product.ServiceName
+                                    ServiceName: $scope.product.ServiceName,
+                                    ExpertisePlace: $scope.product.expertisePlace,
+                                    Dimension: $scope.product.Dimension
                                 }
                                 product.Series = $scope.productSeries.slice();
                                 product.MtParts = $scope.selectedMtParts.slice();
@@ -838,7 +846,7 @@
             }
         }
         if ($scope.mode == 2) {
-            if ($scope.productSeries.length > 0) {
+            if ($scope.productSeries.length > 0 || $scope.object.Type == 1) {
                 if ($scope.product.ServiceName) {
                     var selectedObj = $scope.addedProducts[$scope.selectedProductIndex];
                     selectedObj.Id = $scope.product.Id;
@@ -861,6 +869,8 @@
                     selectedObj.NdName = $scope.product.NdName;
                     selectedObj.NdNumber = $scope.product.NdNumber;
                     selectedObj.ServiceName = $scope.product.ServiceName;
+                    selectedObj.ExpertisePlace = $scope.product.expertisePlace;
+                    selectedObj.Dimension = $scope.product.Dimension;
                     selectedObj.Series.length = 0;
                     selectedObj.Series.push.apply(selectedObj.Series, $scope.productSeries);
 
@@ -885,18 +895,16 @@
         $scope.viewRationaleFile = false;
         if ($scope.addedProducts.length === 0) return;
         for (var i = 0; i < $scope.addedProducts.length; i++) {
-            for (var j = 0; j < $scope.addedProducts[i].Series.length; j++) {
-                if ($scope.addedProducts[i].Series[j].ExpertisePlace == 1) {
-                    $scope.viewRationaleFile = true;
-                    break;
-                }
+            if ($scope.addedProducts[i].ExpertisePlace == 1) {
+                $scope.viewRationaleFile = true;
+                break;
             }
-            if ($scope.viewRationaleFile) break;
         }
     }
 
     $scope.saveProductInformation = function (product) {
         updateViewRationaleFile();
+        updateProductTableView();
         var projectId = $scope.object.Id;
         if (projectId) {
             $http({
@@ -958,6 +966,9 @@
         $scope.object.drugRegType = 1;
         $scope.object.drugEndDateExpired = false;
         $scope.object.drugTradeName = null;
+
+        $scope.product.expertisePlace = null;
+        $scope.product.Dimension = null;
 
         $scope.gridOptions.data.length = 0;
         //
@@ -1517,6 +1528,7 @@
                 $scope.addedProducts.push.apply($scope.addedProducts, resp.data);
                 // Показать загрузку обоснования
                 updateViewRationaleFile();
+                updateProductTableView();
             }
         });
 

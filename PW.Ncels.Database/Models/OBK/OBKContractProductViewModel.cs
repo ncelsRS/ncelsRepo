@@ -31,6 +31,9 @@ namespace PW.Ncels.Database.Models.OBK
         public string NdNumber { get; set; }
         public DateTime? ExpirationDate { get; set; }
 
+        public int ExpertisePlace { get; set; }
+        public string Dimension { get; set; }
+
         public List<OBKContractSeriesViewModel> Series { get; set; }
         public List<OBKContractMtPartViewModel> MtParts { get; set; }
 

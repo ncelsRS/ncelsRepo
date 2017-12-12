@@ -15,6 +15,5 @@ namespace PW.Ncels.Database.Models.OBK
         public string Part { get; set; }
         public long? UnitId { get; set; }
         public string UnitName { get; set; }
-        public int? ExpertisePlace { get; set; }
     }
 }
