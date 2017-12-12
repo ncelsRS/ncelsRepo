@@ -408,7 +408,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 DeleteMtParts(productInfo.Id);
                 SaveMtParts(productInfo.Id, product.MtParts);
-                var count = product.Series.Where(x => x.ExpertisePlace == 0).Count();
+                var count = product.ExpertisePlace == 1 ? 0 : product.Series?.Count ?? 1;
                 SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
@@ -423,7 +423,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 SaveSeries(productInfo.Id, product.Series);
                 SaveMtParts(productInfo.Id, product.MtParts);
-                var count = product.Series.Where(x => x.ExpertisePlace == 0).Count();
+                var count = product.ExpertisePlace == 1 ? 0 : product.Series?.Count ?? 1;
                 SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
@@ -478,7 +478,9 @@ namespace PW.Ncels.Database.Repository.OBK
                         RegDate = result.RegDate,
                         ExpirationDate = result.ExpirationDate,
                         NdName = result.NdName,
-                        NdNumber = result.NdNumber
+                        NdNumber = result.NdNumber,
+                        ExpertisePlace = result.ExpertisePlace,
+                        Dimension = result.Dimension
                     };
                     var contractPrice = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == result.Id);
                     contractProduct.ServiceName = contractPrice?.PriceRefId ?? Guid.Parse("00000000-0000-0000-0000-000000000000");
@@ -496,7 +498,6 @@ namespace PW.Ncels.Database.Repository.OBK
                             Part = resultSeries.SeriesParty,
                             UnitId = resultSeries.SeriesMeasureId,
                             UnitName = resultSeries.sr_measures.short_name,
-                            ExpertisePlace = resultSeries.ExpertisePlace
                         };
                         contractSerieses.Add(contractSeries);
                     }
@@ -637,7 +638,6 @@ namespace PW.Ncels.Database.Repository.OBK
                     newSerie.SeriesStartdate = item.CreateDate;
                     newSerie.SeriesEndDate = item.ExpireDate;
                     newSerie.SeriesParty = item.Part;
-                    newSerie.ExpertisePlace = item.ExpertisePlace;
                     newSerie.SeriesMeasureId = item.UnitId;
                     newSerie.OBK_RS_ProductsId = productId;
                     AppContext.OBK_Procunts_Series.Add(newSerie);
@@ -755,6 +755,8 @@ namespace PW.Ncels.Database.Repository.OBK
             productInfo.ExpirationDate = product.ExpirationDate;
             productInfo.NdName = product.NdName;
             productInfo.NdNumber = product.NdNumber;
+            productInfo.ExpertisePlace = product.ExpertisePlace;
+            productInfo.Dimension = product.Dimension;
         }
 
         public List<OBKContractServiceViewModel> GetContractPrices(Guid contractId)
