@@ -19,14 +19,18 @@ namespace PW.Ncels.Controllers
         EMPContractRepository emp = new EMPContractRepository();
 
         // GET: EMPContract
-        public ActionResult Index()
+        public ActionResult Index(string scope)
         {
+            ViewBag.Scope = scope;
+            ViewBag.ScopeName = emp.GetContractScopeName(scope);
             return View();
         }
 
-        public ActionResult Contract(Guid? id)
+        public ActionResult Contract(Guid? id, string scope)
         {
-            ViewBag.ListAction = "Index";
+            //ViewBag.ListAction = "Index";
+            ViewBag.Scope = scope;
+            ViewBag.ReturnUrl = HttpContext.Request.UrlReferrer;
             return View(id);
         }
 
@@ -35,9 +39,9 @@ namespace PW.Ncels.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<JsonResult> ReadContract(ModelRequest request)
+        public async Task<JsonResult> ReadContract(ModelRequest request, string scope)
         {
-            return Json(await emp.GetContractList(request, true), JsonRequestBehavior.AllowGet);
+            return Json(await emp.GetContractList(request, true, scope), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult GetHolderTypes()

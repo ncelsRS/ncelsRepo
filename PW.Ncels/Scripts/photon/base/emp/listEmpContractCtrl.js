@@ -94,7 +94,8 @@
     $scope.saveBtnClick = function() {
         debugger;
         //todo будет валидация
-        $scope.editProject();
+        if ($scope.validate())
+            $scope.editProject();
     };
 
     $scope.btnSendToCozDisabled = false;
@@ -842,7 +843,20 @@
         }
     }
 
-    
+    $scope.object.ContractScope = "";
+    $scope.setContractScope = function (contractScope) {
+        debugger;
+        $scope.object.ContractScope = contractScope;
+    }
+
+    $scope.validate = function () {
+        debugger;
+        var valid = $scope.ContractForm.$valid;
+        var errors = $scope.ContractForm.$error;
+        if (!valid)
+            alert('Заполните все обязательные поля');
+        return valid;
+    }
 }
 
 function loadCurrency($scope, $http) {
