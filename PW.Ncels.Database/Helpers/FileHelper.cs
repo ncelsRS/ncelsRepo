@@ -699,7 +699,8 @@ namespace PW.Ncels.Database.Helpers
                 return new List<object>();
             }
         }
-        public static IEnumerable GetAttachListEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, string excludeCodes = null, bool isShowComment=false)
+        public static IEnumerable GetAttachListEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, 
+            string excludeCodes = null, bool isShowComment=false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
         {
            /* try
             {*/
@@ -710,6 +711,16 @@ namespace PW.Ncels.Database.Helpers
                 var dicListQuery = exludeItems != null
                     ? db.Dictionaries.Where(o => o.Type == type && !exludeItems.Contains(o.Code))
                     : db.Dictionaries.Where(o => o.Type == type);
+
+            if (includeDictionaries != null)
+            {
+                foreach (var include in includeDictionaries)
+                {
+                    dicListQuery = dicListQuery.Concat(db.Dictionaries.Where(x =>
+                        x.Code == include.Item1 && x.Type == include.Item2));
+                }
+            }
+
             if (byMetadata)
                 {
                     var docId = Guid.Parse(doc);
@@ -792,7 +803,8 @@ namespace PW.Ncels.Database.Helpers
             }*/
         }
 
-        public static IEnumerable GetAttachListWithCodeEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        public static IEnumerable GetAttachListWithCodeEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, 
+            string excludeCodes = null, bool isShowComment = false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
         {
             /* try
              {*/
@@ -803,6 +815,16 @@ namespace PW.Ncels.Database.Helpers
             var dicListQuery = exludeItems != null
                 ? db.Dictionaries.Where(o => o.Type == type && exludeItems.Contains(o.Code))
                 : db.Dictionaries.Where(o => o.Type == type);
+
+            if (includeDictionaries != null)
+            {
+                foreach (var include in includeDictionaries)
+                {
+                    dicListQuery = dicListQuery.Concat(db.Dictionaries.Where(x =>
+                        x.Code == include.Item1 && x.Type == include.Item2));
+                }
+            }
+
             if (byMetadata)
             {
                 var docId = Guid.Parse(doc);

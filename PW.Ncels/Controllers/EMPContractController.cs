@@ -18,6 +18,12 @@ namespace PW.Ncels.Controllers
     {
         EMPContractRepository emp = new EMPContractRepository();
 
+        private List<Tuple<string, string>> _include = new List<Tuple<string, string>>
+        {
+            Tuple.Create("3", "sysAttachContractDict"),
+            Tuple.Create("5", "sysAttachContractDict")
+        };
+
         // GET: EMPContract
         public ActionResult Index(string scope)
         {
@@ -229,6 +235,16 @@ namespace PW.Ncels.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
             }
+        }
+
+        public ActionResult GetAttachListEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetAttachListWithCodeEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListWithCodeEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
         }
     }
 }
