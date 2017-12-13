@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Ncels.Helpers;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Models.EMP;
+using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Repository.EMP;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Export;
 
 namespace PW.Ncels.Controllers
 {
@@ -245,6 +251,25 @@ namespace PW.Ncels.Controllers
         public JsonResult GetAttachListWithCodeEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
         {
             return Json(FileHelper.GetAttachListWithCodeEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ContractTemplate(Guid id, string url)
+        {
+            return PartialView(new OBKEntityTemplate { Id = id, Url = url });
+        }
+
+        public ActionResult PrintContractReport(Guid id)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/EMP/EMP_ContractReport.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("vm", emp.GetContractReportData(id));
+            report.Render(false);
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
         }
     }
 }

@@ -857,6 +857,25 @@
             alert('Заполните все обязательные поля');
         return valid;
     }
+
+    $scope.viewContract = function (id) {
+        debugger;
+        var modalInstance = $uibModal.open({
+            templateUrl: '/EMPContract/ContractTemplate?Id=' + id + "&Url=" + "PrintContractReport",
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+}
+
+function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
+    debugger;
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
 }
 
 function loadCurrency($scope, $http) {

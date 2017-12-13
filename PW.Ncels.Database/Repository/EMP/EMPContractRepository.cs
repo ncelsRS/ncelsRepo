@@ -854,5 +854,27 @@ namespace PW.Ncels.Database.Repository.EMP
         {
             return AppContext.EMP_Ref_ContractScope.Where(x => x.Code == code).Select(x => x.NameRu).FirstOrDefault();
         }
+
+        public object GetContractReportData(Guid id)
+        {
+            var contract = AppContext.EMP_Contract.FirstOrDefault(x => x.Id == id);
+            if (contract == null) return null;
+
+            var obj = new
+            {
+                ContractNumber = contract.Number,
+                MedicalDeviceNameRu = contract.MedicalDeviceName,
+                contract.MedicalDeviceNameKz,
+                CostWorks = contract.EMP_CostWorks.Select(cw => new
+                {
+                    Name = cw.EMP_Ref_PriceList.EMP_Ref_ServiceType.NameRu,
+                    Price = cw.Price ?? 0,
+                    Count = cw.Count ?? 0,
+                    TotalPrice = cw.TotalPrice ?? 0
+                })
+            };
+
+            return obj;
+        }
     }
 }
