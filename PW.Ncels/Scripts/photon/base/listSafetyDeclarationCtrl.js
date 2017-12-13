@@ -1,5 +1,5 @@
 ﻿function dateformatHtml1(data, type, full, meta) {
-    debugger;
+    
     if (data == null)
         return '';
     var date = new Date(parseInt(data.slice(6, -2)));

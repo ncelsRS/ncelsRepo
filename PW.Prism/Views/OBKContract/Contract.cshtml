@@ -55,126 +55,124 @@
                 </div>
             );
 
-        panes.Add().Scrollable(false).Size("100%").Content(
-            @<div id="@("contractDataTabs" + ViewBag.UiId)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
-                <div id="@("contractDataTab1" + ViewBag.UiId)" class="row">
-                    <div class="ibox-content">
-                        <div class="row">
-                        @(Html.Kendo().ToolBar().Name("contractToolBar" + (string)ViewBag.UiId).Items(items =>
-                        {
-                            if (ViewBag.ShowMeetsRequirementsBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='meetsRequirementsBtn{0}' class='k-button' data-bind='click: meetsRequirements'><span class='glyphicon glyphicon-ok'></span> Соответствует требованиям</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowDoesNotMeetRequirementsBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='doesNotMeetRequirementsBtn{0}' class='k-button' data-bind='click: doesNotMeetRequirements'><span class='glyphicon glyphicon-remove'></span> Не соответствует требованиям</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowReturnToApplicantBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='returnToApplicantBtn{0}' class='k-button' data-bind='click: returnToApplicant'>Вернуть на доработку</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowSendToBossForApprovalBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalBtn{0}' class='k-button' data-bind='click: sendToBossForApproval'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
-                            }
-                            else if (ViewBag.ShowSendToBossForApprovalWithWarningBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalWithWarningBtn{0}' class='k-button' data-bind='click: sendToBossForApprovalWithWarning'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowDoApprovementBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='doApprovementBtn{0}' class='k-button' data-bind='click: doApprovement'><span class='glyphicon glyphicon-ok-circle'></span> Согласовать</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowRefuseApprovementBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='refuseApprovementBtn{0}' class='k-button' data-bind='click: refuseApprovement'><span class='glyphicon glyphicon-ban-circle'></span> Отказать в согласовании</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowShowRefuseReasonBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='showRefuseReasonBtn{0}' class='k-button' data-bind='click: showRefuseReason'>Отобразить основание отказа</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowRegisterBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerBtn{0}' class='k-button' data-bind='click: register'><span class='glyphicon glyphicon-ok-circle'></span> Зарегистрировать</a>", (string)ViewBag.UiId));
-                            }
-                            if (ViewBag.ShowAttachContractBtn)
-                            {
-                                var disabled = "";
-                                if (Model.Number == null || Model.Number == PW.Ncels.Database.Constants.CodeConstManager.OBK_CONTRACT_NO_NUMBER)
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div id="@("contractDataTabs" + ViewBag.UiId)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
+                        <div id="@("contractDataTab1" + ViewBag.UiId)" class="row">
+                            <div class="ibox-content">
+                                <div class="row">
+                                    @(Html.Kendo().ToolBar().Name("contractToolBar" + (string)ViewBag.UiId).Items(items =>
                                 {
-                                    disabled = "disabled";
-                                }
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='attachContractBtn{0}' class='k-button {1}' data-bind='click: attachContract'><span class='glyphicon glyphicon-ok-circle'></span> Прикрепить договор</a>", (string)ViewBag.UiId, disabled));
-                            }
-                            if (ViewBag.ShowSignContractBtn)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContractBtn{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
-                            }
-                            items.Add().Type(CommandType.Button).Template(string.Format("<a id='printFormBtn{0}' class='k-button' data-bind='click: printForm'><span class='glyphicon glyphicon-print'></span> Печать формы договора</a>", (string)ViewBag.UiId));
-                            if (Model.ParentId != null)
-                            {
-                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='showFormBtn{0}' class='k-button' data-bind='click: showForm'><span class='glyphicon glyphicon-print'></span>Посмотреть договор</a>", (string)ViewBag.UiId));
-                            }
-                        }))
-                        <span id="@("question" + ViewBag.UiId)" style="display: none">@ViewBag.QuestionMessage</span>
-                    </div>
-                    @if (Model.ParentId != null)
-                    {
-                        <br />
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label>К договору</label>
-                                    @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)(ViewBag.ParentContracts),
-                                        String.Empty,
-                                        new
-                                        {
-                                            @class = "form-control edit-control main-control",
-                                            @disabled = "disabled"
-                                        })
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label>Тип дополнительного соглашения</label>
-                                    @Html.DropDownList("ContractAdditionType", (IEnumerable<SelectListItem>)(ViewBag.ContractAdditionTypes),
-                                        String.Empty,
-                                        new
-                                        {
-                                            @class = "form-control edit-control main-control",
-                                            @disabled = "disabled"
-                                        })
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="tabs-container">
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
-                                    @if (Model.ParentId == null)
+                                    if (ViewBag.ShowMeetsRequirementsBtn)
                                     {
-                                        <li class=""><a data-toggle="tab" href="@tab2b">Информация о заявляемой продукции</a></li>
-                                        if (Model.Type == 1)
-                                        {
-                                            <li class=""><a data-toggle="tab" href="@tab4b">Производственные площадки</a></li>
-                                        }
-                                        <li class=""><a data-toggle="tab" href="@tab3b">Стоимость работ</a></li>
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='meetsRequirementsBtn{0}' class='k-button' data-bind='click: meetsRequirements'><span class='glyphicon glyphicon-ok'></span> Соответствует требованиям</a>", (string)ViewBag.UiId));
                                     }
-                                    </ul>
-                                    <div class="tab-content">
-                                        <input type="hidden" id="modelId" value="@Model.Id.ToString()" />
-                                        <input type="hidden" id="parentId" value="@Model.ParentId.ToString()" />
-                                        <div id="@tab1" class="tab-pane active">
-                                            <div class="panel-body">
-                                                <div class="row">
-                                                    <div class="col-lg-6 b-r">
-                                                        <div class="form-group">
-                                                            <label>Тип договора *</label>
-                                                            <div class="input-group">
-                                                                @Html.DropDownList("ContractType", (IEnumerable<SelectListItem>)(ViewBag.ContractTypes),
+                                    if (ViewBag.ShowDoesNotMeetRequirementsBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='doesNotMeetRequirementsBtn{0}' class='k-button' data-bind='click: doesNotMeetRequirements'><span class='glyphicon glyphicon-remove'></span> Не соответствует требованиям</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowReturnToApplicantBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='returnToApplicantBtn{0}' class='k-button' data-bind='click: returnToApplicant'>Вернуть на доработку</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowSendToBossForApprovalBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalBtn{0}' class='k-button' data-bind='click: sendToBossForApproval'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
+                                    }
+                                    else if (ViewBag.ShowSendToBossForApprovalWithWarningBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalWithWarningBtn{0}' class='k-button' data-bind='click: sendToBossForApprovalWithWarning'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowDoApprovementBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='doApprovementBtn{0}' class='k-button' data-bind='click: doApprovement'><span class='glyphicon glyphicon-ok-circle'></span> Согласовать</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowRefuseApprovementBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='refuseApprovementBtn{0}' class='k-button' data-bind='click: refuseApprovement'><span class='glyphicon glyphicon-ban-circle'></span> Отказать в согласовании</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowShowRefuseReasonBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showRefuseReasonBtn{0}' class='k-button' data-bind='click: showRefuseReason'>Отобразить основание отказа</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowRegisterBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerBtn{0}' class='k-button' data-bind='click: register'><span class='glyphicon glyphicon-ok-circle'></span> Зарегистрировать</a>", (string)ViewBag.UiId));
+                                    }
+                                    if (ViewBag.ShowAttachContractBtn)
+                                    {
+                                        var disabled = "";
+                                        if (Model.Number == null || Model.Number == PW.Ncels.Database.Constants.CodeConstManager.OBK_CONTRACT_NO_NUMBER)
+                                        {
+                                            disabled = "disabled";
+                                        }
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='attachContractBtn{0}' class='k-button {1}' data-bind='click: attachContract'><span class='glyphicon glyphicon-ok-circle'></span> Прикрепить договор</a>", (string)ViewBag.UiId, disabled));
+                                    }
+                                    if (ViewBag.ShowSignContractBtn)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContractBtn{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
+                                    }
+                                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='printFormBtn{0}' class='k-button' data-bind='click: printForm'><span class='glyphicon glyphicon-print'></span> Печать формы договора</a>", (string)ViewBag.UiId));
+                                    if (Model.ParentId != null)
+                                    {
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showFormBtn{0}' class='k-button' data-bind='click: showForm'><span class='glyphicon glyphicon-print'></span>Посмотреть договор</a>", (string)ViewBag.UiId));
+                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showAdditionalFormBtn{0}' class='k-button' data-bind='click: showAdditionalForm'><span class='glyphicon glyphicon-print'></span>Печать формы дополнительного соглашения</a>", (string)ViewBag.UiId));
+                                    }
+                                }))
+                                    <span id="@("question" + ViewBag.UiId)" style="display: none">@ViewBag.QuestionMessage</span>
+                                </div>
+                                @if (Model.ParentId != null)
+                                {
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label>К договору</label>
+                                                @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)(ViewBag.ParentContracts),
+                                                                 String.Empty,
+                                                                 new
+                                                                 {
+                                                                     @class = "form-control edit-control main-control",
+                                                                     @disabled = "disabled"
+                                                                 })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label>Тип дополнительного соглашения</label>
+                                                @Html.DropDownList("ContractAdditionType", (IEnumerable<SelectListItem>)(ViewBag.ContractAdditionTypes),
+                                                                 String.Empty,
+                                                                 new
+                                                                 {
+                                                                     @class = "form-control edit-control main-control",
+                                                                     @disabled = "disabled"
+                                                                 })
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="tabs-container">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
+                                                @if (Model.ParentId == null)
+                                                {
+                                                    <li class=""><a data-toggle="tab" href="@tab2b">Информация о заявляемой продукции</a></li>
+                                                    <li class=""><a data-toggle="tab" href="@tab3b">Стоимость работ</a></li>
+                                                }
+                                            </ul>
+                                            <div class="tab-content">
+                                                <input type="hidden" id="modelId" value="@Model.Id.ToString()" />
+                                                <input type="hidden" id="parentId" value="@Model.ParentId.ToString()" />
+                                                <input type="hidden" id="contractAdditionTypeId" value="@Model.ContractAdditionType.ToString()" />
+                                                <div id="@tab1" class="tab-pane active">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-lg-6 b-r">
+                                                                <div class="form-group">
+                                                                    <label>Тип договора *</label>
+                                                                    <div class="input-group">
+                                                                        @Html.DropDownList("ContractType", (IEnumerable<SelectListItem>)(ViewBag.ContractTypes),
                                                                     String.Empty,
                                                                     new
                                                                     {
@@ -772,6 +770,9 @@
     if (@Model.ParentId != null)
     {
         <div id="@("windowFrame" +Model.ParentId)">
+        </div>
+
+        <div id="@("windowFrame" +Model.Id)">
         </div>
     }
 }

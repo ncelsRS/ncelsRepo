@@ -12,6 +12,7 @@ namespace PW.Ncels.Database.Models.EMP
         public Guid? HolderType { get; set; }
         public Guid? ContractType { get; set; }
         public string MedicalDeviceName { get; set; }
+        public string MedicalDeviceNameKz { get; set; }
         public bool DeclarantIsManufactur { get; set; }
         public string ChoosePayer { get; set; }
         public Declarants Manufactur { get; set; }

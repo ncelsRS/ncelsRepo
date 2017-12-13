@@ -180,6 +180,7 @@ namespace PW.Ncels.Database.Repository.EMP
                 contract.ContractType = contractViewModel.ContractType;
                 contract.HolderType = contractViewModel.HolderType;
                 contract.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                contract.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 contract.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 contract.ChoosePayer = contractViewModel.ChoosePayer;
 
@@ -237,6 +238,7 @@ namespace PW.Ncels.Database.Repository.EMP
                 model.ContractType = contractViewModel.ContractType;
                 model.HolderType = contractViewModel.HolderType;
                 model.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                model.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 model.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 model.ChoosePayer = contractViewModel.ChoosePayer;
 
@@ -661,6 +663,7 @@ namespace PW.Ncels.Database.Repository.EMP
             {
                 Id = contract.Id,
                 MedicalDeviceName = contract.MedicalDeviceName,
+                MedicalDeviceNameKz = contract.MedicalDeviceNameKz,
                 HolderType = contract.HolderType,
                 ContractType = contract.ContractType,
                 ChoosePayer = contract.ChoosePayer

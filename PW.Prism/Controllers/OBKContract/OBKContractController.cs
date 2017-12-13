@@ -897,6 +897,12 @@ namespace PW.Prism.Controllers.OBKContract
             return PartialView("ContractTemplate", contractId);
         }
 
+        public ActionResult AdditionalContractTemplateWindow(Guid additionalId, Guid? contractAdditionTypeId)
+        {
+            return PartialView("AdditionalContractTemplate",new OBKEntityTemplate {Id = additionalId,
+                ContractAdditionTypeCode = obkRepo.ContractAdditionTypeCode(contractAdditionTypeId)});
+        }
+
         public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
             var db = new ncelsEntities();
@@ -953,6 +959,57 @@ namespace PW.Prism.Controllers.OBKContract
                 return new FileStreamResult(file, "application/pdf");
             else
                 return File(file, "application/pdf", name);
+        }
+
+        public ActionResult GetAdditionalContractTemplatePdf(Guid id, bool? isStream, string contractAdditionTypeCode)
+        {
+            var db = new ncelsEntities();
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(obkRepo.GetContractAdditionalTemplatePath(id, contractAdditionTypeCode.Trim()));//(Server.MapPath("~/Reports/Mrts/OBK/ObkContractDec.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["addContractNumber"].ValueObject = id;
+
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Word2007, stream);
+            stream.Position = 0;
+
+            Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+
+            try
+            {
+                var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
+                if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
+                {
+                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
+                    doc.InserQrCodesToEnd("CeoSign", signData.CeoSign);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            var file = new MemoryStream();
+            doc.Save(file, Aspose.Words.SaveFormat.Pdf);
+            file.Position = 0;
+
+            if (isStream != null && isStream.Value)
+                return new FileStreamResult(file, "application/pdf");
+            else
+                return File(file, "application/pdf", "");
         }
 
         [HttpGet]

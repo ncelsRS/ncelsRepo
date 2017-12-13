@@ -32,6 +32,22 @@
         });
     };
 
+    $scope.viewAdditionalContract = function () {
+        debugger;
+        if ($scope.object.Type == null) {
+            alert("Выберите тип договра");
+            return;
+        }
+        if ($scope.contractAddition.ContractAdditionTypeId == null) {
+            alert("Выберите дополнительное соглашение");
+            return;
+        }
+        var modalInstance = $uibModal.open({
+            templateUrl: '/OBKContract/ContractAdditionalTemplate?Id=' + $scope.contractAddition.Id + "&Url=" + "GetContractAdditionalTemplatePdf&contractAdditionTypeId=" + $scope.contractAddition.ContractAdditionTypeId,
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+
     $scope.loadContract = function (contractId) {
         $http({
             method: 'GET',
