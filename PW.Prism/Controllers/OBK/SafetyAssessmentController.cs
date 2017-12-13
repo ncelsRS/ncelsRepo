@@ -195,10 +195,10 @@ namespace PW.Prism.Controllers.OBK
                     new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
                 ViewData["PackageConditionList"] =
-                    new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                    new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
                 ViewData["StorageConditionsList"] =
-                    new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                    new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
                 ViewData["MarkingList"] =
                     new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
@@ -227,7 +227,8 @@ namespace PW.Prism.Controllers.OBK
                              seriesEndDate = series.SeriesEndDate,
                              quantity = series.Quantity,
                              available = series.Available == true ? true : false,
-                             comment = series.Comment
+                             comment = series.Comment,
+                             producerName = product.ProducerNameRu
                          };
 
             return Json(new { isSuccess = true, data = result });
@@ -548,10 +549,10 @@ namespace PW.Prism.Controllers.OBK
                 new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
             ViewData["PackageConditionList"] =
-                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
             ViewData["StorageConditionsList"] =
-                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
@@ -572,7 +573,6 @@ namespace PW.Prism.Controllers.OBK
             var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == reception.Id);
             model.InspectionInstalledId = reception.InspectionInstalledId;
             model.MarkingId = reception.MarkingId;
-            model.Producer = reception.Producer;
             model.Provider = reception.Provider;
             model.PackageConditionId = reception.PackageConditionId;
             model.ProductSamplesId = reception.ProductSamplesId;
@@ -582,6 +582,7 @@ namespace PW.Prism.Controllers.OBK
             model.ApplicantId = reception.ApplicantId;
             model.ActDate = actD;
             model.Address = model.Address;
+            model.Worker = UserHelper.GetCurrentEmployee().FullName;
 
             db.SaveChanges();
 
@@ -657,7 +658,7 @@ namespace PW.Prism.Controllers.OBK
 
             NotificationManager notification = new NotificationManager();
 
-            var text = "Уведомляем Вас о том, что необходимо предоставить образцы в ЦОЗ в течении 48 часов. В случае не предоставления образцов в течении указанного времени Вам будет выдано решение об отказе в выдаче заключения о безопасности и качества по текущей заявке.";
+            var text = "Уведомляем Вас о том, что необходимо предоставить образцы в ЦОЗ.";
             notification.SendNotificationFromCompany(text, ObjectType.ObkDeclaration, declaration.Id.ToString(), declaration.EmployeeId);
 
             return Json(new { Success = true });
