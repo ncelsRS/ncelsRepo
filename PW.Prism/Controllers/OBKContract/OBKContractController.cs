@@ -671,6 +671,22 @@ namespace PW.Prism.Controllers.OBKContract
             return Json(new { Success = true });
         }
 
+        public ActionResult ShowCommentFactory(Guid contractFactoryId)
+        {
+            var model = obkRepo.GetCommentsFactory(contractFactoryId);
+            if (model == null)
+                model = new OBK_ContractFactoryCom();
+            if (Request.IsAjaxRequest())
+                return PartialView(model);
+            return View(model);
+        }
+
+        public virtual ActionResult SaveCommentFactory(string contractFactoryId, bool isError, string comment, string fieldValue, string userId, string fieldDisplay)
+        {
+            obkRepo.SaveCommentFactory(contractFactoryId, isError, comment, fieldValue, userId, fieldDisplay);
+            return Json(new { Success = true });
+        }
+
         public ActionResult ShowCommentProduct(int productId)
         {
             var model = obkRepo.GetCommentsProduct(productId);
@@ -724,6 +740,13 @@ namespace PW.Prism.Controllers.OBKContract
         public ActionResult GetContractPrices(Guid contractId)
         {
             var list = obkRepo.GetContractPrices(contractId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetContractFactories(Guid contractId)
+        {
+            var list = obkRepo.GetContractFactories(contractId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
