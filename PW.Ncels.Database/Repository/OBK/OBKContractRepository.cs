@@ -145,6 +145,16 @@ namespace PW.Ncels.Database.Repository.OBK
             return ret;
         }
 
+        public string ContractAdditionTypeCode(Guid? id)
+        {
+            var dic = AppContext.Dictionaries.FirstOrDefault(o => o.Id == id);
+            if (dic == null)
+            {
+                return "";
+            }
+            return dic.Code;
+        }
+
         private void FillContract(OBKContractViewModel contractViewModel, OBK_Contract obkContract)
         {
             obkContract.Type = contractViewModel.Type != 0 ? contractViewModel.Type : 1;
@@ -388,6 +398,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 contractViewModel.CurrencyId = OBKContract.OBK_DeclarantContact.CurrencyId;
                 contractViewModel.BankNameRu = OBKContract.OBK_DeclarantContact.BankNameRu;
                 contractViewModel.BankNameKz = OBKContract.OBK_DeclarantContact.BankNameKz;
+                contractViewModel.ContractAdditionType = OBKContract.ContractAdditionType;
             }
 
             return contractViewModel;
@@ -1532,6 +1543,74 @@ namespace PW.Ncels.Database.Repository.OBK
                     break;
             }
             return System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/" + templateName);
+        }
+
+        public string GetContractAdditionalTemplatePath(Guid contractId, string contractAdditionTypeCode)
+        {
+            string templateName = null;
+            var contract = AppContext.OBK_Contract.FirstOrDefault(e => e.Id == contractId);
+            if (contract == null)
+                return null;
+
+            if (contractAdditionTypeCode == null || contractAdditionTypeCode.Equals(""))
+            {
+                return null;
+            }
+            //ContractAdditionType
+            //code = 1 Соглашение об изменении юридического адреса
+            //code = 2 Соглашение о смене руководителя
+            //code = 3 Соглашение об изменении банковских реквизитов
+
+            //contract.Type
+            //1 Серийная
+            //2 Партиная
+            //3 Декларирование
+            switch (contract.Type)
+            {
+                case 1:
+                    switch(contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractSerial.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractSerial.mrt";
+                            break;
+                        case "3":
+                            templateName = "OBKAdditionalBankContractSerial.mrt";
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractParty.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractParty.mrt";
+                            break;
+                        case "3":
+                            templateName = "OBKAdditionalBankContractParty.mrt";
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractDeclaration.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractDeclaration.mrt";
+                            break;
+                        case "3":
+                             templateName = "OBKAdditionalBankContractDeclaration.mrt";
+                            break;
+                    }
+                    break;
+            }
+            return System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/AdditionalContract/" + templateName);
         }
 
         public string GetPriceCount(Guid contractId)

@@ -1976,7 +1976,6 @@
 }
 
 function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
-    debugger;
     $scope.ok = function () {
         $uibModalInstance.close();
     };

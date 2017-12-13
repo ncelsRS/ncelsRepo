@@ -341,6 +341,17 @@ function InitObkContractCard(uiId) {
                     $("#windowFrame" + modelId).html(data);
                 }
             });
+        },
+        showAdditionalForm: function (e) {
+            var modelId = $("#modelId").val();
+            var contractAdditionTypeId = $("#contractAdditionTypeId").val();
+            $.ajax({
+                type: 'POST',
+                url: '/OBKContract/AdditionalContractTemplateWindow?additionalId=' + modelId + ' &contractAdditionTypeId=' + contractAdditionTypeId,
+                success: function (data) {
+                    $("#windowFrame" + modelId).html(data);
+                }
+            });
         }
     });
     kendo.bind($("#splitter" + uiId), viewModel);

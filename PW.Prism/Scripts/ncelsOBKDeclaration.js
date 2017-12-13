@@ -1,5 +1,4 @@
 ﻿function InitFilterOBKDecalaration(uiId) {
-    debugger;
     var grid = $('#gridAssessmentDecalaration' + uiId).data("kendoGrid");
     function declarationRowSelect(e) {
         var selectedRows = this.select();
