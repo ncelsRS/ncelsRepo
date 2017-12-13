@@ -91,11 +91,29 @@
         $scope.loadContract();
     };
 
-    $scope.saveBtnClick = function () {
+    $scope.saveBtnClick = function() {
         debugger;
         //todo будет валидация
-        $scope.editProject();
-    }
+        if ($scope.validate())
+            $scope.editProject();
+    };
+
+    $scope.btnSendToCozDisabled = false;
+    $scope.sendToCoz = function() {
+        // todo будет валидация
+        $scope.btnSendToCozDisabled = true;
+        $http({
+            url: '/EMPContract/SendToCoz',
+            method: 'POST',
+            data: { contractId: $("#modelGuid").val() }
+        }).success(function() {
+            alert("Договор отправлен успешно");
+            $scope.btnSendToCozDisabled = false;
+        }).error(function() {
+            alert("Возникла ошибка при отправке в ЦОЗ");
+            $scope.btnSendToCozDisabled = false;
+        });
+    };
 
     // saveContract
     $scope.editProject = function () {
@@ -825,7 +843,20 @@
         }
     }
 
-    
+    $scope.object.ContractScope = "";
+    $scope.setContractScope = function (contractScope) {
+        debugger;
+        $scope.object.ContractScope = contractScope;
+    }
+
+    $scope.validate = function () {
+        debugger;
+        var valid = $scope.ContractForm.$valid;
+        var errors = $scope.ContractForm.$error;
+        if (!valid)
+            alert('Заполните все обязательные поля');
+        return valid;
+    }
 }
 
 function loadCurrency($scope, $http) {

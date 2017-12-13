@@ -33,9 +33,9 @@ namespace PW.Ncels.Database.Repository.EMP
         /// </summary>
         /// <param name="request"></param>
         /// <param name="isRegisterProject"></param>
-        /// <param name="type"></param>
+        /// <param name="contractScope"></param>
         /// <returns></returns>
-        public async Task<object> GetContractList(ModelRequest request, bool isRegisterProject)
+        public async Task<object> GetContractList(ModelRequest request, bool isRegisterProject, string contractScope)
         {
             try
             {
@@ -49,6 +49,9 @@ namespace PW.Ncels.Database.Repository.EMP
                         v.Where(
                             a => a.Number.Contains(request.SearchValue));
                 }
+
+                if (!string.IsNullOrWhiteSpace(contractScope))
+                    v = v.Where(x => x.EMP_Ref_ContractScope != null && x.EMP_Ref_ContractScope.Code == contractScope);
 
 
                 //sort
@@ -166,6 +169,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 EMP_Contract contract = new EMP_Contract();
                 contract.ContractStatusId = AppContext.EMP_Ref_Status.Where(x =>
                     x.Code == CodeConstManager.EmpContractStatus.Draft).Select(x => x.Id).FirstOrDefault();
+                contract.ContractScopeId = AppContext.EMP_Ref_ContractScope
+                    .Where(x => x.Code == contractViewModel.ContractScope).Select(x => x.Id).FirstOrDefault();
 
                 contract.Id = Guid;
                 contract.EmployeeId = UserHelper.GetCurrentEmployee().Id;
@@ -175,6 +180,7 @@ namespace PW.Ncels.Database.Repository.EMP
                 contract.ContractType = contractViewModel.ContractType;
                 contract.HolderType = contractViewModel.HolderType;
                 contract.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                contract.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 contract.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 contract.ChoosePayer = contractViewModel.ChoosePayer;
 
@@ -232,6 +238,7 @@ namespace PW.Ncels.Database.Repository.EMP
                 model.ContractType = contractViewModel.ContractType;
                 model.HolderType = contractViewModel.HolderType;
                 model.MedicalDeviceName = contractViewModel.MedicalDeviceName;
+                model.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 model.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 model.ChoosePayer = contractViewModel.ChoosePayer;
 
@@ -349,7 +356,8 @@ namespace PW.Ncels.Database.Repository.EMP
                     NameEn = declaration.NameEn,
                     CountryId = declaration.CountryId,
                     OrganizationFormId = declaration.OrganizationFormId,
-                    IsResident = declaration.IsResident
+                    IsResident = declaration.IsResident,
+                    Iin = declaration.Iin
                 };
                 declaration.Id = dec.Id;
                 switch (type)
@@ -375,6 +383,7 @@ namespace PW.Ncels.Database.Repository.EMP
                 declarant.CountryId = declaration.CountryId;
                 declarant.OrganizationFormId = declaration.OrganizationFormId;
                 declarant.IsResident = declaration.IsResident;
+                declarant.Iin = declaration.Iin;
 
                 switch (type)
                 {
@@ -653,7 +662,11 @@ namespace PW.Ncels.Database.Repository.EMP
             EMPContractViewModel contractView = new EMPContractViewModel
             {
                 Id = contract.Id,
-                MedicalDeviceName = contract.MedicalDeviceName
+                MedicalDeviceName = contract.MedicalDeviceName,
+                MedicalDeviceNameKz = contract.MedicalDeviceNameKz,
+                HolderType = contract.HolderType,
+                ContractType = contract.ContractType,
+                ChoosePayer = contract.ChoosePayer
             };
             if (contract.OBK_DeclarantManufactur != null)
             {
@@ -678,8 +691,10 @@ namespace PW.Ncels.Database.Repository.EMP
                         AddressFact = contract.OBK_DeclarantContactManufactur.AddressFact,
                         AddressLegalRu = contract.OBK_DeclarantContactManufactur.AddressLegalRu,
                         AddressLegalKz = contract.OBK_DeclarantContactManufactur.AddressLegalKz,
+                        BankId = contract.OBK_DeclarantContactManufactur.BankId,
                         BankBik = contract.OBK_DeclarantContactManufactur.BankBik,
                         BankIik = contract.OBK_DeclarantContactManufactur.BankIik,
+                        BankAccount = contract.OBK_DeclarantContactManufactur.BankAccount,
                         BankNameRu = contract.OBK_DeclarantContactManufactur.BankNameRu,
                         BankNameKz = contract.OBK_DeclarantContactManufactur.BankNameKz,
                         Phone = contract.OBK_DeclarantContactManufactur.Phone,
@@ -694,6 +709,7 @@ namespace PW.Ncels.Database.Repository.EMP
                         IsHasBossDocNumber = contract.OBK_DeclarantContactManufactur.IsHasBossDocNumber,
                         BossDocCreatedDate = contract.OBK_DeclarantContactManufactur.BossDocCreatedDate,
                         BossPositionKz = contract.OBK_DeclarantContactManufactur.BossPositionKz
+                        
                     };
                     contractView.Manufactur.Contact = declarantContractManufactur;
                 }
@@ -736,7 +752,10 @@ namespace PW.Ncels.Database.Repository.EMP
                         BossDocType = contract.OBK_DeclarantContact.BossDocType,
                         IsHasBossDocNumber = contract.OBK_DeclarantContact.IsHasBossDocNumber,
                         BossDocCreatedDate = contract.OBK_DeclarantContact.BossDocCreatedDate,
-                        BossPositionKz = contract.OBK_DeclarantContact.BossPositionKz
+                        BossPositionKz = contract.OBK_DeclarantContact.BossPositionKz,
+                        BankAccount = contract.OBK_DeclarantContact.BankAccount,
+                        BossDocUnlimited = contract.OBK_DeclarantContact.BossDocUnlimited,
+                        BossDocEndDate = contract.OBK_DeclarantContact.BossDocEndDate
                     };
                     contractView.Declarant.Contact = declarantContract;
                 }
@@ -752,7 +771,8 @@ namespace PW.Ncels.Database.Repository.EMP
                     NameRu = contract.OBK_DeclarantPayer.NameRu,
                     NameKz = contract.OBK_DeclarantPayer.NameKz,
                     NameEn = contract.OBK_DeclarantPayer.NameEn,
-                    OrganizationFormId = contract.OBK_DeclarantPayer.OrganizationFormId
+                    OrganizationFormId = contract.OBK_DeclarantPayer.OrganizationFormId,
+                    Iin = contract.OBK_DeclarantPayer.Iin
                 };
                 contractView.Payer = payer;
                 if (contract.OBK_DeclarantContactPayer != null)
@@ -778,7 +798,8 @@ namespace PW.Ncels.Database.Repository.EMP
                         BossDocType = contract.OBK_DeclarantContactPayer.BossDocType,
                         IsHasBossDocNumber = contract.OBK_DeclarantContactPayer.IsHasBossDocNumber,
                         BossDocCreatedDate = contract.OBK_DeclarantContactPayer.BossDocCreatedDate,
-                        BossPositionKz = contract.OBK_DeclarantContactPayer.BossPositionKz
+                        BossPositionKz = contract.OBK_DeclarantContactPayer.BossPositionKz,
+                        BankAccount = contract.OBK_DeclarantContactPayer.BankAccount
                     };
                     contractView.Payer.Contact = declarantContractPayer;
                 }
@@ -805,6 +826,33 @@ namespace PW.Ncels.Database.Repository.EMP
             }
             
             return contractView;
+        }
+
+        public void SendToCoz(Guid contractId)
+        {
+            var contract = AppContext.EMP_Contract.First(x => x.Id == contractId);
+
+            var cozStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.Coz && !x.IsDeleted).Select(x => x.Id).First();
+            var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.InQueue && !x.IsDeleted).Select(x => x.Id).First();
+            var sentStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.Sent && !x.IsDeleted).Select(x => x.Id).First();
+
+            contract.ContractStatusId = sentStatus;
+
+            AppContext.EMP_ContractStage.Add(new EMP_ContractStage
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contract.Id,
+                StageId = cozStage,
+                StageStatusId = inQueueStageStatus,
+                DateCreate = DateTime.Now
+            });
+
+            AppContext.SaveChanges();
+        }
+
+        public string GetContractScopeName(string code)
+        {
+            return AppContext.EMP_Ref_ContractScope.Where(x => x.Code == code).Select(x => x.NameRu).FirstOrDefault();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -17,15 +18,25 @@ namespace PW.Ncels.Controllers
     {
         EMPContractRepository emp = new EMPContractRepository();
 
-        // GET: EMPContract
-        public ActionResult Index()
+        private List<Tuple<string, string>> _include = new List<Tuple<string, string>>
         {
+            Tuple.Create("3", "sysAttachContractDict"),
+            Tuple.Create("5", "sysAttachContractDict")
+        };
+
+        // GET: EMPContract
+        public ActionResult Index(string scope)
+        {
+            ViewBag.Scope = scope;
+            ViewBag.ScopeName = emp.GetContractScopeName(scope);
             return View();
         }
 
-        public ActionResult Contract(Guid? id)
+        public ActionResult Contract(Guid? id, string scope)
         {
-            ViewBag.ListAction = "Index";
+            //ViewBag.ListAction = "Index";
+            ViewBag.Scope = scope;
+            ViewBag.ReturnUrl = HttpContext.Request.UrlReferrer;
             return View(id);
         }
 
@@ -34,9 +45,9 @@ namespace PW.Ncels.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<JsonResult> ReadContract(ModelRequest request)
+        public async Task<JsonResult> ReadContract(ModelRequest request, string scope)
         {
-            return Json(await emp.GetContractList(request, true), JsonRequestBehavior.AllowGet);
+            return Json(await emp.GetContractList(request, true, scope), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult GetHolderTypes()
@@ -210,6 +221,30 @@ namespace PW.Ncels.Controllers
         {
             EMPContractViewModel view = emp.LoadContract(contractId);
             return Json(view, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult SendToCoz(Guid contractId)
+        {
+            try
+            {
+                emp.SendToCoz(contractId);
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public ActionResult GetAttachListEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetAttachListWithCodeEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListWithCodeEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
         }
     }
 }

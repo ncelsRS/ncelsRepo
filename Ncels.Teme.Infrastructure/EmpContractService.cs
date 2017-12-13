@@ -35,23 +35,29 @@ namespace Ncels.Teme.Infrastructure
 
         public IQueryable<EmpContractViewModel> GetContracts()
         {
-            return _uow.GetQueryable<EMP_Contract>()
-                .Where(x => x.ContractType != null)
-                .Where(x => x.ManufacturId != null && x.ManufacturContactId != null)
-                .Where(x => x.DeclarantId != null && x.DeclarantContactId != null)
-                .Where(x => x.PayerId != null && x.PayerContactId != null)
-                .OrderByDescending(x => x.CreatedDate)
-                .Select(x => new EmpContractViewModel
+            var tt = _uow.GetQueryable<EMP_ContractStage>().ToList();
+
+            var q = _uow.GetQueryable<EMP_ContractStage>()
+                .Where(stage => stage.EMP_Contract.ContractType != null
+                                && stage.EMP_Contract.ManufacturId != null && stage.EMP_Contract.ManufacturContactId != null
+                                && stage.EMP_Contract.DeclarantId != null && stage.EMP_Contract.DeclarantContactId != null
+                                && stage.EMP_Contract.PayerId != null && stage.EMP_Contract.PayerContactId != null)
+                .ToArray()
+                .GroupBy(stage => stage.ContractId)
+                .Select(x => x.OrderBy(stage => stage.DateCreate).Last())
+                .Select(stage => new EmpContractViewModel
                 {
-                    Id = x.Id,
-                    Number = x.Number,
-                    CreateDate = x.CreatedDate,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    Declarant = x.OBK_Declarant.NameRu,
-                    ContractType = x.EMP_Ref_ContractType.NameRu,
-                    //StageStatusCode = x.
+                    Id = stage.EMP_Contract.Id,
+                    Number = stage.EMP_Contract.Number,
+                    CreateDate = stage.EMP_Contract.CreatedDate,
+                    StartDate = stage.EMP_Contract.StartDate,
+                    EndDate = stage.EMP_Contract.EndDate,
+                    Declarant = stage.EMP_Contract.OBK_Declarant.NameRu,
+                    ContractType = stage.EMP_Contract.EMP_Ref_ContractType.NameRu,
+                    StageStatusCode = stage.EMP_Ref_StageStatus.Code
                 });
+
+            return q.AsQueryable();
         }
 
         public EmpContractDetailsViewModel GetContractDetailsViewModel(Guid contractId)
