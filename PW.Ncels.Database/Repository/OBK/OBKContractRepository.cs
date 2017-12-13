@@ -680,7 +680,19 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private void SaveProductService(int productId, Guid serviceId, Guid contractId, int count)
         {
-            var price = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == productId).FirstOrDefault();
+            var price = AppContext.OBK_ContractPrice.FirstOrDefault(x => x.ContractId == contractId
+                                                                         && x.ProductId == productId);
+
+            if (count == 0)
+            {
+                if (price != null)
+                {
+                    AppContext.OBK_ContractPrice.Remove(price);
+                    AppContext.SaveChanges();
+                }
+                return;
+            }
+
             if (price != null)
             {
                 var info = AppContext.OBK_Ref_PriceList.Where(x => x.Id == serviceId).FirstOrDefault();
