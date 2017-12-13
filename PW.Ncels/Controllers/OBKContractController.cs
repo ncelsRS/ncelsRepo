@@ -510,6 +510,17 @@ namespace PW.Ncels.Controllers
         }
 
         [HttpGet]
+        public ActionResult ShowCommentFactory(Guid contractFactoryId)
+        {
+            var model = obkRepo.GetCommentsFactory(contractFactoryId);
+            if (model == null)
+                model = new OBK_ContractFactoryCom();
+            if (Request.IsAjaxRequest())
+                return PartialView(model);
+            return View(model);
+        }
+
+        [HttpGet]
         public ActionResult ShowCommentProduct(int productId)
         {
             var model = obkRepo.GetCommentsProduct(productId);

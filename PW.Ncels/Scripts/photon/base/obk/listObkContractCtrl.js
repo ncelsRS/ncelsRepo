@@ -441,7 +441,8 @@
         { name: 'Name', displayName: 'Наименование цеха' },
         { name: 'LegalLocation', displayName: 'Юридический адрес' },
         { name: 'ActualLocation', displayName: 'Фактический адрес' },
-        { name: 'Count', displayName: 'Количество цехов' }
+        { name: 'Count', displayName: 'Количество цехов' },
+        { name: 'ButtonComments', displayName: '', maxWidth: 50, cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkfactorydialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ]
 
     $scope.selectedFactoryIndex = null;
@@ -487,7 +488,8 @@
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*", visible: false },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
-        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" }
+        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" },
+        { name: 'ButtonComments', displayName: '', width: '*', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
 
     $scope.gridOptionsCalculatorAdditional.data = $scope.addedServicesAdditional;
