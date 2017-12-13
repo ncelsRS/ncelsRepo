@@ -327,6 +327,8 @@ namespace PW.Prism.Controllers.OBK
                 prod.ExpirationDate = product.ExpirationDate;
                 prod.NdName = product.NdName;
                 prod.NdNumber = product.NdNumber;
+                prod.Dimension = product.Dimension;
+                prod.ExpertisePlace = product.ExpertisePlace;
                 foreach (var productSeries in product.OBK_Procunts_Series)
                 {
                     var prodSeries = new OBK_Procunts_Series();

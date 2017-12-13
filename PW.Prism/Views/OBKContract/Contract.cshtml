@@ -8,6 +8,8 @@
     var tab2b = "#" + tab2;
     var tab3 = "tab-3" + Model.Id;
     var tab3b = "#" + tab3;
+    var tab4 = "tab-4" + Model.Id;
+    var tab4b = "#" + tab4;
 }
 <script src="~/Scripts/js/custom/subform-comment.js"></script>
 <script src="~/Scripts/js/custom/atach-comment.js"></script>
@@ -20,237 +22,405 @@
 <div id="@("contractLoader" + ViewBag.UiId)"></div>
 
 @(Html.Kendo().Splitter()
-                        .HtmlAttributes(new { @class = "pwSplitter k-block" })
-            .Name(("splitter" + (string)ViewBag.UiId))
-            .Panes(panes =>
-            {
-            panes.Add()
-                .Size("300px")
-                .Collapsible(true)
-                .MaxSize("500px")
-                .MinSize("300px")
-                .Content(
+    .HtmlAttributes(new { @class = "pwSplitter k-block" })
+    .Name(("splitter" + (string)ViewBag.UiId))
+    .Panes(panes =>
+    {
+        panes.Add()
+            .Size("300px")
+            .Collapsible(true)
+            .MaxSize("500px")
+            .MinSize("300px")
+            .Content(
                 @<div class="pwPanelBar">
-                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
-                               .Name("panelbar" + (string)ViewBag.UiId)
-                               .ExpandMode(PanelBarExpandMode.Multiple)
-                               .ExpandAll(true)
-                               .HtmlAttributes(new { style = "width:auto;", data_bind = "events: { select: contractCardTabSelect }" })
-                               .Items(panelbar =>
-                               {
-                                   panelbar.Add().Expanded(true);
-                                   panelbar.Add().Text("Структура договора")
-                                                                   .Items(projects =>
-                                                                   {
-                                                                       projects.Add().Text("Карточка договора").HtmlAttributes(new { TabId = "contractDataTab1" + ViewBag.UiId }).Selected(true);
-                                                                       projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab2" + ViewBag.UiId });
-                                                                       //projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab3" + ViewBag.UiId });
-                                                                       projects.Add().Text("История согласования").HtmlAttributes(new { TabId = "contractDataTab4" + ViewBag.UiId });
-                                                                   });
+                @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                    .Name("panelbar" + (string)ViewBag.UiId)
+                    .ExpandMode(PanelBarExpandMode.Multiple)
+                    .ExpandAll(true)
+                    .HtmlAttributes(new { style = "width:auto;", data_bind = "events: { select: contractCardTabSelect }" })
+                    .Items(panelbar =>
+                    {
+                         panelbar.Add().Expanded(true);
+                         panelbar.Add().Text("Структура договора")
+                            .Items(projects =>
+                            {
+                                projects.Add().Text("Карточка договора").HtmlAttributes(new { TabId = "contractDataTab1" + ViewBag.UiId }).Selected(true);
+                                projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab2" + ViewBag.UiId });
+                                //projects.Add().Text("Вложения").HtmlAttributes(new { TabId = "contractDataTab3" + ViewBag.UiId });
+                                projects.Add().Text("История согласования").HtmlAttributes(new { TabId = "contractDataTab4" + ViewBag.UiId });
+                            });
 
-                               })
-                    )
+                    })
+                )
                 </div>
-                );
+            );
 
-                panes.Add().Scrollable(false).Size("100%").Content(
-                    @<div id="@("contractDataTabs" + ViewBag.UiId)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
-                        <div id="@("contractDataTab1" + ViewBag.UiId)" class="row">
-                            <div class="ibox-content">
-                                <div class="row">
-                                    @(Html.Kendo().ToolBar().Name("contractToolBar" + (string)ViewBag.UiId).Items(items =>
+        panes.Add().Scrollable(false).Size("100%").Content(
+            @<div id="@("contractDataTabs" + ViewBag.UiId)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
+                <div id="@("contractDataTab1" + ViewBag.UiId)" class="row">
+                    <div class="ibox-content">
+                        <div class="row">
+                        @(Html.Kendo().ToolBar().Name("contractToolBar" + (string)ViewBag.UiId).Items(items =>
+                        {
+                            if (ViewBag.ShowMeetsRequirementsBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='meetsRequirementsBtn{0}' class='k-button' data-bind='click: meetsRequirements'><span class='glyphicon glyphicon-ok'></span> Соответствует требованиям</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowDoesNotMeetRequirementsBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='doesNotMeetRequirementsBtn{0}' class='k-button' data-bind='click: doesNotMeetRequirements'><span class='glyphicon glyphicon-remove'></span> Не соответствует требованиям</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowReturnToApplicantBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='returnToApplicantBtn{0}' class='k-button' data-bind='click: returnToApplicant'>Вернуть на доработку</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowSendToBossForApprovalBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalBtn{0}' class='k-button' data-bind='click: sendToBossForApproval'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
+                            }
+                            else if (ViewBag.ShowSendToBossForApprovalWithWarningBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalWithWarningBtn{0}' class='k-button' data-bind='click: sendToBossForApprovalWithWarning'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowDoApprovementBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='doApprovementBtn{0}' class='k-button' data-bind='click: doApprovement'><span class='glyphicon glyphicon-ok-circle'></span> Согласовать</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowRefuseApprovementBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='refuseApprovementBtn{0}' class='k-button' data-bind='click: refuseApprovement'><span class='glyphicon glyphicon-ban-circle'></span> Отказать в согласовании</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowShowRefuseReasonBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='showRefuseReasonBtn{0}' class='k-button' data-bind='click: showRefuseReason'>Отобразить основание отказа</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowRegisterBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerBtn{0}' class='k-button' data-bind='click: register'><span class='glyphicon glyphicon-ok-circle'></span> Зарегистрировать</a>", (string)ViewBag.UiId));
+                            }
+                            if (ViewBag.ShowAttachContractBtn)
+                            {
+                                var disabled = "";
+                                if (Model.Number == null || Model.Number == PW.Ncels.Database.Constants.CodeConstManager.OBK_CONTRACT_NO_NUMBER)
                                 {
-                                    if (ViewBag.ShowMeetsRequirementsBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='meetsRequirementsBtn{0}' class='k-button' data-bind='click: meetsRequirements'><span class='glyphicon glyphicon-ok'></span> Соответствует требованиям</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowDoesNotMeetRequirementsBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='doesNotMeetRequirementsBtn{0}' class='k-button' data-bind='click: doesNotMeetRequirements'><span class='glyphicon glyphicon-remove'></span> Не соответствует требованиям</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowReturnToApplicantBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='returnToApplicantBtn{0}' class='k-button' data-bind='click: returnToApplicant'>Вернуть на доработку</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowSendToBossForApprovalBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalBtn{0}' class='k-button' data-bind='click: sendToBossForApproval'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
-                                    }
-                                    else if (ViewBag.ShowSendToBossForApprovalWithWarningBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='sendToBossForApprovalWithWarningBtn{0}' class='k-button' data-bind='click: sendToBossForApprovalWithWarning'><span class='glyphicon glyphicon-share-alt'></span> На согласование руководителю</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowDoApprovementBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='doApprovementBtn{0}' class='k-button' data-bind='click: doApprovement'><span class='glyphicon glyphicon-ok-circle'></span> Согласовать</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowRefuseApprovementBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='refuseApprovementBtn{0}' class='k-button' data-bind='click: refuseApprovement'><span class='glyphicon glyphicon-ban-circle'></span> Отказать в согласовании</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowShowRefuseReasonBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showRefuseReasonBtn{0}' class='k-button' data-bind='click: showRefuseReason'>Отобразить основание отказа</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowRegisterBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='registerBtn{0}' class='k-button' data-bind='click: register'><span class='glyphicon glyphicon-ok-circle'></span> Зарегистрировать</a>", (string)ViewBag.UiId));
-                                    }
-                                    if (ViewBag.ShowAttachContractBtn)
-                                    {
-                                        var disabled = "";
-                                        if (Model.Number == null || Model.Number == PW.Ncels.Database.Constants.CodeConstManager.OBK_CONTRACT_NO_NUMBER)
-                                        {
-                                            disabled = "disabled";
-                                        }
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='attachContractBtn{0}' class='k-button {1}' data-bind='click: attachContract'><span class='glyphicon glyphicon-ok-circle'></span> Прикрепить договор</a>", (string)ViewBag.UiId, disabled));
-                                    }
-                                    if (ViewBag.ShowSignContractBtn)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContractBtn{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
-                                    }
-                                    items.Add().Type(CommandType.Button).Template(string.Format("<a id='printFormBtn{0}' class='k-button' data-bind='click: printForm'><span class='glyphicon glyphicon-print'></span> Печать формы договора</a>", (string)ViewBag.UiId));
-                                    if (Model.ParentId != null)
-                                    {
-                                        items.Add().Type(CommandType.Button).Template(string.Format("<a id='showFormBtn{0}' class='k-button' data-bind='click: showForm'><span class='glyphicon glyphicon-print'></span>Посмотреть договор</a>", (string)ViewBag.UiId));
-                                    }
-                                }))
-                                    <span id="@("question" + ViewBag.UiId)" style="display: none">@ViewBag.QuestionMessage</span>
-                                </div>
-                                @if (Model.ParentId != null)
-                                {
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="form-group">
-                                                <label>К договору</label>
-                                                @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)(ViewBag.ParentContracts),
-                                                                 String.Empty,
-                                                                 new
-                                                                 {
-                                                                     @class = "form-control edit-control main-control",
-                                                                     @disabled = "disabled"
-                                                                 })
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-group">
-                                                <label>Тип дополнительного соглашения</label>
-                                                @Html.DropDownList("ContractAdditionType", (IEnumerable<SelectListItem>)(ViewBag.ContractAdditionTypes),
-                                                                 String.Empty,
-                                                                 new
-                                                                 {
-                                                                     @class = "form-control edit-control main-control",
-                                                                     @disabled = "disabled"
-                                                                 })
-                                            </div>
-                                        </div>
-                                    </div>
+                                    disabled = "disabled";
                                 }
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="tabs-container">
-                                            <ul class="nav nav-tabs">
-                                                <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
-                                                @if (Model.ParentId == null)
-                                                {
-                                                    <li class=""><a data-toggle="tab" href="@tab2b">Информация о заявляемой продукции</a></li>
-                                                    <li class=""><a data-toggle="tab" href="@tab3b">Стоимость работ</a></li>
-                                                }
-                                            </ul>
-                                            <div class="tab-content">
-                                                <input type="hidden" id="modelId" value="@Model.Id.ToString()" />
-                                                <input type="hidden" id="parentId" value="@Model.ParentId.ToString()" />
-                                                <div id="@tab1" class="tab-pane active">
-                                                    <div class="panel-body">
-                                                        <div class="row">
-                                                            <div class="col-lg-6 b-r">
-                                                                <div class="form-group">
-                                                                    <label>Тип договора *</label>
-                                                                    <div class="input-group">
-                                                                        @Html.DropDownList("ContractType", (IEnumerable<SelectListItem>)(ViewBag.ContractTypes),
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='attachContractBtn{0}' class='k-button {1}' data-bind='click: attachContract'><span class='glyphicon glyphicon-ok-circle'></span> Прикрепить договор</a>", (string)ViewBag.UiId, disabled));
+                            }
+                            if (ViewBag.ShowSignContractBtn)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='signContractBtn{0}' class='k-button' data-bind='click: signContract'><span class='glyphicon glyphicon-check'></span> Подписать</a>", (string)ViewBag.UiId));
+                            }
+                            items.Add().Type(CommandType.Button).Template(string.Format("<a id='printFormBtn{0}' class='k-button' data-bind='click: printForm'><span class='glyphicon glyphicon-print'></span> Печать формы договора</a>", (string)ViewBag.UiId));
+                            if (Model.ParentId != null)
+                            {
+                                items.Add().Type(CommandType.Button).Template(string.Format("<a id='showFormBtn{0}' class='k-button' data-bind='click: showForm'><span class='glyphicon glyphicon-print'></span>Посмотреть договор</a>", (string)ViewBag.UiId));
+                            }
+                        }))
+                        <span id="@("question" + ViewBag.UiId)" style="display: none">@ViewBag.QuestionMessage</span>
+                    </div>
+                    @if (Model.ParentId != null)
+                    {
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>К договору</label>
+                                    @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)(ViewBag.ParentContracts),
+                                        String.Empty,
+                                        new
+                                        {
+                                            @class = "form-control edit-control main-control",
+                                            @disabled = "disabled"
+                                        })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Тип дополнительного соглашения</label>
+                                    @Html.DropDownList("ContractAdditionType", (IEnumerable<SelectListItem>)(ViewBag.ContractAdditionTypes),
+                                        String.Empty,
+                                        new
+                                        {
+                                            @class = "form-control edit-control main-control",
+                                            @disabled = "disabled"
+                                        })
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
+                                    @if (Model.ParentId == null)
+                                    {
+                                        <li class=""><a data-toggle="tab" href="@tab2b">Информация о заявляемой продукции</a></li>
+                                        if (Model.Type == 1)
+                                        {
+                                            <li class=""><a data-toggle="tab" href="@tab4b">Производственные площадки</a></li>
+                                        }
+                                        <li class=""><a data-toggle="tab" href="@tab3b">Стоимость работ</a></li>
+                                    }
+                                    </ul>
+                                    <div class="tab-content">
+                                        <input type="hidden" id="modelId" value="@Model.Id.ToString()" />
+                                        <input type="hidden" id="parentId" value="@Model.ParentId.ToString()" />
+                                        <div id="@tab1" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="form-group">
+                                                            <label>Тип договора *</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("ContractType", (IEnumerable<SelectListItem>)(ViewBag.ContractTypes),
                                                                     String.Empty,
                                                                     new
                                                                     {
-                                                                        @class = "form-control edit-control main-control",
-                                                                        @disabled = "disabled"
+                                                                         @class = "form-control edit-control main-control",
+                                                                         @disabled = "disabled"
                                                                     })
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group" ng-show="object.Type != null">
-                                                                    @{
-                                                                        var @checkedResident = ViewBag.declarant.IsResident ? "checked" : "";
-                                                                        var @checkedNonResident = !ViewBag.declarant.IsResident ? "checked" : "";
-                                                                    }
-                                                                    <div class="radio-inline">
-                                                                        <label><input type="radio" name="declarantisresident" value="true" disabled="disabled" @checkedResident>Резидент РК</label>
-                                                                    </div>
-                                                                    <div class="radio-inline">
-                                                                        <label><input type="radio" name="declarantisresident" value="false" disabled="disabled" @checkedNonResident>Нерезидент РК</label>
-                                                                    </div>
-                                                                    <div class="radio-inline">
-                                                                    </div>
-                                                                </div>
-                                                                @if (ViewBag.declarant.IsResident)
-                                                                {
-                                                                    <div class="form-group">
-                                                                        <label>ИИН/БИН *</label>
-                                                                        <div class="input-group">
-                                                                            <input class="form-control edit-control" type="text" id="bin" name="bin" disabled value="@ViewBag.declarant.Bin">
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                }
-                                                                @if (!ViewBag.declarant.IsResident)
-                                                                {
-                                                                    <div class="form-group" ng-show="declarant.IsResident == false">
-                                                                        <label>Страна</label>
-                                                                        <div class="input-group">
-                                                                            @Html.DropDownList(
-                                                                   "CountryNonResident", (IEnumerable<SelectListItem>)(ViewBag.Countries), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
-                                                                   )
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-group" ng-show="declarant.IsResident == false">
-                                                                        <label>Наименование на русском языке *</label>
-                                                                        <div class="input-group">
-                                                                            @Html.DropDownList(
-                                                                   "NameNonResident", (IEnumerable<SelectListItem>)(ViewBag.NamesNonResidents), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
-                                                                   )
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                }
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
                                                             </div>
-                                                            <div class="col-lg-6 b-l">
-                                                                <div class="form-group">
-                                                                    <label>Экспертная организация *</label>
-                                                                    <div class="input-group">
-                                                                        @Html.DropDownList("ExpertOrganization", (IEnumerable<SelectListItem>)(ViewBag.ExpertOrganizations),
+                                                        </div>
+                                                        <div class="form-group" ng-show="object.Type != null">
+                                                            @{
+                                                                var @checkedResident = ViewBag.declarant.IsResident ? "checked" : "";
+                                                                var @checkedNonResident = !ViewBag.declarant.IsResident ? "checked" : "";
+                                                            }
+                                                            <div class="radio-inline">
+                                                                <label><input type="radio" name="declarantisresident" value="true" disabled="disabled" @checkedResident>Резидент РК</label>
+                                                            </div>
+                                                            <div class="radio-inline">
+                                                                <label><input type="radio" name="declarantisresident" value="false" disabled="disabled" @checkedNonResident>Нерезидент РК</label>
+                                                            </div>
+                                                            <div class="radio-inline">
+                                                            </div>
+                                                        </div>
+                                                        @if (ViewBag.declarant.IsResident)
+                                                        {
+                                                            <div class="form-group">
+                                                                <label>ИИН/БИН *</label>
+                                                                <div class="input-group">
+                                                                    <input class="form-control edit-control" type="text" id="bin" name="bin" disabled value="@ViewBag.declarant.Bin">
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        @if (!ViewBag.declarant.IsResident)
+                                                        {
+                                                            <div class="form-group" ng-show="declarant.IsResident == false">
+                                                                <label>Страна</label>
+                                                                <div class="input-group">
+                                                                    @Html.DropDownList(
+                                                                        "CountryNonResident", (IEnumerable<SelectListItem>)(ViewBag.Countries), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
+                                                                    )
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="declarant.IsResident == false">
+                                                                <label>Наименование на русском языке *</label>
+                                                                <div class="input-group">
+                                                                    @Html.DropDownList(
+                                                                        "NameNonResident", (IEnumerable<SelectListItem>)(ViewBag.NamesNonResidents), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
+                                                                    )
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label>Экспертная организация *</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("ExpertOrganization", (IEnumerable<SelectListItem>)(ViewBag.ExpertOrganizations),
                                                                     String.Empty,
                                                                     new
                                                                     {
                                                                         @class = "form-control edit-control main-control",
                                                                         @disabled = "disabled"
                                                                     })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Подписывающее лицо *</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("Signer", (IEnumerable<SelectListItem>)(ViewBag.Signers),
+                                                                    String.Empty,
+                                                                    new
+                                                                    {
+                                                                        @class = "form-control edit-control main-control",
+                                                                        @disabled = "disabled"
+                                                                    })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                            <h4>&nbsp;</h4>
+                                                            <input type="hidden" ng-model="declarant.Id" />
+                                                            <label>Организационная форма</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("OrganizationForm", (IEnumerable<SelectListItem>)(ViewBag.OrganizationForms),
+                                                                    String.Empty,
+                                                                    new
+                                                                    {
+                                                                        @class = "form-control edit-control main-control",
+                                                                        @disabled = "disabled"
+                                                                    })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на государственном языке *</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="declarantNameKz" name="declarantNameKz" disabled value="@ViewBag.declarant.NameKz">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                            <label>Наименование на русском языке *</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="declarantNameRu" name="declarantNameRu" disabled value="@ViewBag.declarant.NameRu">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                            <label>Наименование на английском языке</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="declarantNameEn" name="declarantNameEn" disabled value="@ViewBag.declarant.NameEn">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                            <label>Страна</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList(
+                                                                    "Country", (IEnumerable<SelectListItem>)(ViewBag.Countries), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
+                                                                )
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                            <h4>Адрес</h4>
+                                                            <label>Юридический адрес * </label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="AddressLegalRu" name="AddressLegalRu" disabled value="@Model.AddressLegalRu">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Юридический адрес на казахском * </label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="AddressLegalKz" name="AddressLegalKz" disabled value="@Model.AddressLegalKz">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Фактический адрес * </label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="AddressFact" name="AddressFact" disabled value="@Model.AddressFact">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Номер телефона * </label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="Phone" name="Phone" disabled value="@Model.Phone">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Адрес электронной почты * </label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="Email" name="Email" disabled value="@Model.Email">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <h4>Подписывающее лицо</h4>
+                                                    </div>
+                                                    <div>
+                                                        <div class="row">
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label>Фамилия *</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BossLastName" disabled value="@Model.BossLastName">
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -258,16 +428,25 @@
                                                                         </span>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
                                                                 <div class="form-group">
-                                                                    <label>Подписывающее лицо *</label>
+                                                                    <label>Имя *</label>
                                                                     <div class="input-group">
-                                                                        @Html.DropDownList("Signer", (IEnumerable<SelectListItem>)(ViewBag.Signers),
-                                                                    String.Empty,
-                                                                    new
-                                                                    {
-                                                                        @class = "form-control edit-control main-control",
-                                                                        @disabled = "disabled"
-                                                                    })
+                                                                        <input class="form-control edit-control" type="text" id="BossFirstName" disabled value="@Model.BossFirstName">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label>Отчество</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BossMiddleName" disabled value="@Model.BossMiddleName">
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -278,65 +457,11 @@
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div class="col-lg-6 b-r">
-                                                                <div class="form-group" ng-show="object.Type != null && showContactInformation">
-                                                                    <h4>&nbsp;</h4>
-                                                                    <input type="hidden" ng-model="declarant.Id" />
-                                                                    <label>Организационная форма</label>
-                                                                    <div class="input-group">
-                                                                        @Html.DropDownList("OrganizationForm", (IEnumerable<SelectListItem>)(ViewBag.OrganizationForms),
-                                                                   String.Empty,
-                                                                    new
-                                                                    {
-                                                                        @class = "form-control edit-control main-control",
-                                                                        @disabled = "disabled"
-                                                                    })
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+                                                            <div class="col-lg-3">
                                                                 <div class="form-group">
-                                                                    <label>Наименование на государственном языке *</label>
+                                                                    <label>Должность на русском языке *</label>
                                                                     <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="declarantNameKz" name="declarantNameKz" disabled value="@ViewBag.declarant.NameKz">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group" ng-show="object.Type != null && showContactInformation">
-                                                                    <label>Наименование на русском языке *</label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="declarantNameRu" name="declarantNameRu" disabled value="@ViewBag.declarant.NameRu">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group" ng-show="object.Type != null && showContactInformation">
-                                                                    <label>Наименование на английском языке</label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="declarantNameEn" name="declarantNameEn" disabled value="@ViewBag.declarant.NameEn">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group" ng-show="object.Type != null && showContactInformation">
-                                                                    <label>Страна</label>
-                                                                    <div class="input-group">
-                                                                        @Html.DropDownList(
-                                                                   "Country", (IEnumerable<SelectListItem>)(ViewBag.Countries), string.Empty, new { @class = "form-control edit-control main-control", disabled = "disabled" }
-                                                                   )
+                                                                        <input ng-model="object.BossPosition" class="form-control edit-control" id="BossPosition" type="text" disabled value="@Model.BossPosition">
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -345,56 +470,11 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 b-l">
-                                                                <div class="form-group" ng-show="object.Type != null && showContactInformation">
-                                                                    <h4>Адрес</h4>
-                                                                    <label>Юридический адрес * </label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="AddressLegalRu" name="AddressLegalRu" disabled value="@Model.AddressLegalRu">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+                                                            <div class="col-lg-3">
                                                                 <div class="form-group">
-                                                                    <label>Юридический адрес на казахском * </label>
+                                                                    <label>Должность на казахском языке *</label>
                                                                     <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="AddressLegalKz" name="AddressLegalKz" disabled value="@Model.AddressLegalKz">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label>Фактический адрес * </label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="AddressFact" name="AddressFact" disabled value="@Model.AddressFact">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label>Номер телефона * </label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="Phone" name="Phone" disabled value="@Model.Phone">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label>Адрес электронной почты * </label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="Email" name="Email" disabled value="@Model.Email">
+                                                                        <input ng-model="object.BossPositionKz" class="form-control edit-control" id="BossPositionKz" type="text" disabled value="@Model.BossPositionKz">
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -404,185 +484,22 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <h4>Действующее на основании</h4>
+                                                    </div>
+                                                    <div>
                                                         <div class="row">
-                                                            <div class="col-lg-12">
-                                                                <h4>Подписывающее лицо</h4>
-                                                            </div>
-                                                            <div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label>Фамилия *</label>
-                                                                            <div class="input-group">
-                                                                                <input class="form-control edit-control" type="text" id="BossLastName" disabled value="@Model.BossLastName">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label>Имя *</label>
-                                                                            <div class="input-group">
-                                                                                <input class="form-control edit-control" type="text" id="BossFirstName" disabled value="@Model.BossFirstName">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label>Отчество</label>
-                                                                            <div class="input-group">
-                                                                                <input class="form-control edit-control" type="text" id="BossMiddleName" disabled value="@Model.BossMiddleName">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label>Должность на русском языке *</label>
-                                                                            <div class="input-group">
-                                                                                <input ng-model="object.BossPosition" class="form-control edit-control" id="BossPosition" type="text" disabled value="@Model.BossPosition">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label>Должность на казахском языке *</label>
-                                                                            <div class="input-group">
-                                                                                <input ng-model="object.BossPositionKz" class="form-control edit-control" id="BossPositionKz" type="text" disabled value="@Model.BossPositionKz">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-12">
-                                                                <h4>Действующее на основании</h4>
-                                                            </div>
-                                                            <div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-6">
-                                                                        <div class="form-group">
-                                                                            <label>Вид документа *</label>
-                                                                            <div class="input-group">
-                                                                                @Html.DropDownList("BossDocType", (IEnumerable<SelectListItem>)ViewBag.DocTypes, string.Empty,
-                                                                           new
-                                                                           {
-                                                                               @class = "form-control edit-control main-control",
-                                                                               @disabled = "disabled"
-                                                                           })
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <div class="checkbox">
-                                                                                @{
-                                                                                    var bossDocUnlimitedChecked = Model.BossDocUnlimited ? "checked=\"checked\"" : "";
-                                                                                }
-                                                                                <label><input type="checkbox" value="" @bossDocUnlimitedChecked>Бессрочный</label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label>Наличие номера *</label>
-                                                                        <div class="input-group">
-                                                                            @Html.DropDownList("IsHasBossDocNumber", (IEnumerable<SelectListItem>)(ViewBag.BoolValues), string.Empty,
-                                                                           new
-                                                                           {
-                                                                               @class = "form-control edit-control main-control",
-                                                                               @disabled = "disabled"
-                                                                           })
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label>Номер документа</label>
-                                                                        <div class="input-group">
-                                                                            <input class="form-control edit-control" type="text" id="BossDocNumber" name="BossDocNumber" disabled value="@Model.BossDocNumber">
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label>Дата начала действия *</label>
-                                                                        <div class="input-group date">
-                                                                            <input class="form-control edit-control" id="BossDocCreatedDate" disabled value="@(Model.BossDocCreatedDate != null ? @Model.BossDocCreatedDate.Value.ToString("dd.MM.yyyy") : "")">
-                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label>Дата окончания действия *</label>
-                                                                        <div class="input-group date">
-                                                                            <input class="form-control edit-control" id="BossDocEndDate" disabled value="@(Model.BossDocEndDate != null ? @Model.BossDocEndDate.Value.ToString("dd.MM.yyyy") : "")">
-                                                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                                            <span class="input-group-addon">
-                                                                                <a class="obkcontractdialog" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-12">
-                                                                <h4>Банковские реквизиты</h4>
-                                                            </div>
-                                                            <div class="col-lg-3">
+                                                            <div class="col-lg-6">
                                                                 <div class="form-group">
-                                                                    <label>ИИК (р/с) *</label>
+                                                                    <label>Вид документа *</label>
                                                                     <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="BankIik" name="BankIik" disabled value="@Model.BankIik">
+                                                                        @Html.DropDownList("BossDocType", (IEnumerable<SelectListItem>)ViewBag.DocTypes, string.Empty,
+                                                                            new
+                                                                            {
+                                                                                @class = "form-control edit-control main-control",
+                                                                                @disabled = "disabled"
+                                                                            })
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -593,28 +510,132 @@
                                                             </div>
                                                             <div class="col-lg-3">
                                                                 <div class="form-group">
-                                                                    <label>БИК *</label>
-                                                                    <div class="input-group">
-                                                                        <input class="form-control edit-control" type="text" id="BankBik" name="BankBik" disabled value="@Model.BankBik">
-                                                                        <span class="input-group-addon">
-                                                                            <a class="obkcontractdialog" href="#">
-                                                                                <i class="glyphicon glyphicon-info-sign"></i>
-                                                                            </a>
-                                                                        </span>
+                                                                    <div class="checkbox">
+                                                                        @{
+                                                                            var bossDocUnlimitedChecked = Model.BossDocUnlimited ? "checked=\"checked\"" : "";
+                                                                        }
+                                                                        <label><input type="checkbox" value="" @bossDocUnlimitedChecked>Бессрочный</label>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-3">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Наличие номера *</label>
+                                                                <div class="input-group">
+                                                                    @Html.DropDownList("IsHasBossDocNumber", (IEnumerable<SelectListItem>)(ViewBag.BoolValues), string.Empty,
+                                                                                   new
+                                                                                                                                              {
+                                                                                                                                                  @class = "form-control edit-control main-control",
+                                                                                                                                                  @disabled = "disabled"
+                                                                                                                                              })
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Номер документа</label>
+                                                                <div class="input-group">
+                                                                    <input class="form-control edit-control" type="text" id="BossDocNumber" name="BossDocNumber" disabled value="@Model.BossDocNumber">
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Дата начала действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input class="form-control edit-control" id="BossDocCreatedDate" disabled value="@(Model.BossDocCreatedDate != null ? @Model.BossDocCreatedDate.Value.ToString("dd.MM.yyyy") : "")">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3">
+                                                            <div class="form-group">
+                                                                <label>Дата окончания действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input class="form-control edit-control" id="BossDocEndDate" disabled value="@(Model.BossDocEndDate != null ? @Model.BossDocEndDate.Value.ToString("dd.MM.yyyy") : "")">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <h4>Банковские реквизиты</h4>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>ИИК (р/с) *</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="BankIik" name="BankIik" disabled value="@Model.BankIik">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>БИК *</label>
+                                                            <div class="input-group">
+                                                                <input class="form-control edit-control" type="text" id="BankBik" name="BankBik" disabled value="@Model.BankBik">
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Валюта *</label>
+                                                            <div class="input-group">
+                                                                @Html.DropDownList("Currency", (IEnumerable<SelectListItem>)(ViewBag.Currencies),
+                                                                               String.Empty,
+                                                                               new
+                                                                                                                                      {
+                                                                                                                                          @class = "form-control edit-control main-control",
+                                                                                                                                          @disabled = "disabled"
+                                                                                                                                      })
+                                                                <span class="input-group-addon">
+                                                                    <a class="obkcontractdialog" href="#">
+                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
                                                                 <div class="form-group">
-                                                                    <label>Валюта *</label>
+                                                                    <label>Наименование банка *</label>
                                                                     <div class="input-group">
-                                                                        @Html.DropDownList("Currency", (IEnumerable<SelectListItem>)(ViewBag.Currencies),
-                                                                    String.Empty,
-                                                                    new
-                                                                    {
-                                                                        @class = "form-control edit-control main-control",
-                                                                        @disabled = "disabled"
-                                                                    })
+                                                                        <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.BankNameRu">
                                                                         <span class="input-group-addon">
                                                                             <a class="obkcontractdialog" href="#">
                                                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -623,123 +644,112 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-6">
-                                                                        <div class="form-group">
-                                                                            <label>Наименование банка *</label>
-                                                                            <div class="input-group">
-                                                                                <input class="form-control edit-control" type="text" id="BankNameRu" name="BankNameRu" disabled value="@Model.BankNameRu">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-6">
-                                                                        <div class="form-group">
-                                                                            <label>Наименование банка на казахском языке *</label>
-                                                                            <div class="input-group">
-                                                                                <input class="form-control edit-control" type="text" id="BankNameKz" name="BankNameKz" disabled value="@Model.BankNameKz">
-                                                                                <span class="input-group-addon">
-                                                                                    <a class="obkcontractdialog" href="#">
-                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                    </a>
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <div class="form-group">
+                                                                    <label>Наименование банка на казахском языке *</label>
+                                                                    <div class="input-group">
+                                                                        <input class="form-control edit-control" type="text" id="BankNameKz" name="BankNameKz" disabled value="@Model.BankNameKz">
+                                                                        <span class="input-group-addon">
+                                                                            <a class="obkcontractdialog" href="#">
+                                                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                                                            </a>
+                                                                        </span>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div id="@tab2" class="tab-pane">
-                                                    @*@Html.Partial("~/Views/OBKContract/ProductView.cshtml", @Model)*@
-                                                    @Html.Partial("~/Views/SafetyAssessment/ProductView.cshtml", (PW.Ncels.Database.DataModel.OBK_Contract)ViewBag.Contract)
-                                                </div>
-                                                <div id="@tab3" class="tab-pane">
-                                                    @Html.Partial("~/Views/OBKContract/Price.cshtml", @Model.Id)
-                                                </div>
                                             </div>
                                         </div>
+                                        <div id="@tab2" class="tab-pane">
+                                            @*@Html.Partial("~/Views/OBKContract/ProductView.cshtml", @Model)*@
+                                            @Html.Partial("~/Views/SafetyAssessment/ProductView.cshtml", (PW.Ncels.Database.DataModel.OBK_Contract)ViewBag.Contract)
+                                        </div>
+                                        <div id="@tab3" class="tab-pane">
+                                            @Html.Partial("~/Views/OBKContract/Price.cshtml", @Model.Id)
+                                        </div>
+                                        @if (Model.Type == 1)
+                                        {
+                                            <div id="@tab4" class="tab-pane">
+                                                @Html.Partial("~/Views/OBKContract/Factories.cshtml", @Model.Id)
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="@("contractDataTab2" + ViewBag.UiId)" class="row hidden">
-                            @Html.Partial("~/Views/SafetyAssessment/AttachFileView.cshtml", (IEnumerable<PW.Ncels.Database.Models.Common.FileGroup>)ViewBag.ListAttachments)
-                        </div>
-                        <div id="@("contractDataTab3" + ViewBag.UiId)" class="row hidden">
-                            <div class="row">
-                                @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.FileLinkView>()
-                  .Name("contractAttachesGrid" + (string)ViewBag.UiId)
-                  .Columns(columns =>
-                  {
-                      columns.Bound(p => p.Category).Title("Категория").Hidden(true);
-                      columns.Bound(p => p.Version).Title("Версия").Width(200);
-                      columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата загрузки").Width(100);
-                      columns.Bound(p => p.FileName).Title("Файл").ClientTemplate("<a href='/Upload/FileDownload?path=#= DocumentId #&id=#= CategoryId #&fileId=#= FilePath #'>#= FileName #'</a>");
-                      columns.Bound(p => p.ParentFileName).Title("Название оригинала").Hidden(true);
-                  })
-
-                  .Resizable(resizable => resizable.Columns(true))
-                  .Scrollable(scrollable => scrollable.Enabled(false))
-                  .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
-                  .HtmlAttributes(new { @class = "pwGrid", style = "height: 500px" })
-                  .DataSource(dataSource => dataSource
-                      .Ajax()
-                      .PageSize(200)
-                      .Aggregates(aggregates =>
-                      {
-                          aggregates.Add(f => f.Version).Count();
-                      })
-                      .Group(g => g.Add(f => f.Category))
-                      .Sort(sort =>
-                      {
-                          sort.Add("ParentFileName").Ascending();
-                          sort.Add("Version").Ascending();
-                      })
-                      .Read(read => read.Action("ListAttaches", "OBKContract", new { contractId = Model.Id }))
-                  ))
-                            </div>
-                        </div>
-                        <div id="@("contractDataTab4" + ViewBag.UiId)" class="row hidden" style="height: 100%">
-                            <div class="row" style="height: 99%">
-                                @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.OBK_ContractHistoryView>()
-                      .Name("contracHistoryGrid" + (string)ViewBag.UiId)
-                      .Columns(columns =>
-                      {
-                          columns.Bound(p => p.StatusNameRu).Title("Статус").Width(100);
-                          columns.Bound(p => p.EmployeeShortName).Title("Исполнитель").Width(150);
-                          columns.Bound(p => p.UnitName).Title("Структурное подразделение").Width(150);
-                          columns.Bound(p => p.Created).Format("{0:dd.MM.yyyy HH:mm}").Title("Дата действия").Width(100);
-                      })
-                    .Reorderable(reorderable => reorderable.Columns(true))
-                    .Resizable(resizable => resizable.Columns(true))
-                    .Sortable(sortable => sortable.AllowUnsort(false))
-                    .Scrollable(scrollable => scrollable.Virtual(true))
-                    .Filterable()
-                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
-                    .HtmlAttributes(new { @class = "pwGrid" })
-                    .DataSource(dataSource => dataSource
-                    .Ajax()
-                    .Sort(sort => { sort.Add("Created").Ascending(); })
-                    .PageSize(1000)
-                    .Read(read => read.Action("ListHistory", "OBKContract", new { contractId = Model.Id }))
-                    ))
-                            </div>
-                        </div>
                     </div>
-                    );
-            }))
-
+                </div>
+                <div id="@("contractDataTab2" + ViewBag.UiId)" class="row hidden">
+                    @Html.Partial("~/Views/SafetyAssessment/AttachFileView.cshtml", (IEnumerable<PW.Ncels.Database.Models.Common.FileGroup>)ViewBag.ListAttachments)
+                </div>
+                <div id="@("contractDataTab3" + ViewBag.UiId)" class="row hidden">
+                    <div class="row">
+                        @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.FileLinkView>()
+                            .Name("contractAttachesGrid" + (string)ViewBag.UiId)
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Category).Title("Категория").Hidden(true);
+                                columns.Bound(p => p.Version).Title("Версия").Width(200);
+                                columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата загрузки").Width(100);
+                                columns.Bound(p => p.FileName).Title("Файл").ClientTemplate("<a href='/Upload/FileDownload?path=#= DocumentId #&id=#= CategoryId #&fileId=#= FilePath #'>#= FileName #'</a>");
+                                columns.Bound(p => p.ParentFileName).Title("Название оригинала").Hidden(true);
+                            })
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Scrollable(scrollable => scrollable.Enabled(false))
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .HtmlAttributes(new { @class = "pwGrid", style = "height: 500px" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(200)
+                            .Aggregates(aggregates =>
+                            {
+                                aggregates.Add(f => f.Version).Count();
+                            })
+                            .Group(g => g.Add(f => f.Category))
+                            .Sort(sort =>
+                            {
+                                sort.Add("ParentFileName").Ascending();
+                                sort.Add("Version").Ascending();
+                            })
+                            .Read(read => read.Action("ListAttaches", "OBKContract", new { contractId = Model.Id }))
+                        ))
+                    </div>
+                </div>
+                <div id="@("contractDataTab4" + ViewBag.UiId)" class="row hidden" style="height: 100%">
+                    <div class="row" style="height: 99%">
+                        @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.OBK_ContractHistoryView>()
+                            .Name("contracHistoryGrid" + (string)ViewBag.UiId)
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.StatusNameRu).Title("Статус").Width(100);
+                                columns.Bound(p => p.EmployeeShortName).Title("Исполнитель").Width(150);
+                                columns.Bound(p => p.UnitName).Title("Структурное подразделение").Width(150);
+                                columns.Bound(p => p.Created).Format("{0:dd.MM.yyyy HH:mm}").Title("Дата действия").Width(100);
+                            })
+                            .Reorderable(reorderable => reorderable.Columns(true))
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Sortable(sortable => sortable.AllowUnsort(false))
+                            .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Filterable()
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                            .HtmlAttributes(new { @class = "pwGrid" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Sort(sort => { sort.Add("Created").Ascending(); })
+                            .PageSize(1000)
+                            .Read(read => read.Action("ListHistory", "OBKContract", new { contractId = Model.Id }))
+                        ))
+                    </div>
+                </div>
+            </div>
+        );
+}))
 
 <div id="@("WindowContractRegistered" + ViewBag.UiId)" style="display: none">
     <div class="row">
@@ -770,5 +780,5 @@
     $(document).ready(function () {
         InitObkContractCard('@ViewBag.UiId');
 
-    });
+});
 </script>

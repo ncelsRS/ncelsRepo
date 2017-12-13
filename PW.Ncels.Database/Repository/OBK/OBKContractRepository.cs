@@ -773,7 +773,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKContractServiceViewModel> GetContractPrices(Guid contractId)
         {
-            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId != null).Select(x => new OBKContractServiceViewModel
+            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId).Select(x => new OBKContractServiceViewModel
             {
                 Id = x.Id,
                 ServiceName = x.OBK_Ref_PriceList.NameRu,
@@ -789,6 +789,19 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             ).ToList();
             return list;
+        }
+
+        public IEnumerable<OBK_ContractFactoriesViewModel> GetContractFactories(Guid contractId)
+        {
+            return AppContext.OBK_ContractFactory.Where(x => x.ContractId == contractId)
+                .Select(x => new OBK_ContractFactoriesViewModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    LegalLocation = x.LegalLocation,
+                    ActualLocation = x.ActualLocation,
+                    Count = x.Count
+                });
         }
 
         public List<OBKContractServiceViewModel> GetContractPricesAdditional(Guid contractId)
@@ -1409,6 +1422,43 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 model.Id = Guid.NewGuid();
                 AppContext.OBK_ContractPriceCom.Add(model);
+            }
+            AppContext.SaveChanges();
+        }
+
+        public OBK_ContractFactoryCom GetCommentsFactory(Guid contractFactoryId)
+        {
+            return AppContext.OBK_ContractFactoryCom
+                .FirstOrDefault(x => x.ContractFactoryId == contractFactoryId);
+        }
+
+        public void SaveCommentFactory(string contractFactoryId, bool isError, string comment, string fieldValue, string userId, string fieldDisplay)
+        {
+            var entityId = new Guid(contractFactoryId);
+            var model =
+                AppContext.OBK_ContractFactoryCom.FirstOrDefault(
+                    e => e.ContractFactoryId.Equals(entityId)) ??
+                new OBK_ContractFactoryCom
+                {
+                    DateCreate = DateTime.Now,
+                    ContractFactoryId = entityId
+                };
+
+            model.IsError = isError;
+            model.OBK_ContractFactoryComRecord.Add(new OBK_ContractFactoryComRecord
+            {
+                Id = Guid.NewGuid(),
+                CreateDate = DateTime.Now,
+                Note = comment,
+                UserId = new Guid(userId),
+                OBK_ContractFactoryCom = model,
+                ValueField = fieldValue,
+                DisplayField = fieldDisplay
+            });
+            if (model.Id == null || model.Id == Guid.Empty)
+            {
+                model.Id = Guid.NewGuid();
+                AppContext.OBK_ContractFactoryCom.Add(model);
             }
             AppContext.SaveChanges();
         }
