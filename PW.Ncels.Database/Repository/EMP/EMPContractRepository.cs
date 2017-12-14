@@ -12,6 +12,7 @@ using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models.EMP;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models;
+using PW.Ncels.Database.Models.OBK;
 using Contacts = PW.Ncels.Database.Models.EMP.Contacts;
 
 namespace PW.Ncels.Database.Repository.EMP
@@ -836,18 +837,18 @@ namespace PW.Ncels.Database.Repository.EMP
             var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.InQueue && !x.IsDeleted).Select(x => x.Id).First();
             var sentStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.Sent && !x.IsDeleted).Select(x => x.Id).First();
 
-            contract.ContractStatusId = sentStatus;
+            //contract.ContractStatusId = sentStatus;
 
-            AppContext.EMP_ContractStage.Add(new EMP_ContractStage
-            {
-                Id = Guid.NewGuid(),
-                ContractId = contract.Id,
-                StageId = cozStage,
-                StageStatusId = inQueueStageStatus,
-                DateCreate = DateTime.Now
-            });
+            //AppContext.EMP_ContractStage.Add(new EMP_ContractStage
+            //{
+            //    Id = Guid.NewGuid(),
+            //    ContractId = contract.Id,
+            //    StageId = cozStage,
+            //    StageStatusId = inQueueStageStatus,
+            //    DateCreate = DateTime.Now
+            //});
 
-            AppContext.SaveChanges();
+            //AppContext.SaveChanges();
         }
 
         public string GetContractScopeName(string code)
@@ -875,6 +876,69 @@ namespace PW.Ncels.Database.Repository.EMP
             };
 
             return obj;
+        }
+
+        public string GetDataForSign(Guid id)
+        {
+            var contract = AppContext.EMP_Contract.First(e => e.Id == id);
+
+            Func<OBK_Declarant, OBK_DeclarantContact, EmpContractDeclarantSignData> f = (declarant, declarantContact) => new EmpContractDeclarantSignData
+            {
+                IsResident = declarant.IsResident,
+                NameKz = declarant.NameKz,
+                NameRu = declarant.NameRu,
+                NameEn = declarant.NameEn,
+                Bin = declarant.Bin,
+                BossLastName = declarantContact.BossLastName,
+                BossFirstName = declarantContact.BossFirstName,
+                BossMiddleName = declarantContact.BossMiddleName,
+                BossPositionRu = declarantContact.BossPosition,
+                BossPositionKz = declarantContact.BossPositionKz,
+                AddressLegal = declarantContact.AddressLegalRu,
+                AddressFact = declarantContact.AddressFact,
+                Phone = declarantContact.Phone,
+                Email = declarantContact.Email,
+                BankName = declarantContact.BankNameRu,
+                BankIik = declarantContact.BankIik,
+                BankBik = declarantContact.BankBik,
+                Iin = declarant.Iin,
+                BankAccount = declarantContact.BankAccount,
+            };
+
+            var dataForSign = new EmpContractSignData
+            {
+                Manufacturer = f(contract.OBK_DeclarantManufactur, contract.OBK_DeclarantContactManufactur),
+                Declarant = f(contract.OBK_Declarant, contract.OBK_DeclarantContact),
+                Payer = f(contract.OBK_DeclarantPayer, contract.OBK_DeclarantContactPayer),
+                ChoosPayer = contract.ChoosePayer,
+                MedicalDeviceName = contract.MedicalDeviceName,
+                WorkCosts = contract.EMP_CostWorks.Select(x => new EmpContractWorkCostsSignData
+                {
+                    WorkName = x.EMP_Ref_PriceList.EMP_Ref_ServiceType.NameRu,
+                    Price = x.Price ?? 0,
+                    Count = x.Count ?? 0
+                }).ToList()
+            };
+
+            var xmlData = SerializeHelper.SerializeDataContract(dataForSign);
+            return xmlData.Replace("utf-16", "utf-8");
+        }
+
+        public void SignContractApplicant(Guid contractId, string signedData)
+        {
+            var data = AppContext.EMP_ContractSignData.FirstOrDefault(x => x.ContractId == contractId);
+            if (data == null)
+            {
+                data = new EMP_ContractSignData {ContractId = contractId};
+                AppContext.EMP_ContractSignData.Add(data);
+            }
+
+            data.ApplicationSign = signedData;
+            data.ApplicationSignDate = DateTime.Now;
+            data.CeoSign = null;
+            data.CeoSignDate = null;
+
+            AppContext.SaveChanges();
         }
     }
 }

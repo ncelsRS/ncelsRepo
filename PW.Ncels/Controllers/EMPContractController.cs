@@ -271,5 +271,27 @@ namespace PW.Ncels.Controllers
             stream.Position = 0;
             return new FileStreamResult(stream, "application/pdf");
         }
+
+        public ActionResult SignData(Guid id)
+        {
+            return Json(new
+            {
+                IsSuccess = true,
+                preambleXml = emp.GetDataForSign(id)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SignContract(Guid contractId, string signedData)
+        {
+            try
+            {
+                emp.SignContractApplicant(contractId, signedData);
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+            }
+        }
     }
 }
