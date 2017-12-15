@@ -23,11 +23,10 @@
         <div class="col-lg-12">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <table id="tableProducts" dt-options="dtOptions" dt-columns="dtColumns"  class="table table-striped table-bordered table-hover dataTable">
-                    </table>
-                </div>  
-            </div>  
-        </div>   
+                    <table id="tableProducts" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="row" id="mtPartsId">
         <div class="col-lg-12">
@@ -113,7 +112,7 @@
                                 <div class="col-lg-6">
                                     <label id="CurrencyLabel">Валюта</label>
                                     <div class="input-group">
-                                        @Html.DropDownList("CurrencyId", (IEnumerable<SelectListItem>) (ViewData["Courrency"]), String.Empty, new {@class = "form-control edit-control product-control"})
+                                        @Html.DropDownList("CurrencyId", (IEnumerable<SelectListItem>)(ViewData["Courrency"]), String.Empty, new { @class = "form-control edit-control product-control" })
                                         <span class="input-group-addon">
                                             <a class="OBKcommentDialog" href="#">
                                                 <i class="glyphicon glyphicon-info-sign"></i>
@@ -122,21 +121,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" >
+                            <div class="form-group">
                                 <div class="col-lg-12" style="margin-top: 10px">
                                 </div>
                             </div>
                             <span></span>
-                            <div class="form-group">
+                            <div class="form-group" id="seriesViewTable">
                                 <div class="col-lg-12">
                                     <div class="panel panel-default">
                                         <div class="panel-body">
-                                            <table id="tableProductSeries" dt-options="dtOptions" dt-columns="dtColumns"  class="table table-striped table-bordered table-hover dataTable">
-                                            </table>
-                                        </div>  
-                                    </div>  
-                                </div>   
-                            </div>           
+                                            <table id="tableProductSeries" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -146,8 +144,6 @@
 </div>
 
 <script type="text/javascript">
-    var productId = null;
-
     $(document).ready(function() {
         $("#mtPartsId").hide();
 
@@ -156,11 +152,12 @@
             searching: false,
             columns: [
                 { title: "" },
-                { title: "Наименование" },
                 { title: "Полное наименование" },
+                { title: "Размерность (для ИМН)" },
                 { title: "Производитель" },
                 { title: "Кол-во в потр.уп." },
-                { title: "Страна-производитель" }
+                { title: "Страна-производитель" },
+                { title: "Место проведения аналитической экспертизы", visible: false }
             ]
         });
 
@@ -190,42 +187,7 @@
             ]
         });
 
-        if (@count >= 1) {
-            debugger;
-            var val = '@Model.ContractId';
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("GetContract")',
-                data: { 'id': val },
-                dataType: 'json',
-                cache: false,
-                success: function (data) {
-                    if (data.isSuccess) {
-                        $("#tableProducts").DataTable({
-                            data: data.result.ObkRsProductses,
-                            destroy: true,
-                            searching: false,
-                            iDisplayLength: 5,
-                            LengthMenu: false,
-                            bLengthChange: false,
-                            autoWidth: true,
-                            rowCallback: rowCallback,
-                            columns: [
-                                { data: "Id" },
-                                { data: "NameRu" },
-                                { data: "DrugFormFullName" },
-                                { data: "ProducerNameRu" },
-                                { data: "DrugFormBoxCount" },
-                                { data: "CountryNameRu" }
-                            ]
-                        });
-                    }
-                },
-                error: function () {
-                    alert("Connection Failed. Please Try Again");
-                }
-            });
-        }
+        updateProductsTable();
 
         $(".product-control").change(function () {
             var controlId = $(this).attr('id');
@@ -244,6 +206,53 @@
             UpdateModel("product", productId, null, controlId, fieldValue, type, fieldDisplay, null);
         });
     });
+
+    function updateProductsTable() {
+            //debugger;
+            var contractId = $('#ContractId').val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetContract")',
+                data: { 'id': contractId },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    var contractType = data.result.ContractType;
+                    if (contractType == 1)
+                        $('#seriesViewTable').hide();
+                    data.result.ObkRsProductses.forEach(function (p) {
+                        if (p.ExpertisePlace == 0)
+                            p.ExpertisePlace = 'Лаборатория экспертной организации';
+                        if (p.ExpertisePlace == 1)
+                            p.ExpertisePlace = 'Лаборатория производителя';
+                    });
+                    if (data.isSuccess) {
+                        $("#tableProducts").DataTable({
+                            data: data.result.ObkRsProductses,
+                            destroy: true,
+                            searching: false,
+                            iDisplayLength: 5,
+                            LengthMenu: false,
+                            bLengthChange: false,
+                            autoWidth: true,
+                            rowCallback: rowCallback,
+                            columns: [
+                                { data: "Id" },
+                                { data: "DrugFormFullName" },
+                                { data: "Dimension" },
+                                { data: "ProducerNameRu" },
+                                { data: "DrugFormBoxCount" },
+                                { data: "CountryNameRu" },
+                                { data: "ExpertisePlace", visible: contractType == 1 }
+                            ]
+                        });
+                    }
+                },
+                error: function () {
+                    alert("Connection Failed. Please Try Again");
+                }
+            });
+    }
 
     function rowCallback(row) {
         $('td', row).unbind('click');
@@ -304,4 +313,4 @@
         });
         return row;
     }
-</script> 
+</script>

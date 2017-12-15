@@ -461,6 +461,7 @@ namespace PW.Ncels.Controllers
 
             result.ContractStartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
             result.ContractEndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
+            result.ContractType = contract.Type;
             result.OrganizationFormId = declarant?.OrganizationFormId ?? null;
             result.NameKz = declarant?.NameKz ?? "нет данных";
             result.NameRu = declarant?.NameRu ?? "нет данных";
@@ -497,6 +498,8 @@ namespace PW.Ncels.Controllers
                 prod.DrugFormBoxCount = product.DrugFormBoxCount;
                 prod.DrugFormFullName = product.DrugFormFullName;
                 prod.RegTypeId = product.RegTypeId;
+                prod.Dimension = product.Dimension;
+                prod.ExpertisePlace = product.ExpertisePlace;
                 foreach (var productSeries in product.OBK_Procunts_Series)
                 {
                     var prodSeries = new OBK_Procunts_Series();
@@ -547,6 +550,13 @@ namespace PW.Ncels.Controllers
             return Json(new { isSuccess = true, result });
         }
 
+        [HttpPost]
+        public ActionResult GetContractFactory(Guid contractId)
+        {
+            var repo = new OBKContractRepository();
+            var result = repo.GetContractFactories(contractId);
+            return Json(result);
+        }
 
         public ActionResult SignOperation(string id)
         {
