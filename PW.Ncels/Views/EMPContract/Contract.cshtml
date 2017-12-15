@@ -73,12 +73,15 @@
                         </div>
                         <div class="ibox-content ibox-heading">
                             <div class="note-font btn-group">
-                                <button class="btn btn-info btn-sm" type="button" onclick="location.href='@ViewBag.ReturnUrl'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                                <button id="btnBackToList" class="btn btn-info btn-sm" type="button" onclick="location.href='@ViewBag.ReturnUrl'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
                                 <button class="btn btn-default btn-sm" type="button" ng-click="saveBtnClick()" @*check-validate ng-disabled="object.viewMpde" ng-if="!object.Contract.ContractStatus || object.Contract.ContractStatus.Code=='@Contract.StatusNew' || object.Contract.ContractStatus.Code=='@Contract.StatusOnCorrection'"*@>
                                     <i class="fa fa-save"></i>
                                     Сохранить
                                 </button>
-                                @*<button class="btn btn-default btn-sm" type="button" ng-click="sendToCoz()" ng-disabled="btnSendToCozDisabled">Отправить в ЦОЗ</button>*@
+                                <button class="btn btn-default btn-sm" type="button" ng-click="sendWithDigitalSign();" check-validate ><i class="fa fa-send-o"></i> Подписать ЭЦП и отправить в ЦОЗ</button>
+                                <button class="btn btn-default btn-sm" type="button" ng-click="sendWithoutDigitalSign();" check-validate ><i class="fa fa-send-o"></i> Отправить в ЦОЗ без подписи</button>
+                                <button class="btn btn-default btn-sm" type="button" ng-click="viewContract('@ModelGuid')"><i class="fa fa-eye"></i> Просмотр</button>
+                                
                             </div>
                         </div>
                         <form name="contractCreateForm">
@@ -548,7 +551,7 @@
                                                                         <div class="form-group">
                                                                             <label>Доверенность *</label>
                                                                             <div ng-class="{'input-group': showComments}">
-                                                                                <ui-select ng-model="object.Declarant.Contact.IsBossDocType" required ui-select-selected theme="bootstrap" name="SignDocType">
+                                                                                <ui-select ng-model="object.HasProxy" required ui-select-selected theme="bootstrap" name="SignDocType">
                                                                                     <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                                     <ui-select-choices repeat="item.Id as item in IsBossDocTypes | filter: $select.search">
                                                                                         <div ng-bind-html="item.Name| highlight: $select.search"></div>
@@ -561,7 +564,7 @@
                                                                         <div class="form-group">
                                                                             <label>Тип</label>
                                                                             <div ng-class="{'input-group': showComments}">
-                                                                                <ui-select ng-model="object.Declarant.Contact.BossDocType" ui-select-selected theme="bootstrap" name="SignDocType">
+                                                                                <ui-select ng-model="object.DocumentType" ui-select-selected theme="bootstrap" name="SignDocType">
                                                                                     <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                                     <ui-select-choices repeat="item.Id as item in BossDocTypes | filter: $select.search">
                                                                                         <div ng-bind-html="item.Name| highlight: $select.search"></div>

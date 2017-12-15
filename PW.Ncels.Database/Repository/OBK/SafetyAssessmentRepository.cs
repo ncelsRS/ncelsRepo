@@ -147,14 +147,15 @@ namespace PW.Ncels.Database.Repository.OBK
                        select new
                        {
                            serieId = series.Id,
-                           name = product.DrugFormFullName,
+                           name = product.DrugFormFullName != null ? product.DrugFormFullName : product.NameRu,
                            measure = measure.name,
                            measureId = series.SeriesMeasureId,
                            serie = series.Series,
                            serieParty = series.SeriesParty,
                            seriesStartDate = series.SeriesStartdate,
                            seriesEndDate = series.SeriesEndDate,
-                           quantity = series.Quantity
+                           quantity = series.Quantity,
+                           producerName = product.ProducerNameRu
                        };
             return data;
         }

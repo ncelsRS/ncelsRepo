@@ -585,5 +585,12 @@ namespace PW.Ncels.Database.Constants
         {
             public const string InQueue = "inQueue";
         }
+
+        public class EmpContractType
+        {
+            public const string Registration = "1";
+            public const string ReRegistration = "2";
+            public const string ChangesInsertion = "3";
+        }
     }
 }
