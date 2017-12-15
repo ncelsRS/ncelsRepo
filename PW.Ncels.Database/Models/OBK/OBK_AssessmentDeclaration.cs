@@ -33,6 +33,7 @@ namespace PW.Ncels.Database.DataModel
 
         public string ContractStartDate { get; set; }
         public string ContractEndDate { get; set; }
+        public int ContractType { get; set; }
 
         #endregion
 

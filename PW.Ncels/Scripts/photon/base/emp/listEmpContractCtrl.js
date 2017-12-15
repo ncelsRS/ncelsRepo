@@ -92,27 +92,28 @@
     };
 
     $scope.saveBtnClick = function() {
-        debugger;
-        //todo будет валидация
         if ($scope.validate())
             $scope.editProject();
     };
 
-    $scope.btnSendToCozDisabled = false;
-    $scope.sendToCoz = function() {
-        // todo будет валидация
-        $scope.btnSendToCozDisabled = true;
+    $scope.sendWithoutDigitalSign = function() {
+
+        if (!$scope.validate()) return;
+
         $http({
             url: '/EMPContract/SendToCoz',
             method: 'POST',
             data: { contractId: $("#modelGuid").val() }
-        }).success(function() {
-            alert("Договор отправлен успешно");
-            $scope.btnSendToCozDisabled = false;
+        }).success(function () {
+            $("#btnBackToList").click();
         }).error(function() {
             alert("Возникла ошибка при отправке в ЦОЗ");
-            $scope.btnSendToCozDisabled = false;
         });
+    };
+
+    $scope.sendWithDigitalSign = function() {
+        if (!$scope.validate()) return;
+        $scope.doSign();
     };
 
     // saveContract
@@ -857,6 +858,50 @@
             alert('Заполните все обязательные поля');
         return valid;
     }
+
+    $scope.viewContract = function (id) {
+        debugger;
+        var modalInstance = $uibModal.open({
+            templateUrl: '/EMPContract/ContractTemplate?Id=' + id + "&Url=" + "PrintContractReport",
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+
+    $scope.doSign = function () {
+        var id = $scope.object.Id;
+        if (id) {
+
+            var funcSign = function signData() {
+                debugger;
+                $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Выполняется подпись...</h1>', css: { opacity: 1 } });
+                signXmlCall(function () {
+                    $http({
+                        url: '/EMPContract/SignContract',
+                        method: 'POST',
+                        data: JSON.stringify({ contractId: id, signedData: $("#Certificate").val() })
+                    }).success(function () {
+                        $("#btnBackToList").click();
+                    }).error(function () {
+                        alert("Возникла ошибка при подписании договора");
+                        $.unblockUI();
+                    });
+                });
+            };
+
+            startSign('/EMPContract/SignData', id, funcSign);
+        }
+    }
+}
+
+function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
+    debugger;
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
 }
 
 function loadCurrency($scope, $http) {

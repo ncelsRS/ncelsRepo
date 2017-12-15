@@ -382,6 +382,14 @@ namespace PW.Prism.Controllers.OBK
             return Json(new { isSuccess = true, result });
         }
 
+        [HttpPost]
+        public ActionResult GetContractFactory(Guid contractId)
+        {
+            var repo = new OBKContractRepository();
+            var result = repo.GetContractFactories(contractId);
+            return Json(result);
+        }
+
         /// <summary>
         /// вренуть в работу заявителю
         /// </summary>

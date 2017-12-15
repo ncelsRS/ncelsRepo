@@ -20,5 +20,7 @@ namespace PW.Ncels.Database.Models.EMP
         public Declarants Payer { get; set; }
         public List<ServicePrice> ServicePrices { get; set; }
         public string ContractScope { get; set; }
+        public bool HasProxy { get; set; }
+        public int DocumentType { get; set; }
     }
 }
