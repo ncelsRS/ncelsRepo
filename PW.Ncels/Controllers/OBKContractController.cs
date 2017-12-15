@@ -298,6 +298,60 @@ namespace PW.Ncels.Controllers
             return PartialView(new OBKEntityTemplate { Id = id, Url = url });
         }
 
+        public ActionResult ContractAdditionalTemplate(Guid id, string url, Guid? contractAdditionTypeId)
+        {
+            return PartialView(new OBKEntityTemplate { Id = id, Url = url,
+                ContractAdditionTypeCode = obkRepo.ContractAdditionTypeCode(contractAdditionTypeId) });
+        }
+
+        public ActionResult GetContractAdditionalTemplatePdf(Guid id, string contractAdditionTypeCode)
+        {
+            var db = new ncelsEntities();
+            string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(obkRepo.GetContractAdditionalTemplatePath(id, contractAdditionTypeCode));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["addContractNumber"].ValueObject = id;
+
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Word2007, stream);
+            stream.Position = 0;
+
+            Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+
+            try
+            {
+                var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
+                if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
+                {
+                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
+                    doc.InserQrCodesToEnd("CeoSign", signData.CeoSign);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            var file = new MemoryStream();
+            doc.Save(file, Aspose.Words.SaveFormat.Pdf);
+            file.Position = 0;
+
+            return new FileStreamResult(file, "application/pdf");
+        }
+
         public ActionResult GetContractTemplatePdf(Guid id)
         {
             var db = new ncelsEntities();
@@ -452,6 +506,17 @@ namespace PW.Ncels.Controllers
                 return PartialView(model);
             }
 
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult ShowCommentFactory(Guid contractFactoryId)
+        {
+            var model = obkRepo.GetCommentsFactory(contractFactoryId);
+            if (model == null)
+                model = new OBK_ContractFactoryCom();
+            if (Request.IsAjaxRequest())
+                return PartialView(model);
             return View(model);
         }
 

@@ -690,12 +690,6 @@ namespace PW.Ncels.Controllers
             ViewData["ContractId"] = assess.ContractId;
             var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
 
-            if (model.Producer == null && product != null)
-            {
-                model.Producer = product.ProducerNameRu;
-                ViewData["ProducerNull"] = true;
-            }
-
             if (model.ActDate == null)
             {
                 model.ActDate = DateTime.Now;
@@ -718,10 +712,10 @@ namespace PW.Ncels.Controllers
                 new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
             ViewData["PackageConditionList"] =
-                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
             ViewData["StorageConditionsList"] =
-                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
@@ -782,10 +776,10 @@ namespace PW.Ncels.Controllers
                 new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
             ViewData["PackageConditionList"] =
-                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
             ViewData["StorageConditionsList"] =
-                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");

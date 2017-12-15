@@ -9,6 +9,9 @@
             <div class="panel-body">
                 Общая стоиомсть работ с НДС - <span id="sum_@guid"></span><br /><br />
                 <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProducts_@guid" width="100%"></table>
+                <br />
+                <strong>Дополнительные услуги</strong>
+                <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProductsAdd_@guid" width="100%"></table>
             </div>
         </div>
     </div>
@@ -38,6 +41,23 @@
             ]
         });
 
+        $("#tableProductsAdd_@guid").DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            "bLengthChange": false,
+            columns: [
+                { title: "Тип услуги" },
+                { title: "Количество услуг" },
+                { title: "Цена за единицу без НДС" },
+                { title: "Стоимость без НДС" },
+                { title: "Стоимость с НДС" },
+                { title: "" }
+            ]
+        });
+
         var val = '@Model';
         $.ajax({
             type: "POST",
@@ -48,11 +68,19 @@
             success: function (data) {
                 if (data) {
                     calcSum(data);
+                    var pricesData = [];
+                    var pricesAdditionData = [];
+                    data.forEach(function (item) {
+                        if (item.ProductId)
+                            pricesData.push(item);
+                        else
+                            pricesAdditionData.push(item);
+                    });
                     $("#tableProducts_@guid").DataTable({
                         language: {
                             url: "/Content/json/Russian.json"
                         },
-                        data: data,
+                        data: pricesData,
                         destroy: true,
                         searching: false,
                         iDisplayLength: 5,
@@ -73,6 +101,31 @@
                             }
                         ]
                     });
+
+                    $('#tableProductsAdd_@guid').DataTable({
+                        language: {
+                            url: "/Content/json/Russian.json"
+                        },
+                        data: pricesAdditionData,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        "bLengthChange": false,
+                        "autoWidth": true,
+                        "columns": [
+                            { "data": "ServiceName" },
+                            { "data": "Count" },
+                            { "data": "PriceWithoutTax" },
+                            { "data": "FinalCostWithoutTax" },
+                            { "data": "FinalCostWithTax" },
+                            {
+                                "render": function (data, type, full, meta) {
+                                    return '<span class="input-group-addon"><a priceId="' + full.Id + '" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+                                }
+                            }
+                        ]
+                    });
                 }
             },
             error: function () {
@@ -80,7 +133,7 @@
             }
         });
 
-        $("#tableProducts_@guid").on('click', '.obkpricedialog', function () {
+        $("#tableProducts_@guid, #tableProductsAdd_@guid").on('click', '.obkpricedialog', function () {
             var contractPriceId = $(this).attr("priceid");
             var url = "/OBKContract/ShowCommentPrice?contractPriceId=" + contractPriceId;
             var fieldValue = "";
