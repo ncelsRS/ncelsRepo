@@ -184,6 +184,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 contract.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 contract.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 contract.ChoosePayer = contractViewModel.ChoosePayer;
+                contract.HasProxy = contractViewModel.HasProxy;
+                contract.DocumentType = contractViewModel.DocumentType;
 
                 if (contractViewModel.Manufactur != null) {
                     FillDec(contractViewModel.Manufactur, "Manufactur", contract);
@@ -242,6 +244,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 model.MedicalDeviceNameKz = contractViewModel.MedicalDeviceNameKz;
                 model.DeclarantIsManufactur = contractViewModel.DeclarantIsManufactur;
                 model.ChoosePayer = contractViewModel.ChoosePayer;
+                model.HasProxy = contractViewModel.HasProxy;
+                model.DocumentType = contractViewModel.DocumentType;
 
                 if (contractViewModel.Manufactur != null) {
                     FillDec(contractViewModel.Manufactur, "Manufactur", model);
@@ -667,7 +671,9 @@ namespace PW.Ncels.Database.Repository.EMP
                 MedicalDeviceNameKz = contract.MedicalDeviceNameKz,
                 HolderType = contract.HolderType,
                 ContractType = contract.ContractType,
-                ChoosePayer = contract.ChoosePayer
+                ChoosePayer = contract.ChoosePayer,
+                HasProxy = contract.HasProxy ?? false,
+                DocumentType = contract.DocumentType ?? 0
             };
             if (contract.OBK_DeclarantManufactur != null)
             {
@@ -861,9 +867,55 @@ namespace PW.Ncels.Database.Repository.EMP
             var contract = AppContext.EMP_Contract.FirstOrDefault(x => x.Id == id);
             if (contract == null) return null;
 
+            var currency = AppContext.Dictionaries
+                .Where(x => x.Type == "Currency" && x.Id == contract.OBK_DeclarantContactPayer.CurrencyId)
+                .Select(x => new {x.Name, x.NameKz}).FirstOrDefault();
+
+            Func<string, string> marked = s => string.Format("<b><u>{0}</u></b>", s);
+            Func<string, string, string, string> getString = (reg, reReg, change) =>
+                string.Format("{0} {1} {2}",
+                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.Registration ? marked(reg) : reg,
+                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ReRegistration ? marked(reReg) : reReg,
+                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ChangesInsertion ? marked(change) : change);
+            Func<string, string, string> append = (result, appendStr) =>
+            {
+                if (string.IsNullOrWhiteSpace(appendStr)) return result;
+                if (string.IsNullOrWhiteSpace(result))
+                    result = appendStr;
+                else result += string.Format(", ({0})", appendStr);
+                return result;
+            };
+
+            string registrationRu = "регистрации,";
+            string reRegistrationRu = "перерегистрации,";
+            string changesInsertionRu = "внесении изменений в регистрационное досье";
+
+            string registrationKz = "тіркеу,";
+            string reRegistrationKz = "қайта тіркеу,";
+            string changesInsertionKz = "және тіркеу дерекнамасына өзгерістер енгізу";
+
+            string declarantName = append(append(contract.OBK_Declarant.NameKz, contract.OBK_Declarant.NameRu), contract.OBK_Declarant.NameEn);
             var obj = new
             {
-                ContractNumber = contract.Number,
+                DeclarantNameRu = string.Format("{0} {1}", 
+                    AppContext.Dictionaries.Where(x => x.Id == contract.OBK_Declarant.OrganizationFormId).Select(x => x.Name).FirstOrDefault(), 
+                    declarantName),
+                DeclarantNameKz = string.Format("{0} {1}",
+                    AppContext.Dictionaries.Where(x => x.Id == contract.OBK_Declarant.OrganizationFormId).Select(x => x.NameKz).FirstOrDefault(),
+                    declarantName),
+                DeclarantBossLastName = contract.OBK_DeclarantContact.BossLastName,
+                DeclarantBossFirstName = contract.OBK_DeclarantContact.BossFirstName,
+                DeclarantBossMiddleName = contract.OBK_DeclarantContact.BossMiddleName,
+                DeclarantBossPositionNameRu = contract.OBK_DeclarantContact.BossPosition,
+                DeclarantBossPositionNameKz = contract.OBK_DeclarantContact.BossPositionKz,
+                DeclarantBossDocumentType = contract.DocumentType == 1 ? "Представительство" : contract.DocumentType == 2 ? "Доверенное лицо" : string.Empty,
+                ContractTypeStringRu = getString(registrationRu, reRegistrationRu, changesInsertionRu),
+                ContractTypeStringKz = getString(registrationKz, reRegistrationKz, changesInsertionKz),
+                CurrencyNameRu = currency != null ? currency.Name : string.Empty,
+                CurrencyNameKz = currency != null ? currency.NameKz : string.Empty,
+                TotalPrice = contract.EMP_CostWorks.Select(x => x.TotalPrice).Sum() ?? 0,
+                DeclarantInfoStringRu = GetDeclarantString(contract, true),
+                DeclarantInfoStringKz = GetDeclarantString(contract, false),
                 MedicalDeviceNameRu = contract.MedicalDeviceName,
                 contract.MedicalDeviceNameKz,
                 CostWorks = contract.EMP_CostWorks.Select(cw => new
@@ -876,6 +928,53 @@ namespace PW.Ncels.Database.Repository.EMP
             };
 
             return obj;
+        }
+
+        private string GetDeclarantString(EMP_Contract contract, bool isRus)
+        {
+            Func<string, string> strWithComma = s => string.IsNullOrWhiteSpace(s) ? string.Empty : string.Format("{0}, ", s);
+            Func<OBK_Declarant, OBK_DeclarantContact, bool, string> declarantInfo = (declarant, contact, isRu) =>
+            {
+                var orgForm = AppContext.Dictionaries.Where(x => x.Id == declarant.OrganizationFormId).Select(x => new { x.Name, x.NameKz }).First();
+                var cur = AppContext.Dictionaries.Where(x => x.Id == contact.CurrencyId).Select(x => new { x.Name, x.NameKz }).First();
+                return string.Format("{0}{1}{2}{3}{4}{5}{6}",
+                    strWithComma(isRu ? orgForm.Name : orgForm.NameKz),
+                    strWithComma(isRu ? contact.AddressLegalRu : contact.AddressLegalKz),
+                    strWithComma(isRu ? contact.BankNameRu : contact.BankNameKz),
+                    strWithComma(contact.BankAccount),
+                    strWithComma(isRu ? cur.Name : cur.NameKz),
+                    strWithComma(contact.BankBik),
+                    strWithComma(contact.Phone)).TrimEnd().TrimEnd(',');
+            };
+
+            string manufacturStr = isRus ? "Производитель" : "Өндіруші";
+            string declarantStr = isRus ? "Заявитель" : "Өтініш беруші";
+            string payerStr = isRus ? "Плательщик" : "Толеуші";
+
+            string declarantInfoString;
+            if (contract.DeclarantIsManufactur == true)
+            {
+                if (contract.ChoosePayer == "Declarant")
+                {
+                    declarantInfoString = string.Format("<b>"+ declarantStr + "</b><br/>{0}",
+                        declarantInfo(contract.OBK_Declarant, contract.OBK_DeclarantContact, isRus));
+                }
+                else
+                {
+                    declarantInfoString = string.Format("<b>"+ declarantStr + "/"+ manufacturStr + "</b><br/>{0}<br/><b>"+ payerStr + "</b><br/>{1}",
+                        declarantInfo(contract.OBK_Declarant, contract.OBK_DeclarantContact, isRus),
+                        declarantInfo(contract.OBK_DeclarantPayer, contract.OBK_DeclarantContactPayer, isRus));
+                }
+            }
+            else
+            {
+                declarantInfoString = string.Format(
+                    "<b>"+ manufacturStr + "</b><br/>{0}<br/><b>"+ payerStr + "</b><br/>{1}<br/><b>"+ declarantStr + "</b><br/>{2}",
+                    declarantInfo(contract.OBK_DeclarantManufactur, contract.OBK_DeclarantContactManufactur, isRus),
+                    declarantInfo(contract.OBK_DeclarantPayer, contract.OBK_DeclarantContactPayer, isRus),
+                    declarantInfo(contract.OBK_Declarant, contract.OBK_DeclarantContact, isRus));
+            }
+            return declarantInfoString;
         }
 
         public string GetDataForSign(Guid id)
