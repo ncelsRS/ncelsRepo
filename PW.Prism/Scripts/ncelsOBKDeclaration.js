@@ -385,3 +385,86 @@ function InitializeOBKDataDeclaraion(name, repeatId, status, stage, stageId) {
     };
     loadDocument(name);
 };
+
+
+function callSearchView(e) {
+    $("#SentDateStart").attr("readonly", true);
+    $("#SentDateEnd").attr("readonly", true);
+    $('#modalSearch').modal('show');
+}
+
+function convertDate(date) {
+    var day = date.getDate();
+    day = day < 10 ? "0" + day : day;
+    var month = date.getMonth() + 1;
+    month = month < 10 ? "0" + month : month;
+    var year = date.getFullYear();
+    return day + "." + month + "." + year;
+}
+
+function searchFilter(e) {
+    var startDate = $('#SentDateStart').val();
+    var endDate = $('#SentDateEnd').val();
+    var type = $("#TypeContract option:selected").text();
+    var valType = $("#TypeContract option:selected").val();
+    var Experttype = $("#Expert option:selected").text();
+    var ExpertvalType = $("#Expert option:selected").val();
+    var sender = $('#Sender').val();
+    var seria = $('#Seria').val(); 
+
+
+    var startDateReal = new Date(startDate.split(".")[2] + '-' + startDate.split(".")[1] + '-' + startDate.split(".")[0]);
+    var endDateReal = new Date(endDate.split(".")[2] + '-' + endDate.split(".")[1] + '-' + endDate.split(".")[0]);
+    var grid = $("#gridAssessmentDecalaration" + e).data("kendoGrid");
+    var filter = new Array();
+
+
+    if (startDate != undefined && startDate != null && startDate != "") {
+        filter.push({ field: "FirstSendDate", operator: "gte", value: startDateReal });
+    }
+    if (endDate != undefined && endDate != null && endDate != "") {
+        filter.push(
+           { field: "FirstSendDate", operator: "lte", value: endDateReal });
+    }
+    if (valType != undefined && valType != null && valType != "") {
+        filter.push(
+   { field: "ContractTypeRu", operator: "eq", value: type });
+    }
+    if (sender != undefined && sender != null && sender != "") {
+        filter.push(
+{ field: "NameRu", operator: "contains", value: sender });
+    }
+    if (seria != undefined && seria != null && seria != "") {
+        filter.push(
+{ field: "Series", operator: "contains", value: seria });
+    }
+    if (ExpertvalType != undefined && ExpertvalType != null && ExpertvalType != "") {
+        filter.push(
+{ field: "StageUOBKExecutor", operator: "contains", value: Experttype });
+    }
+
+    grid.dataSource.filter({
+        logic: "and",
+        filters: filter
+    });
+
+    $('#modalSearch').modal('hide');
+}
+
+
+function InstantsearchFilter(e) {
+
+    var seria = $('#instantSearch').val();
+    var grid = $("#gridAssessmentDecalaration" + e).data("kendoGrid");
+    var filter = new Array();
+    if (seria != undefined && seria != null && seria != "") {
+        filter.push(
+{ field: "Number", operator: "contains", value: seria });
+    }
+
+
+    grid.dataSource.filter({
+        logic: "and",
+        filters: filter
+    });
+}

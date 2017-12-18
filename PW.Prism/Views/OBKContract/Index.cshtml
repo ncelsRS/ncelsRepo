@@ -85,9 +85,6 @@
 panes.Add().Scrollable(false).Size("100%").Content(
     @<div class="pwPanelBar">
         <div class="pwBlockAdd k-block">
-            <div style="float: left">
-                <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchView('@Model')">Расширенный поиск</button>
-            </div>
             <div style="float: left" id="@("lblStateBlock" + Model)">
                     @*@(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))*@
                     @Html.Label("Статус", new { @class = "pwWidth100", style = "line-height: 30px; margin-right: 5px; font-weight: normal;" })
@@ -159,6 +156,13 @@ panes.Add().Scrollable(false).Size("100%").Content(
                 @(Html.Kendo().Button().Name("toPay" + Model).HtmlAttributes(new { @class = "pwWidth100" })
                       .Content("На оплату"))
             </div>*@
+
+            <div style="float: left">
+                <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchViewContract('@Model')">Расширенный поиск</button>
+            </div>
+            <div style="float: left">
+                № договора/ доп. соглашения: <input type="text" id="instantSearchContract" style="width:100px; margin-top:5px;" placeholder="поиск" />
+            </div>
         </div>
         <div id="pwSix">
             @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
@@ -169,46 +173,47 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                    .Name("gridContractAll" + Model)
                            .Columns(columns =>
                            {
-                               columns.Bound(p => p.ContractNumber).Width(150).ClientTemplate(
-                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
-                                        "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getObkContractDetails('#=ContractId#', '#=ContractNumber#',);\"><span style=\"color:rgb(66,139,202);\">#=ContractNumber#</span></button>" +
-                                    "</div>"
-                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#").Locked(true).Lockable(false);
-                               columns.Bound(p => p.ContractSendDate).Format("{0:dd.MM.yyyy}").Title("Дата отправки заявителем").Width(100);
-                               columns.Bound(p => p.ContractStartDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_начала_18).Width(100);
-                               columns.Bound(p => p.ContractEndDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Датаокончания_101).Width(100);
-                               columns.Bound(p => p.DeclarantNameRu).Title("Заявитель").Width(100);
-                               columns.Bound(p => p.ContractTypeRu).Title("Тип договора").Width(100);
-                               columns.Bound(p => p.StageUOBKResult).Title("УОБК").ClientTemplate(
-                                   "# if (StageUOBKResult == 1) { #" +
-                                        "<span class='glyphicon glyphicon-ok'></span> #= StageUOBKExecutor #" +
-                                    "# } else if (StageUOBKResult == 2) { #" +
-                                        "<span class='glyphicon glyphicon-remove'></span> #= StageUOBKExecutor #" +
-                                    "# } else if (StageUOBKExecutor != null) { #" +
-                                    "<span class='glyphicon glyphicon-unchecked'></span> #= StageUOBKExecutor #" +
-                                    "# } else { #" +
-                                        "<span class='glyphicon glyphicon-unchecked'></span>" +
-                                    "# } #"
-                                   ).Width(200);
-                               columns.Bound(p => p.StageUOBKResult).Title("ДЭФ").ClientTemplate(
-                               "# if (StageDEFResult == 1) { #" +
-                                    "<span class='glyphicon glyphicon-ok'></span> #= StageDEFExecutor #" +
-                                "# } else if (StageDEFResult == 2) { #" +
-                                    "<span class='glyphicon glyphicon-remove'></span> #= StageDEFExecutor #" +
-                                "# } else if (StageDEFExecutor != null) { #" +
-                                    "<span class='glyphicon glyphicon-unchecked'></span> #= StageDEFExecutor #" +
-                                "# } else { #" +
-                                    "<span class='glyphicon glyphicon-unchecked'></span>" +
-                                "# } #"
-                               ).Width(200);
-                               //columns.Bound(p => p.StageUOBKResult).ClientTemplate(
-                               //     "# if (StageUOBKResult != null) { #" +
-                               //         "<input type='checkbox' checked src='" + Url.Content("~/Content/icons/") + "#= ContractId #.png' alt='#= DeclarantNameRu # icon' />" +
-                               //     "# } else { #" +
-                               //         "#: DeclarantNameRu #" +
-                               //     "# } #"
-                               // ).Width(100);
-                           })
+                           columns.Bound(p => p.ContractNumber).Width(150).ClientTemplate(
+                               "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                    "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getObkContractDetails('#=ContractId#', '#=ContractNumber#',);\"><span style=\"color:rgb(66,139,202);\">#=ContractNumber#</span></button>" +
+                                "</div>"
+                               ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#").Locked(true).Lockable(false);
+                           columns.Bound(p => p.ContractSendDate).Format("{0:dd.MM.yyyy}").Title("Дата отправки заявителем").Width(100);
+                           columns.Bound(p => p.ContractStartDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_начала_18).Width(100);
+                           columns.Bound(p => p.ContractEndDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Датаокончания_101).Width(100);
+                           columns.Bound(p => p.DeclarantNameRu).Title("Заявитель").Width(100);
+                           columns.Bound(p => p.ContractTypeRu).Title("Тип договора").Width(100);
+                           columns.Bound(p => p.StageUOBKExecutor).Title("Эксперт").Visible(false);
+        columns.Bound(p => p.StageUOBKResult).Title("УОБК").ClientTemplate(
+            "# if (StageUOBKResult == 1) { #" +
+                 "<span class='glyphicon glyphicon-ok'></span> #= StageUOBKExecutor #" +
+             "# } else if (StageUOBKResult == 2) { #" +
+                 "<span class='glyphicon glyphicon-remove'></span> #= StageUOBKExecutor #" +
+             "# } else if (StageUOBKExecutor != null) { #" +
+             "<span class='glyphicon glyphicon-unchecked'></span> #= StageUOBKExecutor #" +
+             "# } else { #" +
+                 "<span class='glyphicon glyphicon-unchecked'></span>" +
+             "# } #"
+            ).Width(200);
+        columns.Bound(p => p.StageUOBKResult).Title("ДЭФ").ClientTemplate(
+        "# if (StageDEFResult == 1) { #" +
+             "<span class='glyphicon glyphicon-ok'></span> #= StageDEFExecutor #" +
+         "# } else if (StageDEFResult == 2) { #" +
+             "<span class='glyphicon glyphicon-remove'></span> #= StageDEFExecutor #" +
+         "# } else if (StageDEFExecutor != null) { #" +
+             "<span class='glyphicon glyphicon-unchecked'></span> #= StageDEFExecutor #" +
+         "# } else { #" +
+             "<span class='glyphicon glyphicon-unchecked'></span>" +
+         "# } #"
+        ).Width(200);
+        //columns.Bound(p => p.StageUOBKResult).ClientTemplate(
+        //     "# if (StageUOBKResult != null) { #" +
+        //         "<input type='checkbox' checked src='" + Url.Content("~/Content/icons/") + "#= ContractId #.png' alt='#= DeclarantNameRu # icon' />" +
+        //     "# } else { #" +
+        //         "#: DeclarantNameRu #" +
+        //     "# } #"
+        // ).Width(100);
+    })
 
                            .Reorderable(reorderable => reorderable.Columns(true))
                            .Resizable(resizable => resizable.Columns(true))
@@ -249,7 +254,7 @@ panes.Add().Scrollable(false).Size("100%").Content(
     </div>
              );
             }))
-<div class="modal" id="modalSearch">
+<div class="modal" id="modalSearchContract">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -267,8 +272,15 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                     <div>
                                         <ul>
                                             <li>
+                                                <h4>
+                                                    Заявитель
+                                                </h4>
+                                                @Html.TextBox("SenderContract", "", new { style = "width:100%;" })
+
+                                            </li>
+                                            <li>
                                                 <h4>Дата отправки с</h4>@(Html.Kendo().DatePicker()
-          .Name("SentDateStart")
+          .Name("SentDateStartContract")
           .Events(e =>
           {
 
@@ -278,7 +290,7 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                             </li>
                                             <li>
                                                 <h4>по</h4> @(Html.Kendo().DatePicker()
-          .Name("SentDateEnd")
+          .Name("SentDateEndContract")
           .Events(e =>
           {
 
@@ -290,9 +302,17 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                                 <h4>
                                                     Тип договора
                                                 </h4>
-                                                @Html.DropDownList("TypeContract", (SelectList)ViewBag.ContractTypes, new { style = "width:100%; height:30px;" })
+                                                @Html.DropDownList("TypeContract", (SelectList)ViewBag.ContractTypes,"Выберите тип", new { style = "width:100%; height:30px;" })
 
                                             </li>
+                                            <li>
+                                                <h4>
+                                                    Эксперт
+                                                </h4>
+                                                @Html.DropDownList("Expert", (SelectList)ViewBag.Experts, "Выбрать эксперта", new { @class = "js-example-basic-multiple", style = "width:100%; height:30px;" })
+
+                                            </li>
+
                                         </ul>
                                     </div>
                                 </div>
@@ -301,7 +321,7 @@ panes.Add().Scrollable(false).Size("100%").Content(
 
                             <div class="row">
                                 <div class="col-lg-offset-4 col-md-4">
-                                    <button type="button" class="btn btn-primary" style="width:100%;" onclick="searchFilter('@Model')">Найти</button>
+                                    <button type="button" class="btn btn-primary" style="width:100%;" onclick="searchFilterContract('@Model')">Найти</button>
                                 </div>
                             </div>
 
@@ -316,6 +336,12 @@ panes.Add().Scrollable(false).Size("100%").Content(
 <script>
     $(document).ready(function () {
         resizeGrid('@("#gridContractAll" + Model)');
+        $(".js-example-basic-multiple").select2();
         initFilterOBKContract('@Model.ToString()');
+
+
+        $("#instantSearchContract").on('keyup keypress', function (e) {
+            InstantsearchFilterContract('@Model');
+        });
     });
 </script>

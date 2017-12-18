@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using WebApplicationCulture.Helper;
 
 namespace PW.Ncels.Controllers {
     [Authorize()]
@@ -13,6 +16,29 @@ namespace PW.Ncels.Controllers {
 
 		    return View();
 		}
+
+        public ActionResult SetCulture(string culture)
+        {
+            if (culture.Equals("ҚАЗ"))
+                culture = "kk-KZ";
+            else
+                culture = "ba";
+
+            // Validate input
+            culture = CultureHelper.GetImplementedCulture(culture);
+            // Save culture in a cookie
+            HttpCookie cookie = Request.Cookies["_culture"];
+            if (cookie != null)
+                cookie.Value = culture;   // update cookie value
+            else
+            {
+                cookie = new HttpCookie("_culture");
+                cookie.Value = culture;
+                cookie.Expires = DateTime.Now.AddYears(1);
+            }
+            Response.Cookies.Add(cookie);
+            return RedirectToAction("Index");
+        }
 
         public ActionResult Version() {
             ViewBag.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;

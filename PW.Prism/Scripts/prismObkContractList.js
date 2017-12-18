@@ -541,12 +541,14 @@ function setFindAreaVisibility(uiId) {
     }
 }
 
-function callSearchView(e)
+function callSearchViewContract(e)
 {
-    var dates = new Date();
-    $('#SentDateStart').val(convertDate(dates));
-    $('#SentDateEnd').val(convertDate(dates));
-    $('#modalSearch').modal('show');  
+   // $("#SentDateStartContract").attr("readonly", true);
+    //$("#SentDateEndContract").attr("readonly", true);
+    //$("#SentDateStartContract").val("");
+    //$("#SentDateEndContract").val("");
+
+    $('#modalSearchContract').modal('show');
 }
 
 function convertDate(date) {
@@ -558,16 +560,62 @@ function convertDate(date) {
     return day + "." + month + "." + year;
 }
 
-function searchFilter(e)
+function searchFilterContract(e)
 {
-    var startDate = $('#SentDateStart').val();
-    var endDate = $('#SentDateEnd').val();
-    var type=$("#TypeContract option:selected").text();
+    var startDate = $('#SentDateStartContract').val();
+    var endDate = $('#SentDateEndContract').val();
+    var type = $("#TypeContract option:selected").text();
+    var valType = $("#TypeContract option:selected").val();
+    var Experttype = $("#Expert option:selected").text();
+    var ExpertvalType = $("#Expert option:selected").val();
+    var sender = $('#SenderContract').val();
     var startDateReal = new Date(startDate.split(".")[2] + '-' + startDate.split(".")[1]+'-'+startDate.split(".")[0]);
     var endDateReal = new Date(endDate.split(".")[2] + '-' + endDate.split(".")[1] + '-' + endDate.split(".")[0]);
     var grid = $("#gridContractAll" + e).data("kendoGrid");
     var filter = new Array();
-    filter.push({ field: "ContractSendDate", operator: "gte", value: startDateReal }, { field: "ContractSendDate", operator: "lte", value: endDateReal }, { field: "ContractTypeRu", operator: "eq", value: type });
+
+
+    if (startDate != undefined && startDate != null && startDate != "") {
+        filter.push({ field: "ContractSendDate", operator: "gte", value: startDateReal });
+    }
+    if (endDate != undefined && endDate != null && endDate != "") {
+        filter.push(
+           { field: "ContractSendDate", operator: "lte", value: endDateReal });
+    }
+    if (valType != undefined && valType != null && valType != "")
+    {
+        filter.push(
+   { field: "ContractTypeRu", operator: "eq", value: type });
+    }
+    if (sender != undefined && sender != null && sender != "")
+    {
+        filter.push(
+{ field: "DeclarantNameRu", operator: "contains", value: sender });
+    }
+    if (ExpertvalType != undefined && ExpertvalType != null && ExpertvalType != "")
+    {
+        filter.push(
+{ field: "StageUOBKExecutor", operator: "contains", value: Experttype });
+    }
+
+    grid.dataSource.filter({
+        logic: "and",
+        filters: filter
+    });
+
+    $('#modalSearchContract').modal('hide');
+}
+
+function InstantsearchFilterContract(e) {
+
+    var seria = $('#instantSearchContract').val();
+    var grid = $("#gridContractAll" + e).data("kendoGrid");
+    var filter = new Array();
+    if (seria != undefined && seria != null && seria != "") {
+        filter.push(
+{ field: "ContractNumber", operator: "contains", value: seria });
+    }
+
 
     grid.dataSource.filter({
         logic: "and",

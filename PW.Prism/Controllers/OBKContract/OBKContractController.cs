@@ -36,6 +36,11 @@ namespace PW.Prism.Controllers.OBKContract
         {
             var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name");
+            var employee = db.Units.Where(x => x.Type == 2 && x.Employee != null)
+                    .Select(o => o.Employee).Select(o => new { o.Id, Name = o.ShortName })
+                    .OrderBy(o => o.Name);
+            ViewBag.Experts = new SelectList(employee, "Id", "Name");
+
             return PartialView(Guid.NewGuid());
         }
 

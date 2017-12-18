@@ -14,7 +14,14 @@
             @( Html.Kendo().Button().Name("toWork" + Model.Guid)
                    .Content("Распределить"))
         </div>
-    }
+}
+
+    <div style="float: left">
+        <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchView('@Model')">Расширенный поиск</button>
+    </div>
+    <div style="float: left">
+         № заявки <input type="text" id="instantSearch" style="width:70px;"/>
+    </div>
     <div class="pull-left">
         @( Html.Kendo().Button().Name("find" + Model.Guid)
                .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
@@ -137,6 +144,8 @@
                              columns.Bound(p => p.CountryNameRu).Title("Страна").Width(150);
                              columns.Bound(p => p.ContractNumber).Title("№ договора").Width(150);
                              columns.Bound(p => p.ProductsCount).Title("Кол-во продукции").Width(150);
+                             columns.Bound(p => p.Series).Title("Серия").Width(150);
+                             columns.Bound(p => p.NameRu).Title("Наименование продукции").Width(150);
                              //columns.Bound(p => p.NameRu).Title("Организация").Width(200).HtmlAttributes(new {@class = "need-cell-tooltip"});
                              //columns.Bound(p => p.NameRu).Title("Упаковщик").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
                              //columns.Bound(p => p.NameRu).Title("Выпускающий контроль").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"})
@@ -163,10 +172,89 @@
               </div>
               );
       }))
+
+
+<div class="modal" id="modalSearch">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Расширенный поиск</h4>
+                        </div>
+                        <div class="modal-body" id="bodyMessage">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <ul>
+                                            <li>
+                                                <h4>
+                                                    Наименование продукции
+                                                </h4>
+                                                @Html.TextBox("Sender", "", new { style = "width:100%;" })
+
+                                            </li>
+                                            <li>
+                                                <h4>
+                                                    № серии
+                                                </h4>
+                                                @Html.TextBox("Seria", "", new { style = "width:100%;" })
+
+                                            </li>
+                                            <li>
+                                                <h4>Дата подачи с</h4>@(Html.Kendo().DatePicker()
+          .Name("SentDateStart")
+          .Events(e =>
+          {
+
+          })
+         .HtmlAttributes(new { style = "width: 100%" })
+                                                )
+                                            </li>
+                                            <li>
+                                                <h4>по</h4> @(Html.Kendo().DatePicker()
+          .Name("SentDateEnd")
+          .Events(e =>
+          {
+
+          })
+         .HtmlAttributes(new { style = "width: 100%" })
+                                                )
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-offset-4 col-md-4">
+                                    <button type="button" class="btn btn-primary" style="width:100%;" onclick="searchFilter('@Model.Guid')">Найти</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         resizeGrid('@("#gridAssessmentDecalaration" + Model.Guid)');
         InitFilterOBKDecalaration('@Model.Guid.ToString()');
         $('#@((EmployePermissionHelper.CanSafetyAssessmentExecutorsAssignment ? "new":"inWork")+Model.Guid)').click();
+
+
+        $("#instantSearch").on('keyup keypress', function (e) {
+            InstantsearchFilter('@Model.Guid');
+        });
     });
 </script>
