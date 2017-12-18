@@ -425,6 +425,11 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const int STAGE_OBK_DEF = 4;
 
+        /// <summary>
+        /// УВиРНФПиМС
+        /// </summary>
+        public const int STAGE_OBK_PIMS = 5;
+
         #endregion
 
         #region Результаты этапов
