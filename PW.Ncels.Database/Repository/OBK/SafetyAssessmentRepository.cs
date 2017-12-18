@@ -112,6 +112,15 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Dictionaries.Where(o => o.Type == "Marking");
         }
 
+        /// <summary>
+        /// Показать список 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_Applicant> OBKApplicants()
+        {
+            return AppContext.OBK_Applicant.ToList();
+        }
+
 
         /// <summary>
         /// Показать список 
@@ -138,14 +147,15 @@ namespace PW.Ncels.Database.Repository.OBK
                        select new
                        {
                            serieId = series.Id,
-                           name = product.DrugFormFullName,
+                           name = product.DrugFormFullName != null ? product.DrugFormFullName : product.NameRu,
                            measure = measure.name,
                            measureId = series.SeriesMeasureId,
                            serie = series.Series,
                            serieParty = series.SeriesParty,
                            seriesStartDate = series.SeriesStartdate,
                            seriesEndDate = series.SeriesEndDate,
-                           quantity = series.Quantity
+                           quantity = series.Quantity,
+                           producerName = product.ProducerNameRu
                        };
             return data;
         }
@@ -209,7 +219,8 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IQueryable<OBK_Ref_Reason> GetRefReasons()
         {
-            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted);
+            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted 
+            && "Declaration".Equals(e.Code) && e.ExpertiseResult == false);
         }
 
         /// <summary>
@@ -365,7 +376,7 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <param name="fieldDisplay">значение</param>
         /// <returns></returns>
         public SubUpdateField UpdateModel(string code, int typeId, string modelId, string userId, long? recordId,
-            string fieldName, string fieldValue, string fieldDisplay)
+            string fieldName, string fieldValue, string fieldDisplay, Guid? actId)
         {
             bool isNew = false;
             var model = GetById(modelId);
@@ -397,7 +408,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     }
                 case "act":
                     {
-                        return UpdateAct(isNew, model,  fieldName, fieldValue, userId, fieldDisplay);
+                        return UpdateAct(model, fieldName, actId, fieldValue, userId, fieldDisplay);
 
                     }
                 case "act-series":
@@ -453,16 +464,12 @@ namespace PW.Ncels.Database.Repository.OBK
             return subUpdateField;
         }
 
-        private SubUpdateField UpdateAct(bool isNew, OBK_AssessmentDeclaration model, string fieldName,
+        private SubUpdateField UpdateAct(OBK_AssessmentDeclaration model, string fieldName, Guid? recordId,
            string fieldValue, string userId, string fieldDisplay)
         {
-            var entity = new OBK_ActReception();
-            if (model != null && model.OBK_ActReception != null)
-            {
-                entity = model.OBK_ActReception;
-            }
-
+            var entity = AppContext.OBK_ActReception.First(o => o.Id == recordId);
             var property = entity.GetType().GetProperty(fieldName);
+            
             if (property != null)
             {
                 var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
@@ -483,16 +490,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 }
                 property.SetValue(entity, safeValue, null);
             }
-            if (isNew)
-            {
-                AppContext.OBK_AssessmentDeclaration.Add(model);
-                AppContext.SaveChanges();
-            }
-            if (entity.Id == Guid.Empty)
-            {
-                entity.Id = model.Id;
-                AppContext.OBK_ActReception.Add(entity);
-            }
+            
             AppContext.SaveChanges();
 
             SaveHistoryField(model.Id, fieldName, fieldValue, new Guid(userId), fieldDisplay);

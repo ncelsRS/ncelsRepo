@@ -20,6 +20,34 @@
         }
     }
 
+    $scope.viewContract = function () {
+        debugger;
+        if ($scope.object.Type == null) {
+            alert("Выберите тип договра");
+            return;
+        }
+        var modalInstance = $uibModal.open({
+            templateUrl: '/OBKContract/ContractTemplate?Id=' + $scope.contractAddition.ContractId + "&Url=" + "GetContractTemplatePdf",
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+
+    $scope.viewAdditionalContract = function () {
+        debugger;
+        if ($scope.object.Type == null) {
+            alert("Выберите тип договра");
+            return;
+        }
+        if ($scope.contractAddition.ContractAdditionTypeId == null) {
+            alert("Выберите дополнительное соглашение");
+            return;
+        }
+        var modalInstance = $uibModal.open({
+            templateUrl: '/OBKContract/ContractAdditionalTemplate?Id=' + $scope.contractAddition.Id + "&Url=" + "GetContractAdditionalTemplatePdf&contractAdditionTypeId=" + $scope.contractAddition.ContractAdditionTypeId,
+            controller: ModalRegisterInstanceCtrl
+        });
+    };
+
     $scope.loadContract = function (contractId) {
         $http({
             method: 'GET',
@@ -309,7 +337,26 @@
     $scope.doSign = function () {
         var id = $scope.contractAddition.Id;
         if (id) {
+            var funcSign = function signData() {
+                debugger;
+                $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Выполняется подпись...</h1>', css: { opacity: 1 } });
+                signXmlCall(function () {
+                    $http({
+                        url: '/OBKContract/SignContract',
+                        method: 'POST',
+                        data: JSON.stringify({ contractId: id, signedData: $("#Certificate").val() })
+                    }).success(function (response) {
+                        $scope.contractAddition.Status = response;
+                        $scope.changeViewMode();
+                        $window.location.href = '/OBKContract';
+                    }).error(function () {
+                        alert("error");
+                        $.unblockUI();
+                    });
+                });
+            };
 
+            startSign('/OBKContract/SignData', id, funcSign);
         }
     }
 

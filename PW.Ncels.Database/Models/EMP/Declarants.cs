@@ -26,5 +26,6 @@ namespace PW.Ncels.Database.Models.EMP
         public Guid? Signer { get; set; }
         public int Status { get; set; }
         public Contacts Contact { get; set; }
+        public string Iin { get; set; }
     }
 }

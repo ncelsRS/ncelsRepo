@@ -331,6 +331,27 @@ function InitObkContractCard(uiId) {
         printForm: function (e) {
             var modelId = $("#modelId").val();
             window.open('/OBKContract/GetContractTemplatePdf?id=' + modelId);
+        },
+        showForm: function (e) {
+            var modelId = $("#parentId").val();
+            $.ajax({
+                type: 'POST',
+                url: '/OBKContract/ContractTemplateWindow?contractId=' + modelId,
+                success: function (data) {
+                    $("#windowFrame" + modelId).html(data);
+                }
+            });
+        },
+        showAdditionalForm: function (e) {
+            var modelId = $("#modelId").val();
+            var contractAdditionTypeId = $("#contractAdditionTypeId").val();
+            $.ajax({
+                type: 'POST',
+                url: '/OBKContract/AdditionalContractTemplateWindow?additionalId=' + modelId + ' &contractAdditionTypeId=' + contractAdditionTypeId,
+                success: function (data) {
+                    $("#windowFrame" + modelId).html(data);
+                }
+            });
         }
     });
     kendo.bind($("#splitter" + uiId), viewModel);
@@ -398,7 +419,7 @@ function initFilterOBKContract(uiId) {
     //});
 
     $("#reload" + uiId).click(function () {
-        debugger;
+        //debugger;
         var grid = $("#gridContractAll" + uiId).data("kendoGrid");
         grid.dataSource.read();
     });

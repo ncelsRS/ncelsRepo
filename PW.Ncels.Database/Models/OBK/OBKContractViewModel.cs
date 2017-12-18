@@ -61,5 +61,6 @@ namespace PW.Ncels.Database.Models.OBK
         public string BankNameRu { get; set; }
         public string BankNameKz { get; set; }
         public string Iin { get; set; }
+        public Guid? ContractAdditionType { get; set; }
     }
 }

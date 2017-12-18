@@ -334,7 +334,7 @@
                     <div class="form-group">
                         <label id="CertificateTypeLableId">Тип сертификата:</label>
                         <div class="input-group">
-                            @Html.DropDownList("CertificateTypeId", (IEnumerable<SelectListItem>)(ViewData["CertificateType"]), String.Empty, new { @class = "form-control edit-control main-control", @readonly = true })
+                            @Html.DropDownList("CertificateTypeId", (IEnumerable<SelectListItem>)(ViewData["CertificateType"]), String.Empty, new { @class = "form-control edit-control main-control gmp-cert-control", @readonly = true })
                             <span class="input-group-addon">
                                 <a class="OBKcommentDialog" href="#">
                                     <i class="glyphicon glyphicon-info-sign"></i>
@@ -347,7 +347,7 @@
                     <div class="form-group">
                         <label id="CertificateId">Номер сертификата:</label>
                         <div class="input-group">
-                            @Html.TextBoxFor(model => model.CertificateGMP, new {@class = "form-control edit-control main-control", @readonly = true})
+                            @Html.TextBoxFor(model => model.CertificateGMP, new {@class = "form-control edit-control main-control gmp-cert-control", @readonly = true})
                             <span class="input-group-addon">
                                 <a class="OBKcommentDialog" href="#">
                                     <i class="glyphicon glyphicon-info-sign"></i>
@@ -427,7 +427,6 @@
 </div>
 </div>
     <script type="text/javascript">
-
         function setDateFormat(control) {
             $(control).datepicker({
                 dateFormat: 'dd.mm.yy',
@@ -436,7 +435,46 @@
             });
         }
 
-        $("#CertificateGMPCheck").change(function() { checkCert(); });
+        $(".gmp-cert-control").change(function () {
+            var _number = $("#CertificateGMP").val();
+            var _type = $("#CertificateTypeId").val();
+
+            if (_number != "" && _type != ""){
+                $.ajax({
+                    type: 'POST',
+                    url: '/SafetyAssessment/GetCertificate/',
+                    data: { number: _number, type: _type },
+                    success: function (result) {
+                        if (result.success == true) {
+                            $("#CertificateStartDate").val(result.data.StartDate);
+                            $("#CertificateDate").val(result.data.EndDate);
+                            $("#CertificateManufacturName").val(result.data.CertificateOrganization);
+                            $("#CertificateOrganization").val(result.data.CertificateProducer);
+                            $("#CertificateCountryId").val(result.data.CertificateCountryId);
+
+                            $("#CertificateStartDate").change();
+                            $("#CertificateDate").change();
+                            $("#CertificateManufacturName").change();
+                            $("#CertificateOrganization").change();
+                            $("#CertificateCountryId").change();
+
+                            $.bootstrapGrowl("Данные сертификата найдены!", {
+                                type: 'success', 
+                                align: 'right'
+                            });
+                        } else {
+                            $.bootstrapGrowl("Данные сертификата не найдены!", {
+                                type: 'warning',
+                                align: 'right'
+                            });
+                        }
+                    }
+                });
+            }
+
+        });
+
+        $("#CertificateGMPCheck").change(function () { checkCert(); });
 
         function checkCert() {
             var cerGMPCheck = null;
@@ -449,12 +487,12 @@
             }
             if (cerGMPCheck === "True") {
                 $("#CertificateGMP").attr("readonly", false);
-                $("#CertificateDate").attr("readonly", false).attr("disabled", false);
-                $("#CertificateStartDate").attr("readonly", false).attr("disabled", false);
+                $("#CertificateDate").attr("readonly", true).attr("disabled", true);
+                $("#CertificateStartDate").attr("readonly", true).attr("disabled", true);
                 $("#CertificateTypeId").attr("readonly", false).attr("disabled", false);
-                $("#CertificateCountryId").attr("readonly", false).attr("disabled", false);
-                $("#CertificateOrganization").attr("readonly", false);
-                $("#CertificateManufacturName").attr("readonly", false);
+                $("#CertificateCountryId").attr("readonly", true).attr("disabled", true);
+                $("#CertificateOrganization").attr("readonly", true);
+                $("#CertificateManufacturName").attr("readonly", true);
             } else {
                 $("#CertificateGMP").attr("readonly", true);
                 $("#CertificateDate").attr("readonly", true).attr("disabled", true);
@@ -478,6 +516,7 @@
                 return allowed.indexOf(String.fromCharCode(key)) != -1;
             });
             $(".main-control").change(function () {
+
                 var controlId = $(this).attr('id');
                 var type = "string";
                 if ($(this).attr('typeField') != null) {
@@ -495,7 +534,7 @@
                 if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
                     fieldDisplay = $(this).select2('data').text;
                 }
-                
+
                 if ($(this).hasClass("domestic-producer")) {
                     if ($(this).is(':checked'))
                     {
@@ -514,16 +553,23 @@
                         fieldValue = $(this).is(':checked');
                         if (controlId == "KfSelection") {
                             UpdateModel("main", null, null, "GDPItself", false, type, false);
+                            UpdateModel("main", null, null, "OBKApplicantParty", false, type, false);
                         }
                         if (controlId == "GDPItself") {
+                            UpdateModel("main", null, null, "KfSelection", false, type, false);
+                            UpdateModel("main", null, null, "OBKApplicantParty", false, type, false);
+                        }
+                        if (controlId == "OBKApplicantParty") {
+                            UpdateModel("main", null, null, "GDPItself", false, type, false);
                             UpdateModel("main", null, null, "KfSelection", false, type, false);
                         }
                     }
                 }
 
-                
-                UpdateModel("main", null, null, controlId, fieldValue, type, fieldDisplay);
+
+                UpdateModel("main", null, null, controlId, fieldValue, type, fieldDisplay, null);
             });
+            $('#ContractId').change();
         });
 
         $("#ContractId").change(function () {
@@ -561,32 +607,20 @@
                         $("#CountryId").val(response.CountryId);
                         $("#CurrencyId").val(response.CurrencyId);
 
-                        $("#radioPanel").css('display', 'inline');
+                        if ($("#TypeId").val() == 2) {
+                            $("#radioPanel").css('display', 'inline');
 
-                        if ($('#GDPItself').is(':checked')) {
-                            activateGDPPane();
+                            if ($('#GDPItself').is(':checked')) {
+                                activateGDPPane();
+                            }
+
+                            if ($("#KfSelection").is(':checked')) {
+                                activateACTSelectionsPane();
+                            }
                         }
-
-                        if ($("#KfSelection").is(':checked')) {
-                            activateACTSelectionsPane();
-                        }
-
-                        var product = response.ObkRsProductses;
-                        $("#tableProducts").DataTable({
-                            data: product,
-                            destroy: true,
-                            searching: false,
-                            iDisplayLength: 5,
-                            rowCallback: rowCallback,
-                            "columns": [
-                                { "data": "Id" },
-                                { "data": "NameRu" },
-                                { "data": "DrugFormFullName" },
-                                { "data": "ProducerNameRu" },
-                                { "data": "DrugFormBoxCount" },
-                                { "data": "CountryNameRu" }
-                            ]
-                        });
+                        showFactories(data.result.ContractType == 1);
+                        updateProductsTable();
+                        updateFactoryTable();
 
                     } else {
                         $("#startDate").val("");

@@ -22,6 +22,7 @@ using PW.Prism.ViewModels.Expertise;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using Newtonsoft.Json;
+using Stimulsoft.Report.Mvc;
 
 namespace PW.Prism.Controllers.OBK
 {
@@ -150,16 +151,28 @@ namespace PW.Prism.Controllers.OBK
         public ActionResult GetActReception(Guid id)
         {
             var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
-            var model = new OBK_ActReception();
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == stage.OBK_AssessmentDeclaration.Id);
+            if (model == null)
+            {
+                model = new OBK_ActReception();
+            }
+
+            ViewData["AssessmentDeclarationId"] = declaration.Id;
+            ViewData["ContractId"] = declaration.ContractId;
+
+            if (declaration.ApplicantAgreement == true)
+            {
+                var expDocResult = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == declaration.Id);
+                ViewData["expDocResult"] = expDocResult;
+                return PartialView("ExpertActReception", model);
+            }
+
             if (stage != null)
             {
-                model = db.OBK_ActReception.First(o => o.Id == stage.OBK_AssessmentDeclaration.Id);
-                ViewData["ContractId"] = stage.OBK_AssessmentDeclaration.ContractId;
-                ViewData["AssessmentDeclarationId"] = stage.OBK_AssessmentDeclaration.Id;
                 ViewData["ProductSampleList"] =
                     new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
             }
-
 
             return PartialView("ActReception", model);
         }
@@ -182,10 +195,10 @@ namespace PW.Prism.Controllers.OBK
                     new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
                 ViewData["PackageConditionList"] =
-                    new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                    new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
                 ViewData["StorageConditionsList"] =
-                    new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                    new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
                 ViewData["MarkingList"] =
                     new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
@@ -214,7 +227,8 @@ namespace PW.Prism.Controllers.OBK
                              seriesEndDate = series.SeriesEndDate,
                              quantity = series.Quantity,
                              available = series.Available == true ? true : false,
-                             comment = series.Comment
+                             comment = series.Comment,
+                             producerName = product.ProducerNameRu
                          };
 
             return Json(new { isSuccess = true, data = result });
@@ -223,8 +237,7 @@ namespace PW.Prism.Controllers.OBK
         [HttpPost]
         public virtual ActionResult UpdateProductSeries(string productSeries, Guid actReceptionId)
         {
-            
-            var series  =JsonConvert.DeserializeObject<List<ProductSeriesModel>>(productSeries).OrderBy(o => o.SerieId).ToList();
+            var series = JsonConvert.DeserializeObject<List<ProductSeriesModel>>(productSeries).OrderBy(o => o.SerieId).ToList();
             var serIds = series.Select(x => x.SerieId);
             var dbSeries = db.OBK_Procunts_Series.Where(o => serIds.Contains(o.Id)).OrderBy(o => o.Id).ToList();
 
@@ -237,6 +250,37 @@ namespace PW.Prism.Controllers.OBK
                     ob2.Available = ob1.Available;
                     ob2.Comment = ob1.Comment;
                 }
+            }
+            var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+            act.Accept = true;
+
+            db.SaveChanges();
+
+            return Json(new { Success = true });
+        }
+
+        [HttpPost]
+        public virtual ActionResult UpdateProductSeries2(string productSeries, Guid actReceptionId)
+        {
+            var series = JsonConvert.DeserializeObject<List<ProductSeriesModel>>(productSeries).OrderBy(o => o.SerieId).ToList();
+            var serIds = series.Select(x => x.SerieId);
+            var dbSeries = db.OBK_Procunts_Series.Where(o => serIds.Contains(o.Id)).OrderBy(o => o.Id).ToList();
+
+            for (int i = 0; i < dbSeries.Count; i++)
+            {
+                var ob1 = series.ElementAt(i);
+                var ob2 = dbSeries.ElementAt(i);
+
+                if (ob1.Quantity != ob2.Quantity)
+                {
+                    ob2.Quantity = ob1.Quantity;
+                }
+
+                if (ob1.SeriesMeasureId != ob2.SeriesMeasureId)
+                {
+                    ob2.SeriesMeasureId = ob1.SeriesMeasureId;
+                }
+
             }
             var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
             act.Accept = true;
@@ -284,6 +328,8 @@ namespace PW.Prism.Controllers.OBK
                 prod.ExpirationDate = product.ExpirationDate;
                 prod.NdName = product.NdName;
                 prod.NdNumber = product.NdNumber;
+                prod.Dimension = product.Dimension;
+                prod.ExpertisePlace = product.ExpertisePlace;
                 foreach (var productSeries in product.OBK_Procunts_Series)
                 {
                     var prodSeries = new OBK_Procunts_Series();
@@ -334,6 +380,14 @@ namespace PW.Prism.Controllers.OBK
             }
             result.ObkRsProductses = resultProducts;
             return Json(new { isSuccess = true, result });
+        }
+
+        [HttpPost]
+        public ActionResult GetContractFactory(Guid contractId)
+        {
+            var repo = new OBKContractRepository();
+            var result = repo.GetContractFactories(contractId);
+            return Json(result);
         }
 
         /// <summary>
@@ -464,5 +518,210 @@ namespace PW.Prism.Controllers.OBK
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ExpertActData(Guid assessmentId)
+        {
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == assessmentId);
+            var assessment = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == assessmentId);
+
+            ViewData["ContractId"] = assessment.ContractId;
+
+            if (model == null)
+            {
+                model = new OBK_ActReception();
+                model.Id = Guid.NewGuid();
+                var exp = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == assessmentId);
+
+                model.Number = assessment.Number;
+                model.ActDate = exp.SelectionDate;
+                model.Address = exp.SelectionPlace;
+                model.OBK_AssessmentDeclarationId = assessmentId;
+                var employee = db.Employees.FirstOrDefault(o => o.Id == assessment.EmployeeId);
+                model.Declarer = employee.DisplayName;
+
+                var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assessment.ContractId);
+                model.Producer = product.ProducerNameRu;
+
+                db.OBK_ActReception.Add(model);
+                db.SaveChanges();
+            }
+
+            if (model.AttachPath == null)
+            {
+                //model.AttachPath = 
+            }
+
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["ProductSampleList"] =
+                new SelectList(safetyRepository.GetProductSamples(), "Id", "Name");
+
+            ViewData["InspectionInstalledList"] =
+                new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
+
+            ViewData["PackageConditionList"] =
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+
+            ViewData["StorageConditionsList"] =
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+
+            ViewData["MarkingList"] =
+                new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+
+            ViewData["OBKApplicants"] =
+                new SelectList(safetyRepository.OBKApplicants(), "Id", "NameRU");
+
+            return PartialView(model);
+        }
+
+        public ActionResult SaveExpertActReception(OBK_ActReception reception, string actDate)
+        {
+            DateTime? actD = null;
+            if (actDate != null || !actDate.Equals(""))
+            {
+                actD = DateTime.Parse(actDate);
+            }
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == reception.Id);
+            model.InspectionInstalledId = reception.InspectionInstalledId;
+            model.MarkingId = reception.MarkingId;
+            model.Provider = reception.Provider;
+            model.PackageConditionId = reception.PackageConditionId;
+            model.ProductSamplesId = reception.ProductSamplesId;
+            model.StorageConditionsId = reception.StorageConditionsId;
+            model.Declarer = reception.Declarer;
+            model.AttachPath = reception.AttachPath;
+            model.ApplicantId = reception.ApplicantId;
+            model.ActDate = actD;
+            model.Address = model.Address;
+            model.Worker = UserHelper.GetCurrentEmployee().FullName;
+
+            db.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+        public ActionResult DeleteExpertActReception(Guid? actReceptionId)
+        {
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+
+            if (model != null)
+            {
+                model.InspectionInstalledId = null;
+                model.MarkingId = null;
+                model.Producer = null;
+                model.Provider = null;
+                model.PackageConditionId = null;
+                model.ProductSamplesId = null;
+                model.StorageConditionsId = null;
+                model.AttachPath = null;
+                model.ApplicantId = null;
+                model.Address = null;
+
+                db.SaveChanges();
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+
+            return Json(new { success = true });
+        }
+
+        public ActionResult GetSamples2(Guid? Id)
+        {
+            SafetyAssessmentRepository repository = new SafetyAssessmentRepository();
+
+            if (Id != null)
+            {
+                var result = repository.GetProductSeries(Id).AsEnumerable().ToArray();
+                return Json(new { isSuccess = true, data = result });
+
+            }
+
+            return Json(new { isSuccess = false });
+
+        }
+
+        public ActionResult MeasureSelect(int measureId)
+        {
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["MeasureList"] =
+                new SelectList(safetyRepository.GetMeasures(), "id", "name", measureId);
+
+            return PartialView("MeasureSelectView", measureId);
+        }
+
+        public ActionResult MeasureSelect2(int measureId, Guid assessmentId, int? serieId)
+        {
+            var safetyRepository = new SafetyAssessmentRepository();
+
+            ViewData["MeasureList"] =
+                new SelectList(safetyRepository.GetMeasures(), "id", "name", measureId);
+            ViewData["assessmentId"] = assessmentId;
+
+            return PartialView("MeasureSelectView", serieId);
+        }
+
+        public ActionResult RequestSamples(Guid? declarationId)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
+
+            NotificationManager notification = new NotificationManager();
+
+            var text = "Уведомляем Вас о том, что необходимо предоставить образцы в ЦОЗ.";
+            notification.SendNotificationFromCompany(text, ObjectType.ObkDeclaration, declaration.Id.ToString(), declaration.EmployeeId);
+
+            return Json(new { Success = true });
+        }
+
+        public ActionResult PrintActReception(Guid contractId, Guid actReceptionId, bool view)
+        {
+            var db = new ncelsEntities();
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/ObkActReception.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+                report.Dictionary.Variables["ContractId"].ValueObject = contractId;
+                report.Dictionary.Variables["ActReceptionId"].ValueObject = actReceptionId;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+
+            string name = "Акт отбора" + DateTime.Now.ToString() + ".pdf";
+
+            if (view)
+            {
+                return new FileStreamResult(stream, "application/pdf");
+
+            }
+            else
+            {
+                return File(stream, "application/pdf", name);
+            }
+
+        }
+
+        public ActionResult ActTemplate(Guid actReceptionId)
+        {
+            var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == act.OBK_AssessmentDeclarationId);
+
+            ViewData["ContractId"] = declaration.ContractId;
+            ViewData["ActReceptionId"] = actReceptionId;
+
+            return PartialView("ActTemplate");
+        }
     }
 }

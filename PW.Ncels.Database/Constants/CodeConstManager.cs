@@ -218,6 +218,8 @@ namespace PW.Ncels.Database.Constants
         public const string ATTACH_CONTRACT_FILE_RESIDENT = "sysAttachOBKContractResident";
         public const string ATTACH_CONTRACT_FILE_NON_RESIDENT = "sysAttachOBKContractNonResident";
 
+        public const string ATTACH_CONTRACT_FILE_RATIONALE_EXPERTISE_PLASE = "sysAttachOBKContractRationaleExpertisePlase";
+
         public const string ATTACH_CONTRACT_ADDITION_FILE_BANK_INFO_CHANGE = "sysAttachOBKContractAdditionBankInfoChange";
         public const string ATTACH_CONTRACT_ADDITION_FILE_ADDRESS_CHANGE_RESIDENT = "sysAttachOBKContractAdditionAddressChangeResident";
         public const string ATTACH_CONTRACT_ADDITION_FILE_ADDRESS_CHANGE_NON_RESIDENT = "sysAttachOBKContractAdditionAddressChangeNonResident";
@@ -423,6 +425,11 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const int STAGE_OBK_DEF = 4;
 
+        /// <summary>
+        /// УВиРНФПиМС
+        /// </summary>
+        public const int STAGE_OBK_PIMS = 5;
+
         #endregion
 
         #region Результаты этапов
@@ -554,5 +561,41 @@ namespace PW.Ncels.Database.Constants
         #endregion
 
         #endregion
+
+        /// <summary>
+        /// Статусы договора ИМН и МТ (внешний портал)
+        /// </summary>
+        public static class EmpContractStatus
+        {
+            /// <summary>
+            /// Черновик
+            /// </summary>
+            public const string Draft = "1";
+
+            /// <summary>
+            /// Отправлено
+            /// </summary>
+            public const string Sent = "2";
+        }
+
+        public static class EmpContractStage
+        {
+            /// <summary>
+            /// ЦОЗ
+            /// </summary>
+            public const string Coz = "1";
+        }
+
+        public static class EmpContractStageStatus
+        {
+            public const string InQueue = "inQueue";
+        }
+
+        public class EmpContractType
+        {
+            public const string Registration = "1";
+            public const string ReRegistration = "2";
+            public const string ChangesInsertion = "3";
+        }
     }
 }

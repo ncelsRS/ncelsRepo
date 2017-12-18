@@ -1,5 +1,9 @@
 ﻿@model PW.Ncels.Database.DataModel.OBK_ActReception
 
+@{ 
+    var date = (DateTime)Model.ActDate;
+
+}
 <div style="margin-left: 10px; margin-right: 60px; width: 90%" class="pwPage pwPageEx">
     <div class="panel-body">
         <div class="row">
@@ -15,7 +19,7 @@
                     <tbody>
                         <tr>
                             <td>@Model.Number</td>
-                            <td>@Model.ActDate</td>
+                            <td>@date.ToString("dd.MM.yyyy")</td>
                         </tr>
                     </tbody>
                 </table>
@@ -25,16 +29,13 @@
                     <div class="col-lg-6">
                         <a href="#" onclick="loadActData(event)" id="viewActDataBtn" class="k-button" style="background-color: #0066cc; width:130px; color: white;font-weight: 700;">Просмотр</a>
                     </div>
-                    <div class="col-lg-6">
-                        <a class="k-button" style="background-color: #3399ff; width:150px; color: white;font-weight: 700;">Принять образцы</a>
-                    </div>
                 </div>
             </div>
         </div>
 
 
         <div class="row">
-            <div id="act-data-@Model.Id" style="margin-top:20px;">
+            <div id="@("act-data"+@Model.Id)" style="margin-top:20px;">
 
             </div>
         </div>
@@ -50,8 +51,8 @@
         $.ajax({
             url: "/SafetyAssessment/LoadActData?Id=" + itemId +"&AssessmentDeclarationId="+ '@ViewData["AssessmentDeclarationId"]',
             success: function (result) {
-                $("#act-data-@Model.Id").css('border-style', 'groove');
-                $("#act-data-@Model.Id").html(result);
+                $("#act-data"+ "@Model.Id").css('border-style', 'groove');
+                $("#act-data"+"@Model.Id").html(result);
                 $("#loading").hide();
 
                                 $.ajax({
@@ -77,10 +78,11 @@
 
 
     function initSamplesTable(data) {
-        $("#samples-@Model.Id").DataTable({
+        $("#samples"+"@Model.Id").DataTable({
             autoWidth: false,
             searching: false,
             paging: false,
+            bInfo: false,
             data: data.data,
             "columns": [
                 { data: 'name', sWidth: "50px", title: "Наименование образцов предьявленной продукции" },
@@ -89,6 +91,7 @@
                 { data: 'serieParty', sWidth: "50px", title: "Размер партии" },
                 { data: 'seriesStartDate', sWidth: "50px", title: "Дата изготовления" },
                 { data: 'seriesEndDate', sWidth: "50px", title: "Срок годности" },
+                { data: 'producerName', sWidth: "50px", title: "Производитель" },
                 {
                     data: 'quantity', sWidth: "150px", title: "Кол-во отобранных образцов продукции",
                     render: function (data, type, row, meta) {
@@ -100,7 +103,7 @@
                     render: function (data, type, row, meta) {
 
                         var res = '<input type="checkbox" id= "Available" ' + checkChecked(row.available)
-                            + '" class="avalable-control" name="Available" data-serieId="' + row.serieId + '"  >'
+                            + '" class="avalable-control'+'@Model.Id'+'" name="Available" data-serieId="' + row.serieId + '"  >'
                         return res;
                     }
                 },
@@ -108,7 +111,7 @@
                     data: 'comment', sWidth: "150px", title: "Примечание",
                     render: function(data, type, row, meta) {
                         var res = '<input type="text" id= "Comment" value="' + checkNull(row.comment)
-                            + '" class="comment-control" name="Comment" data-serieId="' + row.serieId +'"  >'
+                            + '" class="comment-control'+'@Model.Id'+'" name="Comment" data-serieId="' + row.serieId +'"  >'
                         return res;
                     }
 
@@ -117,10 +120,10 @@
         });
 
         initActControl();
-        debugger;
+
         if('@Model.Accept' == 'True'){
-            $(".avalable-control").attr('disabled', 'disabled');
-            $(".comment-control").attr('disabled', 'disabled');
+            $(".avalable-control"+"@Model.Id").attr('disabled', 'disabled');
+            $(".comment-control"+"@Model.Id").attr('disabled', 'disabled');
         }
     }
 
@@ -143,8 +146,8 @@
     var r = confirm("После нажатия Принять данные не подлежать к изменению ");
         if (r == true) {
  if(checkValidationCheckBox() == true){
-                var $j_availables = $(".avalable-control");
-                var $j_comments = $(".comment-control");
+                var $j_availables = $(".avalable-control"+"@Model.Id");
+                var $j_comments = $(".comment-control"+"@Model.Id");
                 var arr_availables = new Map();
                 var arr_comments = new Map();
 
@@ -177,11 +180,11 @@
                         cache: false,
                         success: function(data) {
                             $("#loading").hide();
-                            debugger;
+
                             if(data.Success === true){
                                 $("#commandRow").hide();
-                                $(".avalable-control").attr('disabled', 'disabled');
-                                $(".comment-control").attr('disabled', 'disabled');
+                                $(".avalable-control"+"@Model.Id").attr('disabled', 'disabled');
+                                $(".comment-control"+"@Model.Id").attr('disabled', 'disabled');
                             }
                         },
                         error: function(data) {
@@ -197,12 +200,12 @@
 
         var ch = true;
 
-        var $j_object = $(".avalable-control");
+        var $j_object = $(".avalable-control"+"@Model.Id");
             $j_object.each( function(){
             ch = $(this).is(':checked');
             if(ch == false){
                 $(this).parent().addClass("redBackground");
-                $("#checkBoxLabel").show();
+                $("#checkBoxLabel"+"@Model.Id").show();
             }
         });
 
@@ -210,7 +213,7 @@
     }
 
     function initActControl() {
-        $(".avalable-control").change(function () {
+        $(".avalable-control"+"@Model.Id").change(function () {
 
             if ($(this).is(':checked')) {
                     $(this).parent().removeClass("redBackground");

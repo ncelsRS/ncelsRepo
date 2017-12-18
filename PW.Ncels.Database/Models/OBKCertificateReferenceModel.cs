@@ -15,6 +15,8 @@ namespace PW.Ncels.Database.Models
         public Guid CertificateCountryId { get; set; }
         public string CertificateCountry { get; set; }
         public string CertificateOrganization { get; set; }
+        [Required]
+        public string CertificateProducer { get; set; }
         public int CertificateTypeId { get; set; }
         public string CertificateType { get; set; }
         public DateTime? LastInspection { get; set; }

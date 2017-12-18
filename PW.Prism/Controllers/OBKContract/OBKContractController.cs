@@ -34,8 +34,6 @@ namespace PW.Prism.Controllers.OBKContract
         // GET: OBKContract
         public ActionResult Index()
         {
-            var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
-            ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name");
             var employee = db.Units.Where(x => x.Type == 2 && x.Employee != null)
                     .Select(o => o.Employee).Select(o => new { o.Id, Name = o.ShortName })
                     .OrderBy(o => o.Name);
@@ -85,7 +83,7 @@ namespace PW.Prism.Controllers.OBKContract
 
             var obkContract = db.OBK_Contract.Where(x => x.Id == id).FirstOrDefault();
             if (obkContract.ParentId == null)
-                obkContract.ObkRsProductCount = productInfo.Count;
+                obkContract.ObkRsProductCount = productInfo?.Count ?? 0;
             else
             {
                 var parentContracts = db.OBK_Contract.Where(x => x.Id == obkContract.ParentId).Select(x => new
@@ -678,6 +676,22 @@ namespace PW.Prism.Controllers.OBKContract
             return Json(new { Success = true });
         }
 
+        public ActionResult ShowCommentFactory(Guid contractFactoryId)
+        {
+            var model = obkRepo.GetCommentsFactory(contractFactoryId);
+            if (model == null)
+                model = new OBK_ContractFactoryCom();
+            if (Request.IsAjaxRequest())
+                return PartialView(model);
+            return View(model);
+        }
+
+        public virtual ActionResult SaveCommentFactory(string contractFactoryId, bool isError, string comment, string fieldValue, string userId, string fieldDisplay)
+        {
+            obkRepo.SaveCommentFactory(contractFactoryId, isError, comment, fieldValue, userId, fieldDisplay);
+            return Json(new { Success = true });
+        }
+
         public ActionResult ShowCommentProduct(int productId)
         {
             var model = obkRepo.GetCommentsProduct(productId);
@@ -731,6 +745,13 @@ namespace PW.Prism.Controllers.OBKContract
         public ActionResult GetContractPrices(Guid contractId)
         {
             var list = obkRepo.GetContractPrices(contractId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetContractFactories(Guid contractId)
+        {
+            var list = obkRepo.GetContractFactories(contractId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
@@ -876,6 +897,17 @@ namespace PW.Prism.Controllers.OBKContract
             return HttpNotFound();
         }
 
+        public ActionResult ContractTemplateWindow(Guid contractId)
+        {
+            return PartialView("ContractTemplate", contractId);
+        }
+
+        public ActionResult AdditionalContractTemplateWindow(Guid additionalId, Guid? contractAdditionTypeId)
+        {
+            return PartialView("AdditionalContractTemplate",new OBKEntityTemplate {Id = additionalId,
+                ContractAdditionTypeCode = obkRepo.ContractAdditionTypeCode(contractAdditionTypeId)});
+        }
+
         public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
             var db = new ncelsEntities();
@@ -932,6 +964,57 @@ namespace PW.Prism.Controllers.OBKContract
                 return new FileStreamResult(file, "application/pdf");
             else
                 return File(file, "application/pdf", name);
+        }
+
+        public ActionResult GetAdditionalContractTemplatePdf(Guid id, bool? isStream, string contractAdditionTypeCode)
+        {
+            var db = new ncelsEntities();
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(obkRepo.GetContractAdditionalTemplatePath(id, contractAdditionTypeCode.Trim()));//(Server.MapPath("~/Reports/Mrts/OBK/ObkContractDec.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["addContractNumber"].ValueObject = id;
+
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Word2007, stream);
+            stream.Position = 0;
+
+            Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+
+            try
+            {
+                var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
+                if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
+                {
+                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
+                    doc.InserQrCodesToEnd("CeoSign", signData.CeoSign);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            var file = new MemoryStream();
+            doc.Save(file, Aspose.Words.SaveFormat.Pdf);
+            file.Position = 0;
+
+            if (isStream != null && isStream.Value)
+                return new FileStreamResult(file, "application/pdf");
+            else
+                return File(file, "application/pdf", "");
         }
 
         [HttpGet]

@@ -43,6 +43,12 @@
                             <button type="button" class="btn btn-default" data-bind="click: review, enabled: hasReview" id="@("review" + Model.Id)"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">На экспертизу документов</span></button>
                         </div>
                     }
+                    if ((Model.OBK_AssessmentDeclaration.GDPItself == true || Model.OBK_AssessmentDeclaration.KfSelection == true) && Model.OBK_AssessmentDeclaration.TypeId != 1)
+                    {
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" id="@("request-sample-" + Model.Id)"><span class="pwToolbarButtonReview"></span><span class="pwToolbarButtonTitle">Запросить образцы</span></button>
+                        </div>
+                    }
                     <div class="btn-group">
                         <button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("ExportFilePdf", "SafetyAssessment", new { id = Model.OBK_AssessmentDeclaration.Id })'"><span class="pwToolbarButtonPrint"></span><span class="pwToolbarButtonTitle">Печать формы заявки</span></button>
                     </div>
@@ -110,4 +116,19 @@
 
 <script>
     InitializeOBKDataDeclaraion('@Model.DeclarationId.ToString()', '@(null)', '@Model.OBK_AssessmentDeclaration.StatusId', '@Model.StageId', '@Model.Id.ToString()');
+
+    $("#request-sample-"+'@Model.Id').click( function(){
+        
+        var r = confirm("Вы подтверждаете отправку уведомления заявителю?");
+            if (r == true) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/SafetyAssessment/RequestSamples/',
+                    data: { declarationId : '@Model.OBK_AssessmentDeclaration.Id'},
+                    success: function (data) {
+                        console.log(data)
+                    }
+                });
+            }
+        });
 </script>

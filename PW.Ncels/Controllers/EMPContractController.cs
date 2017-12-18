@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Ncels.Helpers;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Models.EMP;
+using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Repository.EMP;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Export;
 
 namespace PW.Ncels.Controllers
 {
@@ -17,15 +24,25 @@ namespace PW.Ncels.Controllers
     {
         EMPContractRepository emp = new EMPContractRepository();
 
-        // GET: EMPContract
-        public ActionResult Index()
+        private List<Tuple<string, string>> _include = new List<Tuple<string, string>>
         {
+            Tuple.Create("3", "sysAttachContractDict"),
+            Tuple.Create("5", "sysAttachContractDict")
+        };
+
+        // GET: EMPContract
+        public ActionResult Index(string scope)
+        {
+            ViewBag.Scope = scope;
+            ViewBag.ScopeName = emp.GetContractScopeName(scope);
             return View();
         }
 
-        public ActionResult Contract(Guid? id)
+        public ActionResult Contract(Guid? id, string scope)
         {
-            ViewBag.ListAction = "Index";
+            //ViewBag.ListAction = "Index";
+            ViewBag.Scope = scope;
+            ViewBag.ReturnUrl = HttpContext.Request.UrlReferrer;
             return View(id);
         }
 
@@ -34,15 +51,28 @@ namespace PW.Ncels.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<JsonResult> ReadContract(ModelRequest request)
+        public async Task<JsonResult> ReadContract(ModelRequest request, string scope)
         {
-            return Json(await emp.GetContractList(request, true), JsonRequestBehavior.AllowGet);
+            return Json(await emp.GetContractList(request, true, scope), JsonRequestBehavior.AllowGet);
         }
-
         [HttpGet]
         public ActionResult GetHolderTypes()
         {
             var result = emp.GetHolderTypes();
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetContractTypes()
+        {
+            var result = emp.GetContractType().Select(e => new { e.Id, e.NameRu, e.NameKz });
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetCurrency()
+        {
+            string[] note = {"KZT","RUB","USD", "EUR" };
+            var result = emp.GetCurrency().Where(e=> note.Contains(e.Note)).Select(o => new { o.Id, o.Name, o.Code, o.NameKz });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -54,7 +84,7 @@ namespace PW.Ncels.Controllers
         [HttpGet]
         public ActionResult GetBanks()
         {
-            var result = emp.GetBanks();
+            var result = emp.GetBanks().Select(e => new { e.Id, e.NameRu, e.NameKz }); ;
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -62,6 +92,12 @@ namespace PW.Ncels.Controllers
         {
             var result = emp.SaveNewBank(bankNameRu, bankNameKz);
             return Json(result);
+        }
+        [HttpGet]
+        public ActionResult GetChangeType()
+        {
+            var result = emp.GetChangeType();
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult GetServiceType()
@@ -191,6 +227,71 @@ namespace PW.Ncels.Controllers
         {
             EMPContractViewModel view = emp.LoadContract(contractId);
             return Json(view, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult SendToCoz(Guid contractId)
+        {
+            try
+            {
+                emp.SendToCoz(contractId);
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public ActionResult GetAttachListEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetAttachListWithCodeEdit(string id = null, string type = null, bool byMetadata = false, string excludeCodes = null, bool isShowComment = false)
+        {
+            return Json(FileHelper.GetAttachListWithCodeEdit(UserHelper.GetCn(), id, type, byMetadata, excludeCodes, isShowComment, _include), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ContractTemplate(Guid id, string url)
+        {
+            return PartialView(new OBKEntityTemplate { Id = id, Url = url });
+        }
+
+        public ActionResult PrintContractReport(Guid id)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/EMP/EMP_ContractReport.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("vm", emp.GetContractReportData(id));
+            report.Render(false);
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
+        }
+
+        public ActionResult SignData(Guid id)
+        {
+            return Json(new
+            {
+                IsSuccess = true,
+                preambleXml = emp.GetDataForSign(id)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SignContract(Guid contractId, string signedData)
+        {
+            try
+            {
+                emp.SignContractApplicant(contractId, signedData);
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

@@ -38,15 +38,16 @@ namespace PW.Ncels.Database.Repository.OBK
             var emp = UserHelper.GetCurrentEmployee();
             var balance = (from a in AppContext.OBK_ContractCom
                            join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
-                           where a.ContractId == modelId && c.UserId==emp.Id select c).Count();    
-                    if (balance != 0)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                           where a.ContractId == modelId && c.UserId == emp.Id
+                           select c).Count();
+            if (balance != 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public OBKContractRepository(ncelsEntities context) : base(context) { }
@@ -142,6 +143,16 @@ namespace PW.Ncels.Database.Repository.OBK
                 AppContext.SaveChanges();
             }
             return ret;
+        }
+
+        public string ContractAdditionTypeCode(Guid? id)
+        {
+            var dic = AppContext.Dictionaries.FirstOrDefault(o => o.Id == id);
+            if (dic == null)
+            {
+                return "";
+            }
+            return dic.Code;
         }
 
         private void FillContract(OBKContractViewModel contractViewModel, OBK_Contract obkContract)
@@ -387,6 +398,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 contractViewModel.CurrencyId = OBKContract.OBK_DeclarantContact.CurrencyId;
                 contractViewModel.BankNameRu = OBKContract.OBK_DeclarantContact.BankNameRu;
                 contractViewModel.BankNameKz = OBKContract.OBK_DeclarantContact.BankNameKz;
+                contractViewModel.ContractAdditionType = OBKContract.ContractAdditionType;
             }
 
             return contractViewModel;
@@ -407,8 +419,8 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 DeleteMtParts(productInfo.Id);
                 SaveMtParts(productInfo.Id, product.MtParts);
-
-                SaveProductService(productInfo.Id, product.ServiceName, contractId, product.Series.Count);
+                var count = product.ExpertisePlace == 1 ? 0 : product.Series?.Count ?? 1;
+                SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
             }
@@ -422,7 +434,8 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 SaveSeries(productInfo.Id, product.Series);
                 SaveMtParts(productInfo.Id, product.MtParts);
-                SaveProductService(productInfo.Id, product.ServiceName, contractId, product.Series.Count);
+                var count = product.ExpertisePlace == 1 ? 0 : product.Series?.Count ?? 1;
+                SaveProductService(productInfo.Id, product.ServiceName, contractId, count);
 
                 r.Id = productInfo.Id;
             }
@@ -447,7 +460,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public List<OBKContractProductViewModel> GetProducts(Guid contractId)
         {
             var results = AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).ToList();
-            
+
             if (results.Count > 0)
             {
                 List<OBKContractProductViewModel> contractProducts = new List<OBKContractProductViewModel>();
@@ -476,11 +489,13 @@ namespace PW.Ncels.Database.Repository.OBK
                         RegDate = result.RegDate,
                         ExpirationDate = result.ExpirationDate,
                         NdName = result.NdName,
-                        NdNumber = result.NdNumber
+                        NdNumber = result.NdNumber,
+                        ExpertisePlace = result.ExpertisePlace,
+                        Dimension = result.Dimension
                     };
                     var contractPrice = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == result.Id);
                     contractProduct.ServiceName = contractPrice?.PriceRefId ?? Guid.Parse("00000000-0000-0000-0000-000000000000");
-                    
+
                     var resultSerieses = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == result.Id).ToList();
                     List<OBKContractSeriesViewModel> contractSerieses = new List<OBKContractSeriesViewModel>();
                     foreach (var resultSeries in resultSerieses)
@@ -493,12 +508,12 @@ namespace PW.Ncels.Database.Repository.OBK
                             ExpireDate = resultSeries.SeriesEndDate,
                             Part = resultSeries.SeriesParty,
                             UnitId = resultSeries.SeriesMeasureId,
-                            UnitName = resultSeries.sr_measures.short_name
+                            UnitName = resultSeries.sr_measures.short_name,
                         };
                         contractSerieses.Add(contractSeries);
                     }
                     contractProduct.Series = contractSerieses;
-                    
+
                     List<OBKContractMtPartViewModel> contractMtParts = new List<OBKContractMtPartViewModel>();
                     var mtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == result.Id).ToList();
                     foreach (var mtPart in mtParts)
@@ -676,7 +691,19 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private void SaveProductService(int productId, Guid serviceId, Guid contractId, int count)
         {
-            var price = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == productId).FirstOrDefault();
+            var price = AppContext.OBK_ContractPrice.FirstOrDefault(x => x.ContractId == contractId
+                                                                         && x.ProductId == productId);
+
+            if (count == 0)
+            {
+                if (price != null)
+                {
+                    AppContext.OBK_ContractPrice.Remove(price);
+                    AppContext.SaveChanges();
+                }
+                return;
+            }
+
             if (price != null)
             {
                 var info = AppContext.OBK_Ref_PriceList.Where(x => x.Id == serviceId).FirstOrDefault();
@@ -751,11 +778,13 @@ namespace PW.Ncels.Database.Repository.OBK
             productInfo.ExpirationDate = product.ExpirationDate;
             productInfo.NdName = product.NdName;
             productInfo.NdNumber = product.NdNumber;
+            productInfo.ExpertisePlace = product.ExpertisePlace;
+            productInfo.Dimension = product.Dimension;
         }
 
         public List<OBKContractServiceViewModel> GetContractPrices(Guid contractId)
         {
-            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId != null).Select(x => new OBKContractServiceViewModel
+            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId).Select(x => new OBKContractServiceViewModel
             {
                 Id = x.Id,
                 ServiceName = x.OBK_Ref_PriceList.NameRu,
@@ -771,6 +800,19 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             ).ToList();
             return list;
+        }
+
+        public IEnumerable<OBK_ContractFactoriesViewModel> GetContractFactories(Guid contractId)
+        {
+            return AppContext.OBK_ContractFactory.Where(x => x.ContractId == contractId)
+                .Select(x => new OBK_ContractFactoriesViewModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    LegalLocation = x.LegalLocation,
+                    ActualLocation = x.ActualLocation,
+                    Count = x.Count
+                });
         }
 
         public List<OBKContractServiceViewModel> GetContractPricesAdditional(Guid contractId)
@@ -1205,41 +1247,45 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 AppContext.SaveChanges();
 
-                var obkContractStageUOBK = new OBK_ContractStage()
+                if (contract.ParentId == null)
                 {
-                    Id = Guid.NewGuid(),
-                    ContractId = contractId,
-                    StageId = CodeConstManager.STAGE_OBK_UOBK,
-                    StageStatusId = stageStatus.Id,
-                    ParentStageId = obkContractStageCoz.Id,
-                    ResultId = null
-                };
 
-                // Руководитель УОБК
-                Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
-                var stageExecutorUOBK = new OBK_ContractStageExecutors()
-                {
-                    OBK_ContractStage = obkContractStageUOBK,
-                    ExecutorId = bossUobkGuid,
-                    ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
-                };
+                    var obkContractStageUOBK = new OBK_ContractStage()
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = contractId,
+                        StageId = CodeConstManager.STAGE_OBK_UOBK,
+                        StageStatusId = stageStatus.Id,
+                        ParentStageId = obkContractStageCoz.Id,
+                        ResultId = null
+                    };
 
-                AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
+                    // Руководитель УОБК
+                    Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                    var stageExecutorUOBK = new OBK_ContractStageExecutors()
+                    {
+                        OBK_ContractStage = obkContractStageUOBK,
+                        ExecutorId = bossUobkGuid,
+                        ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
+                    };
 
-                AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
+                    AppContext.OBK_ContractStage.Add(obkContractStageUOBK);
 
-                SendNotificationToUobkBoss(contract, bossUobkGuid);
+                    AppContext.OBK_ContractStageExecutors.Add(stageExecutorUOBK);
 
-                if (!addDigitalSign)
-                {
-                    AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    SendNotificationToUobkBoss(contract, bossUobkGuid);
+
+                    if (!addDigitalSign)
+                    {
+                        AppContext.OBK_ContractSignedDatas.RemoveRange(AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId));
+                    }
+
+                    AddHistorySentByApplicant(contractId);
+
+                    AddExtHistoryInprocessing(contractId);
+
+                    AppContext.SaveChanges();
                 }
-
-                AddHistorySentByApplicant(contractId);
-
-                AddExtHistoryInprocessing(contractId);
-
-                AppContext.SaveChanges();
             }
             else if (contract.Status == CodeConstManager.STATUS_OBK_ONCORRECTION)
             {
@@ -1391,6 +1437,43 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
         }
 
+        public OBK_ContractFactoryCom GetCommentsFactory(Guid contractFactoryId)
+        {
+            return AppContext.OBK_ContractFactoryCom
+                .FirstOrDefault(x => x.ContractFactoryId == contractFactoryId);
+        }
+
+        public void SaveCommentFactory(string contractFactoryId, bool isError, string comment, string fieldValue, string userId, string fieldDisplay)
+        {
+            var entityId = new Guid(contractFactoryId);
+            var model =
+                AppContext.OBK_ContractFactoryCom.FirstOrDefault(
+                    e => e.ContractFactoryId.Equals(entityId)) ??
+                new OBK_ContractFactoryCom
+                {
+                    DateCreate = DateTime.Now,
+                    ContractFactoryId = entityId
+                };
+
+            model.IsError = isError;
+            model.OBK_ContractFactoryComRecord.Add(new OBK_ContractFactoryComRecord
+            {
+                Id = Guid.NewGuid(),
+                CreateDate = DateTime.Now,
+                Note = comment,
+                UserId = new Guid(userId),
+                OBK_ContractFactoryCom = model,
+                ValueField = fieldValue,
+                DisplayField = fieldDisplay
+            });
+            if (model.Id == null || model.Id == Guid.Empty)
+            {
+                model.Id = Guid.NewGuid();
+                AppContext.OBK_ContractFactoryCom.Add(model);
+            }
+            AppContext.SaveChanges();
+        }
+
         public OBK_RS_ProductsCom GetCommentsProduct(int productId)
         {
             return
@@ -1524,6 +1607,74 @@ namespace PW.Ncels.Database.Repository.OBK
                     break;
             }
             return System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/" + templateName);
+        }
+
+        public string GetContractAdditionalTemplatePath(Guid contractId, string contractAdditionTypeCode)
+        {
+            string templateName = null;
+            var contract = AppContext.OBK_Contract.FirstOrDefault(e => e.Id == contractId);
+            if (contract == null)
+                return null;
+
+            if (contractAdditionTypeCode == null || contractAdditionTypeCode.Equals(""))
+            {
+                return null;
+            }
+            //ContractAdditionType
+            //code = 1 Соглашение об изменении юридического адреса
+            //code = 2 Соглашение о смене руководителя
+            //code = 3 Соглашение об изменении банковских реквизитов
+
+            //contract.Type
+            //1 Серийная
+            //2 Партиная
+            //3 Декларирование
+            switch (contract.Type)
+            {
+                case 1:
+                    switch(contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractSerial.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractSerial.mrt";
+                            break;
+                        case "3":
+                            templateName = "OBKAdditionalBankContractSerial.mrt";
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractParty.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractParty.mrt";
+                            break;
+                        case "3":
+                            templateName = "OBKAdditionalBankContractParty.mrt";
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (contractAdditionTypeCode)
+                    {
+                        case "1":
+                            templateName = "OBKAdditionalAddressContractDeclaration.mrt";
+                            break;
+                        case "2":
+                            templateName = "OBKAdditionalManagerContractDeclaration.mrt";
+                            break;
+                        case "3":
+                             templateName = "OBKAdditionalBankContractDeclaration.mrt";
+                            break;
+                    }
+                    break;
+            }
+            return System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/AdditionalContract/" + templateName);
         }
 
         public string GetPriceCount(Guid contractId)
@@ -1781,7 +1932,10 @@ namespace PW.Ncels.Database.Repository.OBK
             var contract = AppContext.OBK_Contract.Where(x => x.Id == contractId).FirstOrDefault();
             var digitalSign = AppContext.OBK_ContractSignedDatas.Where(x => x.ContractId == contractId).FirstOrDefault();
 
-            contract.Number = number;
+            string parentNumber = null;
+            if (contract.ParentId != null)
+                parentNumber = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId)?.Number;
+            contract.Number = number + (parentNumber == null ? "" : $"-{parentNumber}");
             contract.StartDate = DateTime.Now;
             AppContext.SaveChanges();
 
@@ -1794,6 +1948,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 foreach (var dtage in stages)
                 {
                     dtage.StageStatusId = stageStatus.Id;
+                }
+
+                if (contract.ParentId != null)
+                {
+                    var parent = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId);
+                    parent.OBK_DeclarantContact = contract.OBK_DeclarantContact;
                 }
 
                 // Формирование вложения
@@ -1942,6 +2102,13 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             var contract = AppContext.OBK_Contract.Where(x => x.Id == contractId).FirstOrDefault();
             contract.Status = CodeConstManager.STATUS_OBK_INVOCE_GENERATING;
+
+            if (contract.ParentId != null)
+            {
+                var parent = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId);
+                parent.OBK_DeclarantContact = contract.OBK_DeclarantContact;
+            }
+
             AddHistoryAttached(contractId);
             AddExtHistoryActive(contractId);
             AppContext.SaveChanges();
@@ -2599,7 +2766,9 @@ namespace PW.Ncels.Database.Repository.OBK
                  {
                      Id = x.Id,
                      Name = x.Name,
-                     Location = x.Location
+                     LegalLocation = x.LegalLocation,
+                     ActualLocation = x.ActualLocation,
+                     Count = x.Count
                  }).ToList();
         }
 
@@ -2610,7 +2779,9 @@ namespace PW.Ncels.Database.Repository.OBK
                 Id = Guid.NewGuid(),
                 ContractId = contractId,
                 Name = factory.Name,
-                Location = factory.Location
+                LegalLocation = factory.LegalLocation,
+                ActualLocation = factory.ActualLocation,
+                Count = factory.Count
             };
             AppContext.OBK_ContractFactory.Add(newFactory);
             AppContext.SaveChanges();
@@ -2638,34 +2809,31 @@ namespace PW.Ncels.Database.Repository.OBK
         private void UpdateAdditionalPrice(Guid contractId)
         {
             var factories = AppContext.OBK_ContractFactory.Where(x => x.ContractId == contractId).ToList();
-            if (factories.Count > 0)
+            var contractPrices = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).ToList();
+
+            if (contractPrices.Count > factories.Count)
             {
-                OBK_ContractPrice contractPrice = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).FirstOrDefault();
-                if (contractPrice == null)
-                {
-                    contractPrice = new OBK_ContractPrice();
-                    contractPrice.Id = Guid.NewGuid();
-                    contractPrice.ContractId = contractId;
-                    contractPrice.ProductId = null;
-                    FillContractPriceAdditional(factories.Count, contractPrice);
-                    AppContext.OBK_ContractPrice.Add(contractPrice);
-                    AppContext.SaveChanges();
-                }
-                else
-                {
-                    FillContractPriceAdditional(factories.Count, contractPrice);
-                    AppContext.SaveChanges();
-                }
+                var factoryIds = factories.Select(x => x.Id);
+                var price = contractPrices.FirstOrDefault(x => !factoryIds.Contains(x.Id));
+                AppContext.OBK_ContractPrice.Remove(price);
             }
             else
             {
-                OBK_ContractPrice contractPrice = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).FirstOrDefault();
-                if (contractPrice != null)
+                var priceIds = contractPrices.Select(x => x.Id);
+                var factory = factories.FirstOrDefault(x => !priceIds.Contains(x.Id));
+
+                if (factory == null) return;
+
+                var price = new OBK_ContractPrice
                 {
-                    AppContext.OBK_ContractPrice.Remove(contractPrice);
-                    AppContext.SaveChanges();
-                }
+                    Id = factory.Id,
+                    ContractId = contractId,
+                    ProductId = null
+                };
+                FillContractPriceAdditional(factory.Count, price);
+                AppContext.OBK_ContractPrice.Add(price);
             }
+            AppContext.SaveChanges();
         }
 
         private void FillContractPriceAdditional(int count, OBK_ContractPrice price)

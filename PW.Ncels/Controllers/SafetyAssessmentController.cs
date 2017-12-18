@@ -24,12 +24,14 @@ using System.Web.Script.Serialization;
 using PW.Ncels.Database.Controller;
 using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Models.Expertise;
+using PW.Ncels.Database.Notifications;
 
 namespace PW.Ncels.Controllers
 {
     [Authorize]
     public class SafetyAssessmentController : ComAssessmentController
     {
+        private ncelsEntities db = UserHelper.GetCn();
 
         // GET: SafetyAssessment
         public ActionResult Index()
@@ -43,14 +45,14 @@ namespace PW.Ncels.Controllers
         /// <returns></returns>
         public ActionResult Create(string type)
         {
+            var actId = Guid.NewGuid();
             var model = new OBK_AssessmentDeclaration
             {
                 Id = Guid.NewGuid(),
                 EmployeeId = UserHelper.GetCurrentEmployee().Id,
                 StatusId = CodeConstManager.STATUS_DRAFT_ID,
                 ObkContracts = new OBK_Contract(),
-                ObkRsProductses = new List<OBK_RS_Products>(),
-                OBK_ActReception = new OBK_ActReception()
+                ObkRsProductses = new List<OBK_RS_Products>()
             };
 
             model.CertificateDate = null;
@@ -430,9 +432,9 @@ namespace PW.Ncels.Controllers
         }
 
         [HttpPost]
-        public virtual ActionResult UpdateModel(string code, int typeId, string modelId, string userId, long? recordId, string fieldName, string fieldValue, string fieldDisplay)
+        public virtual ActionResult UpdateModel(string code, int typeId, string modelId, string userId, long? recordId, string fieldName, string fieldValue, string fieldDisplay, Guid? actId)
         {
-            var filter = new SafetyAssessmentRepository().UpdateModel(code, typeId, modelId, userId, recordId, fieldName, fieldValue, fieldDisplay);
+            var filter = new SafetyAssessmentRepository().UpdateModel(code, typeId, modelId, userId, recordId, fieldName, fieldValue, fieldDisplay, actId);
             return Json(new { Success = true, modelId = filter.ModelId, recordId = filter.RecordId, controlId = filter.ControlId });
         }
 
@@ -459,6 +461,7 @@ namespace PW.Ncels.Controllers
 
             result.ContractStartDate = string.Format("{0:dd.MM.yyyy}", contract.StartDate);
             result.ContractEndDate = string.Format("{0:dd.MM.yyyy}", contract.EndDate);
+            result.ContractType = contract.Type;
             result.OrganizationFormId = declarant?.OrganizationFormId ?? null;
             result.NameKz = declarant?.NameKz ?? "нет данных";
             result.NameRu = declarant?.NameRu ?? "нет данных";
@@ -495,6 +498,8 @@ namespace PW.Ncels.Controllers
                 prod.DrugFormBoxCount = product.DrugFormBoxCount;
                 prod.DrugFormFullName = product.DrugFormFullName;
                 prod.RegTypeId = product.RegTypeId;
+                prod.Dimension = product.Dimension;
+                prod.ExpertisePlace = product.ExpertisePlace;
                 foreach (var productSeries in product.OBK_Procunts_Series)
                 {
                     var prodSeries = new OBK_Procunts_Series();
@@ -545,6 +550,13 @@ namespace PW.Ncels.Controllers
             return Json(new { isSuccess = true, result });
         }
 
+        [HttpPost]
+        public ActionResult GetContractFactory(Guid contractId)
+        {
+            var repo = new OBKContractRepository();
+            var result = repo.GetContractFactories(contractId);
+            return Json(result);
+        }
 
         public ActionResult SignOperation(string id)
         {
@@ -667,10 +679,38 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null)
             {
-                model = assess.OBK_ActReception;
-                ViewData["ContractId"] = assess.ContractId;
+                var temp = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == new Guid(id));
+
+                if (temp != null)
+                {
+                    model = temp;
+                }
+                else
+                {
+                    model.Id = Guid.NewGuid();
+                    model.OBK_AssessmentDeclarationId = new Guid(id);
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
+            }
+
+            ViewData["ContractId"] = assess.ContractId;
+            var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
+
+            if (model.ActDate == null)
+            {
+                model.ActDate = DateTime.Now;
+                ViewData["ActDateNull"] = true;
+            }
+
+
+            if (model.Declarer == null)
+            {
+                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
+                ViewData["DeclarerNull"] = true;
             }
 
             var safetyRepository = new SafetyAssessmentRepository();
@@ -682,10 +722,10 @@ namespace PW.Ncels.Controllers
                 new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
             ViewData["PackageConditionList"] =
-                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
             ViewData["StorageConditionsList"] =
-                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
@@ -697,11 +737,45 @@ namespace PW.Ncels.Controllers
         {
             var assess = GetSaDeclarationById(id);
             var model = new OBK_ActReception();
-            if (assess != null && assess.OBK_ActReception != null)
+
+            if (assess != null)
             {
-                model = assess.OBK_ActReception;
-                ViewData["ContractId"] = assess.ContractId;
+                var temp = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == new Guid(id));
+
+                if (temp != null)
+                {
+                    model = temp;
+                }
+                else
+                {
+                    model.Id = Guid.NewGuid();
+                    model.OBK_AssessmentDeclarationId = new Guid(id);
+                    db.OBK_ActReception.Add(model);
+                    db.SaveChanges();
+                }
             }
+
+            var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
+
+            if (model.Producer == null && product != null)
+            {
+                model.Producer = product.ProducerNameRu;
+                ViewData["ProducerNull"] = true;
+            }
+
+            if (model.ActDate == null)
+            {
+                model.ActDate = DateTime.Now;
+                ViewData["ActDateNull"] = true;
+            }
+
+            if (model.Declarer == null)
+            {
+                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
+                ViewData["DeclarerNull"] = true;
+            }
+
+            ViewData["ContractId"] = assess.ContractId;
 
             var safetyRepository = new SafetyAssessmentRepository();
 
@@ -712,13 +786,16 @@ namespace PW.Ncels.Controllers
                 new SelectList(safetyRepository.GetInspectionInstalls(), "Id", "Name");
 
             ViewData["PackageConditionList"] =
-                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
 
             ViewData["StorageConditionsList"] =
-                new SelectList(safetyRepository.GetPackageConditions(), "Id", "Name");
+                new SelectList(safetyRepository.GetStorageConditions(), "Id", "Name");
 
             ViewData["MarkingList"] =
                 new SelectList(safetyRepository.GetMarkings(), "Id", "Name");
+
+            ViewData["OBKApplicants"] =
+                new SelectList(safetyRepository.OBKApplicants(), "Id", "NameRU");
 
             return PartialView("ActSelectionView", model);
         }
@@ -744,9 +821,79 @@ namespace PW.Ncels.Controllers
 
             }
 
-            return Json(new { isSuccess = false});
+            return Json(new { isSuccess = false });
 
         }
 
+        public ActionResult SelectionPlace(Guid id)
+        {
+            OBK_StageExpDocumentResult model = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == id);
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            ViewData["ApplicantAgreement"] = declaration.ApplicantAgreement;
+
+            return PartialView(model);
+        }
+
+        public void AgreeRequest(Guid id)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            declaration.ApplicantAgreement = true;
+
+            NotificationManager notification = new NotificationManager();
+
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == id && o.StageId == 2);
+            var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
+
+            foreach (OBK_AssessmentStageExecutors exec in executors)
+            {
+                notification.SendNotification("Пользователь согласовал заявку №" + declaration.Number, ObjectType.ObkDeclaration,
+                    declaration.Id, exec.ExecutorId);
+            }
+
+            db.SaveChanges();
+        }
+
+        public void RefuseRequest(Guid id)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+            declaration.ApplicantAgreement = false;
+
+
+            NotificationManager notification = new NotificationManager();
+
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == id && o.StageId == 2);
+            var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
+
+            foreach (OBK_AssessmentStageExecutors exec in executors)
+            {
+                notification.SendNotification("По заявке №" + declaration.Number.ToString() + "заяавитель отказалсяв проведении отбора образцов",
+                    ObjectType.ObkDeclaration, declaration.Id, exec.ExecutorId);
+            }
+
+            db.SaveChanges();
+
+        }
+
+        public ActionResult GetCertificate(string number, int type)
+        {
+            var certificate = db.OBK_CertificateReference.FirstOrDefault(o => o.CertificateNumber.Equals(number) && o.CertificateTypeId == type);
+
+            if (certificate == null)
+            {
+                return Json(new { success = false });
+            }
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
+                    StartDate = ((DateTime)certificate.StartDate).ToString("dd.MM.yyyy"),
+                    EndDate = ((DateTime)certificate.EndDate).ToString("dd.MM.yyyy"),
+                    CertificateCountryId = certificate.CertificateCountryId,
+                    CertificateOrganization = certificate.CertificateOrganization,
+                    CertificateProducer = certificate.CertificateProducer
+                }
+            });
+        }
     }
 }

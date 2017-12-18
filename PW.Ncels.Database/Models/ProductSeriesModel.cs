@@ -11,5 +11,7 @@ namespace PW.Ncels.Database.Models
         public int SerieId { get; set; }
         public string Comment { get; set; }
         public bool Available { get; set; }
+        public int? Quantity { get; set; }
+        public long? SeriesMeasureId { get; set; }
     }
 }

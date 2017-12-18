@@ -111,9 +111,14 @@
                     <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-2">Заявка</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-3">Информация о заявляемой продукции</a></li>
+                    <li class="contract-factory-tab"><a data-toggle="tab" href="#contractFactoryTab">Производственные площадки</a></li>
                     <li class=""><a data-toggle="tab" href="#tab-4">Соглашение</a></li>
-                    <li style="display:none" id="li-tab-5"><a data-toggle="tab" href="#tab-5">Акт приема-передачи</a></li>
-                    <li style="display:none" id="li-tab-6"><a data-toggle="tab" href="#tab-6">Акт отбора</a></li>
+                    <li style="display:none" id="li-tab-5"><a data-toggle="tab" href="#tab-5"><span id="tab-5-title">Акт приема-передачи</span></a></li>
+                    <li style="display:none" id="li-tab-6"><a data-toggle="tab" href="#tab-6"><span id="tab-6-title">Акт отбора</span></a></li>
+                    @{ if (Model.ExpertRequest == true)
+        {
+                <li id="li-tab-7"><a data-toggle="tab" href="#tab-7"><span id="tab-7-title">Время и место отбора</span></a></li>
+} }
                 </ul>
                 <div class="tab-content">
                     <div id="tab-1" class="tab-pane active">
@@ -125,6 +130,9 @@
                     <div id="tab-3" class="tab-pane">
                         @Html.Partial("~/Views/SafetyAssessment/ProductView.cshtml", @Model)
                     </div>
+                    <div id="contractFactoryTab" class="tab-pane">
+                        @Html.Partial("~/Views/SafetyAssessment/ContractFactoryView.cshtml", @Model)
+                    </div>
                     <div id="tab-4" class="tab-pane">
                         @Html.Partial("~/Views/SafetyAssessment/AgreementView.cshtml", @Model)
                     </div>                
@@ -133,7 +141,13 @@
                     </div>                
                     <div id="tab-6" class="tab-pane invisible">
 
-                    </div>                
+                    </div>
+                    @{ if (Model.ExpertRequest == true)
+                        {
+                            <div id="tab-7" class="tab-pane">
+
+                            </div>
+                        } }
                 </div>
             </div>
         </div>
@@ -208,7 +222,17 @@
         }
     }
 
+    function showFactories(isShow) {
+        if (isShow)
+            $('.contract-factory-tab').show();
+        else
+            $('.contract-factory-tab').hide();
+    }
+
+    showFactories(false);
+
     function changeFieldList(control, code) {
+        debugger;
         $(control).change(function () {
             var controlId = $(this).attr('id');
             var type = "string";
@@ -237,11 +261,11 @@
             if (row != null) {
                 entityId = row.attr('rowid');
             }
-            UpdateModel(code, entityId, null, controlId, fieldValue, type, fieldDisplay);
+            UpdateModel(code, entityId, null, controlId, fieldValue, type, fieldDisplay, null);
         });
     }
 
-    function UpdateModel(code, recordId, fieldId, fieldName, fieldValue, type, fieldDisplay) {
+    function UpdateModel(code, recordId, fieldId, fieldName, fieldValue, type, fieldDisplay, actId) {
         if (type === "float") {
             if (fieldValue != null && fieldValue.length > 0) {
                 fieldValue = replaceAll(' ', '', fieldValue);
@@ -299,7 +323,8 @@
                 'recordId': recordId,
                 'fieldName': fieldName,
                 'fieldValue': fieldValue,
-                'fieldDisplay': fieldDisplay
+                'fieldDisplay': fieldDisplay,
+                'actId': actId
             },
             dataType: 'json',
             cache: false,
@@ -340,7 +365,7 @@
             $("#HideInformCheck").removeClass("glyphicon-unchecked");
             $("#HideInformCheck").addClass("glyphicon-check");
             showInformIcon(true);
-        }   
+        }
     }
 
     function showHidenContractList() {
@@ -356,6 +381,22 @@
         });
         showHidenContractList();
         $("div.chzn-select select").chosen({ width: '100%' });
+
+        var ExpertRequest = '@Model.ExpertRequest';
+        if (ExpertRequest != ""){
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/SelectionPlace',
+            data:{ id : '@Model.Id' },
+            success: function(data){
+                $("#tab-7").html(data);
+            },
+            error: function(e){
+                console.log("Error " + e)
+            }
+        });
+
+        }
     });
 
 </script>

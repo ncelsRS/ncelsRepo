@@ -59,6 +59,8 @@
     $scope.showBin = false;
     $scope.showResidentsBlock = false;
 
+    $scope.viewRationaleFile = true;
+
     $scope.productSeries = [];
 
     $scope.addedProducts = [];
@@ -366,7 +368,7 @@
         { name: 'Part', displayName: 'Размер партии' },
         { name: 'UnitName', displayName: 'Ед. измерения' },
         { name: 'UnitId', displayName: 'Ед. измерения - код', visible: false },
-        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>', maxWidth: 30 }
     ];
 
     $scope.gridOptionsSeries.data = $scope.productSeries;
@@ -396,10 +398,23 @@
         { name: 'Id', displayName: 'Id', visible: false },
         { name: 'ProductId', displayName: 'ProductId', visible: false },
         { name: 'NameRu', displayName: 'Наименование' },
+        { name: 'Dimension', displayName: 'Размер ность', visible: $scope.object.Type == 1, maxWidth: 60 },
         { name: 'ProducerNameRu', displayName: 'Производитель' },
         { name: 'CountryNameRu', displayName: 'Страна-производитель' },
-        { name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductdialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        {
+            name: 'ExpertisePlace',
+            displayName: 'Место проведения аналитической экспертизы',
+            visible: $scope.object.Type == 1,
+            minWidth: 250,
+            cellTemplate: '<div class="ui-grid-cell-contents" >{{grid.getCellValue(row, col) == 0 ? "Лаборатория экспертной организации" : "Лаборатория производителя"}}</div>'
+        },
+        { maxWidth: 50, name: 'ButtonComments', displayName: '', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkproductdialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
+
+    function updateProductTableView() {
+        $scope.gridOptionsProducts.columnDefs[3].visible = $scope.object.Type == 1;
+        $scope.gridOptionsProducts.columnDefs[6].visible = $scope.object.Type == 1;
+    }
 
     $scope.addedProducts = [];
 
@@ -424,7 +439,10 @@
     $scope.gridOptionsFactories.columnDefs = [
         { name: 'Id', displayName: 'Id', visible: false },
         { name: 'Name', displayName: 'Наименование цеха' },
-        { name: 'Location', displayName: 'Месторасположение цеха' }
+        { name: 'LegalLocation', displayName: 'Юридический адрес' },
+        { name: 'ActualLocation', displayName: 'Фактический адрес' },
+        { name: 'Count', displayName: 'Количество цехов' },
+        { name: 'ButtonComments', displayName: '', maxWidth: 50, cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkfactorydialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ]
 
     $scope.selectedFactoryIndex = null;
@@ -470,7 +488,8 @@
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*", visible: false },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
-        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" }
+        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" },
+        { name: 'ButtonComments', displayName: '', width: '*', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
 
     $scope.gridOptionsCalculatorAdditional.data = $scope.addedServicesAdditional;
@@ -603,6 +622,8 @@
 
             var selectedObj = $scope.addedProducts[$scope.selectedProductIndex];
 
+            $scope.product.expertisePlace = selectedObj.ExpertisePlace + '';
+            $scope.product.Dimension = selectedObj.Dimension;
             $scope.product.Id = selectedObj.Id;
             $scope.product.ProductId = selectedObj.ProductId;
             $scope.product.RegTypeId = selectedObj.RegTypeId;
@@ -722,12 +743,19 @@
             !createDate ||
             !expireDate ||
             !$scope.object.partValue ||
-            !$scope.object.seriesUnit
-        ) {
+            !$scope.object.seriesUnit) {
             alert("Заполните поля серии");
         }
         else {
-            var obj = { Id: null, Series: $scope.object.seriesValue, CreateDate: createDate, ExpireDate: expireDate, Part: $scope.object.partValue, UnitId: $scope.object.seriesUnit.Id, UnitName: $scope.object.seriesUnit.Name };
+            var obj = {
+                Id: null,
+                Series: $scope.object.seriesValue,
+                CreateDate: createDate,
+                ExpireDate: expireDate,
+                Part: $scope.object.partValue,
+                UnitId: $scope.object.seriesUnit.Id,
+                UnitName: $scope.object.seriesUnit.Name,
+            };
             $scope.productSeries.push(obj);
             $scope.object.seriesValue = null;
             $scope.object.partValue = null;
@@ -746,12 +774,16 @@
     }
 
     $scope.saveProduct = function saveProduct() {
+        if (!$scope.product.expertisePlace && $scope.object.Type == 1)
+            return alert('Выберите место проведения аналитической экспертизы');
+        if (!$scope.product.Dimension && $scope.object.Type == 1 && $scope.product.RegTypeId == 2)
+            return alert('Внесите размерность');
         if ($scope.mode == 1) {
             var id = $scope.product.ProductId;
             if (id) {
                 if (!$scope.existInArray($scope.addedProducts, id)) {
                     if ($scope.drugForms.length == 0 || ($scope.drugForms.length > 0 && $scope.product.DrugFormId)) {
-                        if ($scope.productSeries.length > 0) {
+                        if ($scope.productSeries.length > 0 || $scope.object.Type == 1) {
                             if ($scope.product.ServiceName) {
                                 var product = {
                                     Id: null,
@@ -778,7 +810,9 @@
                                     DrugFormFullNameKz: $scope.product.DrugFormFullNameKz,
                                     Series: [],
                                     MtParts: [],
-                                    ServiceName: $scope.product.ServiceName
+                                    ServiceName: $scope.product.ServiceName,
+                                    ExpertisePlace: $scope.product.expertisePlace,
+                                    Dimension: $scope.product.Dimension
                                 }
                                 product.Series = $scope.productSeries.slice();
                                 product.MtParts = $scope.selectedMtParts.slice();
@@ -814,7 +848,7 @@
             }
         }
         if ($scope.mode == 2) {
-            if ($scope.productSeries.length > 0) {
+            if ($scope.productSeries.length > 0 || $scope.object.Type == 1) {
                 if ($scope.product.ServiceName) {
                     var selectedObj = $scope.addedProducts[$scope.selectedProductIndex];
                     selectedObj.Id = $scope.product.Id;
@@ -837,6 +871,8 @@
                     selectedObj.NdName = $scope.product.NdName;
                     selectedObj.NdNumber = $scope.product.NdNumber;
                     selectedObj.ServiceName = $scope.product.ServiceName;
+                    selectedObj.ExpertisePlace = $scope.product.expertisePlace;
+                    selectedObj.Dimension = $scope.product.Dimension;
                     selectedObj.Series.length = 0;
                     selectedObj.Series.push.apply(selectedObj.Series, $scope.productSeries);
 
@@ -857,7 +893,20 @@
         }
     }
 
+    function updateViewRationaleFile() {
+        $scope.viewRationaleFile = false;
+        if ($scope.addedProducts.length === 0) return;
+        for (var i = 0; i < $scope.addedProducts.length; i++) {
+            if ($scope.addedProducts[i].ExpertisePlace == 1) {
+                $scope.viewRationaleFile = true;
+                break;
+            }
+        }
+    }
+
     $scope.saveProductInformation = function (product) {
+        updateViewRationaleFile();
+        updateProductTableView();
         var projectId = $scope.object.Id;
         if (projectId) {
             $http({
@@ -919,6 +968,9 @@
         $scope.object.drugRegType = 1;
         $scope.object.drugEndDateExpired = false;
         $scope.object.drugTradeName = null;
+
+        $scope.product.expertisePlace = null;
+        $scope.product.Dimension = null;
 
         $scope.gridOptions.data.length = 0;
         //
@@ -1275,17 +1327,25 @@
     }
 
     $scope.addFactory = function () {
-        if ($scope.factory.Name && $scope.factory.Location) {
-            var factory = {
-                Id: null,
-                Name: $scope.factory.Name,
-                Location: $scope.factory.Location
-            }
-            $scope.postFactory(factory);
-        }
-        else {
-            alert("Введите наименование и месторасположение цеха");
-        }
+        var factory = $scope.factory;
+        if (!factory.Name)
+            return alert('Введите наименование');
+        if (!factory.LegalLocation)
+            return alert('Введите юридический адрес');
+        if (!factory.ActualLocation)
+            return alert('Введите фактический адрес');
+        if (!factory.Count || isNaN(factory.Count * 1))
+            return alert('Введите количество цехов (целое число)');
+
+        var f = {
+            Id: null,
+            Name: factory.Name,
+            LegalLocation: factory.LegalLocation,
+            ActualLocation: factory.ActualLocation,
+            Count: factory.Count
+        };
+
+        $scope.postFactory(f);
     }
 
     $scope.postFactory = function (factory) {
@@ -1320,8 +1380,7 @@
     }
 
     $scope.clearFactoryFields = function () {
-        $scope.factory.Name = null;
-        $scope.factory.Location = null;
+        $scope.factory = {};
     }
 
     $scope.postDeleteFactory = function (factory) {
@@ -1469,6 +1528,9 @@
                     resp.data[i].ExpirationDate = getDate(resp.data[i].ExpirationDate);
                 }
                 $scope.addedProducts.push.apply($scope.addedProducts, resp.data);
+                // Показать загрузку обоснования
+                updateViewRationaleFile();
+                updateProductTableView();
             }
         });
 
@@ -1489,6 +1551,24 @@
     $scope.checkFileValidation = function () {
         var invalidFiles = 0;
 
+        function checkFiles(containerName) {
+            var result = 0;
+            var rationaleFile = $(containerName + ' .file-validation');
+            rationaleFile.text('');
+            rationaleFile.each(function () {
+                var ct = $(this).attr('countFile');
+                var attcode = $(this).attr('attcode');
+                var count = parseInt(ct, 10) || 0;
+                if (count === 0 && attcode === "1") {
+                    $(this).text("Необходимо вложить файлы");
+                    result++;
+                } else {
+                    $(this).text("");
+                }
+            });
+            return result;
+        }
+
         var containerName = "";
         if ($scope.declarant.IsResident === true) {
             containerName = "#filesResident";
@@ -1497,18 +1577,10 @@
             containerName = "#filesNonResident";
         }
 
-        $(containerName + ' .file-validation').text("");
-        $(containerName + ' .file-validation').each(function () {
-            var ct = $(this).attr('countFile');
-            var attcode = $(this).attr('attcode');
-            var count = parseInt(ct, 10) || 0;
-            if (count === 0 && attcode === "1") {
-                $(this).text("Необходимо вложить файлы");
-                invalidFiles++;
-            } else {
-                $(this).text("");
-            }
-        });
+        invalidFiles += checkFiles(containerName);
+        if ($scope.viewRationaleFile)
+            invalidFiles += checkFiles('#filesRationalePlace');
+
         return invalidFiles === 0;
     }
 
@@ -1814,7 +1886,7 @@
     };
 
     $scope.tab3click = function () {
-        debugger;
+        //debugger;
         $interval(function () {
             $scope.gridOptionsCalculatorApi.core.handleWindowResize();
         }, 500, 10);
@@ -1918,7 +1990,6 @@
 }
 
 function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
-    debugger;
     $scope.ok = function () {
         $uibModalInstance.close();
     };

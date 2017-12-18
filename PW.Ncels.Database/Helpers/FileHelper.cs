@@ -699,7 +699,8 @@ namespace PW.Ncels.Database.Helpers
                 return new List<object>();
             }
         }
-        public static IEnumerable GetAttachListEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, string excludeCodes = null, bool isShowComment=false)
+        public static IEnumerable GetAttachListEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, 
+            string excludeCodes = null, bool isShowComment=false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
         {
            /* try
             {*/
@@ -710,6 +711,16 @@ namespace PW.Ncels.Database.Helpers
                 var dicListQuery = exludeItems != null
                     ? db.Dictionaries.Where(o => o.Type == type && !exludeItems.Contains(o.Code))
                     : db.Dictionaries.Where(o => o.Type == type);
+
+            if (includeDictionaries != null)
+            {
+                foreach (var include in includeDictionaries)
+                {
+                    dicListQuery = dicListQuery.Concat(db.Dictionaries.Where(x =>
+                        x.Code == include.Item1 && x.Type == include.Item2));
+                }
+            }
+
             if (byMetadata)
                 {
                     var docId = Guid.Parse(doc);
@@ -791,7 +802,111 @@ namespace PW.Ncels.Database.Helpers
                 return new List<object>();
             }*/
         }
-     
+
+        public static IEnumerable GetAttachListWithCodeEdit(ncelsEntities db, string doc, string type, bool byMetadata = false, 
+            string excludeCodes = null, bool isShowComment = false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
+        {
+            /* try
+             {*/
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root, doc ?? ""));
+            if (!info.Exists)
+                info.Create();
+            var exludeItems = !string.IsNullOrEmpty(excludeCodes) ? excludeCodes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) : null;
+            var dicListQuery = exludeItems != null
+                ? db.Dictionaries.Where(o => o.Type == type && exludeItems.Contains(o.Code))
+                : db.Dictionaries.Where(o => o.Type == type);
+
+            if (includeDictionaries != null)
+            {
+                foreach (var include in includeDictionaries)
+                {
+                    dicListQuery = dicListQuery.Concat(db.Dictionaries.Where(x =>
+                        x.Code == include.Item1 && x.Type == include.Item2));
+                }
+            }
+
+            if (byMetadata)
+            {
+                var docId = Guid.Parse(doc);
+                var markList = db.FileLinksCategoryComs.Where(e => e.DocumentId == docId).ToList();
+                var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code, ShowComment = isShowComment }).OrderBy(e => e.Code).ThenBy(x => x.Name).ToList();
+                var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
+                var fileMetadatas =
+                    db.FileLinks.Where(e => e.DocumentId == docId && categoryCodes.Contains(e.FileCategory.Code))
+                        .ToList();
+                return dicListMeta.Select(o =>
+                {
+                    var fileLinksCategoryCom = markList.FirstOrDefault(e => e.CategoryId == o.Id);
+                    return new
+                    {
+                        o.Id,
+                        o.Name,
+                        o.Code,
+                        o.ShowComment,
+                        MarkClassName =
+                        markList.FirstOrDefault(e => e.CategoryId == o.Id) == null
+                            ? ""
+                            : fileLinksCategoryCom != null && fileLinksCategoryCom.IsError
+                                ? "control-error"
+                                : "control-good",
+                        Items =
+                        (new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root,
+                            doc ?? "", o.Id.ToString()))).Exists
+                            ? new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root,
+                                    doc ?? "", o.Id.ToString())).GetFiles()
+                                .Join(fileMetadatas, f => f.Name,
+                                    f => string.Format("{0}{1}", f.Id, Path.GetExtension(f.FileName)),
+                                    (f, fm) => new { File = f, FileMetadata = fm })
+                                .ToList().Select(k => new
+                                {
+                                    AttachId =
+                                    string.Format("id={0}&path={1}&fileId={2}", o.Id, doc,
+                                        string.Format("{0}{1}", k.FileMetadata.Id,
+                                            Path.GetExtension(k.FileMetadata.FileName))),
+                                    AttachName = k.FileMetadata.FileName,
+                                    sysCreatedDate = k.File.CreationTime,
+                                    AttachSize = k.File.Length,
+                                    k.FileMetadata.Version,
+                                    OriginFileId = k.FileMetadata.ParentId,
+                                    k.FileMetadata.OwnerName,
+                                    CreateDate = k.FileMetadata.CreateDate.ToString(CultureInfo.InvariantCulture),
+                                    MetadataId = k.FileMetadata.Id,
+                                    k.FileMetadata.IsSigned,
+                                    StatusCode = k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.Code : "",
+                                    StatusName = k.FileMetadata.DIC_FileLinkStatus != null ? k.FileMetadata.DIC_FileLinkStatus.NameRu : "",
+
+                                }).ToList().Cast<object>()
+                            : new List<object>()
+                    };
+                });
+            }
+            var dicList = dicListQuery.Select(o => new { o.Id, o.Name, o.Code }).OrderBy(e => e.Code).ThenBy(x => x.Name).ToList();
+
+            return dicList.Select(o => new
+            {
+                o.Id,
+                o.Name,
+                o.Code,
+                Items = (new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root, doc ?? "", o.Id.ToString()))).Exists ?
+                    new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings["AttachPath"], Root, doc ?? "", o.Id.ToString())).GetFiles().ToList().Select(k => new
+                    {
+                        AttachId = string.Format("id={0}&path={1}&name={2}", o.Id, doc, k.Name),
+                        AttachName = k.Name,
+                        sysCreatedDate = k.CreationTime,
+                        AttachSize = k.Length,
+                        Version = 1,
+                        OriginFileId = (string)null,
+                        MetadataId = (string)null
+                    }).ToList().Cast<object>()
+                    : new List<object>()
+            });
+            /*          }
+                      catch (Exception ex)
+                      {
+                          return new List<object>();
+                      }*/
+        }
+
         public static bool CheckAttachList(ncelsEntities db, string id, string type)
         {
             try

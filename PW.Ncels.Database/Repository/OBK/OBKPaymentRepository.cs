@@ -299,6 +299,43 @@ namespace PW.Ncels.Database.Repository.OBK
 
         #endregion
 
+        #region Акт выполненых работ Партия
+        public void SaveCertificateOfCompletionParty(Guid id, bool expResult)
+        {
+            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
+            var directToPay = AppContext.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == declaration.ContractId);
+            var contractPrice = AppContext.OBK_ContractPrice.Where(e => e.ContractId == declaration.ContractId);
+            double taxValue = TaxHelper.GetNdsRef();
+            double sum = contractPrice.Sum(e => (e.OBK_Ref_PriceList.Price * taxValue + e.OBK_Ref_PriceList.Price) * e.Count);
+            if (!expResult)
+            {
+                sum = sum * 0.3;
+            }
+            var totalPrice = Convert.ToDecimal(sum);
+
+            if (declaration != null)
+            {
+                OBK_CertificateOfCompletion act = new OBK_CertificateOfCompletion
+                {
+                    Id = Guid.NewGuid(),
+                    Number = declaration.Number,
+                    ContractId = (Guid)declaration.ContractId,
+                    AssessmentDeclarationId = id,
+                    InvoiceNumber1C = directToPay?.InvoiceNumber1C,
+                    InvoiceDatetime1C = directToPay?.InvoiceDatetime1C,
+                    TotalPrice = totalPrice,
+                    CreateDate = DateTime.Now,
+                    SendDate = DateTime.Now,
+                    ActNumber1C = null,
+                    ActDate1C = null,
+                    ActReturnedBack = false,
+                    SendNotification = false
+                };
+                AppContext.OBK_CertificateOfCompletion.Add(act);
+                AppContext.SaveChanges();
+            }
+        }
+        #endregion
 
         #region оплата Job
         #region Счет на оплату
