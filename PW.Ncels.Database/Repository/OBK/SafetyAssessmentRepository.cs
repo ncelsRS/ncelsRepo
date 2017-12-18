@@ -219,7 +219,8 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IQueryable<OBK_Ref_Reason> GetRefReasons()
         {
-            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted);
+            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted 
+            && "Declaration".Equals(e.Code) && e.ExpertiseResult == false);
         }
 
         /// <summary>
