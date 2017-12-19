@@ -1,18 +1,20 @@
-﻿@model PW.Prism.ViewModels.OBK.TaskViewModel
-<style>
-    .modal-dialog {
-        width: 1000px !important;
-    }
-</style>
-<div class="pwPage pwPageEx" style="margin-left: 10px; margin-right: 60px; width: 90%">
+﻿@model PW.Ncels.Database.Models.OBK.OBKCreateTaskViewModel
+  
+@{
+    var registerDate = DateTime.Now.ToShortDateString();
+    var taskCount = Model.TaskViewModels.Count + 1;
+}
+<div id="partialPanel" class="pwPage pwPageEx" style="margin-left: 10px; margin-right: 60px; width: 90%">
     <div class="pwToolbar">
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-                <button type="button" class="btn btn-default" onclick="callCreatTaskView()"><span class="pwToolbarButtonReturn"></span><span class="pwToolbarButtonTitle">Создать задание</span></button>
+                <button type="button" class="btn btn-default" onclick="callCreatTaskView()">Создать задание</button>
+                <button type="button" class="btn btn-default" onclick="signBtn()">Подписать ЭЦП</button>
+                <button type="button" class="btn btn-default" id="sendToCoz" onclick="sendCOZ()">Отправить в ЦОЗ</button>
             </div>
         </div>
     </div>
-    <br />
+    <br/>
     <div class="panel panel-default">
         <div class="panel-heading">
             Задание на испытание
@@ -25,11 +27,20 @@
                         <tr>
                             <td>№ задания</td>
                             <td>Дата регистрации</td>
-                            <td>Лаборатория</td>
+                            <td>ИЦл/ИЛ</td>
                             <td>Создал</td>
                         </tr>
                         </thead>
                         <tbody>
+                        @foreach (var t in Model.TaskViewModels)
+                        {
+                            <tr>
+                                <td>@t.TaskNumber</td>
+                                <td>@t.RegisterDate</td>
+                                <td>@t.UnitName</td>
+                                <td>@t.ExecutorName</td>
+                            </tr>
+                        }
                         </tbody>
                     </table>
                 </div>
@@ -49,15 +60,17 @@
                             <td>Наименование продукции</td>
                             <td>Серия</td>
                             <td>№ задания</td>
-                            <td>Лаборатория</td>
+                            <td>Вид испытаний</td>
                         </tr>
                         </thead>
                         <tbody>
-                        @for (var i = 0; i < Model.ProductViewModels.Count; i++)
+                        @foreach (var t in Model.ProductViewModels)
                         {
-                            <tr rowid="@Model.ProductViewModels[i].Id">
-                                <td>@Model.ProductViewModels[i].ProductNameRu</td>
-                                <td>@Model.ProductViewModels[i].ProductSeries</td>
+                            <tr rowid="@t.Id">
+                                <td>@t.ProductNameRu</td>
+                                <td>@t.Series</td>
+                                <td>@t.TaskNumber</td>
+                                <td>@t.LaboratoryName</td>
                             </tr>
                         }
                         </tbody>
@@ -67,13 +80,11 @@
         </div>
     </div>
 </div>
-
 <div class="modal" id="modalCreateTask">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <div class="modal-dialog">
-
+                <div class="modal-dialog modal-lg" style="width: 1100px !important;">
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
@@ -85,13 +96,13 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>№ задания*</label>
-                                        <input class="form-control" type="text" id="taskNumber" value="">
+                                        <input class="form-control" type="text" disabled="disabled" id="taskNumber">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Дата регистрации*</label>
-                                        <input class="form-control date-control" type="text" id="createDate" value="">
+                                        <input class="form-control date-control" disabled="disabled" type="text" id="registerDate" value="@registerDate">
                                     </div>
                                 </div>
                             </div>
@@ -99,43 +110,47 @@
                                 <div class="col-lg-12">
                                     <div class="form-group">
                                         <label>№ акта отбора*</label>
-                                        <input class="form-control" type="text" id="actNumber" value="">
+                                        @Html.DropDownList("ActReceptionId", (IEnumerable<SelectListItem>) (ViewData["ActReceptions"]), String.Empty, new {@class = "form-control"})
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <label>Лаборатория*</label>
-                                        <input class="form-control" type="text" id="lab" value="">
+                                        <label>ИЦл/ИЛ*</label>
+                                        @Html.DropDownList("UnitId", (IEnumerable<SelectListItem>) (ViewData["Units"]), String.Empty, new {@class = "form-control"})
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
-                                    <table class="table table-striped table-bordered table-hover dataTable">
+                                    <table id="tableCreateTask" class="table table-striped table-bordered table-hover dataTable">
                                         <thead>
                                         <tr>
-                                            <td>Наименование продукции</td>
-                                            <td>Серия</td>
-                                            <td>№задания</td>
-                                            <td>Лаборатория</td>
-                                            <td></td>
+                                            <td style="width: 20%">Наименование образцов предьявленной продукции</td>
+                                            <td style="width: 5%">Ед. измерения</td>
+                                            <td style="width: 10%">Номер серии</td>
+                                            <td style="width: 5%">Дата изготовления</td>
+                                            <td style="width: 5%">Срок годности</td>
+                                            <td style="width: 5%">Кол-во продукции</td>
+                                            <td style="width: 50%">Виды испытаний</td>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @for (var i = 0; i < Model.ProductViewModels.Count; i++)
+                                        @foreach (var t in Model.ModalViewModels)
                                         {
-                                            <tr rowid="@Model.ProductViewModels[i].Id">
-                                                <td>@Model.ProductViewModels[i].ProductNameRu</td>
-                                                <td>@Model.ProductViewModels[i].ProductSeries</td>
-                                                <td>@Model.ProductViewModels[i].ProductSeries</td>
-                                                <td>@Model.ProductViewModels[i].ProductSeries</td>
-                                                <td>
-                                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
-                                                </td>
+                                            <tr rowid="@t.Id">
+                                                <td>@t.ProductNameRu</td>
+                                                <td>@t.SeriesMeasure</td>
+                                                <td>@t.Series</td>
+                                                <td>@t.SeriesStartdate</td>
+                                                <td>@t.SeriesEndDate</td>
+                                                <td>@t.Quantity</td>
+                                                <td><div class="chzn-select">
+                                                    @Html.ListBoxFor(x => Model.LaboratoryTypeIds, Model.LaboratoryTypeList,
+                                                        new { @class = "chzn-select form-control", data_placeholder = "Выбирите значание...", @name = "LaboratoryTypeList" })
+                                                </div></td>
                                             </tr>
-                                           
                                         }
                                         </tbody>
                                     </table>
@@ -143,7 +158,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Сохранить</button>
+                            <button type="button" class="btn btn-default" onclick="saveNewTask()">Сохранить</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                         </div>
                     </div>
@@ -153,11 +168,143 @@
     </div>
 </div>
 
+<div id="modalDialog_@Model.AssessmentDeclarationId" class="modal fade">
+    <div id="dialogContent" class="modal-dialog modal-sm"></div>
+</div>
+
 <script>
+
     setDateFormat(".date-control");
 
+    $("div.chzn-select select").chosen({ width: '100%' });
+
     function callCreatTaskView() {
-        debugger;
         $("#modalCreateTask").modal();
+    }
+
+    function sendCOZ() {
+        debugger;
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ShowModalExecutor',
+            data: {code:'coz', id: '@Model.AssessmentDeclarationId'},
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#dialogContent').html(data);
+                $('#modalDialog_@Model.AssessmentDeclarationId').modal('show');
+            }
+        });
+    }
+
+    function saveNewTask() {
+        debugger;
+        var val = validModal();
+        if (val) {
+            saveTask();
+        } else {
+            alert("Заполните обязательные поля!");
+        }
+    }
+
+    function saveTask() {
+        debugger;
+        var modalViewModels = new Array();
+        var laboratoryTypeIds = new Array();
+        $('table#tableCreateTask tbody tr').each(function() {
+            laboratoryTypeIds = [];
+            var row = $(this).attr('rowid');
+            var selections = $(this).find('div.chzn-select option:selected');
+            if (selections.length>0) {
+                selections.each(function() {
+                    var chValue = $(this).val();
+                    laboratoryTypeIds.push(chValue);
+                });
+                modalViewModels.push({ "Id": row, "LaboratoryTypeIds": laboratoryTypeIds });
+            }
+        });
+
+        if (modalViewModels.length < 1) {
+            alert("Не выбраны образцы для испытаний!");
+            return false;
+        }
+
+        var model = {
+            TaskNumber: $("#taskNumber").val(),
+            RegisterDate: $("#registerDate").val(),
+            ActNumber: '@Model.ActNumber',
+            ActReceptionId: $("#ActReceptionId").val(),
+            UnitId: $("#UnitId").val(),
+            LaboratoryTypeIds: laboratoryTypeIds,
+            AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
+            ModalViewModels: modalViewModels
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveTask")',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (data.isSuccess) {
+                    debugger;
+                    $("#tableCreateTask tr").remove();
+                    $("#modalCreateTask").modal('toggle');
+                    $('#partialPanel').load('@Url.Action("Task", new {id = Model.AssessmentDeclarationId})');
+                }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+
+
+    //подпсиание
+    function signBtn() {
+        var modelId = '@Model.AssessmentDeclarationId';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetSignTask?id=' + modelId,
+            success: function (result) {
+                startSign(result.data, modelId, saveSignedTask);
+            }
+        });
+        function saveSignedTask(signedData, id) {
+            debugger;
+            var data1 = {
+                id: id,
+                signedData: signedData
+            };
+            var json = JSON.stringify(data1);
+            $.ajax({
+                type: 'POST',
+                url: '/OBKTask/SaveSignedTask',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    alert(result.message);
+                    $('#partialPanel').load('@Url.Action("Task", new {id = Model.AssessmentDeclarationId})');
+                }
+            });
+        }
+    };
+
+    $("#ActReceptionId").on('change', function (e) {
+        var actSelect = $("option:selected", this);
+        $("#taskNumber").val(actSelect.text() + '/' + @taskCount);
+    });
+
+    function validModal() {
+        var validFile = true;
+        if ($("#taskNumber").val() == null || $("#taskNumber").val() == "")
+            validFile = false;
+        if ($("#UnitId").val() == null || $("#UnitId").val() == "")
+            validFile = false;
+        if ($("#ActReceptionId").val() == null || $("#ActReceptionId").val() == "")
+            validFile = false;
+        return validFile;
     }
 </script>

@@ -816,7 +816,7 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
                     };
                     stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.InWork).Id;
-                    AppContext.OBK_AssessmentStageExecutors.AddOrUpdate(stageExecutor);
+                    AppContext.OBK_AssessmentStageExecutors.Add(stageExecutor);
                     AppContext.SaveChanges();
                 }
             }
