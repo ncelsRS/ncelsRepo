@@ -28,7 +28,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IEnumerable<OBK_Ref_Nomenclature> GetRefNomenclature()
         {
-            return AppContext.OBK_Ref_Nomenclature.Where(e=>!e.IsDeleted).ToList();
+            return AppContext.OBK_Ref_Nomenclature.Where(e => !e.IsDeleted).ToList();
         }
 
         /// <summary>
@@ -160,6 +160,12 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 return AppContext.Employees.FirstOrDefault(
                     e => e.Id == new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784"));
+            }
+            // УВиРНФПиМС экспретиза документов
+            if (stageId == CodeConstManager.STAGE_OBK_PIMS_EXPERTISE_DOC)
+            {
+                var organization = AppContext.Units.FirstOrDefault(e => e.Id == new Guid("102aae37-a9b0-4a1b-97c5-8478dbe6f94a"));
+                return AppContext.Employees.FirstOrDefault(e => e.Id == new Guid(organization.BossId));
             }
             return null;
         }

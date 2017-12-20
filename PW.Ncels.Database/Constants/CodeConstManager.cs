@@ -426,9 +426,14 @@ namespace PW.Ncels.Database.Constants
         public const int STAGE_OBK_DEF = 4;
 
         /// <summary>
+        /// ЭКСПЕРТИЗА ДОКУМЕНТОВ ПО СЕРИИ В УВиРНФПиМС
+        /// </summary>
+        public const int STAGE_OBK_PIMS_EXPERTISE_DOC = 5;
+
+        /// <summary>
         /// УВиРНФПиМС
         /// </summary>
-        public const int STAGE_OBK_PIMS = 5;
+        public const int STAGE_OBK_PIMS = 6;
 
         #endregion
 
