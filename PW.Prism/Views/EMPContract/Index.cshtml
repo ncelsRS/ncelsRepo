@@ -1,4 +1,5 @@
 ﻿@using Ncels.Teme.Contracts.ViewModels
+@using PW.Ncels.Database.Constants
 @using PW.Ncels.Database.Helpers
 @model EmpContractIndexViewModel
 
@@ -27,49 +28,33 @@
                                  panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
                                      .Items(projects =>
                                      {
-                                         if (EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractNotDistributedStatusView)
                                          {
-                                             projects.Add().Text("Не распределенные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.New }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } }).Selected(true);
+                                             projects.Add().Text("Не распределенные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", CodeConstManager.EmpContractStageStatus.NotDistributed }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } }).Selected(true);
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractInWorkStatusView)
                                          {
-                                             projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.InWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}}).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts);
+                                             projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.InWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}}).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts);
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemOnCorrectionOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractOnAdjustmentStatusView)
                                          {
-                                             projects.Add().Text("На корректировке у заявителя").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.OnCorrection}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
+                                             projects.Add().Text("На корректировке").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.OnAdjustment}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemOnAgreementOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractApprovalRequiredStatusView)
                                          {
-                                             projects.Add().Text("Требуют согласования").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.OnAgreement}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
+                                             projects.Add().Text("Требует согласования").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.ApprovalRequired}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemAgreedOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractApprovedStatusView)
                                          {
-                                             projects.Add().Text("Согласованные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresRegistration}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
+                                             projects.Add().Text("Согласованные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.Approved}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemNotAgreedOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractNotApprovedStatusView)
                                          {
-                                             projects.Add().Text("Несогласованные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.NotAgreed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
+                                             projects.Add().Text("Не согласованные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.NotApproved}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
                                          }
-                                         if (EmployePermissionHelper.CanViewMenuItemRefusedOBKContracts)
+                                         if (EmployePermissionHelper.EmpContractActiveStatusView)
                                          {
-                                             projects.Add().Text("Отказанные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.NotAgreed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
-                                         }
-                                         if (EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts)
-                                         {
-                                             projects.Add().Text("Требуют подписания").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresSigning}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}}).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts && !EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts);
-                                         }
-                                         if (EmployePermissionHelper.CanViewMenuItemRequiresRegistrationOBKContracts)
-                                         {
-                                             projects.Add().Text("Требуют регистрации").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.RequiresRegistration}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
-                                         }
-                                         if (EmployePermissionHelper.CanViewMenuItemActiveOBKContracts)
-                                         {
-                                             projects.Add().Text("Активные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", PW.Ncels.Database.DataModel.OBK_Ref_StageStatus.Active}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}}).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts && !EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts && !EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts);
-                                         }
-                                         if (EmployePermissionHelper.CanViewMenuItemPastOBKContracts)
-                                         {
-                                             projects.Add().Text("Истекшие").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", "3"}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
+                                             projects.Add().Text("Активные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.Active}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}}).Selected(!EmployePermissionHelper.CanViewMenuItemNotAssignedOBKContracts && !EmployePermissionHelper.CanViewMenuItemInWorkOBKContracts && !EmployePermissionHelper.CanViewMenuItemRequiresSigningOBKContracts);
                                          }
                                      });
 
@@ -83,11 +68,11 @@
                        @*<div style="float: left">
                            <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchView('@Model.Id')">Расширенный поиск</button>
                        </div>*@
-                       <div style="float: left" id="@("lblStateBlock" + Model.Id)">
-                           @*@(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))*@
+                       @*<div style="float: left" id="@("lblStateBlock" + Model.Id)">
+                           @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
                            @Html.Label("Статус", new { @class = "pwWidth100", style = "line-height: 30px; margin-right: 5px; font-weight: normal;" })
-                       </div>
-                       <div id="pwTwo">
+                       </div>*@
+                       @*<div id="pwTwo">
                            @(Html.Kendo().DropDownList().Name("findType" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                                        .DataTextField("Text")
                                        .DataValueField("Value")
@@ -104,7 +89,7 @@
                                        })
                                        .SelectedIndex(0)
                            )
-                           @*@(Html.Kendo().DropDownList().Name("findTypeActiveContract" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
+                           @(Html.Kendo().DropDownList().Name("findTypeActiveContract" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                                        .DataTextField("Text")
                                        .DataValueField("Value")
                                        .BindTo(new List<SelectListItem>() {
@@ -128,23 +113,22 @@
                                            }
                                        })
                                        .SelectedIndex(0)
-                           )*@
-                       </div>
-                       <div id="pwThree">
+                           )
+                       </div>*@
+                       @*<div id="pwThree">
                            @(Html.Kendo().Button().Name("find" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                                        .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
                                        .ImageUrl("/Content/images/find.png"))
-                           @*@(Html.Kendo().Button().Name("findTypeActiveBtn" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
+                           @(Html.Kendo().Button().Name("findTypeActiveBtn" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                                        .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
-                                       .ImageUrl("/Content/images/find.png"))*@
-                       </div>
-                       @*@if (EmployePermissionHelper.CanAssignOBKContract)
+                                       .ImageUrl("/Content/images/find.png"))
+                       </div>*@
+                       @if (EmployePermissionHelper.EmpContractAssignment)
                        {
                            <div style="float: left">
-                               @(Html.Kendo().Button().Name("toWork" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                                   .Content("Распределить"))
+                               @(Html.Kendo().Button().Name("toWork" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" }).Content("Распределить"))
                            </div>
-                       }*@
+                       }
                        <div id="pwFour">
                            @(Html.Kendo().Button().Name("export" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                       .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)

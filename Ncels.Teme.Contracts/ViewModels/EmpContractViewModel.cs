@@ -15,5 +15,6 @@ namespace Ncels.Teme.Contracts.ViewModels
         public string Def { get; set; }
         public string Lawyer { get; set; }
         public string StageStatusCode { get; set; }
+        public Guid ContractStageId { get; set; }
     }
 }

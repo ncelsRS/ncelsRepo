@@ -10,5 +10,9 @@ namespace Ncels.Teme.Contracts
         IQueryable<EmpContractViewModel> GetContracts();
 
         EmpContractDetailsViewModel GetContractDetailsViewModel(Guid contractId);
+
+        void SendToWork(Guid stageId, Guid executorId);
+
+        IEnumerable<EmpContractHistoryViewModel> GetContractHistory(Guid id);
     }
 }

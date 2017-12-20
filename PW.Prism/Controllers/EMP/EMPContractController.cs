@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Web.Mvc;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
-using Kendo.Mvc.UI.Fluent;
 using Ncels.Teme.Contracts;
 using Ncels.Teme.Contracts.ViewModels;
 using Ncels.Teme.Infrastructure;
-using PW.Ncels.Database.Helpers;
 
 namespace PW.Prism.Controllers.EMP
 {
@@ -43,6 +40,23 @@ namespace PW.Prism.Controllers.EMP
         public ActionResult LoadContracts([DataSourceRequest] DataSourceRequest request)
         {
             return Json(_service.GetContracts().ToDataSourceResult(request));
+        }
+
+        [HttpGet]
+        public ActionResult SetExecutor()
+        {
+            return PartialView(Guid.NewGuid());
+        }
+
+        public ActionResult SetExecutor(Guid executorId, Guid stageId)
+        {
+            _service.SendToWork(stageId, executorId);
+            return Json("OK");
+        }
+
+        public ActionResult GetContractHistory([DataSourceRequest] DataSourceRequest request, Guid id)
+        {
+            return Json(_service.GetContractHistory(id).ToDataSourceResult(request));
         }
     }
 }

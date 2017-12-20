@@ -9,6 +9,8 @@ using Ncels.Teme.Contracts;
 using Ncels.Teme.Contracts.ViewModels;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
+using PW.Ncels.Database.Helpers;
+using PW.Ncels.Database.Notifications;
 
 namespace Ncels.Teme.Infrastructure
 {
@@ -35,8 +37,6 @@ namespace Ncels.Teme.Infrastructure
 
         public IQueryable<EmpContractViewModel> GetContracts()
         {
-            var tt = _uow.GetQueryable<EMP_ContractStage>().ToList();
-
             var q = _uow.GetQueryable<EMP_ContractStage>()
                 .Where(stage => stage.EMP_Contract.ContractType != null
                                 && stage.EMP_Contract.ManufacturId != null && stage.EMP_Contract.ManufacturContactId != null
@@ -54,7 +54,8 @@ namespace Ncels.Teme.Infrastructure
                     EndDate = stage.EMP_Contract.EndDate,
                     Declarant = stage.EMP_Contract.OBK_Declarant.NameRu,
                     ContractType = stage.EMP_Contract.EMP_Ref_ContractType.NameRu,
-                    StageStatusCode = stage.EMP_Ref_StageStatus.Code
+                    StageStatusCode = stage.EMP_Ref_StageStatus.Code,
+                    ContractStageId = stage.Id
                 });
 
             return q.AsQueryable();
@@ -115,15 +116,10 @@ namespace Ncels.Teme.Infrastructure
             var dicListQuery = _uow.GetQueryable<Dictionary>().Where(o => codes.Contains(o.Type));
 
             var markList = _uow.GetQueryable<FileLinksCategoryCom>().Where(e => e.DocumentId == contractId).ToList();
-            //var dicListMeta = dicListQuery.Select(o => new { o.Id, o.Name, o.Code }).ToList();
-            //var categoryCodes = dicListMeta.Select(e => e.Code).ToList();
-            var fileMetadatas = _uow.GetQueryable<FileLink>().Where(e => e.DocumentId == contractId /*&& categoryCodes.Contains(e.FileCategory.Code)*/).ToList();
+            var fileMetadatas = _uow.GetQueryable<FileLink>().Where(e => e.DocumentId == contractId).ToList();
 
             foreach (var dictionary in dicListQuery)
             {
-                var dirInfo = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc, dictionary.Id.ToString()));
-                if (!dirInfo.Exists) continue;
-
                 var fileLinksCategoryCom = markList.FirstOrDefault(e => e.CategoryId == dictionary.Id);
                 var group = new EmpContractFileAttachmentViewModel();
                 group.Id = dictionary.Id;
@@ -139,8 +135,10 @@ namespace Ncels.Teme.Infrastructure
                                         fileLinksCategoryCom?.IsNotApplicable != null &&
                                         fileLinksCategoryCom.IsNotApplicable.Value;
 
+                var dirInfo = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc, dictionary.Id.ToString()));
 
-                group.Items = dirInfo.GetFiles().Join(fileMetadatas, f => f.Name,
+                group.Items = dirInfo.Exists 
+                    ? dirInfo.GetFiles().Join(fileMetadatas, f => f.Name,
                         f => string.Format("{0}{1}", f.Id, Path.GetExtension(f.FileName)),
                         (f, fm) => new { File = f, FileMetadata = fm })
                     .ToList().Select(k => new EmpContractFileAttachmentItemViewModel
@@ -161,7 +159,8 @@ namespace Ncels.Teme.Infrastructure
                         Language = k.FileMetadata.Language,
                         NumOfPages = k.FileMetadata.PageNumbers,
                         Stage = k.FileMetadata.EXP_DIC_Stage != null ? k.FileMetadata.EXP_DIC_Stage.NameRu : string.Empty
-                    }).ToList();
+                    }).ToList()
+                    : new List<EmpContractFileAttachmentItemViewModel>();
 
 
                 list.Add(group);
@@ -243,5 +242,155 @@ namespace Ncels.Teme.Infrastructure
                     Selected = x.Id == selectedItem
                 });
         }
+
+        #region ТУТ НАЧИНАЕТСЯ АЦЦКИЙ КОПИПАСТ
+
+        public void SendToWork(Guid stageId, Guid executorId)
+        {
+            var stage = _uow.GetQueryable<EMP_ContractStage>().First(x => x.Id == stageId);
+            var executor = _uow.GetQueryable<Employee>().First(x => x.Id == executorId);
+
+            var stageExecutor = new EMP_ContractStageExecutors()
+            {
+                ContractStageId = stage.Id,
+                ExecutorId = executor.Id,
+                ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
+            };
+
+            _uow.Insert(stageExecutor);
+
+            var stageStatus = _uow.GetQueryable<EMP_Ref_StageStatus>().First(x => x.Code == CodeConstManager.EmpContractStageStatus.InWork);
+
+            stage.StageStatusId = stageStatus.Id;
+
+
+            var contract = _uow.GetQueryable<EMP_Contract>().First(x => x.Id == stage.ContractId);
+
+            // Записывать историю если статус В Работу проставляется впервые, когда его назначают на первого исполнителя
+            if (contract.Status != CodeConstManager.STATUS_OBK_WORK)
+            {
+                AddExtHistoryWork(contract.Id);
+            }
+
+            contract.Status = CodeConstManager.STATUS_OBK_WORK;
+            contract.ContractStatusId = _uow.GetQueryable<EMP_Ref_Status>()
+                .Where(x => x.Code == CodeConstManager.EmpContractStatus.InWork).Select(x => x.Id).FirstOrDefault();
+
+            AddHistorySentToWork(contract.Id);
+
+            _uow.Save();
+
+            SendNotificationToExecutorWork(executorId, contract);
+        }
+
+        public IEnumerable<EmpContractHistoryViewModel> GetContractHistory(Guid id)
+        {
+            return _uow.GetQueryable<EMP_ContractHistoryView>().Where(x => x.ContractId == id)
+                .Select(x=>new EmpContractHistoryViewModel
+                {
+                    Id = x.Id,
+                    UnitName = x.UnitName,
+                    ContractId = x.ContractId,
+                    StatusCode = x.StatusCode,
+                    EmployeeId = x.EmployeeId,
+                    StatusId = x.StatusId,
+                    Created = x.Created,
+                    EmployeeFullName = x.EmployeeFullName,
+                    EmployeeShortName = x.EmployeeShortName,
+                    RefuseReason = x.RefuseReason,
+                    StatusNameKz = x.StatusNameKz,
+                    StatusNameRu = x.StatusNameRu
+                });
+        }
+
+        private void AddExtHistoryWork(Guid contractId)
+        {
+            var historyStatusCode = OBK_Ref_ContractExtHistoryStatus.Work;
+            AddExtHistory(contractId, historyStatusCode);
+        }
+
+        private void AddExtHistory(Guid contractId, string historyStatusCode, Guid? employeeId = null)
+        {
+            var status = GetContractExtHistoryStatusByCode(historyStatusCode);
+
+            var history = new EMP_ContractExtHistory()
+            {
+                Id = Guid.NewGuid(),
+                CreateDate = DateTime.Now,
+                ContractId = contractId,
+                StatusId = status.Id,
+                EmployeeId = employeeId
+            };
+            _uow.Insert(history);
+        }
+
+        private void AddHistorySentToWork(Guid contractId)
+        {
+            var historyStatusCode = OBK_Ref_ContractHistoryStatus.SentToWork;
+            AddHistory(contractId, historyStatusCode);
+        }
+
+        private OBK_Ref_ContractExtHistoryStatus GetContractExtHistoryStatusByCode(string code)
+        {
+            return _uow.GetQueryable<OBK_Ref_ContractExtHistoryStatus>().Where(x => x.Code == code).FirstOrDefault();
+        }
+
+        private void AddHistory(Guid contractId, string historyStatusCode, string reason = null)
+        {
+            var currentEmployee = UserHelper.GetCurrentEmployee();
+
+            var status = GetContractHistoryStatusByCode(historyStatusCode);
+
+            var unitName = GetParentUnitName(currentEmployee);
+
+            var history = new EMP_ContractHistory()
+            {
+                Id = Guid.NewGuid(),
+                Created = DateTime.Now,
+                RefuseReason = reason,
+                ContractId = contractId,
+                EmployeeId = currentEmployee.Id,
+                UnitName = unitName,
+                StatusId = status.Id,
+            };
+            _uow.Insert(history);
+        }
+
+        private string GetParentUnitName(Employee employee)
+        {
+            string unitName = null;
+            if (employee.Units != null && employee.Units.Count > 0)
+            {
+                foreach (var unit in employee.Units)
+                {
+                    if (unit.Parent != null)
+                    {
+                        unitName = unit.Parent.ShortName;
+                    }
+                    break;
+                }
+            }
+            return unitName;
+        }
+
+        public OBK_Ref_ContractHistoryStatus GetContractHistoryStatusByCode(string code)
+        {
+            return _uow.GetQueryable<OBK_Ref_ContractHistoryStatus>().Where(x => x.Code == code).FirstOrDefault();
+        }
+
+        private void SendNotificationToExecutorWork(Guid executorId, EMP_Contract contract)
+        {
+            string organizationForm = "";
+            if (contract.OBK_Declarant.OrganizationFormId != null)
+            {
+                var orgForm = _uow.GetQueryable<Dictionary>().Where(x => x.Id == contract.OBK_Declarant.OrganizationFormId.Value).FirstOrDefault();
+                organizationForm = orgForm.Name;
+            }
+            var orgName = contract.OBK_Declarant?.NameRu;
+            var message = string.Format("Поступил новый договор от {0} \"{1}\"", organizationForm, orgName);
+            new NotificationManager().SendNotification(message, ObjectType.EmpContract, contract.Id, executorId);
+        }
+
+        #endregion
     }
 }

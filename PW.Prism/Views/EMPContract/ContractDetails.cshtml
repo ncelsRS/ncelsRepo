@@ -1,4 +1,5 @@
-﻿@model Ncels.Teme.Contracts.ViewModels.EmpContractDetailsViewModel
+﻿@using PW.Ncels.Database.DataModel
+@model Ncels.Teme.Contracts.ViewModels.EmpContractDetailsViewModel
 
 @{
     var tab1 = "tab-1" + Model.Id;
@@ -45,7 +46,7 @@
             </div>
               );
           pane.Add().Scrollable(false).Size("100%").Content(
-
+              
             @<div id="@("contractDataTabs" + Model.Id)" class="pwPageScrollable" style="background-color: white; margin-top: 10px">
 
                 <div id="@("contractDataTab1" + Model.Id)" class="row">
@@ -346,7 +347,33 @@
                 <div id="@("contractDataTab2" + Model.Id)" class="row hidden">
                     @Html.Partial("ContractAttachment", Model.Attachments)
                 </div>
-
+    
+            <div id="@("contractDataTab3" + Model.Id)" class="row hidden" style="height: 100%">
+                <div class="row" style="height: 99%">
+                    @(Html.Kendo().Grid<EMP_ContractHistoryView>()
+                          .Name("contracHistoryGrid" + (string)ViewBag.UiId)
+                          .Columns(columns =>
+                          {
+                              columns.Bound(p => p.StatusNameRu).Title("Статус").Width(100);
+                              columns.Bound(p => p.EmployeeShortName).Title("Исполнитель").Width(150);
+                              columns.Bound(p => p.UnitName).Title("Структурное подразделение").Width(150);
+                              columns.Bound(p => p.Created).Format("{0:dd.MM.yyyy HH:mm}").Title("Дата действия").Width(100);
+                          })
+                          .Reorderable(reorderable => reorderable.Columns(true))
+                          .Resizable(resizable => resizable.Columns(true))
+                          .Sortable(sortable => sortable.AllowUnsort(false))
+                          .Scrollable(scrollable => scrollable.Virtual(true))
+                          .Filterable()
+                          .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                          .HtmlAttributes(new { @class = "pwGrid" })
+                          .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .Sort(sort => { sort.Add("Created").Ascending(); })
+                              .PageSize(1000)
+                              .Read(read => read.Action("GetContractHistory", "EMPContract", new { id = Model.Id }))
+                          ))
+                </div>
+            </div>
 
             </div>
 

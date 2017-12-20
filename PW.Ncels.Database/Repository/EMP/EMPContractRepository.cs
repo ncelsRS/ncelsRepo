@@ -840,21 +840,21 @@ namespace PW.Ncels.Database.Repository.EMP
             var contract = AppContext.EMP_Contract.First(x => x.Id == contractId);
 
             var cozStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.Coz && !x.IsDeleted).Select(x => x.Id).First();
-            var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.InQueue && !x.IsDeleted).Select(x => x.Id).First();
-            var sentStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.Sent && !x.IsDeleted).Select(x => x.Id).First();
+            var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.NotDistributed && !x.IsDeleted).Select(x => x.Id).First();
+            var inProcessingStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.InProcessing && !x.IsDeleted).Select(x => x.Id).First();
 
-            //contract.ContractStatusId = sentStatus;
+            contract.ContractStatusId = inProcessingStatus;
 
-            //AppContext.EMP_ContractStage.Add(new EMP_ContractStage
-            //{
-            //    Id = Guid.NewGuid(),
-            //    ContractId = contract.Id,
-            //    StageId = cozStage,
-            //    StageStatusId = inQueueStageStatus,
-            //    DateCreate = DateTime.Now
-            //});
+            AppContext.EMP_ContractStage.Add(new EMP_ContractStage
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contract.Id,
+                StageId = cozStage,
+                StageStatusId = inQueueStageStatus,
+                DateCreate = DateTime.Now
+            });
 
-            //AppContext.SaveChanges();
+            AppContext.SaveChanges();
         }
 
         public string GetContractScopeName(string code)
@@ -1037,7 +1037,7 @@ namespace PW.Ncels.Database.Repository.EMP
             data.CeoSign = null;
             data.CeoSignDate = null;
 
-            AppContext.SaveChanges();
+            SendToCoz(contractId);
         }
     }
 }
