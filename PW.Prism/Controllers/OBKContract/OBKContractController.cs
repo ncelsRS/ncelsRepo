@@ -34,6 +34,11 @@ namespace PW.Prism.Controllers.OBKContract
         // GET: OBKContract
         public ActionResult Index()
         {
+            var employee = db.Units.Where(x => x.Type == 2 && x.Employee != null)
+                    .Select(o => o.Employee).Select(o => new { o.Id, Name = o.ShortName })
+                    .OrderBy(o => o.Name);
+            ViewBag.Experts = new SelectList(employee, "Id", "Name");
+
             return PartialView(Guid.NewGuid());
         }
 

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PW.Ncels.LocalResource;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -12,6 +14,8 @@ namespace PW.Ncels.Models
         public Nullable<System.DateTime> LetterSentEdoDate { get; set; }
         public Nullable<System.Guid> AuthorID { get; set; }
         public Nullable<System.DateTime> LetterRegDate { get; set; }
+
+        [Display(Name = "LastName", ResourceType = typeof(Resource))]
         public string LetterContent { get; set; }
         public Nullable<int> LetterStatusId { get; set; }
         public Nullable<System.Guid> ContractId { get; set; }

@@ -193,6 +193,8 @@
       <HintPath>..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -280,11 +282,20 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessDeniedAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\CultureHelper.cs" />
     <Compile Include="Helpers\DataTablesHelper.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
     <Compile Include="Helpers\LogInfoAttribute.cs" />
+    <Compile Include="LocalResource\Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AttachDoc.cs" />
+    <Compile Include="Models\CommingAttachFileFromEdo.cs" />
+    <Compile Include="Models\CommingLetterFromEdo.cs" />
+    <Compile Include="Models\CommingRegInfoFromEdo.cs" />
     <Compile Include="Models\ContractListViewModel.cs" />
     <Compile Include="Models\EcpUserModel.cs" />
     <Compile Include="Models\EmailTemplateModel.cs" />
@@ -305,9 +316,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
+    <Compile Include="Service References\ServiceWithEdo\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Services\AccountServices.cs" />
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="WebServiceEdo\RegisterLetter.asmx.cs">
+      <DependentUpon>RegisterLetter.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-datetimepicker.css" />
@@ -23393,9 +23413,6 @@
     <Content Include="Scripts\js\plugins\moment\ru.js" />
     <Content Include="Scripts\js\plugins\ngclipboard\clipboard.min.js" />
     <Content Include="Scripts\js\plugins\ngclipboard\ngclipboard.min.js" />
-    <Content Include="Scripts\js\plugins\nggrid\build\ng-grid.debug.js" />
-    <Content Include="Scripts\js\plugins\nggrid\build\ng-grid.js" />
-    <Content Include="Scripts\js\plugins\nggrid\build\ng-grid.min.js" />
     <Content Include="Scripts\js\plugins\nggrid\conf.js" />
     <Content Include="Scripts\js\plugins\nggrid\GruntFile.js" />
     <Content Include="Scripts\js\plugins\nggrid\lib\angular.js" />
@@ -23623,6 +23640,18 @@
     <Content Include="Scripts\photon\logon\loginCtrl.js" />
     <Content Include="Scripts\photon\logon\mainCtrl.js" />
     <Content Include="Scripts\photon\logon\registerEcpCtrl.js" />
+    <None Include="Service References\ServiceWithEdo\configuration91.svcinfo" />
+    <None Include="Service References\ServiceWithEdo\configuration.svcinfo" />
+    <Content Include="Service References\ServiceWithEdo\PW.Ncels.ServiceWithEdo.sendINDocumentResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ServiceWithEdo\PW.Ncels.ServiceWithEdo.sendProjectDocumentResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\ServiceWithEdo\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="ssleay32.dll" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -23646,6 +23675,7 @@
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="WebServiceEdo\RegisterLetter.asmx" />
     <Content Include="xmlsec_wr.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -23653,6 +23683,8 @@
     <Folder Include="Scripts\js\angular\growlNotifications\directives\" />
     <Folder Include="Scripts\js\angular\growlNotifications\services\" />
     <Folder Include="Scripts\js\angular\i18n\ngLocale\" />
+    <Folder Include="Scripts\js\plugins\nggrid\build\" />
+    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\css\bootstrap.css.map" />
@@ -24131,6 +24163,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LocalResource\Resource.kk.resx" />
+    <EmbeddedResource Include="LocalResource\Resource.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
@@ -24138,6 +24175,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ServiceWithEdo\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -24238,11 +24278,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>4428</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:1050/</IISUrl>
+          <IISUrl>http://localhost:4428/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

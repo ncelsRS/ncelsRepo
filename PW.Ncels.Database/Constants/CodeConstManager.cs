@@ -425,15 +425,20 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const int STAGE_OBK_DEF = 4;
 
-        /// <summary>
-        /// ЭКСПЕРТИЗА ДОКУМЕНТОВ ПО СЕРИИ В УВиРНФПиМС
-        /// </summary>
-        public const int STAGE_OBK_PIMS_EXPERTISE_DOC = 5;
-
-        /// <summary>
+        /// <summary>        
         /// УВиРНФПиМС
         /// </summary>
         public const int STAGE_OBK_PIMS = 6;
+
+        /// <summary>
+        /// ИЦл/ИЛ
+        /// </summary>
+        public const int STAGE_OBK_ICL = 7;
+        
+        /// <summary>
+        /// Испытательный центр
+        /// </summary>
+        public const int STAGE_OBK_RESEARCH_CENTER = 6;
 
         #endregion
 
@@ -594,13 +599,6 @@ namespace PW.Ncels.Database.Constants
         public static class EmpContractStageStatus
         {
             public const string InQueue = "inQueue";
-        }
-
-        public class EmpContractType
-        {
-            public const string Registration = "1";
-            public const string ReRegistration = "2";
-            public const string ChangesInsertion = "3";
         }
     }
 }

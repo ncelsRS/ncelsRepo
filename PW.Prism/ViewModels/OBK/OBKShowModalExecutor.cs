@@ -5,8 +5,9 @@ using System.Web;
 
 namespace PW.Prism.ViewModels.OBK
 {
-    public class TaskViewModel
+    public class OBKShowModalExecutor
     {
-        public List<ProductViewModel> ProductViewModels { get; set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
     }
 }
