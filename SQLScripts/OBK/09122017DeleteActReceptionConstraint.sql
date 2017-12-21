@@ -1,5 +1,5 @@
 ALTER TABLE [ncels].[dbo].[OBK_ActReception]
-DROP CONSTRAINT UQ__OBK_ActR__3214EC06DB7E5852; 
+DROP CONSTRAINT UQ__OBK_ActR__3214EC062D20D4E7; 
 
 ALTER TABLE [ncels].[dbo].[OBK_ActReception] ADD OBK_AssessmentDeclarationId uniqueidentifier
 

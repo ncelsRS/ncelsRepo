@@ -8,7 +8,6 @@
                     function rowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                         $('td', nRow).unbind('click');
                         $('td', nRow).bind('click', function () {
-
                             var table = $(this.parentNode.parentNode.parentNode).DataTable();
                             table.$('tr.pw-row-selected').removeClass('pw-row-selected');
                             $(this.parentNode).addClass('pw-row-selected');
@@ -38,6 +37,7 @@
                         dataSrc: 'Data',
                         url: url,
                         type: "POST", data: function (d) {
+                            console.log(d);
                             if (id != undefined) {
                                 d.id = id;
                             }
@@ -176,7 +176,6 @@ function gridIntegrationObject(DTOptionsBuilder) {
                     function rowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                         $('td', nRow).unbind('click');
                         $('td', nRow).bind('click', function () {
-
                             var table = $(this.parentNode.parentNode.parentNode).DataTable();
                             table.$('tr.pw-row-selected').removeClass('pw-row-selected');
                             $(this.parentNode).addClass('pw-row-selected');
