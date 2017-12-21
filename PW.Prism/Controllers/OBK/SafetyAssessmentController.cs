@@ -502,7 +502,7 @@ namespace PW.Prism.Controllers.OBK
             string resultDescription;
 
             if (!stageRepository.HasStage(model.Id, CodeConstManager.STAGE_OBK_EXPERTISE_DOC))
-                stageRepository.ToNextStage(model.Id, null, new int[] { CodeConstManager.STAGE_OBK_EXPERTISE_DOC }, out resultDescription);
+                stageRepository.ToNextStage(model, null, new int[] { CodeConstManager.STAGE_OBK_EXPERTISE_DOC }, out resultDescription);
 
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
