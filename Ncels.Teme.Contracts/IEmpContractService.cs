@@ -14,5 +14,6 @@ namespace Ncels.Teme.Contracts
         void SendToWork(Guid stageId, Guid executorId);
 
         IEnumerable<EmpContractHistoryViewModel> GetContractHistory(Guid id);
+        void Approve(Guid stageId, bool result);
     }
 }

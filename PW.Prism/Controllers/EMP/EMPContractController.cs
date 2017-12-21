@@ -25,14 +25,13 @@ namespace PW.Prism.Controllers.EMP
             return PartialView(new EmpContractIndexViewModel());
         }
 
-        public ActionResult Edit(Guid? id)
+        public ActionResult Edit(Guid? id, Guid? stage)
         {
-            if (id == null)
+            if (id == null || stage == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
             
             var model = _service.GetContractDetailsViewModel(id.Value);
-
+            model.StageId = stage.Value;
 
             return PartialView("ContractDetails", model);
         }
@@ -57,6 +56,18 @@ namespace PW.Prism.Controllers.EMP
         public ActionResult GetContractHistory([DataSourceRequest] DataSourceRequest request, Guid id)
         {
             return Json(_service.GetContractHistory(id).ToDataSourceResult(request));
+        }
+
+        public ActionResult Approve(Guid stage)
+        {
+            _service.Approve(stage, true);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        public ActionResult Reject(Guid stage)
+        {
+            _service.Approve(stage, false);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
     }
 }

@@ -599,6 +599,26 @@ namespace PW.Ncels.Database.Constants
             /// ЦОЗ
             /// </summary>
             public const string Coz = "1";
+
+            /// <summary>
+            /// Юрист
+            /// </summary>
+            public const string LegalDepartmant = "2";
+
+            /// <summary>
+            /// Группа валидации
+            /// </summary>
+            public const string ValidationGroup = "3";
+
+            /// <summary>
+            /// ДЭФ
+            /// </summary>
+            public const string Def = "4";
+
+            /// <summary>
+            /// Заместитель генерального директора
+            /// </summary>
+            public const string Ceo = "5";
         }
 
         public static class EmpContractStageStatus
@@ -647,6 +667,11 @@ namespace PW.Ncels.Database.Constants
             /// Требуют регистрации
             /// </summary>
             public const string RegistrationRequired = "9";
+
+            /// <summary>
+            /// Новые
+            /// </summary>
+            public const string New = "10";
         }
 
         public class EmpContractType

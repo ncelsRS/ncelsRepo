@@ -218,6 +218,7 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("EmpContractApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
             AddPermission("EmpContractNotApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
             AddPermission("EmpContractActiveStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Активные\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractNewStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Новые\"", "Работа с договорами по экспертизе ИМН и МТ");
             AddPermission("EmpContractAssignment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность распределять договоры", "Работа с договорами по экспертизе ИМН и МТ");
 
             RemoveNonActualKeys();
@@ -1057,6 +1058,7 @@ namespace PW.Ncels.Database.Helpers
         public static bool EmpContractApprovedStatusView { get { return IsVisibility("EmpContractApprovedStatusView"); } }
         public static bool EmpContractNotApprovedStatusView { get { return IsVisibility("EmpContractNotApprovedStatusView"); } }
         public static bool EmpContractActiveStatusView { get { return IsVisibility("EmpContractActiveStatusView"); } }
+        public static bool EmpContractNewStatusView { get { return IsVisibility("EmpContractNewStatusView"); } }
         public static bool EmpContractAssignment { get { return IsVisibility("EmpContractAssignment"); } }
 
         #endregion

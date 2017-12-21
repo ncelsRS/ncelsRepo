@@ -1,7 +1,17 @@
 USE [ncels]
 GO
 
-/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 15.12.2017 13:53:58 ******/
+ALTER TABLE [dbo].[EMP_ContractStageExecutors] DROP CONSTRAINT [FK_EMP_ContractStageExecutors_ExecutorId_Employee_Id]
+GO
+
+ALTER TABLE [dbo].[EMP_ContractStageExecutors] DROP CONSTRAINT [FK_EMP_ContractStageExecutors_ContractStageId_EMP_ContractStage_Id]
+GO
+
+/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 20.12.2017 9:49:37 ******/
+DROP TABLE [dbo].[EMP_ContractStageExecutors]
+GO
+
+/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 20.12.2017 9:49:37 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -18,6 +28,13 @@ CREATE TABLE [dbo].[EMP_ContractStageExecutors](
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[EMP_ContractStageExecutors]  WITH CHECK ADD  CONSTRAINT [FK_EMP_ContractStageExecutors_ContractStageId_EMP_ContractStage_Id] FOREIGN KEY([ContractStageId])
+REFERENCES [dbo].[EMP_ContractStage] ([Id])
+GO
+
+ALTER TABLE [dbo].[EMP_ContractStageExecutors] CHECK CONSTRAINT [FK_EMP_ContractStageExecutors_ContractStageId_EMP_ContractStage_Id]
 GO
 
 ALTER TABLE [dbo].[EMP_ContractStageExecutors]  WITH CHECK ADD  CONSTRAINT [FK_EMP_ContractStageExecutors_ExecutorId_Employee_Id] FOREIGN KEY([ExecutorId])

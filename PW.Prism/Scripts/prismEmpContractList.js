@@ -1,4 +1,4 @@
-﻿function getEmpContractDetails(parameters, number) {
+﻿function getEmpContractDetails(parameters, stage, number) {
     if (docArray.indexOf(parameters.toLowerCase()) != -1)
         docArray.splice(docArray.indexOf(parameters.toLowerCase()), 1);
     var element = document.getElementById(parameters);
@@ -19,7 +19,7 @@
         gridElement.height($(window).height() - 100);
 
         $.ajax({
-            url: "/EMPContract/Edit?id=" + parameters,
+            url: "/EMPContract/Edit?id=" + parameters + "&stage=" + stage,
             success: function (result) {
                 $(idContent).html(result);
             }
@@ -119,5 +119,28 @@ function InitEmpContractCard(uiId) {
     });
 
     kendo.bind($("#splitter" + uiId), viewModel);
+
+    $('#btnApprove' + uiId).click(function() {
+        var stage = $('#stageId').val();
+        $.ajax({
+            url: "/EMPContract/Approve",
+            type: "POST",
+            data: { stage: stage },
+            success: function() {
+            }
+        });
+    });
+
+    $('#btnReject' + uiId).click(function() {
+        var stage = $('#stageId').val();
+        $.ajax({
+            url: "/EMPContract/Reject",
+            type: "POST",
+            data: { stage: stage },
+            success: function() {
+            }
+        });
+    });
 }
+
 

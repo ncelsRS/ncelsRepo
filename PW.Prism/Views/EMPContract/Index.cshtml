@@ -28,6 +28,10 @@
                                  panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
                                      .Items(projects =>
                                      {
+                                         if (EmployePermissionHelper.EmpContractNewStatusView)
+                                         {
+                                             projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", CodeConstManager.EmpContractStageStatus.New }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } }).Selected(true);
+                                         }
                                          if (EmployePermissionHelper.EmpContractNotDistributedStatusView)
                                          {
                                              projects.Add().Text("Не распределенные").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", CodeConstManager.EmpContractStageStatus.NotDistributed }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } }).Selected(true);
@@ -129,11 +133,11 @@
                                @(Html.Kendo().Button().Name("toWork" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" }).Content("Распределить"))
                            </div>
                        }
-                       <div id="pwFour">
+                       @*<div id="pwFour">
                            @(Html.Kendo().Button().Name("export" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
                       .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
                       .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
-                       </div>
+                       </div>*@
                        @*<div>
                 @(Html.Kendo().Button().Name("toPay" + Model).HtmlAttributes(new { @class = "pwWidth100" })
                       .Content("На оплату"))
@@ -150,7 +154,7 @@
                          {
                              columns.Bound(x => x.Number).Width(150).ClientTemplate(
                                  "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
-                                 "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getEmpContractDetails('#=Id#', '#=Number#',)\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                 "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getEmpContractDetails('#=Id#', '#=ContractStageId#', '#=Number#',)\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
                                  "</div>").Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#").Locked(true).Lockable(false);
                              columns.Bound(x => x.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата отправки").Width(100);
                              columns.Bound(x => x.StartDate).Format("{0:dd.MM.yyyy}").Title("Дата начала").Width(100);
@@ -175,8 +179,6 @@
                          .DataSource(dataSource => dataSource
                              .Ajax()
                              .Aggregates(aggregates => { aggregates.Add(p => p.Number).Count(); })
-
-                             .PageSize(50)
                              .Read(read => read.Action("LoadContracts", "EMPContract"))
                              .PageSize(20)
                          )

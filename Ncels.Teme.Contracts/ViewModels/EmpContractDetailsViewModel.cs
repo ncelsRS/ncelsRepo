@@ -20,5 +20,6 @@ namespace Ncels.Teme.Contracts.ViewModels
         public IEnumerable<EmpContractFileAttachmentViewModel> Attachments { get; set; }
 
         public string StageStatusCode { get; set; }
+        public Guid StageId { get; set; }
     }
 }
