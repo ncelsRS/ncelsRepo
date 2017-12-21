@@ -28,6 +28,37 @@ namespace PW.Ncels.Controllers
             return PartialView();
         }
 
+        public ActionResult FileViewKendo(string id, string name)
+        {
+            ViewBag.FileId = id;
+            ViewBag.FileName = name;
+            return PartialView();
+        }
+
+        public ActionResult RemoveFile(string[] fileNames, string certificateId)
+        {
+            // The parameter of the Remove action must be called "fileNames"
+
+            if (fileNames != null)
+            {
+                foreach (var fullName in fileNames)
+                {
+                    var fileName = Path.GetFileName(fullName);
+                    UploadHelper.DeleteFile(certificateId, fileName);
+                }
+            }
+
+            // Return an empty string to signify success
+            return Content("");
+        }
+
+        public ActionResult GetPreview(string id, string name)
+        {
+            byte[] data = UploadHelper.GetPreview(id, name, false);
+            var stream = new MemoryStream(data);
+            return new FileStreamResult(stream, "application/pdf");
+        }
+
         public ActionResult DocumentAttachView(Guid id, string name)
         {
             ViewBag.FileId = id;
@@ -223,6 +254,22 @@ namespace PW.Ncels.Controllers
         {
             new UploadRepository().SetIsNotApplicabled(documentId, categoryId, isChecked);
             return Json(new { Success = true });
+        }
+
+        public ActionResult SaveFile(IEnumerable<HttpPostedFileBase> files, string certificateId)
+        {
+            // The Name of the Upload component is "files"
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+
+                    UploadHelper.Upload(file.InputStream, file.FileName, certificateId);
+                }
+            }
+
+            // Return an empty string to signify success
+            return Content("");
         }
     }
 }
