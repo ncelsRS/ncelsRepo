@@ -77,11 +77,18 @@ function panelEmpContractSelect(e) {
     var selectType = $(e.item).find("> .k-link").attr('ItemType');
     if (selectType !== null) {
         var selectValue = $(e.item).find("> .k-link").attr('ItemId');
-        var gridId = $(e.item).find("> .k-link").attr('ModelId');
-        var grid = $("#grid" + gridId).data("kendoGrid");
+        var modelId = $(e.item).find("> .k-link").attr('ModelId');
+        var grid = $("#grid" + modelId).data("kendoGrid");
         var filter = new Array();
         if (selectType === "StageStatusCode") {
             filter.push({ field: "StageStatusCode", operator: "eq", value: selectValue });
+
+            var btnToWork = $("#toWork" + modelId);
+            if (selectValue === "1") {
+                btnToWork.attr("hidden", false);
+            } else {
+                btnToWork.attr("hidden", true);
+            }
         }
         if (selectValue === '') {
             grid.dataSource.filter([]);
@@ -127,6 +134,8 @@ function InitEmpContractCard(uiId) {
             type: "POST",
             data: { stage: stage },
             success: function() {
+                $("#approvalPanel" + uiId).remove();
+                alert("Согласование прошло успешно");
             }
         });
     });
@@ -138,6 +147,8 @@ function InitEmpContractCard(uiId) {
             type: "POST",
             data: { stage: stage },
             success: function() {
+                $("#approvalPanel" + uiId).remove();
+                alert("Отказ произведен успешно");
             }
         });
     });

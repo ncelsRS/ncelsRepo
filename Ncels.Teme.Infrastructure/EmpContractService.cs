@@ -89,6 +89,8 @@ namespace Ncels.Teme.Infrastructure
             var declarant = GetDeclarant(contract.OBK_Declarant, contract.OBK_DeclarantContact);
             declarant.Title = Declarant;
             declarant.Code = DeclarantCode;
+            declarant.HasProxy = contract.HasProxy == true ? "Да" : "Нет";
+            declarant.DocumentType = contract.DocumentType == 1 ? "Представительство" : contract.DocumentType == 2 ? "Доверенное лицо" : string.Empty;
 
             var payer = GetDeclarant(contract.OBK_DeclarantPayer, contract.OBK_DeclarantContactPayer);
             payer.Code = PayerCode;
@@ -146,7 +148,12 @@ namespace Ncels.Teme.Infrastructure
                 Currencies = GetDictionaryList("Currency", declarantContact.CurrencyId),
                 BankBik = declarantContact.BankBik,
                 Iin = declarant.Iin,
-                BankAccount = declarantContact.BankAccount
+                BankAccount = declarantContact.BankAccount,
+                IsHasBossDocNumber = declarantContact.IsHasBossDocNumber ? "Да" : "Нет",
+                BossDocNumber = declarantContact.BossDocNumber,
+                BossDocUnlimited = declarantContact.BossDocUnlimited ? "Да" : "Нет",
+                BossDosCreateDate = declarantContact.BossDocCreatedDate != null ? declarantContact.BossDocCreatedDate.Value.ToString("dd-MM-yyyy") : string.Empty,
+                BossDocEndDate = declarantContact.BossDocEndDate != null ? declarantContact.BossDocEndDate.Value.ToString("dd-MM-yyyy") : string.Empty
             };
         }
 
@@ -337,11 +344,12 @@ namespace Ncels.Teme.Infrastructure
         public void Approve(Guid stageId, bool result)
         {
             var stage = _uow.GetQueryable<EMP_ContractStage>().First(x => x.Id == stageId);
-            var contract = stage.EMP_Contract;
             var empl = UserHelper.GetCurrentEmployee();
 
             var canUserApprove = stage.EMP_ContractStageExecutors.Any(x => x.Employee.Id == empl.Id);
             if (!canUserApprove) return;
+
+            var contract = stage.EMP_Contract;
 
             // TODO Replace IF with polymorphism
 
@@ -677,6 +685,33 @@ namespace Ncels.Teme.Infrastructure
             var orgName = contract.OBK_Declarant?.NameRu;
             var message = string.Format("Поступил новый договор от {0} \"{1}\"", organizationForm, orgName);
             new NotificationManager().SendNotification(message, ObjectType.EmpContract, contract.Id, executorId);
+        }
+
+        public bool CanApprove(Guid stageId)
+        {
+            var empl = UserHelper.GetCurrentEmployee();
+            var stage = _uow.GetQueryable<EMP_ContractStage>().First(x => x.Id == stageId);
+
+            bool isStageExecutor = stage.EMP_ContractStageExecutors.Any(x => x.ExecutorId == empl.Id);
+            if (!isStageExecutor) return false;
+
+            bool canCozBossApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Coz
+                                     && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.ApprovalRequired;
+            bool canLegalApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant
+                                   && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork;
+            bool canValidationGroupUserApprove = IsEmployeeInUnit(empl, "ValidationGroup") && !IsEmployeeBossInUnit(empl, "ValidationGroup")
+                && stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup
+                && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork;
+            var canValidationGroupBossApprove = IsEmployeeBossInUnit(empl, "ValidationGroup")
+                                                && stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup
+                                                && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.ApprovalRequired;
+            bool canDefBossApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Def
+                                     && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.New;
+            bool canCeoApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Ceo
+                                 && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.ApprovalRequired;
+
+            return canCozBossApprove || canLegalApprove || canValidationGroupUserApprove ||
+                   canValidationGroupBossApprove || canDefBossApprove || canCeoApprove;
         }
 
         #endregion

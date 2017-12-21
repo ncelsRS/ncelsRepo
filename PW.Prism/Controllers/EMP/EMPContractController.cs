@@ -32,6 +32,7 @@ namespace PW.Prism.Controllers.EMP
             
             var model = _service.GetContractDetailsViewModel(id.Value);
             model.StageId = stage.Value;
+            model.CanApprove = _service.CanApprove(model.StageId);
 
             return PartialView("ContractDetails", model);
         }
