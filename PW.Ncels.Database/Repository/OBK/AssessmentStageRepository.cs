@@ -48,7 +48,7 @@ namespace PW.Ncels.Database.Repository.OBK
         /// </summary>
         /// <param name="declaration"></param>
         /// <param name="stageCode"></param>
-        public bool ToNextStage(Guid declarationId, Guid? fromStageId, int[] nextStageIds, out string resultDescription)
+        public bool ToNextStage(OBK_AssessmentDeclaration declaration, Guid? fromStageId, int[] nextStageIds, out string resultDescription)
         {
             resultDescription = null;
             string[] activeStageCodes =
@@ -64,7 +64,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var currentStage = fromStageId != null
                 ? AppContext.OBK_AssessmentStage.FirstOrDefault(e => e.Id == fromStageId)
                 : AppContext.OBK_AssessmentStage.FirstOrDefault(
-                    e => e.DeclarationId == declarationId && activeStageCodes.Contains(e.OBK_Ref_StageStatus.Code));
+                    e => e.DeclarationId == declaration.Id && activeStageCodes.Contains(e.OBK_Ref_StageStatus.Code));
             var stageStatusNew = GetStageStatusByCode(OBK_Ref_StageStatus.New);
             //закрываем предыдущий этап
             if (currentStage != null) //&& CanCloseStage(currentStage, nextStageIds)
@@ -77,7 +77,7 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 //if (!CanSendToStep(declarationId, fromStageId, nextStageId, out resultDescription)) return false;
                 //если имеется уже выполняющийся этап то продолжаем его дальше
-                if (AppContext.OBK_AssessmentStage.Any(e => e.DeclarationId == declarationId
+                if (AppContext.OBK_AssessmentStage.Any(e => e.DeclarationId == declaration.Id
                                                            && e.StageId == nextStageId &&
                                                            e.OBK_Ref_StageStatus.Code != OBK_Ref_StageStatus.Completed &&
                                                            !e.IsHistory)) continue;
@@ -87,7 +87,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 var newStage = new OBK_AssessmentStage()
                 {
                     Id = Guid.NewGuid(),
-                    DeclarationId = declarationId,
+                    DeclarationId = declaration.Id,
                     StageId = nextStageId,
                     ParentStageId = currentStage != null ? (Guid?)currentStage.Id : null,
                     StageStatusId = stageStatusNew.Id,
@@ -99,7 +99,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 var newStageExecutor = new OBK_AssessmentStageExecutors
                 {
                     AssessmentStageId = newStage.Id,
-                    ExecutorId = GetExecutorByDicStageId(nextStageId).Id,
+                    ExecutorId = GetExecutorByDicStageId(nextStageId, declaration.TypeId).Id,
                     ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                 };
 
@@ -147,7 +147,7 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Ref_StageStatus.AsNoTracking().FirstOrDefault(e => e.Code == code);
         }
 
-        public Employee GetExecutorByDicStageId(int stageId)
+        public Employee GetExecutorByDicStageId(int stageId, int type = 0)
         {
             //цоз
             if (stageId == 1)
@@ -156,13 +156,13 @@ namespace PW.Ncels.Database.Repository.OBK
                 return AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId));
             }
             // уобк
-            if (stageId == 2)
+            if (stageId == 2 && type != 1)
             {
                 return AppContext.Employees.FirstOrDefault(
                     e => e.Id == new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784"));
             }
             // УВиРНФПиМС экспретиза документов
-            if (stageId == CodeConstManager.STAGE_OBK_PIMS_EXPERTISE_DOC)
+            if (stageId == 2 && type == 1)
             {
                 var organization = AppContext.Units.FirstOrDefault(e => e.Id == new Guid("102aae37-a9b0-4a1b-97c5-8478dbe6f94a"));
                 return AppContext.Employees.FirstOrDefault(e => e.Id == new Guid(organization.BossId));
