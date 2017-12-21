@@ -891,7 +891,6 @@ namespace PW.Ncels.Database.Helpers
         /// ЦОЗ кнопки вернуть и следеющий этап в одельное право
         /// </summary>
         public static bool CanSARejectAndReviewButton { get { return IsVisibility("CanSARejectAndReviewButton"); } }
-
         /// <summary>
         /// Показывать кнопку Экспертиза документов в меню ОБК
         /// </summary>
@@ -913,11 +912,11 @@ namespace PW.Ncels.Database.Helpers
         /// <summary>
         /// Возможность редактирования банковских реквизитов в организационной структуре
         /// </summary>
-        public static bool CanChangeBankUnits { get { return IsVisibility("CanChangeBankUnits"); }}
+        public static bool CanChangeBankUnits { get { return IsVisibility("CanChangeBankUnits"); } }
         /// <summary>
         /// Возможность редактирования подписывающих лиц в организационной структуре
         /// </summary>
-        public static bool CanChangeSignerUnits { get { return IsVisibility("CanChangeSignerUnits"); }}
+        public static bool CanChangeSignerUnits { get { return IsVisibility("CanChangeSignerUnits"); } }
         /// <summary>
         /// Возможность редактирования Юридического адреса в организационной структуре
         /// </summary>

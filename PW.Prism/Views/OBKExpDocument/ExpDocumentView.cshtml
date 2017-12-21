@@ -83,7 +83,7 @@ String.Empty, new { @class = "form-control motivation-control" })
                         <div class="col-sm-6">
                             <label class="control-label">Результат</label>
                             @Html.DropDownList("OBKRefReason" + Model.Id, (IEnumerable<SelectListItem>)ViewData["OBKRefReasonList"],
-         String.Empty, new { @class = "form-control motivation-control" })
+String.Empty, new { @class = "form-control motivation-control" })
                         </div>
                     </div>
                     <div class="row" style="margin-bottom: 10px">
@@ -95,7 +95,7 @@ String.Empty, new { @class = "form-control motivation-control" })
                         </div>
                     </div>
 
-                    @{  if (ViewData["ExecutorType"] != null && (int)ViewData["ExecutorType"] == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
+                    @{ if (ViewData["ExecutorType"] != null && (int)ViewData["ExecutorType"] == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
                         {
                             <div class="row">
                                 <div class="col-lg-6">
@@ -242,28 +242,33 @@ String.Empty, new { @class = "form-control motivation-control" })
 
     function saveExpDoc() {
 
-            $.ajax({
-                type: 'POST',
-                url: '@Url.Action("SaveExpDocument")',
-                data: { expResult: $("#ExpertiseResult").val(), modelId: '@Model.Id' },
-                cache: false,
-                success: function (result) {
-                    if (result.isSuccess) {
-                        if ('@Model.OBKApplicantParty' == 'True') {
-                            initSelectionPlace();
-                        }
-                    } else { alert("Error!"); }
-                },
-                error: function () {
-                    alert("Connection Failed. Please Try Again");
-                }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveExpDocument")',
+            data: { expResult: $("#ExpertiseResult").val(), modelId: '@Model.Id' },
+            cache: false,
+            success: function (result) {
+                if (result.isSuccess) {
+                    if (@Model.TypeId === 2) {
+                        alert('Сохранено');
+                        return;
+                    }
+                    if ('@Model.OBKApplicantParty' == 'True') {
+                        initSelectionPlace();
+                    }
+                } else { alert("Error!"); }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
         });
 
-            if('@Model.TypeId' == '2'){
-                if ($("#ExpertiseResult").val() == 'False') {
-                    $("#refuseDiv").css('display', 'inline');
-                }
+        if ('@Model.TypeId' == '2' || '@Model.TypeId' == '1') {
+            debugger;
+            if ($("#ExpertiseResult").val() == 'False') {
+                $("#refuseDiv").css('display', 'inline');
             }
+        }
 
 
     };

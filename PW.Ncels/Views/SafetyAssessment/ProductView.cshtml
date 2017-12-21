@@ -205,53 +205,54 @@
             }
             UpdateModel("product", productId, null, controlId, fieldValue, type, fieldDisplay, null);
         });
-    });
 
+    });
     function updateProductsTable() {
-            //debugger;
-            var contractId = $('#ContractId').val();
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("GetContract")',
-                data: { 'id': contractId },
-                dataType: 'json',
-                cache: false,
-                success: function (data) {
-                    var contractType = data.result.ContractType;
-                    if (contractType == 1)
-                        $('#seriesViewTable').hide();
-                    data.result.ObkRsProductses.forEach(function (p) {
-                        if (p.ExpertisePlace == 0)
-                            p.ExpertisePlace = 'Лаборатория экспертной организации';
-                        if (p.ExpertisePlace == 1)
-                            p.ExpertisePlace = 'Лаборатория производителя';
+        var contractId = $('#ContractId').val();
+        if (contractId == null || contractId.length === 0)
+            return;
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetContract")',
+            data: { 'id': contractId },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var contractType = data.result.ContractType;
+                if (contractType == 1)
+                    $('#seriesViewTable').hide();
+                data.result.ObkRsProductses.forEach(function (p) {
+                    if (p.ExpertisePlace == 0)
+                        p.ExpertisePlace = 'Лаборатория экспертной организации';
+                    if (p.ExpertisePlace == 1)
+                        p.ExpertisePlace = 'Лаборатория производителя';
+                });
+                if (data.isSuccess) {
+                    $("#tableProducts").DataTable({
+                        data: data.result.ObkRsProductses,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        bLengthChange: false,
+                        autoWidth: true,
+                        rowCallback: rowCallback,
+                        columns: [
+                            { data: "Id" },
+                            { data: "DrugFormFullName" },
+                            { data: "Dimension" },
+                            { data: "ProducerNameRu" },
+                            { data: "DrugFormBoxCount" },
+                            { data: "CountryNameRu" },
+                            { data: "ExpertisePlace", visible: contractType == 1 }
+                        ]
                     });
-                    if (data.isSuccess) {
-                        $("#tableProducts").DataTable({
-                            data: data.result.ObkRsProductses,
-                            destroy: true,
-                            searching: false,
-                            iDisplayLength: 5,
-                            LengthMenu: false,
-                            bLengthChange: false,
-                            autoWidth: true,
-                            rowCallback: rowCallback,
-                            columns: [
-                                { data: "Id" },
-                                { data: "DrugFormFullName" },
-                                { data: "Dimension" },
-                                { data: "ProducerNameRu" },
-                                { data: "DrugFormBoxCount" },
-                                { data: "CountryNameRu" },
-                                { data: "ExpertisePlace", visible: contractType == 1 }
-                            ]
-                        });
-                    }
-                },
-                error: function () {
-                    alert("Connection Failed. Please Try Again");
                 }
-            });
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
     }
 
     function rowCallback(row) {
