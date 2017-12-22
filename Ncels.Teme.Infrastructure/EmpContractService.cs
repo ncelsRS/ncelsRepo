@@ -373,14 +373,19 @@ namespace Ncels.Teme.Infrastructure
                     var defStage = contract.EMP_ContractStage.First(x =>
                         x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Def);
 
+                    var legalStage = GetContractLegalStageOrCreateNew(contract);
+
                     var codes = new[] {validationGroupStage.EMP_Ref_StageStatus.Code, defStage.EMP_Ref_StageStatus.Code};
                     if (!result || codes.Contains(CodeConstManager.EmpContractStageStatus.NotApproved))
                     {
-                        var legalStage = GetContractLegalStageOrCreateNew(contract);
                         SetStageRejected(legalStage);
                     }
                     else
                     {
+                        legalStage.StageStatusId = _uow.GetQueryable<EMP_Ref_StageStatus>()
+                            .Where(x => x.Code == CodeConstManager.EmpContractStageStatus.OnSigning).Select(x => x.Id)
+                            .FirstOrDefault();
+
                         var ceoStage = new EMP_ContractStage
                         {
                             Id = Guid.NewGuid(),
@@ -391,8 +396,7 @@ namespace Ncels.Teme.Infrastructure
                                 .FirstOrDefault(),
                             StageStatusId = _uow.GetQueryable<EMP_Ref_StageStatus>()
                                 .Where(x => x.Code == CodeConstManager.EmpContractStageStatus.ApprovalRequired)
-                                .Select(x => x.Id)
-                                .FirstOrDefault()
+                                .Select(x => x.Id).FirstOrDefault()
                         };
                         _uow.Insert(ceoStage);
 
