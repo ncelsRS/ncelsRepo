@@ -237,7 +237,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 AppContext.EMP_Contract.Add(contract);
                 AppContext.SaveChanges();
             } else {
-
+                model.ContractStatusId = AppContext.EMP_Ref_Status.Where(x =>
+                    x.Code == CodeConstManager.EmpContractStatus.Draft).Select(x => x.Id).FirstOrDefault();
                 model.ContractType = contractViewModel.ContractType;
                 model.HolderType = contractViewModel.HolderType;
                 model.MedicalDeviceName = contractViewModel.MedicalDeviceName;
@@ -839,28 +840,30 @@ namespace PW.Ncels.Database.Repository.EMP
         {
             var contract = AppContext.EMP_Contract.First(x => x.Id == contractId);
 
-            var cozStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.Coz && !x.IsDeleted).Select(x => x.Id).First();
-            var validationGroupStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.ValidationGroup && !x.IsDeleted).Select(x => x.Id).First();
-            var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.NotDistributed && !x.IsDeleted).Select(x => x.Id).First();
-            var inProcessingStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.InProcessing && !x.IsDeleted).Select(x => x.Id).First();
-
-            var cozBoss = Guid.Parse(AppContext.Units.Where(x => x.Code == "coz").Select(x => x.BossId).FirstOrDefault());
-            var validationGroupBoss = Guid.Parse(AppContext.Units.Where(x => x.Code == "ValidationGroup").Select(x => x.BossId).FirstOrDefault());
-
-            contract.ContractStatusId = inProcessingStatus;
-
-            Func<Guid, Guid, EMP_ContractStage> f = (stageId, bossId) =>
+            if (contract.EMP_Ref_Status.Code == CodeConstManager.EmpContractStatus.Draft)
             {
-                var contractStage = new EMP_ContractStage
-                {
-                    Id = Guid.NewGuid(),
-                    ContractId = contract.Id,
-                    StageId = stageId,
-                    StageStatusId = inQueueStageStatus,
-                    DateCreate = DateTime.Now
-                };
+                var cozStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.Coz && !x.IsDeleted).Select(x => x.Id).FirstOrDefault();
+                var validationGroupStage = AppContext.EMP_Ref_Stage.Where(x => x.Code == CodeConstManager.EmpContractStage.ValidationGroup && !x.IsDeleted).Select(x => x.Id).FirstOrDefault();
+                var inQueueStageStatus = AppContext.EMP_Ref_StageStatus.Where(x => x.Code == CodeConstManager.EmpContractStageStatus.NotDistributed && !x.IsDeleted).Select(x => x.Id).FirstOrDefault();
+                var inProcessingStatus = AppContext.EMP_Ref_Status.Where(x => x.Code == CodeConstManager.EmpContractStatus.InProcessing && !x.IsDeleted).Select(x => x.Id).FirstOrDefault();
 
-                contractStage.EMP_ContractStageExecutors = new List<EMP_ContractStageExecutors>
+                var cozBoss = Guid.Parse(AppContext.Units.Where(x => x.Code == "coz").Select(x => x.BossId).FirstOrDefault());
+                var validationGroupBoss = Guid.Parse(AppContext.Units.Where(x => x.Code == "ValidationGroup").Select(x => x.BossId).FirstOrDefault());
+
+                contract.ContractStatusId = inProcessingStatus;
+
+                Func<Guid, Guid, EMP_ContractStage> f = (stageId, bossId) =>
+                {
+                    var contractStage = new EMP_ContractStage
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = contract.Id,
+                        StageId = stageId,
+                        StageStatusId = inQueueStageStatus,
+                        DateCreate = DateTime.Now
+                    };
+
+                    contractStage.EMP_ContractStageExecutors = new List<EMP_ContractStageExecutors>
                 {
                     new EMP_ContractStageExecutors
                     {
@@ -871,11 +874,21 @@ namespace PW.Ncels.Database.Repository.EMP
                     }
                 };
 
-                return contractStage;
-            };
+                    return contractStage;
+                };
 
-            AppContext.EMP_ContractStage.Add(f(cozStage, cozBoss));
-            AppContext.EMP_ContractStage.Add(f(validationGroupStage, validationGroupBoss));
+                AppContext.EMP_ContractStage.Add(f(cozStage, cozBoss));
+                AppContext.EMP_ContractStage.Add(f(validationGroupStage, validationGroupBoss));
+            }
+            else if (contract.EMP_Ref_Status.Code == CodeConstManager.EmpContractStatus.OnAdjustment)
+            {
+                contract.ContractStatusId = AppContext.EMP_Ref_Status
+                    .Where(x => x.Code == CodeConstManager.EmpContractStatus.InWork).Select(x => x.Id).FirstOrDefault();
+                var stage = contract.EMP_ContractStage.First(x => x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant);
+                stage.StageStatusId = AppContext.EMP_Ref_StageStatus
+                    .Where(x => x.Code == CodeConstManager.EmpContractStageStatus.InWork).Select(x => x.Id)
+                    .FirstOrDefault();
+            }
             
             AppContext.SaveChanges();
         }

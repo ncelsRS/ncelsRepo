@@ -32,16 +32,10 @@ namespace Ncels.Teme.Infrastructure.ContractStage
                 handler.AddHistoryRejected(stage.ContractId);
             }
 
-            var validationGroupStage = stage.EMP_Contract.EMP_ContractStage.First(x =>
-                x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup);
-            var defStage = stage.EMP_Contract.EMP_ContractStage.First(x =>
-                x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Def);
-
             var legalStage =  stage.EMP_Contract.EMP_ContractStage.FirstOrDefault(x =>
                 x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant);
-
-            var codes = new[] { validationGroupStage.EMP_Ref_StageStatus.Code, defStage.EMP_Ref_StageStatus.Code };
-            if (!result || codes.Contains(CodeConstManager.EmpContractStageStatus.NotApproved))
+            
+            if (!result || IsRejectedInOtherStages(stage.EMP_Contract))
             {
                 if (legalStage != null)
                     handler.SetStageRejected(legalStage);
@@ -79,6 +73,21 @@ namespace Ncels.Teme.Infrastructure.ContractStage
             }
 
             _uow.Save();
+        }
+
+        private bool IsRejectedInOtherStages(EMP_Contract contract)
+        {
+            var skipOtherStages = contract.EMP_ContractHistory.Any(x =>
+                x.OBK_Ref_ContractHistoryStatus.Code == OBK_Ref_ContractHistoryStatus.Returned);
+            if (skipOtherStages) return false;
+
+            var validationGroupStage = contract.EMP_ContractStage.First(x =>
+                x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup);
+            var defStage = contract.EMP_ContractStage.First(x =>
+                x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Def);
+
+            var codes = new[] { validationGroupStage.EMP_Ref_StageStatus.Code, defStage.EMP_Ref_StageStatus.Code };
+            return codes.Contains(CodeConstManager.EmpContractStageStatus.NotApproved);
         }
     }
 }

@@ -74,5 +74,17 @@ namespace PW.Prism.Controllers.EMP
             _service.Approve(stage, false);
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
+
+        public ActionResult SendToAdjustment(Guid stage)
+        {
+            _service.SendToAdjustment(stage);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        public ActionResult ContractRegister(Guid id)
+        {
+            _service.RegisterContract(id);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
     }
 }

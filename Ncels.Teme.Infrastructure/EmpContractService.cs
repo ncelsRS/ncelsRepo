@@ -257,6 +257,9 @@ namespace Ncels.Teme.Infrastructure
             if (stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.NotDistributed)
                 stage.StageStatusId = stageStatus.Id;
 
+            contract.ContractStatusId = _uow.GetQueryable<EMP_Ref_Status>()
+                .Where(x => x.Code == CodeConstManager.EmpContractStatus.InWork).Select(x => x.Id).FirstOrDefault();
+
             var stageExecutor = new EMP_ContractStageExecutors
             {
                 Id = Guid.NewGuid(),
@@ -266,9 +269,6 @@ namespace Ncels.Teme.Infrastructure
 
             if (stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.Coz)
             {
-                contract.ContractStatusId = _uow.GetQueryable<EMP_Ref_Status>()
-                    .Where(x => x.Code == CodeConstManager.EmpContractStatus.InWork).Select(x => x.Id).FirstOrDefault();
-
                 var validationGroupStage = contract.EMP_ContractStage.FirstOrDefault(x =>
                     x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup);
                 var defStage = contract.EMP_ContractStage.FirstOrDefault(x =>
@@ -379,7 +379,8 @@ namespace Ncels.Teme.Infrastructure
                                      && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.ApprovalRequired
                                      && stage.EMP_Contract.EMP_ContractStage.Any(x => x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant);
             bool canLegalApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant
-                                   && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork;
+                                   && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork
+                                   && stage.EMP_Contract.EMP_ContractHistory.Any(x => x.OBK_Ref_ContractHistoryStatus.Code == OBK_Ref_ContractHistoryStatus.Returned);
             bool canValidationGroupUserApprove = IsEmployeeInUnit(empl, "ValidationGroup") && !IsEmployeeBossInUnit(empl, "ValidationGroup")
                 && stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup
                 && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork;
@@ -410,6 +411,24 @@ namespace Ncels.Teme.Infrastructure
             else if (IsEmployeeInUnit(empl, "01"))
                 stageCode = CodeConstManager.EmpContractStage.Ceo;
             return stageCode;
+        }
+
+        public void SendToAdjustment(Guid stageId)
+        {
+            var stage = _uow.GetQueryable<EMP_ContractStage>().First(x => x.Id == stageId);
+            stage.StageStatusId = _uow.GetQueryable<EMP_Ref_StageStatus>()
+                .Where(x => x.Code == CodeConstManager.EmpContractStageStatus.OnAdjustment).Select(x => x.Id)
+                .FirstOrDefault();
+            stage.EMP_Contract.ContractStatusId = _uow.GetQueryable<EMP_Ref_Status>()
+                .Where(x => x.Code == CodeConstManager.EmpContractStatus.OnAdjustment).Select(x => x.Id)
+                .FirstOrDefault();
+            new EmpContractStageHistoryHandler(_uow).AddHistoryReturnedToAdjustment(stage.ContractId);
+            _uow.Save();
+        }
+
+        public void RegisterContract(Guid contractId)
+        {
+            
         }
     }
 }

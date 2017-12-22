@@ -70,6 +70,42 @@ function initFilterEmpContract(uiId) {
             alert("Выберите договор!");
         }
     });
+
+    $("#toAdjustment" + uiId).click(function() {
+        var grid = $('#grid' + uiId).data("kendoGrid");
+        var selectedItem = grid.dataItem(grid.select());
+        if (selectedItem) {
+            $.ajax({
+                url: "/EMPContract/SendToAdjustment",
+                type: "POST",
+                data: { stage: selectedItem.ContractStageId },
+                success: function() {
+                    alert("Договор отправлен на доработку");
+                    grid.dataSource.read();
+                }
+            });
+        } else {
+            alert("Выберите договор!");
+        }
+    });
+
+    $("#register" + uiId).click(function () {
+        var grid = $('#grid' + uiId).data("kendoGrid");
+        var selectedItem = grid.dataItem(grid.select());
+        if (selectedItem) {
+            $.ajax({
+                url: "/EMPContract/ContractRegister",
+                type: "POST",
+                data: { id: selectedItem.Id },
+                success: function () {
+                    alert("Договор зарегистрирован");
+                    grid.dataSource.read();
+                }
+            });
+        } else {
+            alert("Выберите договор!");
+        }
+    });
 }
 
 function panelEmpContractSelect(e) {
@@ -84,10 +120,26 @@ function panelEmpContractSelect(e) {
             filter.push({ field: "StageStatusCode", operator: "eq", value: selectValue });
 
             var btnToWork = $("#toWork" + modelId);
-            if (selectValue === "1" || (selectValue === "4" && $("#stageCode" + modelId).val() === "1")) {
+            var stageCode = $("#stageCode" + modelId).val();
+            var btnToAdjustment = $("#toAdjustment" + modelId);
+            var btnRegister = $("#register" + modelId);
+
+            if (selectValue === "1" || (selectValue === "4" && stageCode === "1")) {
                 btnToWork.attr("hidden", false);
             } else {
                 btnToWork.attr("hidden", true);
+            }
+
+            if (selectValue === "6") {
+                btnToAdjustment.attr("hidden", false);
+            } else {
+                btnToAdjustment.attr("hidden", true);
+            }
+
+            if (selectValue === "9") {
+                btnRegister.attr("hidden", false);
+            } else {
+                btnRegister.attr("hidden", true);
             }
         }
         if (selectValue === '') {

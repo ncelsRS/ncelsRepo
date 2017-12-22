@@ -17,5 +17,7 @@ namespace Ncels.Teme.Contracts
         void Approve(Guid stageId, bool result);
         bool CanApprove(Guid stageId);
         string GetStageCode();
+        void SendToAdjustment(Guid stageId);
+        void RegisterContract(Guid contractId);
     }
 }

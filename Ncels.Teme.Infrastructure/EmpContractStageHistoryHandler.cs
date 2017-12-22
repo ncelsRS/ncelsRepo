@@ -30,6 +30,12 @@ namespace Ncels.Teme.Infrastructure
                 .FirstOrDefault();
         }
 
+        public void AddHistoryReturnedToAdjustment(Guid contractId)
+        {
+            var historyStatusCode = OBK_Ref_ContractHistoryStatus.Returned;
+            AddHistory(contractId, historyStatusCode);
+        }
+
         public void AddHistorySentToWork(Guid contractId)
         {
             var historyStatusCode = OBK_Ref_ContractHistoryStatus.SentToWork;
