@@ -1,0 +1,250 @@
+﻿@using PW.Ncels.Database.Constants
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Все</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Сертификаты ЗБК</a>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" >
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Заключение о безопасности и качества продукции
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <div class="btn-group" role="group">
+                            Поиск заключений о безопасности и качества
+                        </div>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div style="margin:50px;">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            № заявки
+                                        </div>
+                                        <div class="col-lg-8">
+                                            @Html.DropDownList("Number", (IEnumerable<SelectListItem>)(ViewData["AssessmentDeclarationNumbers"]),
+                                                         String.Empty,
+                                                             new
+                                                           {
+                                                                 @class = "form-control edit-control act-table-cont act-control"
+                                                           })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            № Заключения
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <input id="decisionNumber" class="form-control edit-control main-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            Тип заявки
+                                        </div>
+                                        <div class="col-lg-8">
+                                            @Html.DropDownList("Type", (IEnumerable<SelectListItem>)(ViewData["OBK_Ref_Type"]),
+                                                         String.Empty,
+                                                             new
+                                                             {
+                                                                 @class = "form-control edit-control act-table-cont act-control"
+                                                             })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            Дата выдачи
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <input id="zbkStartDate" class="form-control edit-control main-control date-control" placeholder="Введите значение">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-8 col-lg-offset-4">
+                                    <button id="searchZBKCopy" class="btn btn-blue btn-sm">Поиск</button>
+                                    <button id="clearZBKCopy" class="btn btn-blue btn-sm">Очистить критерии</button>
+                                </div>
+                            </div>
+                        </div>
+                   
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <table id="ZBKCertificates" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        setDateFormat(".date-control");
+        initFillTable();
+    });
+
+    function setDateFormat(control) {
+        $(control).datepicker({
+            dateFormat: 'dd.mm.yy',
+            language: 'ru',
+            autoclose: true
+        });
+    }
+
+    function str(value) {
+        if (value == null){
+            return "";
+        }
+        var date = new Date(parseInt(value.replace("/Date(", "").replace(")/", ""), 10));
+        return date.getDate() + "." + date.getMonth() + "." + date.getFullYear();
+    }
+
+    $("#clearZBKCopy").click(function () {
+        $("#Number").val("");
+        $("#Type").val("");
+        $("#decisionNumber").val("");
+        $("#zbkStartDate").val("");
+
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/ZBKCopies/',
+            data: {
+                declarationNumber: '', declarationType: '',
+                decisionNumber: '', decisionDate: ''
+            },
+            success: function (data) {
+                if (data.success == true) {
+                    $('#ZBKCertificates').dataTable().fnClearTable();
+                    if (data.result.length != 0) {
+                        $('#ZBKCertificates').dataTable().fnAddData(data.result);
+                    }
+                }
+            }
+        });
+    });
+
+    $("#searchZBKCopy").click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/ZBKCopies/',
+            data: {
+                declarationNumber: $("#Number").val(), declarationType: $("#Type").val(),
+                decisionNumber: $("#decisionNumber").val(), decisionDate: $("#zbkStartDate").val()
+            },
+            success: function (data) {
+                if (data.success == true) {
+                    $('#ZBKCertificates').dataTable().fnClearTable();
+                    if (data.result.length != 0){
+                        $('#ZBKCertificates').dataTable().fnAddData(data.result);
+                    }
+                }
+            }
+        });
+    });
+
+    function initFillTable() {
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/ZBKCopies/',
+            data: {
+                declarationNumber: '', declarationType: '',
+                decisionNumber: '', decisionDate: ''
+            },
+            success: function (data) {
+                if (data.success == true) {           
+                    initSamplesTable(data.result);
+                }                
+            }
+        });
+    }
+
+    function initSamplesTable(data) {
+        $("#ZBKCertificates").DataTable({
+            autoWidth: false,
+            searching: false,
+            paging: false,
+            bInfo: false,
+            data: data,
+            order: [1, 'asc'],
+            "columns": [
+                { data: 'expConclusionNumber', sWidth: "50px", title: "№ заключения" },
+                {
+                    data: 'expStartDate', sWidth: "20px", title: "Дата выдачи",
+                    render: function (data, type, row, meta) {
+                        return str(row.expStartDate);
+                    }
+                },
+                { data: 'status', sWidth: "20px", title: "Статус" },
+                { data: 'expBlankNumber', sWidth: "50px", title: "№ бланка" },
+                {
+                    data: 'stageExpDocId', sWidth: "50px", title: "",
+
+                    render: function (data, type, row, meta) {
+                        var res = '<div class="btn-group" style="float: right;margin-right: 40px">' +
+                            '<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Операции <span class="caret"></span></button>' +
+                            '<ul class="dropdown-menu btnmenu"> ' +
+                            copyBtn(row.stageExpDocId) +
+                            '</ul></div>'
+                        return res;
+                    }
+                },
+            ]
+        });
+
+    }              
+    function copyBtn(stageExpDocId, zbkCopyId) {
+        var copyId = zbkCopyId == undefined ? "" : zbkCopyId;
+
+        return "<li class=\"btn-info\"><a href=\"/ZBKCopy/Create?stageExpDocId=" + stageExpDocId + "&zbkCopyId=" + copyId+" \" >" +
+            '<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Получить копию</a></li>' 
+    }
+
+</script>
+
+
