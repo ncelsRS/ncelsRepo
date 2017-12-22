@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:tns3="urn:common.service.edo" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:intf="urn:main.service.edo" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:tns5="urn:project.service.edo" xmlns:tns4="urn:utilit.service.esedo" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns2="urn:in.service.edo" xmlns:impl="urn:main.service.edo" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:main.service.edo" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:common.service.edo">
+      <xsd:complexType name="Attachment">
+        <xsd:sequence>
+          <xsd:element name="name" nillable="true" type="xsd:string" />
+          <xsd:element name="content" nillable="true" type="xsd:string" />
+          <xsd:element name="sign" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:in.service.edo">
+      <xsd:complexType name="InParameters">
+        <xsd:sequence>
+          <xsd:element name="id_letter_obk" nillable="true" type="xsd:string" />
+          <xsd:element name="id_edo" nillable="true" type="xsd:string" />
+          <xsd:element name="date_letter" nillable="true" type="xsd:string" />
+          <xsd:element name="user_obk" nillable="true" type="xsd:string" />
+          <xsd:element name="id_letter_user" nillable="true" type="xsd:string" />
+          <xsd:element name="date_letter_user" nillable="true" type="xsd:string" />
+          <xsd:element name="id_contact" nillable="true" type="xsd:string" />
+          <xsd:element name="letter_text" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="attachments" nillable="true" type="tns3:Attachment" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:main.service.edo">
+      <xsd:element name="parameters" type="tns2:InParameters" />
+      <xsd:element name="sendINDocumentReturn" type="xsd:boolean" />
+      <xsd:element name="parameters1" type="tns5:ProjectParameters" />
+      <xsd:element name="sendProjectDocumentReturn" type="xsd:boolean" />
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:utilit.service.esedo">
+      <xsd:complexType name="EsedoException">
+        <xsd:sequence />
+      </xsd:complexType>
+      <xsd:element name="EsedoException" type="tns4:EsedoException" />
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:project.service.edo">
+      <xsd:complexType name="ProjectParameters">
+        <xsd:sequence>
+          <xsd:element name="id_letter_obk" nillable="true" type="xsd:string" />
+          <xsd:element name="author" nillable="true" type="xsd:string" />
+          <xsd:element name="date_letter" nillable="true" type="xsd:string" />
+          <xsd:element name="letter_Subject" nillable="true" type="xsd:string" />
+          <xsd:element name="letter_text" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="attachments" nillable="true" type="tns3:Attachment" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="sendProjectDocumentRequest">
+    <wsdl:part name="parameters" element="impl:parameters1" />
+  </wsdl:message>
+  <wsdl:message name="sendProjectDocumentResponse">
+    <wsdl:part name="sendProjectDocumentReturn" element="impl:sendProjectDocumentReturn" />
+  </wsdl:message>
+  <wsdl:message name="EsedoException">
+    <wsdl:part name="EsedoException" element="tns4:EsedoException" />
+  </wsdl:message>
+  <wsdl:message name="sendINDocumentRequest">
+    <wsdl:part name="parameters" element="impl:parameters" />
+  </wsdl:message>
+  <wsdl:message name="sendINDocumentResponse">
+    <wsdl:part name="sendINDocumentReturn" element="impl:sendINDocumentReturn" />
+  </wsdl:message>
+  <wsdl:portType name="Action">
+    <wsdl:operation name="sendINDocument">
+      <wsdl:input name="sendINDocumentRequest" message="impl:sendINDocumentRequest" />
+      <wsdl:output name="sendINDocumentResponse" message="impl:sendINDocumentResponse" />
+      <wsdl:fault name="EsedoException" message="impl:EsedoException" />
+    </wsdl:operation>
+    <wsdl:operation name="sendProjectDocument">
+      <wsdl:input name="sendProjectDocumentRequest" message="impl:sendProjectDocumentRequest" />
+      <wsdl:output name="sendProjectDocumentResponse" message="impl:sendProjectDocumentResponse" />
+      <wsdl:fault name="EsedoException" message="impl:EsedoException" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DominoSoapBinding" type="impl:Action">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="sendINDocument">
+      <wsdlsoap:operation soapAction="sendINDocument" />
+      <wsdl:input name="sendINDocumentRequest">
+        <wsdlsoap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="sendINDocumentResponse">
+        <wsdlsoap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="EsedoException">
+        <wsdlsoap:fault use="literal" name="EsedoException" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendProjectDocument">
+      <wsdlsoap:operation soapAction="sendProjectDocument" />
+      <wsdl:input name="sendProjectDocumentRequest">
+        <wsdlsoap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="sendProjectDocumentResponse">
+        <wsdlsoap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="EsedoException">
+        <wsdlsoap:fault use="literal" name="EsedoException" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ActionService">
+    <wsdl:port name="Domino" binding="impl:DominoSoapBinding">
+      <wsdlsoap:address location="http://192.168.1.2:80/ncels/integratorExpertiza.nsf/EdoServicePortal?OpenWebService" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

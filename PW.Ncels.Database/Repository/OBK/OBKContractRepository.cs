@@ -541,56 +541,6 @@ namespace PW.Ncels.Database.Repository.OBK
                 return contractProducts;
             }
             return null;
-            //return AppContext.OBK_RS_Products.Where(x => x.ContractId == contractId).Select(x => new OBKContractProductViewModel
-            //{
-            //    ProductId = null,
-            //    Id = x.Id,
-            //    RegTypeId = x.RegTypeId,
-            //    DegreeRiskId = x.DegreeRiskId,
-            //    NameRu = x.NameRu,
-            //    NameKz = x.NameKz,
-            //    ProducerNameRu = x.ProducerNameRu,
-            //    ProducerNameKz = x.ProducerNameKz,
-            //    CountryNameRu = x.CountryNameRu,
-            //    CountryNameKz = x.CountryNameKZ,
-            //    Price = x.Price,
-            //    DrugFormBoxCount = x.DrugFormBoxCount,
-            //    DrugFormFullName = x.DrugFormFullName,
-            //    DrugFormFullNameKz = x.DrugFormFullNameKz,
-            //    RegisterId = x.RegisterId,
-            //    RegNumber = x.RegNumber,
-            //    RegNumberKz = x.RegNumberKz,
-            //    RegDate = x.RegDate,
-            //    ExpirationDate = x.ExpirationDate,
-            //    NdName = x.NdName,
-            //    NdNumber = x.NdNumber,
-            //    ServiceName = AppContext.OBK_ContractPrice.FirstOrDefault(y => y.ProductId == x.Id).PriceRefId,
-            //    Series = AppContext.OBK_Procunts_Series.Where(y => y.OBK_RS_ProductsId == x.Id).Select(y => new OBKContractSeriesViewModel
-            //    {
-            //        Id = y.Id,
-            //        Series = y.Series,
-            //        CreateDate = y.SeriesStartdate,
-            //        ExpireDate = y.SeriesEndDate,
-            //        Part = y.SeriesParty,
-            //        UnitId = y.SeriesMeasureId,
-            //        UnitName = y.sr_measures.short_name
-            //    }).ToList()
-            //    ,
-            //    MtParts = AppContext.OBK_MtPart.Where(y => y.ProductId == x.Id).Select(y => new OBKContractMtPartViewModel
-            //    {
-            //        Id = y.Id,
-            //        PartNumber = y.PartNumber,
-            //        Model = y.Model,
-            //        Specification = y.Specification,
-            //        SpecificationKz = y.SpecificationKz,
-            //        Name = y.Name,
-            //        NameKz = y.NameKz,
-            //        ProducerName = y.ProducerName,
-            //        CountryName = y.CountryName,
-            //        ProducerNameKz = y.ProducerNameKz,
-            //        CountryNameKz = y.CountryNameKz
-            //    }).ToList()
-            //}).ToList();
         }
 
         public OBKContractServiceViewModel SaveContractPrice(Guid contractId, OBKContractServiceViewModel service)

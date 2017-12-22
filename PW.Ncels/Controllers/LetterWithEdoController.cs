@@ -9,6 +9,7 @@ using PW.Ncels.Database.Helpers;
 using System.IO;
 using PagedList;
 using PW.Ncels.Database.Repository.OBK;
+using PW.Ncels.ServiceWithEdo;
 
 namespace PW.Ncels.Controllers
 {
@@ -19,28 +20,6 @@ namespace PW.Ncels.Controllers
         ncelsEntities db = new ncelsEntities();
         public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-
-            //ActionClient client = new ActionClient();
-            //InParameters parameters = new InParameters();
-            //parameters.date_letter = DateTime.Now.ToString();
-            //parameters.id_contact = "121212";
-            //parameters.id_edo = "";
-            //parameters.id_letter_obk = "1";
-            //parameters.id_letter_user = "sdsd";
-            //parameters.letter_text = "Askaru";
-            //parameters.user_obk = "Grebnikova";
-            //List<Attachment> lists = new List<Attachment>();
-            //Attachment attach = new Attachment();
-            //sbyte[] signed = Array.ConvertAll(new Byte[154], b => unchecked((sbyte)b));
-            //attach.content = signed;
-            //attach.name = "Abzal.docx";
-            //attach.sign = "xml";
-            //lists.Add(attach);
-            //parameters.attachments = lists.ToArray();
-            // var datasend=client.sendINDocument(parameters);
-
-
-
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "DataPisma_desc" : "";
@@ -191,9 +170,37 @@ namespace PW.Ncels.Controllers
                     if (counter == 0)
                     {
                         OBK_LetterPortalEdo partal = db.OBK_LetterPortalEdo.Where(x => x.ID == attach.LetterId).FirstOrDefault();
+                        OBK_LetterRegistration regPartal = db.OBK_LetterRegistration.Where(x => x.ID == partal.OBKLetterRegID).FirstOrDefault();
                         partal.LetterStatusId = 2;
                         db.SaveChanges();
                         //CallWebServiceWithEDO
+                        var employee = db.Employees.FirstOrDefault(x => x.Login == User.Identity.Name);
+                        ActionClient client = new ActionClient();
+                        InParameters parameters = new InParameters();
+                        parameters.date_letter = partal.CreatedDate.ToString("dd.MM.yyyy");
+                        parameters.id_contact = partal.ID.ToString();
+                        parameters.id_edo = "";
+                        parameters.id_letter_obk = regPartal.ID.ToString();
+                        parameters.id_letter_user = regPartal.LetterRegDate.Value.ToString("dd.MM.yyyy");
+                        parameters.letter_text = partal.LetterContent;
+                        parameters.user_obk = employee.LastName;
+
+
+                        OBK_LetterAttachments attachFile = db.OBK_LetterAttachments.Where(x => x.LetterId == partal.ID).FirstOrDefault();
+                        List<Attachment> lists = new List<Attachment>();
+                        Attachment attachs = new Attachment();
+                        sbyte[] signed = Array.ConvertAll(attachFile.ContentFile, b => unchecked((sbyte)b));
+                        attachs.content = Convert.ToBase64String(attachFile.ContentFile);
+                        attachs.name = attachFile.AttachmentName;
+                        attachs.sign = attachFile.SignXmlBigData;
+                        lists.Add(attachs);
+                        parameters.attachments = lists.ToArray();
+                        var datasend = client.sendINDocument(parameters);
+
+                        if (datasend)
+                        {
+
+                        }
                     }
                 }
                 catch (Exception e)

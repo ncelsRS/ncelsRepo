@@ -32,16 +32,95 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var model = stage.OBK_AssessmentDeclaration;
 
             var expDocResult = expRepo.GetStageExpDocResult(model.Id);
-            if (expDocResult != null) {
+            if (expDocResult != null)
+            {
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name", expDocResult.ExpResult);
             }
-            else {
+            else
+            {
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name");
             }
 
+            ViewData["OBKRefReasonList"] = new SelectList(expRepo.OBKRefReasonList(), "Id", "NameRu");
+
+            ViewData["ExecutorType"] =  expRepo.ExecutorType(model.Id);
+            ViewData["SignExpDocument"] = expRepo.checkSignData(stage.Id);
+
+
             return PartialView(model);
+        }
+
+        public ActionResult GetMotivationRefuse(Guid declarationId)
+        {
+            var refuse = expRepo.GetMotivationRefuse(declarationId);
+            if (refuse != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    MotivationRefuse = new
+                    {
+                        motivationRefuseRu = refuse.ExpReasonNameRu,
+                        motivationRefuseKz = refuse.ExpReasonNameKz,
+                        reasonId = refuse.RefReasonId
+                    }
+                });
+            }else
+            {
+                return Json(new { success = false });
+            }
+            
+        }
+
+        public ActionResult SaveMotivationRefuse(int? OBKRefReason, string motivationRefuseRu, string motivationRefuseKz,
+            Guid declarationId, Guid? OBK_StageExpDocumentId)
+        {
+            var stageExpDocumentId = expRepo.SaveMotivationRefuse(OBKRefReason, motivationRefuseRu, motivationRefuseKz,
+                declarationId, OBK_StageExpDocumentId);
+            return Json(new { success = true, OBK_StageExpDocumentId = stageExpDocumentId });
+        }
+
+        public ActionResult ViewMotivationRefuse(Guid declarationId)
+        {
+            return PartialView("MotivationRefuseTemplate", declarationId);
+        }
+
+        public ActionResult PrintMotivationRefuse(Guid declarationId, bool view)
+        {
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/OBKMotivationRefuse.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+                report.Dictionary.Variables["assessmentDeclarationId"].ValueObject = declarationId;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+
+            string name = "Мотивационный отказ" + DateTime.Now.ToString() + ".pdf";
+
+            if (view)
+            {
+                return new FileStreamResult(stream, "application/pdf");
+
+            }
+            else
+            {
+                return File(stream, "application/pdf", name);
+            }
+
         }
 
         [HttpPost]
@@ -229,6 +308,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(new { message });
         }
 
+        public ActionResult SaveSignedExpDocumentParty(Guid id, string signedData)
+        {
+            var message = expRepo.SaveSignExpDocParty(id, signedData);
+            return Json(new { message });
+        }
+
         public ActionResult ReturnToExecutor(Guid id)
         {
             var result = expRepo.GetReturnToExecutor(id, CodeConstManager.STAGE_OBK_EXPERTISE_DOC);
@@ -331,7 +416,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var declarant = expRepo.GetAssessmentDeclaration(id);
             if (declarant == null)
                 return Json(new { isSuccess = false });
-            
+
             //есть ли результат
             var obkStageExpDocumentResult = new SafetyAssessmentRepository().GetStageExpDocumentResult(declarant.Id);
             if (obkStageExpDocumentResult != null)
@@ -396,7 +481,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                             results.Add(series);
                         }
                     }
-                    return Json(new {isSuccess = true, results});
+                    return Json(new { isSuccess = true, results });
                 }
                 else
                 {
@@ -428,7 +513,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         series.ExpApplication = obkStageExpDocumentSeries.ExpApplication;
                         series.ExpApplicationNumber = obkStageExpDocumentSeries.ExpApplicationNumber;
 
-                        return Json(new {isSuccess = true, series});
+                        return Json(new { isSuccess = true, series });
                     }
                     else
                     {

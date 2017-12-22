@@ -219,7 +219,8 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IQueryable<OBK_Ref_Reason> GetRefReasons()
         {
-            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted);
+            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted 
+            && "Declaration".Equals(e.Code) && e.ExpertiseResult == false);
         }
 
         /// <summary>
@@ -815,7 +816,7 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
                     };
                     stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.InWork).Id;
-                    AppContext.OBK_AssessmentStageExecutors.AddOrUpdate(stageExecutor);
+                    AppContext.OBK_AssessmentStageExecutors.Add(stageExecutor);
                     AppContext.SaveChanges();
                 }
             }
@@ -899,7 +900,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 string resultDescription;
                 var stageRepository = new AssessmentStageRepository();
                 if (!stageRepository.HasStage(entity.Id, CodeConstManager.STAGE_OBK_COZ))
-                    stageRepository.ToNextStage(entity.Id, null, new[] { CodeConstManager.STAGE_OBK_COZ }, out resultDescription);
+                    stageRepository.ToNextStage(entity, null, new[] { CodeConstManager.STAGE_OBK_COZ }, out resultDescription);
             }
             return entity;
         }

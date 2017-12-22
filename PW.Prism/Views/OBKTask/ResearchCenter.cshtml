@@ -1,0 +1,106 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+    
+
+<div class="pull-right">
+    <div style="display: inline-block" id="columnMenu@( Model)" class="custom-grid-menu"></div>
+    <div style="display: inline-block">
+        @( Html.Kendo().Button().Name("reload" + Model)
+               .Content("")
+               .ImageUrl("/Content/images/reload.png"))
+    </div>
+</div>
+
+@(Html.Kendo().Splitter()
+      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+      .Name(("splitter" + Model))
+      .Panes(panes =>
+      {
+          panes.Add()
+              .Size("250px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("250px")
+              .Content(
+                  @<div class="pwPanelBar">
+                      @( Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                             .Name("panelbar" + Model)
+                             .ExpandMode(PanelBarExpandMode.Multiple)
+                             .ExpandAll(true)
+                             .HtmlAttributes(new { style = "width:auto;" })
+                             .Events(e => e.Select("panelResearchCenter"))
+                             .Items(panelbar =>
+                             {
+                                 panelbar.Add().Expanded(true);
+                                 panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                     .Items(projects =>
+                                     {
+                                         projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", OBK_Ref_StageStatus.New}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.ToString()}, {"id", "new" + Model.ToString()}
+                                         }).Selected(true);
+                                         projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", OBK_Ref_StageStatus.InWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.ToString()}, {"id", "inWork" + Model.ToString()}
+                                         });
+                                         projects.Add().Text("На доработке").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", OBK_Ref_StageStatus.InReWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.ToString()}, {"id", "inReWork" + Model.ToString()}
+                                         });
+                                         projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
+                                         {
+                                             {"ItemId", OBK_Ref_StageStatus.Completed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.ToString()}, {"id", "completed" + Model.ToString()}
+                                         });
+
+                                     });
+                             })
+                            )
+                  </div>
+              );
+
+          panes.Add().Scrollable(false).Size("100%").Content(
+              @<div class="pwPanelBar">
+                  @( Html.Kendo().Grid<OBKTaskListRegisterView>()
+                         .Name("gridResearchCenter" + Model)
+                         .Columns(columns =>
+                         {
+                             columns.Bound(p => p.TaskNumber).Width(125).ClientTemplate(
+                                 "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getTaskDetails('#=Id#', '#=TaskNumber#')\"><span style=\"color:rgb(66,139,202);\">#=TaskNumber#</span></button>" + "</div>"
+                                 ).Title("№ заявления");
+                             columns.Bound(p => p.RegisterDate).Format("{0:dd.MM.yyyy}").Title("Дата регистрации").Width(120);
+                             columns.Bound(p => p.TaskEndDate).Format("{0:dd.MM.yyyy}").Title("Контрольная дата").Width(120);
+                             columns.Bound(p => p.ShortName).Title("ФИО принявшего образцы (ЦОЗ)").Width(150);
+                             //columns.Bound(p => p.NameRu).Title("Организация").Width(200).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             //columns.Bound(p => p.NameRu).Title("Упаковщик").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"});
+                             //columns.Bound(p => p.NameRu).Title("Выпускающий контроль").Width(200).Hidden(true).HtmlAttributes(new {@class = "need-cell-tooltip"})
+                             //    .HtmlAttributes(new {@class = "need-cell-tooltip"});
+                         })
+                         .AutoBind(false)
+                         .Reorderable(reorderable => reorderable.Columns(true))
+                         .Resizable(resizable => resizable.Columns(true))
+                         //.ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                         .Groupable()
+                         .Sortable()
+                         .Filterable()
+                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .Scrollable(scrollable => scrollable.Virtual(true))
+                         .Pageable()
+                         .HtmlAttributes(new { @class = "pwGrid" })
+                         .DataSource(dataSource => dataSource
+                             .Ajax()
+                             .Sort(sort => { sort.Add("FirstSendDate").Descending(); })
+                             .PageSize(50)
+                             .Read(read => read.Action("ResearchCenterList", "OBKTask"))
+                         ))
+
+              </div>
+              );
+      }))
+
+<script>
+    $(document).ready(function () {
+        resizeGrid('@("#gridResearchCenter" + Model)');
+        InitFilterOBKResearchCenter('@Model.ToString()');
+    });
+</script>

@@ -425,6 +425,21 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const int STAGE_OBK_DEF = 4;
 
+        /// <summary>        
+        /// УВиРНФПиМС
+        /// </summary>
+        public const int STAGE_OBK_PIMS = 6;
+
+        /// <summary>
+        /// ИЦл/ИЛ
+        /// </summary>
+        public const int STAGE_OBK_ICL = 7;
+        
+        /// <summary>
+        /// Испытательный центр
+        /// </summary>
+        public const int STAGE_OBK_RESEARCH_CENTER = 6;
+
         #endregion
 
         #region Результаты этапов
@@ -672,13 +687,6 @@ namespace PW.Ncels.Database.Constants
             /// Новые
             /// </summary>
             public const string New = "10";
-        }
-
-        public class EmpContractType
-        {
-            public const string Registration = "1";
-            public const string ReRegistration = "2";
-            public const string ChangesInsertion = "3";
         }
     }
 }

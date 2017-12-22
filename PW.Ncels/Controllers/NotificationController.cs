@@ -91,45 +91,54 @@ namespace PW.Ncels.Controllers
                             {
                                 switch (project.Type)
                                 {
-                                    case (int) PriceProjectType.PriceLs:
-                                    {
-                                        return RedirectToAction("PriceLsDetails", "Project", new {id = project.Id});
-                                    }
-                                    case (int) PriceProjectType.PriceImn:
-                                    {
-                                        return RedirectToAction("PriceImnDetails", "Project", new {id = project.Id});
-                                    }
-                                    case (int) PriceProjectType.RePriceLs:
-                                    {
-                                        return RedirectToAction("RePriceLsDetails", "Project", new {id = project.Id});
-                                    }
-                                    case (int) PriceProjectType.RePriceImn:
-                                    {
-                                        return RedirectToAction("RePriceImnDetails", "Project", new {id = project.Id});
-                                    }
+                                    case (int)PriceProjectType.PriceLs:
+                                        {
+                                            return RedirectToAction("PriceLsDetails", "Project", new { id = project.Id });
+                                        }
+                                    case (int)PriceProjectType.PriceImn:
+                                        {
+                                            return RedirectToAction("PriceImnDetails", "Project", new { id = project.Id });
+                                        }
+                                    case (int)PriceProjectType.RePriceLs:
+                                        {
+                                            return RedirectToAction("RePriceLsDetails", "Project", new { id = project.Id });
+                                        }
+                                    case (int)PriceProjectType.RePriceImn:
+                                        {
+                                            return RedirectToAction("RePriceImnDetails", "Project", new { id = project.Id });
+                                        }
                                 }
                             }
                             break;
                         }
                     case "ObkDeclaration":
-                    {
-                        var safetyAssessment =
-                            db.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == new Guid(model.ObjectId));
-                        if (safetyAssessment != null)
                         {
-                            return RedirectToAction("Edit", "SafetyAssessment", new { id = safetyAssessment.Id });
+                            var safetyAssessment =
+                                db.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == new Guid(model.ObjectId));
+                            if (safetyAssessment != null)
+                            {
+                                return RedirectToAction("Edit", "SafetyAssessment", new { id = safetyAssessment.Id });
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case "ObkContract":
-                    {
-                        var obkContract = db.OBK_Contract.FirstOrDefault(e => e.Id == new Guid(model.ObjectId));
-                        if (obkContract != null)
                         {
-                            return RedirectToAction("Contract", "OBKContract", new { obkContract.Id });
+                            var obkContract = db.OBK_Contract.FirstOrDefault(e => e.Id == new Guid(model.ObjectId));
+                            if (obkContract != null)
+                            {
+                                return RedirectToAction("Contract", "OBKContract", new { obkContract.Id });
+                            }
+                            break;
                         }
-                        break;
-                    }
+                    case "OBK_ZBKCopy":
+                        {
+                            var zbkCopy = db.OBK_ZBKCopy.FirstOrDefault(e => e.Id == new Guid(model.ObjectId));
+                            if (zbkCopy != null)
+                            {
+                                return RedirectToAction("Edit", "ZBKCopy", new { ZBKCopyId = zbkCopy.Id });
+                            }
+                            break;
+                        }
 
                 }
 

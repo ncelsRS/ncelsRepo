@@ -168,6 +168,8 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБК'", "Распределение заявлений", "Работа с заявлениями ОБК");
             AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБК");
             AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
+            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБК");
+            AddPermission("CanViewMenuItemOBKResearchCenterList", "@Модуль 'ОБК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБК");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
@@ -904,11 +906,20 @@ namespace PW.Ncels.Database.Helpers
         /// ЦОЗ кнопки вернуть и следеющий этап в одельное право
         /// </summary>
         public static bool CanSARejectAndReviewButton { get { return IsVisibility("CanSARejectAndReviewButton"); } }
-
         /// <summary>
         /// Показывать кнопку Экспертиза документов в меню ОБК
         /// </summary>
         public static bool CanSafetyExpertiseDocumentList { get { return IsVisibility("CanSafetyExpertiseDocumentList"); } }
+
+        /// <summary>
+        /// Отображать пункт меню ОБК Задания на испрания
+        /// </summary>
+        public static bool CanViewMenuItemOBKTaskList { get { return IsVisibility("CanViewMenuItemOBKTaskList"); } }
+
+        /// <summary>
+        /// Отображать пункт меню ОБК Испытательный центр
+        /// </summary>
+        public static bool CanViewMenuItemOBKResearchCenterList { get { return IsVisibility("CanViewMenuItemOBKResearchCenterList"); } }
 
         #endregion
 
@@ -916,11 +927,11 @@ namespace PW.Ncels.Database.Helpers
         /// <summary>
         /// Возможность редактирования банковских реквизитов в организационной структуре
         /// </summary>
-        public static bool CanChangeBankUnits { get { return IsVisibility("CanChangeBankUnits"); }}
+        public static bool CanChangeBankUnits { get { return IsVisibility("CanChangeBankUnits"); } }
         /// <summary>
         /// Возможность редактирования подписывающих лиц в организационной структуре
         /// </summary>
-        public static bool CanChangeSignerUnits { get { return IsVisibility("CanChangeSignerUnits"); }}
+        public static bool CanChangeSignerUnits { get { return IsVisibility("CanChangeSignerUnits"); } }
         /// <summary>
         /// Возможность редактирования Юридического адреса в организационной структуре
         /// </summary>

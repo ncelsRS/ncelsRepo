@@ -382,6 +382,14 @@ namespace PW.Prism.Controllers.OBK
             return Json(new { isSuccess = true, result });
         }
 
+        [HttpPost]
+        public ActionResult GetContractFactory(Guid contractId)
+        {
+            var repo = new OBKContractRepository();
+            var result = repo.GetContractFactories(contractId);
+            return Json(result);
+        }
+
         /// <summary>
         /// вренуть в работу заявителю
         /// </summary>
@@ -492,8 +500,9 @@ namespace PW.Prism.Controllers.OBK
             new SafetyAssessmentRepository().SaveHisotry(history, UserHelper.GetCurrentEmployee().Id);
             var stageRepository = new AssessmentStageRepository();
             string resultDescription;
+
             if (!stageRepository.HasStage(model.Id, CodeConstManager.STAGE_OBK_EXPERTISE_DOC))
-                stageRepository.ToNextStage(model.Id, null, new[] { CodeConstManager.STAGE_OBK_EXPERTISE_DOC }, out resultDescription);
+                stageRepository.ToNextStage(model, null, new int[] { CodeConstManager.STAGE_OBK_EXPERTISE_DOC }, out resultDescription);
 
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }

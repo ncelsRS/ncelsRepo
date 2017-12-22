@@ -908,11 +908,11 @@ namespace PW.Ncels.Database.Repository.EMP
                 .Select(x => new {x.Name, x.NameKz}).FirstOrDefault();
 
             Func<string, string> marked = s => string.Format("<b><u>{0}</u></b>", s);
-            Func<string, string, string, string> getString = (reg, reReg, change) =>
-                string.Format("{0} {1} {2}",
-                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.Registration ? marked(reg) : reg,
-                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ReRegistration ? marked(reReg) : reReg,
-                    contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ChangesInsertion ? marked(change) : change);
+            //Func<string, string, string, string> getString = (reg, reReg, change) =>
+            //    string.Format("{0} {1} {2}",
+            //        contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.Registration ? marked(reg) : reg,
+            //        contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ReRegistration ? marked(reReg) : reReg,
+            //        contract.EMP_Ref_ContractType.Code == CodeConstManager.EmpContractType.ChangesInsertion ? marked(change) : change);
             Func<string, string, string> append = (result, appendStr) =>
             {
                 if (string.IsNullOrWhiteSpace(appendStr)) return result;
@@ -945,8 +945,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 DeclarantBossPositionNameRu = contract.OBK_DeclarantContact.BossPosition,
                 DeclarantBossPositionNameKz = contract.OBK_DeclarantContact.BossPositionKz,
                 DeclarantBossDocumentType = contract.DocumentType == 1 ? "Представительство" : contract.DocumentType == 2 ? "Доверенное лицо" : string.Empty,
-                ContractTypeStringRu = getString(registrationRu, reRegistrationRu, changesInsertionRu),
-                ContractTypeStringKz = getString(registrationKz, reRegistrationKz, changesInsertionKz),
+                //ContractTypeStringRu = getString(registrationRu, reRegistrationRu, changesInsertionRu),
+                //ContractTypeStringKz = getString(registrationKz, reRegistrationKz, changesInsertionKz),
                 CurrencyNameRu = currency != null ? currency.Name : string.Empty,
                 CurrencyNameKz = currency != null ? currency.NameKz : string.Empty,
                 TotalPrice = contract.EMP_CostWorks.Select(x => x.TotalPrice).Sum() ?? 0,
