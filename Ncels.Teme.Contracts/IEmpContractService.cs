@@ -16,5 +16,6 @@ namespace Ncels.Teme.Contracts
         IEnumerable<EmpContractHistoryViewModel> GetContractHistory(Guid id);
         void Approve(Guid stageId, bool result);
         bool CanApprove(Guid stageId);
+        string GetStageCode();
     }
 }

@@ -22,14 +22,18 @@ namespace PW.Prism.Controllers.EMP
         // GET: EMPContract
         public ActionResult Index()
         {
-            return PartialView(new EmpContractIndexViewModel());
+            return PartialView(new EmpContractIndexViewModel
+            {
+                Id = Guid.NewGuid(),
+                StageCode = _service.GetStageCode()
+            });
         }
 
         public ActionResult Edit(Guid? id, Guid? stage)
         {
             if (id == null || stage == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            
+
             var model = _service.GetContractDetailsViewModel(id.Value);
             model.StageId = stage.Value;
             model.CanApprove = _service.CanApprove(model.StageId);

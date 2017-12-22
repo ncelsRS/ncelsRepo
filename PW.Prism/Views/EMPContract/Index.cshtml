@@ -56,10 +56,6 @@
                                          {
                                              projects.Add().Text("Не согласованные").LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemId", CodeConstManager.EmpContractStageStatus.NotApproved}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Id}});
                                          }
-                                         if (EmployePermissionHelper.EmpContractOnSigningStatusView)
-                                         {
-                                             projects.Add().Text("На подписании").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", CodeConstManager.EmpContractStageStatus.OnSigning }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } });
-                                         }
                                          if (EmployePermissionHelper.EmpContractRegistrationRquiredStatusView)
                                          {
                                              projects.Add().Text("Требуют регистрации").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", CodeConstManager.EmpContractStageStatus.RegistrationRequired }, { "ItemType", "StageStatusCode" }, { "ModelId", Model.Id } });
@@ -77,79 +73,15 @@
 
               @<div class="pwPanelBar">
                    <div class="pwBlockAdd k-block">
-                       @*<div style="float: left">
-                           <button type="button" class="pwWidth100 k-button k-button-icontext" onclick="callSearchView('@Model.Id')">Расширенный поиск</button>
-                       </div>*@
-                       @*<div style="float: left" id="@("lblStateBlock" + Model.Id)">
-                           @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
-                           @Html.Label("Статус", new { @class = "pwWidth100", style = "line-height: 30px; margin-right: 5px; font-weight: normal;" })
-                       </div>*@
-                       @*<div id="pwTwo">
-                           @(Html.Kendo().DropDownList().Name("findType" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                                       .DataTextField("Text")
-                                       .DataValueField("Value")
-                                       .BindTo(new List<SelectListItem>() {
-                                           new SelectListItem() {
-                                               Text = "Все", Value = "0"
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Согласованные", Value = "1"
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Требуют корректировки", Value = "2"
-                                           }
-                                       })
-                                       .SelectedIndex(0)
-                           )
-                           @(Html.Kendo().DropDownList().Name("findTypeActiveContract" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                                       .DataTextField("Text")
-                                       .DataValueField("Value")
-                                       .BindTo(new List<SelectListItem>() {
-                                           new SelectListItem() {
-                                               Text = "Все", Value = "0"
-                                           },
-                                           new SelectListItem() {
-                                               Text = "На формировании счета", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_INVOCE_GENERATING.ToString()
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Ожидает оплаты", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT.ToString()
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Оплачен", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_ACTIVE.ToString()
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Оплачен не полностью", Value = PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_NOT_FULL_PAYMENT.ToString()
-                                           },
-                                           new SelectListItem() {
-                                               Text = "Срок оплаты истек", Value =  PW.Ncels.Database.Constants.CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED.ToString()
-                                           }
-                                       })
-                                       .SelectedIndex(0)
-                           )
-                       </div>*@
-                       @*<div id="pwThree">
-                           @(Html.Kendo().Button().Name("find" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                                       .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
-                                       .ImageUrl("/Content/images/find.png"))
-                           @(Html.Kendo().Button().Name("findTypeActiveBtn" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                                       .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
-                                       .ImageUrl("/Content/images/find.png"))
-                       </div>*@
+                       <input type="hidden" value="@Model.StageCode" id="@("stageCode"+Model.Id)"/>
+                       
                        @if (EmployePermissionHelper.EmpContractAssignment)
                        {
                            <div style="float: left">
                                @(Html.Kendo().Button().Name("toWork" + Model.Id).HtmlAttributes(new { @class = "pwWidth100", hidden = true }).Content("Распределить"))
                            </div>
                        }
-                       @*<div id="pwFour">
-                           @(Html.Kendo().Button().Name("export" + Model.Id).HtmlAttributes(new { @class = "pwWidth100" })
-                      .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
-                      .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
-                       </div>*@
-                       @*<div>
-                @(Html.Kendo().Button().Name("toPay" + Model).HtmlAttributes(new { @class = "pwWidth100" })
-                      .Content("На оплату"))
-            </div>*@
+                       
                    </div>
                    <div id="pwSix">
                        @(Html.Kendo().Button().Name("reload" + Model.Id).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
@@ -196,69 +128,7 @@
       )
 )
 
-<div class="modal" id="modalSearch">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="modal-dialog">
 
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Расширенный поиск</h4>
-                        </div>
-                        <div class="modal-body" id="bodyMessage">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div>
-                                        <ul>
-                                            <li>
-                                                <h4>Дата отправки с</h4>@(Html.Kendo().DatePicker()
-                                                                              .Name("SentDateStart")
-                                                                              .Events(e =>
-                                                                              {
-
-                                                                              })
-                                                                              .HtmlAttributes(new { style = "width: 100%" })
-                                                                              )
-                                            </li>
-                                            <li>
-                                                <h4>по</h4> @(Html.Kendo().DatePicker()
-                                                                  .Name("SentDateEnd")
-                                                                  .Events(e =>
-                                                                  {
-
-                                                                  })
-                                                                  .HtmlAttributes(new { style = "width: 100%" })
-                                                                  )
-                                            </li>
-                                            <li>
-                                                <h4>
-                                                    Тип договора
-                                                </h4>
-                                                @Html.DropDownList("TypeContract", new SelectList(new[]{"123","345"}))
-
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-offset-4 col-md-4">
-                                    <button type="button" class="btn btn-primary" style="width:100%;" onclick="searchFilter('@Model.Id')">Найти</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     $(document).ready(function () {

@@ -84,7 +84,7 @@ function panelEmpContractSelect(e) {
             filter.push({ field: "StageStatusCode", operator: "eq", value: selectValue });
 
             var btnToWork = $("#toWork" + modelId);
-            if (selectValue === "1") {
+            if (selectValue === "1" || (selectValue === "4" && $("#stageCode" + modelId).val() === "1")) {
                 btnToWork.attr("hidden", false);
             } else {
                 btnToWork.attr("hidden", true);
