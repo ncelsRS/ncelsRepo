@@ -31,21 +31,24 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var stage = expRepo.GetAssessmentStage(id);
             var model = stage.OBK_AssessmentDeclaration;
 
+
             var expDocResult = expRepo.GetStageExpDocResult(model.Id);
             if (expDocResult != null)
             {
+                ViewBag.HasExpDocumentResult = true;
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name", expDocResult.ExpResult);
             }
             else
             {
+                ViewBag.HasExpDocumentResult = false;
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name");
             }
 
             ViewData["OBKRefReasonList"] = new SelectList(expRepo.OBKRefReasonList(), "Id", "NameRu");
 
-            ViewData["ExecutorType"] =  expRepo.ExecutorType(model.Id);
+            ViewData["ExecutorType"] = expRepo.ExecutorType(model.Id);
             ViewData["SignExpDocument"] = expRepo.checkSignData(stage.Id);
 
 
@@ -67,11 +70,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         reasonId = refuse.RefReasonId
                     }
                 });
-            }else
+            }
+            else
             {
                 return Json(new { success = false });
             }
-            
+
         }
 
         public ActionResult SaveMotivationRefuse(int? OBKRefReason, string motivationRefuseRu, string motivationRefuseKz,
@@ -407,6 +411,28 @@ namespace PW.Prism.Controllers.OBKExpDocument
             }
 
             return PartialView(model);
+        }
+
+        public ActionResult SelectCommissionOP(Guid id)
+        {
+            return PartialView(id);
+        }
+
+        public ActionResult GetOBK_OP_Commission(Guid id)
+        {
+            var model = expRepo.GetOBK_OP_Commission(id);
+            var result = model.Select(x =>
+            {
+                var employee = x.Employee;
+                return new
+                {
+                    Organization = employee.Organization.Name,
+                    Unit = employee.Units.FirstOrDefault(),
+                    Position = employee.Position.Name,
+                    FIO = employee.FullName
+                };
+            });
+            return Json(new { isSuccess = true, result });
         }
 
 

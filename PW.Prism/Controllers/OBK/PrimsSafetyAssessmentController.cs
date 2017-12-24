@@ -44,6 +44,8 @@ namespace PW.Prism.Controllers.OBK
             }
             var model = GetAssessmentStage(id);
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
+            var expDocumentResult = new OBKExpDocumentRepository().GetStageExpDocResult(model.DeclarationId);
+            ViewBag.HasExpDocumentResult = expDocumentResult != null;
             return PartialView("~/Views/SafetyAssessment/Edit.cshtml", model);
         }
 
