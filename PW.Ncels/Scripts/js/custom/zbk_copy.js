@@ -66,6 +66,13 @@ function InitializeZBKCopyFile(name) {
                 InitializePropertyCertificate(name, viewModel);
                 kendo.bind($("#outDocForm" + name), viewModel);
                 kendo.ui.progress($('#loader' + name), false);
+
+
+                if ($("#PaymentInvoice").val() == 'True')
+                {
+                    $(".k-delete").hide();                          
+                    $(".k-upload-button").hide();
+                }
                 
             },
             complete: function () {
@@ -132,7 +139,7 @@ function InitializePropertyCertificate(name, viewModel) {
             });
             $('.k-grid-update').show();
             $("#simulationUpdate").hide();
-
+      
         },
         template: kendo.template($('#fileTemplate').html()),
         files: initialFiles
@@ -140,7 +147,6 @@ function InitializePropertyCertificate(name, viewModel) {
 }
 
  function addExtensionClass(extension) {
-            debugger;
             switch (extension) {
                 case '.jpg':
                 case '.jpeg':

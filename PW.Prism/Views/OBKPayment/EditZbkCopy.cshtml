@@ -1,0 +1,191 @@
+﻿@model PW.Ncels.Database.DataModel.OBK_Contract
+
+
+@{
+    var invoice1c = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceNumber1C;
+    var invoice1cDate = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceDatetime1C;
+    var contract = Model.Number + (Model.StartDate != null ? " от " + Model.StartDate : "") + " " + Model.OBK_Ref_Type.NameRu;
+    var contractId = Model.Id;
+    var provider = "БИН/ИИН " + Model.Unit.Bin + " " + Model.Unit.DisplayName + " " + Model.Unit.LegalAddress;
+    var buyer = "БИН/ИИН " + Model.OBK_Declarant.Bin + " " + Model.OBK_Declarant.NameRu + " " + Model.OBK_DeclarantContact.AddressLegalRu;
+}
+<style>
+    .input-group {
+        width: 100% !important
+    }
+
+    #invoice1c #provider #contract #invoice1cDate #buyer {
+        width: 100% !important
+    }
+</style>
+
+
+
+<div class="panel panel-success">
+    <div class="panel-body">
+
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-2">
+                <button type="button" class="btn btn-default" id="@("viewBtn" + Model.Id)">Просмотр ЗБК</button>
+            </div>
+        </div>
+        <br>
+         <div class="row">
+            <div class="col-lg-6">                        
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>№ счета на оплату:</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" readonly="readonly" id="invoice1c" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Поставщик:</label>
+                            <div class="input-group">
+                                <textarea class="form-control" readonly="readonly" rows="3" id="provider">@provider</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Дата счета:</label>
+                            <div class="input-group">
+                                <input class="form-control date-control" type="text" readonly="readonly" disabled="disabled" id="invoice1cDate" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Покупатель:</label>
+                            <div class="input-group">
+                                <textarea class="form-control" readonly="readonly" rows="3" id="buyer">@buyer</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table id="productsCost" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Наименование услуги</th>
+                                    <th>Единица измерения</th>
+                                    <th>Цена тенге без НДС</th>
+                                    <th>Количество услуг</th>
+                                    <th>Итоговая стоимость услуги, в тенге без НДС</th>
+                                    <th>Итоговая стоимость услуги, в тенге с НДС</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id='@("name" + Model.Id)'></td>
+                                    <td id='@("unit" + Model.Id)'></td>
+                                    <td id='@("onePrice" + Model.Id)'></td>
+                                    <td id='@("copyQuantityTable" + Model.Id)'></td>
+                                    <td id='@("totalWithoutNds" + Model.Id)'></td>
+                                    <td id='@("totalWithNds" + Model.Id)'></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setDateFormat(".date-control");
+
+        var val = '@ViewData["ZBKCopy_id"]';
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetZBKCopyCost", "ZBKCopy")',
+            data: { 'id': val },
+            dataType: 'json',
+            cache: false,
+            success: function (data)
+            {
+                debugger;
+                if (data.isSuccess)
+                {
+                    $("#name" + '@Model.Id').html(data.result.name);
+                    $("#unit" + '@Model.Id').html(data.result.unit);
+                    $("#onePrice" + '@Model.Id').html(data.result.price);
+                    $("#copyQuantityTable" + '@Model.Id').html(data.result.copyQuantity);
+                    $("#totalWithoutNds" + '@Model.Id').html(data.result.totalWithoutNds);
+                    $("#totalWithNds" + '@Model.Id').html(data.result.totalWithNds);
+                    $("#invoice1c").val(data.result.invoice1c);
+                    $("#invoice1cDate").val(data.result.InvoiceDatetime1C);
+
+                }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    });
+
+    function showContractTemplate(contractId) {
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "90%",
+            height: "auto",
+            modal: true, resizable: false,
+            close: onCloseCommandWindow,
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").dialogCallback = function () {
+            alert('dialogCallback');
+        };
+        //window.data("kendoWindow").gridSelectedIds = id;
+        window.data("kendoWindow").title('@contract');
+        //window.data("kendoWindow").setOptions({
+        //    width: 550,
+        //    height: 'auto'
+        //});
+        //window.data("kendoWindow").refresh('/OBKPayment/SetChiefAccountant');
+        window.data('kendoWindow').content('<object data="/OBKContract/GetContractTemplatePdf?id=@contractId&isStream=true" type="application/pdf" style="width:100%;height:550px"></object>');
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    $("#viewBtn" + '@Model.Id').click(function ()
+    {
+         var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "90%",
+            height: "auto",
+            modal: true, resizable: false,
+            close: onCloseCommandWindow,
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").dialogCallback = function () {
+            alert('dialogCallback');
+        };
+        window.data("kendoWindow").title('Просмотр ЗБК');
+        window.data('kendoWindow').content('<object data="/OBKExpDocument/ExpDocumentExportFileStream?productSeriesId=@ViewData["ProductSeriesId"]&id=@ViewData["DeclarationId"]" type="application/pdf" style="width:100%;height:550px"></object>');
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+
+    });
+
+    function setDateFormat(control) {
+        $(control).datepicker({
+            dateFormat: 'dd.mm.yy',
+            language: 'ru',
+            autoclose: true
+        });
+    }
+</script>

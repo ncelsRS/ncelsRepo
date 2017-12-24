@@ -2,7 +2,7 @@
 @using PW.Ncels.Database.DataModel
 @*@model Guid*@
 @model PW.Ncels.Database.Models.OBK.OBKEntityPayment
-        
+
 @helper GridToolbarTemplate()
 {
     <div class="pull-left">
@@ -30,7 +30,7 @@
                    .ImageUrl("/Content/images/reload.png"))
         </div>
     </div>
-} 
+}
 
 @(Html.Kendo().Splitter()
       .HtmlAttributes(new { @class = "pwSplitter k-block" })
@@ -120,9 +120,10 @@
                          {
                              columns.Bound(p => p.InvoiceNumber1C).Width(125).ClientTemplate(
                                  "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
-                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getPaymentDetails('#=ContractId#', '#=InvoiceNumber1C#')\"><span style=\"color:rgb(66,139,202);\">#=InvoiceNumber1C#</span></button>" +
+                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getPaymentDetails('#=ContractId#', '#=InvoiceNumber1C#', '#=ZBKCopy_id#' )\"><span style=\"color:rgb(66,139,202);\">#=InvoiceNumber1C#</span></button>" +
                                  "</div>"
                                  ).Title("№ счета");
+                             columns.Bound(p => p.ZBKCopy_id).Visible(false);
                              columns.Bound(p => p.CreateDate).Format("{0:dd.MM.yyyy}").Title("Дата счета").Width(120);
                              columns.Bound(p => p.PayerValue).Title("Заявитель").Width(250);
                              columns.Bound(p => p.ContractNumber).Title("№ договора").Width(150);
@@ -168,7 +169,7 @@
         $("#toSignChiefAccountant" + '@Model.Id').hide();
     });
 
-    function getPaymentDetails(parameters, invoiceNumber1c) {
+    function getPaymentDetails(parameters, invoiceNumber1c, ZBKCopy_id) {
         debugger;
         if (docArray.indexOf(parameters.toLowerCase()) !== -1)
             docArray.splice(docArray.indexOf(parameters.toLowerCase()), 1);
@@ -185,18 +186,41 @@
             tabStrip.select(tabStrip.items().length - 1);
             var gridElement = $(idContent);
             gridElement.height($(window).height() - 100);
-            $.ajax({
-                url: "/OBKPayment/Edit?contractId=" + parameters,
-                //type: "POST",
-                success: function (result) {
-                    // refreshes partial view
-                    $(idContent).html(result);
-                    $('.mark-check-found').each(function () {
-                        var idcontrol = $(this).attr('idCheck');
-                        $("#" + idcontrol).prop("checked", true);
-                    });
-                }
-            });
+            if (ZBKCopy_id != "null")
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: '/OBKPayment/EditZbkCopy',
+                    data: { 'contractId': parameters, 'ZBKCopy_id': ZBKCopy_id },
+                    success: function (result)
+                    {
+                        // refreshes partial view
+                        $(idContent).html(result);
+                        $('.mark-check-found').each(function ()
+                        {
+                            var idcontrol = $(this).attr('idCheck');
+                            $("#" + idcontrol).prop("checked", true);
+                        });
+                    }
+                });
+
+            } else
+            {
+                $.ajax({
+                    url: "/OBKPayment/Edit?contractId=" + parameters,
+                    //type: "POST",
+                    success: function (result)
+                    {
+                        // refreshes partial view
+                        $(idContent).html(result);
+                        $('.mark-check-found').each(function ()
+                        {
+                            var idcontrol = $(this).attr('idCheck');
+                            $("#" + idcontrol).prop("checked", true);
+                        });
+                    }
+                });
+            }
         } else {
             var itesm = $('#' + parameters)[0].parentElement.getAttribute('id').split('-')[1];
             if (itesm) {
@@ -215,11 +239,11 @@
     });
 
     $("#signObkPayDocument" + '@Model.Id').click(function () {
-        debugger;
         var grid = $("#gridOBKPayment" + '@Model.Id').data("kendoGrid");
         var selectedItem = grid.dataItem(grid.select());
         if (selectedItem === null)
             alert("Выберите счет на оплату");
+        debugger;
         signPayment(selectedItem.id);
     });
 
@@ -231,7 +255,16 @@
         var grid = $("#gridOBKPayment" + id).data("kendoGrid");
         var selectedItem = grid.dataItem(grid.select());
         if (selectedItem === null)
+        {
             alert("Выберите счет на оплату");
-        window.open('/OBKPayment/DocumentExportFilePdf?contractId=' + selectedItem.ContractId);
+        }
+        if (selectedItem.ZBKCopy_id !== null)
+        {
+            window.open('/OBKPayment/DocumentZbkCopyPdf?zbkCopyId=' + selectedItem.ZBKCopy_id + '&contractId=' + selectedItem.ContractId);
+            return;
+        }
+        if (selectedItem.ContractId !== null){
+            window.open('/OBKPayment/DocumentExportFilePdf?contractId=' + selectedItem.ContractId);
+        }
     }
 </script>

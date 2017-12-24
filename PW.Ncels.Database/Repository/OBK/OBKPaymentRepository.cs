@@ -90,6 +90,18 @@ namespace PW.Ncels.Database.Repository.OBK
             return tPrice;
         }
 
+        /// <summary>
+        /// расчет стоимости копий ЗБК с приложением и с НДС
+        public decimal GetTotalPriceZbkCopy(Guid copyId)
+        {
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == copyId);
+            var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
+            var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+
+            var tPrice = Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity * 2), 2);
+            return tPrice;
+        }
+
         public IQueryable<OBK_DirectionToPaymentsView> GetDirectionToPaymentsList(Guid organizationId)
         {
             var data = AppContext.OBK_DirectionToPaymentsView
@@ -102,6 +114,21 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Contract.FirstOrDefault(e => e.Id == id);
         }
 
+        public int? ProductSeriesId(Guid ZBKCopy_id)
+        {
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == ZBKCopy_id);
+            var expDoc = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+
+            return expDoc.ProductSeriesId;
+        }
+
+        public Guid? DeclarationId(Guid contractId)
+        {
+            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.ContractId == contractId);
+
+            return declaration.Id;
+        }
+
         public OBK_Ref_PaymentStatus GetPaymentStatus(string code)
         {
             return AppContext.OBK_Ref_PaymentStatus.First(e => e.Code == code);
@@ -110,6 +137,11 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBK_DirectionToPayments GetDirectionToPayments(Guid contractId)
         {
             return AppContext.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == contractId);
+        }
+
+        public OBK_DirectionToPayments GetDirectionToPaymentsByCopyZbk(Guid zbkCopyId)
+        {
+            return AppContext.OBK_DirectionToPayments.FirstOrDefault(e => e.ZBKCopy_id == zbkCopyId);
         }
 
         public Guid GetContractIdGuid(Guid id)
@@ -131,7 +163,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public void SendToChief(Guid chiefId, Guid id)
         {
             var directSignData = AppContext.OBK_DirectionSignData.FirstOrDefault(e => e.DirectionToPaymentId == id);
-            if(directSignData!=null)
+            if (directSignData != null)
                 directSignData.ChiefAccountantId = chiefId;
             AppContext.SaveChanges();
             new NotificationManager().SendNotificationFromCompany(
@@ -146,9 +178,22 @@ namespace PW.Ncels.Database.Repository.OBK
             directionPay.OBK_Contract.Status = CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT;
             AppContext.SaveChanges();
             //отправка уведоления
-            new NotificationManager().SendNotificationFromCompany(
-                string.Format("По Вашему договору №{0} поступил счет на оплату", directionPay.OBK_Contract.Number),
-                ObjectType.ObkContract, directionPay.OBK_Contract.Id.ToString(), (Guid) directionPay.OBK_Contract.EmployeeId);
+
+            if (directionPay.ZBKCopy_id != null)
+            {
+                directionPay.IsPaid = true;
+                AppContext.SaveChanges();
+                new NotificationManager().SendNotificationFromCompany(
+                    string.Format("По вашему запросу на копию поступил счет на оплату", directionPay.OBK_Contract.Number),
+                    ObjectType.OBK_ZBKCopy, directionPay.ZBKCopy_id.ToString(), (Guid)directionPay.OBK_Contract.EmployeeId);
+            }
+            else
+            {
+
+                new NotificationManager().SendNotificationFromCompany(
+                    string.Format("По Вашему договору №{0} поступил счет на оплату", directionPay.OBK_Contract.Number),
+                    ObjectType.ObkContract, directionPay.OBK_Contract.Id.ToString(), (Guid)directionPay.OBK_Contract.EmployeeId);
+            }
         }
         /// <summary>
         /// НДС для формирования печатной формы
@@ -162,7 +207,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public Employee GetEmpoloyee(Guid userId)
         {
-            return AppContext.Employees.FirstOrDefault(e=>e.Id == userId);
+            return AppContext.Employees.FirstOrDefault(e => e.Id == userId);
         }
 
         public Dictionary GetDictionary(Guid? id)
@@ -355,7 +400,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public List<OBK_DirectionToPayments> GetPaidExpired()
         {
             var result = AppContext.OBK_DirectionToPayments
-                .Where(e => (bool) !e.IsDeleted &&
+                .Where(e => (bool)!e.IsDeleted &&
                             e.OBK_Contract.Status != CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED &&
                             e.OBK_Contract.Status == CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT &&
                             e.OBK_Contract.Status == CodeConstManager.STATUS_OBK_NOT_FULL_PAYMENT)
@@ -383,6 +428,12 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             dicPayments.OBK_Contract.Status = CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED;
             AppContext.SaveChanges();
+        }
+
+        public OBK_ZBKCopyStageExecutors GetStageExecutor(Guid? zbkCopyId)
+        {
+            var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopyId);
+            return AppContext.OBK_ZBKCopyStageExecutors.FirstOrDefault(o => o.ZBKCopyStageId == stage.Id);
         }
 
         public void UpdateNotificationToPayment(OBK_DirectionToPayments dicPayments, bool payStatus)

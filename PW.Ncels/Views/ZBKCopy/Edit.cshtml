@@ -21,6 +21,8 @@
 @Html.Partial("~/Views/Home/SignView.cshtml")
 
 @Html.HiddenFor(o => o.AttachPath)
+@Html.HiddenFor(o => o.PaymentInvoice)
+
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
@@ -47,10 +49,36 @@
                     <h5 id="safetyTitle">
                         Заключение о безопасности и качества продукции
                     </h5>
-                    <div class="row">
-                        <div class="col-lg-6 col-lg-offset-6"><button class="btn btn-success dropdown-toggle" id="signBtn">Подписать ЭЦП и отправить в ЦОЗ</button></div>
-                    </div>
-                    <br>
+                    @{ if (Model.PaymentInvoice == true)
+                        {
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-3 col-lg-offset-2">
+                                    <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#myModal">Счет на оплату</button>
+                                </div>
+
+                                @if (Model.refStatus == CodeConstManager.STATUS_OBK_SIGN_ACT)
+                                {
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#actModal">Акт выполненных работ</button>
+                                    </div>
+                                </div>
+                                }
+
+                            </div>
+
+                         
+                        }
+                        else
+                        {
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-6 col-lg-offset-6"><button class="btn btn-success dropdown-toggle" id="signBtn">Подписать ЭЦП и отправить в ЦОЗ</button></div>
+                            </div>
+                        }
+                    }
+
                     @{ if (Model.Notes != null)
                         {
                             <textarea style="width: 700px; height: 200px; background-color: #f3cdcd" placeholder="Замечания" id="notes" disabled="disabled">@Model.Notes</textarea>
@@ -58,6 +86,7 @@
                         }}
 
                     <label style="color: black;">Данные заключения</label>
+
                     <br>
                     <div style="margin:5px;">
                         <div class="row">
@@ -203,6 +232,32 @@
                             </div>
                         </div>
 
+                        <div class="modal fade" id="myModal" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Счет на оплату</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <object data="/ZBKCopy/DocumentZbkCopyPdf?zbkCopyId=@Model.Id&contractId=@ViewData["ContractId"]" type="application/pdf" style="width:100%;height:550px"></object>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="actModal" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Счет на оплату</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <object data="/ZBKCopy/CertOfComplectFilePdf?zbkCopyId=@Model.Id" type="application/pdf" style="width:100%;height:550px"></object>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -219,6 +274,11 @@
         var fileId = '@Model.Id';
 
         InitializeZBKCopyFile(fileId);
+
+        if ($("#PaymentInvoice").val() == 'True')
+        {
+            $("#copyQuantity").attr("disabled", "disabled");
+        }
     });
 
     $(".copyQuantity-control").change(function () {
@@ -280,7 +340,6 @@
         }
         return valid;
     }
-
 
 </script>
 
