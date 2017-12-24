@@ -470,7 +470,7 @@ namespace PW.Ncels.Database.Repository.OBK
                        join adec in AppContext.OBK_AssessmentDeclaration
                             on StageExpDoc.AssessmentDeclarationId equals adec.Id into AssessmentDeclaraion
                        from AssessDec in AssessmentDeclaraion.DefaultIfEmpty()
-                           //where AssessDec.EmployeeId == userId
+                           where AssessDec.EmployeeId == userId
                        select new
                        {
                            stageExpDocId = StageExpDoc.Id,
