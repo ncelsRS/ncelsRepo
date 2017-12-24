@@ -1582,7 +1582,7 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (contract.Type)
             {
                 case 1:
-                    switch(contractAdditionTypeCode)
+                    switch (contractAdditionTypeCode)
                     {
                         case "1":
                             templateName = "OBKAdditionalAddressContractSerial.mrt";
@@ -1619,7 +1619,7 @@ namespace PW.Ncels.Database.Repository.OBK
                             templateName = "OBKAdditionalManagerContractDeclaration.mrt";
                             break;
                         case "3":
-                             templateName = "OBKAdditionalBankContractDeclaration.mrt";
+                            templateName = "OBKAdditionalBankContractDeclaration.mrt";
                             break;
                     }
                     break;
@@ -1885,7 +1885,10 @@ namespace PW.Ncels.Database.Repository.OBK
             string parentNumber = null;
             if (contract.ParentId != null)
                 parentNumber = AppContext.OBK_Contract.FirstOrDefault(x => x.Id == contract.ParentId)?.Number;
-            contract.Number = number + (parentNumber == null ? "" : $"-{parentNumber}");
+            if (parentNumber == null)
+                contract.Number = number;
+            else
+                contract.Number = $"{parentNumber}-{number}";
             contract.StartDate = DateTime.Now;
             AppContext.SaveChanges();
 

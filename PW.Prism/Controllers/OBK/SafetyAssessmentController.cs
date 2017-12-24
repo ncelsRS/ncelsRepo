@@ -71,7 +71,6 @@ namespace PW.Prism.Controllers.OBK
                 ViewBag.outputResultAct = false;
             else
                 ViewBag.outputResultAct = certificateOfComplection.ActReturnedBack;
-
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
             ActionLogger.WriteInt(stageName + ": Получение заявления №" + model.OBK_AssessmentDeclaration.Number);
