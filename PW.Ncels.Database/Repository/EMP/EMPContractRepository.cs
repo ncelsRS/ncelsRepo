@@ -237,8 +237,6 @@ namespace PW.Ncels.Database.Repository.EMP
                 AppContext.EMP_Contract.Add(contract);
                 AppContext.SaveChanges();
             } else {
-                model.ContractStatusId = AppContext.EMP_Ref_Status.Where(x =>
-                    x.Code == CodeConstManager.EmpContractStatus.Draft).Select(x => x.Id).FirstOrDefault();
                 model.ContractType = contractViewModel.ContractType;
                 model.HolderType = contractViewModel.HolderType;
                 model.MedicalDeviceName = contractViewModel.MedicalDeviceName;
