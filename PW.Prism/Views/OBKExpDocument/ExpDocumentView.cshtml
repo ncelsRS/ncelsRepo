@@ -121,8 +121,6 @@ String.Empty, new { @class = "form-control motivation-control" })
         </div>
     </div>
 
-    <div class=""></div>
-
     <span id="@("popupNotification"+ Model.Id)"></span>
     <input type="hidden" id="@("OBK_StageExpDocumentId" + Model.Id)">
     <div id="@("windowFrame" + Model.Id)">
@@ -138,6 +136,10 @@ String.Empty, new { @class = "form-control motivation-control" })
         if('@ViewData["ExecutorType"]' == '@CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING'){
               disableChiefBtn();
         }
+    }
+
+    if ('@ViewBag.HasExpDocumentResult' === 'True') {
+        disableMotivationFields();
     }
 
     function checkIfChief(){
@@ -251,9 +253,9 @@ String.Empty, new { @class = "form-control motivation-control" })
             cache: false,
             success: function (result) {
                 if (result.isSuccess) {
+                    disableMotivationFields();
                     if (@Model.TypeId === 1) {
-                        // Отсюда отправляем заявку на ОП
-                        alert('Сохранено');
+                        showMentuItemSelectCommissionOP();
                         return;
                     }
                     if ('@Model.OBKApplicantParty' == 'True') {

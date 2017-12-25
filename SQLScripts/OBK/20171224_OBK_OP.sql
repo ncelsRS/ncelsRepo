@@ -1,0 +1,40 @@
+USE ncels
+
+CREATE TABLE ncels.dbo.OBK_OP_CommissionRoles (
+  Id UNIQUEIDENTIFIER NOT NULL
+ ,NameRu NVARCHAR(50) NOT NULL
+ ,NameKk NVARCHAR(50) NOT NULL
+ ,CONSTRAINT PK_OBK_OP_CommissionRoles_Id PRIMARY KEY CLUSTERED (Id)
+) ON [PRIMARY]
+GO
+
+CREATE TABLE ncels.dbo.OBK_OP_Commission (
+  Id UNIQUEIDENTIFIER NOT NULL
+ ,DateOfCreation DATE NOT NULL
+ ,DeclarationId UNIQUEIDENTIFIER NOT NULL
+ ,EmployeeId UNIQUEIDENTIFIER NOT NULL
+ ,RoleId UNIQUEIDENTIFIER NOT NULL
+ ,CONSTRAINT PK_OBK_OP_Commission_Id PRIMARY KEY CLUSTERED (Id)
+) ON [PRIMARY]
+GO
+
+ALTER TABLE ncels.dbo.OBK_OP_Commission
+ADD CONSTRAINT FK_OBK_OP_Commission_EmployeesId FOREIGN KEY (EmployeeId) REFERENCES dbo.Employees (Id)
+GO
+
+ALTER TABLE ncels.dbo.OBK_OP_Commission
+ADD CONSTRAINT FK_OBK_OP_Commission_OBK_AssessmentDeclarationId FOREIGN KEY (DeclarationId) REFERENCES dbo.OBK_AssessmentDeclaration (Id)
+GO
+
+ALTER TABLE ncels.dbo.OBK_OP_Commission
+ADD CONSTRAINT FK_OBK_OP_Commission_RoleId FOREIGN KEY (RoleId) REFERENCES dbo.OBK_OP_CommissionRoles (Id)
+GO
+
+SET DATEFORMAT ymd
+SET ARITHABORT, ANSI_PADDING, ANSI_WARNINGS, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER, ANSI_NULLS, NOCOUNT ON
+SET NUMERIC_ROUNDABORT, IMPLICIT_TRANSACTIONS, XACT_ABORT OFF
+GO
+
+INSERT ncels.dbo.OBK_OP_CommissionRoles(Id, NameRu, NameKk) VALUES ('d290b497-3073-4195-9e6a-78094a53120a', N'Член комиссии', N'Член комиссии')
+INSERT ncels.dbo.OBK_OP_CommissionRoles(Id, NameRu, NameKk) VALUES ('3935ad57-dea8-4d41-bb94-c99bc56973df', N'Председатель комиссии', N'Председатель комиссии')
+GO

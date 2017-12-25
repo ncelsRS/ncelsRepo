@@ -47,6 +47,16 @@ namespace PW.Prism.Controllers.OBKPayment
             return PartialView(model);
         }
 
+        public ActionResult EditZbkCopy(Guid contractId, Guid ZBKCopy_id)
+        {
+            var model = payRepo.GetContract(contractId);
+            ViewData["ZBKCopy_id"] = ZBKCopy_id;
+            ViewData["DeclarationId"] = payRepo.DeclarationId(contractId);
+            ViewData["ProductSeriesId"] = payRepo.ProductSeriesId(ZBKCopy_id);
+
+            return PartialView(model);
+        }
+
         public ActionResult SendToDeclarant(Guid id)
         {
             payRepo.SendInvoiceToDeclarant(id);
@@ -63,7 +73,7 @@ namespace PW.Prism.Controllers.OBKPayment
                 var cPrice = new ContractPrice();
                 cPrice.Line = i;
                 cPrice.Count = com.Count;
-                cPrice.PriceWithTax = Math.Round(TaxHelper.GetCalculationTax(com.OBK_Ref_PriceList.Price), 2) ;
+                cPrice.PriceWithTax = Math.Round(TaxHelper.GetCalculationTax(com.OBK_Ref_PriceList.Price), 2);
                 cPrice.Price = Math.Round(com.Count * TaxHelper.GetCalculationTax(com.OBK_Ref_PriceList.Price), 2);
                 cPrice.ServiceName = com.OBK_Ref_PriceList.NameRu;
                 cPrice.ProductName = com.OBK_RS_Products.NameRu;
@@ -83,7 +93,7 @@ namespace PW.Prism.Controllers.OBKPayment
         public ActionResult SaveSignedPayment(Guid paymentId, string signedData)
         {
             var message = payRepo.SaveSignPay(paymentId, signedData);
-            return Json(new {message});
+            return Json(new { message });
         }
 
         /// <summary>
@@ -103,6 +113,66 @@ namespace PW.Prism.Controllers.OBKPayment
             payRepo.SendToChief(executors, id);
             return Json("OK", JsonRequestBehavior.AllowGet);
         }
+
+
+        public ActionResult DocumentZbkCopyPdf(string zbkCopyId, string contractId)
+        {
+            string name = "Счет на оплату.pdf";
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["ContractId"].ValueObject = contractId;
+                //итого
+                report.Dictionary.Variables["ZBKCopyId"].ValueObject = zbkCopyId;
+                var totalPriceWithCount = payRepo.GetTotalPriceZbkCopy(Guid.Parse(zbkCopyId));
+                report.Dictionary.Variables["TotalPriceWithCount"].ValueObject = totalPriceWithCount;
+                //в том числе НДС
+                var totalPriceNDS = payRepo.GetTotalPriceNDS(totalPriceWithCount);
+                report.Dictionary.Variables["TotalPriceNDS"].ValueObject = totalPriceNDS;
+                //прописью
+                var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalPriceWithCount), false);
+                report.Dictionary.Variables["TotalPriceWithCountName"].ValueObject = priceText;
+                report.Dictionary.Variables["ChiefAccountant"].ValueObject = null; //payRepo.GetEmpoloyee(Guid.Parse("E1EE3658-0C35-41EB-99FD-FDDC4D07CEC4"))?.ShortName;
+                report.Dictionary.Variables["Executor"].ValueObject = null; //payRepo.GetEmpoloyee(Guid.Parse("55377FAC-A5F0-4093-BBB6-18BD28E53BE1"))?.ShortName;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+            var stream = new MemoryStream();
+            var directionToPayment = payRepo.GetDirectionToPayments(Guid.Parse(contractId));
+            var signPayment = payRepo.GetDirectionSignData(directionToPayment.Id);
+            if (signPayment.ChiefAccountantSign != null && signPayment.ExecutorSign != null)
+            {
+                try
+                {
+                    report.ExportDocument(StiExportFormat.Word2007, stream);
+                    stream.Position = 0;
+                    Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+                    doc.InserQrCodesToEnd("ChiefAccountantSign", signPayment.ChiefAccountantSign);
+                    var pdfFile = new MemoryStream();
+                    doc.Save(pdfFile, Aspose.Words.SaveFormat.Pdf);
+                    pdfFile.Position = 0;
+                    stream.Close();
+                    return File(pdfFile, "application/pdf", name);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return File(stream, "application/pdf", name);
+        }
+
 
         public ActionResult DocumentExportFilePdf(string contractId)
         {

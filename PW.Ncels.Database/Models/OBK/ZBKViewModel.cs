@@ -25,5 +25,14 @@ namespace PW.Ncels.Database.Models.OBK
         public bool? ExpApplication { get; set; }
         public string StageStatusCode { get; set; }
         public string Notes { get; set; }
+        public bool? PaymentInvoice { get; set; }
+        public int? refStatus { get; set; }
+        public bool? InOBK { get; set; }
+        public bool? OBK_Completed { get; set; }
+        public bool? OriginalsGiven { get; set; }
+        public DateTime? ExtraditeDate { get; set; }
+        public bool? zbkCopiesReady { get; set; }
+
+        
     }
 }
