@@ -33,6 +33,8 @@ namespace PW.Ncels.Controllers
     {
 
         private ZBKCopyRepository repository = new ZBKCopyRepository();
+        private OBKPaymentRepository payRepo = new OBKPaymentRepository();
+        private ncelsEntities db = UserHelper.GetCn();
 
         public ActionResult Index()
         {
@@ -51,8 +53,47 @@ namespace PW.Ncels.Controllers
         public ActionResult Edit(Guid ZBKCopyId)
         {
             var model = repository.EditCopy(ZBKCopyId);
-
+            ViewData["ContractId"] = repository.ContractId(ZBKCopyId);
             return View(model);
+        }
+
+        public ActionResult CertOfComplectFilePdf(Guid zbkCopyId)
+        {
+            OBKExpDocumentRepository expRepo = new OBKExpDocumentRepository();
+            string name = "Акт выполненных работ.pdf";
+
+            var copy = db.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
+            var expDocument =  db.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkCertificateOfCompletionCopyZbk.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = expDocument.AssessmentDeclarationId;
+                report.Dictionary.Variables["ContractId"].ValueObject = expRepo.GetAssessmentDeclaration((Guid)expDocument.AssessmentDeclarationId).ContractId;
+                report.Dictionary.Variables["ValueAddedTax"].ValueObject = expRepo.GetValueAddedTax();
+                var totalCount = repository.GetTotalPriceWithApplication(copy);
+                report.Dictionary.Variables["TotalCount"].ValueObject = totalCount;
+                var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalCount), false);
+                report.Dictionary.Variables["TotalCountText"].ValueObject = priceText;
+                report.Dictionary.Variables["ZBKCopyId"].ValueObject = copy.Id;
+
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
+            //return File(stream, "application/pdf", name);
         }
 
         public ActionResult Update(Guid Id, int quantity)
@@ -69,6 +110,66 @@ namespace PW.Ncels.Controllers
 
             return Content(JsonConvert.SerializeObject(fileModel, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
         }
+
+        public ActionResult DocumentZbkCopyPdf(string zbkCopyId, string contractId)
+        {
+            string name = "Счет на оплату.pdf";
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["ContractId"].ValueObject = contractId;
+                //итого
+                report.Dictionary.Variables["ZBKCopyId"].ValueObject = zbkCopyId;
+                var totalPriceWithCount = payRepo.GetTotalPriceZbkCopy(Guid.Parse(zbkCopyId));
+                report.Dictionary.Variables["TotalPriceWithCount"].ValueObject = totalPriceWithCount;
+                //в том числе НДС
+                var totalPriceNDS = payRepo.GetTotalPriceNDS(totalPriceWithCount);
+                report.Dictionary.Variables["TotalPriceNDS"].ValueObject = totalPriceNDS;
+                //прописью
+                var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalPriceWithCount), false);
+                report.Dictionary.Variables["TotalPriceWithCountName"].ValueObject = priceText;
+                report.Dictionary.Variables["ChiefAccountant"].ValueObject = null; //payRepo.GetEmpoloyee(Guid.Parse("E1EE3658-0C35-41EB-99FD-FDDC4D07CEC4"))?.ShortName;
+                report.Dictionary.Variables["Executor"].ValueObject = null; //payRepo.GetEmpoloyee(Guid.Parse("55377FAC-A5F0-4093-BBB6-18BD28E53BE1"))?.ShortName;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+            var stream = new MemoryStream();
+            var directionToPayment = payRepo.GetDirectionToPaymentsByCopyZbk(Guid.Parse(zbkCopyId));
+            var signPayment = payRepo.GetDirectionSignData(directionToPayment.Id);
+            if (signPayment.ChiefAccountantSign != null && signPayment.ExecutorSign != null)
+            {
+                try
+                {
+                    report.ExportDocument(StiExportFormat.Word2007, stream);
+                    stream.Position = 0;
+                    Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+                    doc.InserQrCodesToEnd("ChiefAccountantSign", signPayment.ChiefAccountantSign);
+                    var pdfFile = new MemoryStream();
+                    doc.Save(pdfFile, Aspose.Words.SaveFormat.Pdf);
+                    pdfFile.Position = 0;
+                    stream.Close();
+                    return new FileStreamResult(pdfFile, "application/pdf");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
+        }
+
+
 
         public ActionResult Products(Guid contractId)
         {

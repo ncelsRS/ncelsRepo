@@ -465,12 +465,12 @@ function checkIinCallback(result) {
                     //// start temp code
                     //data = iinCertificate;
                     //// end temp code
-                    if (data !== iinCertificate) {
-                        alert("Ваш ИИН должен совпадать с ИИН выбранного ключа!");
-                    }
-                    else {
+                    //if (data !== iinCertificate) {
+                    //    alert("Ваш ИИН должен совпадать с ИИН выбранного ключа!");
+                    //}
+                    //else {
                         checkCertificateValidity();
-                    }
+                   // }
                 },
                 error: function (data) {
                     alert("error = " + data);

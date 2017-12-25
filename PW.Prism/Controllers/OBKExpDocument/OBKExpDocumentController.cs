@@ -275,6 +275,34 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return File(stream, "application/pdf", name);
         }
 
+        public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
+        {
+            string name = "Заключение о безопасности и качества.pdf";
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocument.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+
+                report.Dictionary.Variables["StageExpDocumentId"].ValueObject = Convert.ToInt32(productSeriesId);
+                report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
+
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+
+            return new FileStreamResult(stream, "application/pdf");
+        }
+
         public ActionResult ExpDocumentMotivRefusExportFilePdf(Guid id)
         {
             string name = "Уведомление о мотивированном отказе.pdf";

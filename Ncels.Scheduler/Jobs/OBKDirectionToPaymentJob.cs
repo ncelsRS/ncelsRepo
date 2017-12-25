@@ -26,11 +26,38 @@ namespace Ncels.Scheduler.Jobs
                 //полная оплата
                 if (dPaid.IsPaid && !dPaid.IsNotFullPaid)
                 {
-                    //отправка уведоления
-                    new NotificationManager().SendNotificationFromCompany(
-                        string.Format("Оплата по счету {0} получена. Теперь Вы можете отправлять на рассмотрение заявку для проведения оценки безопасности качества", dPaid.InvoiceNumber1C),
-                        ObjectType.Unknown, dPaid.OBK_Contract.Id.ToString(), (Guid)dPaid.OBK_Contract.EmployeeId);
-                    repo.UpdateNotificationToPayment(dPaid, true);
+                    //if (dPaid.ZBKCopy_id != null)
+                    //{
+                    //    //отправка уведоления
+                    //    new NotificationManager().SendNotificationFromCompany(
+                    //        string.Format("Оплата по счету {0} получена.", dPaid.InvoiceNumber1C),
+                    //        ObjectType.Unknown, dPaid.OBK_Contract.Id.ToString(), (Guid)dPaid.OBK_Contract.EmployeeId);
+
+                    //    var executor = repo.GetStageExecutor(dPaid.ZBKCopy_id);
+
+                    //    if (executor != null)
+                    //    {
+                    //        new NotificationManager().SendNotification(
+                    //         string.Format("Оплата по счету {0} получена.", dPaid.InvoiceNumber1C),
+                    //            ObjectType.OBK_ZBKCopy, (Guid)dPaid.ZBKCopy_id, executor.ExecutorId);
+
+                    //        //отправка уведоления
+                    //        new NotificationManager().SendNotificationFromCompany(
+                    //            string.Format("Оплата по счету {0} получена.", dPaid.InvoiceNumber1C),
+                    //            ObjectType.Unknown, dPaid.ZBKCopy_id, executor.ExecutorId.ToString());
+
+
+                    //    }
+                    //    repo.UpdateNotificationToPayment(dPaid, true);
+                    //}
+                    //else
+                    //{
+                        //отправка уведоления
+                        new NotificationManager().SendNotificationFromCompany(
+                            string.Format("Оплата по счету {0} получена. Теперь Вы можете отправлять на рассмотрение заявку для проведения оценки безопасности качества", dPaid.InvoiceNumber1C),
+                            ObjectType.Unknown, dPaid.OBK_Contract.Id.ToString(), (Guid)dPaid.OBK_Contract.EmployeeId);
+                        repo.UpdateNotificationToPayment(dPaid, true);
+                   // }
                 }
             }
 
