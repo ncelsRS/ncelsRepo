@@ -77,7 +77,7 @@ namespace PW.Ncels.Controllers
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = expDocument.AssessmentDeclarationId;
                 report.Dictionary.Variables["ContractId"].ValueObject = expRepo.GetAssessmentDeclaration((Guid)expDocument.AssessmentDeclarationId).ContractId;
                 report.Dictionary.Variables["ValueAddedTax"].ValueObject = expRepo.GetValueAddedTax();
-                var totalCount = expRepo.GetContractPrice(expRepo.GetAssessmentDeclaration((Guid)expDocument.AssessmentDeclarationId).ContractId);
+                var totalCount = repository.GetTotalPriceWithApplication(copy);
                 report.Dictionary.Variables["TotalCount"].ValueObject = totalCount;
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalCount), false);
                 report.Dictionary.Variables["TotalCountText"].ValueObject = priceText;
