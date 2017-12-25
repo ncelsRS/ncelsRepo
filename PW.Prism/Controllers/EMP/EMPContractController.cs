@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Web.Mvc;
 using Kendo.Mvc.Extensions;
@@ -6,6 +7,8 @@ using Kendo.Mvc.UI;
 using Ncels.Teme.Contracts;
 using Ncels.Teme.Contracts.ViewModels;
 using Ncels.Teme.Infrastructure;
+using PW.Ncels.Database.Helpers;
+using Stimulsoft.Report;
 
 namespace PW.Prism.Controllers.EMP
 {
@@ -26,6 +29,15 @@ namespace PW.Prism.Controllers.EMP
             {
                 Id = Guid.NewGuid(),
                 StageCode = _service.GetStageCode()
+            });
+        }
+
+        public ActionResult PaymentsIndex()
+        {
+            return PartialView(new EmpContractPaymentIndexViewModel
+            {
+                Id = Guid.NewGuid(),
+                EmployeeId = UserHelper.GetCurrentEmployee().Id
             });
         }
 
@@ -83,8 +95,37 @@ namespace PW.Prism.Controllers.EMP
 
         public ActionResult ContractRegister(Guid id)
         {
-            _service.RegisterContract(id);
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            var contractNumber = _service.RegisterContract(id);
+            return Json(new {contractNumber});
+        }
+
+        public ActionResult GetPayments([DataSourceRequest] DataSourceRequest request)
+        {
+            return Json(_service.GetPayments().ToDataSourceResult(request));
+        }
+
+        public ActionResult EditPayment(Guid contractId)
+        {
+            return PartialView(_service.GetPayment(contractId));
+        }
+
+        public ActionResult GetContractPrice(Guid id)
+        {
+            return Json(new { isSuccess = true, result = _service.GetContractPrice(id) });
+        }
+
+        public ActionResult GetContractTemplatePdf(Guid id)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/EMP/EMP_ContractReport.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("vm", _service.GetContractTemplatePdf(id));
+            report.Render(false);
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
         }
     }
 }

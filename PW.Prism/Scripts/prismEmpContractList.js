@@ -89,21 +89,43 @@ function initFilterEmpContract(uiId) {
         }
     });
 
-    $("#register" + uiId).click(function () {
+    $("#register" + uiId).click(function() {
         var grid = $('#grid' + uiId).data("kendoGrid");
         var selectedItem = grid.dataItem(grid.select());
         if (selectedItem) {
-            $.ajax({
-                url: "/EMPContract/ContractRegister",
-                type: "POST",
-                data: { id: selectedItem.Id },
-                success: function () {
-                    alert("Договор зарегистрирован");
-                    grid.dataSource.read();
-                }
-            });
+            var question = "Вы подтверждаете действие \"Зарегистрировать\"?";
+            if (confirm(question)) {
+                $.ajax({
+                    url: "/EMPContract/ContractRegister",
+                    type: "POST",
+                    data: { id: selectedItem.Id },
+                    success: function(result) {
+                        alert("Договор №" + result.contractNumber + " зарегистрирован");
+                        grid.dataSource.read();
+                    }
+                });
+            }
         } else {
             alert("Выберите договор!");
+        }
+    });
+
+    $("#findTypeActiveBtn" + uiId).click(function () {
+        var findType = $("#findTypeActiveContract" + uiId).val();
+        if (findType != '') {
+            $filter = new Array();
+            if (findType == 0) {
+                $filter.push({ field: "StageStatusCode", operator: "eq", value: "7" });
+            }
+            else {
+                $filter.push({ field: "StageStatusCode", operator: "eq", value: "7" });
+                $filter.push({ field: "ContractStatusId", operator: "eq", value: findType });
+            }
+            var grid = $("#grid" + uiId).data("kendoGrid");
+            grid.dataSource.filter({
+                logic: "and",
+                filters: $filter
+            });
         }
     });
 }
@@ -123,6 +145,7 @@ function panelEmpContractSelect(e) {
             var stageCode = $("#stageCode" + modelId).val();
             var btnToAdjustment = $("#toAdjustment" + modelId);
             var btnRegister = $("#register" + modelId);
+            var findInActiveBlock = $("#findInActiveBlock" + modelId);
 
             if (selectValue === "1" || (selectValue === "4" && stageCode === "1")) {
                 btnToWork.attr("hidden", false);
@@ -140,6 +163,12 @@ function panelEmpContractSelect(e) {
                 btnRegister.attr("hidden", false);
             } else {
                 btnRegister.attr("hidden", true);
+            }
+
+            if (selectValue === "7") {
+                findInActiveBlock.attr("hidden", false);
+            } else {
+                findInActiveBlock.attr("hidden", true);
             }
         }
         if (selectValue === '') {

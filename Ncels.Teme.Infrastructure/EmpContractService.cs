@@ -12,6 +12,7 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Notifications;
+using PW.Ncels.Database.Repository.EMP;
 
 namespace Ncels.Teme.Infrastructure
 {
@@ -61,7 +62,8 @@ namespace Ncels.Teme.Infrastructure
                     Declarant = stage.EMP_Contract.OBK_Declarant.NameRu,
                     ContractType = stage.EMP_Contract.EMP_Ref_ContractType.NameRu,
                     StageStatusCode = stage.EMP_Ref_StageStatus.Code,
-                    ContractStageId = stage.Id
+                    ContractStageId = stage.Id,
+                    ContractStatusId = stage.EMP_Contract.EMP_DirectionToPayments.Select(x => x.OBK_Ref_PaymentStatus.Code).FirstOrDefault()
                 });
 
             return q.AsQueryable();
@@ -110,6 +112,53 @@ namespace Ncels.Teme.Infrastructure
                 }).ToList(),
                 Attachments = GetContractAttachments(contractId)
             };
+        }
+
+        public IEnumerable<EmpContractPaymentViewModel> GetPayments()
+        {
+            var query = _uow.GetQueryable<EMP_DirectionToPayments>()
+                .Select(x => new EmpContractPaymentViewModel
+                {
+                    Id = x.Id,
+                    ContractId = x.ContractId,
+                    TotalPrice = x.TotalPrice ?? 0,
+                    CreateDate = x.CreateDate,
+                    ContractNumber = x.EMP_Contract.Number,
+                    ExecutorName = x.Employee.DisplayName,
+                    PayerValue = x.OBK_Declarant.NameRu,
+                    StatusCode = x.OBK_Ref_PaymentStatus.Code
+                });
+            return query.ToList();
+        }
+
+        public EmpContractPaymentDetailsViewModel GetPayment(Guid contractId)
+        {
+            var contract = _uow.GetQueryable<EMP_Contract>().First(x => x.Id == contractId);
+            var vm = new EmpContractPaymentDetailsViewModel
+            {
+                InvoiceNumber1C = contract.EMP_DirectionToPayments.FirstOrDefault(e => e.ContractId == contract.Id && e.IsDeleted == false)?.InvoiceNumber1C,
+                InvoiceDate1C = contract.EMP_DirectionToPayments.FirstOrDefault(e => e.ContractId == contract.Id && e.IsDeleted == false)?.InvoiceDate1C,
+                ContractId = contract.Id,
+                Contract = contract.Number + (contract.StartDate != null ? " от " + contract.StartDate : "") + " " + contract.EMP_Ref_ContractType.NameRu,
+                Provider = "БИН/ИИН " + contract.OBK_DeclarantManufactur.Bin + " " + contract.OBK_DeclarantManufactur.NameRu + " " + contract.OBK_DeclarantContactManufactur.AddressLegalRu,
+                Buyer = "БИН/ИИН " + contract.OBK_Declarant.Bin + " " + contract.OBK_Declarant.NameRu + " " + contract.OBK_DeclarantContact.AddressLegalRu
+            };
+            return vm;
+        }
+
+        public IEnumerable<EmpContractPaymentPriceViewModel> GetContractPrice(Guid contractId)
+        {
+            var contract = _uow.GetQueryable<EMP_Contract>().First(x => x.Id == contractId);
+            int i = 1;
+            return contract.EMP_CostWorks.Select(x => new EmpContractPaymentPriceViewModel
+            {
+                Line = i++,
+                PriceWithTax = Math.Round(TaxHelper.GetCalculationTax(x.Price ?? 0), 2),
+                //Price = Math.Round((decimal?)x.Count ?? 0 * TaxHelper.GetCalculationTax(x.Price ?? 0), 2),
+                Count = x.Count ?? 0,
+                ServiceName = x.EMP_Ref_PriceList.EMP_Ref_ServiceType.NameRu,
+                ProductName = contract.MedicalDeviceName
+            });
         }
 
         private EmpContractDeclarantViewModel GetDeclarant(OBK_Declarant declarant, OBK_DeclarantContact declarantContact)
@@ -367,6 +416,13 @@ namespace Ncels.Teme.Infrastructure
             new NotificationManager().SendNotification(message, ObjectType.EmpContract, contract.Id, executorId);
         }
 
+        private void SendNotificationToApplicantRegistered(EMP_Contract contract)
+        {
+            var message = string.Format("Договор зарегистрирован. № {0}, дата начала действия {1}. Необходимо произвести оплату работ по предоставленному счету на оплату",
+                contract.Number, contract.StartDate?.ToString("dd.MM.yyyy"));
+            new NotificationManager().SendNotification(message, ObjectType.ObkContract, contract.Id, contract.EmployeeId.Value);
+        }
+
         public bool CanApprove(Guid stageId)
         {
             var empl = UserHelper.GetCurrentEmployee();
@@ -426,9 +482,72 @@ namespace Ncels.Teme.Infrastructure
             _uow.Save();
         }
 
-        public void RegisterContract(Guid contractId)
+        public string RegisterContract(Guid contractId)
         {
-            
+            var contract = _uow.GetQueryable<EMP_Contract>().First(x => x.Id == contractId);
+            contract.Number = GetLastNumberOfContract();
+            contract.StartDate = DateTime.Now;
+
+            var digitalSign = _uow.GetQueryable<EMP_ContractSignData>().FirstOrDefault(x => x.ContractId == contractId);
+            if (digitalSign != null)
+            {
+                contract.ContractStatusId = _uow.GetQueryable<EMP_Ref_Status>()
+                    .Where(x => x.Code == CodeConstManager.EmpContractStatus.OnInvoiceOfPaymentFormation)
+                    .Select(x => x.Id).FirstOrDefault();
+                var stageStatus = _uow.GetQueryable<EMP_Ref_StageStatus>()
+                    .Where(x => x.Code == CodeConstManager.EmpContractStageStatus.Active).Select(x => x.Id)
+                    .FirstOrDefault();
+                foreach (var contractStage in contract.EMP_ContractStage)
+                    contractStage.StageStatusId = stageStatus;
+            }
+
+            new EmpContractStageHistoryHandler(_uow).AddHistoryRegistered(contractId);
+            _uow.Save();
+
+            SendNotificationToApplicantRegistered(contract);
+
+            SavePayments(contract);
+
+            return contract.Number;
+        }
+
+        public object GetContractTemplatePdf(Guid contractId)
+        {
+            return new EMPContractRepository().GetContractReportData(contractId);
+        }
+
+        private void SavePayments(EMP_Contract contract)
+        {
+            var pay = new EMP_DirectionToPayments
+            {
+                Id = Guid.NewGuid(),
+                CreateDate = DateTime.Now,
+                ContractId = contract.Id,
+                CreateEmployeeId = UserHelper.GetCurrentEmployee().Id,
+                CreateEmployeeValues = UserHelper.GetCurrentEmployee().DisplayName,
+                DirectionDate = DateTime.Now,
+                Number = contract.Number,
+                PayerId = contract.OBK_Declarant.Id,
+                PayerValue = contract.OBK_Declarant.NameRu,
+                IsDeleted = false,
+                TotalPrice = contract.EMP_CostWorks.Sum(e =>
+                    Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(e.Price.Value) * e.Count), 2)),
+                StatusId = _uow.GetQueryable<OBK_Ref_PaymentStatus>()
+                    .Where(e => e.Code == OBK_Ref_PaymentStatus.OnFormation).Select(x => x.Id).FirstOrDefault()
+            };
+            _uow.Insert(pay);
+            _uow.Save();
+        }
+
+        private string GetLastNumberOfContract()
+        {
+            string number = "1";
+            var numbers = _uow.GetQueryable<EMP_Contract>().Select(x => x.Number).ToList();
+            int temp;
+            int contractNumber = numbers.Select(n => int.TryParse(n, out temp) ? temp : 0).Max();
+            contractNumber++;
+            number = contractNumber.ToString();
+            return number;
         }
     }
 }
