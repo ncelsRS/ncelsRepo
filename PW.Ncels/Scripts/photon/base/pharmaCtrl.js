@@ -33,7 +33,7 @@
 
 }
 
-function loadDictionary($scope, name, $http, orderByName) {
+function loadDictionary($scope, name, $http, orderByName, cb) {
     $http({
         method: 'GET',
         url: '/Dictionaries/GetReference',
@@ -44,6 +44,7 @@ function loadDictionary($scope, name, $http, orderByName) {
         }
     }).success(function (result) {
         $scope[name] = result;
+        if (cb && typeof cb === 'function') cb();
     });
 }
 
