@@ -247,6 +247,15 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         /// <summary>
+        /// расчет стоимости с НДС
+        public decimal GetTotalPriceWithApplication(OBK_ZBKCopy copy)
+        {
+            double price = 219;
+            var tPrice = Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(price) * copy.CopyQuantity * 2), 2);
+            return tPrice;
+        }
+
+        /// <summary>
         /// расчет стоимости без НДС
         public decimal GetTotalPriceWithoutNds(OBK_ZBKCopy copy)
         {
@@ -429,7 +438,7 @@ namespace PW.Ncels.Database.Repository.OBK
                            expConclusionNumber = StageExpDoc.ExpConclusionNumber,
                            expBlankNumber = StageExpDoc.ExpBlankNumber,
                            expStartDate = StageExpDoc.ExpStartDate,
-                           status = StageExpDoc.ExpEndDate >= StageExpDoc.ExpStartDate ? "Действующий" : "Срок действия истек",
+                           status = StageExpDoc.ExpEndDate > StageExpDoc.ExpStartDate ? "Действующий" : "Срок действия истек",
                            assessDecId = AssessDec.Id,
                            assessDecType = AssessDec.TypeId,
                            employeeId = AssessDec.EmployeeId,
@@ -498,7 +507,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IEnumerable<OBK_Ref_Type> OBK_Ref_Type()
         {
-            return AppContext.OBK_Ref_Type;
+            return AppContext.OBK_Ref_Type.Where(o => o.ViewOption == 1);
         }
 
         public IQueryable<object> Products(Guid contractId)
@@ -683,13 +692,13 @@ namespace PW.Ncels.Database.Repository.OBK
             return replacedBlanks;
         }
 
-        public Guid ContractId(Guid ZBKCopyId)
+        public Guid? ContractId(Guid ZBKCopyId)
         {
             var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == ZBKCopyId);
             var expDoc = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
             var declalration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == expDoc.AssessmentDeclarationId);
 
-            return declalration.Id;
+            return declalration.ContractId;
         }
 
         public ZBKViewModel EditCopy(Guid ZBKCopyId)
