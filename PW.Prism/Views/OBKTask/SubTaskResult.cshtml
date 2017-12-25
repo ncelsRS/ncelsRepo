@@ -1,0 +1,315 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKSubTaskResult
+
+@{
+    var tab1 = "tab-1" + Model.Id;
+    var tab1b = "#" + tab1;
+    var tab2 = "tab-2" + Model.Id;
+    var tab2b = "#" + tab2;
+}
+
+<div style="display: none;" id="labMarkId">
+    @Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })
+</div>
+
+<div id="resultSubTaskPanel_@Model.Id" class="panel panel-default">
+    <div class="panel-heading">
+        Результат проведенных испытаний
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" onclick="allRegilation()" href="@tab1b">Данные протокола</a></li>
+                        <li class=""><a data-toggle="tab" href="@tab2b">Показатели результаты испытаний</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="@tab1" class="tab-pane active">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Наименование продукции</label>
+                                            <textarea class="form-control" disabled="disabled" type="text">@Model.ProductNameKz</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Общий НД</label>
+                                            <textarea class="form-control" disabled="disabled" type="text">@Model.NdProduct</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>НД на методы испытаний</label>
+                                            @if (Model.IsNew)
+                                            {<textarea class="form-control" id="testRegulation" type="text"></textarea>}
+                                            else
+                                            {<textarea class="form-control" disabled="disabled" type="text">@Model.Regulation</textarea>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>Результат испытаний</label>
+                                            @if (Model.IsNew)
+                                            {@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control", value = "" })}
+                                            else
+                                            {@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control", disabled= "disabled" })}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        @if (Model.IsNew) {<button type="button" class="btn btn-default" id="saveResultBtn" onclick="saveResult()">Сохранить</button>}
+                                        <button type="button" class="btn btn-default" onclick="signBtn()">Подписать</button>
+                                        <button type="button" class="btn btn-default">Отмена</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="@tab2" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tableExpertResult" class="table table-striped table-bordered table-hover dataTable tableResearchCenter">
+                                            <thead>
+                                            <tr>
+                                                <td></td>
+                                                <td>Показатель</td>
+                                                <td>Обозначение нормативных документов на методы испытаний</td>
+                                                <td>Требования НД</td>
+                                                <td>Фактически полученный результат</td>
+                                                <td>Т 0С и влажность (%)</td>
+                                                <td></td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @if (Model.IsNew)
+                                            {
+                                                <tr rowid="1">
+                                                    <td>1</td>
+                                                    <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>) (ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
+                                                    <td><select id="regulation_1" name="regulation"  class="form-control subtask-control"></select></td>
+                                                    <td><input type="text" id="claim" class="form-control subtask-control"/></td>
+                                                    <td><input type="text" id="factResult" class="form-control subtask-control"/></td>
+                                                    <td><input type="text" id="humidity" class="form-control subtask-control"/></td>
+                                                    <td></td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                foreach (var st in Model.SubTaskIndicator)
+                                                {
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>@st.LaboratoryMarkNameRu</td>
+                                                        <td>@st.LaboratoryRegulationNameRu</td>
+                                                        <td>@st.Claim</td>
+                                                        <td>@st.FactResult</td>
+                                                        <td>@st.Humidity</td>
+                                                        <td></td>
+                                                    </tr>
+                                                }
+                                            }
+                                            </tbody>
+                                            @if (Model.IsNew)
+                                            {
+                                                <tfoot>
+                                                <tr>
+                                                    <td colspan="7" style="text-align: left;">
+                                                        <button type="button" class="btn btn-default" id="addRowTableBtn" onclick="addRowTable()">Добавить</button>
+                                                    </td>
+                                                </tr>
+                                                </tfoot>
+                                            }
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function addRowTable() {
+        debugger;
+        var tbody = $('table#tableExpertResult tbody:first');
+        var lastRowIndex = tbody.children('tr').length;
+        var nextIndex = parseInt(lastRowIndex) + 1;
+        var selectList = document.getElementById("labMarkId");
+        var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+        var cols = '<tr rowid="' + nextIndex + '">';
+        cols += '<td>' + nextIndex + '</td>';
+        cols += '<td>' + selectType + '</td>';
+        cols += '<td><select id="regulation_' +
+            nextIndex +
+            '" name="regulation"  class="form-control subtask-control"></select></td>';
+        cols += '<td><input type="text" id="claim" class="form-control subtask-control" /></td>';
+        cols += '<td><input type="text" id="factResult" class="form-control subtask-control" /></td>';
+        cols += '<td><input type="text" id="humidity" class="form-control subtask-control" /></td>';
+        cols += '<td><i class="glyphicon glyphicon-remove" onclick="deleteRow(this)" title="Удалить"></i></td>';
+        cols += '</tr>';
+        tbody.append(cols);
+    }
+
+    function deleteRow(e) {
+        var row = $(e).closest('tr');
+        var success = function() {
+            row.remove();
+        }
+        var cancel = function() {
+        };
+        showConfirmation("Удалить", "Вы уверены, что хотите удалить?", success, cancel);
+    }
+
+    function GetRegulation(labMarkId, tr) {
+        var rowId = $(tr).attr('rowid');
+        $.ajax({
+            url: '/OBKTask/GetRegulation',
+            data: { id: labMarkId },
+            cache: false,
+            type: "POST",
+            success: function(result) {
+                var markup = "<option value=''></option>";
+                for (var x = 0; x < result.length; x++) {
+                    markup += "<option value=" + result[x].Value + ">" + result[x].Text + "</option>";
+                }
+                $("#regulation_" + rowId).html(markup).show();
+            },
+            error: function(reponse) {
+                alert("error : " + reponse);
+            }
+        });
+    }
+
+    function allRegilation() {
+        var reg = Array();
+        $("table#tableExpertResult tbody tr").each(function () {
+            var rowid = $(this).attr('rowid');
+            var regulationId = $(this).find('select#regulation_' + rowid + ' option:selected').text();
+            reg.push(regulationId);
+        });
+        $("#testRegulation").val(reg.join(', '));
+    }
+
+    function saveResult() {
+        if (validSubTask()) {
+            var success = function() {
+                var subTaskIndicator = new Array();
+                $("table#tableExpertResult tbody tr").each(function() {
+                    debugger;
+                    var rowid = $(this).attr('rowid');
+                    var laboratoryMarkId = $(this).find('select#LaboratoryMarkId option:selected').val();
+                    var regulationId = $(this).find('select#regulation_' + rowid + ' option:selected').val();
+                    var claim = $(this).find('input#claim').val();
+                    var factResult = $(this).find('input#factResult').val();
+                    var humidity = $(this).find('input#humidity').val();
+                    subTaskIndicator.push({
+                        LaboratoryMarkId: laboratoryMarkId,
+                        RegulationId: regulationId,
+                        Claim: claim,
+                        FactResult: factResult,
+                        Humidity: humidity
+                    });
+                });
+
+                var model = {
+                    Id: '@Model.Id',
+                    Nd: $("textarea#nd").val(),
+                    ExpertiseResult: $("#ExpertiseResult").val(),
+                    Regulation: $("#testRegulation").val(),
+                    SubTaskIndicator: subTaskIndicator
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/OBKTask/SaveSubTaskResult',
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    cache: false,
+                    success: function(data) {
+                        if (data.isSuccess) {
+                            $('#resultSubTaskPanel_@Model.Id input')
+                                .each(function() { $(this).attr('readonly', true); });
+                            $('#resultSubTaskPanel_@Model.Id textarea').each(function() {
+                                $(this).attr('readonly', true);
+                            });
+                            $('#resultSubTaskPanel_@Model.Id select').each(function () { $(this).attr('disabled', true); });
+                            $("#addRowTableBtn").attr('disabled', true);
+                            $("#saveResultBtn").attr('disabled', true);
+                            $("#createResultBtn_@Model.Id").attr('disabled', true);
+                        } else {
+                            alert('Ошибка при сохранении');
+                        }
+                    }
+                });
+            }
+            var cancel = function () {
+            };
+            showConfirmation("Сохранить", "Данное действие не возможно будет отметить. Вы уверены, что хотите сохранить результаты?", success, cancel);
+        } else {
+            alert("Заполните обязательные поля");
+        }
+    }
+
+    function signBtn() {
+        var subTaskId = '@Model.Id';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetSignSubTaskExpert?id=' + subTaskId,
+            success: function (result) {
+                startSign(result.data, subTaskId, saveSignedPayment);
+            }
+        });
+
+        function saveSignedPayment(signedData, id) {
+            var sData = {
+                id: id,
+                signedData: signedData
+            };
+            var json = JSON.stringify(sData);
+            $.ajax({
+                type: 'POST',
+                url: '/OBKTask/SaveSignedSubTaskExpert',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    debugger;
+                    if (result.isSuccess) {
+                        alert("Результат успешно подписан");
+                    } else {
+                        alert("Ошибка при подписании");
+                    }
+                }
+            });
+        }
+    }
+
+    function validSubTask() {
+        var valid = true;
+        $('.subtask-control').each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                $(this).css({ 'border-color': '#a94442' });
+                valid = false;
+            } else {
+                $(this).css({ 'border-color': '#cccccc' });
+            }
+        });
+        if ($("#ExpertiseResult").val() == "" || $("#ExpertiseResult").val() == null) {
+            $("#ExpertiseResult").css({ 'border-color': '#a94442' });
+            valid = false;
+        } else {
+            $("#ExpertiseResult").css({ 'border-color': '#cccccc' });
+        }
+        return valid;
+    }
+</script>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Services.Description;
+using Kendo.Mvc;
 using Kendo.Mvc.UI;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
@@ -254,11 +255,119 @@ namespace PW.Prism.Controllers.OBKTask
 
         public ActionResult ResearchCenterList([DataSourceRequest] DataSourceRequest request)
         {
-            var organizationId = UserHelper.GetCurrentEmployee().OrganizationId;
+            var filterStatus = ModifyFilters(request.Filters);
+
+            //var organizationId = UserHelper.GetCurrentEmployee().OrganizationId;
+            var departamentId = UserHelper.GetDepartment().Id;
             var userId = UserHelper.GetCurrentEmployee().Id;
-            var list = repo.GetTaskList(organizationId, userId);
+            //var list = repo.GetCenterListViews(departamentId, userId);
+            var list = repo.GetResearchCenterListView(departamentId, userId, filterStatus);
             var result = list.ToDataSourceResult(request);
             return Json(result);
+        }
+
+        private string ModifyFilters(IEnumerable<IFilterDescriptor> filters)
+        {
+            if (filters.Any())
+            {
+                foreach (var filter in filters)
+                {
+                    var descriptor = filter as FilterDescriptor;
+                    if (descriptor != null && descriptor.Member == "StageStatusCode")
+                    {
+                        return descriptor.Value.ToString();
+                    }
+                }
+            }
+            return null;
+        }
+
+        public ActionResult EditResearchCenter(Guid taskId, Guid unitLabId, string stautsCode)
+        {
+            switch (stautsCode)
+            {
+                case OBK_Ref_StageStatus.New:
+                    //todo добавить статус и вызывать разные view
+                    var model = repo.EditResearchCenter(taskId, unitLabId);
+                    return PartialView(model);
+                case OBK_Ref_StageStatus.InWork:
+                case OBK_Ref_StageStatus.InReWork:
+                    var result = repo.EditExpertResearchCenter(taskId, unitLabId);
+                    return PartialView("EditExpertResearchCenter", result);
+                case OBK_Ref_StageStatus.RequiresSigning:
+                case OBK_Ref_StageStatus.Completed:
+                    var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId);
+                    return PartialView("EditChiefResearchCenter", resposnse);
+            }
+            return PartialView(null);
+        }
+
+        public ActionResult SendToExecutorReseachCenter(OBKTaskResearchCenter taskResearchCenter)
+        {
+            repo.SendToExecutorReseachCenter(taskResearchCenter);
+            return Json(new {isSuccess = true});
+        }
+
+        public ActionResult SubTaskResult(Guid taskMaterialId, bool isNew)
+        {
+            var model = repo.SubTaskResult(taskMaterialId, isNew);
+            if (isNew)
+            {
+                ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
+                ViewData["LabNdMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
+                var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
+                ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name", "");
+            }
+            else
+            {
+              
+                ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
+                var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
+                ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name");
+            }
+            return PartialView(model);
+        }
+
+        public ActionResult SaveSubTaskResult(OBKSubTaskResult subTaskResult)
+        {
+            var result = repo.SaveSubTaskResult(subTaskResult);
+            return Json(new { isSuccess = result });
+        }
+
+        public ActionResult GetSignSubTaskExpert(Guid id)
+        {
+            var signData = repo.GetSubTaskSignDataExpert(id);
+            return Json(new { data = signData }, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SaveSignedSubTaskExpert(Guid id, string signedData)
+        {
+            var result = repo.SaveSignedSubTaskExpert(id, signedData);
+            return Json(new { isSuccess = result });
+        }
+
+        public ActionResult GetSignTaskChief(Guid taskId)
+        {
+            var signData = repo.GetTaskSignDataChief(taskId);
+            return Json(new { data = signData }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveSignedTaskChief(Guid taskId, string signedData)
+        {
+            var result = repo.SaveSignedTaskChief(taskId, signedData);
+            return Json(new { isSuccess = result });
+        }
+
+        public ActionResult GetRegulation(Guid id)
+        {
+            var result = repo.GetRegulation(id);
+            SelectList maskNd = new SelectList(result, "Id", "NameRu");
+            return Json(maskNd);
+        }
+
+        public ActionResult SendToChief(Guid taskId)
+        {
+            var result = repo.SendToChief(taskId);
+            return Json(new {isSuccess = result}, JsonRequestBehavior.AllowGet);
         }
 
         #endregion

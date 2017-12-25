@@ -10,6 +10,7 @@ namespace PW.Ncels.Database.Models.OBK
     {
         public Guid AssessmentDeclarationId { get; set; }
         public Guid TaskId { get; set; }
+        public Guid UnitLaboratoryId { get; set; }
         public string TaskNumber { get; set; }
         public string RegisterDate { get; set; }
         public string ActNumber { get; set; }

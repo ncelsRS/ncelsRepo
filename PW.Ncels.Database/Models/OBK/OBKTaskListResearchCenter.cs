@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace PW.Ncels.Database.Models.OBK
 {
     public class OBKTaskListResearchCenter
     {
+        public Guid Id { get; set; }
         public int ProductSeriesId { get; set; }
         public string ProductNameRu { get; set; }
         public string ProductNameKz { get; set; }
@@ -16,7 +18,14 @@ namespace PW.Ncels.Database.Models.OBK
         public string SeriesStartdate { get; set; }
         public string SeriesEndDate { get; set; }
         public string SeriesParty { get; set; }
+        /// <summary>
+        /// кол-во переданных
+        /// </summary>
         public int? Quantity { get; set; }
+        /// <summary>
+        /// кол-во в акте
+        /// </summary>
+        public int? ActQuantity { get; set; }
         /// <summary>
         /// Идентификационный номер
         /// </summary>
@@ -33,15 +42,40 @@ namespace PW.Ncels.Database.Models.OBK
         /// выбранные лаборатории
         /// </summary>
         public List<OBKLaboratory> Laboratory { get; set; }
+        /// <summary>
+        /// для отображения
+        /// </summary>
+        public string LaboratoryName { get; set; }
+        /// <summary>
+        /// ФИО исполнителя
+        /// </summary>
+        public string ExecutorLaboratoryName { get; set; }
+        /// <summary>
+        /// Подпись исполнителя
+        /// </summary>
+        public bool ExecutorLaboratorySign { get; set; }
 
         public List<SelectedResearchCenter> SelectedResearchCenter { get; set; }
 
         public List<SelectedQuantity> SelectedQuantity { get; set; }
 
+        public List<SubTaskIndicator> SubTaskResult { get; set; }
+
         /// <summary>
         /// Размерность ИМН
         /// </summary>
         public string DimensionIMN { get; set; }
+        
+        /// <summary>
+        /// Исполнитель лаборатории
+        /// </summary>
+        public IEnumerable<SelectListItem> ExecutorLaboratoryList { get; set; }
+        public Guid LaboratoryAssistantId { get; set; }
+
+        /// <summary>
+        /// если уже результат ИЦ создан
+        /// </summary>
+        public bool CreateBtnValid { get; set; }
 
     }
     public class OBKLaboratory
@@ -59,7 +93,7 @@ namespace PW.Ncels.Database.Models.OBK
     }
 
     /// <summary>
-    /// Кол-во переденных образцов по лоборавториям 
+    /// Кол-во переданных образцов по лаборавториям 
     /// </summary>
     public class SelectedQuantity
     {

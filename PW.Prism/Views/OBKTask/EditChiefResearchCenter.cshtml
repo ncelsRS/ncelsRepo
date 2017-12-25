@@ -1,0 +1,201 @@
+﻿
+@model PW.Ncels.Database.Models.OBK.OBKTaskResearchCenter
+
+<style>
+    .btn-blue {
+        color: #ffffff;
+        background-color: #008fbf;
+        border-color: #008ebf;
+    }
+
+    table.tableResearchCenter tr, td, th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    tr.expandable-table-row{
+        display: none
+    }
+    tr.expandable-table-row.active{
+        display: table-row;
+    }
+
+    tr.italic {
+        font-style: italic;
+    }
+</style>
+
+<div style="margin-left: 10px; margin-right: 10px; width: 1300px; height: 550px; overflow-y: auto;">
+    <div class="pwPage pwPageEx" style="overflow: hidden; width: auto;">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" onclick="chiefSignBtn()">Подписать</button>
+                    <button type="button" class="btn btn-default" onclick="">Вернуть на доработку</button>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Просмотр результатов проведеных испытаний
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ задания</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@Model.TaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата регистрации</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.RegisterDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ акта отбора</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.ActNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>ИЦл/ИЛ</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.UnitName">
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="tabs-container">
+                            <div class="tab-content">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tableExpertResearchCenter" class="table table-striped table-bordered table-hover dataTable tableResearchCenter">
+                                                <thead>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>Наименование продукции</td>
+                                                    <td>Серия</td>
+                                                    <td>Вид испытаний</td>
+                                                    <td>Исполнитель</td>
+                                                    <td>Подпись исполнителя</td>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var t in Model.TaskListResearchCenter)
+                                                {
+                                                    <tr rowProductId="@t.Id">
+                                                        <td><a href="#" data-toggle="expand-table-row">+</a></td>
+                                                        <td>@t.ProductNameRu</td>
+                                                        <td>@t.Series</td>
+                                                        <td>@t.LaboratoryName</td>
+                                                        <td>@t.ExecutorLaboratoryName</td>
+                                                        <td>@if (t.ExecutorLaboratorySign)
+                                                            {<label>Подписан</label>}
+                                                            else
+                                                            {<label>Не подписан</label>}</td>
+                                                    </tr>
+                                                    if (t.SubTaskResult.Count > 0)
+                                                    {
+                                                        <tr rowResultId="@t.Id" class="expandable-table-row italic">
+                                                            <td></td>
+                                                            <td>Показатель</td>
+                                                            <td>Обозначение нормативных документов на методы испытаний</td>
+                                                            <td>Требования НД</td>
+                                                            <td>Фактически полученный результат</td>
+                                                            <td>Т 0С и влажность (%)</td>
+                                                        </tr>
+                                                        foreach (var subTask in t.SubTaskResult)
+                                                        {
+                                                            <tr rowResultId="@t.Id" class="expandable-table-row italic">
+                                                                <td></td>
+                                                                <td>@subTask.LaboratoryMarkNameRu</td>
+                                                                <td>@subTask.LaboratoryRegulationNameRu</td>
+                                                                <td>@subTask.Claim</td>
+                                                                <td>@subTask.FactResult</td>
+                                                                <td>@subTask.Humidity</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr rowResultId="@t.Id" class="expandable-table-row italic"><td></td><td colspan="5">Нет данных</td></tr>
+                                                    }
+                                                }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $('[data-toggle="expand-table-row"]').on('click',
+        function(e) {
+            debugger;
+            e.preventDefault();
+            var rowProductId = $(this).parents('tr').attr('rowProductId');
+
+            $("table#tableExpertResearchCenter tbody tr").each(function() {
+                debugger;
+                var rowResultId = $(this).attr('rowResultId');
+                if (rowResultId == rowProductId) {
+                    var row = $(this);
+                    if (row.hasClass('active')) {
+                        row.removeClass('active');
+                    } else {
+                        row.addClass('active');
+                    }
+                }
+            });
+        });
+
+    function chiefSignBtn() {
+        var taskId = '@Model.TaskId';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetSignTaskChief?taskId=' + taskId,
+            success: function(result) {
+                startSign(result.data, taskId, saveSignedTaskChief);
+            }
+        });
+
+        function saveSignedTaskChief(signedData, id) {
+            var sData = {
+                taskId: id,
+                signedData: signedData
+            };
+            var json = JSON.stringify(sData);
+            $.ajax({
+                type: 'POST',
+                url: '/OBKTask/SaveSignedTaskChief',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function(result) {
+                    debugger;
+                    if (result.isSuccess) {
+                        alert("Задание успешно подписано");
+                    } else {
+                        alert("Ошибка при подписании");
+                    }
+                }
+            });
+        }
+    }
+</script>
+

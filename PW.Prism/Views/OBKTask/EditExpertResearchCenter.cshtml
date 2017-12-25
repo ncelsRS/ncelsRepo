@@ -1,0 +1,145 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKTaskResearchCenter
+    
+<style>
+    .btn-blue {
+        color: #ffffff;
+        background-color: #008fbf;
+        border-color: #008ebf;
+    }
+    table.tableResearchCenter tr, td, th {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
+<div id="editTaskPanel_@Model" style="margin-left: 10px; margin-right: 10px; width: 1300px; height: 550px; overflow-y: auto;">
+    <div class="pwPage pwPageEx" style="overflow: hidden; width: auto;">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" onclick="sendToChief()">Отправить руководителю</button>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Просмотр задания на проведение испытаний
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ задания</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@Model.TaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата регистрации</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.RegisterDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ акта отбора</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.ActNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>ИЦл/ИЛ</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.UnitName">
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="tabs-container">
+                            <div class="tab-content">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tableExpertResearchCenter" class="table table-striped table-bordered table-hover dataTable tableResearchCenter">
+                                                <thead>
+                                                <tr>
+                                                    <td>Наименование продукции</td>
+                                                    <td>Серия</td>
+                                                    <td>Кол-во переданных образцов</td>
+                                                    <td>Идентификационный номер</td>
+                                                    <td>Вид испытаний</td>
+                                                    <td>Исполнитель</td>
+                                                    <td></td>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var t in Model.TaskListResearchCenter)
+                                                {
+                                                    <tr rowProductId="@t.Id">
+                                                        <td>@t.ProductNameRu</td>
+                                                        <td>@t.Series</td>
+                                                        <td>@t.Quantity</td>
+                                                        <td>@t.IdNumber</td>
+                                                        <td>@t.LaboratoryName</td>
+                                                        <td>@t.ExecutorLaboratoryName</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-blue" disabled="@t.CreateBtnValid" id="createResultBtn_@t.Id" onclick="createResult(this, true)">Создать</button>
+                                                            <button type="button" class="btn btn-blue" onclick="createResult(this, false)">Просмотр</button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div hidden="hidden" id="panelCreateResult_@Model.TaskId">
+            <div id="resultContent_@Model.TaskId"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function createResult(e, isNew) {
+        debugger;
+        var taskMaterialId = $(e).closest('tr').attr('rowProductId');
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/SubTaskResult',
+            data: { taskMaterialId: taskMaterialId, isNew: isNew },
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#resultContent_@Model.TaskId').html(data);
+                $("#panelCreateResult_@Model.TaskId").show();
+            }
+        });
+    }
+
+    function sendToChief() {
+        var taskId = '@Model.TaskId';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/SendToChief',
+            data: { taskId: taskId },
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess)
+                    alert('Задание передано руководителю');
+                else 
+                    alert('Необходимо подписать задание');
+            }
+        });
+    }
+
+</script>
