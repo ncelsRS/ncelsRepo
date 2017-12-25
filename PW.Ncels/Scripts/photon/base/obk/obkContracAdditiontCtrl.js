@@ -1,4 +1,6 @@
 ﻿function obkContracAdditiontForm($scope, $http, $interval, $uibModal, $window) {
+    var contractAdditionLoaded = 2;
+
     $scope.loadContracts = function () {
         $http({
             method: 'GET',
@@ -267,13 +269,14 @@
                 $scope.object.CurrencyId = resp.data.contract.CurrencyId;
                 $scope.object.BankNameRu = resp.data.contract.BankNameRu;
                 $scope.object.BankNameKz = resp.data.contract.BankNameKz;
-
-                for (var i = 0; i < $scope.OBKContractAddition.length; i++) {
-                    if ($scope.OBKContractAddition[i].Id == $scope.contractAddition.ContractAdditionTypeId) {
-                        $scope.contractAdditionTypeCode = $scope.OBKContractAddition[i].Code;
-                        break;
+                contractAdditionLoaded--;
+                if (contractAdditionLoaded === 0)
+                    for (var i = 0; i < $scope.OBKContractAddition.length; i++) {
+                        if ($scope.OBKContractAddition[i].Id == $scope.contractAddition.ContractAdditionTypeId) {
+                            $scope.contractAdditionTypeCode = $scope.OBKContractAddition[i].Code;
+                            break;
+                        }
                     }
-                }
 
             }
         }, function (response) {
@@ -481,7 +484,16 @@
     $scope.object.Status = 1;
     $scope.declarant = {};
     $scope.contractAddition = {};
-    loadDictionary($scope, 'OBKContractAddition', $http);
+    loadDictionary($scope, 'OBKContractAddition', $http, null, function () {
+        contractAdditionLoaded--;
+        if (contractAdditionLoaded === 0)
+            for (var i = 0; i < $scope.OBKContractAddition.length; i++) {
+                if ($scope.OBKContractAddition[i].Id == $scope.contractAddition.ContractAdditionTypeId) {
+                    $scope.contractAdditionTypeCode = $scope.OBKContractAddition[i].Code;
+                    break;
+                }
+            }
+    });
     loadDictionary($scope, 'OpfType', $http);
     loadDictionary($scope, 'Country', $http);
     loadDictionary($scope, 'Currency', $http);
