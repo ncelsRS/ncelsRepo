@@ -422,7 +422,7 @@ namespace PW.Ncels.Database.Repository.OBK
                        join zbkC in AppContext.OBK_ZBKCopy
                             on StageExpDoc.Id equals zbkC.OBK_StageExpDocumentId into OBK_ZBKCopy
                        from zbkCopy in OBK_ZBKCopy.DefaultIfEmpty()
-                           //where AssessDec.EmployeeId == userId
+                           where AssessDec.EmployeeId == userId
                        select new
                        {
                            stageExpDocId = StageExpDoc.Id,
