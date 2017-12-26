@@ -200,6 +200,21 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanViewRegisterAndAttachContract", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопки \"Зарегистрировать\"/\"Прикрепить договор\"", "Работа с договорами ОБК");
             AddPermission("CanOBKPayment", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопку \"Счет на оплату\"", "Работа с договорами ОБК");
 
+            // EMP Contracts
+            AddPermission("EmpContractNotDistributedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не распределенные\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractInWorkStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"В работе\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractOnAdjustmentStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"На корректировке\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractApprovalRequiredStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Требует согласования\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractNotApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractActiveStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Активные\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractNewStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Новые\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractRegistrationRquiredStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Требуют регистрации\"", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractAssignment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность распределять договоры", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractSendToAdjustment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность отправлять договоры на доработку", "Работа с договорами по экспертизе ИМН и МТ");
+            AddPermission("EmpContractRegister", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность регистрировать договоры", "Работа с договорами по экспертизе ИМН и МТ");
+
+
             RemoveNonActualKeys();
         }
 
@@ -1003,6 +1018,23 @@ namespace PW.Ncels.Database.Helpers
         /// Отображать кнопку "Счет на оплату"
         /// </summary>
         public static bool CanOBKPayment { get { return IsVisibility("CanOBKPayment"); } }
+        #endregion
+
+        #region EMP Contracts
+
+        public static bool EmpContractNotDistributedStatusView { get { return IsVisibility("EmpContractNotDistributedStatusView"); } }
+        public static bool EmpContractInWorkStatusView { get { return IsVisibility("EmpContractInWorkStatusView"); } }
+        public static bool EmpContractOnAdjustmentStatusView { get { return IsVisibility("EmpContractOnAdjustmentStatusView"); } }
+        public static bool EmpContractApprovalRequiredStatusView { get { return IsVisibility("EmpContractApprovalRequiredStatusView"); } }
+        public static bool EmpContractApprovedStatusView { get { return IsVisibility("EmpContractApprovedStatusView"); } }
+        public static bool EmpContractNotApprovedStatusView { get { return IsVisibility("EmpContractNotApprovedStatusView"); } }
+        public static bool EmpContractActiveStatusView { get { return IsVisibility("EmpContractActiveStatusView"); } }
+        public static bool EmpContractNewStatusView { get { return IsVisibility("EmpContractNewStatusView"); } }
+        public static bool EmpContractRegistrationRquiredStatusView { get { return IsVisibility("EmpContractRegistrationRquiredStatusView"); } }
+        public static bool EmpContractAssignment { get { return IsVisibility("EmpContractAssignment"); } }
+        public static bool EmpContractSendToAdjustment { get { return IsVisibility("EmpContractSendToAdjustment"); } }
+        public static bool EmpContractRegister { get { return IsVisibility("EmpContractRegister"); } }
+
         #endregion
     }
 }
