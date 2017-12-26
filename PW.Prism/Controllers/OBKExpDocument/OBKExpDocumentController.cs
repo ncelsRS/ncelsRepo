@@ -441,30 +441,6 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return PartialView(model);
         }
 
-        public ActionResult SelectCommissionOP(Guid id)
-        {
-            return PartialView(id);
-        }
-
-        public ActionResult GetOBK_OP_Commission(Guid id)
-        {
-            var model = expRepo.GetOBK_OP_Commission(id);
-            var result = model.Select(x =>
-            {
-                var employee = x.Employee;
-                return new
-                {
-                    Organization = employee.Organization.Name,
-                    Unit = employee.Units.FirstOrDefault(),
-                    Position = employee.Position.Name,
-                    FIO = employee.FullName
-                };
-            });
-            return Json(new { isSuccess = true, result });
-        }
-
-
-
         public virtual ActionResult GetProducts(Guid id)
         {
             var declarant = expRepo.GetAssessmentDeclaration(id);
