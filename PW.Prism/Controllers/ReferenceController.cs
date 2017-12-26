@@ -1226,7 +1226,7 @@ namespace PW.Prism.Controllers
                     .OrderBy(o => o.DisplayName);
             }
             else
-                query = db.Units.Where(x => x.Type == 2 && x.Employee != null)
+                query = db.Units.Where(x => /*x.Type == 2 &&*/ x.Employee != null)
                     .Select(o => o.Employee)
                     .OrderBy(o => o.DisplayName);
             return Json(query.Select(o => new { o.Id, Name = o.DisplayName }), JsonRequestBehavior.AllowGet);

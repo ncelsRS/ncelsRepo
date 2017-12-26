@@ -24,7 +24,13 @@
                 //    className = "alert alert-success";
                 //}
                 <div class="@className" role="alert" style="text-align: left">
-                    <p>@entity.Note </p>
+                    <div class="row">
+                        <div class="col-lg-10"></div>
+                        <div class="col-lg-2"><button class="btn btn-danger" style="text-align: right;font-size: 12px; padding-top:5px;" onclick="deleteComment()">Удалить</button></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12"><p>@entity.Note </p></div>
+                    </div>
                     <p><b>@ResourceSetting.sFieldValue:</b> @entity.DisplayField</p>
                     <p style="text-align: right;font-size: 12px"><b>@ResourceSetting.RegDate:</b> @(entity.CreateDate.ToString("dd/MM/yyyy HH:mm")) <b>@ResourceSetting.Autor:</b>@(entity.Employee?.DisplayName)</p>
 
@@ -32,7 +38,7 @@
             }
         </div>
         @*<div class="tab-pane" id="f2tab">*@
-            @*@foreach (var entity in Model.ObkAssessmentDeclarationFieldHistories.OrderByDescending(e => e.Id))
+        @*@foreach (var entity in Model.ObkAssessmentDeclarationFieldHistories.OrderByDescending(e => e.Id))
             {
 
                 <div class="alert alert-info" role="alert" style="text-align: left">
@@ -46,5 +52,29 @@
 </div>
 
 <script type="text/javascript">
+
+    function deleteComment()
+    {
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKContract/deleteComment',
+            dataType:'json',
+            data: JSON.stringify({ 'contractId': '@Model.ContractId','controlID':'@Model.ControlId','idContractCom':'@Model.Id' }),
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                if (result.result == 1) {
+                    $(".dialog").dialog("close");
+                }
+                else {
+                    alert("Не удалено,возможно это не ваш запись!");
+                }
+            },
+            complete: function () {
+
+            }
+        });
+
+    }
 
 </script>

@@ -18,6 +18,7 @@ using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using Newtonsoft.Json;
 using PW.Ncels.Database.Models;
+using PW.Ncels.Database.Models.OBK;
 
 namespace PW.Prism.Controllers.OBKExpDocument
 {
@@ -418,7 +419,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var expDocResult = expRepo.GetStageExpDocResult(model.Id);
             ViewBag.ExpDocResult = expDocResult.ExpResult;
             //основание
-            var reasons = new SafetyAssessmentRepository().GetRefReasons();
+            var reasons = new SafetyAssessmentRepository().GetRefReasons("Declaration", false);
             ViewData["UObkReasons"] = new SelectList(reasons, "Id", "Name");
 
             if (stage.OBK_Ref_StageStatus.Code != "inWork")
@@ -440,30 +441,6 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
             return PartialView(model);
         }
-
-        public ActionResult SelectCommissionOP(Guid id)
-        {
-            return PartialView(id);
-        }
-
-        public ActionResult GetOBK_OP_Commission(Guid id)
-        {
-            var model = expRepo.GetOBK_OP_Commission(id);
-            var result = model.Select(x =>
-            {
-                var employee = x.Employee;
-                return new
-                {
-                    Organization = employee.Organization.Name,
-                    Unit = employee.Units.FirstOrDefault(),
-                    Position = employee.Position.Name,
-                    FIO = employee.FullName
-                };
-            });
-            return Json(new { isSuccess = true, result });
-        }
-
-
 
         public virtual ActionResult GetProducts(Guid id)
         {
@@ -579,5 +556,45 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(new { isSuccess = true });
 
         }
+
+
+
+
+
+
+
+        #region Заклчюение для серии и партии
+
+        public ActionResult ExpertiseConclusion(Guid declarationId)
+        {
+            var model = expRepo.ExpertiseConclusion(declarationId);
+            return PartialView(model);
+        }
+
+        public ActionResult ShowModalTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
+        {
+            var model = expRepo.GetTaskDetails(assessmentDeclarationId, productSeriesId);
+            return PartialView(model);
+        }
+
+        public ActionResult ExpertiseConclusionPositive(int productSeriesId, Guid adId)
+        {
+            var model = expRepo.ExpertiseConclusionPositive(productSeriesId, adId);
+            return PartialView(model);
+        }
+
+        public ActionResult SaveExpertiseConclusionPositive(OBKExpertiseConclusionPositive ecp)
+        {
+            var result = expRepo.SaveExpertiseConclusionPositive(ecp);
+            return Json(new {isSuccess = result});
+        }
+
+        public ActionResult ExpertiseConclusionNegative(int productSeriesId, Guid adId)
+        {
+            var model = expRepo.ExpertiseConclusionNegative(productSeriesId, adId);
+            return PartialView(model);
+        }
+
+        #endregion
     }
 }

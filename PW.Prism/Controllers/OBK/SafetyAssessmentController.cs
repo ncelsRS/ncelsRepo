@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
@@ -12,17 +11,13 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
-using PW.Ncels.Database.Models.Expertise;
 using PW.Ncels.Database.Notifications;
 using PW.Ncels.Database.Repository.Common;
-using PW.Ncels.Database.Repository.Expertise;
 using PW.Ncels.Database.Repository.OBK;
 using PW.Ncels.Database.Repository.Security;
-using PW.Prism.ViewModels.Expertise;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using Newtonsoft.Json;
-using Stimulsoft.Report.Mvc;
 
 namespace PW.Prism.Controllers.OBK
 {

@@ -14,8 +14,21 @@ namespace PW.Ncels.Database.Models.OBK
         public string NdProduct { get;set; }
         public string Regulation { get; set; }
         public bool ExpertiseResult { get; set; }
+        public string ExpertiseResultName { get; set; }
         public bool IsNew { get; set; }
+        public string SubTaskNumber { get; set; }
+        public DateTime? SubTaskCreateDate { get; set; }
+
+        public string LaboratoryExpertName { get; set; }
+        public string LaboratoryTypeName { get; set; }
+        public string UnitLaboratoryName { get; set; }
+
         public List<SubTaskIndicator> SubTaskIndicator { get; set; }
+    }
+
+    public class SubTaskDetails
+    {
+        public List<OBKSubTaskResult> SubTaskResult { get; set; }
     }
 
     public class SubTaskIndicator

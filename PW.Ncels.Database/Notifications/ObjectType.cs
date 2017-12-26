@@ -28,6 +28,8 @@ namespace PW.Ncels.Database.Notifications
         ObkDeclaration,
         [Description("ObkContract")]
         ObkContract,
+        [Description("EmpContract")]
+        EmpContract,
         [Description("OBK_ZBKCopy")]
         OBK_ZBKCopy
 

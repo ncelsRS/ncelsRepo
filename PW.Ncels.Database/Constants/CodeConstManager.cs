@@ -583,9 +583,29 @@ namespace PW.Ncels.Database.Constants
             public const string Draft = "1";
 
             /// <summary>
-            /// Отправлено
+            /// В обработке
             /// </summary>
-            public const string Sent = "2";
+            public const string InProcessing = "2";
+
+            /// <summary>
+            /// В работе
+            /// </summary>
+            public const string InWork = "3";
+
+            /// <summary>
+            /// На корректировке
+            /// </summary>
+            public const string OnAdjustment = "4";
+
+            /// <summary>
+            /// На формировании счета на оплату
+            /// </summary>
+            public const string OnInvoiceOfPaymentFormation = "5";
+
+            /// <summary>
+            /// Активный
+            /// </summary>
+            public const string Active = "6";
         }
 
         public static class EmpContractStage
@@ -594,11 +614,79 @@ namespace PW.Ncels.Database.Constants
             /// ЦОЗ
             /// </summary>
             public const string Coz = "1";
+
+            /// <summary>
+            /// Юрист
+            /// </summary>
+            public const string LegalDepartmant = "2";
+
+            /// <summary>
+            /// Группа валидации
+            /// </summary>
+            public const string ValidationGroup = "3";
+
+            /// <summary>
+            /// ДЭФ
+            /// </summary>
+            public const string Def = "4";
+
+            /// <summary>
+            /// Заместитель генерального директора
+            /// </summary>
+            public const string Ceo = "5";
         }
 
         public static class EmpContractStageStatus
         {
-            public const string InQueue = "inQueue";
+            /// <summary>
+            /// Не распределенные
+            /// </summary>
+            public const string NotDistributed = "1";
+
+            /// <summary>
+            /// В работе
+            /// </summary>
+            public const string InWork = "2";
+
+            /// <summary>
+            /// На корректировке
+            /// </summary>
+            public const string OnAdjustment = "3";
+
+            /// <summary>
+            /// Требует согласования
+            /// </summary>
+            public const string ApprovalRequired = "4";
+
+            /// <summary>
+            /// Согласованные
+            /// </summary>
+            public const string Approved = "5";
+
+            /// <summary>
+            /// Не согласованные
+            /// </summary>
+            public const string NotApproved = "6";
+
+            /// <summary>
+            /// Активные
+            /// </summary>
+            public const string Active = "7";
+
+            /// <summary>
+            /// На подписании
+            /// </summary>
+            public const string OnSigning = "8";
+
+            /// <summary>
+            /// Требуют регистрации
+            /// </summary>
+            public const string RegistrationRequired = "9";
+
+            /// <summary>
+            /// Новые
+            /// </summary>
+            public const string New = "10";
         }
     }
 }

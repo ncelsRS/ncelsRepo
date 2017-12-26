@@ -86,8 +86,8 @@ namespace PW.Prism.Controllers.OBKTask
                         ProductNameRu = product.NameRu,
                         ProductNameKz = product.NameKz,
                         Series = productSeries.Series,
-                        TaskNumber = productSeries.OBK_TaskMaterial.Where(e => e.ProductSeriesId == productSeries.Id).Select(x => x.OBK_Tasks.TaskNumber).FirstOrDefault(),
-                        LaboratoryName = string.Join(", ", taskMaterial.Where(e => e.ProductSeriesId == productSeries.Id).Select(x => x.OBK_Ref_LaboratoryType.NameRu).GroupBy(x => x).Select(g => g.Key))
+                        TaskNumber = tasks.Any() ? productSeries.OBK_TaskMaterial?.Where(e => e.ProductSeriesId == productSeries.Id).Select(x => x.OBK_Tasks.TaskNumber).FirstOrDefault() : null,
+                        LaboratoryName = tasks.Any() ? string.Join(", ", taskMaterial.Where(e => e.ProductSeriesId == productSeries.Id).Select(x => x.OBK_Ref_LaboratoryType.NameRu).GroupBy(x => x).Select(g => g.Key)) : null
                     };
                     productViewModel.Add(productView);
 

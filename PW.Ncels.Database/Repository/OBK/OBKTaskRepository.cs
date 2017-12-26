@@ -578,6 +578,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     subTaskResult.ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz;
                     subTaskResult.NdProduct = taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +
                                               taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber;
+                    subTaskResult.SubTaskNumber = taskMaterial.OBK_Tasks.TaskNumber + "/" + SubTaskCount(taskMaterialId);
                     return subTaskResult;
                 }
                 else
@@ -592,6 +593,7 @@ namespace PW.Ncels.Database.Repository.OBK
                                     taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber,
                         Regulation = taskMaterial.Regulation,
                         ExpertiseResult = (bool) taskMaterial.ExpertiseResult,
+                        SubTaskNumber = taskMaterial.SubTaskNumber,
                         SubTaskIndicator = taskMaterial.OBK_ResearchCenterResult.Select(e => new SubTaskIndicator
                             {
                                 LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
@@ -609,6 +611,13 @@ namespace PW.Ncels.Database.Repository.OBK
             return null;
         }
 
+        private int SubTaskCount(Guid taskMaterialId)
+        {
+            var tm = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.Id == taskMaterialId);
+            var tmCount = AppContext.OBK_TaskMaterial.Count(e => e.TaskId == tm.TaskId && e.SubTaskNumber != null) + 1;
+            return tmCount;
+        }
+
         public bool SaveSubTaskResult(OBKSubTaskResult subTaskResult)
         {
             try
@@ -618,6 +627,8 @@ namespace PW.Ncels.Database.Repository.OBK
                 {
                     taskMaterial.ExpertiseResult = subTaskResult.ExpertiseResult;
                     taskMaterial.Regulation = subTaskResult.Regulation;
+                    taskMaterial.SubTaskNumber = subTaskResult.SubTaskNumber;
+                    taskMaterial.CreatedDate = DateTime.Now;
                     List<OBK_ResearchCenterResult> rcs = new List<OBK_ResearchCenterResult>();
                     foreach (var st in subTaskResult.SubTaskIndicator)
                     {

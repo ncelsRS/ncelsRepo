@@ -1059,5 +1059,12 @@ namespace PW.Prism.Controllers.OBKContract
             var file = obkRepo.GetInstructionFile(registerId);
             return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, name);
         }
+
+        [HttpPost]
+        public ActionResult deleteComment(Guid contractId, string controlID, Guid idContractCom)
+        {
+            int x = obkRepo.deleteComment(contractId, controlID, idContractCom);
+            return Json(new { result = x }, JsonRequestBehavior.AllowGet);
+        }
     }
 }
