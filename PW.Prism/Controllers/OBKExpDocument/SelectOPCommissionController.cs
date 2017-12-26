@@ -38,10 +38,10 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(positions, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult ListEmployees(Guid positionId)
+        public ActionResult ListEmployees(Guid unitId)
         {
             var employees = repo.Employees
-                .Where(x => x.PositionId == positionId)
+                .Where(x => x.Units.Any(u => u.Id == unitId))
                 .Select(x => new { x.Id, x.FullName }).ToList();
             return Json(employees, JsonRequestBehavior.AllowGet);
         }
