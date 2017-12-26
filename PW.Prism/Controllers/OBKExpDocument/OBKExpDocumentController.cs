@@ -563,38 +563,6 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
 
 
-        #region Заклчюение для серии и партии
 
-        public ActionResult ExpertiseConclusion(Guid declarationId)
-        {
-            var model = expRepo.ExpertiseConclusion(declarationId);
-            return PartialView(model);
-        }
-
-        public ActionResult ShowModalTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
-        {
-            var model = expRepo.GetTaskDetails(assessmentDeclarationId, productSeriesId);
-            return PartialView(model);
-        }
-
-        public ActionResult ExpertiseConclusionPositive(int productSeriesId, Guid adId)
-        {
-            var model = expRepo.ExpertiseConclusionPositive(productSeriesId, adId);
-            return PartialView(model);
-        }
-
-        public ActionResult SaveExpertiseConclusionPositive(OBKExpertiseConclusionPositive ecp)
-        {
-            var result = expRepo.SaveExpertiseConclusionPositive(ecp);
-            return Json(new {isSuccess = result});
-        }
-
-        public ActionResult ExpertiseConclusionNegative(int productSeriesId, Guid adId)
-        {
-            var model = expRepo.ExpertiseConclusionNegative(productSeriesId, adId);
-            return PartialView(model);
-        }
-
-        #endregion
     }
 }
