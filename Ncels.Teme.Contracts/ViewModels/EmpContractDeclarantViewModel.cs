@@ -42,6 +42,14 @@ namespace Ncels.Teme.Contracts.ViewModels
         public string Iin { get; set; }
         public string BankAccount { get; set; }
 
-        public IEnumerable<SelectListItem> BoolValues { get; set; }
+        public string HasProxy { get; set; }
+        public string IsHasBossDocNumber { get; set; }
+        public string BossDocNumber { get; set; }
+        public string BossDocUnlimited { get; set; }
+        public string DocumentType { get; set; }
+        public string BossDosCreateDate { get; set; }
+        public string BossDocEndDate { get; set; }
+
+        public bool CanApprove { get; set; }
     }
 }

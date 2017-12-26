@@ -18,6 +18,11 @@ namespace Ncels.Teme.Infrastructure
             return _ctx.Set<T>().AsQueryable();
         }
 
+        public void Insert<T>(T entity) where T : class
+        {
+            _ctx.Set<T>().Add(entity);
+        }
+
         public void Save()
         {
             _ctx.SaveChanges();
