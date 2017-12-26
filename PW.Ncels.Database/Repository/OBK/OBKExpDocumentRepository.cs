@@ -63,6 +63,13 @@ namespace PW.Ncels.Database.Repository.OBK
             return totalCount;
         }
 
+        public decimal GetContractPriceMotivationRefuse(Guid? contractId)
+        {
+            var results = AppContext.OBK_ContractPrice.Where(e => e.ContractId == contractId).ToList();
+            decimal totalCount = results.Sum(e => Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(e.OBK_Ref_PriceList.Price) * e.Count * 0.3), 2));
+            return totalCount;
+        }
+
         public void SaveExpDocumentResult(bool expResult, Guid modelId)
         {
             var expDocResult =
@@ -160,6 +167,22 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
 
             return doc.Id;
+        }
+
+        public bool GetMotivationRefuseFields(Guid? declarationId)
+        {
+            var expDoc = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == declarationId);
+            if (expDoc == null)
+            {
+                return false;
+            }
+
+            if (expDoc.RefReasonId == null && expDoc.ExpReasonNameRu == null && expDoc.ExpReasonNameKz == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public OBK_StageExpDocument GetMotivationRefuse(Guid declarationId)

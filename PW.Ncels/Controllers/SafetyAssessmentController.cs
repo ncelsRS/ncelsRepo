@@ -195,9 +195,23 @@ namespace PW.Ncels.Controllers
                 }
 
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
-                report.Dictionary.Variables["ContractId"].ValueObject = expRepo.GetAssessmentDeclaration(id).ContractId;
+                var declaration = expRepo.GetAssessmentDeclaration(id);
+                report.Dictionary.Variables["ContractId"].ValueObject = declaration.ContractId;
                 report.Dictionary.Variables["ValueAddedTax"].ValueObject = expRepo.GetValueAddedTax();
-                var totalCount = expRepo.GetContractPrice(expRepo.GetAssessmentDeclaration(id).ContractId);
+
+                var refType = db.OBK_Ref_Type.FirstOrDefault(o => o.Id == declaration.TypeId);
+                var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == id);
+
+                decimal totalCount = 0;
+                if (CodeConstManager.OBK_SA_PARTY.Equals(refType.Code) && expDocument.ExpResult == false)
+                {
+                    totalCount = expRepo.GetContractPriceMotivationRefuse(expRepo.GetAssessmentDeclaration(id).ContractId);
+                }
+                else
+                {
+                    totalCount = expRepo.GetContractPrice(expRepo.GetAssessmentDeclaration(id).ContractId);
+                }
+
                 report.Dictionary.Variables["TotalCount"].ValueObject = totalCount;
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalCount), false);
                 report.Dictionary.Variables["TotalCountText"].ValueObject = priceText;
@@ -863,6 +877,9 @@ namespace PW.Ncels.Controllers
 
             var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == id && o.StageId == 2);
             var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
+            var expDocumentResult = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == id);
+
+            expDocumentResult.ExpResult = false;   
 
             foreach (OBK_AssessmentStageExecutors exec in executors)
             {
