@@ -433,6 +433,13 @@ namespace PW.Ncels.Database.Repository.OBK
             return msg;
         }
 
+        #region CommissionOP
+        public List<OBK_OP_Commission> GetOBK_OP_Commission(Guid declarationId)
+        {
+            return AppContext.OBK_OP_Commission.Where(x => x.DeclarationId == declarationId).ToList();
+        }
+        #endregion
+
         #region Notification
 
         private void SendNotificationToBoss(string number, Guid stageId, Guid userId)
