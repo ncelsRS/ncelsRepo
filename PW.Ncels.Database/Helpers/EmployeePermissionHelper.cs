@@ -176,10 +176,13 @@ namespace PW.Ncels.Database.Helpers
 
 
             // ОБК
-            AddPermission("IsMenuSafetyAssessmentVisibility", @"Модуль 'ОБК'", "Вкладка 'ОБК Заявления' главная", "Доступ в главном меню ОБК");
-            AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБК'", "Распределение заявлений", "Работа с заявлениями ОБК");
-            AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБК");
-            AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
+            AddPermission("IsMenuSafetyAssessmentVisibility", @"Модуль 'ОБиК'", "Вкладка 'Заявки ОБиК' главная", "Доступ в главном меню ОБиК");
+            AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБиК'", "Распределение заявлений", "Работа с заявлениями ОБиК");
+            AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБиК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБиК");
+            AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБиК'", "Экспертиза документов", "Работа с заявлениями ОБиК");
+            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБиК");
+            AddPermission("CanViewMenuItemOBKResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБиК");
+            AddPermission("CanViewMenuItemNewResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Новые\"", "Работа с заявлениями ОБиК");
             AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБК'", "Оценка производства", "Работа с заявлениями ОБК");
 
             // Организационная стуктура
@@ -954,6 +957,21 @@ namespace PW.Ncels.Database.Helpers
         /// Показывать кнопку Экспертиза документов в меню ОБК
         /// </summary>
         public static bool CanSafetyExpertiseDocumentList { get { return IsVisibility("CanSafetyExpertiseDocumentList"); } }
+
+        /// <summary>
+        /// Отображать пункт меню ОБК Задания на испрания
+        /// </summary>
+        public static bool CanViewMenuItemOBKTaskList { get { return IsVisibility("CanViewMenuItemOBKTaskList"); } }
+
+        /// <summary>
+        /// Отображать пункт меню ОБК Испытательный центр
+        /// </summary>
+        public static bool CanViewMenuItemOBKResearchCenterList { get { return IsVisibility("CanViewMenuItemOBKResearchCenterList"); } }
+
+        /// <summary>
+        /// Просмотр пункта меню "Новые"
+        /// </summary>
+        public static bool CanViewMenuItemNewResearchCenterList { get { return IsVisibility("CanViewMenuItemNewResearchCenterList"); } }
 
         #endregion
 

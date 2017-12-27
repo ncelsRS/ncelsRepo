@@ -46,6 +46,9 @@
                                             <tbody>
                                             @foreach (var t in Model.ExpertiseConclusion)
                                             {
+                                                var btnValid = t.BtnValid;
+                                                bool pdfShow = !btnValid;
+
                                                 <tr>
                                                     @*<td>@if (t.ResearchCenterResult != null)
                                                         {
@@ -65,11 +68,13 @@
                                                             {
                                                                 <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createPositiveResult_@t.ProductSeriesId" onclick="createResult(true, '@t.ProductSeriesId')">Заключение</button>
                                                                 <button type="button" class="btn btn-default" onclick="showResult(true,'@t.ProductSeriesId')">Просмотр</button>
+                                                                <button type="button" class="btn btn-default" disabled="@pdfShow" onclick="showPdfResult(true,'@t.ProductSeriesId')">Печатная форма</button>
                                                             }
                                                             else
                                                             {
                                                                 <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createNegativeResult_@t.ProductSeriesId" onclick="createResult(false, '@t.ProductSeriesId')">Отказ</button>
                                                                 <button type="button" class="btn btn-default" onclick="showResult(false, '@t.ProductSeriesId')">Просмотр</button>
+                                                                <button type="button" class="btn btn-default" disabled="@pdfShow" onclick="showPdfResult(false,'@t.ProductSeriesId')">Печатная форма</button>
                                                             }
                                                         }
                                                         
@@ -179,6 +184,19 @@
         }
     });
 
-
+    function showPdfResult(e, productSeriesId) {
+        if (e) {
+            if (productSeriesId == null)
+                alert("Выберите серию из таблицы");
+            window.open('/OBKExpDocument/ExpDocumentExportFilePdf?productSeriesId=' +
+                productSeriesId +
+                '&id=' +
+                '@Model.AssessmentDeclarationId');
+        } else {
+            if (productSeriesId == null)
+                alert("Выберите серию из таблицы");
+            window.open('/OBKExpDocument/ExpDocumentMotivRefusExportFilePdf?id=' + '@Model.AssessmentDeclarationId');
+        }
+    }
 
 </script>

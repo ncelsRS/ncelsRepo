@@ -718,6 +718,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpAddInfoKz = ecp.ecAdditionalInfoKz;
                     model.ExpConclusionNumber = ecp.ecNumber;
                     model.ExpApplication = false;
+                    model.ExpApplicationNumber = ecp.ecApplicationNumber;
+                    model.ExpBlankNumber = ecp.ecBlankNumber;
                     model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
 
@@ -746,6 +748,7 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExpAddInfoRu = ecp.ecAdditionalInfoRu,
                         ExpAddInfoKz = ecp.ecAdditionalInfoKz,
                         ExpConclusionNumber = ecp.ecNumber,
+                        ExpBlankNumber = ecp.ecBlankNumber,
                         ExpApplication = false,
                         AssessmentDeclarationId = ecp.AssessmentDeclarationId,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id
@@ -850,6 +853,8 @@ namespace PW.Ncels.Database.Repository.OBK
                 ecp.ecAdditionalInfoRu = ps.ExpAddInfoRu;
                 ecp.ecAdditionalInfoKz = ps.ExpAddInfoKz;
                 ecp.ecNumber = ps.ExpConclusionNumber;
+                ecp.ecApplicationNumber = ps.ExpApplicationNumber;
+                ecp.ecBlankNumber = ps.ExpBlankNumber;
                 return ecp;
             }
             return null;

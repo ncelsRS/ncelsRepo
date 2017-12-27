@@ -47,5 +47,8 @@ namespace PW.Ncels.Database.Models.OBK
         /// № заключения
         /// </summary>
         public string ecNumber { get; set; }
+
+        public string ecApplicationNumber { get; set; }
+        public string ecBlankNumber { get; set; }
     }
 }
