@@ -927,6 +927,11 @@ namespace PW.Ncels.Database.Helpers
         public static bool CanSafetyExpertiseDocumentList { get { return IsVisibility("CanSafetyExpertiseDocumentList"); } }
 
         /// <summary>
+        /// Показывать кнопку Экспертиза документов в меню ОБК
+        /// </summary>
+        public static bool CanSafetyOPDocumentList { get { return IsVisibility("CanSafetyOPDocumentList"); } }
+
+        /// <summary>
         /// Отображать пункт меню ОБК Задания на испрания
         /// </summary>
         public static bool CanViewMenuItemOBKTaskList { get { return IsVisibility("CanViewMenuItemOBKTaskList"); } }
