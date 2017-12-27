@@ -532,7 +532,10 @@ namespace PW.Ncels.Database.Constants
         /// На подписании акта выполненных работ
         /// </summary>
         public const int STATUS_OBK_SIGN_ACT = 16;
-
+        /// <summary>
+        /// Выдан мотивированный отказ
+        /// </summary>
+        public const int STATUS_OBK_MOTIVATION_REFUSE = 17;
 
         #endregion
 
