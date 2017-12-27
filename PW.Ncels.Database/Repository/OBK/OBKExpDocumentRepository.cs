@@ -567,8 +567,10 @@ namespace PW.Ncels.Database.Repository.OBK
                         ProductNameKz = ps.OBK_RS_Products.NameKz,
                         ProductSeries = ps.Series,
                         SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
-                        ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial),
-                        ResearchCenterResult = ResearchCenterResult(ps.OBK_TaskMaterial),
+                        ResearchCenterResultName = ResearchCenterResultName1(ps.OBK_TaskMaterial.ToList()),
+                        //ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial),
+                        //ResearchCenterResult = ResearchCenterResult(ps.OBK_TaskMaterial),
+                        ResearchCenterResult = ResearchCenterResult1(ps.OBK_TaskMaterial.ToList()),
                         BtnValid = ad.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0
                     };
                     eConclusions.Add(ec);
@@ -581,36 +583,76 @@ namespace PW.Ncels.Database.Repository.OBK
             return null;
         }
 
-        private string ResearchCenterResultName(ICollection<OBK_TaskMaterial> taskMaterials)
+        //private string ResearchCenterResultName(ICollection<OBK_TaskMaterial> taskMaterials)
+        //{
+        //    foreach (var taskMaterial in taskMaterials)
+        //    {
+        //        if (taskMaterial.ExpertiseResult != null)
+        //        {
+        //            if ((bool)!taskMaterial.ExpertiseResult)
+        //            {
+        //                return "Не соответсвует требованиям";
+        //            }
+        //        }
+        //        else { return "Испытания не завершены"; }
+        //    }
+        //    return "Соотвествует требованиям";
+        //}
+
+        private string ResearchCenterResultName1(List<OBK_TaskMaterial> taskMaterials)
         {
-            foreach (var taskMaterial in taskMaterials)
+            var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
+            if (obkTaskMaterial != null)
             {
-                if (taskMaterial.ExpertiseResult != null)
-                {
-                    if ((bool)!taskMaterial.ExpertiseResult)
-                    {
-                        return "Не соответсвует требованиям";
-                    }
-                }
-                else { return "Испытания не завершены"; }
+                return "Испытания не завершены";
             }
-            return "Соотвествует требованиям";
+            var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
+            if (obkTaskMaterial1 != null)
+            {
+                return "Не соответсвует требованиям";
+            }
+            var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
+            if (obkTaskMaterial2 != null)
+            {
+                return "Соотвествует требованиям";
+            }
+            return null;
         }
 
-        private bool? ResearchCenterResult(ICollection<OBK_TaskMaterial> taskMaterials)
+        //private bool? ResearchCenterResult(ICollection<OBK_TaskMaterial> taskMaterials)
+        //{
+        //    foreach (var taskMaterial in taskMaterials)
+        //    {
+        //        if (taskMaterial.ExpertiseResult != null)
+        //        {
+        //            if ((bool)!taskMaterial.ExpertiseResult)
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else { return null; }
+        //    }
+        //    return true;
+        //}
+
+        private bool? ResearchCenterResult1(List<OBK_TaskMaterial> taskMaterials)
         {
-            foreach (var taskMaterial in taskMaterials)
+            var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
+            if (obkTaskMaterial != null)
             {
-                if (taskMaterial.ExpertiseResult != null)
-                {
-                    if ((bool)!taskMaterial.ExpertiseResult)
-                    {
-                        return false;
-                    }
-                }
-                else { return null; }
+                return null;
             }
-            return true;
+            var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
+            if (obkTaskMaterial1 != null)
+            {
+                return false;
+            }
+            var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
+            if (obkTaskMaterial2 != null)
+            {
+                return true;
+            }
+            return null;
         }
 
         public SubTaskDetails GetTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
