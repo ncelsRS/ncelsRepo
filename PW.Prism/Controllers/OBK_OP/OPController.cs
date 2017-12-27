@@ -69,5 +69,11 @@ namespace PW.Prism.Controllers.OBK_OP
             return Json(new { isSuccess = true });
         }
 
+        [HttpGet]
+        public ActionResult Program(Guid declarationId)
+        {
+            return PartialView(declarationId);
+        }
+
     }
 }
