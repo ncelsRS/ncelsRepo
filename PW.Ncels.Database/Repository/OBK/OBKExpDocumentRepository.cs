@@ -41,6 +41,11 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Ref_StageStatus.FirstOrDefault(e => e.Code == code);
         }
 
+        public OBK_Ref_Status GetRefStatus(string code)
+        {
+            return AppContext.OBK_Ref_Status.FirstOrDefault(e => code.Equals(e.Code));
+        }
+
         public Dictionary GetDictionary(Guid? id)
         {
             return AppContext.Dictionaries.FirstOrDefault(e => e.Id == id);
@@ -272,6 +277,9 @@ namespace PW.Ncels.Database.Repository.OBK
                             stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
                             stage.OBK_AssessmentStageSignData.Add(stageSignData);
 
+                            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                            declaration.StatusId = GetRefStatus(CodeConstManager.STATUS_OBK_MOTIVATION_REFUSE.ToString()).Id;
+
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
                             AppContext.SaveChanges();
                         }
@@ -282,6 +290,9 @@ namespace PW.Ncels.Database.Repository.OBK
                             stage.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.Completed).Id;
 
                             stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
+
+                            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                            declaration.StatusId = GetRefStatus(CodeConstManager.STATUS_OBK_MOTIVATION_REFUSE.ToString()).Id;
 
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
                             AppContext.SaveChanges();
