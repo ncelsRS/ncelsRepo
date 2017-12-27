@@ -201,6 +201,11 @@ namespace PW.Ncels.Database.Repository.OBK
                         };
                         taskExecutors.Add(taskExecutor);
                     }
+                    //костыль, переносим в другой статус
+                    var stage =
+                        AppContext.OBK_AssessmentStage.FirstOrDefault(
+                            e => e.DeclarationId == id && e.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC);
+                    stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.RequiresConclusion).Id;
                     break;
                 case "researchcenter":
                     var tasks1 = AppContext.OBK_Tasks.Where(e => e.Id == id);

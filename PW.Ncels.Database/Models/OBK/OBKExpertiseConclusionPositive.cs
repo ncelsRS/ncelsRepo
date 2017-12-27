@@ -8,6 +8,7 @@ namespace PW.Ncels.Database.Models.OBK
 {
     public class OBKExpertiseConclusionPositive
     {
+        public bool ToShow { get; set; }
         public Guid AssessmentDeclarationId { get; set; }
         public int ProductSeriesId { get; set; }
         /// <summary>

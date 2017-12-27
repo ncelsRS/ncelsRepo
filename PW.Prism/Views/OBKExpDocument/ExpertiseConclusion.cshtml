@@ -19,7 +19,7 @@
                 <div class="pwToolbar">
                     <div class="btn-toolbar" role="toolbar">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default">Завершить ОБК</button>
+                            <button type="button" id="ecSignBtn" class="btn btn-default">Завершить ОБК и подписать</button>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                                         <table id="tableExpertConclusion" class="table table-striped table-bordered table-hover tableExpertConclusion">
                                             <thead>
                                             <tr>
-                                                <td></td>
+                                                @*<td></td>*@
                                                 <td>Наименование продукции</td>
                                                 <td>Серия</td>
                                                 <td>Результат</td>
@@ -47,14 +47,14 @@
                                             @foreach (var t in Model.ExpertiseConclusion)
                                             {
                                                 <tr>
-                                                    <td>@if (t.ResearchCenterResult != null)
+                                                    @*<td>@if (t.ResearchCenterResult != null)
                                                         {
                                                             if (!(bool) t.ResearchCenterResult)
                                                             {
                                                                 <input type="checkbox"/>
                                                             }
                                                         }
-                                                    </td>
+                                                    </td>*@
                                                     <td>@t.ProductNameRu</td>
                                                     <td><a onclick="getTasksDetails('@Model.AssessmentDeclarationId', '@t.ProductSeriesId')"><span style="color:rgb(66,139,202);">@t.ProductSeries</span></a></td>
                                                     <td>@t.ResearchCenterResultName</td>
@@ -63,13 +63,13 @@
                                                         {
                                                             if ((bool)t.ResearchCenterResult)
                                                             {
-                                                                <button type="button" class="btn btn-default" id="createPositiveResult_@t.ProductSeriesId" onclick="createResult(true, '@t.ProductSeriesId', false)">ЗБК</button>
-                                                                <button type="button" class="btn btn-default" onclick="createResult(true,'@t.ProductSeriesId', true)">Просмотр</button>
+                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createPositiveResult_@t.ProductSeriesId" onclick="createResult(true, '@t.ProductSeriesId')">Заключение</button>
+                                                                <button type="button" class="btn btn-default" onclick="showResult(true,'@t.ProductSeriesId')">Просмотр</button>
                                                             }
                                                             else
                                                             {
-                                                                <button type="button" class="btn btn-default" onclick="createResult(false, '@t.ProductSeriesId', false)">Отказ</button>
-                                                                <button type="button" class="btn btn-default" onclick="createResult(false, '@t.ProductSeriesId', true)">Просмотр</button>
+                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createNegativeResult_@t.ProductSeriesId" onclick="createResult(false, '@t.ProductSeriesId')">Отказ</button>
+                                                                <button type="button" class="btn btn-default" onclick="showResult(false, '@t.ProductSeriesId')">Просмотр</button>
                                                             }
                                                         }
                                                         
@@ -111,7 +111,7 @@
         });
     }
 
-    function createResult(e, productSeriesId, view) {
+    function createResult(e, productSeriesId) {
         debugger;
         var url = null;
         if (e)
@@ -131,20 +131,54 @@
         });
     }
 
+    function showResult(e, productSeriesId) {
+        debugger;
+        var url = null;
+        if (e)
+            url = '/OBKExpDocument/ShowExpertiseConclusionPositive?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
+        else
+            url = '/OBKExpDocument/ShowExpertiseConclusionNegative?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#expertiseConclusion_@Model.AssessmentDeclarationId').html(data);
+                $("#panelExpertiseConclusion_@Model.AssessmentDeclarationId").show();
+            }
+        });
+    }
 
 
+    $("#ecSignBtn").click(function () {
+        var modelId = '@Model.AssessmentDeclarationId';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/GetSignExpDocument?id=' + modelId,
+            success: function (result) {
+                startSign(result.data, modelId, saveSignedPayment);
+            }
+        });
+        function saveSignedPayment(signedData, id) {
+            var data1 = {
+                id: id,
+                signedData: signedData
+            };
+            var json = JSON.stringify(data1);
+            $.ajax({
+                type: 'POST',
+                url: '/OBKExpDocument/SaveSignedExpDocument',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    alert(result.message);
+                }
+            });
+        }
+    });
 
-
-    //var table = $('table#tableExpertConclusion');
-
-    //$('table#tableExpertConclusion tbody').on('click', 'tr', function () {
-    //    debugger;
-    //    $(this).toggleClass('selected');
-    //});
-
-    //$('#button').click(function () {
-    //    alert(table.rows('.selected').data().length + ' row(s) selected');
-    //});
 
 
 </script>
