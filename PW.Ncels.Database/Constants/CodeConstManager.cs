@@ -428,7 +428,7 @@ namespace PW.Ncels.Database.Constants
         /// <summary>        
         /// УВиРНФПиМС
         /// </summary>
-        public const int STAGE_OBK_PIMS = 6;
+        public const int STAGE_OBK_PIMS = 15;
 
         /// <summary>
         /// ИЦл/ИЛ
