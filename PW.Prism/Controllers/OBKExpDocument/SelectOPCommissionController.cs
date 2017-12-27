@@ -2,6 +2,7 @@
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using PW.Ncels.Database.DataModel;
+using PW.Ncels.Database.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,7 +134,30 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 declarationStage.StageStatusId = 2;
                 declarationStage.StartDate = DateTime.Now;
             }
+
+            var executor = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.AssessmentStageId == declarationStage.Id && x.ExecutorType == 2);
+            if (executor == null)
+            {
+                executor = new OBK_AssessmentStageExecutors
+                {
+                    AssessmentStageId = declarationStage.Id,
+                    ExecutorId = UserHelper.GetCurrentEmployee().Id,
+                    ExecutorType = 2
+                };
+                repo.OBK_AssessmentStageExecutors.Add(executor);
+            }
+            else
+            {
+                executor.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+            }
+
             var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declaration.Id && x.StageId == 2);
+            stage.StageStatusId = 13;
+            stage.EndDate = DateTime.Now;
+            stage.FactEndDate = stage.EndDate;
+            declaration = repo.OBK_AssessmentDeclaration.FirstOrDefault(x => x.Id == declaration.Id);
+            var status = repo.OBK_Ref_Status.FirstOrDefault(x => x.Code == "30");
+            declaration.StatusId = status.Id;
             repo.SaveChanges();
             return Json(new { isSuccess = true });
         }

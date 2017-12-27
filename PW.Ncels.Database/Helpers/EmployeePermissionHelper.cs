@@ -180,6 +180,7 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБК'", "Распределение заявлений", "Работа с заявлениями ОБК");
             AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБК");
             AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
+            AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБК'", "Оценка производства", "Работа с заявлениями ОБК");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");

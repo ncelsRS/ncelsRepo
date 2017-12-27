@@ -169,6 +169,22 @@
         $('#menuItemSelectCommissionOP').show();
     }
 
+    function showOPDocumentList() {
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/OP/Index?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            },
+            error: function () {
+                $("#loading").hide();
+                ShowAlert("Ошибка!", window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
     function showTask() {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
@@ -237,8 +253,14 @@
 
             if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL)
             {
-                <a id="menuItemSelectCommissionOP" style="display: none" href="#" onclick="showSelectCommissionOP(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Выбор комиссии ОП</a>
+                <a id="menuItemSelectCommissionOP" style="display: none" href="#" onclick="showSelectCommissionOP(event)" class="list-group-item">
+                    <span class="glyphicon glyphicon-star-empty"></span>Выбор комиссии ОП</a>
             }
+        }
+
+        @if (Model.StageId == CodeConstManager.STAGE_OBK_PIMS)
+        {
+            <a href="#" onclick="showOPDocumentList(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Оценка производства</a>
         }
 
         @if (Model.StageId != CodeConstManager.STAGE_OBK_COZ && Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)
