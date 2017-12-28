@@ -92,13 +92,13 @@
     };
 
     $scope.saveBtnClick = function() {
-        if ($scope.validate())
+        //if ($scope.validate())
             $scope.editProject();
     };
 
     $scope.sendWithoutDigitalSign = function() {
 
-        if (!$scope.validate()) return;
+        //if (!$scope.validate()) return;
 
         $http({
             url: '/EMPContract/SendToCoz',
@@ -112,7 +112,7 @@
     };
 
     $scope.sendWithDigitalSign = function() {
-        if (!$scope.validate()) return;
+        //if (!$scope.validate()) return;
         $scope.doSign();
     };
 
