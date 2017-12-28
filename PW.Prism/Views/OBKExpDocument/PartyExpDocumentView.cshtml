@@ -1,0 +1,405 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body" id="productExpertiseId">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <label class="control-label">Результат</label>
+                                    @Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["UObkExpertiseResult"],
+String.Empty, new { @class = "form-control motivation-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4" style="margin: 10px;">
+                                    <label class="control-label"> </label>
+                                    <button type="button" style="margin: 10px" class="btn btn-default motivation-control" id="@("saveExpDoc" + Model.Id)">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="selectionPlaceDiv" style="display:none;">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="col-lg-3">
+                                    <label class="control-label">Дата отбора</label>
+                                    <input id="datePicker" title="datepicker" style="width: 100%" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-3">
+                                    <label class="control-label">Время отбора</label>
+                                    <input id="timePicker" title="datepicker" style="width: 100%" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <label class="control-label">Место отбора</label>
+                                    <br>
+                                    <textarea id="addressSelection" rows="4" cols="50"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3 col-lg-offset-9">
+                            <a href="#" onclick="sendSelectionPlace(event)" class="k-button" style="background-color: #0066cc; width:250px; color: white;font-weight: 700;">Отправить уведомление заявителю</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="refuseDiv" style="display:none;">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-6">
+                            <label>Основание на русском языке*</label>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Основание на казахском языке*</label>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-6">
+                            <label class="control-label">Результат</label>
+                            @Html.DropDownList("OBKRefReason" + Model.Id, (IEnumerable<SelectListItem>)ViewData["OBKRefReasonList"],
+String.Empty, new { @class = "form-control motivation-control" })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-6">
+                            <textarea class="motivation-control" style="width:100%; height:150px;" id="@("MotivationRefuseRu" + Model.Id)"></textarea>
+                        </div>
+                        <div class="col-sm-6">
+                            <textarea class="motivation-control" style="width:100%; height:150px;" id="@("MotivationRefuseKz" + Model.Id)"></textarea>
+                        </div>
+                    </div>
+
+                    @{ if (ViewData["ExecutorType"] != null && (int)ViewData["ExecutorType"] == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
+                        {
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <a href="#" onclick="viewMotivationRefuse(event)" class="k-button" style="background-color: #0066cc; width:150px; color: white;font-weight: 700;">Печатная форма</a>
+                                    <a href="#" onclick="signMotivationRefuse(event)" class="k-button motivation-chief-btn" style="background-color: #0066cc; width:150px; color: white;font-weight: 700;">Подписать</a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <a href="#" onclick="saveMotivationRefuse(event)" id="@("saveMotivationRefuse" + @Model.Id)" class="k-button" style="background-color: #0066cc; width:150px; color: white;font-weight: 700;">Сохранить</a>
+                                    <a href="#" onclick="viewMotivationRefuse(event)" class="k-button" style="background-color: #0066cc; width:150px; color: white;font-weight: 700;">Печатная форма</a>
+                                    <a href="#" onclick="signMotivationRefuse(event)" class="k-button motivation-btn" style="background-color: #0066cc; width:150px; color: white;font-weight: 700;">Подписать</a>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <span id="@("popupNotification"+ Model.Id)"></span>
+    <input type="hidden" id="@("OBK_StageExpDocumentId" + Model.Id)">
+    <div id="@("windowFrame" + Model.Id)">
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function ()
+    {
+
+        if ($("#ExpertiseResult").val() == 'False')
+        {
+            $("#ExpertiseResult").attr("disabled", "disabled");
+            $("#saveExpDoc" + '@Model.Id').attr("disabled", "disabled");
+            $("#refuseDiv").css('display', 'inline');
+            fillMotivationRefuse();
+        } else if ($("#ExpertiseResult").val() == 'True'){
+            $("#ExpertiseResult").attr("disabled", "disabled");
+
+                                    $("#saveExpDoc" + '@Model.Id').css("pointer-events", "none");
+                        $("#saveExpDoc" + '@Model.Id').css("cursor", "default");
+                        $("#saveExpDoc" + '@Model.Id').css("background-color", "#b4bcc5");
+        }
+
+        checkMotivationRefuse();
+    });
+
+
+
+    if ('@ViewData["SignExpDocument"]' == "True"){
+        disableMotivationFields();
+        if('@ViewData["ExecutorType"]' == '@CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING'){
+              disableChiefBtn();
+        }
+    }
+
+    function fillMotivationRefuse()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/GetMotivationRefuse/',
+            data: { declarationId: '@Model.Id' },
+            success: function (data)
+            {
+                if (data.success == true)
+                {
+                    $("#refuseDiv").css('display', 'inline');
+                    $("#MotivationRefuseRu" + '@Model.Id').val(data.MotivationRefuse.motivationRefuseRu);
+                    $("#MotivationRefuseKz" + '@Model.Id').val(data.MotivationRefuse.motivationRefuseKz);
+                    $("#OBKRefReason" + '@Model.Id').val(data.MotivationRefuse.reasonId);
+                }
+            }
+        });
+    }
+
+
+    function initSelectionPlace() {
+        if ('@ViewData["selectionPlace"]' != "") {
+            $("#addressSelection").val('@ViewData["selectionPlace"]');
+        }
+
+        if ('@ViewData["selectionDate"]' != "") {
+            $("#datePicker").kendoDatePicker({ value: '@ViewData["selectionDate"]' });
+        } else {
+            $("#datePicker").kendoDatePicker();
+        }
+
+        if ('@ViewData["selectionTime"]' != "") {
+        $("#timePicker").kendoTimePicker({
+            dateInput: true,
+            value: '@ViewData["selectionTime"]',
+            format: "HH:mm"
+            });
+        } else {
+            $("#timePicker").kendoTimePicker({
+            dateInput: true,
+            });
+        }
+        $("#selectionPlaceDiv").css('display', 'inline');
+    }
+
+    function saveMotivationRefuse() {
+        $.ajax({
+                type: 'POST',
+                url: '/OBKExpDocument/SaveMotivationRefuse/',
+                data: {
+                    OBKRefReason: $("#OBKRefReason" + '@Model.Id').val(),
+                    motivationRefuseRu: $("#MotivationRefuseRu" + '@Model.Id').val(),
+                    motivationRefuseKz: $("#MotivationRefuseKz" + '@Model.Id').val(),
+                    declarationId: '@Model.Id',
+                    OBK_StageExpDocumentId: $("#OBK_StageExpDocumentId" + '@Model.Id ').val()
+                },
+                success: function (data) {
+                    console.log(data.success);
+                    if (data.success == true) {
+                        $("#OBK_StageExpDocumentId" + '@Model.Id').val(data.OBK_StageExpDocumentId);
+                        disableRefuseFields();
+                        disableSaveFieldsBtn();
+                    }
+                }
+            });
+    }
+
+    function checkMotivationRefuse()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/GetMotivationRefuseFields/',
+            data: { declarationId: '@Model.Id'},
+            success: function (data)
+            {
+                if (data.isPreviousSaved == true)
+                {
+                    disableRefuseFields();
+                    disableSaveFieldsBtn();
+                }
+            }
+        });
+    }
+
+    function disableRefuseFields()
+    {
+        $("#OBKRefReason" + '@Model.Id').attr("disabled", "disabled");
+        $("#MotivationRefuseRu" + '@Model.Id').attr("disabled", "disabled");
+        $("#MotivationRefuseKz" + '@Model.Id').attr("disabled", "disabled");
+    }
+
+    function disableSaveFieldsBtn()
+    {
+        $("#saveMotivationRefuse" + '@Model.Id').css("pointer-events", "none");
+        $("#saveMotivationRefuse" + '@Model.Id').css("cursor", "default");
+        $("#saveMotivationRefuse" + '@Model.Id').css("background-color", "#b4bcc5");
+    }
+
+    function initMotivationRefusePrintWindow(_declarationId) {
+        debugger;
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/ViewMotivationRefuse/',
+            data: { declarationId: _declarationId },
+            success: function (data) {
+                $("#windowFrame" + '@Model.Id').html(data);
+            }
+        });
+    }
+
+    function viewMotivationRefuse() {
+        initMotivationRefusePrintWindow('@Model.Id');
+    }
+
+    var popupNotification = $("#popupNotification" + '@Model.Id').kendoNotification({
+        position: {
+            pinned: true,
+            top: 200,
+            left: null,
+            bottom: null,
+            right: 100
+        }
+    });
+
+    $("#MotivationRefuseRu" + '@Model.Id').click(function ()
+    {
+        $("#popupNotification"+ '@Model.Id').getKendoNotification().show("Введите первую символ со строчной буквы", "info");
+    });
+
+    $("#saveExpDoc" + '@Model.Id').click(function ()
+    {
+        saveExpDocument();
+    })
+
+    function saveExpDocument()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/SaveExpDocument/',
+            data: { expResult: $("#ExpertiseResult").val(), modelId: '@Model.Id' },
+            cache: false,
+            success: function (result)
+            {
+                debugger;
+                if (result.isSuccess) {
+                    if (@Model.TypeId === 1) {
+                        showMentuItemSelectCommissionOP();
+                        return;
+                    }
+                    if ($("#ExpertiseResult").val() == 'True')
+                    {
+                        debugger;
+                        if ('@Model.OBKApplicantParty' == 'True')
+                        {
+                            initSelectionPlace();
+                        }
+                    }
+                    if ($("#ExpertiseResult").val() == 'False')
+                    {
+                        $("#refuseDiv").css('display', 'inline');
+                        $("#ExpertiseResult").attr("disabled", "disabled");
+                        $("#saveExpDoc" + '@Model.Id').css("pointer-events", "none");
+                        $("#saveExpDoc" + '@Model.Id').css("cursor", "default");
+                        $("#saveExpDoc" + '@Model.Id').css("background-color", "#b4bcc5");
+
+                    }
+
+                } else { alert("Error!"); }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+
+    };
+
+    function sendSelectionPlace() {
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/SaveSelectionPlace',
+            data: {
+                    selectionDate: $("#datePicker").val(),
+                    selectionTime: $("#timePicker").val(),
+                    selectionAddress: $("#addressSelection").val(),
+                    assessmentId:' @Model.Id'
+            },
+            success: function (result) {
+                console.log(result);
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+
+        });
+    };
+
+    function signMotivationRefuse() {
+        var modelId = '@Model.Id';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/GetSignExpDocument?id=' + modelId,
+            data: {declarationId : '@Model.Id'},
+            success: function (result) {
+                    startSign(result.data, modelId, saveMotivationRefuseSign);
+                }
+            });
+        }
+
+        function saveMotivationRefuseSign(signedData, id) {
+                var data1 = {
+                    id: id,
+                    signedData: signedData
+                };
+                var json = JSON.stringify(data1);
+                $.ajax({
+                    type: 'POST',
+                    url: '/OBKExpDocument/SaveSignedExpDocumentParty',
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        alert(result.message);
+                        disableMotivationFields();
+                        disableChiefBtn();
+                    }
+                });
+    }
+
+        function disableChiefBtn(){
+             $(".motivation-chief-btn").css("pointer-events", "none");
+             $(".motivation-chief-btn").css("cursor", "default");
+             $(".motivation-chief-btn").css("background-color", "#b4bcc5");
+        }
+
+        function disableMotivationFields() {
+            $(".motivation-control").attr('disabled', 'disabled');
+
+            $(".motivation-btn").css("pointer-events", "none");
+            $(".motivation-btn").css("cursor", "default");
+            $(".motivation-btn").css("background-color", "#b4bcc5");
+        }
+
+</script>

@@ -428,7 +428,7 @@ namespace PW.Ncels.Database.Constants
         /// <summary>        
         /// УВиРНФПиМС
         /// </summary>
-        public const int STAGE_OBK_PIMS = 6;
+        public const int STAGE_OBK_PIMS = 15;
 
         /// <summary>
         /// ИЦл/ИЛ
@@ -532,7 +532,10 @@ namespace PW.Ncels.Database.Constants
         /// На подписании акта выполненных работ
         /// </summary>
         public const int STATUS_OBK_SIGN_ACT = 16;
-
+        /// <summary>
+        /// Выдан мотивированный отказ
+        /// </summary>
+        public const int STATUS_OBK_MOTIVATION_REFUSE = 17;
 
         #endregion
 

@@ -60,5 +60,13 @@ namespace PW.Ncels.Database.DataModel
         /// Экспертиза документов завершена
         /// </summary>
         public const string DocumentReviewCompleted = "documentReviewCompleted";
+        /// <summary>
+        /// На оценке производства
+        /// </summary>
+        public const string OnOP = "OnOP";
+        /// <summary>
+        /// Оценка производства завершена
+        /// </summary>
+        public const string OPCompleted = "OPCompleted";
     }
 }

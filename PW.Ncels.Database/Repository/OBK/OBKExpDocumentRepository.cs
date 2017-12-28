@@ -41,6 +41,11 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Ref_StageStatus.FirstOrDefault(e => e.Code == code);
         }
 
+        public OBK_Ref_Status GetRefStatus(string code)
+        {
+            return AppContext.OBK_Ref_Status.FirstOrDefault(e => code.Equals(e.Code));
+        }
+
         public Dictionary GetDictionary(Guid? id)
         {
             return AppContext.Dictionaries.FirstOrDefault(e => e.Id == id);
@@ -58,6 +63,13 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var results = AppContext.OBK_ContractPrice.Where(e => e.ContractId == contractId).ToList();
             decimal totalCount = results.Sum(e => Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(e.OBK_Ref_PriceList.Price) * e.Count), 2));
+            return totalCount;
+        }
+
+        public decimal GetContractPriceMotivationRefuse(Guid? contractId)
+        {
+            var results = AppContext.OBK_ContractPrice.Where(e => e.ContractId == contractId).ToList();
+            decimal totalCount = results.Sum(e => Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(e.OBK_Ref_PriceList.Price) * e.Count * 0.3), 2));
             return totalCount;
         }
 
@@ -160,6 +172,22 @@ namespace PW.Ncels.Database.Repository.OBK
             return doc.Id;
         }
 
+        public bool GetMotivationRefuseFields(Guid? declarationId)
+        {
+            var expDoc = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == declarationId);
+            if (expDoc == null)
+            {
+                return false;
+            }
+
+            if (expDoc.RefReasonId == null && expDoc.ExpReasonNameRu == null && expDoc.ExpReasonNameKz == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public OBK_StageExpDocument GetMotivationRefuse(Guid declarationId)
         {
             return AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == declarationId);
@@ -249,6 +277,9 @@ namespace PW.Ncels.Database.Repository.OBK
                             stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
                             stage.OBK_AssessmentStageSignData.Add(stageSignData);
 
+                            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                            declaration.StatusId = GetRefStatus(CodeConstManager.STATUS_OBK_MOTIVATION_REFUSE.ToString()).Id;
+
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
                             AppContext.SaveChanges();
                         }
@@ -259,6 +290,9 @@ namespace PW.Ncels.Database.Repository.OBK
                             stage.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.Completed).Id;
 
                             stage.ResultId = expResult.ExpResult ? CodeConstManager.STAGE_OBK_COMPLETED_POSITIVE : CodeConstManager.STAGE_OBK_COMPLETED_NEGATIVE;
+
+                            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                            declaration.StatusId = GetRefStatus(CodeConstManager.STATUS_OBK_MOTIVATION_REFUSE.ToString()).Id;
 
                             stageCoz.StageStatusId = GetRefStageStatus(OBK_Ref_StageStatus.RequiresConclusion).Id;
                             AppContext.SaveChanges();
