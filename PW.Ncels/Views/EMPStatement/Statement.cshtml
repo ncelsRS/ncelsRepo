@@ -1,0 +1,976 @@
+﻿@model Guid?
+@{
+    ViewBag.Title = "Contract";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/OBK_SignView.cshtml")
+
+<style>
+    input.ng-invalid, .ui-select-container.ng-invalid > div > span {
+        border: 1px solid red;
+    }
+
+    div {
+        white-space: normal;
+        height: auto;
+    }
+</style>
+
+<script>
+    function empStatementForm($scope, $http, DTColumnBuilder, $interval, $uibModal, $window) {
+        $scope.object = {};
+
+        $scope.loadStatement = function () {
+            var projectId = $("#projectId").val();
+            $http({
+                method: 'GET',
+                url: '/EMPStatement/LoadStatement',
+                params: {
+                    id: projectId
+                }
+            }).success(function (response) {
+                $scope.object = response;
+            });
+        }
+
+        $scope.addChangeData = function () {
+            if ($scope.object.ChangeData == undefined) {
+                $scope.object.ChangeData = [];
+            }
+            $scope.object.ChangeData.push({
+                Name: "",
+                Type: "",
+                BeforeChange: "",
+                AfterChange: ""
+            });
+        };
+
+        $scope.addStorageLifeDataItem = function () {
+            if ($scope.object.StorageLifeData == undefined) {
+                $scope.object.StorageLifeData = [];
+            }
+            $scope.object.StorageLifeData.push({
+                Kind: "",
+                ExpirationDate: "",
+                Measure: "",
+                IsIndefinitely: false
+            });
+        };
+
+        $scope.addCountryRegistrationDataItem = function () {
+            if ($scope.object.CountryRegistrationData == undefined) {
+                $scope.object.CountryRegistrationData = [];
+            }
+            $scope.object.CountryRegistrationData.push({
+                Country: "",
+                RegistrationNumber: "",
+                StartDate: "",
+                ExpirationDate: "",
+                IsIndefinitely: false
+            });
+        };
+
+        $scope.addMedicalDeviceComplectationData = function () {
+            if ($scope.object.MedicalDeviceComplectationData == undefined) {
+                $scope.object.MedicalDeviceComplectationData = [];
+            }
+            $scope.object.MedicalDeviceComplectationData.push({
+                Type: "",
+                Name: "",
+                Id: "",
+                Model: "",
+                Manufacturer: "",
+                Country: ""
+            });
+        };
+
+        $scope.addMedicalDevicePackageData = function () {
+            if ($scope.object.MedicalDevicePackageData == undefined) {
+                $scope.object.MedicalDevicePackageData = [];
+            }
+            $scope.object.MedicalDevicePackageData.push({
+                Kind: "",
+                Name: "",
+                VolumeValue: "",
+                VolumeUnit: "",
+                Count: "",
+                Description: ""
+            });
+        };
+
+        $scope.isChangesInsertion = function () {
+            return $scope.object.RegistrationKindValue === "3";
+        };
+
+        $scope.isReRegistration = function () {
+            return $scope.object.RegistrationKindValue === "2";
+        };
+
+        $scope.isRegistration = function () {
+            return $scope.object.RegistrationKindValue === "1";
+        };
+
+        $scope.saveBtnClick = function () {
+            $http({
+                url: '/EMPStatement/StatementSave',
+                method: 'POST',
+                data: { vm: $scope.object }
+            }).success(function () {
+                alert("Сохранение прошло успешно");
+            });
+        }
+
+        $scope.loadStatement();
+    }
+
+    angular
+        .module('app')
+        .controller('empStatementForm',
+        ['$scope', '$http', 'DTColumnBuilder', '$interval', '$uibModal', '$window', empStatementForm]);
+</script>
+
+<form name="statementCreateForm" ng-controller="empStatementForm">
+    <div class="ibox-content ibox-heading">
+        <div class="note-font btn-group">
+            <button id="btnBackToList" class="btn btn-info btn-sm" type="button" onclick="location.href='@ViewBag.ReturnUrl'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+            <button class="btn btn-default btn-sm" type="button" ng-click="saveBtnClick()"><i class="fa fa-save"></i>Сохранить</button>
+        </div>
+    </div>
+    <div class="ibox-content">
+        <input type="hidden" value="@Model" id="projectId" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-2">Комплектация ИМН и МТ</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-3">Производители и участники производства</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-4">Соглашение</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-5" ng-click="tab5click();">Вложения</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tab-1" class="tab-pane active">
+                            <div class="panel-body">
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Вид регистрации</label>
+                                            <div class="col-lg-8">
+                                                <ui-select ng-model="object.RegistrationKindValue" theme="bootstrap" name="type" ui-select-selected>
+                                                    <ui-select-match>{{$select.selected.Text}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Value as item in object.RegistrationKind | filter: $select.search">
+                                                        <div ng-bind-html="item.Text| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6" ng-show="isReRegistration() || isRegistration()">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Тип</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMt" ng-model="object.IsMt" ng-value="true">МТ</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMt" ng-model="object.IsMt" ng-value="false">ИМН</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Данные государственного реестра Республики Казахстан</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <div class="form-group">
+                                            <label>№ регистрационного удостоверения</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="RegistrationCertificateNumber" ng-model="object.RegistrationCertificateNumber" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="RegistrationCertificateNumber">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>№ НД (Нормативная документация)</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NormativeDocumentNumber" ng-model="object.NormativeDocumentNumber" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NormativeDocumentNumber">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <div class="form-group">
+                                            <label>Дата регистрации</label>
+                                            <div class="input-group date">
+                                                <input id="RegistrationDate" ng-model="object.RegistrationDate"
+                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                       view="date" min-view="date" format="DD.MM.YYYY">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Срок действия</label>
+                                            <div class="input-group date">
+                                                <input id="ExpirationDate" ng-model="object.ExpirationDate"
+                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                       view="date" min-view="date" format="DD.MM.YYYY">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered dataTable">
+                                                <colgroup>
+                                                    <col />
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th rowspan="2">Изменение</th>
+                                                        <th rowspan="2">Тип</th>
+                                                        <th colspan="2" scope="colgroup">Условия\замечания</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col">Редакция до внесения изменений</th>
+                                                        <th scope="col" style="border-width: 1px;">Вносимые изменения</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody ng-repeat="item in object.ChangeData">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Name" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Type" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.BeforeChange" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.AfterChange" /></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group">
+                                            <button ng-click="addChangeData()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row" ng-show="isChangesInsertion() || isReRegistration()">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Договор</label>
+                                            <div class="col-lg-8">
+                                                <ui-select ng-model="object.ContractId" theme="bootstrap" name="type" ui-select-selected>
+                                                    <ui-select-match>{{$select.selected.Text}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Value as item in object.CortractList | filter: $select.search">
+                                                        <div ng-bind-html="item.Text| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row" ng-show="isChangesInsertion() || isReRegistration()">
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-6">Тип регистрации</label>
+                                            <div class="col-lg-6">
+                                                <ui-select ng-model="object.RegistrationTypeValue" theme="bootstrap" name="type" ui-select-selected>
+                                                    <ui-select-match>{{$select.selected.Text}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Value as item in object.RegistrationType | filter: $select.search">
+                                                        <div ng-bind-html="item.Text| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">№ письма</label>
+                                            <div class="input-group">
+                                                <input id="LetterNumber" ng-model="object.LetterNumber" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="LetterNumber">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Дата письма</label>
+                                            <div class="input-group date">
+                                                <input id="LetterDate" ng-model="object.LetterDate"
+                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                       view="date" min-view="date" format="DD.MM.YYYY">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Тип</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMt" ng-model="object.IsMt" ng-value="true">МТ</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMt" ng-model="object.IsMt" ng-value="false">ИМН</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <h4>Торговое наименование ИМН\МТ</h4>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="MedicalDeviceNameKz" ng-model="object.MedicalDeviceNameKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="MedicalDeviceNameKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На русском языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="MedicalDeviceNameRu" ng-model="object.MedicalDeviceNameRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="MedicalDeviceNameRu">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <h4>Номенклатурный код Глобальной номенклатуры медицинских изделий (GMDN)</h4>
+                                        <div class="form-group">
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NomenclatureCode" ng-model="object.NomenclatureCode" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NomenclatureCode">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h4>Наименование</h4>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NomenclatureNameKz" ng-model="object.NomenclatureNameKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NomenclatureNameRu" ng-model="object.NomenclatureNameRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameRu">
+                                            </div>
+                                        </div>
+                                        <h4>Описание</h4>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NomenclatureDescriptionKz" ng-model="object.NomenclatureDescriptionKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="NomenclatureDescriptionRu" ng-model="object.NomenclatureDescriptionRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionRu">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <h4>Область применения</h4>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ApplicationAreaKz" ng-model="object.ApplicationAreaKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ApplicationAreaKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ApplicationAreaRu" ng-model="object.ApplicationAreaRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ApplicationAreaRu">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <h4>Назначение</h4>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="PurposeKz" ng-model="object.PurposeKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="PurposeKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="PurposeRu" ng-model="object.PurposeRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="PurposeRu">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Тип медицинской техники:</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Закрытая система</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsClosedSystem" ng-model="object.IsClosedSystem" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsClosedSystem" ng-model="object.IsClosedSystem" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="RegistrationDossierPageNumber" ng-model="object.RegistrationDossierPageNumber"
+                                                       placeholder="Обоснование от производителя (указать страницу регистрационного досье)"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="RegistrationDossierPageNumber">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Краткая техническая характеристика</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ShortTechnicalCharacteristicKz" ng-model="object.ShortTechnicalCharacteristicKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ShortTechnicalCharacteristicKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>На государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ShortTechnicalCharacteristicRu" ng-model="object.ShortTechnicalCharacteristicRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ShortTechnicalCharacteristicRu">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Класс в зависимости от степени потенциального риска применения</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ClassOfPotentialRisk" ng-model="object.ClassOfPotentialRisk" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ClassOfPotentialRisk">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Признаки</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Балк</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsBalk" ng-model="object.IsBalk" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsBalk" ng-model="object.IsBalk" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Средство изменения</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMeasurementDevice" ng-model="object.IsMeasurementDevice" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMeasurementDevice" ng-model="object.IsMeasurementDevice" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">ИМН или МТ для ин витро диагностики</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsForInvitroDiagnostics" ng-model="object.IsForInvitroDiagnostics" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsForInvitroDiagnostics" ng-model="object.IsForInvitroDiagnostics" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Стерильное</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsSterile" ng-model="object.IsSterile" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsSterile" ng-model="object.IsSterile" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-show="isChangesInsertion()">
+                                            <label class="control-label col-lg-4">Без АЭ</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="WithouAe" ng-model="object.WithouAe" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="WithouAe" ng-model="object.WithouAe" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Наличие в составе лекарственного средства</label>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMedicalProductPresence" ng-model="object.IsMedicalProductPresence" ng-value="true">Да</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsMedicalProductPresence" ng-model="object.IsMedicalProductPresence" ng-value="false">Нет</label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Срок хранения</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Вид</th>
+                                                        <th>Срок хранения\Гарантийный срок эксплуатации</th>
+                                                        <th>Ед.изм</th>
+                                                        <th>Бессрочно</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody ng-repeat="item in object.StorageLifeData">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Kind" /></td>
+                                                        <td>
+                                                            <input ng-model="item.ExpirationDate"
+                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                        </td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Measure" /></td>
+                                                        <td><input type="checkbox" ng-model="item.IsIndefinitely" /></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group">
+                                            <button ng-click="addStorageLifeDataItem()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <div class="form-group">
+                                            <label>Условия транспортирования</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="TransportConditions" ng-model="object.TransportConditions" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="TransportConditions">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <div class="form-group">
+                                            <label>Условия хранения</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="StorageConditions" ng-model="object.StorageConditions" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="StorageConditions">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Регистрация в стране-производителе и других странах</label>
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Страна</th>
+                                                        <th>№ регистрационного удостоверения (указывается при наличии)</th>
+                                                        <th>Дата выдачи</th>
+                                                        <th>Срок действия</th>
+                                                        <th>Бессрочно</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody ng-repeat="item in object.CountryRegistrationData">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Country" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.RegistrationNumber" /></td>
+                                                        <td>
+                                                            <input ng-model="item.StartDate"
+                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                        </td>
+                                                        <td>
+                                                            <input ng-model="item.ExpirationDate"
+                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                        </td>
+                                                        <td><input type="checkbox" ng-model="item.IsIndefinitely" /></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group">
+                                            <button ng-click="addCountryRegistrationDataItem()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-horizontal row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-12" align="center">
+                                        <label>Производство</label>
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-show="isChangesInsertion()">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="Production" ng-model="object.Production" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="Production">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="tab-2" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsComplectation" ng-model="object.IsComplectation" ng-value="true">Комплектация ИМН и МТ</label>
+                                            </div>
+                                            <div class="radio-inline">
+                                                <label><input type="radio" name="IsComplectation" ng-model="object.IsComplectation" ng-value="false">Упаковка</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" ng-show="object.IsComplectation">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Тип</th>
+                                                        <th>Наименование</th>
+                                                        <th>ID</th>
+                                                        <th>Модель</th>
+                                                        <th>Производитель</th>
+                                                        <th>Страна</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody ng-repeat="item in object.MedicalDeviceComplectationData">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Type" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Name" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Identifier" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Model" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Manufacturer" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Country" /></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group">
+                                            <button ng-click="addMedicalDeviceComplectationData()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" ng-show="!object.IsComplectation">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered dataTable">
+                                                <colgroup>
+                                                    <col />
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th rowspan="2">Вид (первичная или вторичная)</th>
+                                                        <th rowspan="2">Наименование</th>
+                                                        <th colspan="2" scope="colgroup">Объем</th>
+                                                        <th rowspan="2">Кол-во ед. в упаковке</th>
+                                                        <th rowspan="2">Краткое описание</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col">Значение</th>
+                                                        <th scope="col" style="border-width: 1px;">Ед.изм.</th>
+                                                    </tr>
+                                                    @*<tr>
+                                                            <th rowspan="2">Вид (первичная или вторичная)</th>
+                                                            <th rowspan="2">Наименование</th>
+                                                            <th>Объем</th>
+                                                            <th>Кол-во ед. в упаковке</th>
+                                                            <th>Краткое описание</th>
+                                                        </tr>*@
+                                                </thead>
+                                                <tbody ng-repeat="item in object.MedicalDevicePackageData">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Kind" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Name" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.VolumeValue" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.VolumeUnit" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Count" /></td>
+                                                        <td><input type="text" class="form-control edit-control" ng-model="item.Description" /></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group">
+                                            <button ng-click="addMedicalDevicePackageData()">Добавить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-3" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <h4>Производитель</h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 b-r">
+                                        <div class="form-group">
+                                            <label>Тип производителя</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Наименование на русском языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ManufacturerNameRu" ng-model="object.ManufacturerNameRu" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameRu">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>№ разрешительного документа</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="AllowedDocumentNumber" ng-model="object.AllowedDocumentNumber" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="AllowedDocumentNumber">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Фамилия первого руководителя</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="BossLastName" ng-model="object.BossLastName" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="BossLastName">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Должность первого руководителя</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="BossPosition" ng-model="object.BossPosition" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="BossPosition">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 b-r">
+                                        <div class="form-group">
+                                            <label>Организационная форма</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="OrganizationForm" ng-model="object.OrganizationForm" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="OrganizationForm">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Наименование на государственном языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ManufacturerNameKz" ng-model="object.ManufacturerNameKz" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameKz">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Дата выдачи</label>
+                                            <div class="input-group date">
+                                                <input id="DateOfIssue" ng-model="object.DateOfIssue"
+                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                       view="date" min-view="date" format="DD.MM.YYYY">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Имя первого руководителя</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="BossFirstName" ng-model="object.BossFirstName" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="BossFirstName">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Телефон, факс</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="Phone" ng-model="object.Phone" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="Phone">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 b-l">
+                                        <div class="form-group">
+                                            <label>Страна</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="Country" ng-model="object.Country" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="Country">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Наименование на английском языке</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ManufacturerNameEn" ng-model="object.ManufacturerNameEn" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameEn">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Срок действия</label>
+                                            <div class="input-group date">
+                                                <input id="ManufacturerExpirationDate" ng-model="object.ManufacturerExpirationDate"
+                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                       view="date" min-view="date" format="DD.MM.YYYY">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Отчество первого руководителя</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="BossMiddleName" ng-model="object.BossMiddleName" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="BossMiddleName">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Электронная почта</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="Email" ng-model="object.Email" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="Email">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <div class="form-group">
+                                            <label>Фамилия, имя, отчество контактного лица</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ContactPersonInitials" ng-model="object.ContactPersonInitials" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonInitials">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Юридический адрес</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ContactPersonLegalAddress" ng-model="object.ContactPersonLegalAddress" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonLegalAddress">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 b-l">
+                                        <div class="form-group">
+                                            <label>Должность контактного лица</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ContactPersonPosition" ng-model="object.ContactPersonPosition" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonPosition">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Фактический адрес</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <input id="ContactPersonFactAddress" ng-model="object.ContactPersonFactAddress" placeholder="Введите значение"
+                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonFactAddress">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-4" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>Необходимо принять соглашение:</label>
+                                            <div ng-class="{'input-group': showComments}">
+                                                <textarea id="Agreement" ng-model="object.Agreement" placeholder="Введите значение" rows="10"
+                                                          class="form-control edit-control" ui-select-selected name="Agreement"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="checkbox" ng-model="object.IsAgreed" id="IsAgreed" />
+                                            <label for="IsAgreed">Подтверждаю</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-5" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 b-r">
+                                        <h4>Вложения</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
