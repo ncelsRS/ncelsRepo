@@ -1,17 +1,7 @@
 USE [ncels]
 GO
 
-ALTER TABLE [dbo].[EMP_ContractStageExecutors] DROP CONSTRAINT [FK_EMP_ContractStageExecutors_ExecutorId_Employee_Id]
-GO
-
-ALTER TABLE [dbo].[EMP_ContractStageExecutors] DROP CONSTRAINT [FK_EMP_ContractStageExecutors_ContractStageId_EMP_ContractStage_Id]
-GO
-
-/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 20.12.2017 9:49:37 ******/
-DROP TABLE [dbo].[EMP_ContractStageExecutors]
-GO
-
-/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 20.12.2017 9:49:37 ******/
+/****** Object:  Table [dbo].[EMP_ContractStageExecutors]    Script Date: 27.12.2017 18:03:58 ******/
 SET ANSI_NULLS ON
 GO
 
