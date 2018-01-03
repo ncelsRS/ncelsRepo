@@ -233,6 +233,7 @@ namespace PW.Ncels.Database.Helpers
         {
             _actualPermissionKeys.Add(key);
 
+
             PermissionKey permissionKey = db.PermissionKeys.FirstOrDefault(o => o.Key == key);
             if (permissionKey != null)
             {
