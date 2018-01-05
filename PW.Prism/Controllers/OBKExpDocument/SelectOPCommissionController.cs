@@ -72,11 +72,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
         public ActionResult ListEmployees(Guid declarationId, Guid unitId)
         {
             var employeeIds = repo.OBK_OP_Commission.Where(c => c.DeclarationId == declarationId).Select(e => e.EmployeeId);
-            var positions = repo.Units
-                .Where(x => x.PositionState == 1 && x.ParentId == unitId)
-                .Select(x => x.Id).ToList();
             var employees = repo.Employees
-                .Where(x => positions.Contains(x.PositionId ?? new Guid()) && !employeeIds.Contains(x.Id))
+                .Where(x => (
+                    x.Position.ParentId == unitId
+                    || x.Position.Parent.ParentId == unitId
+                    || x.Position.Parent.Parent.ParentId == unitId)
+                    && !employeeIds.Contains(x.Id))
                 .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name }).ToList();
             return Json(employees, JsonRequestBehavior.AllowGet);
         }
