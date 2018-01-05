@@ -1,0 +1,77 @@
+﻿@using PW.Ncels.Database.DataModel
+@model List<OBK_ExpertCouncil>
+<script src="~/Scripts/ExpertCouncil/index.js"></script>
+@(Html.Kendo().Splitter()
+    .HtmlAttributes(new { @class = "pwSplitter k-block" })
+    .Name(("splitter" + "ExpertCouncil"))
+    .Panes(panes =>
+        {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                    @<div id="expertCouncil_leftPane" class="pwPanelBar">
+                        @Html.Action("GetLeftPane")
+                    </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    @*@(Html.Kendo().Grid<OBK_AssessmentDeclaration>()
+                        .Name("gridExpertCouncil")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(p => p.Number).Width(125).ClientTemplate(
+                                "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getDeclarationDetails('#=StageId#', '#=Number#','" + controllerName + "')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                "</div>"
+                                ).Title("№ заявления");
+                            columns.Bound(p => p.FirstSendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи").Width(120);
+                        })
+                        .AutoBind(false)
+                        .Reorderable(reorderable => reorderable.Columns(true))
+                        .Resizable(resizable => resizable.Columns(true))
+                        //.ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                        .Groupable()
+                        .Sortable()
+                        .Filterable()
+                        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                        .Scrollable(scrollable => scrollable.Virtual(true))
+                        .Pageable()
+                        .HtmlAttributes(new { @class = "pwGrid" })
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Sort(sort => { sort.Add("FirstSendDate").Descending(); })
+                            .PageSize(50)
+                            .Read(read => read.Action("ListRegister", "SafetyAssessment", new { type = 0, stage = Model.DicStageId }))
+                        );
+                    )*@
+                </div>
+            );
+        }
+    )
+)
+
+<div id="expertCouncilAddWindow" hidden>
+    <div>
+        <label for="expertCouncilAddName">Наименование/номер</label>
+        <input type="text" id="expertCouncilAddName" class="form-control" />
+        <br />
+        <label>Дата проведения</label>
+        @(Html.Kendo().DatePicker()
+               .Name("expertCouncilAddDate")
+               .Min(DateTime.Now.ToString("dd.MM.yyyy"))
+               .Start(CalendarView.Month)
+               .Depth(CalendarView.Month)
+               .Format("dd.MM.yyyy")
+               .Value(DateTime.Now.ToString("yyyy-MM-dd"))
+               .HtmlAttributes(new { style = "width: 100%" })
+        )
+    </div>
+    <br />
+    <div class="pull-right">
+        <button class="k-button k-primary" onclick="expertCouncilSave(event)">Сохранить</button>
+    </div>
+</div>

@@ -69,20 +69,26 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(positions, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult ListEmployees(Guid unitId)
+        public ActionResult ListEmployees(Guid declarationId, Guid unitId)
         {
+            var employeeIds = repo.OBK_OP_Commission.Where(c => c.DeclarationId == declarationId).Select(e => e.EmployeeId);
             var positions = repo.Units
                 .Where(x => x.PositionState == 1 && x.ParentId == unitId)
                 .Select(x => x.Id).ToList();
             var employees = repo.Employees
-                .Where(x => positions.Contains(x.PositionId ?? new Guid()))
+                .Where(x => positions.Contains(x.PositionId ?? new Guid()) && !employeeIds.Contains(x.Id))
                 .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name }).ToList();
             return Json(employees, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult ListRoles()
+        public ActionResult ListRoles(Guid declarationId)
         {
-            var roles = repo.OBK_OP_CommissionRoles.Select(x => new { x.Id, Name = x.NameRu }).ToList();
+            // Костыль по ролям, роли должны быть в enum, т.к. без изменения кода невозможно изменять роли
+            var chairManeRoleId = new Guid("3935ad57-dea8-4d41-bb94-c99bc56973df");
+            var isHasChairman = repo.OBK_OP_Commission.Any(c => c.DeclarationId == declarationId && c.RoleId == chairManeRoleId);
+            var roles = repo.OBK_OP_CommissionRoles
+                .Where(r => !isHasChairman || r.Id != chairManeRoleId)
+                .Select(x => new { x.Id, Name = x.NameRu }).ToList();
             return Json(roles, JsonRequestBehavior.AllowGet);
         }
 

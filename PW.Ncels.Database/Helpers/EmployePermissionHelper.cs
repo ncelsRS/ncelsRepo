@@ -170,6 +170,7 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
             AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБК");
             AddPermission("CanViewMenuItemOBKResearchCenterList", "@Модуль 'ОБК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБК");
+            AddPermission("CanExpertCouncil", @"Модуль 'ОБК'", "Экспертный совет", "Работа в экспертном совете");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
@@ -910,6 +911,8 @@ namespace PW.Ncels.Database.Helpers
         /// Показывать кнопку Экспертиза документов в меню ОБК
         /// </summary>
         public static bool CanSafetyExpertiseDocumentList { get { return IsVisibility("CanSafetyExpertiseDocumentList"); } }
+
+        public static bool CanExpertCouncil { get { return IsVisibility("CanExpertCouncil"); } }
 
         /// <summary>
         /// Показывать кнопку Экспертиза документов в меню ОБК
