@@ -70,7 +70,7 @@ namespace PW.Prism.Controllers.OBK_OP
         }
 
         [HttpGet]
-        public ActionResult Program(Guid declarationId)
+        public ActionResult ProgramView(Guid declarationId)
         {
             return PartialView(declarationId);
         }

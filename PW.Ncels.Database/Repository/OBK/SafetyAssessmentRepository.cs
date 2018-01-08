@@ -219,7 +219,7 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IQueryable<OBK_Ref_Reason> GetRefReasons()
         {
-            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted 
+            return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted
             && "Declaration".Equals(e.Code) && e.ExpertiseResult == false);
         }
 
@@ -413,7 +413,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     }
                 case "act-series":
                     {
-                        return UpdateActProduct( model, fieldName, recordId, fieldValue, userId, fieldDisplay);
+                        return UpdateActProduct(model, fieldName, recordId, fieldValue, userId, fieldDisplay);
                     }
             }
             return null;
@@ -469,7 +469,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var entity = AppContext.OBK_ActReception.First(o => o.Id == recordId);
             var property = entity.GetType().GetProperty(fieldName);
-            
+
             if (property != null)
             {
                 var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
@@ -490,14 +490,14 @@ namespace PW.Ncels.Database.Repository.OBK
                 }
                 property.SetValue(entity, safeValue, null);
             }
-            
+
             AppContext.SaveChanges();
 
             SaveHistoryField(model.Id, fieldName, fieldValue, new Guid(userId), fieldDisplay);
 
             var subUpdateField = new SubUpdateField();
             subUpdateField.ModelId = model.ObjectId;
-            
+
             return subUpdateField;
         }
 
@@ -506,7 +506,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var entity = AppContext.OBK_Procunts_Series.First(o => o.Id == recordId);
             var property = entity.GetType().GetProperty(fieldName);
-            if (property != null)   
+            if (property != null)
             {
                 var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
@@ -950,10 +950,20 @@ namespace PW.Ncels.Database.Repository.OBK
         public IQueryable<OBK_AssessmentDeclarationRegisterView> SafetyAssessmentRegisterList(string status, int stage, Guid userId, DeclarationRegistryFilter customFilter)
         {
             // добавить этап обк (stage)
-            var query =
-                AppContext.OBK_AssessmentDeclarationRegisterView.Where(e => e.ExecutorId == userId && e.StageCode == stage.ToString());
-                
-            return query;
+            if (stage == 15)
+            {
+                var expert = AppContext.OBK_OP_Commission.Where(e => e.EmployeeId == userId);
+                var q = AppContext.OBK_AssessmentDeclarationRegisterView.Where(e => expert.Any(x => x.DeclarationId == e.DeclarationId));
+                return q;
+            }
+            else
+            {
+                var query =
+                AppContext.OBK_AssessmentDeclarationRegisterView
+                .Where(e => e.ExecutorId == userId && e.StageCode == stage.ToString());
+                return query;
+            }
+
         }
 
         /// <summary>

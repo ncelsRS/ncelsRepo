@@ -181,6 +181,7 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБК");
             AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
             AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБК'", "Оценка производства", "Работа с заявлениями ОБК");
+            AddPermission("CanExpertCouncil", @"Модуль 'ОБК'", "Экспертный совет", "Работа в экспертном совете");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
@@ -242,6 +243,7 @@ namespace PW.Ncels.Database.Helpers
         private static void AddPermission(string key, string keyName, string keyDescription, string groupName, PermissionValueTypes type = PermissionValueTypes.Classic)
         {
             _actualPermissionKeys.Add(key);
+
 
             PermissionKey permissionKey = db.PermissionKeys.FirstOrDefault(o => o.Key == key);
             if (permissionKey != null)
