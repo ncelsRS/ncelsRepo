@@ -7,61 +7,67 @@
     var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
 }
 @helper GridToolbarTemplate()
-{
+    {
 
-    <div class="pull-right">
-        <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
-        <div style="display: inline-block">
-            @( Html.Kendo().Button().Name("reload")
-                   .Content("")
-                   .ImageUrl("/Content/images/reload.png"))
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload")
+                               .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+            </div>
         </div>
-    </div>
 }
 
 @(Html.Kendo().Splitter()
-      .HtmlAttributes(new { @class = "pwSplitter k-block" })
-      .Name(("splitter"))
-      .Panes(panes =>
-      {
-          panes.Add().Scrollable(false).Size("100%").Content(
-            @<div class="pwPanelBar">
-                @( Html.Kendo().Grid<ZBKTransferRegister>()
-                         .Name("ZBKTransferRegister")
+          .HtmlAttributes(new { @class = "pwSplitter k-block" })
+          .Name(("splitter"))
+          .Panes(panes =>
+          {
+              panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    @( Html.Kendo().Grid<ZBKTransferRegister>()
+                                     .Name("ZBKTransferRegister")
 
-                         .Columns(columns =>
-                         {
-                             columns.Bound(p => p.Order).Title("№ n/n").Width(40);
-                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата передачи ЗБК").Width(150);
-                             columns.Bound(p => p.Declarer).Title("Наименование заявителя").Width(150);
-                             columns.Bound(p => p.DrugFormFullName).Title("Наименование продукции").Width(150);
-                             columns.Bound(p => p.RequestType).Title("Оригинал/Копия").Width(150);
-                             columns.Bound(p => p.RequestType).Title("Номер ЗБК").Width(150);
-                             columns.Bound(p => p.ConclusionNumber).Title("Дата выдачи").Width(150);
-                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
-                             columns.Bound(p => p.ReceiverFIO).Title("Получатель").Width(150);
+                                     .Columns(columns =>
+                                     {
+                                                 columns.Bound(p => p.Order).Title("№ n/n").Width(40);
+                                                 columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата передачи ЗБК").Width(150);
+                                                 columns.Bound(p => p.Declarer).Title("Наименование заявителя").Width(150);
+                                                 columns.Bound(p => p.DrugFormFullName).Title("Наименование продукции").Width(150);
+                                                 columns.Bound(p => p.RequestType).Title("Оригинал/Копия").Width(150);
+                                                 columns.Bound(p => p.ConclusionNumber).Title("Номер ЗБК").Width(150);
+                                                 columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
+                                                 columns.Bound(p => p.ReceiverFIO).Title("Получатель").Width(150);
 
-                         })
-                         .AutoBind(false)
-                         .Reorderable(reorderable => reorderable.Columns(true))
-                         .Resizable(resizable => resizable.Columns(true))
-                         .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
-                         .Groupable()
-                         .Sortable()
-                         .Filterable()
-                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
-                         .Scrollable(scrollable => scrollable.Virtual(true))
-                         .Pageable()
-                         .HtmlAttributes(new { @class = "pwGrid" })
-                         .DataSource(dataSource => dataSource
-                             .Ajax()
-                             .Sort(sort => { sort.Add("Order").Descending(); })
-                             .PageSize(50)
-                             .Read(read => read.Action("ZBKTransferRegisterList", "ZBKCopy"))
-                            )
-                         ))
+                                             })
+                                     .AutoBind(false)
+                                     .Reorderable(reorderable => reorderable.Columns(true))
+                                     .Resizable(resizable => resizable.Columns(true))
+                                     .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                                     .Groupable()
+                                     .Sortable()
+                                     .Filterable()
+                                     .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                     .Scrollable(scrollable => scrollable.Virtual(true))
+                                     .Pageable()
+                                     .HtmlAttributes(new { @class = "pwGrid" })
+                                     .DataSource(dataSource => dataSource
+                                         .Ajax()
+                                         .Sort(sort => { sort.Add("Order").Descending(); })
+                                         .PageSize(50)
+                                         .Read(read => read.Action("ZBKTransferRegisterList", "ZBKCopy"))
+                                        )
+                    ))
 
-            </div>
-              );
-      }))
+                </div>
+                          );
+                  }))
+
+<script>
+    $(document).ready(function ()
+    {
+        $("#ZBKTransferRegister").data("kendoGrid").dataSource.read();
+    });
+</script>
 

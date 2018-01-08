@@ -65,6 +65,10 @@ namespace PW.Ncels.Database.DataModel
         /// </summary>
         public const string OnOP = "OnOP";
         /// <summary>
+        /// Требует выдачи копии ЗБК
+        /// </summary>
+        public const string RequiresIssuingZBKCopy = "requiresIssuingZBKCopy";
+        /// <summary>
         /// Оценка производства завершена
         /// </summary>
         public const string OPCompleted = "OPCompleted";
