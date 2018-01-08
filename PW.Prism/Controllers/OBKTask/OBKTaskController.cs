@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -13,8 +14,11 @@ using PW.Ncels.Database.Repository.Common;
 using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.ViewModels.OBK;
 using Kendo.Mvc.Extensions;
+using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models.OBK;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dictionary;
 
 namespace PW.Prism.Controllers.OBKTask
 {
@@ -70,7 +74,7 @@ namespace PW.Prism.Controllers.OBKTask
                 {
                     TaskNumber = t.TaskNumber,
                     RegisterDate = t.RegisterDate,
-                    ExecutorName = t.OBK_TaskExecutor.FirstOrDefault(e=>e.TaskId == t.Id)?.Employee.ShortName,
+                    ExecutorName = t.OBK_TaskExecutor.FirstOrDefault(e=>e.TaskId == t.Id && e.StageId == 3)?.Employee.ShortName,
                     UnitName = repo.GetUnit(t.UnitId)?.ShortName
                 };
                 taskViewModel.Add(tvm);
@@ -193,12 +197,8 @@ namespace PW.Prism.Controllers.OBKTask
             if (taskExecutor.StageId == CodeConstManager.STAGE_OBK_ICL)
             {
                 var taskReseachCenter = repo.EditTaskResearchCenter(taskId);
-                
-                ViewData["StorageConditions"] = new SelectList(repo.GetMaterialCondition("storage"), "Id", "NameRu");
-                ViewData["ExternalConditions"] = new SelectList(repo.GetMaterialCondition("external"), "Id", "NameRu");
 
-                string[] codeResearchCenter = { "researchcenter5", "researchcenter3", "researchcenter6", "researchcenter4", "researchcenter7" };
-                ViewData["Researchcenters"] = new SelectList(repo.GetUnits(codeResearchCenter), "Id", "Name");
+                //if(taskReseachCenter.TaskStatusId != null && taskReseachCenter.)
                 return PartialView("TaskResearchCenter", taskReseachCenter);
             }
             else
@@ -217,6 +217,20 @@ namespace PW.Prism.Controllers.OBKTask
         {
             repo.AcceptTaskList(taskListViewModel);
             return Json(new { isSuccess = true });
+        }
+
+        public ActionResult ExportTaskFilePdf(Guid taskId, string taskNumber)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKTask.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
+            report.Render(false);
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return File(stream, "application/pdf", $"Задание №{taskNumber}.pdf");
         }
 
         #endregion
@@ -240,6 +254,12 @@ namespace PW.Prism.Controllers.OBKTask
         {
             repo.SaveManagerLaboratory(managerResearchCenter);
             return Json(new {isSuccess = true});
+        }
+
+        public ActionResult AcceptTaskReseachCenter(Guid taskId)
+        {
+            repo.AcceptTaskReseachCenter(taskId);
+            return Json("OK", JsonRequestBehavior.AllowGet);
         }
 
         #endregion

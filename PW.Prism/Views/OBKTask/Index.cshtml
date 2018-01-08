@@ -4,77 +4,79 @@
     var registerDate = DateTime.Now.ToShortDateString();
     var taskCount = Model.TaskViewModels.Count + 1;
 }
-<div id="partialPanel" class="pwPage pwPageEx" style="margin-left: 10px; margin-right: 60px; width: 90%">
-    <div class="pwToolbar">
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group">
-                <button type="button" class="btn btn-default" onclick="callCreatTaskView()">Создать задание</button>
-                <button type="button" class="btn btn-default" onclick="signBtn()">Подписать ЭЦП</button>
-                <button type="button" class="btn btn-default" id="sendToCoz" onclick="sendCOZ()">Отправить в ЦОЗ</button>
-            </div>
-        </div>
-    </div>
-    <br/>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Задание на испытание
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-sm-12">
-                    <table class="table table-striped table-bordered table-hover dataTable">
-                        <thead>
-                        <tr>
-                            <td>№ задания</td>
-                            <td>Дата регистрации</td>
-                            <td>ИЦл/ИЛ</td>
-                            <td>Создал</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var t in Model.TaskViewModels)
-                        {
-                            <tr>
-                                <td>@t.TaskNumber</td>
-                                <td>@t.RegisterDate</td>
-                                <td>@t.UnitName</td>
-                                <td>@t.ExecutorName</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
+<div id="loadPanel">
+    <div id="partialPanel" class="pwPage" style="margin-left: 10px; margin-right: 60px; width: 90%">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" onclick="callCreatTaskView()">Создать задание</button>
+                    <button type="button" class="btn btn-default" onclick="signBtn()">Подписать ЭЦП</button>
+                    <button type="button" class="btn btn-default" disabled="disabled" id="sendToCoz" onclick="sendCOZ()">Отправить в ЦОЗ</button>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Таблица распределения продукции
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-sm-12">
-                    <table class="table table-striped table-bordered table-hover dataTable">
-                        <thead>
-                        <tr>
-                            <td>Наименование продукции</td>
-                            <td>Серия</td>
-                            <td>№ задания</td>
-                            <td>Вид испытаний</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var t in Model.ProductViewModels)
-                        {
-                            <tr rowid="@t.Id">
-                                <td>@t.ProductNameRu</td>
-                                <td>@t.Series</td>
-                                <td>@t.TaskNumber</td>
-                                <td>@t.LaboratoryName</td>
+        <br/>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Задание на испытание
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead>
+                            <tr>
+                                <td>№ задания</td>
+                                <td>Дата регистрации</td>
+                                <td>ИЦл/ИЛ</td>
+                                <td>Создал</td>
                             </tr>
-                        }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            @foreach (var t in Model.TaskViewModels)
+                            {
+                                <tr>
+                                    <td>@t.TaskNumber</td>
+                                    <td>@t.RegisterDate</td>
+                                    <td>@t.UnitName</td>
+                                    <td>@t.ExecutorName</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Таблица распределения продукции
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead>
+                            <tr>
+                                <td>Наименование продукции</td>
+                                <td>Серия</td>
+                                <td>№ задания</td>
+                                <td>Вид испытаний</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var t in Model.ProductViewModels)
+                            {
+                                <tr rowid="@t.Id">
+                                    <td>@t.ProductNameRu</td>
+                                    <td>@t.Series</td>
+                                    <td>@t.TaskNumber</td>
+                                    <td>@t.LaboratoryName</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,7 +87,6 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="modal-dialog modal-lg" style="width: 1100px !important;">
-                    <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -199,8 +200,7 @@
 
     function saveNewTask() {
         debugger;
-        var val = validModal();
-        if (val) {
+        if (validModal()) {
             saveTask();
         } else {
             alert("Заполните обязательные поля!");
@@ -252,7 +252,14 @@
                     debugger;
                     $("#tableCreateTask tr").remove();
                     $("#modalCreateTask").modal('toggle');
-                    $('#partialPanel').load('@Url.Action("Task", new {id = Model.AssessmentDeclarationId})');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/OBKTask/Task?id=' + '@Model.AssessmentDeclarationId',
+                        success: function (result) {
+                            $('#partialPanel').remove();
+                            $('#loadPanel').html(result);
+                        }
+                    });
                 }
             },
             error: function() {
@@ -286,7 +293,15 @@
                 data: json,
                 success: function (result) {
                     alert(result.message);
-                    $('#partialPanel').load('@Url.Action("Task", new {id = Model.AssessmentDeclarationId})');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/OBKTask/Task?id=' + '@Model.AssessmentDeclarationId',
+                        success: function (result1) {
+                            $('#partialPanel').remove();
+                            $('#loadPanel').html(result1);
+                            $('#sendToCoz').removeAttr("disabled");
+                        }
+                    });
                 }
             });
         }

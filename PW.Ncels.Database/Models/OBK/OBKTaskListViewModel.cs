@@ -22,6 +22,10 @@ namespace PW.Ncels.Database.Models.OBK
         /// исполнитель в ЦОЗ время передачи в ИЦ
         /// </summary>
         public string SentToIC { get; set; }
+        /// <summary>
+        /// Кому передано в ИЦ
+        /// </summary>
+        public string ICExecutorName { get; set; }
         public string ActNumber { get; set; }
         //public string LaboratoryTypeName { get; set; }
         public string UnitName { get; set; }

@@ -18,38 +18,47 @@ namespace PW.Ncels.Database.Models.OBK
         public string SeriesStartdate { get; set; }
         public string SeriesEndDate { get; set; }
         public string SeriesParty { get; set; }
+
         /// <summary>
         /// кол-во переданных
         /// </summary>
         public int? Quantity { get; set; }
+
         /// <summary>
         /// кол-во в акте
         /// </summary>
         public int? ActQuantity { get; set; }
+
         /// <summary>
         /// Идентификационный номер
         /// </summary>
         public string IdNumber { get; set; }
+
         /// <summary>
         /// условия хранения
         /// </summary>
         public Guid StorageCondition { get; set; }
+
         /// <summary>
         /// Внешнее состояние
         /// </summary>
         public Guid ExternalCondition { get; set; }
+
         /// <summary>
         /// выбранные лаборатории
         /// </summary>
         public List<OBKLaboratory> Laboratory { get; set; }
+
         /// <summary>
         /// для отображения
         /// </summary>
         public string LaboratoryName { get; set; }
+
         /// <summary>
         /// ФИО исполнителя
         /// </summary>
         public string ExecutorLaboratoryName { get; set; }
+
         /// <summary>
         /// Подпись исполнителя
         /// </summary>
@@ -65,11 +74,12 @@ namespace PW.Ncels.Database.Models.OBK
         /// Размерность ИМН
         /// </summary>
         public string DimensionIMN { get; set; }
-        
+
         /// <summary>
         /// Исполнитель лаборатории
         /// </summary>
         public IEnumerable<SelectListItem> ExecutorLaboratoryList { get; set; }
+
         public Guid LaboratoryAssistantId { get; set; }
 
         /// <summary>
@@ -77,12 +87,26 @@ namespace PW.Ncels.Database.Models.OBK
         /// </summary>
         public bool CreateBtnValid { get; set; }
 
+        public string StorageConditionNameRu { get; set; }
+        public string StorageConditionNameKz { get; set; }
+        public string ExternalConditionNameRu { get; set; }
+        public string ExternalConditionNameKz { get; set; }
+
     }
+
     public class OBKLaboratory
     {
         public Guid LaboratoryId { get; set; }
         public string LaboratoryName { get; set; }
+        
+        /// <summary>
+        /// для визульного отображения
+        /// </summary>
+        public string ResearchcenterNameRu { get; set; }
+        public string ResearchcenterNameKz { get; set; }
+        public int? Quantity { get; set; }
     }
+
     /// <summary>
     /// Наименование лабораторий
     /// </summary>
