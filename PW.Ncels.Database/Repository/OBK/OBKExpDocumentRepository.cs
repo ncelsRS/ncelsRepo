@@ -826,7 +826,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 OBKExpertiseConclusionNegative ecn = new OBKExpertiseConclusionNegative();
                 ecn.AssessmentDeclarationId = adId;
                 ecn.ProductSeriesId = productSeriesId;
-                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons("Party", false), "Id", "Name");
+                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons(), "Id", "Name"); //"Party", false
                 return ecn;
             }
             return null;
@@ -927,8 +927,8 @@ namespace PW.Ncels.Database.Repository.OBK
                 ecn.ProductSeriesId = productSeriesId;
                 ecn.ExpReasonNameRu = ps.ExpReasonNameRu;
                 ecn.ExpReasonNameKz = ps.ExpReasonNameKz;
-                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons("Party", false), "Id",
-                    "Name", ps.RefReasonId);
+                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons(), "Id",
+                    "Name", ps.RefReasonId); //"Party", false
                 return ecn;
             }
             return null;

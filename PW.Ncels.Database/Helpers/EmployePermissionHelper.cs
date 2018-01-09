@@ -164,12 +164,13 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("IsFrpCenterTmc", @"Право на выдачу ТМЦ со склада ИЦ", "Право на выдачу ТМЦ со склада ИЦ", "Разрешения на действия в Системе");
 
             // ОБК
-            AddPermission("IsMenuSafetyAssessmentVisibility", @"Модуль 'ОБиК'", "Вкладка 'ОБиК Заявления' главная", "Доступ в главном меню ОБиК");
-            AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБиК'", "Распределение заявлений", "Работа с заявлениями ОБиК");
-            AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБиК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБиК");
-            AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБиК'", "Экспертиза документов", "Работа с заявлениями ОБиК");
-            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБиК");
-            AddPermission("CanViewMenuItemOBKResearchCenterList", "@Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБиК");
+            AddPermission("IsMenuSafetyAssessmentVisibility", @"Модуль 'ОБК'", "Вкладка 'ОБК Заявления' главная", "Доступ в главном меню ОБК");
+            AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБК'", "Распределение заявлений", "Работа с заявлениями ОБК");
+            AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБК");
+            AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБК'", "Экспертиза документов", "Работа с заявлениями ОБК");
+            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБК");
+            AddPermission("CanViewMenuItemOBKResearchCenterList", "@Модуль 'ОБК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБК");
+            AddPermission("CanExpertCouncil", @"Модуль 'ОБК'", "Экспертный совет", "Работа в экспертном совете");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
@@ -177,43 +178,28 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanChangeAddressUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление юридического адреса для организации", "Работа с организационной структурой");
 
             // ОБК Договоры
-            AddPermission("IsMenuOBKContractVisibility", @"Модуль 'ОБиК' 'Договоры'", "Вкладка 'ОБиК Договоры' главная", "Доступ в главном меню ОБиК Договоры");
+            AddPermission("IsMenuOBKContractVisibility", @"Модуль 'ОБК' 'Договоры'", "Вкладка 'ОБК Договоры' главная", "Доступ в главном меню ОБК Договоры");
 
             // ОБК Договоры меню
-            AddPermission("CanViewMenuItemNotAssignedOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Нераспределенные\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemInWorkOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"В работе\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemOnCorrectionOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"На корректировке у заявителя\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemOnAgreementOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Требуют согласования\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemAgreedOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Согласованные\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemNotAgreedOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Несогласованные\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemRefusedOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Отказанные\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemRequiresSigningOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Требуют подписания\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemRequiresRegistrationOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Требуют регистрации\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemActiveOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Активные\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewMenuItemPastOBKContracts", @"Модуль 'ОБиК' 'Договоры'", "Просмотр пункта меню \"Истекшие\"", "Работа с договорами ОБиК");
+            AddPermission("CanViewMenuItemNotAssignedOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Нераспределенные\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemInWorkOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"В работе\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemOnCorrectionOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"На корректировке у заявителя\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemOnAgreementOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Требуют согласования\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemAgreedOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Согласованные\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemNotAgreedOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Несогласованные\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemRefusedOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Отказанные\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemRequiresSigningOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Требуют подписания\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemRequiresRegistrationOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Требуют регистрации\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemActiveOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Активные\"", "Работа с договорами ОБК");
+            AddPermission("CanViewMenuItemPastOBKContracts", @"Модуль 'ОБК' 'Договоры'", "Просмотр пункта меню \"Истекшие\"", "Работа с договорами ОБК");
 
             // ОБК Договоры
-            AddPermission("CanAssignOBKContract", @"Модуль 'ОБиК' 'Договоры'", "Функционал распределения договоров", "Работа с договорами ОБиК");
-            AddPermission("CanViewMeetAndNotMeetRqrmntsBtnObkContract", @"Модуль 'ОБиК' 'Договоры'", "Отображать кнопки \"Соответствует требованиям\"/\"Не соответствует требованиям\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewReturnToApplicantAndSendToBossForApproval", @"Модуль 'ОБиК' 'Договоры'", "Отображать кнопки \"Вернуть на доработку\"/\"На согласование руководителю\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewDoApprovementAndRefuseApprovement", @"Модуль 'ОБиК' 'Договоры'", "Отображать кнопки \"Согласовать\"/\"Отказать в согласовании\"", "Работа с договорами ОБиК");
-            AddPermission("CanViewRegisterAndAttachContract", @"Модуль 'ОБиК' 'Договоры'", "Отображать кнопки \"Зарегистрировать\"/\"Прикрепить договор\"", "Работа с договорами ОБиК");
-            AddPermission("CanOBKPayment", @"Модуль 'ОБиК' 'Договоры'", "Отображать кнопку \"Счет на оплату\"", "Работа с договорами ОБиК");
-
-            // EMP Contracts
-            AddPermission("EmpContractNotDistributedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не распределенные\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractInWorkStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"В работе\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractOnAdjustmentStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"На корректировке\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractApprovalRequiredStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Требует согласования\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractNotApprovedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не согласованные\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractActiveStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Активные\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractNewStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Новые\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractRegistrationRquiredStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Требуют регистрации\"", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractAssignment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность распределять договоры", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractSendToAdjustment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность отправлять договоры на доработку", "Работа с договорами по экспертизе ИМН и МТ");
-            AddPermission("EmpContractRegister", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность регистрировать договоры", "Работа с договорами по экспертизе ИМН и МТ");
-
+            AddPermission("CanAssignOBKContract", @"Модуль 'ОБК' 'Договоры'", "Функционал распределения договоров", "Работа с договорами ОБК");
+            AddPermission("CanViewMeetAndNotMeetRqrmntsBtnObkContract", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопки \"Соответствует требованиям\"/\"Не соответствует требованиям\"", "Работа с договорами ОБК");
+            AddPermission("CanViewReturnToApplicantAndSendToBossForApproval", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопки \"Вернуть на доработку\"/\"На согласование руководителю\"", "Работа с договорами ОБК");
+            AddPermission("CanViewDoApprovementAndRefuseApprovement", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопки \"Согласовать\"/\"Отказать в согласовании\"", "Работа с договорами ОБК");
+            AddPermission("CanViewRegisterAndAttachContract", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопки \"Зарегистрировать\"/\"Прикрепить договор\"", "Работа с договорами ОБК");
+            AddPermission("CanOBKPayment", @"Модуль 'ОБК' 'Договоры'", "Отображать кнопку \"Счет на оплату\"", "Работа с договорами ОБК");
 
             // EMP Contracts
             AddPermission("EmpContractNotDistributedStatusView", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Просмотр пункта меню \"Не распределенные\"", "Работа с договорами по экспертизе ИМН и МТ");
@@ -926,6 +912,8 @@ namespace PW.Ncels.Database.Helpers
         /// </summary>
         public static bool CanSafetyExpertiseDocumentList { get { return IsVisibility("CanSafetyExpertiseDocumentList"); } }
 
+        public static bool CanExpertCouncil { get { return IsVisibility("CanExpertCouncil"); } }
+
         /// <summary>
         /// Показывать кнопку Экспертиза документов в меню ОБК
         /// </summary>
@@ -940,7 +928,6 @@ namespace PW.Ncels.Database.Helpers
         /// Отображать пункт меню ОБК Испытательный центр
         /// </summary>
         public static bool CanViewMenuItemOBKResearchCenterList { get { return IsVisibility("CanViewMenuItemOBKResearchCenterList"); } }
-
 
         #endregion
 
@@ -1056,6 +1043,16 @@ namespace PW.Ncels.Database.Helpers
         public static bool EmpContractSendToAdjustment { get { return IsVisibility("EmpContractSendToAdjustment"); } }
         public static bool EmpContractRegister { get { return IsVisibility("EmpContractRegister"); } }
 
+        #endregion
+
+        #region Выдача копии ЗБК
+        public static bool ZBKCopyViewRequest { get { return IsVisibility("ZBKCopyViewRequest"); } }
+        public static bool ZBKCopyEditBlanks { get { return IsVisibility("ZBKCopyEditBlanks"); } }
+        #endregion
+
+        #region Справочники
+        public static bool ZBKTransferRegister { get { return IsVisibility("ZBKTransferRegister"); } }
+        public static bool OBKDictionaries { get { return IsVisibility("OBKDictionaries"); } }
         #endregion
     }
 }
