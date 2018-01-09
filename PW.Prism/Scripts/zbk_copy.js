@@ -66,7 +66,7 @@ debugger;
                 viewModel.initButton();
                 InitializePropertyCertificate(name, viewModel);
                 kendo.ui.progress($('#loader' + name), false);
-                
+                $(".k-upload-button").hide();
             },
             complete: function () {
                 //InitializeStatusBar(name, viewModel);

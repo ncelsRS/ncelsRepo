@@ -27,12 +27,12 @@ namespace PW.Ncels.Database.Models.OBK
         public string Notes { get; set; }
         public bool? PaymentInvoice { get; set; }
         public int? refStatus { get; set; }
-        public bool? InOBK { get; set; }
-        public bool? OBK_Completed { get; set; }
         public bool? OriginalsGiven { get; set; }
         public DateTime? ExtraditeDate { get; set; }
         public bool? zbkCopiesReady { get; set; }
-
-        
+        public bool? SendToAccountant { get; set; }
+        public double Nds { get; set; }
+        public string LetterNumber { get; set; }
+        public DateTime? LetterDate { get; set; }
     }
 }

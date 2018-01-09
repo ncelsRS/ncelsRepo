@@ -121,7 +121,7 @@ GO
 USE [ncels]
 GO
 
-/****** Object:  Table [dbo].[OBK_ZBKCopyStageExecutors]    Script Date: 21.12.2017 10:01:35 ******/
+/** Object:  Table [dbo].[OBK_ZBKCopyStageExecutors]    Script Date: 25.12.2017 9:38:32 **/
 SET ANSI_NULLS ON
 GO
 
@@ -129,12 +129,12 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[OBK_ZBKCopyStageExecutors](
-	[ZBKCopyId] [uniqueidentifier] NOT NULL,
-	[ExecutorId] [uniqueidentifier] NOT NULL,
-	[ExecutorType] [int] NOT NULL,
+  [ZBKCopyStageId] [uniqueidentifier] NOT NULL,
+  [ExecutorId] [uniqueidentifier] NOT NULL,
+  [ExecutorType] [int] NOT NULL,
  CONSTRAINT [PK_OBK_ZBKCopyStageExecutors] PRIMARY KEY CLUSTERED 
 (
-	[ZBKCopyId] ASC
+  [ZBKCopyStageId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
@@ -146,11 +146,14 @@ GO
 ALTER TABLE [dbo].[OBK_ZBKCopyStageExecutors] CHECK CONSTRAINT [FK_OBK_ZBKCopyStageExecutors_Employees]
 GO
 
-ALTER TABLE [dbo].[OBK_ZBKCopyStageExecutors]  WITH CHECK ADD  CONSTRAINT [FK_OBK_ZBKCopyStageExecutors_OBK_ZBKCopyStage] FOREIGN KEY([ZBKCopyId])
+ALTER TABLE [dbo].[OBK_ZBKCopyStageExecutors]  WITH CHECK ADD  CONSTRAINT [FK_OBK_ZBKCopyStageExecutors_OBK_ZBKCopyStage] FOREIGN KEY([ZBKCopyStageId])
 REFERENCES [dbo].[OBK_ZBKCopyStage] ([Id])
 GO
 
 ALTER TABLE [dbo].[OBK_ZBKCopyStageExecutors] CHECK CONSTRAINT [FK_OBK_ZBKCopyStageExecutors_OBK_ZBKCopyStage]
 GO
 
+
+
+ALTER TABLE  [dbo].[OBK_DirectionToPayments] ADD ZBKCopy_id uniqueidentifier null
 

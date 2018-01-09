@@ -1,7 +1,28 @@
 ﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
 @model PW.Ncels.Database.Models.OBK.ZBKViewModel
 
 @Html.HiddenFor(o => o.AttachPath)
+
+@{
+    double total = 0;
+    double totalWithNDS = 0;
+
+    if (Model.CopyQuantity != null)
+    {
+        total = 219 * (int)Model.CopyQuantity;
+        totalWithNDS = (total * Model.Nds);
+    }
+
+    if (Model.ExpApplication == false)
+    {
+        total = total * 2;
+        totalWithNDS = totalWithNDS * 2;
+    }
+
+    decimal decTotal = Math.Round(Convert.ToDecimal(total), 2);
+    decimal decTotalWithNDS = Math.Round(Convert.ToDecimal(totalWithNDS), 2);
+}
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -14,17 +35,13 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 @{
-                                    if (Model.OBK_Completed != true && Model.InOBK != true)
+                                    if (Model.SendToAccountant != true)
                                     {
-                                        <button class="btn btn-success dropdown-toggle" id="backToOverview">Вернуть на дороботку</button>
+                                        <button class="btn btn-success dropdown-toggle sendToAccountant" id="backToOverview">Вернуть на дороботку</button>
+                                        <button class="btn btn-success dropdown-toggle sendToAccountant" id="toCopyZBK" style="margin-left:20px">На выдачу копий ЗБК</button>
                                     }
                                 }
-                                @{
-                                    if (Model.InOBK != true && Model.OBK_Completed != true)
-                                    {
-                                        <button class="btn btn-success dropdown-toggle" id="toCopyZBK" style="margin-left:20px">На выдачу копий ЗБК</button>
-                                    }
-                                }
+
                                 @{ if (ViewData["ShowOriginals"] != null)
                                     {
                                         if (Model.OriginalsGiven == true)
@@ -36,29 +53,32 @@
                                             <input type="checkbox" style="margin-left:20px" id="zbkOriginals" checked="@(Model.OriginalsGiven)" /><span>Оригиналы ЗБК предоставлены заявителям</span>
                                         }
                                     }}
-                                @{ if (Model.InOBK == true && Model.OBK_Completed != true)
-                                    {
-                                        <button class="btn btn-success dropdown-toggle" onclick="signZBKCopy(event)" style="margin-left:20px">Подписано и передано в ЦОЗ</button>
 
-                                    }}
-                                @{ if (Model.OBK_Completed == true)
+                                @{
+
+                                    if (Model.StageStatusCode == OBK_Ref_StageStatus.RequiresIssuingZBKCopy
+                                        || Model.StageStatusCode == OBK_Ref_StageStatus.Completed)
                                     {
                                         if (Model.zbkCopiesReady == true)
                                         {
-                                            <input type="checkbox" style="margin-left:20px" id="ZbkCopiesReady" checked="@Model.zbkCopiesReady" disabled="disabled"/><span>Бумажные копии заключения готовы</span>
-
+                                            <input type="checkbox" style="margin-left:20px" id="ZbkCopiesReady" checked="@Model.zbkCopiesReady" disabled="disabled" /><span>Бумажные копий заключения готовы</span>
                                         }
                                         else
                                         {
-                                            <input type="checkbox" style="margin-left:20px" id="ZbkCopiesReady" /><span>Бумажные копии заключения готовы</span>
-
+                                            <input type="checkbox" style="margin-left:20px" id="ZbkCopiesReady" /><span>Бумажные копий заключения готовы</span>
                                         }
 
                                         if (Model.ExtraditeDate == null)
                                         {
                                             <button type="button" class="btn btn-info btn-sm" id="giveReceiver" data-toggle="modal" data-target="#receiverModal">Выдать копию ЗБК</button>
                                         }
-                                    }}
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-info btn-sm" disabled="disabled">Выдать копию ЗБК</button>
+                                        }
+                                    }
+
+                                }
                             </div>
                         </div>
                         <br>
@@ -139,11 +159,11 @@
                                     @{
                                         if (Model.ExpApplication == true)
                                         {
-                                            <input value="с приложением" disabled="disabled" class="form-control edit-control">
+                                            <input value="без приложений" disabled="disabled" class="form-control edit-control">
                                         }
                                         else
                                         {
-                                            <input value="без приложением" disabled="disabled" class="form-control edit-control">
+                                            <input value="с приложением" disabled="disabled" class="form-control edit-control">
                                         }
                                     }
                                 </div>
@@ -158,6 +178,21 @@
                                     <div class="panel-body">
                                         <table id="products" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label id="LetterDate-label">Дата подачи запроса</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.LetterDate, "{0:dd.MM.yyyy}", new { @class = "form-control date-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label id="LetterNumber-label">Номер письма</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.LetterNumber, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
                                 </div>
                             </div>
                         </div>
@@ -195,7 +230,12 @@
                                                     <th>Единица измерения</th>
                                                     <th>Цена тенге без НДС</th>
                                                     <th>Количество услуг</th>
-                                                    <th>Количество приложении</th>
+                                                    @{
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <th>Количество приложении</th>
+                                                        }
+                                                    }
                                                     <th>Итоговая стоимость услуги, в тенге без НДС</th>
                                                     <th>Итоговая стоимость услуги, в тенге с НДС</th>
                                                 </tr>
@@ -206,9 +246,14 @@
                                                     <td>1 копия</td>
                                                     <td id="onePrice">219</td>
                                                     <td id="copyQuantityTable">@Model.CopyQuantity</td>
-                                                    <td id="copyQuantityTable2">@Model.CopyQuantity</td>
-                                                    <td id="totalWithoutNds">@(Model.CopyQuantity * 219 * 2)</td>
-                                                    <td id="totalWithNds">@( (int)(Model.CopyQuantity * 219 * 2 * 1.12))</td>
+                                                    @{
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <td id="copyQuantityTable2">@Model.CopyQuantity</td>
+                                                        }
+                                                    }
+                                                    <td id="totalWithoutNds">@(decTotal)</td>
+                                                    <td id="totalWithNds">@(decTotalWithNDS)</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -218,14 +263,15 @@
                         </div>
 
                         @{
-                            if (Model.InOBK == true)
+                            if (OBK_Ref_StageStatus.RequiresIssuingZBKCopy.Equals(Model.StageStatusCode)
+                            || OBK_Ref_StageStatus.Completed.Equals(Model.StageStatusCode))
                             {
                                 <br>
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <label style="color:black">ЗБК</label>
                                         <br>
-                                        <span>Начальный номер от:</span><input type="number" id="@("startNumber" + Model.Id)" style="width:100px; margin-left:20px"><button class="btn btn-info btn-sm" style="margin-left:20px" id="SaveStartNumber">ОК</button>
+                                        <span>Начальный номер от:</span><input type="number" id="@("startNumber" + Model.Id)" style="width:100px; margin-left:20px" disabled="disabled"><button class="btn btn-info btn-sm" style="margin-left:20px" id="SaveStartNumber" disabled="disabled">ОК</button>
                                     </div>
                                 </div>
                                 <br>
@@ -264,7 +310,7 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <label style="color:black">Список испорченных и замененных бланков</label>
-                                        <button type="button" class="btn btn-info btn-sm" id="replaceBlank" data-toggle="modal" data-target="#myModal">Замена бланка</button>
+                                        <button type="button" class="btn btn-info btn-sm" id="replaceBlank" disabled="disabled" data-toggle="modal" data-target="#myModal">Замена бланка</button>
                                         <br>
                                         <br>
                                         <div class="panel panel-default">
@@ -284,43 +330,6 @@
                                 </div>
                             }
                         }
-
-
-                        <div id="myModal" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-
-                                <!-- Modal content-->
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">Замена бланка</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-md-6"> 
-                                                <label>Номер заменяемого бланка</label>    
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input id="blankForReplace" style="width:100px;" />
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Номер нового бланка</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input id="newBlank" style="width:100px;" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-info" id="replaceCorruptedBlank">Сохранить</button>
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмета</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
 
                         <div id="receiverModal" class="modal fade" role="dialog">
                             <div class="modal-dialog">
@@ -379,30 +388,37 @@
         InitializeZBKCopyFile(fileId);
 
         debugger;
-        if ('@Model.OBK_Completed' == 'True'){
+        if ('@Model.StageStatusCode' == '@OBK_Ref_StageStatus.RequiresIssuingZBKCopy'
+        || '@Model.StageStatusCode' == '@OBK_Ref_StageStatus.Completed')
+        {
             initBlankNumbers();
             initCorruptedBlanks();
+        }
 
-            $("#replaceBlank").attr("disabled", "disabled");
-            $("#SaveStartNumber").attr("disabled", "disabled");
-            $("#startNumber" + '@Model.Id').attr("disabled", "disabled");
+        if ('@Model.SendToAccountant' == 'True'){
+            disabledCOZ();
         }
 
         $("#receiveDate").kendoDatePicker({});
     });
 
+    function disabledCOZ()
+    {
+        $(".sendToAccountant").hide();
+        $("#notes").attr("disabled", "disabled");
+    }
 
     $("#saveReceiver").click(function ()
     {
         if ($('#ZbkCopiesReady').is(':checked') != true){
-            alert("Вы не отметили Бумажные копии заключения");
+            alert("Вы не отметили наличие бумажных копий заключения");
         } else
         {
             $.ajax({
             type: 'POST',
             url: '/ZBKCopy/SaveReceiver',
             data: {
-                receiverа: $("#receiver").val(),
+                receiver: $("#receiver").val(),
                 receiveDate: $("#receiveDate").val(),
                 zbkCopyId: '@Model.Id',
                 zbkCopiesReady: $('#ZbkCopiesReady').is(':checked')
@@ -413,42 +429,13 @@
                 {
                     $('#receiverModal').modal('hide');
                     $('#ZbkCopiesReady').attr("disabled", "disabled");
+                    $('#giveReceiver').attr("disabled", "disabled");
                     alert("Передано");
                 }
             }
         });
         }
 
-    });
-
-        $("#replaceCorruptedBlank").click(function ()
-    {
-        if ($("#blankForReplace").val() == "" && $("#newBlank").val() == ""){
-            alert("Заполните поля!");
-        } else
-        {
-            $.ajax({
-                type: 'POST',
-                url: '/ZBKCopy/ReplaceBlank',
-                data: {
-                    blankForReplace: $("#blankForReplace").val(),
-                    newBlank: $("#newBlank").val(),
-                    zbkCopyId: '@Model.Id'
-                },
-                success: function (data)
-                {
-                    $('#myModal').modal('hide');
-                    var str = '';
-                    if (data.success == true && data.result.length > 0){
-                        for (var i = 0; i < data.result.length; i++){
-                            str = str + '<tr><td>' + data.result[i].CorruptedBlankNumber + '</td> <td>' + data.result[i].NewBlankNumber + '</td></tr>';
-                        }
-                    }
-
-                    $("#corruptedBody").html(str);
-                }
-            });
-        }
     });
 
 
@@ -497,56 +484,19 @@
             });
         }
 
-    $("#SaveStartNumber").click(function ()
-    {
-        $.ajax({
-            type: 'POST',
-            url: '/ZBKCopy/SaveStartBlankNumber',
-            data: {
-                startNumber: $("#startNumber" + '@Model.Id').val(),
-                zbkCopyId: '@Model.Id',
-                expApplication: '@Model.ExpApplication'
-            },
-            success: function (data)
-            {
-                if (data.success == true){
-                    $("#primeStart").html(data.result.StartNumber);
-                    $("#primeEnd").html(data.result.EndPrimeNumber);
-                    $("#applicationStart").html(data.result.StartApplicationNumber);
-                    $("#applicationEnd").html(data.result.EndApplicationNumber);
-                }
-            }
-        });
-
-    });
-
     $("#toCopyZBK").click(function ()
     {
-        if ('@ViewData["ShowOriginals"]' != '' && $('#zbkOriginals').is(':checked') == true){
-        $.ajax({
-            type: 'POST',
-            url: '/ZBKCopy/SendToOBK',
-            data: {id:'@Model.Id'},
-            success: function (data){
-                if(data.success == true){
-                    alert("Передано на оплату");
-                }
-            }
-        });
-        } else
-        {
-         $.ajax({
+          $.ajax({
             type: 'POST',
             url: '/ZBKCopy/SendToPayment',
             data: {id:'@Model.Id'},
             success: function (data){
                 if(data.success == true){
                     alert("Передано на оплату");
+                    disabledCOZ();
                 }
             }
         });
-        }
-
 
     });
 
@@ -597,41 +547,6 @@
          return valid;
     }
 
-        function signZBKCopy() {
-        $.ajax({
-            type: 'POST',
-            url: '/ZBKCopy/GetStageSign',
-            data: {zbkCopyStageId : '@Model.StageId'},
-            success: function (result) {
-                startSign(result.preambleXml, '@Model.StageId', saveZbkCopySign);
-                }
-            });
-        }
-
-        function saveZbkCopySign(signedData, id)
-        {
-            debugger;
-                var data1 = {
-                    id: id,
-                    signedData: signedData
-                };
-                var json = JSON.stringify(data1);
-                $.ajax({
-                    type: 'POST',
-                    url: '/ZbkCopy/SaveSignedZbkCopyStage',
-                    contentType: 'application/json; charset=utf-8',
-                    data: json,
-                    success: function (result) {
-                        alert(result.message);
-                        if (result.success == true){
-                            $("#replaceBlank").attr("disabled", "disabled");
-                            $("#SaveStartNumber").attr("disabled", "disabled");
-                            $("#startNumber" + '@Model.Id').attr("disabled", "disabled");
-                        }
-                    }
-                });
-    }
-
         $("#zbkOriginals").change(function ()
         {
             var isAdmin = confirm("Вы подтверждаете что оригиналы ЗБК предоставлены заявителям?");
@@ -649,6 +564,24 @@
             });
             }
 
+        });
+
+        $("#ZbkCopiesReady").change(function ()
+        {
+            var isAdmin = confirm("Вы подтверждаете бумажные копий заключения готовы?");
+            if (isAdmin == true){
+            $.ajax({
+                type: 'POST',
+                url: '/ZBKCopy/ConfirmPaperCopy',
+                data: { zbkCopyId: '@Model.Id' },
+                success: function (data)
+                {
+                    if (data.success == true){
+                        $("#ZbkCopiesReady").attr("disabled", "disabled");
+                    }
+                }
+            });
+            }
         });
 
     function checkAttr(attr, valid) {
@@ -671,7 +604,7 @@
                 url: '/ZBKCopy/SendNote',
                 data: {zbkCopyId:'@Model.Id', notes:$("#notes").val()},
                 success: function(data){
-
+                    alert("Передано на доработку!")
                 }
             })
         }

@@ -217,10 +217,10 @@ namespace PW.Ncels.Database.Repository.OBK
         /// основание для УОБК
         /// </summary>
         /// <returns></returns>
-        public IQueryable<OBK_Ref_Reason> GetRefReasons()
+        public IQueryable<OBK_Ref_Reason> GetRefReasons(string code, bool expertiseResult)
         {
             return AppContext.OBK_Ref_Reason.Where(e => !e.IsDeleted
-            && "Declaration".Equals(e.Code) && e.ExpertiseResult == false);
+                                                        && e.Code == code && e.ExpertiseResult == expertiseResult);
         }
 
         /// <summary>

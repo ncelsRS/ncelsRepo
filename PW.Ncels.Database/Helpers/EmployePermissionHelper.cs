@@ -1044,5 +1044,15 @@ namespace PW.Ncels.Database.Helpers
         public static bool EmpContractRegister { get { return IsVisibility("EmpContractRegister"); } }
 
         #endregion
+
+        #region Выдача копии ЗБК
+        public static bool ZBKCopyViewRequest { get { return IsVisibility("ZBKCopyViewRequest"); } }
+        public static bool ZBKCopyEditBlanks { get { return IsVisibility("ZBKCopyEditBlanks"); } }
+        #endregion
+
+        #region Справочники
+        public static bool ZBKTransferRegister { get { return IsVisibility("ZBKTransferRegister"); } }
+        public static bool OBKDictionaries { get { return IsVisibility("OBKDictionaries"); } }
+        #endregion
     }
 }

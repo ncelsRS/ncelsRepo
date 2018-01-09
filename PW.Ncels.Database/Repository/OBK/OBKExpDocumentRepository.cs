@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using Aspose.Cells;
 using Aspose.Cells.Rendering;
 using Aspose.Pdf;
@@ -15,6 +16,7 @@ using Kendo.Mvc.Extensions;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
+using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Notifications;
 
 namespace PW.Ncels.Database.Repository.OBK
@@ -463,8 +465,6 @@ namespace PW.Ncels.Database.Repository.OBK
 
         #endregion
 
-
-
         #region GenerateNumber
 
         private string KZ = "KZ";
@@ -547,6 +547,398 @@ namespace PW.Ncels.Database.Repository.OBK
 
 
 
+        #region Заклчюение для серии и партии
 
-    }
+        public OBKExpertiseConclusion ExpertiseConclusion(Guid declarationId)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == declarationId);
+            var taskMaterails = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == declarationId).GroupBy(d => d.ProductSeriesId);
+            var productSeries = AppContext.OBK_Procunts_Series.Where(e => taskMaterails.Any(s => s.Key == e.Id));
+            if (productSeries.Any())
+            {
+                OBKExpertiseConclusion okbConclusion = new OBKExpertiseConclusion();
+                List<ExpertiseConclusion> eConclusions = new List<ExpertiseConclusion>();
+                foreach (var ps in productSeries)
+                {
+                    ExpertiseConclusion ec = new ExpertiseConclusion
+                    {
+                        ProductSeriesId = ps.Id,
+                        ProductNameRu = ps.OBK_RS_Products.NameRu,
+                        ProductNameKz = ps.OBK_RS_Products.NameKz,
+                        ProductSeries = ps.Series,
+                        SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
+                        ResearchCenterResultName = ResearchCenterResultName1(ps.OBK_TaskMaterial.ToList()),
+                        //ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial),
+                        //ResearchCenterResult = ResearchCenterResult(ps.OBK_TaskMaterial),
+                        ResearchCenterResult = ResearchCenterResult1(ps.OBK_TaskMaterial.ToList()),
+                        BtnValid = ad.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0
+                    };
+                    eConclusions.Add(ec);
+                }
+                okbConclusion.AssessmentDeclarationId = declarationId;
+                okbConclusion.AssessmentDeclarationType = ad?.OBK_Ref_Type.Code;
+                okbConclusion.ExpertiseConclusion = eConclusions;
+                return okbConclusion;
+            }
+            return null;
+        }
+
+        //private string ResearchCenterResultName(ICollection<OBK_TaskMaterial> taskMaterials)
+        //{
+        //    foreach (var taskMaterial in taskMaterials)
+        //    {
+        //        if (taskMaterial.ExpertiseResult != null)
+        //        {
+        //            if ((bool)!taskMaterial.ExpertiseResult)
+        //            {
+        //                return "Не соответсвует требованиям";
+        //            }
+        //        }
+        //        else { return "Испытания не завершены"; }
+        //    }
+        //    return "Соотвествует требованиям";
+        //}
+
+        private string ResearchCenterResultName1(List<OBK_TaskMaterial> taskMaterials)
+        {
+            var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
+            if (obkTaskMaterial != null)
+            {
+                return "Испытания не завершены";
+            }
+            var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
+            if (obkTaskMaterial1 != null)
+            {
+                return "Не соответсвует требованиям";
+            }
+            var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
+            if (obkTaskMaterial2 != null)
+            {
+                return "Соотвествует требованиям";
+            }
+            return null;
+        }
+
+        //private bool? ResearchCenterResult(ICollection<OBK_TaskMaterial> taskMaterials)
+        //{
+        //    foreach (var taskMaterial in taskMaterials)
+        //    {
+        //        if (taskMaterial.ExpertiseResult != null)
+        //        {
+        //            if ((bool)!taskMaterial.ExpertiseResult)
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else { return null; }
+        //    }
+        //    return true;
+        //}
+
+        private bool? ResearchCenterResult1(List<OBK_TaskMaterial> taskMaterials)
+        {
+            var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
+            if (obkTaskMaterial != null)
+            {
+                return null;
+            }
+            var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
+            if (obkTaskMaterial1 != null)
+            {
+                return false;
+            }
+            var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
+            if (obkTaskMaterial2 != null)
+            {
+                return true;
+            }
+            return null;
+        }
+
+        public SubTaskDetails GetTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
+        {
+            var taskMaterials =
+                AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == assessmentDeclarationId &&
+                                                       e.ProductSeriesId == productSeriesId);
+
+            SubTaskDetails stds = new SubTaskDetails();
+            List<OBKSubTaskResult> strs = new List<OBKSubTaskResult>();
+            foreach (var taskMaterial in taskMaterials)
+            {
+                OBKSubTaskResult str = new OBKSubTaskResult
+                {
+                    ProductNameRu = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu,
+                    ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz,
+                    Regulation = taskMaterial.Regulation,
+                    ExpertiseResultName = taskMaterial.ExpertiseResult == null ? "Испытания не завершены" : (bool)taskMaterial.ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествует требованиям",
+                    LaboratoryExpertName = taskMaterial.Employee?.DisplayName,
+                    LaboratoryTypeName = taskMaterial.OBK_Ref_LaboratoryType?.NameRu,
+                    UnitLaboratoryName = taskMaterial.Unit?.DisplayName,
+                    SubTaskNumber = taskMaterial.SubTaskNumber,
+                    SubTaskCreateDate = taskMaterial.CreatedDate,
+                    SubTaskIndicator = taskMaterial.OBK_ResearchCenterResult.Select(e => new SubTaskIndicator
+                    {
+                        LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
+                        LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
+                        Claim = e.Claim,
+                        FactResult = e.FactResult,
+                        Humidity = e.Humidity,
+                        LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
+                        LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz
+                    }).ToList()
+                };
+                strs.Add(str);
+            }
+            stds.SubTaskResult = strs;
+            return stds;
+        }
+
+        public OBKExpertiseConclusionPositive ExpertiseConclusionPositive(int productSeriesId, Guid adId)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == adId);
+            if (ad != null)
+            {
+                switch (ad.OBK_Ref_Type.Code)
+                {
+                    case CodeConstManager.OBK_SA_PARTY:
+                        return PartyExpertiseConclusionPositive(productSeriesId, ad);
+                    case CodeConstManager.OBK_SA_SERIAL:
+                        break;
+                    case CodeConstManager.OBK_SA_DECLARATION:
+                        break;
+                }
+            }
+            return null;
+        }
+
+        private OBKExpertiseConclusionPositive PartyExpertiseConclusionPositive(int productSeriesId, OBK_AssessmentDeclaration ad)
+        {
+            var ps = AppContext.OBK_Procunts_Series.FirstOrDefault(e => e.Id == productSeriesId);
+
+            if (ps != null)
+            {
+                OBKExpertiseConclusionPositive ecp = new OBKExpertiseConclusionPositive();
+                ecp.AssessmentDeclarationId = ad.Id;
+                ecp.ProductSeriesId = productSeriesId;
+                ecp.ecEndDate = ps.SeriesEndDate;
+                ecp.ecReasonNameRu = ReasonExpertiseConclusionPositive(ps.OBK_TaskMaterial);
+                ecp.ecReasonNameKz = ReasonExpertiseConclusionPositive(ps.OBK_TaskMaterial);
+                ecp.ecProductNameRu = ps.OBK_RS_Products.NameRu + ", серия " + ps.Series + ", годен до " + ps.SeriesEndDate + ", партия " + ps.SeriesParty + " " + ps.sr_measures.name;
+                ecp.ecProductNameKz = ps.OBK_RS_Products.NameKz + ", " + ps.Series + " сериясы, сақтау мерзімі " + ps.SeriesEndDate + " ж., партия " + ps.SeriesParty + " " + ps.sr_measures.name_kz;
+                ecp.ecAdditionalInfoRu = "Договора поставки " + ad.InvoiceContractRu + " инвойс " + ad.InvoiceRu + " дата инвойса " + ad.InvoiceDate;
+                ecp.ecAdditionalInfoKz = "Жеткізу шарты " + ad.InvoiceContractKz + " инвойс " + ad.InvoiceKz + " инвойс күні " + ad.InvoiceDate;
+                ecp.ecNumber = GenerateNumber(ad.Id, productSeriesId);
+                return ecp;
+            }
+
+            return null;
+        }
+
+        private string ReasonExpertiseConclusionPositive(ICollection<OBK_TaskMaterial> tm)
+        {
+            if (tm.Any())
+            {
+                List<string> rows = new List<string>();
+                foreach (var t in tm)
+                {
+                    var row = "№" + t.SubTaskNumber + ", от " + String.Format("{0:dd.MM.yyyy}", t.CreatedDate) + ", " + t.Unit.DisplayName + "; ";
+                    rows.Add(row);
+                }
+                return string.Join(", ", rows);
+            }
+            return null;
+        }
+
+        public bool SaveExpertiseConclusionPositive(OBKExpertiseConclusionPositive ecp)
+        {
+            try
+            {
+                var model =
+                    AppContext.OBK_StageExpDocument.FirstOrDefault(
+                        e => e.AssessmentDeclarationId == ecp.AssessmentDeclarationId &&
+                             e.ProductSeriesId == ecp.ProductSeriesId);
+                if (model != null)
+                {
+                    model.ProductSeriesId = ecp.ProductSeriesId;
+                    model.ExpResult = true;
+                    model.ExpStartDate = Convert.ToDateTime(ecp.ecStartDate);
+                    model.ExpEndDate = Convert.ToDateTime(ecp.ecEndDate);
+                    model.ExpReasonNameRu = ecp.ecReasonNameRu;
+                    model.ExpReasonNameKz = ecp.ecReasonNameKz;
+                    model.ExpProductNameRu = ecp.ecProductNameRu;
+                    model.ExpProductNameKz = ecp.ecProductNameKz;
+                    model.ExpAddInfoRu = ecp.ecAdditionalInfoRu;
+                    model.ExpAddInfoKz = ecp.ecAdditionalInfoKz;
+                    model.ExpConclusionNumber = ecp.ecNumber;
+                    model.ExpApplication = false;
+                    model.ExpApplicationNumber = ecp.ecApplicationNumber;
+                    model.ExpBlankNumber = ecp.ecBlankNumber;
+                    model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
+                    model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+
+                    AppContext.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    //OBK_StageExpDocumentResult sedr = new OBK_StageExpDocumentResult
+                    //{
+                    //    Id = Guid.NewGuid(),
+                    //    ExpResult = true,
+                    //    AssessmetDeclarationId = ecp.AssessmentDeclarationId
+                    //};
+                    OBK_StageExpDocument sed = new OBK_StageExpDocument
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductSeriesId = ecp.ProductSeriesId,
+                        ExpResult = true,
+                        ExpStartDate = Convert.ToDateTime(ecp.ecStartDate),
+                        ExpEndDate = Convert.ToDateTime(ecp.ecEndDate),
+                        ExpReasonNameRu = ecp.ecReasonNameRu,
+                        ExpReasonNameKz = ecp.ecReasonNameKz,
+                        ExpProductNameRu = ecp.ecProductNameRu,
+                        ExpProductNameKz = ecp.ecProductNameKz,
+                        ExpAddInfoRu = ecp.ecAdditionalInfoRu,
+                        ExpAddInfoKz = ecp.ecAdditionalInfoKz,
+                        ExpConclusionNumber = ecp.ecNumber,
+                        ExpBlankNumber = ecp.ecBlankNumber,
+                        ExpApplication = false,
+                        AssessmentDeclarationId = ecp.AssessmentDeclarationId,
+                        ExecutorId = UserHelper.GetCurrentEmployee().Id
+                    };
+                    //AppContext.OBK_StageExpDocumentResult.Add(sedr);
+                    AppContext.OBK_StageExpDocument.Add(sed);
+                    AppContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public OBKExpertiseConclusionNegative ExpertiseConclusionNegative(int productSeriesId, Guid adId)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == adId);
+            if (ad != null)
+            {
+                OBKExpertiseConclusionNegative ecn = new OBKExpertiseConclusionNegative();
+                ecn.AssessmentDeclarationId = adId;
+                ecn.ProductSeriesId = productSeriesId;
+                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons("Party", false), "Id", "Name");
+                return ecn;
+            }
+            return null;
+        }
+
+        public bool SaveExpertiseConclusionNegative(OBKExpertiseConclusionNegative ecn)
+        {
+            try
+            {
+                var model =
+                    AppContext.OBK_StageExpDocument.FirstOrDefault(
+                        e => e.AssessmentDeclarationId == ecn.AssessmentDeclarationId &&
+                             e.ProductSeriesId == ecn.ProductSeriesId);
+                if (model != null)
+                {
+                    model.ExpResult = false;
+                    model.ExpApplication = false;
+                    model.ExpReasonNameRu = ecn.ExpReasonNameRu;
+                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;                    
+                    model.ProductSeriesId = ecn.ProductSeriesId;
+                    model.RefReasonId = ecn.RefReasonId;
+                    model.AssessmentDeclarationId = ecn.AssessmentDeclarationId;
+                    model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+                    AppContext.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    //OBK_StageExpDocumentResult sedr = new OBK_StageExpDocumentResult
+                    //{
+                    //    Id = Guid.NewGuid(),
+                    //    ExpResult = false,
+                    //    AssessmetDeclarationId = ecn.AssessmentDeclarationId
+                    //};
+                    OBK_StageExpDocument sed = new OBK_StageExpDocument
+                    {
+                        Id = Guid.NewGuid(),
+                        ExpResult = false,
+                        ExpApplication = false,
+                        ExpReasonNameRu = ecn.ExpReasonNameRu,
+                        ExpReasonNameKz = ecn.ExpReasonNameKz,
+                        ProductSeriesId = ecn.ProductSeriesId,
+                        RefReasonId = ecn.RefReasonId,
+                        AssessmentDeclarationId = ecn.AssessmentDeclarationId,
+                        ExecutorId = UserHelper.GetCurrentEmployee().Id
+                    };
+                    //AppContext.OBK_StageExpDocumentResult.Add(sedr);
+                    AppContext.OBK_StageExpDocument.Add(sed);
+                    AppContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        public OBKExpertiseConclusionPositive ShowExpertiseConclusionPositive(int productSeriesId, Guid adId)
+        {
+            var ps =
+                AppContext.OBK_StageExpDocument.FirstOrDefault(
+                    e => e.AssessmentDeclarationId == adId && e.ProductSeriesId == productSeriesId);
+
+            if (ps != null)
+            {
+                OBKExpertiseConclusionPositive ecp = new OBKExpertiseConclusionPositive();
+                ecp.ToShow = true;
+                ecp.AssessmentDeclarationId = ps.Id;
+                ecp.ProductSeriesId = productSeriesId;
+                ecp.ecEndDate = ps.ExpEndDate?.ToString();
+                ecp.ecReasonNameRu = ps.ExpReasonNameRu;
+                ecp.ecReasonNameKz = ps.ExpReasonNameKz;
+                ecp.ecProductNameRu = ps.ExpProductNameRu;
+                ecp.ecProductNameKz = ps.ExpProductNameKz;
+                ecp.ecAdditionalInfoRu = ps.ExpAddInfoRu;
+                ecp.ecAdditionalInfoKz = ps.ExpAddInfoKz;
+                ecp.ecNumber = ps.ExpConclusionNumber;
+                ecp.ecApplicationNumber = ps.ExpApplicationNumber;
+                ecp.ecBlankNumber = ps.ExpBlankNumber;
+                return ecp;
+            }
+            return null;
+        }
+
+        public OBKExpertiseConclusionNegative ShowExpertiseConclusionNegative(int productSeriesId, Guid adId)
+        {
+            var ps =
+                AppContext.OBK_StageExpDocument.FirstOrDefault(
+                    e => e.AssessmentDeclarationId == adId && e.ProductSeriesId == productSeriesId);
+
+            if (ps != null)
+            {
+                OBKExpertiseConclusionNegative ecn = new OBKExpertiseConclusionNegative();
+                ecn.ToShow = true;
+                ecn.AssessmentDeclarationId = adId;
+                ecn.ProductSeriesId = productSeriesId;
+                ecn.ExpReasonNameRu = ps.ExpReasonNameRu;
+                ecn.ExpReasonNameKz = ps.ExpReasonNameKz;
+                ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons("Party", false), "Id",
+                    "Name", ps.RefReasonId);
+                return ecn;
+            }
+            return null;
+        }
+
+
+        #endregion
+
+
+
+        }
 }
+

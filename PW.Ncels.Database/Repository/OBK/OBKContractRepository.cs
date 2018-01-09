@@ -3018,5 +3018,36 @@ namespace PW.Ncels.Database.Repository.OBK
             declarantContact.BankNameKz = contractViewModel.BankNameKz;
             declarantContact.BankNameRu = contractViewModel.BankNameRu;
         }
+
+        public int deleteComment(Guid contractId, string controlID, Guid idContractCom)
+        {
+            var emp = UserHelper.GetCurrentEmployee();
+            var balance = (from a in AppContext.OBK_ContractCom
+                join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
+                select c).Count();
+            if (balance != 0)
+            {
+                var listComments = (from a in AppContext.OBK_ContractCom
+                    join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                    where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
+                    select c).ToList<OBK_ContractComRecord>();
+
+                foreach (OBK_ContractComRecord v in listComments)
+                {
+                    AppContext.OBK_ContractComRecord.Remove(v);
+                    AppContext.SaveChanges();
+                }
+
+                OBK_ContractCom recordDelete = AppContext.OBK_ContractCom.Where(x => x.Id == idContractCom).FirstOrDefault();
+                AppContext.OBK_ContractCom.Remove(recordDelete);
+                AppContext.SaveChanges();
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }

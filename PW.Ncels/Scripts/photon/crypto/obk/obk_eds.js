@@ -565,7 +565,8 @@ function getNotAfterCallback(result) {
         var dateNotAfterStr = result['result'];
         var dateNotAfter = convertStrToDate(dateNotAfterStr);
         var currentDate = getCurrentDate();
-        if (currentDate <= dateNotAfter) {
+        debugger;
+        //if (currentDate <= dateNotAfter) {
             if (_doSignCustom) {
                 _doSignCustom();
             }
@@ -575,10 +576,10 @@ function getNotAfterCallback(result) {
             else {
                 alert("_doSign = " + _doSign);
             }
-        }
-        else {
-            alert("Срок действия сертификата истек!");
-        }
+        //}
+        //else {
+        //    alert("Срок действия сертификата истек!");
+        //}
     }
     else {
         registerLogFile("eds.getNotBeforeCallback result: " + result['result'] + '; code: ' + result['errorCode']);

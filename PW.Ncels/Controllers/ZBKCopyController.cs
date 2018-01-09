@@ -68,7 +68,15 @@ namespace PW.Ncels.Controllers
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkCertificateOfCompletionCopyZbk.mrt"));
+                if (copy.ExpApplication == false)
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkCertificateOfCompletionCopyZbkApplication.mrt"));
+                }
+                else
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkCertificateOfCompletionCopyZbk.mrt"));
+                }
+               
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -76,12 +84,12 @@ namespace PW.Ncels.Controllers
 
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = expDocument.AssessmentDeclarationId;
                 report.Dictionary.Variables["ContractId"].ValueObject = expRepo.GetAssessmentDeclaration((Guid)expDocument.AssessmentDeclarationId).ContractId;
-                report.Dictionary.Variables["ValueAddedTax"].ValueObject = expRepo.GetValueAddedTax();
-                var totalCount = repository.GetTotalPriceWithApplication(copy);
+                var totalCount = payRepo.GetTotalPriceZbkCopy(zbkCopyId);
                 report.Dictionary.Variables["TotalCount"].ValueObject = totalCount;
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalCount), false);
                 report.Dictionary.Variables["TotalCountText"].ValueObject = priceText;
                 report.Dictionary.Variables["ZBKCopyId"].ValueObject = copy.Id;
+                report.Dictionary.Variables["PriceNds"].ValueObject = repository.GetZbkCopyNds(zbkCopyId);
 
                 report.Render(false);
             }
@@ -96,9 +104,9 @@ namespace PW.Ncels.Controllers
             //return File(stream, "application/pdf", name);
         }
 
-        public ActionResult Update(Guid Id, int quantity)
+        public ActionResult Update(Guid Id, int quantity, DateTime letterDate, string letterNumber)
         {
-            return Json(new { success = repository.Update(Id, quantity) });
+            return Json(new { success = repository.Update(Id, quantity, letterDate, letterNumber) });
         }
 
         public ActionResult DocumentRead(string AttachPath)
@@ -117,7 +125,17 @@ namespace PW.Ncels.Controllers
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                var copyZBK = payRepo.GetZBKCopy(Guid.Parse(zbkCopyId));
+
+                if (copyZBK.ExpApplication == false)
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbkApplication.mrt"));
+                }
+                else
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                }
+               
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -129,7 +147,7 @@ namespace PW.Ncels.Controllers
                 var totalPriceWithCount = payRepo.GetTotalPriceZbkCopy(Guid.Parse(zbkCopyId));
                 report.Dictionary.Variables["TotalPriceWithCount"].ValueObject = totalPriceWithCount;
                 //в том числе НДС
-                var totalPriceNDS = payRepo.GetTotalPriceNDS(totalPriceWithCount);
+                var totalPriceNDS = payRepo.GetTotalPriceNDS(payRepo.GetZbkCopyNds(Guid.Parse(zbkCopyId)));
                 report.Dictionary.Variables["TotalPriceNDS"].ValueObject = totalPriceNDS;
                 //прописью
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalPriceWithCount), false);

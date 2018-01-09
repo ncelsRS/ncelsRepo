@@ -57,7 +57,11 @@ namespace PW.Prism.Controllers
         public ActionResult InitBlankNumber(Guid zbkCopyId)
         {
             var blank = repository.InitBlankNumber(zbkCopyId);
-
+            if (blank == null)
+            {
+                return Json(new { success = false });
+            }
+                
             return Json(new
             {
                 success = true,
@@ -231,17 +235,41 @@ namespace PW.Prism.Controllers
             return PartialView(model);
         }
 
+        public virtual ActionResult EditBlanks(Guid? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var model = repository.GetZBKViewModel(id);
+
+            var stage = db.OBK_ZBKCopyStage.FirstOrDefault(o => o.Id == id);
+            var zbkCopy = db.OBK_ZBKCopy.FirstOrDefault(o => o.Id == stage.OBK_ZBKCopyId);
+            var payment = db.OBK_DirectionToPayments.FirstOrDefault(o => o.ZBKCopy_id == zbkCopy.Id);
+            if (payment != null && payment.IsPaid)
+            {
+                ViewData["ShowOriginals"] = true;
+            }
+
+            return PartialView(model);
+        }
+
         public ActionResult SaveOriginals(Guid zbkCopyId)
         {
             return Json(new { success = repository.SaveOriginals(zbkCopyId) });
         }
 
-        public ActionResult ListZBKCopies([DataSourceRequest] DataSourceRequest request, int type, int stage)
+        public ActionResult ListZBKCopies([DataSourceRequest] DataSourceRequest request, int stage)
         {
-            var data = repository.ListZBKCopies(type, stage);
+            var data = repository.ListZBKCopies(stage);
 
             return Json(data.ToDataSourceResult(request));
         }
 
+        public ActionResult ConfirmPaperCopy (Guid zbkCopyId)
+        {
+            return Json(new { success = repository.ConfirmPaperCopy(zbkCopyId) });
+        }
     }
 }

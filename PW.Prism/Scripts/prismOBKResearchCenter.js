@@ -56,6 +56,7 @@
 
 
 function panelResearchCenter(e) {
+    debugger;
     var selectType = $(e.item).find("> .k-link").attr('ItemType');
     if (selectType !== null) {
         var selectValue = $(e.item).find("> .k-link").attr('ItemId');
@@ -74,6 +75,34 @@ function panelResearchCenter(e) {
                 logic: "and",
                 filters: filter
             });
+        }
+    }
+}
+
+function getTaskResearchCenterDetails(parameters, stauts, depId, number) {
+    debugger;
+    var element = document.getElementById(parameters);
+    if (element === null) {
+        var tabStrip = $("#tabstrip").data("kendoTabStrip");
+        var content = '<div id="' + parameters + '"> </div>';
+        var idContent = '#' + parameters;
+        tabStrip.append({
+            text: 'Задание: № ' + number,
+            content: content
+        });
+        tabStrip.select(tabStrip.items().length - 1);
+        var gridElement = $(idContent);
+        gridElement.height($(window).height() - 100);
+        $.ajax({
+            url: "/OBKTask/EditResearchCenter?taskId=" + parameters + "&unitLabId=" + depId + "&stautsCode=" + stauts,
+            success: function (result) {
+                $(idContent).html(result);
+            }
+        });
+    } else {
+        var itesm = $('#' + parameters)[0].parentElement.getAttribute('id').split('-')[1];
+        if (itesm) {
+            $("#tabstrip").data("kendoTabStrip").select(itesm - 1);
         }
     }
 }
