@@ -7,13 +7,16 @@
             organizationId: $("#OrganizationId").val()
         }
     }
-    function employeeChange(e) {
-        var dt;
-        if (e.item) dt = this.dataItem(e.item);
-    }
     function filterEmployees() {
         return {
+            declarationId: "@(Model.Id)",
             unitId: $("#UnitId").val()
+        }
+    }
+
+    function filterRoles(e) {
+        return {
+            declarationId: "@(Model.Id)"
         }
     }
 
@@ -285,7 +288,7 @@
                                                                                 .DataValueField("Id").DataTextField("FullName")
                                                                                 .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "SelectOPCommission").Data("filterEmployees")).ServerFiltering(true))
                                                                                 .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                                                                .CascadeFrom("UnitId").Events(e => e.Select("employeeChange")))
+                                                                                .CascadeFrom("UnitId"))
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -297,8 +300,9 @@
                                                                                 .OptionLabel("Выберите роль в комиссии..")
                                                                                 .AutoBind(false)
                                                                                 .DataValueField("Id").DataTextField("Name")
-                                                                                .DataSource(cf => cf.Read("ListRoles", "SelectOPCommission"))
-                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.RoleId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                                                                .DataSource(cf => cf.Read(read => read.Action("ListRoles", "SelectOPCommission").Data("filterRoles")).ServerFiltering(true))
+                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.RoleId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                                .CascadeFrom("EmployeeId"))
                                                 </div>
                                             </div>
                                         </div>

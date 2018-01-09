@@ -91,15 +91,36 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         /// <summary>
-        /// расчет стоимости копий ЗБК с приложением и с НДС
+        /// расчет стоимости копий ЗБК с НДС
         public decimal GetTotalPriceZbkCopy(Guid copyId)
         {
             var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == copyId);
             var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
             var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+            if (copy.ExpApplication == false)
+            {
+                return Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity * 2), 2);
+            }
+            return Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity), 2);
+        }
 
-            var tPrice = Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity * 2), 2);
-            return tPrice;
+        public OBK_ZBKCopy GetZBKCopy(Guid Id)
+        {
+            return AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == Id);
+        }
+
+        /// <summary>
+        /// расчет НДС копий ЗБК
+        public decimal GetZbkCopyNds(Guid copyId)
+        {
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == copyId);
+            var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
+            var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+            if (copy.ExpApplication == false)
+            {
+                return Math.Round(Convert.ToDecimal(ref_PriceList.Price * copy.CopyQuantity * 2), 2);
+            }
+            return Math.Round(Convert.ToDecimal(ref_PriceList.Price * copy.CopyQuantity), 2);
         }
 
         public IQueryable<OBK_DirectionToPaymentsView> GetDirectionToPaymentsList(Guid organizationId)
@@ -184,7 +205,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 directionPay.IsPaid = true;
                 AppContext.SaveChanges();
                 new NotificationManager().SendNotificationFromCompany(
-                    string.Format("По вашему запросу на копию поступил счет на оплату", directionPay.OBK_Contract.Number),
+                    string.Format("По вашему запросу на оформление копий ЗБК поступил счет на оплату", directionPay.OBK_Contract.Number),
                     ObjectType.OBK_ZBKCopy, directionPay.ZBKCopy_id.ToString(), (Guid)directionPay.OBK_Contract.EmployeeId);
             }
             else

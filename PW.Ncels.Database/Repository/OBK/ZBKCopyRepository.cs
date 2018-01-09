@@ -46,7 +46,28 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExecutorId = executor.Id,
                         ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
                     };
+
                     stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.InWork).Id;
+                    if (stage.StageId == CodeConstManager.STAGE_OBK_COZ)
+                    {
+                        var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == stage.OBK_ZBKCopyId);
+                        var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+                        var text = "Поступил новый запрос на оформление копий ЗБК по заключению №<" + expDocument.ExpConclusionNumber + ">";
+                        var notification = new NotificationManager().SendNotification(text, ObjectType.OBK_ZBKCopy, copy.Id, executor.Id);
+                    }
+
+                    if(stage.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
+                    {
+                        var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == stage.OBK_ZBKCopyId);
+                        var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+                        var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == expDocument.AssessmentDeclarationId);
+                        var contract = AppContext.OBK_Contract.FirstOrDefault(o => o.Id == declaration.ContractId);
+                        var declarant = AppContext.OBK_Declarant.FirstOrDefault(o => o.Id == contract.DeclarantId);
+                        var text = "Поступил новый запрос на оформление копий ЗБК от <" + declarant.NameRu + ">. №<" + expDocument.ExpConclusionNumber + ">";
+
+                        var notification = new NotificationManager().SendNotification(text, ObjectType.OBK_ZBKCopy, copy.Id, executor.Id);
+                    }
+
                     AppContext.OBK_ZBKCopyStageExecutors.AddOrUpdate(stageExecutor);
                     AppContext.SaveChanges();
                 }
@@ -70,7 +91,8 @@ namespace PW.Ncels.Database.Repository.OBK
                 totalWithNds = GetTotalPriceCount(copy),
                 totalWithoutNds = GetTotalPriceWithoutNds(copy),
                 invoice1c = payment.InvoiceNumber1C,
-                InvoiceDatetime1C = payment.InvoiceDatetime1C == null ? "" : ((DateTime)payment.InvoiceDatetime1C).ToString("dd.MM.yyyy")
+                InvoiceDatetime1C = payment.InvoiceDatetime1C == null ? "" : ((DateTime)payment.InvoiceDatetime1C).ToString("dd.MM.yyyy"),
+                expApplication = copy.ExpApplication,
             };
             return result;
         }
@@ -108,7 +130,7 @@ namespace PW.Ncels.Database.Repository.OBK
             int? endPrimeNumber = startNum + copy.CopyQuantity - 1;
             blank.EndPrimeNumber = endPrimeNumber.ToString();
 
-            if (expApplication == true)
+            if (expApplication == false)
             {
                 blank.StartApplicationNumber = (endPrimeNumber + 1).ToString();
                 blank.EndApplicationNumber = (endPrimeNumber + copy.CopyQuantity).ToString();
@@ -122,7 +144,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public bool SaveReceiver(string receiver, DateTime? receiveDate, Guid zbkCopyId, bool zbkCopiesReady)
         {
-            var copy =  AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
             if (copy == null)
             {
                 return false;
@@ -131,10 +153,10 @@ namespace PW.Ncels.Database.Repository.OBK
             copy.ReceiverFIO = receiver;
             copy.zbkCopiesReady = zbkCopiesReady;
 
-            var finalStatus =  AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_CONCLUSION_ISSUE.ToString().Equals(o.Code));
+            var finalStatus = AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_CONCLUSION_ISSUE.ToString().Equals(o.Code));
             copy.StatusId = finalStatus.Id;
 
-            var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopyId);
+            var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopyId && o.StageId == CodeConstManager.STAGE_OBK_COZ);
             var stageStatus = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => OBK_Ref_StageStatus.Completed.Equals(o.Code));
             stage.StageStatusId = stageStatus.Id;
 
@@ -150,7 +172,7 @@ namespace PW.Ncels.Database.Repository.OBK
             int i = 1;
             foreach (var temp in list)
             {
-            
+
                 ZBKTransferRegister model = new ZBKTransferRegister();
                 var stageExpDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == temp.OBK_StageExpDocumentId);
                 var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stageExpDocument.AssessmentDeclarationId);
@@ -159,13 +181,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 var declarant = AppContext.OBK_Declarant.FirstOrDefault(o => o.Id == contract.DeclarantId);
                 var organization = AppContext.Dictionaries.FirstOrDefault(o => o.Id == declarant.OrganizationFormId);
                 var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Id == declaration.TypeId);
-                var product = AppContext.OBK_RS_Products.FirstOrDefault(o => o.Id == stageExpDocument.ProductId);
                 
                 model.Declarer = declarantContact.BossLastName + " " + declarantContact.BossFirstName
                     + " " + declarantContact.BossMiddleName;
                 model.ConclusionNumber = stageExpDocument.ExpConclusionNumber;
                 model.SendDate = temp.SendDate;
-                model.DrugFormFullName = product.DrugFormFullName == null ? product.NameRu : product.DrugFormFullName;
+                model.DrugFormFullName = stageExpDocument.ExpProductNameRu;
                 model.RequestType = "Копия";
                 model.ExtraditeDate = temp.ExtraditeDate;
                 model.ReceiverFIO = temp.ReceiverFIO;
@@ -184,7 +205,12 @@ namespace PW.Ncels.Database.Repository.OBK
             var contract = AppContext.OBK_Contract.FirstOrDefault(o => o.Id == declaration.ContractId);
             var payment = AppContext.OBK_DirectionToPayments.FirstOrDefault(e => e.ZBKCopy_id == id);
             var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == id);
-            
+
+            if (stage.SendToAccountant != true)
+            {
+                stage.SendToAccountant = true;
+            }
+
             var pay = new OBK_DirectionToPayments();
             if (zbkCopy != null)
             {
@@ -201,7 +227,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     pay.PayerId = contract.OBK_Declarant.Id;
                     pay.PayerValue = contract.OBK_Declarant.NameRu;
                     pay.IsDeleted = false;
-                    pay.TotalPrice = GetTotalPriceCount(zbkCopy);
+                    pay.TotalPrice = zbkCopy.ExpApplication == false ? GetTotalPriceCount(zbkCopy) * 2 : GetTotalPriceCount(zbkCopy);
                     pay.StatusId = GetPaymentStatus(OBK_Ref_PaymentStatus.ReqSign).Id;
 
                     //заглушка
@@ -214,26 +240,12 @@ namespace PW.Ncels.Database.Repository.OBK
                         ChiefAccountantId = null,//Guid.Parse("E1EE3658-0C35-41EB-99FD-FDDC4D07CEC4"),
                         ExecutorId = null//Guid.Parse("55377FAC-A5F0-4093-BBB6-18BD28E53BE1")
                     };
+
+                    AppContext.OBK_DirectionToPayments.Add(pay);
+                    AppContext.SaveChanges();
                 }
-                else
-                {
-                    pay.Id = payment.Id;
-                    //pay.CreateDate = DateTime.Now;
-                    pay.ContractId = payment.ContractId;
-                    pay.CreateEmployeeId = UserHelper.GetCurrentEmployee().Id;
-                    pay.CreateEmployeeValue = UserHelper.GetCurrentEmployee().DisplayName;
-                    pay.DirectionDate = DateTime.Now;
-                    pay.Number = payment.Number;
-                    pay.PayerId = payment.OBK_Declarant.Id;
-                    pay.PayerValue = payment.OBK_Declarant.NameRu;
-                    pay.IsDeleted = false;
-                    pay.TotalPrice = GetTotalPriceCount(zbkCopy);
-                    pay.StatusId = payment.StatusId;
-                    pay.OBK_DirectionSignData = payment.OBK_DirectionSignData;
-                }
-                AppContext.OBK_DirectionToPayments.Add(pay);
-                AppContext.SaveChanges();
             }
+
             return true;
         }
 
@@ -241,27 +253,32 @@ namespace PW.Ncels.Database.Repository.OBK
         /// расчет стоимости с НДС
         public decimal GetTotalPriceCount(OBK_ZBKCopy copy)
         {
-            double price = 219;
-            var tPrice = Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(price) * copy.CopyQuantity), 2);
-            return tPrice;
-        }
-
-        /// <summary>
-        /// расчет стоимости с НДС
-        public decimal GetTotalPriceWithApplication(OBK_ZBKCopy copy)
-        {
-            double price = 219;
-            var tPrice = Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(price) * copy.CopyQuantity * 2), 2);
-            return tPrice;
+            var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
+            var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+            if (copy.ExpApplication == false)
+            {
+                return Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity * 2), 2);
+            }
+            return Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price) * copy.CopyQuantity), 2);
         }
 
         /// <summary>
         /// расчет стоимости без НДС
         public decimal GetTotalPriceWithoutNds(OBK_ZBKCopy copy)
         {
-            double price = 219;
-            var tPrice = Math.Round(Convert.ToDecimal(price * copy.CopyQuantity), 2);
-            return tPrice;
+            var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
+            var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+
+            return Math.Round(Convert.ToDecimal(ref_PriceList.Price * copy.CopyQuantity), 2);
+        }
+
+        /// <summary>
+        /// расчет 1-копий с НДС
+        public decimal GetZbkCopyNds(Guid copyId)
+        {
+            var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Code == "5");
+            var ref_PriceList = AppContext.OBK_Ref_PriceList.FirstOrDefault(o => o.TypeId == refType.Id);
+            return Math.Round(Convert.ToDecimal(TaxHelper.GetCalculationTax(ref_PriceList.Price)), 2);
         }
 
         public OBK_Ref_PaymentStatus GetPaymentStatus(string code)
@@ -276,7 +293,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public bool SaveOriginals(Guid zbkCopyId)
         {
-            var copy =  AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
             if (copy == null)
             {
                 return false;
@@ -284,17 +301,64 @@ namespace PW.Ncels.Database.Repository.OBK
             copy.OriginalsGiven = true;
 
             var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopyId);
-            stage.InOBK = true;
+            DublicateStageToOBK(stage);
+
+            var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == expDocument.AssessmentDeclarationId);
+            var contract = AppContext.OBK_Contract.FirstOrDefault(o => o.Id == declaration.ContractId);
+            var declarant = AppContext.OBK_Declarant.FirstOrDefault(o => o.Id == contract.DeclarantId);
+            var text = "Поступил новый запрос на оформление копий ЗБК от <" + declarant.NameRu + ">. №<" + expDocument.ExpConclusionNumber + ">";
+            var stageObk = AppContext.OBK_AssessmentStage.FirstOrDefault(o => o.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC && o.DeclarationId == declaration.Id);
+            var stageExecutorCoz = AppContext.OBK_AssessmentStageExecutors.FirstOrDefault(o => o.AssessmentStageId == stageObk.Id
+            && o.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING);
+
+            var notification = new NotificationManager().SendNotification(text, ObjectType.OBK_ZBKCopy, copy.Id, stageExecutorCoz.ExecutorId);
 
             AppContext.SaveChanges();
 
             return true;
         }
 
-        public List<ZBKViewModel> ListZBKCopies(int type, int stage)
+        public bool ConfirmPaperCopy(Guid zbkCopyId)
         {
-            //var list = AppContext.OBK_ZBKCopyStage.Where(o => o.StageId == stage && o.StageStatusId == type).ToList();
-            var list = AppContext.OBK_ZBKCopyStage.ToList();
+            var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
+            if (copy == null)
+            {
+                return false;
+            }
+            copy.zbkCopiesReady = true;
+
+            var notification = new NotificationManager().SendNotificationFromCompany(
+                         "Ваш запрос на копии ЗБК готов. Просим вас забрать копии ЗБК.",
+                         ObjectType.OBK_ZBKCopy, copy.Id.ToString(), (Guid)copy.EmployeeId);
+
+            AppContext.SaveChanges();
+
+            return true;
+        }
+
+        public void DublicateStageToOBK(OBK_ZBKCopyStage cozStage)
+        {
+            var stage = AppContext.OBK_Ref_Stage.FirstOrDefault(o => CodeConstManager.STAGE_OBK_EXPERTISE_DOC.ToString().Equals(o.Code));
+            var stageStatus = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => EXP_DIC_StageStatus.New.ToString().Equals(o.Code));
+
+            OBK_ZBKCopyStage obk = new OBK_ZBKCopyStage()
+            {
+                Id = Guid.NewGuid(),
+                StartDate = DateTime.Now,
+                OBK_ZBKCopyId = cozStage.OBK_ZBKCopyId,
+                SendToAccountant = cozStage.SendToAccountant,
+                StageId = stage.Id,
+                StageStatusId = stageStatus.Id
+            };
+
+            AppContext.OBK_ZBKCopyStage.Add(obk);
+        }
+
+        public List<ZBKViewModel> ListZBKCopies(int stage)
+        {
+            var list = AppContext.OBK_ZBKCopyStage.Where(o => o.StageId == stage).ToList();
+            //var list = AppContext.OBK_ZBKCopyStage.ToList();
             List<ZBKViewModel> models = new List<ZBKViewModel>();
 
             foreach (var temp in list)
@@ -313,7 +377,6 @@ namespace PW.Ncels.Database.Repository.OBK
                 var status = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == temp.StageStatusId);
 
                 OBK_ZBKCopy zbkCopy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == temp.OBK_ZBKCopyId);
-                OBK_ZBKCopyStage ZBKCopyStage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopy.Id);
 
                 model.Declarer = declarantContact.BossLastName + " " + declarantContact.BossFirstName
                     + " " + declarantContact.BossMiddleName;
@@ -328,7 +391,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 model.ContractId = contract.Id;
                 model.AttachPath = zbkCopy.AttachPath;
                 model.Id = zbkCopy.Id;
-                model.StageId = ZBKCopyStage.Id;
+                model.StageId = temp.Id;
                 model.ExpApplication = stageExpDocument.ExpApplication;
                 model.StageStatusCode = status.Code;
 
@@ -398,40 +461,41 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.Id == id);
             var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == stage.OBK_ZBKCopyId);
-            var status = AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_SIGN_ACT.ToString().Equals(o.Code));
-            stage.OBK_Completed = true;
-            copy.StatusId = status.Id;
+            var copyStatus = AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_SIGN_ACT.ToString().Equals(o.Code));
+            copy.StatusId = copyStatus.Id;
+
+            var stageStatus = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => OBK_Ref_StageStatus.Completed.ToString().Equals(o.Code));
+            stage.StageStatusId = stageStatus.Id;
+
+            var stageCoz = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == copy.Id && o.StageId == CodeConstManager.STAGE_OBK_COZ);
+            var stageStatusCoz = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => OBK_Ref_StageStatus.RequiresIssuingZBKCopy.ToString().Equals(o.Code));
+            stageCoz.StageStatusId = stageStatusCoz.Id;
 
             var stageExecutors = AppContext.OBK_ZBKCopyStageExecutors.FirstOrDefault(o => o.ZBKCopyStageId == stage.Id);
             var executor = AppContext.Employees.FirstOrDefault(o => o.Id == stageExecutors.ExecutorId);
-            
+
             var notification = new NotificationManager().SendNotificationFromCompany(
                            "Уведомление о поступлении акта выполненных работ",
                            ObjectType.OBK_ZBKCopy, copy.Id.ToString(), (Guid)copy.EmployeeId);
-
-            new NotificationManager().SendNotificationFromCompany(
-                           "Уведомление по оформлению копии заявки предоставлен акт выполненных работ",
-                           ObjectType.Unknown, copy.Id.ToString(), (Guid)stageExecutors.ExecutorId);
-
 
             AppContext.SaveChanges();
 
             return "Успешно подписан!";
         }
-        
+
 
 
         public IQueryable<object> ZBKCopies(Guid? declarationNumber, int? declarationType, string decisionNumber, DateTime? decisionDate)
         {
             var userId = UserHelper.GetCurrentEmployee().Id;
+            var statusId = AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_CONCLUSION_ISSUE.ToString().Equals(o.Code)).Id;
+
             var data = from StageExpDoc in AppContext.OBK_StageExpDocument
                        join adec in AppContext.OBK_AssessmentDeclaration
                             on StageExpDoc.AssessmentDeclarationId equals adec.Id into AssessmentDeclaraion
                        from AssessDec in AssessmentDeclaraion.DefaultIfEmpty()
-                       join zbkC in AppContext.OBK_ZBKCopy
-                            on StageExpDoc.Id equals zbkC.OBK_StageExpDocumentId into OBK_ZBKCopy
-                       from zbkCopy in OBK_ZBKCopy.DefaultIfEmpty()
-                           where AssessDec.EmployeeId == userId
+                       where AssessDec.EmployeeId == userId && AssessDec.StatusId == statusId
+                       && StageExpDoc.ExpConclusionNumber != null
                        select new
                        {
                            stageExpDocId = StageExpDoc.Id,
@@ -441,8 +505,7 @@ namespace PW.Ncels.Database.Repository.OBK
                            status = StageExpDoc.ExpEndDate > StageExpDoc.ExpStartDate ? "Действующий" : "Срок действия истек",
                            assessDecId = AssessDec.Id,
                            assessDecType = AssessDec.TypeId,
-                           employeeId = AssessDec.EmployeeId,
-                           zbkCopyId = (Guid?)zbkCopy.Id
+                           employeeId = AssessDec.EmployeeId
                        };
 
             var res = data.ToList();
@@ -479,7 +542,7 @@ namespace PW.Ncels.Database.Repository.OBK
                        join adec in AppContext.OBK_AssessmentDeclaration
                             on StageExpDoc.AssessmentDeclarationId equals adec.Id into AssessmentDeclaraion
                        from AssessDec in AssessmentDeclaraion.DefaultIfEmpty()
-                           where AssessDec.EmployeeId == userId
+                       where AssessDec.EmployeeId == userId
                        select new
                        {
                            stageExpDocId = StageExpDoc.Id,
@@ -529,7 +592,7 @@ namespace PW.Ncels.Database.Repository.OBK
             return result;
         }
 
-        public bool Update(Guid Id, int quantity)
+        public bool Update(Guid Id, int quantity, DateTime letterDate, string letterNumber)
         {
             var copy = AppContext.OBK_ZBKCopy.FirstOrDefault(o => o.Id == Id);
 
@@ -542,6 +605,8 @@ namespace PW.Ncels.Database.Repository.OBK
             copy.SendDate = DateTime.Now;
             copy.EmployeeId = UserHelper.GetCurrentEmployee().Id;
             copy.StatusId = CodeConstManager.STATUS_OBK_SEND_ID;
+            copy.LetterdDate = letterDate;
+            copy.LetterNumber = letterNumber;
 
             OBK_ZBKCopyStage stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == Id);
             if (stage == null)
@@ -562,6 +627,14 @@ namespace PW.Ncels.Database.Repository.OBK
                 stage.StageStatusId = stageStatus.Id;
             }
 
+            var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.Id == copy.OBK_StageExpDocumentId);
+            var text = "Поступил новый запрос на оформление копий ЗБК по заключению №<" + expDocument.ExpConclusionNumber + ">";
+            var declaration = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == expDocument.AssessmentDeclarationId);
+            var stageCoz = AppContext.OBK_AssessmentStage.FirstOrDefault(o => o.StageId == CodeConstManager.STAGE_OBK_COZ && o.DeclarationId == declaration.Id);
+            var stageExecutorCoz = AppContext.OBK_AssessmentStageExecutors.FirstOrDefault(o => o.AssessmentStageId == stageCoz.Id
+            && o.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING);
+
+            var notification = new NotificationManager().SendNotification(text, ObjectType.OBK_ZBKCopy, copy.Id, stageExecutorCoz.ExecutorId);
 
             AppContext.OBK_ZBKCopyStage.AddOrUpdate(stage);
             AppContext.SaveChanges();
@@ -601,12 +674,14 @@ namespace PW.Ncels.Database.Repository.OBK
             model.ExpApplication = stageExpDocument.ExpApplication;
             model.Notes = zbkCopy.Notes;
             model.StageStatusCode = stageStatusCode.Code;
-            model.InOBK = stage.InOBK;
-            model.OBK_Completed = stage.OBK_Completed;
             model.OriginalsGiven = zbkCopy.OriginalsGiven;
             model.StageId = stage.Id;
             model.ExtraditeDate = zbkCopy.ExtraditeDate;
             model.zbkCopiesReady = zbkCopy.zbkCopiesReady;
+            model.SendToAccountant = stage.SendToAccountant;
+            model.LetterDate = zbkCopy.LetterdDate;
+            model.LetterNumber = zbkCopy.LetterNumber;
+            model.Nds = TaxHelper.GetNdsRef() + 1;
 
             return model;
         }
@@ -653,6 +728,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.Id = zbkCopy.Id;
             model.ExpApplication = stageExpDocument.ExpApplication;
             model.CopyQuantity = zbkCopy.CopyQuantity;
+            model.Nds = TaxHelper.GetNdsRef() + 1;
 
             return model;
         }
@@ -684,8 +760,8 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 replacedBlanks.Add(new OBKReplacedBlanks()
                 {
-                 CorruptedBlankNumber = temp.CorruptedBlankNumber,
-                 NewBlankNumber = temp.NewBlankNumber
+                    CorruptedBlankNumber = temp.CorruptedBlankNumber,
+                    NewBlankNumber = temp.NewBlankNumber
                 });
             }
 
@@ -739,9 +815,12 @@ namespace PW.Ncels.Database.Repository.OBK
             model.ExpApplication = stageExpDocument.ExpApplication;
             model.CopyQuantity = zbkCopy.CopyQuantity;
             model.Notes = zbkCopy.Notes;
+            model.Nds = TaxHelper.GetNdsRef() + 1;
+            model.LetterNumber = zbkCopy.LetterNumber;
+            model.LetterDate = zbkCopy.LetterdDate;
             if (directionPayment != null)
             {
-                if (directionPayment.ZBKCopy_id != null)
+                if (directionPayment.ZBKCopy_id != null && directionPayment.InvoiceNumber1C != null)
                 {
                     model.PaymentInvoice = true;
                 }

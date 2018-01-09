@@ -184,6 +184,7 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanViewMenuItemOBKResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБиК");
             AddPermission("CanViewMenuItemNewResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Новые\"", "Работа с заявлениями ОБиК");
             AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБК'", "Оценка производства", "Работа с заявлениями ОБК");
+            AddPermission("CanExpertCouncil", @"Модуль 'ОБК'", "Экспертный совет", "Работа в экспертном совете");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
@@ -228,6 +229,16 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("EmpContractSendToAdjustment", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность отправлять договоры на доработку", "Работа с договорами по экспертизе ИМН и МТ");
             AddPermission("EmpContractRegister", @"Модуль 'Экспертиза ИМН и МТ' 'Договоры'", "Возможность регистрировать договоры", "Работа с договорами по экспертизе ИМН и МТ");
 
+            // Копия ЗБК
+            #region
+            AddPermission("ZBKCopyViewRequest", @"Модуль 'Запрос на копии ЗБК' 'ОБК'", "Возможность видеть заявки на копии ЗБК", "Работа с заявками копии ЗБК");
+            AddPermission("ZBKCopyEditBlanks", @"Модуль 'Запрос на копии ЗБК' 'ОБК'", "Возможность добавлять и заменять бланки", "Работа с заявками копии ЗБК");
+            #endregion
+
+            #region Справочники
+            AddPermission("ZBKTransferRegister", @"Модуль 'Реестр передаыи ЗБК' 'Справочники'", "Возможность видеть реестр передачи ЗБК", "Работа с справочниками");
+            AddPermission("OBKDictionaries", @"Модуль 'ОБК справочники' 'Справочники'", "Возможность видеть справочники ОБК", "Работа с справочниками");
+            #endregion
 
             RemoveNonActualKeys();
         }
@@ -235,6 +246,7 @@ namespace PW.Ncels.Database.Helpers
         private static void AddPermission(string key, string keyName, string keyDescription, string groupName, PermissionValueTypes type = PermissionValueTypes.Classic)
         {
             _actualPermissionKeys.Add(key);
+
 
             PermissionKey permissionKey = db.PermissionKeys.FirstOrDefault(o => o.Key == key);
             if (permissionKey != null)

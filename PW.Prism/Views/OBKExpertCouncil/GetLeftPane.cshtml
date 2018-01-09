@@ -1,0 +1,35 @@
+﻿@using PW.Ncels.Database.DataModel
+@model List<OBK_ExpertCouncil>
+
+<script type="text/javascript" src="~/Scripts/ExpertCouncil/leftPane.js"></script>
+
+@(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+    .Name("panelbar" + "ExpertCouncil")
+    .ExpandMode(PanelBarExpandMode.Multiple)
+    .ExpandAll(true)
+    .HtmlAttributes(new { style = "width:auto;" })
+    .Items(panelbar =>
+    {
+        panelbar.Add().Expanded(true);
+        panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+            .Items(projects =>
+            {
+                Model.ForEach(ec =>
+                {
+                    projects.Add()
+                        .Text(ec.Name + " " + ec.Date.ToString("dd.MM.yyyy"))
+                        .LinkHtmlAttributes(new Dictionary<string, object>()
+                            {
+                                {"ItemId", ec.Id}, {"ItemType", "ExpertCouncilId"}, {"ModelId", "ExpertCouncil"}, {"id", ec.Id}
+                            }).Selected(true);
+                });
+    
+                projects.Add().Text("Добавить экспертный совет").LinkHtmlAttributes(new Dictionary<string, object>()
+                    {
+                        {"ItemId", ""}, {"ItemType", ""}, {"ModelId", "ExpertCouncil"}, {"id", "expertCouncilAddNew"}
+                    });
+            });
+    })
+)
+<button class="k-button">Добавить заседание</button>
+<button class="k-button">Редактировать</button>
