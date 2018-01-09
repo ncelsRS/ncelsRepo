@@ -453,7 +453,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var expDocResult = expRepo.GetStageExpDocResult(model.Id);
             ViewBag.ExpDocResult = expDocResult.ExpResult;
             //основание
-            var reasons = new SafetyAssessmentRepository().GetRefReasons(); //"Declaration", false
+            var reasons = new SafetyAssessmentRepository().GetRefReasons("Declaration", false);
             ViewData["UObkReasons"] = new SelectList(reasons, "Id", "Name");
 
             if (stage.OBK_Ref_StageStatus.Code != "inWork")

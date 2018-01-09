@@ -605,7 +605,7 @@ namespace PW.Ncels.Database.Repository.OBK
             copy.SendDate = DateTime.Now;
             copy.EmployeeId = UserHelper.GetCurrentEmployee().Id;
             copy.StatusId = CodeConstManager.STATUS_OBK_SEND_ID;
-            copy.LetterdDate = letterDate;
+            copy.LetterDate = letterDate;
             copy.LetterNumber = letterNumber;
 
             OBK_ZBKCopyStage stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == Id);
@@ -679,7 +679,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.ExtraditeDate = zbkCopy.ExtraditeDate;
             model.zbkCopiesReady = zbkCopy.zbkCopiesReady;
             model.SendToAccountant = stage.SendToAccountant;
-            model.LetterDate = zbkCopy.LetterdDate;
+            model.LetterDate = zbkCopy.LetterDate;
             model.LetterNumber = zbkCopy.LetterNumber;
             model.Nds = TaxHelper.GetNdsRef() + 1;
 
@@ -817,7 +817,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.Notes = zbkCopy.Notes;
             model.Nds = TaxHelper.GetNdsRef() + 1;
             model.LetterNumber = zbkCopy.LetterNumber;
-            model.LetterDate = zbkCopy.LetterdDate;
+            model.LetterDate = zbkCopy.LetterDate;
             if (directionPayment != null)
             {
                 if (directionPayment.ZBKCopy_id != null && directionPayment.InvoiceNumber1C != null)
