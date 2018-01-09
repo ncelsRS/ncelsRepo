@@ -1,6 +1,8 @@
 ﻿USE ncels
 GO
 
+DELETE FROM OBK_Ref_StageStatus WHERE Code IN('taskNew','taskAcceptCoz','taskSendRC','taskAcceptRC','taskSendLab')
+
 INSERT INTO dbo.OBK_Ref_StageStatus
 (
   Id
@@ -20,7 +22,7 @@ VALUES
  ,0
 ),
 (
-  '16'
+  '100'
  ,N'taskAcceptCoz'
  ,N'Образцы приняты ЦОЗ'
  ,N'Образцы приняты ЦОЗ'
@@ -28,7 +30,7 @@ VALUES
  ,0
 ),
 (
-  '17'
+  '101'
  ,N'taskSendRC'
  ,N'Передано в ИЦл'
  ,N'Передано в ИЦл'
@@ -36,7 +38,7 @@ VALUES
  ,0
 ),
 (
-  '18'
+  '102'
  ,N'taskAcceptRC'
  ,N'Принято ИЦл'
  ,N'Принято ИЦл'
@@ -44,7 +46,7 @@ VALUES
  ,0
 ),
 (
- '19'
+ '103'
  ,N'taskSendLab'
  ,N'Передано в лабораторию'
  ,N'Передано в лабораторию'
@@ -52,3 +54,5 @@ VALUES
  ,0
 );
 GO
+
+SELECT * FROM OBK_Ref_StageStatus
