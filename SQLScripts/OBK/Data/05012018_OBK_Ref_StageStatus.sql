@@ -12,7 +12,7 @@ INSERT INTO dbo.OBK_Ref_StageStatus
 )
 VALUES
 (
-  '15'
+  '99'
  ,N'taskNew'
  ,N'Сформирован'
  ,N'Сформирован'
