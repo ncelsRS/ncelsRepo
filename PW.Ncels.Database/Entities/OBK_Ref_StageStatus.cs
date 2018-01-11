@@ -72,5 +72,34 @@ namespace PW.Ncels.Database.DataModel
         /// Оценка производства завершена
         /// </summary>
         public const string OPCompleted = "OPCompleted";
+
+        #region статусы для задания
+
+        /// <summary>
+        /// статус "Сформирован"
+        /// </summary>
+        public const string TaskNew = "taskNew";
+
+        /// <summary>
+        /// статус "Образцы приняты ЦОЗ"
+        /// </summary>
+        public const string TaskAcceptCoz = "taskAcceptCoz";
+
+        /// <summary>
+        /// статус "Передано в ИЦл"
+        /// </summary>
+        public const string TaskSendRC = "taskSendRC";
+
+        /// <summary>
+        /// статус "Принято ИЦл"
+        /// </summary>
+        public const string TaskAcceptRC = "taskAcceptRC";
+
+        /// <summary>
+        /// статус "Переданов лабораторию"
+        /// </summary>
+        public const string TaskSendLab = "taskSendLab";
+
+        #endregion
     }
 }

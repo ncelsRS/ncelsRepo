@@ -1,0 +1,137 @@
+﻿@model Guid
+
+<script>
+    var modelId = "@Model";
+</script>
+
+<script src="~/Scripts/forViews/assessmentDeclarationProgram.js"></script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Программа проведения оценки условий производства</div>
+    <div class="panel-body">
+        <div class="input-group">
+            <button type="button" class="k-button" onclick="saveProgram()">Сохранить (в будущем - подписать)</button>
+            <button type="button" class="k-button">Отправить на согласование</button>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <label for="organizationName@(Model)">Наименование организации</label>
+                        <input type="text" id="organizationName@(Model)" class="k-textbox" style="width: 100%" readonly />
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="input-group">
+                        <label>Период проведения</label>
+                        <br />
+                        с
+                        @(Html.Kendo().DatePicker()
+                            .Name("declarationProgramDateFrom" + Model)
+                            .Start(CalendarView.Month)
+                            .Depth(CalendarView.Month)
+                            .Format("dd.MM.yyyy")
+                            .Value(DateTime.Now.ToString("yyyy-MM-dd"))
+                        )
+                        по
+                        @(Html.Kendo().DatePicker()
+                            .Name("declarationProgramDateTo" + Model)
+                            .Start(CalendarView.Month)
+                            .Depth(CalendarView.Month)
+                            .Format("dd.MM.yyyy")
+                            .Value(DateTime.Now.ToString("yyyy-MM-dd"))
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <div id="assessmentDeclarationOPProgramKendoUpload@(Model)" class="row" hidden>
+            <div class="col-lg-6">
+                <label>Прикрепить файл</label>
+                <input name="files" id="files@(Model)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" class="form-control" />
+            </div>
+        </div>
+        <div id="assessmentDeclarationOPProgramLink@(Model)" hidden>
+            <button type="button" class="k-button" onclick="downloadAttach()">Скачать программу</button>
+            <button type="button" class="k-button" onclick="deleteAttach()">Удалить программу</button>
+        </div>
+        <br />
+        <div id="listExecutors@(Model)" class="panel panel-default" hidden>
+            <div class="panel-heading">Список согласующих</div>
+            <div class="panel-body">
+                <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProgramExecutors@(Model)" width="100%"></table>
+                <button type="button" class="k-button">Добавить</button>
+
+                @*<div id="creatyOrModifyPanel@(Model)" class="panel panel-default" hidden>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <div class="col-lg-5">
+                                        <label for="organization">Организация</label>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        @(Html.Kendo().DropDownList().Name("OrganizationId")
+                                                                        .OptionLabel("Выберите организацию..")
+                                                                        .AutoBind(false)
+                                                                        .DataValueField("Id").DataTextField("Name")
+                                                                        .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "SelectOPCommission")))
+                                                                        .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-5">
+                                        <label for="unit">Структурное подразделение</label>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        @(Html.Kendo().DropDownList().Name("UnitId")
+                                                                        .OptionLabel("Выберите подразделение..")
+                                                                        .AutoBind(false)
+                                                                        .DataValueField("Id").DataTextField("Name")
+                                                                        .DataSource(cf => cf.Read(read => read.Action("ListUnits", "SelectOPCommission").Data("filterUnits")).ServerFiltering(true))
+                                                                        .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                        .CascadeFrom("OrganizationId"))
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-5">
+                                        <label for="EmployeeId">ФИО</label>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        @(Html.Kendo().DropDownList().Name("EmployeeId")
+                                                                        .OptionLabel("Выберите сотрудника..")
+                                                                        .AutoBind(false)
+                                                                        .DataValueField("Id").DataTextField("FullName")
+                                                                        .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "SelectOPCommission").Data("filterEmployees")).ServerFiltering(true))
+                                                                        .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                        .CascadeFrom("UnitId"))
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-5">
+                                        <label for="Role">Роль в комиссии</label>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        @(Html.Kendo().DropDownList().Name("Role")
+                                                                        .OptionLabel("Выберите роль в комиссии..")
+                                                                        .AutoBind(false)
+                                                                        .DataValueField("Id").DataTextField("Name")
+                                                                        .DataSource(cf => cf.Read(read => read.Action("ListRoles", "SelectOPCommission").Data("filterRoles")).ServerFiltering(true))
+                                                                        .HtmlAttributes(new { data_bind = "value: currentEmployee.RoleId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                        .CascadeFrom("EmployeeId"))
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="saveCommissionMember(event)" class="btn btn-primary">Сохранить</button>
+                        <button type="button" onclick="cancelCommissionMember(event)" class="btn btn-default">Отменить</button>
+                    </div>
+                </div>*@
+
+            </div>
+        </div>
+    </div>
+</div>
