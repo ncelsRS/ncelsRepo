@@ -97,7 +97,7 @@
             var row = grid.table.find("tr[data-uid='" + ds[i].uid + "']");
             var checkbox = $(row).find(".checkbox");
             if (checkbox.is(":checked") && (ds[i].StageStatusCode === 'inQueue' || ds[i].StageStatusCode === 'inWork')) {
-                idsToSend.push(ds[i].StageId);
+                idsToSend.push(ds[i].OBK_ZBKCopyStageId);
             }
         }
         if (idsToSend.length > 0) {
