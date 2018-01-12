@@ -748,6 +748,26 @@
                     break;
             }
         }
+
+        $scope.dic.nmirks = [];
+        $scope.dic.refreshNmirks = function (search) {
+            $http({
+                url: '/EMPStatement/DicNMIRK',
+                method: 'GET',
+                params: {
+                    search: search
+                }
+            }).success(function (res) {
+                $scope.dic.nmirks = res;
+            });
+        }
+
+        $scope.nmirkOnSelect = function (item, model) {
+            $scope.object.NomenclatureNameKz = item.NameRu;
+            $scope.object.NomenclatureNameRu = item.NameKk;
+            $scope.object.NomenclatureDescriptionKz = item.Descriptionkk;
+            $scope.object.NomenclatureDescriptionRu = item.DescriptionRu;
+        }
     }
 
     angular
@@ -998,7 +1018,14 @@
 
                                 <div class="form-horizontal row">
                                     <div class="col-lg-12" align="center">
-                                        <label>Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)</label>
+                                        <ui-select ng-model="nmirk" on-select="nmirkOnSelect($item, $model)" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                            <ui-select-match placeholder="Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)">{{$select.selected.Code + " " + $select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item in dic.nmirks | filter: $select.search"
+                                                               refresh="dic.refreshNmirks($select.search)">
+                                                <div ng-bind-html="item.Code + ' ' + item.NameRu | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        {{nmirk}}
                                     </div>
                                 </div>
 
@@ -1008,14 +1035,14 @@
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureNameKz" ng-model="object.NomenclatureNameKz" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureNameKz" ng-model="object.NomenclatureNameKz" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameKz">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureNameRu" ng-model="object.NomenclatureNameRu" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureNameRu" ng-model="object.NomenclatureNameRu" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameRu">
                                             </div>
                                         </div>
@@ -1023,14 +1050,14 @@
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureDescriptionKz" ng-model="object.NomenclatureDescriptionKz" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureDescriptionKz" ng-model="object.NomenclatureDescriptionKz" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionKz">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureDescriptionRu" ng-model="object.NomenclatureDescriptionRu" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureDescriptionRu" ng-model="object.NomenclatureDescriptionRu" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionRu">
                                             </div>
                                         </div>

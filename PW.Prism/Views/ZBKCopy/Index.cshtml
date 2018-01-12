@@ -13,147 +13,154 @@
         {
             <div class="pull-left">
                 @( Html.Kendo().Button().Name("toWork" + Model.Guid)
-                                               .Content("Распределить"))
+                                                       .Content("Распределить"))
             </div>
         }
         <div class="pull-left">
             @( Html.Kendo().Button().Name("find" + Model.Guid)
-                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
-                                           .ImageUrl("/Content/images/find.png"))
+                                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                                   .ImageUrl("/Content/images/find.png"))
         </div>
         <div class="pull-left">
             @( Html.Kendo().Button().Name("clearSearch" + Model.Guid)
-                                           .Content("Очистить форму поиска")
-                                           .ImageUrl("/Content/images/clearSearch.png"))
+                                                   .Content("Очистить форму поиска")
+                                                   .ImageUrl("/Content/images/clearSearch.png"))
         </div>
         <div class="pull-right">
             <div style="display: inline-block" id="columnMenu@( Model.Guid)" class="custom-grid-menu"></div>
             <div style="display: inline-block">
                 @( Html.Kendo().Button().Name("reload" + Model.Guid)
-                                               .Content("")
-                                               .ImageUrl("/Content/images/reload.png"))
+                                                       .Content("")
+                                                       .ImageUrl("/Content/images/reload.png"))
             </div>
         </div>
 }
 
 @(Html.Kendo().Splitter()
-                  .HtmlAttributes(new { @class = "pwSplitter k-block" })
-                  .Name(("splitter" + Model.Guid))
-                  .Panes(panes =>
-                  {
-                      panes.Add()
-              .Size("250px")
-              .Collapsible(true)
-              .MaxSize("500px")
-              .MinSize("250px")
-              .Content(
-                    @<div class="pwPanelBar">
-                        @( Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
-                                                                 .Name("panelbar" + Model.Guid)
-                                                                 .ExpandMode(PanelBarExpandMode.Multiple)
-                                                                 .ExpandAll(true)
-                                                                 .HtmlAttributes(new { style = "width:auto;" })
-                                                                 .Events(e => e.Select("panelAssessmentDecalarationSelect"))
-                                                                 .Items(panelbar =>
-                                                                 {
-                                                                     panelbar.Add().Expanded(true);
-                                                                     panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
-                                                                         .Items(projects =>
-                                                                         {
-
-                                                                             projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>()
-                                                                                 {
-                                                                         {"ItemId", OBK_Ref_StageStatus.New}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "new" + Model.Guid.ToString()}
-                                                                                 }).Selected(true);
-
-                                                                             projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>()
+                      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                      .Name(("splitter" + Model.Guid))
+                      .Panes(panes =>
+                      {
+                          panes.Add()
+                  .Size("250px")
+                  .Collapsible(true)
+                  .MaxSize("500px")
+                  .MinSize("250px")
+                  .Content(
+                        @<div class="pwPanelBar">
+                            @( Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                                                             .Name("panelbar" + Model.Guid)
+                                                                             .ExpandMode(PanelBarExpandMode.Multiple)
+                                                                             .ExpandAll(true)
+                                                                             .HtmlAttributes(new { style = "width:auto;" })
+                                                                             .Events(e => e.Select("panelAssessmentDecalarationSelect"))
+                                                                             .Items(panelbar =>
                                                                              {
-                                                                     {"ItemId", OBK_Ref_StageStatus.InWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inWork" + Model.Guid.ToString()}
-                                                                             });
+                                                                                         panelbar.Add().Expanded(true);
+                                                                                         panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                                                                             .Items(projects =>
+                                                                                             {
+                                                                                                 if (EmployePermissionHelper.CanSafetyAssessmentExecutorsAssignment)
+                                                                                                 {
+                                                                                                     projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>()
+                                                                                                     {
+                                                                                 {"ItemId", OBK_Ref_StageStatus.New}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "new" + Model.Guid.ToString()}
+                                                                                                     }).Selected(true);
+                                                                                                 }
+                                                                                                 projects.Add().Text("В работе").LinkHtmlAttributes(new Dictionary<string, object>()
+                                                                                                 {
+                                                                             {"ItemId", OBK_Ref_StageStatus.InWork}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inWork" + Model.Guid.ToString()}
+                                                                                                 });
 
-                                                                             if (Model.DicStageId == CodeConstManager.STAGE_OBK_COZ)
-                                                                             {
-                                                                                 projects.Add().Text("На корректировке у заявителя").LinkHtmlAttributes(new Dictionary<string, object>()
-                                                                             {
-                                                                     {"ItemId", OBK_Ref_StageStatus.OnCorrection}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inWork" + Model.Guid.ToString()}
-                                                                             });
-                                                                                 projects.Add().Text("Требует выдачи копии ЗБК").LinkHtmlAttributes(new Dictionary<string, object>()
-                                                                             {
-                                                                     {"ItemId", OBK_Ref_StageStatus.RequiresIssuingZBKCopy}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "requiresIssuingZBKCopy" + Model.Guid.ToString()}
-                                                                             });
-                                                                             }
+                                                                                                 if (Model.DicStageId == CodeConstManager.STAGE_OBK_COZ)
+                                                                                                 {
+                                                                                                     projects.Add().Text("На корректировке у заявителя").LinkHtmlAttributes(new Dictionary<string, object>()
+                                                                                                 {
+                                                                             {"ItemId", OBK_Ref_StageStatus.OnCorrection}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "inWork" + Model.Guid.ToString()}
+                                                                                                 });
+                                                                                                     projects.Add().Text("Требует выдачи копии ЗБК").LinkHtmlAttributes(new Dictionary<string, object>()
+                                                                                                 {
+                                                                             {"ItemId", OBK_Ref_StageStatus.RequiresIssuingZBKCopy}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "requiresIssuingZBKCopy" + Model.Guid.ToString()}
+                                                                                                 });
+                                                                                                 }
 
-                                                                             projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
-                                                                             {
-                                                                     {"ItemId", OBK_Ref_StageStatus.Completed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "completed" + Model.Guid.ToString()}
-                                                                             });
+                                                                                                 projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
+                                                                                                 {
+                                                                             {"ItemId", OBK_Ref_StageStatus.Completed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "completed" + Model.Guid.ToString()}
+                                                                                                 });
 
-                                                                         });
-                                                                 })
-                        )
-                    </div>
-                                          );
-
-                              panes.Add().Scrollable(false).Size("100%").Content(
-                                                @<div class="pwPanelBar">
-                                                    @( Html.Kendo().Grid<OBK_ZBKCopyStageView>()
-                                                                                     .Name("gridAssessmentDecalaration" + Model.Guid)
-                                                                                     .Columns(columns =>
-                                                                                     {
-                                                                                         if (Model.DicStageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
-                                                                                         {
-                                                                                             columns.Bound(p => p.OBK_ZBKCopyStageId).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
-                                                     .HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
-                                                                                             columns.Bound(p => p.ExpConclusionNumber).Width(125).ClientTemplate(
-                                                                         "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
-                                                                         "<button  type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"getZBKCopyDetailsOBK('#=OBK_ZBKCopyStageId#', '#=ExpConclusionNumber#','" + controllerName + "')\" ><span style=\"color:rgb(66,139,202);\">#=ExpConclusionNumber#</span></button>" +
-                                                                         "</div>"
-                                                                         ).Title("№ заключения");
-                                                                                         }
-                                                                                         else
-                                                                                         {
-                                                                                             columns.Bound(p => p.OBK_ZBKCopyStageId).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
-                                                     .HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
-                                                                                             columns.Bound(p => p.ExpConclusionNumber).Width(125).ClientTemplate(
-                                                                         "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
-                                                                         "<button  type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"getZBKCopyDetails('#=OBK_ZBKCopyStageId#', '#=ExpConclusionNumber#','" + controllerName + "')\" ><span style=\"color:rgb(66,139,202);\">#=ExpConclusionNumber#</span></button>" +
-                                                                         "</div>"
-                                                                         ).Title("№ заключения");
-                                                                                         }
-
-                                                                                         columns.Bound(p => p.ExpEndDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
-                                                                                         columns.Bound(p => p.ZBKCopySendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи запроса").Width(150);
-                                                                                         columns.Bound(p => p.OBK_ZBKCopyStageId).Visible(false);
-                                                                                         columns.Bound(p => p.DeclarationNumber).Title("№ заявки").Width(150);
-                                                                                         columns.Bound(p => p.Declarer).Title("Заявитель").Width(150);
-                                                                                         columns.Bound(p => p.DeclarationType).Title("Тип заявки").Width(150);
-                                                                                         columns.Bound(p => p.OrganizationName).Title("Орган выдачи").Width(150);
+                                                                                             });
                                                                                      })
-                                                                                     .AutoBind(false)
-                                                                                     .Reorderable(reorderable => reorderable.Columns(true))
-                                                                                     .Resizable(resizable => resizable.Columns(true))
-                                                                                     .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
-                                                                                     .Groupable()
-                                                                                     .Sortable()
-                                                                                     .Filterable()
-                                                                                     .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
-                                                                                     .Scrollable(scrollable => scrollable.Virtual(true))
-                                                                                     .Pageable()
-                                                                                     .HtmlAttributes(new { @class = "pwGrid" })
-                                                                                     .DataSource(dataSource => dataSource
-                                                                                         .Ajax()
-                                                                                         .Sort(sort => { sort.Add("ZBKCopySendDate").Descending(); })
-                                                                                         .PageSize(50)
-                                                                                         .Read(read => read.Action("ListZBKCopies", "ZBKCopy", new { stage = Model.DicStageId }))
-                                                                                     ))
+                            )
+                        </div>
+                                                      );
 
-                                                </div>
+                                  panes.Add().Scrollable(false).Size("100%").Content(
+                                                            @<div class="pwPanelBar">
+                                                                @( Html.Kendo().Grid<OBK_ZBKCopyStageView>()
+                                                                                                         .Name("gridAssessmentDecalaration" + Model.Guid)
+                                                                                                         .Columns(columns =>
+                                                                                                         {
+                                                                                                                     if (Model.DicStageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
+                                                                                                                     {
+                                                                                                                         columns.Bound(p => p.OBK_ZBKCopyStageId).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
+                                                                                 .HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+                                                                                                                         columns.Bound(p => p.ExpConclusionNumber).Width(125).ClientTemplate(
+                                                                                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                                                                                     "<button  type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"getZBKCopyDetailsOBK('#=OBK_ZBKCopyStageId#', '#=ExpConclusionNumber#','" + controllerName + "')\" ><span style=\"color:rgb(66,139,202);\">#=ExpConclusionNumber#</span></button>" +
+                                                                                                     "</div>"
+                                                                                                     ).Title("№ заключения");
+                                                                                                                     }
+                                                                                                                     else
+                                                                                                                     {
+                                                                                                                         columns.Bound(p => p.OBK_ZBKCopyStageId).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
+                                                                                 .HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+                                                                                                                         columns.Bound(p => p.ExpConclusionNumber).Width(125).ClientTemplate(
+                                                                                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                                                                                     "<button  type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"getZBKCopyDetails('#=OBK_ZBKCopyStageId#', '#=ExpConclusionNumber#','" + controllerName + "')\" ><span style=\"color:rgb(66,139,202);\">#=ExpConclusionNumber#</span></button>" +
+                                                                                                     "</div>"
+                                                                                                     ).Title("№ заключения");
+                                                                                                                     }
+
+                                                                                                                     columns.Bound(p => p.ExpEndDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
+                                                                                                                     columns.Bound(p => p.ZBKCopySendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи запроса").Width(150);
+                                                                                                                     columns.Bound(p => p.OBK_ZBKCopyStageId).Visible(false);
+                                                                                                                     columns.Bound(p => p.DeclarationNumber).Title("№ заявки").Width(150);
+                                                                                                                     columns.Bound(p => p.Declarer).Title("Заявитель").Width(150);
+                                                                                                                     columns.Bound(p => p.DeclarationType).Title("Тип заявки").Width(150);
+                                                                                                                     columns.Bound(p => p.OrganizationName).Title("Орган выдачи").Width(150);
+                                                                                                                 })
+                                                                                                         .AutoBind(false)
+                                                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                                                         .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                                                                                                         .Groupable()
+                                                                                                         .Sortable()
+                                                                                                         .Filterable()
+                                                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                         .Pageable()
+                                                                                                         .HtmlAttributes(new { @class = "pwGrid" })
+                                                                                                         .DataSource(dataSource => dataSource
+                                                                                                             .Ajax()
+                                                                                                             .Sort(sort => { sort.Add("ZBKCopySendDate").Descending(); })
+                                                                                                             .PageSize(50)
+                                                                                                             .Read(read => read.Action("ListZBKCopies", "ZBKCopy", new { stage = Model.DicStageId }))
+                                                                                                         ))
+
+                                                            </div>
                                   );
-                                  }))
+                                      }))
 <script>
     $(document).ready(function() {
         resizeGrid('@("#gridAssessmentDecalaration" + Model.Guid)');
         InitFilterZBKCopy('@Model.Guid.ToString()');
         $('#@((EmployePermissionHelper.CanSafetyAssessmentExecutorsAssignment ? "new":"inWork")+Model.Guid)').click();
     });
+
+    function reloadGrid()
+    {
+        debugger;
+        $("#gridAssessmentDecalaration" + '@Model.Guid').data("kendoGrid").dataSource.read();
+    }
 </script>

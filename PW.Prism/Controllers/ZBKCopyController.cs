@@ -70,10 +70,10 @@ namespace PW.Prism.Controllers
                 success = true,
                 result = new
                 {
-                    StartNumber = repository.FormatBlankNumber((int)blank.StartNumber),
-                    EndPrimeNumber = repository.FormatBlankNumber((int)blank.EndPrimeNumber),
-                    StartApplicationNumber = repository.FormatBlankNumber((int)blank.StartApplicationNumber),
-                    EndApplicationNumber = repository.FormatBlankNumber((int)blank.EndApplicationNumber)
+                    StartNumber = repository.FormatBlankNumber(blank.StartNumber),
+                    EndPrimeNumber = repository.FormatBlankNumber(blank.EndPrimeNumber),
+                    StartApplicationNumber = repository.FormatBlankNumber(blank.StartApplicationNumber),
+                    EndApplicationNumber = repository.FormatBlankNumber(blank.EndApplicationNumber)
                 }
             });
         }
@@ -223,7 +223,7 @@ namespace PW.Prism.Controllers
         {
             var zbkCopy = db.OBK_ZBKCopy.FirstOrDefault(o => o.Id == zbkCopyId);
             zbkCopy.Notes = notes;
-            zbkCopy.StatusId = CodeConstManager.STATUS_OBK_REJECT_ID;
+            zbkCopy.StatusId = CodeConstManager.STATUS_OBK_ONCORRECTION;
 
             var zbkCopyStage = db.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == zbkCopyId && o.StageId == 1);
             var stageStatus = db.OBK_Ref_StageStatus.FirstOrDefault(o => OBK_Ref_StageStatus.OnCorrection.Equals(o.Code));

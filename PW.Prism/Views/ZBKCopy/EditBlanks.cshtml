@@ -34,16 +34,14 @@
                     <div style="margin-left:50px">
                         <div class="row">
                             <div class="col-lg-12">
+                                <input type="checkbox" style="margin-left:20px" id="zbkOriginals" checked="@(Model.OriginalsGiven)" disabled="disabled" /><span>Оригиналы ЗБК предоставлены заявителям</span>
+
                                 @{
-                                    if (Model.SendToAccountant != true)
+                                    if (Model.IsBoss != true)
                                     {
-                                        <button class="btn btn-success dropdown-toggle sendToAccountant" id="backToOverview">Вернуть на дороботку</button>
-                                        <button class="btn btn-success dropdown-toggle sendToAccountant" id="toCopyZBK" style="margin-left:20px">На выдачу копий ЗБК</button>
+                                        <button class="btn btn-success dropdown-toggle" id="signZBKCopyToCoz" onclick="signZBKCopy(event)" style="margin-left:20px">Подписано и передано в ЦОЗ</button>
                                     }
                                 }
-
-                                <input type="checkbox" style="margin-left:20px" id="zbkOriginals" checked="@(Model.OriginalsGiven)" disabled="disabled" /><span>Оригиналы ЗБК предоставлены заявителям</span>
-                                <button class="btn btn-success dropdown-toggle" id="signZBKCopyToCoz" onclick="signZBKCopy(event)" style="margin-left:20px">Подписано и передано в ЦОЗ</button>
                             </div>
                         </div>
                         <br>
@@ -122,14 +120,14 @@
                                 <label> Тип заключения</label>
                                 <div class="input-group" style="width:100%">
                                     @{
-                    if (Model.ExpApplication == true)
-                    {
-                        <input value="без приложений" disabled="disabled" class="form-control edit-control">
-}
-else
-{
-                    <input value="с приложением" disabled="disabled" class="form-control edit-control">
-}
+                                        if (Model.ExpApplication == true)
+                                        {
+                                            <input value="Без приложения" disabled="disabled" class="form-control edit-control">
+                                        }
+                                        else
+                                        {
+                                            <input value="С приложением" disabled="disabled" class="form-control edit-control">
+                                        }
                                     }
                                 </div>
                             </div>
@@ -196,10 +194,10 @@ else
                                                     <th>Цена тенге без НДС</th>
                                                     <th>Количество услуг</th>
                                                     @{
-                                    if (Model.ExpApplication == false)
-                                    {
-                                        <th>Количество приложении</th>
-                }
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <th>Количество приложении</th>
+                                                        }
                                                     }
                                                     <th>Итоговая стоимость услуги, в тенге без НДС</th>
                                                     <th>Итоговая стоимость услуги, в тенге с НДС</th>
@@ -212,10 +210,10 @@ else
                                                     <td id="onePrice">219</td>
                                                     <td id="copyQuantityTable">@Model.CopyQuantity</td>
                                                     @{
-                                    if (Model.ExpApplication == false)
-                                    {
-                                        <td id="copyQuantityTable2">@Model.CopyQuantity</td>
-                }
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <td id="copyQuantityTable2">@Model.CopyQuantity</td>
+                                                        }
                                                     }
                                                     <td id="totalWithoutNds">@(decTotal)</td>
                                                     <td id="totalWithNds">@(decTotalWithNDS)</td>
@@ -386,9 +384,7 @@ else
 
         $(".k-upload-button").hide();
 
-        if ('@Model.StageStatusCode' == '@OBK_Ref_StageStatus.Completed'){
-  
-
+        if ('@Model.StageStatusCode' == '@OBK_Ref_StageStatus.Completed' || '@Model.IsBoss' == 'True'){
             $("#replaceBlank").attr("disabled", "disabled");
             $("#SaveStartNumber").attr("disabled", "disabled");
             $("#startNumber" + '@Model.Id').attr("disabled", "disabled");
@@ -497,12 +493,13 @@ else
             success: function (data)
             {
                 if (data.success == true)
-                {                  
+                {
                     $("#primeStart").html(data.result.StartNumber);
                     $("#primeEnd").html(data.result.EndPrimeNumber);
                     $("#applicationStart").html(data.result.StartApplicationNumber);
                     $("#applicationEnd").html(data.result.EndApplicationNumber);
                     initBlankNumbers();
+                    initCorruptedBlanks();
                 }
             }
         });
@@ -578,6 +575,7 @@ else
             data: {zbkCopyStageId : '@Model.StageId'},
             success: function (result) {
                 startSign(result.preambleXml, '@Model.StageId', saveZbkCopySign);
+                reloadGrid();
                 }
             });
         }

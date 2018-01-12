@@ -368,6 +368,14 @@ namespace PW.Ncels.Controllers
                 .Where(x => x.Type == type)
                 .Select(x => x.Name), JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult DicNMIRK(string search)
+        {
+            var res = _ctx.EXP_DIC_NMIRK
+                .Where(x => x.Code.ToString().Contains(search) || x.NameRu.Contains(search) || x.NameKk.Contains(search))
+                .Take(50);
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
     }
 
     public class EmpStatementMedicalDevicePackageViewModel

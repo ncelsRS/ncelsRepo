@@ -121,7 +121,17 @@ namespace PW.Prism.Controllers.OBKPayment
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                var copyZBK = payRepo.GetZBKCopy(Guid.Parse(zbkCopyId));
+
+                if (copyZBK.ExpApplication == false)
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbkApplication.mrt"));
+                }
+                else
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/1c/ObkInvoicePaymentCopyZbk.mrt"));
+                }
+
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -133,7 +143,7 @@ namespace PW.Prism.Controllers.OBKPayment
                 var totalPriceWithCount = payRepo.GetTotalPriceZbkCopy(Guid.Parse(zbkCopyId));
                 report.Dictionary.Variables["TotalPriceWithCount"].ValueObject = totalPriceWithCount;
                 //в том числе НДС
-                var totalPriceNDS = payRepo.GetTotalPriceNDS(totalPriceWithCount);
+                var totalPriceNDS = payRepo.GetTotalPriceNDS(payRepo.GetZbkCopyNds(Guid.Parse(zbkCopyId)));
                 report.Dictionary.Variables["TotalPriceNDS"].ValueObject = totalPriceNDS;
                 //прописью
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalPriceWithCount), false);

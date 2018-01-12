@@ -108,8 +108,12 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_ZBKCopyBlank.FirstOrDefault(o => o.ZBKCopyId == zbkCopyId);
         }
 
-        public string FormatBlankNumber(int num)
+        public string FormatBlankNumber(int? num)
         {
+            if (num == null)
+            {
+                return "";
+            }
             StringBuilder builder = new StringBuilder(num.ToString());
 
             for (int i = builder.ToString().Length; i < 6; i++)
@@ -342,7 +346,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.ExtraditeDate = temp.ExtraditeDate;
             model.ReceiverFIO = temp.ReceiverFIO;
             model.Order = i;
-          //  model.BlankNumber = FormatBlankNumber(blankNumber);
+            //  model.BlankNumber = FormatBlankNumber(blankNumber);
             return model;
         }
 
@@ -353,6 +357,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var contract = AppContext.OBK_Contract.FirstOrDefault(o => o.Id == declaration.ContractId);
             var payment = AppContext.OBK_DirectionToPayments.FirstOrDefault(e => e.ZBKCopy_id == id);
             var stage = AppContext.OBK_ZBKCopyStage.FirstOrDefault(o => o.OBK_ZBKCopyId == id);
+            var status = AppContext.OBK_Ref_Status.FirstOrDefault(o => o.Code.Equals(CodeConstManager.STATUS_OBK_INVOCE_GENERATING.ToString()));
 
             if (stage.SendToAccountant != true)
             {
@@ -392,6 +397,9 @@ namespace PW.Ncels.Database.Repository.OBK
                     AppContext.OBK_DirectionToPayments.Add(pay);
                     AppContext.SaveChanges();
                 }
+
+                zbkCopy.StatusId = status.Id;
+                AppContext.SaveChanges();
             }
 
             return true;
@@ -505,7 +513,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IQueryable<OBK_ZBKCopyStageView> ListZBKCopies(int stage)
         {
-           return AppContext.OBK_ZBKCopyStageView.Where(o => o.StageId == stage);
+            return AppContext.OBK_ZBKCopyStageView.Where(o => o.StageId == stage);
         }
 
         public string GetSignData(Guid id)
@@ -686,7 +694,8 @@ namespace PW.Ncels.Database.Repository.OBK
                          join product in AppContext.OBK_RS_Products on series.OBK_RS_ProductsId equals product.Id
                          join contract in AppContext.OBK_Contract on product.ContractId equals contract.Id
                          join measure in AppContext.sr_measures on series.SeriesMeasureId equals measure.id
-                         where contract.Id == contractId
+                         join expDocument in AppContext.OBK_StageExpDocument on series.Id equals expDocument.ProductSeriesId
+                         where contract.Id == contractId && expDocument.ExpResult == true
                          select new
                          {
                              fullName = product.DrugFormFullName,
@@ -764,6 +773,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var organization = AppContext.Dictionaries.FirstOrDefault(o => o.Id == declarant.OrganizationFormId);
             var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Id == declaration.TypeId);
             var stageStatusCode = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            var currentUserId = UserHelper.GetCurrentEmployee().Id.ToString();
 
             model.Declarer = declarantContact.BossLastName + " " + declarantContact.BossFirstName
                 + " " + declarantContact.BossMiddleName;
@@ -789,7 +799,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.LetterDate = zbkCopy.LetterDate;
             model.LetterNumber = zbkCopy.LetterNumber;
             model.Nds = TaxHelper.GetNdsRef() + 1;
-
+            model.IsBoss = AppContext.Units.Any(o => currentUserId.Equals(o.BossId));
             return model;
         }
 
@@ -930,13 +940,16 @@ namespace PW.Ncels.Database.Repository.OBK
             model.Nds = TaxHelper.GetNdsRef() + 1;
             model.LetterNumber = zbkCopy.LetterNumber;
             model.LetterDate = zbkCopy.LetterDate;
-            if (directionPayment != null)
+
+            if (directionPayment != null && directionPayment.ZBKCopy_id != null && directionPayment.InvoiceNumber1C != null)
             {
-                if (directionPayment.ZBKCopy_id != null && directionPayment.InvoiceNumber1C != null)
+                var directionSignData = AppContext.OBK_DirectionSignData.FirstOrDefault(o => o.DirectionToPaymentId == directionPayment.Id);
+                if (directionSignData != null && directionSignData.ChiefAccountantSign != null)
                 {
                     model.PaymentInvoice = true;
                 }
             }
+
 
             return model;
         }

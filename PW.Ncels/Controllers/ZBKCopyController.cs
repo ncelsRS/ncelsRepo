@@ -31,7 +31,6 @@ namespace PW.Ncels.Controllers
     [Authorize]
     public class ZBKCopyController : ACommonController
     {
-
         private ZBKCopyRepository repository = new ZBKCopyRepository();
         private OBKPaymentRepository payRepo = new OBKPaymentRepository();
         private ncelsEntities db = UserHelper.GetCn();
@@ -204,13 +203,7 @@ namespace PW.Ncels.Controllers
 
             return View();
         }
-
-        //public ActionResult GetSignZBKCopy(Guid ZBKCopyId)
-        //{
-        //    var signData = repository.GetSignData(ZBKCopyId);
-        //    return Json(new { data = signData }, JsonRequestBehavior.AllowGet);
-        //}
-
+        
         public ActionResult ZBKCopiesCreated()
         {
             var result = repository.ZBKCopiesCreated();
