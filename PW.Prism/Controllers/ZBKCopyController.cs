@@ -26,6 +26,9 @@ using Document = PW.Ncels.Database.DataModel.Document;
 using PW.Prism.ViewModels.OBK;
 using PW.Ncels.Database.Repository.OBK;
 using PW.Ncels.Database.Notifications;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dictionary;
+using System.IO;
 
 namespace PW.Prism.Controllers
 {
@@ -61,16 +64,16 @@ namespace PW.Prism.Controllers
             {
                 return Json(new { success = false });
             }
-                
+
             return Json(new
             {
                 success = true,
                 result = new
                 {
-                    StartNumber = blank.StartNumber,
-                    EndPrimeNumber = blank.EndPrimeNumber,
-                    StartApplicationNumber = blank.StartApplicationNumber,
-                    EndApplicationNumber = blank.EndApplicationNumber
+                    StartNumber = repository.FormatBlankNumber((int)blank.StartNumber),
+                    EndPrimeNumber = repository.FormatBlankNumber((int)blank.EndPrimeNumber),
+                    StartApplicationNumber = repository.FormatBlankNumber((int)blank.StartApplicationNumber),
+                    EndApplicationNumber = repository.FormatBlankNumber((int)blank.EndApplicationNumber)
                 }
             });
         }
@@ -94,6 +97,39 @@ namespace PW.Prism.Controllers
             return PartialView("~/Views/ZBKCopy/RegisterList.cshtml");
         }
 
+        [HttpGet]
+        public ActionResult ZBKRegister()
+        {
+            return PartialView("~/Views/ZBKCopy/ZBKRegister.cshtml");
+        }
+
+        [HttpPost]
+        public ActionResult ZBKRegisterList([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = repository.ZBKRegister();
+            return Json(data.ToDataSourceResult(request));
+        }
+
+        public FileStreamResult ExportFile(DateTime from, DateTime to)
+        {
+            StiReport report = new StiReport();
+            report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKList.mrt"));
+            var currentEmployee = UserHelper.GetCurrentEmployee();
+            foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+            {
+                data.ConnectionString = UserHelper.GetCnString();
+            }
+
+            report.Dictionary.Variables["fromPeriod"].ValueObject = from;
+            report.Dictionary.Variables["toPeriod"].ValueObject = to;
+
+            report.Render(false);
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Excel, stream);
+            stream.Position = 0;
+            return File(stream, "application/excel", "СписокЗБК.xls");
+        }
+
         [HttpPost]
         public ActionResult SaveReceiver(string receiver, DateTime? receiveDate, Guid zbkCopyId, bool zbkCopiesReady)
         {
@@ -104,7 +140,7 @@ namespace PW.Prism.Controllers
             });
         }
 
-        public ActionResult SaveStartBlankNumber(string startNumber, Guid zbkCopyId, bool expApplication)
+        public ActionResult SaveStartBlankNumber(int startNumber, Guid zbkCopyId, bool expApplication)
         {
             var blank = repository.SaveStartBlankNumber(startNumber, zbkCopyId, expApplication);
 
@@ -122,7 +158,7 @@ namespace PW.Prism.Controllers
         }
 
         [HttpPost]
-        public ActionResult ReplaceBlank(string blankForReplace, string newBlank, Guid zbkCopyId)
+        public ActionResult ReplaceBlank(int blankForReplace, int newBlank, Guid zbkCopyId)
         {
             repository.ReplaceBlank(blankForReplace, newBlank, zbkCopyId);
 
@@ -262,12 +298,11 @@ namespace PW.Prism.Controllers
 
         public ActionResult ListZBKCopies([DataSourceRequest] DataSourceRequest request, int stage)
         {
-            var data = repository.ListZBKCopies(stage);
-
-            return Json(data.ToDataSourceResult(request));
+            var data = repository.ListZBKCopies(stage).ToDataSourceResult(request);
+            return Json(data);
         }
 
-        public ActionResult ConfirmPaperCopy (Guid zbkCopyId)
+        public ActionResult ConfirmPaperCopy(Guid zbkCopyId)
         {
             return Json(new { success = repository.ConfirmPaperCopy(zbkCopyId) });
         }

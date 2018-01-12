@@ -238,6 +238,7 @@ namespace PW.Ncels.Database.Helpers
             #region Справочники
             AddPermission("ZBKTransferRegister", @"Модуль 'Реестр передаыи ЗБК' 'Справочники'", "Возможность видеть реестр передачи ЗБК", "Работа с справочниками");
             AddPermission("OBKDictionaries", @"Модуль 'ОБК справочники' 'Справочники'", "Возможность видеть справочники ОБК", "Работа с справочниками");
+            AddPermission("ZBKRegister", @"Модуль 'Реестр ЗБК' 'Справочники'", "Возможность видеть реестр ЗБК", "Работа с справочниками");
             #endregion
 
             RemoveNonActualKeys();
