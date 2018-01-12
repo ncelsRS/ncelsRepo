@@ -35,7 +35,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 @{
-                                    if (Model.SendToAccountant != true)
+                                    if (Model.SendToAccountant != true && Model.IsBoss == false && Model.StageStatusCode != OBK_Ref_StageStatus.OnCorrection)
                                     {
                                         <button class="btn btn-success dropdown-toggle sendToAccountant" id="backToOverview">Вернуть на дороботку</button>
                                         <button class="btn btn-success dropdown-toggle sendToAccountant" id="toCopyZBK" style="margin-left:20px">На выдачу копий ЗБК</button>
@@ -159,11 +159,11 @@
                                     @{
                                         if (Model.ExpApplication == true)
                                         {
-                                            <input value="без приложений" disabled="disabled" class="form-control edit-control">
+                                            <input value="Без приложения" disabled="disabled" class="form-control edit-control">
                                         }
                                         else
                                         {
-                                            <input value="с приложением" disabled="disabled" class="form-control edit-control">
+                                            <input value="С приложением" disabled="disabled" class="form-control edit-control">
                                         }
                                     }
                                 </div>
@@ -430,6 +430,8 @@
                     $('#receiverModal').modal('hide');
                     $('#ZbkCopiesReady').attr("disabled", "disabled");
                     $('#giveReceiver').attr("disabled", "disabled");
+                    debugger;
+                    reloadGrid();
                     alert("Передано");
                 }
             }
@@ -603,7 +605,11 @@
                 type: 'POST',
                 url: '/ZBKCopy/SendNote',
                 data: {zbkCopyId:'@Model.Id', notes:$("#notes").val()},
-                success: function(data){
+                success: function (data)
+                {
+                    $("#backToOverview").hide();
+                    $("#toCopyZBK").hide();
+                    reloadGrid();
                     alert("Передано на доработку!")
                 }
             })

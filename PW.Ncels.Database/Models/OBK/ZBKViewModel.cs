@@ -35,5 +35,6 @@ namespace PW.Ncels.Database.Models.OBK
         public double Nds { get; set; }
         public string LetterNumber { get; set; }
         public DateTime? LetterDate { get; set; }
+        public bool IsBoss { get; set; }
     }
 }
