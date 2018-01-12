@@ -654,6 +654,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     OBKSubTaskResult subTaskResult = new OBKSubTaskResult();
                     subTaskResult.Id = taskMaterial.Id;
                     subTaskResult.IsNew = isNew;
+                    subTaskResult.RegisterId = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.RegisterId;
                     subTaskResult.ProductNameRu = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu;
                     subTaskResult.ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz;
                     subTaskResult.NdProduct = taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +

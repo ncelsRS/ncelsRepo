@@ -11,6 +11,7 @@
     $scope.Calulator = {};
 
     $scope.object.ServicePrices = [];
+    $scope.object.ServiceRegisterResults = [];
 
     $scope.Payer = {};
 
@@ -28,6 +29,7 @@
     $scope.DeclarantIsManufactur = null;
 
     $scope.showFindInformationPayer = true;
+    $scope.searchDrugWorking = false;
 
     //calculator
     $scope.showServiceTypeName = true;
@@ -41,6 +43,8 @@
     $scope.bankValidManufactur = true;
     $scope.bankValidDeclarant = true;
 
+    $scope.resultRegisterSearch = false;
+
     // Patterns start
     $scope.emailPattern = ".+@.+\\..+";
     $scope.iikPattern = "[a-z0-9]+";
@@ -51,12 +55,12 @@
     $scope.iinPattern = "[0-9]+";
     $scope.iinMinLength = 12;
     $scope.iinMaxLength = 12;
+    $scope.rusLangPattern = "[а-яА-ЯёЁ]+";
     // Patterns end
 
     $scope.ExpertOrganizations = [];
     $scope.HolderType = [];
 
-    //$scope.object.manufactur = {};
     debugger;
     // loadRefs
     loadHolderTypes($scope, $http);
@@ -65,6 +69,7 @@
     loadDictionary($scope, 'OpfType', $http);
     loadDictionary($scope, 'Country', $http);
     loadDictionary($scope, 'Currency', $http);
+    loadEMPContractDocumentType($scope, $http);
     loadCurrency($scope, $http);
     loadBanks($scope, $http);
 
@@ -92,13 +97,13 @@
     };
 
     $scope.saveBtnClick = function() {
-        //if ($scope.validate())
+        if ($scope.validate())
             $scope.editProject();
     };
 
     $scope.sendWithoutDigitalSign = function() {
 
-        //if (!$scope.validate()) return;
+        if (!$scope.validate()) return;
 
         $http({
             url: '/EMPContract/SendToCoz',
@@ -112,7 +117,7 @@
     };
 
     $scope.sendWithDigitalSign = function() {
-        //if (!$scope.validate()) return;
+        if (!$scope.validate()) return;
         $scope.doSign();
     };
 
@@ -130,23 +135,23 @@
         });
     }
 
-    $scope.IsBossDocTypes = [
-        {
-            Id: true,
-            Name: "Да"
-        }, {
-            Id: false,
-            Name: "Нет"
-        }];
+    //$scope.IsBossDocTypes = [
+    //    {
+    //        Id: true,
+    //        Name: "Да"
+    //    }, {
+    //        Id: false,
+    //        Name: "Нет"
+    //    }];
 
-    $scope.BossDocTypes = [
-        {
-            Id: '1',
-            Name: "Представительство"
-        }, {
-            Id: '2',
-            Name: "Доверенное лицо"
-        }];
+    //$scope.BossDocTypes = [
+    //    {
+    //        Id: '1',
+    //        Name: "Представительство"
+    //    }, {
+    //        Id: '2',
+    //        Name: "Доверенное лицо"
+    //    }];
 
     //choose Payer
     $scope.ChoosePayers = [{
@@ -203,14 +208,10 @@
     $scope.showHideBin = function (obj) {
         debugger;
         if ($scope.object[obj].IsResident == true) {
-            //$scope.object[obj].showBin = true;
         }
         else {
-            //$scope.object[obj].showBin = false;
             $scope.object[obj].Country = null;
             $scope.object[obj].NameNonResident = null;
-            //$scope.clearDeclarantForm();
-            //$scope.removeDeclarantId();
         }
         $scope.cancelFind(obj);
         $scope.object[obj].Bin = null;
@@ -231,9 +232,6 @@
                 break;
                 default:
         }
-
-        //$scope.clearContactForm();
-        //$scope.clearContactData();
     }
 
     $scope.cancelFind = function (obj) {
@@ -260,11 +258,6 @@
             default:
         }
         $scope.clearForm(obj);
-        //$scope.removeDeclarantId();
-
-        //$scope.clearContactForm();
-
-        //$scope.clearContactData();
     }
 
     $scope.clearForm = function (obj) {
@@ -284,6 +277,7 @@
             $scope.object[obj].Contact.AddressLegalKz = null;
             $scope.object[obj].Contact.AddressFact = null;
             $scope.object[obj].Contact.Phone = null;
+            $scope.object[obj].Contact.Phone2 = null;
             $scope.object[obj].Contact.Email = null;
             $scope.object[obj].Contact.BossLastName = null;
             $scope.object[obj].Contact.BossFirstName = null;
@@ -424,6 +418,8 @@
         }
     }
 
+   
+
     $scope.changeBank = function (obj) {
         debugger;
         if ($scope.object[obj].Contact.BankId == "999") {
@@ -537,6 +533,22 @@
         var changeType = $scope.ChangeTypes.find(item => item.Id === $scope.Calulator.ChangeType);
         $scope.ChangeTypeCode = changeType.Code;
         $scope.DegreeRiskCode = null;
+    }
+
+    $scope.showBossDocType = true;
+    $scope.changeBossDocType = function () {
+        debugger;
+        var changeType = $scope.EMPContractDocumentTypes.find(item => item.Id === $scope.object.BossDocType);
+        switch (changeType.Code) {
+            case "powerOfAttorney":
+                $scope.showBossDocType = true;
+                break;
+            case "charter":
+                $scope.showBossDocType = false;
+                break;
+            default:
+                break;
+        }
     }
 
     $scope.editServiceTypeName = function() {
@@ -742,6 +754,7 @@
                     $scope.object[obj].Contact.AddressLegalKz = resp.data.AddressLegalKz;
                     $scope.object[obj].Contact.AddressFact = resp.data.AddressFact;
                     $scope.object[obj].Contact.Phone = resp.data.Phone;
+                    $scope.object[obj].Contact.Phone2 = resp.data.Phone2;
                     $scope.object[obj].Contact.Email = resp.data.Email;
                     $scope.object[obj].Contact.BossLastName = resp.data.BossLastName;
                     $scope.object[obj].Contact.BossFirstName = resp.data.BossFirstName;
@@ -891,6 +904,57 @@
             startSign('/EMPContract/SignData', id, funcSign);
         }
     }
+
+    $scope.showRegister = false;
+    $scope.changeContractType = function () {
+        var cType = $scope.ContractTypes.find(item => item.Id === $scope.object.ContractType);
+        if (cType.Code === "2" || cType.Code === "3") {
+            $scope.showRegister = true;
+        } else {
+            $scope.showRegister = false;
+        }
+    }
+
+    $scope.clearSearchBtn = function() {
+        $scope.object.RegNumber = null;
+        $scope.object.TradeName = null;
+        $scope.object.ServiceRegisterResults.length = 0;
+        $scope.resultRegisterSearch = false;
+    }
+
+    $scope.searchBtn = function () {
+        $scope.searchDrugWorking = true;
+
+        var dRegNumber = $scope.object.RegNumber;
+        var dTradeNumber = $scope.object.TradeName;
+        $http({
+            method: "GET",
+            url: "/EMPContract/SearchDrug",
+            params: {
+                drugRegNumber: dRegNumber,
+                drugTradeName: dTradeNumber
+            }
+        }).success(function (result) {
+            debugger;
+            if (result) {
+                $scope.resultRegisterSearch = true;
+                $scope.object.ServiceRegisterResults.length = 0;
+                $scope.object.ServiceRegisterResults.push.apply($scope.object.ServiceRegisterResults, result);
+                $scope.searchDrugWorking = false;
+            } else {
+                $scope.resultRegisterSearch = false;
+                $scope.searchDrugWorking = false;
+            }
+        });
+    }
+
+    $scope.showSelectRow = function (idSelectedRow) {
+        var srr = $scope.object.ServiceRegisterResults.find(item => item.Id === idSelectedRow);
+        $scope.object.MedicalDeviceName = srr.RegNameRu;
+        $scope.object.MedicalDeviceNameKz = srr.RegNameKz;
+        $scope.object.RegisterManufacturName = srr.RegProducerNameRu;
+        $scope.object.RegisterManufacturCountry = srr.RegCounrtyNameRu;
+    }
 }
 
 function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
@@ -902,6 +966,17 @@ function ModalRegisterInstanceCtrl($scope, $uibModalInstance) {
     $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     };
+}
+
+function loadEMPContractDocumentType($scope, $http) {
+    var name = "EMPContractDocumentTypes";
+    $http({
+        method: "GET",
+        url: "/EMPContract/GetEMPContractDocumentType",
+        data: "JSON"
+    }).success(function (result) {
+        $scope[name] = result;
+    });
 }
 
 function loadCurrency($scope, $http) {
