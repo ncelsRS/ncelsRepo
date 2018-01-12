@@ -25,6 +25,8 @@ function updateProgramIsUploaded() {
     });
 }
 
+updateProgramIsUploaded();
+
 function deleteAttach() {
     var item = attachFile.Items[0];
     $.ajax({
@@ -69,35 +71,31 @@ function saveProgram() {
     })
 }
 
-$(document).ready(function () {
-    $("#files" + modelId).kendoUpload({
-        localization: {
-            select: 'Выбрать файл...',
-            remove: 'удалить',
-            cancel: 'отменить',
-            uploadSelectedFiles: 'загрузить',
-            headerStatusUploading: "Загрузка...",
-            headerStatusUploaded: "Загружено!"
-        },
-        multiple: false,
-        async: {
-            saveUrl: "/Upload/filePost",
-            autoUpload: false
-        },
-        upload: function (e) {
-            e.data = {
-                code: attachFile.Id,
-                path: modelId,
-                saveMetadata: true
-            };
-        },
-        success: function (e) {
-            updateProgramIsUploaded();
-        },
-        error: function (e) {
-            alert("Ошибка: " + e.Message + e.message);
-        }
-    });
-
-    updateProgramIsUploaded();
+$("#files" + modelId).kendoUpload({
+    localization: {
+        select: 'Выбрать файл...',
+        remove: 'удалить',
+        cancel: 'отменить',
+        uploadSelectedFiles: 'загрузить',
+        headerStatusUploading: "Загрузка...",
+        headerStatusUploaded: "Загружено!"
+    },
+    multiple: false,
+    async: {
+        saveUrl: "/Upload/filePost",
+        autoUpload: false
+    },
+    upload: function (e) {
+        e.data = {
+            code: attachFile.Id,
+            path: modelId,
+            saveMetadata: true
+        };
+    },
+    success: function (e) {
+        updateProgramIsUploaded();
+    },
+    error: function (e) {
+        alert("Ошибка: " + e.Message + e.message);
+    }
 });
