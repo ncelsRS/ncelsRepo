@@ -13,5 +13,6 @@ namespace PW.Ncels.Database.Models
         public DateTime? ExtraditeDate { get; set; }
         public string ReceiverFIO { get; set; }
         public int Order { get; set; }
+        public string BlankNumber { get; set; }
     }
 }

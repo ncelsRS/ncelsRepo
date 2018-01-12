@@ -1,0 +1,143 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@{
+    /**/
+
+    var currentUser = UserHelper.GetCurrentEmployee().Id;
+    var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
+}
+@helper GridToolbarTemplate()
+    {
+<div class="pull-left">
+    <label>Период с</label>
+    @( Html.Kendo().DatePicker().Name("from").Format("{0:dd.MM.yyyy}") )
+    <label>по</label>
+    @( Html.Kendo().DatePicker().Name("to").Format("{0:dd.MM.yyyy}") )
+    @( Html.Kendo().Button().Name("searchZBK")
+                           .Content("Найти"))
+    @( Html.Kendo().Button().Name("printZBK")
+                           .Content("Печать"))
+
+</div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload")
+                    .Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@(Html.Kendo().Splitter()
+                              .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                              .Name(("splitter"))
+                              .Panes(panes =>
+                              {
+                                  panes.Add().Scrollable(false).Size("100%").Content(
+                                    @<div class="pwPanelBar">
+                                        @( Html.Kendo().Grid<OBK_ZBKRegisterView>()
+                                                                                         .Name("ZBKRegister")
+                                                                                          .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                                         .Columns(columns =>
+                                                                                         {
+                                                                                             columns.Bound(p => p.Id).ClientTemplate("#= renderNumber(data) #").Title("№ n/n").Width(40);
+                                                                                             columns.Bound(p => p.ZBKType).Title("Документ").Width(150);
+                                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный номер заключения").Width(250);
+                                                                                             columns.Bound(p => p.BlankNumber).ClientTemplate("#= handleBlank(BlankNumber) #").Title("Номер бланка").Width(150);
+                                                                                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
+                                                                                             columns.Bound(p => p.Declarant).Title("Заявитель").Width(150);
+                                                                                             columns.Bound(p => p.ProductName).Title("Наименование продукции").Width(150);
+                                                                                         })
+                                                                                         .AutoBind(false)
+                                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                                         .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                                                                                         .Groupable()
+                                                                                         .Sortable()
+                                                                                         .Filterable()
+                                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                         .Pageable()
+                                                                                         .Events(o => o.DataBinding("function() { rowNumber = (this.dataSource.page() - 1) * this.dataSource.pageSize();}"))
+                                                                                         .DataSource(dataSource => dataSource
+                                                                                             .Ajax()
+                                                                                             .Sort(sort => { sort.Add("ExtraditeDate").Descending(); })
+                                                                                             .PageSize(10)
+                                                                                             .Read(read => read.Action("ZBKRegisterList", "ZBKCopy"))
+                                                                                            )
+                                        ))
+
+                                    </div>
+                                                                          );
+                                      }))
+
+<script>
+    $(document).ready(function ()
+    {
+        $("#ZBKRegister").data("kendoGrid").dataSource.read();
+    });
+
+    $("#searchZBK").click(function ()
+    {
+        searchZBK();
+    });
+
+    var rowNumber = 0;
+
+    function resetRowNumber(e)
+    {
+        rowNumber = 0;
+    }
+
+    function renderNumber(data)
+    {
+        return ++rowNumber;
+    }
+
+    function handleBlank(blank)
+    {
+        if (blank == null || blank == undefined || blank == '')
+        {
+            return "";
+        }
+        for (var i = blank.length; i < 6; i++){
+            blank = "0" + blank;
+        }
+        return blank;
+    }
+
+    function searchZBK()
+    {
+        var from = $('#from').val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#to').val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#ZBKRegister").data("kendoGrid");
+        var filter = new Array();
+        if (from != undefined && from != null && from != "")
+        {
+            filter.push(
+                { field: "ExtraditeDate", operator: "gte", value: fromDate });                                                      
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            filter.push(
+                { field: "ExtraditeDate", operator: "lte", value: toDate });
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    $("#printZBK").click(function ()
+    {
+        window.open('/ZBKCopy/ExportFile?from=' + $("#from").val() + '&to=' + $("#to").val());
+    });
+</script>
+
+

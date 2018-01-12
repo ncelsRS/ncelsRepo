@@ -15,6 +15,7 @@ namespace PW.Ncels.Database.Models.OBK
         public string ConclusionNumber { get; set; }
         public string ContractNumber { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? SendDate { get; set; }
         public string DeclarationNumber { get; set; }
         public DateTime? ExpireDate { get; set; }
         public string DeclarationType { get; set; }

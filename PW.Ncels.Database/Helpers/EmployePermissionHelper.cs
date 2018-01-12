@@ -1053,6 +1053,7 @@ namespace PW.Ncels.Database.Helpers
         #region Справочники
         public static bool ZBKTransferRegister { get { return IsVisibility("ZBKTransferRegister"); } }
         public static bool OBKDictionaries { get { return IsVisibility("OBKDictionaries"); } }
+        public static bool ZBKRegister { get { return IsVisibility("ZBKRegister"); } }
         #endregion
     }
 }
