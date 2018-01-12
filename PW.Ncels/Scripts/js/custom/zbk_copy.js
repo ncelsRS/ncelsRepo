@@ -67,8 +67,8 @@ function InitializeZBKCopyFile(name) {
                 kendo.bind($("#outDocForm" + name), viewModel);
                 kendo.ui.progress($('#loader' + name), false);
 
-
-                if ($("#PaymentInvoice").val() == 'True')
+                debugger;
+                if (notEditable == true)
                 {
                     $(".k-delete").hide();                          
                     $(".k-upload-button").hide();

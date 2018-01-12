@@ -52,35 +52,29 @@
                     <h5 id="safetyTitle">
                         Заключение о безопасности и качества продукции
                     </h5>
-                    @{ if (Model.PaymentInvoice == true)
-                        {
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-3 col-lg-offset-2">
-                                    <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#myModal">Счет на оплату</button>
-                                </div>
-
-                                @if (Model.refStatus == CodeConstManager.STATUS_OBK_SIGN_ACT)
-                                {
-                                <div class="row">
-                                    <div class="col-lg-3">
-                                        <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#actModal">Акт выполненных работ</button>
-                                    </div>
-                                </div>
-                                }
-
-                            </div>
-
-                         
+                    <div class="note-font btn-group" style="width: 100%">
+                        <button class="btn btn-info btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="location.href='@Url.Action("Index", "ZBKCopy")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        @{ if (Model.PaymentInvoice == true)
+                            {
+                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal" style="margin-left:10px">Счет на оплату</button>
+                            }
                         }
-                        else
-                        {
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-6 col-lg-offset-6"><button class="btn btn-success dropdown-toggle" id="signBtn">Подписать ЭЦП и отправить в ЦОЗ</button></div>
-                            </div>
+
+                        @{
+                            if (Model.refStatus == CodeConstManager.STATUS_OBK_SIGN_ACT || Model.refStatus == CodeConstManager.STATUS_OBK_CONCLUSION_ISSUE)
+                            {
+                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#actModal" style="margin-left:10px">Акт выполненных работ</button>
+                            }
                         }
-                    }
+
+                        @{
+                            if (Model.refStatus == CodeConstManager.STATUS_OBK_ONCORRECTION || Model.refStatus == CodeConstManager.STATUS_OBK_DRAFT_ID)
+                            {
+                                <button class="btn btn-success dropdown-toggle btn-sm" id="signBtn" style="margin-left:10px">Подписать ЭЦП и отправить в ЦОЗ</button>
+                            }
+                        }
+                    </div>
+
 
                     @{ if (Model.Notes != null)
                         {
@@ -157,14 +151,14 @@
                                 <label> Тип заключения</label>
                                 <div class="input-group" style="width:100%">
                                     @{
-                    if (Model.ExpApplication == false)
-                    {
-                        <input value="с приложением" disabled="disabled" class="form-control edit-control">
-}
-else
-{
-                    <input value="без приложений" disabled="disabled" class="form-control edit-control">
-}
+                                        if (Model.ExpApplication == false)
+                                        {
+                                            <input value="С приложением" disabled="disabled" class="form-control edit-control">
+                                        }
+                                        else
+                                        {
+                                            <input value="Без приложения" disabled="disabled" class="form-control edit-control">
+                                        }
                                     }
                                 </div>
                             </div>
@@ -231,10 +225,10 @@ else
                                                     <th>Цена тенге без НДС</th>
                                                     <th>Количество услуг</th>
                                                     @{
-                                    if (Model.ExpApplication == false)
-                                    {
-                                        <th>Количество приложений</th>
-                }
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <th>Количество приложений</th>
+                                                        }
                                                     }
                                                     <th>Итоговая стоимость услуги, в тенге без НДС</th>
                                                     <th>Итоговая стоимость услуги, в тенге с НДС</th>
@@ -247,10 +241,10 @@ else
                                                     <td id="onePrice">219</td>
                                                     <td id="copyQuantityTable">@Model.CopyQuantity</td>
                                                     @{
-                                    if (Model.ExpApplication == false)
-                                    {
-                                        <td id="applicationQuantity">@Model.CopyQuantity</td>
-                }
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <td id="applicationQuantity">@Model.CopyQuantity</td>
+                                                        }
                                                     }
                                                     <td id="totalWithoutNds">@( decTotal )</td>
                                                     <td id="totalWithNds">@( decTotalWithNDS )</td>
@@ -300,21 +294,22 @@ else
 
 <script type="text/javascript">
 
+    var notEditable = false;
+
     $(document).ready(function () {
         fillProductsTable();
-
         var fileId = '@Model.Id';
-
-        InitializeZBKCopyFile(fileId);
-
         setDateFormat(".date-control");
 
-        if ($("#PaymentInvoice").val() == 'True')
+        if ('@Model.refStatus' != '@CodeConstManager.STATUS_OBK_ONCORRECTION' && '@Model.refStatus' != '@CodeConstManager.STATUS_OBK_DRAFT_ID')
         {
-            $("#copyQuantity").attr("disabled", "disabled");
-            $("#LetterDate").attr("disabled", "disabled");
-            $("#LetterNumber").attr("disabled", "disabled");
+            $("#copyQuantity").prop("disabled", "true");
+            $("#LetterDate").prop("disabled", "true");
+            $("#LetterNumber").prop("disabled", "true");
+            notEditable = true;
         }
+
+        InitializeZBKCopyFile(fileId);
     });
 
     $(".copyQuantity-control").change(function () {
@@ -419,7 +414,12 @@ else
                 $.ajax({
                     type: 'POST',
                     url: '/ZBKCopy/Update',
-                    data: {id:id, quantity: $("#copyQuantity").val()},
+                    data: {
+                        id: id,
+                        quantity: $("#copyQuantity").val(),
+                        letterDate: $("#LetterDate").val(),
+                        letterNumber: $("#LetterNumber").val()
+                    },
                     success: function (data){
                         if(data.success == true){
                              window.location.href="/ZBKCopy/Index";
