@@ -80,7 +80,7 @@ namespace PW.Ncels.Controllers
                 RegistrationCertificateNumber = statement.RegistrationCertificateNumber,
                 NormativeDocumentNumber = statement.NormativeDocumentNumber,
                 RegistrationDate = statement.RegistrationDate,
-                ExpirationDate = statement.ExpirationDate,
+                ExpirationDate = statement.ExpirationDate == DateTime.MinValue ? DateTime.Now : statement.ExpirationDate,
                 ChangeData = changes.Select(x => new EmpStatementChangeViewModel
                 {
                     Id = x.Id,
@@ -98,10 +98,11 @@ namespace PW.Ncels.Controllers
                 RegistrationTypeValue = statement.RegistrationTypeValue,
                 RegistrationType = new List<SelectListItem>
                 {
-                    new SelectListItem{Value = "1", Text = "Ускоренная"}
+                    new SelectListItem{Value = "1", Text = "Ускоренная"},
+                    new SelectListItem{Value = "2", Text = "Обычная"}
                 },
                 LetterNumber = statement.LetterNumber,
-                LetterDate = statement.LetterDate,
+                LetterDate = statement.LetterDate ?? DateTime.Now,
                 IsMt = statement.IsMt ?? false,
                 MedicalDeviceNameKz = statement.MedicalDeviceNameKz,
                 MedicalDeviceNameRu = statement.MedicalDeviceNameRu,
@@ -359,6 +360,13 @@ namespace PW.Ncels.Controllers
             _ctx.SaveChanges();
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        public ActionResult Dictionaries(string type, string search)
+        {
+            return Json(_ctx.Dictionaries
+                .Where(x => x.Type == type)
+                .Select(x => x.Name), JsonRequestBehavior.AllowGet);
         }
     }
 

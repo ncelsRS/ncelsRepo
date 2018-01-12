@@ -575,6 +575,16 @@ namespace PW.Ncels.Database.Constants
 
         #endregion
 
+        #region Expertise
+
+        #region FileTypes
+
+        public const string ATTACH_STATEMENT_NAC_PROC = "sysAttachStatementNacProc";
+
+        #endregion
+
+        #endregion
+
         /// <summary>
         /// Статусы договора ИМН и МТ (внешний портал)
         /// </summary>
