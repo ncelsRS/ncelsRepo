@@ -755,7 +755,8 @@
                 url: '/EMPStatement/DicNMIRK',
                 method: 'GET',
                 params: {
-                    search: search
+                    search: search,
+                    id: $scope.object.NmirkId
                 }
             }).success(function (res) {
                 $scope.dic.nmirks = res;
@@ -763,6 +764,7 @@
         }
 
         $scope.nmirkOnSelect = function (item, model) {
+            $scope.object.NmirkId = item.Id;
             $scope.object.NomenclatureNameKz = item.NameRu;
             $scope.object.NomenclatureNameRu = item.NameKk;
             $scope.object.NomenclatureDescriptionKz = item.Descriptionkk;
@@ -1018,14 +1020,13 @@
 
                                 <div class="form-horizontal row">
                                     <div class="col-lg-12" align="center">
-                                        <ui-select ng-model="nmirk" on-select="nmirkOnSelect($item, $model)" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                        <ui-select ng-model="object.NmirkId" on-select="nmirkOnSelect($item, $model)" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                             <ui-select-match placeholder="Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)">{{$select.selected.Code + " " + $select.selected.NameRu}}</ui-select-match>
-                                            <ui-select-choices repeat="item in dic.nmirks | filter: $select.search"
+                                            <ui-select-choices repeat="item.Id as item in dic.nmirks | filter: $select.search"
                                                                refresh="dic.refreshNmirks($select.search)">
                                                 <div ng-bind-html="item.Code + ' ' + item.NameRu | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
-                                        {{nmirk}}
                                     </div>
                                 </div>
 

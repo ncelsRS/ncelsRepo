@@ -107,12 +107,13 @@ namespace PW.Ncels.Controllers
                 MedicalDeviceNameKz = statement.MedicalDeviceNameKz,
                 MedicalDeviceNameRu = statement.MedicalDeviceNameRu,
                 NomenclatureCode = statement.NomenclatureCode,
+                NmirkId = statement.NmirkId,
                 NomenclatureNameKz = statement.NomenclatureNameKz,
                 NomenclatureNameRu = statement.NomenclatureNameRu,
                 NomenclatureDescriptionKz = statement.NomenclatureDescriptionKz,
                 NomenclatureDescriptionRu = statement.NomenclatureDescriptionRu,
-                ApplicationAreaKz = statement.ApplicationAreaKz,
-                ApplicationAreaRu = statement.ApplicationAreaRu,
+                ApplicationAreaKz = statement.ApplicationAreaKz?.Split(",".ToCharArray())?.ToList(),
+                ApplicationAreaRu = statement.ApplicationAreaRu?.Split(",".ToCharArray())?.ToList(),
                 PurposeKz = statement.PurposeKz,
                 PurposeRu = statement.PurposeRu,
                 IsClosedSystem = statement.IsClosedSystem ?? false,
@@ -214,12 +215,13 @@ namespace PW.Ncels.Controllers
             statement.MedicalDeviceNameKz = vm.MedicalDeviceNameKz;
             statement.MedicalDeviceNameRu = vm.MedicalDeviceNameRu;
             statement.NomenclatureCode = vm.NomenclatureCode;
+            statement.NmirkId = vm.NmirkId;
             statement.NomenclatureNameKz = vm.NomenclatureNameKz;
             statement.NomenclatureNameRu = vm.NomenclatureNameRu;
             statement.NomenclatureDescriptionKz = vm.NomenclatureDescriptionKz;
             statement.NomenclatureDescriptionRu = vm.NomenclatureDescriptionRu;
-            statement.ApplicationAreaKz = vm.ApplicationAreaKz;
-            statement.ApplicationAreaRu = vm.ApplicationAreaRu;
+            statement.ApplicationAreaKz = string.Join(",", vm.ApplicationAreaKz);
+            statement.ApplicationAreaRu = string.Join(",", vm.ApplicationAreaRu);
             statement.PurposeKz = vm.PurposeKz;
             statement.PurposeRu = vm.PurposeRu;
             statement.IsClosedSystem = vm.IsClosedSystem;
@@ -369,11 +371,19 @@ namespace PW.Ncels.Controllers
                 .Select(x => x.Name), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult DicNMIRK(string search)
+        public ActionResult DicNMIRK(string search, int id = 0)
         {
             var res = _ctx.EXP_DIC_NMIRK
-                .Where(x => x.Code.ToString().Contains(search) || x.NameRu.Contains(search) || x.NameKk.Contains(search))
-                .Take(50);
+                .Where(x => 
+                    x.Code.ToString().Contains(search)
+                    || x.NameRu.Contains(search)
+                    || x.NameKk.Contains(search)
+                    || x.Id == id)
+                .Take(50)
+                .Select(x => new
+                {
+                    x.Id, x.NameRu, x.NameKk, x.DescriptionRu, x.Descriptionkk, x.Code
+                });
             return Json(res, JsonRequestBehavior.AllowGet);
         }
     }
@@ -448,8 +458,9 @@ namespace PW.Ncels.Controllers
         public string NomenclatureNameRu { get; set; }
         public string NomenclatureDescriptionKz { get; set; }
         public string NomenclatureDescriptionRu { get; set; }
-        public string ApplicationAreaKz { get; set; }
-        public string ApplicationAreaRu { get; set; }
+        public int? NmirkId { get; set; }
+        public List<string> ApplicationAreaKz { get; set; }
+        public List<string> ApplicationAreaRu { get; set; }
         public string PurposeKz { get; set; }
         public string PurposeRu { get; set; }
         public bool IsClosedSystem { get; set; }
