@@ -188,7 +188,21 @@ namespace PW.Ncels.Controllers
                 ContactPersonPosition = statement.ContactPersonPosition,
                 ContactPersonFactAddress = statement.ContactPersonFactAddress,
                 Agreement = statement.Agreement,
-                IsAgreed = statement.IsAgreed ?? false
+                IsAgreed = statement.IsAgreed ?? false,
+                Samples = statement.EMP_StatementSamples.Select(s => new EmpStatementSampleVm
+                {
+                    Id = s.Id,
+                    Addition = s.Addition,
+                    Conditions = s.Conditions,
+                    Count = s.Count,
+                    CreateDate = s.CreateDate,
+                    ExpirationDate = s.ExpirationDate,
+                    Name = s.Name,
+                    SampleType = s.SampleType,
+                    SeriesPart = s.SeriesPart,
+                    Storage = s.Storage,
+                    Unit = s.Unit
+                })
             };
             return Json(statementVm, JsonRequestBehavior.AllowGet);
         }
@@ -359,6 +373,29 @@ namespace PW.Ncels.Controllers
                 }
             }
 
+            if (vm.Samples != null)
+            {
+                statement.EMP_StatementSamples = vm.Samples.Select(s =>
+                {
+                    var res = new EMP_StatementSamples
+                    {
+                        Addition = s.Addition,
+                        Conditions = s.Conditions,
+                        Count = s.Count,
+                        CreateDate = s.CreateDate,
+                        ExpirationDate = s.ExpirationDate,
+                        Name = s.Name,
+                        SampleType = s.SampleType,
+                        SeriesPart = s.SeriesPart,
+                        StatementId = vm.Id,
+                        Storage = s.Storage,
+                        Unit = s.Unit
+                    };
+                    if (s.Id != 0) res.Id = s.Id;
+                    return res;
+                }).ToList();
+            }
+
             _ctx.SaveChanges();
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
@@ -374,7 +411,7 @@ namespace PW.Ncels.Controllers
         public ActionResult DicNMIRK(string search, int id = 0)
         {
             var res = _ctx.EXP_DIC_NMIRK
-                .Where(x => 
+                .Where(x =>
                     x.Code.ToString().Contains(search)
                     || x.NameRu.Contains(search)
                     || x.NameKk.Contains(search)
@@ -382,10 +419,31 @@ namespace PW.Ncels.Controllers
                 .Take(50)
                 .Select(x => new
                 {
-                    x.Id, x.NameRu, x.NameKk, x.DescriptionRu, x.Descriptionkk, x.Code
+                    x.Id,
+                    x.NameRu,
+                    x.NameKk,
+                    x.DescriptionRu,
+                    x.Descriptionkk,
+                    x.Code
                 });
             return Json(res, JsonRequestBehavior.AllowGet);
         }
+
+    }
+
+    public class EmpStatementSampleVm
+    {
+        public int Id { get; set; }
+        public string SampleType { get; set; }
+        public string Name { get; set; }
+        public int Count { get; set; }
+        public string Unit { get; set; }
+        public string SeriesPart { get; set; }
+        public string Storage { get; set; }
+        public string Conditions { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ExpirationDate { get; set; }
+        public bool? Addition { get; set; }
     }
 
     public class EmpStatementMedicalDevicePackageViewModel
@@ -437,6 +495,8 @@ namespace PW.Ncels.Controllers
         public string BeforeChange { get; set; }
         public string AfterChange { get; set; }
     }
+
+
 
     public class EmpStatementViewModel
     {
@@ -507,5 +567,6 @@ namespace PW.Ncels.Controllers
         public Guid Id { get; set; }
         public Guid? ContractId { get; set; }
         public string RegistrationTypeValue { get; set; }
+        public IEnumerable<EmpStatementSampleVm> Samples { get; set; }
     }
 }

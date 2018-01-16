@@ -44,6 +44,7 @@ function chooseStoragePathBack(rw) {
         $('#dlgPasswordModal').appendTo("body").modal();
         //$("#dlgPasswordModal").modal();
         storagePath = rw.getResult();
+        debugger;
         if (storagePath) {
             $("#hfStoragePath").val(storagePath);
         }
