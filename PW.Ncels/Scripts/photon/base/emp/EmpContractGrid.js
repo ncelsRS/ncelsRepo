@@ -25,12 +25,15 @@ function empContractGrid($scope, $http, DTColumnBuilder) {
         return actionsEmpContractListHtmlAction(data, type, full, meta, $scope);
     };
 
+    var scopeCode = $("#scopeCode").val();
+    var mdName = scopeCode === "national" ? mdName = 'Наименование ИМН/МТ' : mdName = 'Наименование МИ';
+
     $scope.dtColumns = [
         DTColumnBuilder.newColumn("Number", "№ договора/доп. согл-я").withOption('name', 'Number').renderWith(renderEmpNumFunc),
         DTColumnBuilder.newColumn("CreatedDate", "Дата создания").withOption('name', 'CreatedDate').renderWith(dateformatHtml),
         DTColumnBuilder.newColumn("Status", "Статус").withOption('name', 'Status'),
         DTColumnBuilder.newColumn("ManufacturName", "Производитель").withOption('name', 'ManufacturName'),
-        DTColumnBuilder.newColumn("MedicalDeviceName", "Наименование ИМН/МТ").withOption('name', 'MedicalDeviceName'),
+        DTColumnBuilder.newColumn("MedicalDeviceName", mdName).withOption('name', 'MedicalDeviceName'),
         DTColumnBuilder.newColumn("StartDate", "Дата заключения/Дата начала действия договора").withOption('name', 'StartDate').renderWith(dateformatHtml)
     ];
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Services.Description;
@@ -17,6 +19,7 @@ using Kendo.Mvc.Extensions;
 using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models.OBK;
+using PW.Prism.Helpers;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 
@@ -388,6 +391,18 @@ namespace PW.Prism.Controllers.OBKTask
         {
             var result = repo.SendToChief(taskId);
             return Json(new {isSuccess = result}, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Полчение файла АНД
+        /// </summary>
+        /// <param name="registerId"></param>
+        /// <returns></returns>
+        public ActionResult GetInstruction(int registerId)
+        {
+            var name = "doc_" + registerId + ".zip";
+            var file = InstructionFileHelper.GetInstructionFile(registerId);
+            return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, name);
         }
 
         #endregion

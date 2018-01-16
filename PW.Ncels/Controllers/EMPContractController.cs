@@ -26,8 +26,8 @@ namespace PW.Ncels.Controllers
 
         private List<Tuple<string, string>> _include = new List<Tuple<string, string>>
         {
-            Tuple.Create("3", "sysAttachContractDict"),
-            Tuple.Create("5", "sysAttachContractDict")
+            //Tuple.Create("3", "sysAttachContractDict"),
+            //Tuple.Create("5", "sysAttachContractDict")
         };
 
         // GET: EMPContract
@@ -40,8 +40,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult Contract(Guid? id, string scope)
         {
-            //ViewBag.ListAction = "Index";
-            ViewBag.Scope = scope;
+            ViewBag.Scope = id != null ? emp.GetContractScopeCode((Guid)id) : scope;
             ViewBag.ReturnUrl = HttpContext.Request.UrlReferrer;
             return View(id);
         }
@@ -56,15 +55,15 @@ namespace PW.Ncels.Controllers
             return Json(await emp.GetContractList(request, true, scope), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetHolderTypes()
+        public ActionResult GetHolderTypes(string contractScope)
         {
-            var result = emp.GetHolderTypes();
+            var result = emp.GetHolderTypes(contractScope);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult GetContractTypes()
         {
-            var result = emp.GetContractType().Select(e => new { e.Id, e.NameRu, e.NameKz });
+            var result = emp.GetContractType().Select(e => new { e.Id, e.Code, e.NameRu, e.NameKz });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -87,6 +86,12 @@ namespace PW.Ncels.Controllers
             var result = emp.GetBanks().Select(e => new { e.Id, e.NameRu, e.NameKz }); ;
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public ActionResult GetEMPContractDocumentType()
+        {
+            var values = emp.GetEMPContractDocumentType().Select(x => new { x.Id, x.Code, Name = x.NameRu, x.NameKz, x.NameGenitiveRu, x.NameGenitiveKz });
+            return Json(values, JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public ActionResult SaveNewBank(string bankNameRu, string bankNameKz)
         {
@@ -100,9 +105,9 @@ namespace PW.Ncels.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetServiceType()
+        public ActionResult GetServiceType(string contractScope)
         {
-            var result = emp.GetServiceType();
+            var result = emp.GetServiceType(contractScope);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -121,6 +126,13 @@ namespace PW.Ncels.Controllers
         public ActionResult GetCalculation(string serviceTypeId, string serviceTypeModifId, bool isImport, int count)
         {
             var result = emp.GetPriceList(Guid.Parse(serviceTypeId), Guid.Parse(serviceTypeModifId), isImport, count);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetCalculationEaes(Guid serviceTypeId)
+        {
+            var result = emp.GetCalculationEaes(serviceTypeId);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -167,6 +179,7 @@ namespace PW.Ncels.Controllers
                         declarantContact.AddressLegalKz,
                         declarantContact.AddressFact,
                         declarantContact.Phone,
+                        declarantContact.Phone2,
                         declarantContact.Email,
                         declarantContact.BossLastName,
                         declarantContact.BossFirstName,
@@ -195,7 +208,8 @@ namespace PW.Ncels.Controllers
                         declarantContact.BankBik,
                         declarantContact.CurrencyId,
                         declarantContact.BankNameRu,
-                        declarantContact.BankNameKz
+                        declarantContact.BankNameKz,
+                        declarantContact.BankAccount
                     };
                     return declarantJson;
                 }
@@ -292,6 +306,12 @@ namespace PW.Ncels.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
             }
+        }
+
+        public ActionResult SearchDrug(string drugRegNumber, string drugTradeName)
+        {
+            var list = emp.GetSearchReestr(drugRegNumber, drugTradeName);
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
     }
 }
