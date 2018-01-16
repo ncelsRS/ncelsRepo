@@ -26,8 +26,8 @@ namespace PW.Ncels.Controllers
 
         private List<Tuple<string, string>> _include = new List<Tuple<string, string>>
         {
-            Tuple.Create("3", "sysAttachContractDict"),
-            Tuple.Create("5", "sysAttachContractDict")
+            //Tuple.Create("3", "sysAttachContractDict"),
+            //Tuple.Create("5", "sysAttachContractDict")
         };
 
         // GET: EMPContract
@@ -40,8 +40,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult Contract(Guid? id, string scope)
         {
-            //ViewBag.ListAction = "Index";
-            ViewBag.Scope = scope;
+            ViewBag.Scope = id != null ? emp.GetContractScopeCode((Guid)id) : scope;
             ViewBag.ReturnUrl = HttpContext.Request.UrlReferrer;
             return View(id);
         }
@@ -56,9 +55,9 @@ namespace PW.Ncels.Controllers
             return Json(await emp.GetContractList(request, true, scope), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetHolderTypes()
+        public ActionResult GetHolderTypes(string contractScope)
         {
-            var result = emp.GetHolderTypes();
+            var result = emp.GetHolderTypes(contractScope);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -106,9 +105,9 @@ namespace PW.Ncels.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetServiceType()
+        public ActionResult GetServiceType(string contractScope)
         {
-            var result = emp.GetServiceType();
+            var result = emp.GetServiceType(contractScope);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -127,6 +126,13 @@ namespace PW.Ncels.Controllers
         public ActionResult GetCalculation(string serviceTypeId, string serviceTypeModifId, bool isImport, int count)
         {
             var result = emp.GetPriceList(Guid.Parse(serviceTypeId), Guid.Parse(serviceTypeModifId), isImport, count);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetCalculationEaes(Guid serviceTypeId)
+        {
+            var result = emp.GetCalculationEaes(serviceTypeId);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 

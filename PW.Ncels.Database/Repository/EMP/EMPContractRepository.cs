@@ -92,15 +92,14 @@ namespace PW.Ncels.Database.Repository.EMP
             }
         }
 
-        public List<EMP_Ref_HolderType> GetHolderTypes()
+        public IQueryable<EMP_Ref_HolderType> GetHolderTypes(string contractScope)
         {
-            return AppContext.EMP_Ref_HolderType.Where(e => !e.IsDeleted).ToList();
+            return AppContext.EMP_Ref_HolderType.Where(e => !e.IsDeleted && e.Code == contractScope);
         }
 
-        public List<EMP_Ref_ContractType> GetContractType()
+        public IQueryable<EMP_Ref_ContractType> GetContractType()
         {
-            return AppContext.EMP_Ref_ContractType.Where(e => !e.IsDeleted)
-                .ToList();
+            return AppContext.EMP_Ref_ContractType.Where(e => !e.IsDeleted);
         }
 
         public IQueryable<Dictionary> GetCurrency()
@@ -171,6 +170,17 @@ namespace PW.Ncels.Database.Repository.EMP
             return declarant;
         }
 
+        private string GetLastNumberOfContract()
+        {
+            string number = "1";
+            var numbers = AppContext.EMP_Contract.Select(x => x.Number).ToList();
+            int temp;
+            int contractNumber = numbers.Select(n => int.TryParse(n, out temp) ? temp : 0).Max();
+            contractNumber++;
+            number = contractNumber.ToString();
+            return number;
+        }
+
         public EMPContractViewModel SaveContract(Guid Guid, EMPContractViewModel contractViewModel)
         {
             var model = GetById(contractViewModel.Id);
@@ -184,7 +194,7 @@ namespace PW.Ncels.Database.Repository.EMP
 
                 contract.Id = Guid;
                 contract.EmployeeId = UserHelper.GetCurrentEmployee().Id;
-                contract.Number = "б/н";
+                contract.Number = GetLastNumberOfContract();
                 contract.CreatedDate = DateTime.Now;
                 contract.Status = CodeConstManager.STATUS_DRAFT_ID;
                 contract.ContractType = contractViewModel.ContractType;
@@ -207,7 +217,12 @@ namespace PW.Ncels.Database.Repository.EMP
                     if (contractViewModel.DeclarantIsManufactur)
                     {
                         contract.OBK_Declarant = contract.OBK_DeclarantManufactur;
-                        contract.OBK_DeclarantContact = contract.OBK_DeclarantContactManufactur;
+                        //contract.OBK_DeclarantContact = contract.OBK_DeclarantContactManufactur;
+                        if (contractViewModel.Declarant.Contact != null)
+                        {
+                            FillDecContact(contractViewModel.Declarant.Contact, contractViewModel.Declarant.Id,
+                                contract, "Declarant");
+                        }
                     }
                     else
                     {
@@ -558,10 +573,10 @@ namespace PW.Ncels.Database.Repository.EMP
             return result;
         }
 
-        public List<object> GetServiceType()
+        public List<object> GetServiceType(string contractScope)
         {
             List<object> serviceTypes = new List<object> {NoData()};
-            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null && !e.IsDeleted).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId, e.ChangeType});
+            var result = EmpReferenceHelper.GetServiceType().Where(e=>e.ParentId == null && !e.IsDeleted && e.Code == contractScope).Select(e=> new {e.Id, e.NameRu, e.NameKz, e.ParentId, e.ChangeType});
             serviceTypes.AddRange(result);
             return serviceTypes;
         }
@@ -653,6 +668,28 @@ namespace PW.Ncels.Database.Repository.EMP
                     }
                     return servicePrices;
                 }
+            }
+            return null;
+        }
+
+        public List<ServicePrice> GetCalculationEaes(Guid serviceTypeId)
+        {
+            var result = AppContext.EMP_Ref_PriceList.FirstOrDefault(e => e.ServiceTypeId == serviceTypeId);
+            if (result != null)
+            {
+                List<ServicePrice> servicePrices = new List<ServicePrice>();
+                var totalCount = TaxHelper.GetCalculationTax((decimal)result.Price);
+                var returnResult = new ServicePrice
+                {
+                    Id = Guid.NewGuid(),
+                    Price = (decimal)result.Price,
+                    Count = 1,
+                    TotalPrice = totalCount,
+                    ServiceTypeNameRu = result.EMP_Ref_ServiceType.NameRu,
+                    PriceListId = result.Id
+                };
+                servicePrices.Add(returnResult);
+                return servicePrices;
             }
             return null;
         }
@@ -910,6 +947,14 @@ namespace PW.Ncels.Database.Repository.EMP
         public string GetContractScopeName(string code)
         {
             return AppContext.EMP_Ref_ContractScope.Where(x => x.Code == code).Select(x => x.NameRu).FirstOrDefault();
+        }
+
+        public string GetContractScopeCode(Guid contractId)
+        {
+            return AppContext.EMP_Ref_ContractScope
+                .Where(e => e.EMP_Contract.Any(x => x.Id == contractId && x.ContractScopeId == e.Id))
+                .Select(e => e.Code)
+                .FirstOrDefault();
         }
 
         public object GetContractReportData(Guid id)

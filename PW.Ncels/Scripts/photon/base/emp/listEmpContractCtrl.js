@@ -32,6 +32,7 @@
     $scope.searchDrugWorking = false;
 
     //calculator
+    $scope.showServiceTypeNameEaes = true;
     $scope.showServiceTypeName = true;
     $scope.showServiceTypeNameModif = true;
     $scope.showCalculatorForm = true;
@@ -61,9 +62,22 @@
     $scope.ExpertOrganizations = [];
     $scope.HolderType = [];
 
+    $scope.object.ContractScope = "";
+    //$scope.setContractScope = function (contractScope) {
+    //    debugger;
+    //    $scope.object.ContractScope = contractScope;
+    //}
+
     debugger;
     // loadRefs
-    loadHolderTypes($scope, $http);
+    $scope.object.ContractScope = $("#scopeCode").val();
+    if ($scope.object.ContractScope === "national") {
+        loadHolderTypes($scope, $http, "national");
+        loadServiceType($scope, $http, "national");
+    } else {
+        loadHolderTypes($scope, $http, "eaes");
+        loadServiceType($scope, $http, "eaes");
+    }
     loadContractTypes($scope, $http);
     loadExpertOrganizations($scope, $http);
     loadDictionary($scope, 'OpfType', $http);
@@ -73,8 +87,6 @@
     loadCurrency($scope, $http);
     loadBanks($scope, $http);
 
-    loadServiceType($scope, $http);
-    
     $scope.loadContract = function () {
         var projectId = $("#projectId").val();
         debugger;
@@ -96,7 +108,8 @@
         $scope.loadContract();
     };
 
-    $scope.saveBtnClick = function() {
+    $scope.saveBtnClick = function () {
+        debugger;
         if ($scope.validate())
             $scope.editProject();
     };
@@ -126,10 +139,13 @@
         debugger;
         var modelGuid = $("#modelGuid").val();
         var object = $scope.object;
+        if (object.ServiceRegisterResults !== undefined) {
+            object.ServiceRegisterResults.length = 0;
+        }
         $http({
             url: '/EMPContract/ContractSave',
             method: 'POST',
-            data: { Guid: modelGuid, contractViewModel: $scope.object }
+            data: { Guid: modelGuid, contractViewModel: object }
         }).success(function (response) {
             $scope.object = response;
         });
@@ -496,6 +512,24 @@
         }
         
     };
+    //для еаэс
+    $scope.editServiceTypeEaes = function() {
+        if ($scope.Calulator.ServiceType == "00000000-0000-0000-0000-000000000000") {
+            $scope.showServiceTypeNameEaes = true;
+        } else {
+            $scope.Calulator.ServiceTypeName = null;
+            $scope.showServiceTypeNameEaes = false;
+            $http({
+                method: "GET",
+                url: "/EMPContract/GetServiceTypeParentId",
+                params: {
+                    id: $scope.Calulator.ServiceType
+                }
+            }).success(function (result) {
+                $scope.ServiceTypeNames = result;
+            });
+        }
+    }
 
     $scope.editServiceType = function () {
         debugger;
@@ -538,7 +572,7 @@
     $scope.showBossDocType = true;
     $scope.changeBossDocType = function () {
         debugger;
-        var changeType = $scope.EMPContractDocumentTypes.find(item => item.Id === $scope.object.BossDocType);
+        var changeType = $scope.EMPContractDocumentTypes.find(item => item.Id === $scope.object.Declarant.Contact.BossDocType);
         switch (changeType.Code) {
             case "powerOfAttorney":
                 $scope.showBossDocType = true;
@@ -631,38 +665,61 @@
     }
 
     $scope.calulatorChange = function (bool) {
-        debugger;
         $scope.Calulator.IsImport = bool;
     }
 
-    $scope.calculation = function () {
-        debugger;
-        var serviceType = null;
-        if ($scope.Calulator.ServiceTypeNameModif == "00000000-0000-0000-0000-000000000000") {
-            serviceType = $scope.Calulator.ServiceTypeName;
-        } else {
-            serviceType = $scope.Calulator.ServiceTypeNameModif;
+    $scope.calculation = function (scopeCode) {
+        switch (scopeCode) {
+            case "national":
+
+                var serviceType = null;
+                if ($scope.Calulator.ServiceTypeNameModif == "00000000-0000-0000-0000-000000000000") {
+                    serviceType = $scope.Calulator.ServiceTypeName;
+                } else {
+                    serviceType = $scope.Calulator.ServiceTypeNameModif;
+                }
+                $http({
+                    method: "GET",
+                    url: "/EMPContract/GetCalculation",
+                    params: {
+                        serviceTypeId: $scope.Calulator.ServiceTypeName,
+                        serviceTypeModifId: $scope.Calulator.ServiceTypeNameModif,
+                        isImport: $scope.Calulator.IsImport,
+                        count: $scope.Calulator.Count
+                    }
+                }).success(function (response) {
+                    if (response) {
+                        $scope.clearCalc();
+                        $scope.object.ServicePrices.length = 0;
+                        $scope.object.ServicePrices.push.apply($scope.object.ServicePrices, response);
+                    } else {
+                        alert("Данных не найдено");
+                    }
+                });
+
+                break;
+            case "eaes":
+
+                $http({
+                    method: "GET",
+                    url: "/EMPContract/GetCalculationEaes",
+                    params: {
+                        serviceTypeId: $scope.Calulator.ServiceTypeName
+                    }
+                }).success(function (response) {
+                    if (response) {
+                        $scope.clearCalc();
+                        $scope.object.ServicePrices.length = 0;
+                        $scope.object.ServicePrices.push.apply($scope.object.ServicePrices, response);
+                    } else {
+                        alert("Данных не найдено");
+                    }
+                });
+
+                break;
+                default:
         }
-        $http({
-            method: "GET",
-            url: "/EMPContract/GetCalculation",
-            params: {
-                serviceTypeId: $scope.Calulator.ServiceTypeName,
-                serviceTypeModifId: $scope.Calulator.ServiceTypeNameModif,
-                isImport: $scope.Calulator.IsImport,
-                count: $scope.Calulator.Count
-            }
-        }).success(function(response) {
-            debugger;
-            if (response) {
-                debugger;
-                $scope.clearCalc();
-                $scope.object.ServicePrices.length = 0;
-                $scope.object.ServicePrices.push.apply($scope.object.ServicePrices, response);
-            } else {
-                alert("Данных не найдено");
-            }
-        });
+        
     };
 
     $scope.clearCalc = function() {
@@ -857,12 +914,6 @@
         }
     }
 
-    $scope.object.ContractScope = "";
-    $scope.setContractScope = function (contractScope) {
-        debugger;
-        $scope.object.ContractScope = contractScope;
-    }
-
     $scope.validate = function () {
         debugger;
         var valid = $scope.ContractForm.$valid;
@@ -995,15 +1046,29 @@ function loadContractTypes($scope, $http) {
         url: "/EMPContract/GetContractTypes",
         data: "JSON"
     }).success(function (result) {
-        $scope.ContractTypes = result;
+        debugger;
+        if ($scope.object.ContractScope === "national") {
+            $scope.ContractTypes = result;
+        } else {
+            result.forEach(function (element, index) {
+                debugger;
+                if(element.Code === '2'){
+                    result.splice(index, 1);
+                }
+            });
+            $scope.ContractTypes = result;
+        }
     });
 }
 
-function loadHolderTypes($scope, $http) {
+function loadHolderTypes($scope, $http, contractScope) {
+    debugger;
     $http({
         method: "GET",
         url: "/EMPContract/GetHolderTypes",
-        data: "JSON"
+        params: {
+            contractScope: contractScope
+        }
     }).success(function (result) {
         $scope.HolderType = result;
     });
@@ -1029,11 +1094,13 @@ function loadBanks($scope, $http) {
     });
 }
 
-function loadServiceType($scope, $http) {
+function loadServiceType($scope, $http, contractScope) {
     $http({
         method: "GET",
         url: "/EMPContract/GetServiceType",
-        data: "JSON"
+        params: {
+            contractScope: contractScope
+        }
     }).success(function(result) {
         $scope.ServiceTypes = result;
     });
