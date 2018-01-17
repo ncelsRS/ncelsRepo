@@ -1,20 +1,18 @@
-﻿using System;
+﻿using PW.Ncels.Database.DataModel;
+using PW.Ncels.Database.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using PW.Ncels.Database.DataModel;
-using PW.Ncels.Database.Models;
 
 namespace PW.Ncels.Controllers
 {
-    // ДА ПРОСТИТ МЕНЯ ПРОГРАММИСТ, ЧИТАЮЩИЙ ЭТОТ Г*ВНОКОД ;-)
-
-    public class EMPStatementController : Controller
+    public class EMPEAESStatementController : Controller
     {
         private ncelsEntities _ctx;
 
-        public EMPStatementController()
+        public EMPEAESStatementController()
         {
             _ctx = new ncelsEntities();
         }
@@ -70,7 +68,7 @@ namespace PW.Ncels.Controllers
             var complectations = _ctx.EMP_StatementMedicalDeviceComplectation.Where(x => x.StatementId == statement.Id).ToList();
             var packages = _ctx.EMP_StatementMedicalDevicePackage.Where(x => x.StatementId == statement.Id).ToList();
 
-            var statementVm = new EmpStatementViewModel
+            var statementVm = new EmpEaesStatementViewModel
             {
                 Id = statement.Id,
                 RegistrationKindValue = statement.RegistrationKindValue,
@@ -84,7 +82,7 @@ namespace PW.Ncels.Controllers
                 NormativeDocumentNumber = statement.NormativeDocumentNumber,
                 RegistrationDate = statement.RegistrationDate,
                 ExpirationDate = statement.ExpirationDate == DateTime.MinValue ? DateTime.Now : statement.ExpirationDate,
-                ChangeData = changes.Select(x => new EmpStatementChangeViewModel
+                ChangeData = changes.Select(x => new EmpEaesStatementChangeViewModel
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -130,7 +128,7 @@ namespace PW.Ncels.Controllers
                 IsSterile = statement.IsSterile ?? false,
                 IsMedicalProductPresence = statement.IsMedicalProductPresence ?? false,
                 WithouAe = statement.WithouAe ?? false,
-                StorageLifeData = storageLifes.Select(x => new EmpStatementStorageLifeViewModel
+                StorageLifeData = storageLifes.Select(x => new EmpEaesStatementStorageLifeViewModel
                 {
                     Id = x.Id,
                     Kind = x.Kind,
@@ -140,7 +138,7 @@ namespace PW.Ncels.Controllers
                 }).ToList(),
                 TransportConditions = statement.TransportConditions,
                 StorageConditions = statement.StorageConditions,
-                CountryRegistrationData = countryRegistrations.Select(x => new EmpStatementCountryRegistrationViewModel
+                CountryRegistrationData = countryRegistrations.Select(x => new EmpEaesStatementCountryRegistrationViewModel
                 {
                     Id = x.Id,
                     Country = x.Country,
@@ -150,7 +148,7 @@ namespace PW.Ncels.Controllers
                     IsIndefinitely = x.IsIndefinitely ?? false
                 }).ToList(),
                 Production = statement.Production,
-                MedicalDeviceComplectationData = complectations.Select(x => new EmpStatementMedicalDeviceComplectationViewModel
+                MedicalDeviceComplectationData = complectations.Select(x => new EmpEaesStatementMedicalDeviceComplectationViewModel
                 {
                     Id = x.Id,
                     Type = x.Type,
@@ -160,7 +158,7 @@ namespace PW.Ncels.Controllers
                     Manufacturer = x.Manufacturer,
                     Country = x.Country
                 }).ToList(),
-                MedicalDevicePackageData = packages.Select(x => new EmpStatementMedicalDevicePackageViewModel
+                MedicalDevicePackageData = packages.Select(x => new EmpEaesStatementMedicalDevicePackageViewModel
                 {
                     Id = x.Id,
                     Kind = x.Kind,
@@ -192,7 +190,7 @@ namespace PW.Ncels.Controllers
                 ContactPersonFactAddress = statement.ContactPersonFactAddress,
                 Agreement = statement.Agreement,
                 IsAgreed = statement.IsAgreed ?? false,
-                Samples = statement.EMP_StatementSamples.Select(s => new EmpStatementSampleVm
+                Samples = statement.EMP_StatementSamples.Select(s => new EmpEaesStatementSampleVm
                 {
                     Id = s.Id,
                     Addition = s.Addition,
@@ -214,18 +212,8 @@ namespace PW.Ncels.Controllers
         {
             var res = _ctx.EMP_Contract
                 .Where(c => c.Id == id)
-                .Select(c => new
-                {
-                    IMNName = c.MedicalDeviceName,
-                    IMNNameKz = c.MedicalDeviceNameKz,
-                    Type = c.EMP_Ref_ContractType
-                }).FirstOrDefault();
-            var res1 = new
-            {
-                res.IMNName, res.IMNNameKz,
-                res.Type?.Code
-            };
-            return Json(res1, JsonRequestBehavior.AllowGet);
+                .Select(c => c.EMP_Ref_ContractType).FirstOrDefault();
+            return Json(res?.Code, JsonRequestBehavior.AllowGet);
 
         }
 
@@ -453,7 +441,7 @@ namespace PW.Ncels.Controllers
 
     }
 
-    public class EmpStatementSampleVm
+    public class EmpEaesStatementSampleVm
     {
         public int Id { get; set; }
         public string SampleType { get; set; }
@@ -468,7 +456,7 @@ namespace PW.Ncels.Controllers
         public bool? Addition { get; set; }
     }
 
-    public class EmpStatementMedicalDevicePackageViewModel
+    public class EmpEaesStatementMedicalDevicePackageViewModel
     {
         public Guid Id { get; set; }
         public string Kind { get; set; }
@@ -479,7 +467,7 @@ namespace PW.Ncels.Controllers
         public string Description { get; set; }
     }
 
-    public class EmpStatementMedicalDeviceComplectationViewModel
+    public class EmpEaesStatementMedicalDeviceComplectationViewModel
     {
         public Guid Id { get; set; }
         public string Type { get; set; }
@@ -490,7 +478,7 @@ namespace PW.Ncels.Controllers
         public string Country { get; set; }
     }
 
-    public class EmpStatementCountryRegistrationViewModel
+    public class EmpEaesStatementCountryRegistrationViewModel
     {
         public Guid Id { get; set; }
         public string Country { get; set; }
@@ -500,7 +488,7 @@ namespace PW.Ncels.Controllers
         public bool IsIndefinitely { get; set; }
     }
 
-    public class EmpStatementStorageLifeViewModel
+    public class EmpEaesStatementStorageLifeViewModel
     {
         public Guid Id { get; set; }
         public string Kind { get; set; }
@@ -509,7 +497,7 @@ namespace PW.Ncels.Controllers
         public bool IsIndefinitely { get; set; }
     }
 
-    public class EmpStatementChangeViewModel
+    public class EmpEaesStatementChangeViewModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -520,14 +508,14 @@ namespace PW.Ncels.Controllers
 
 
 
-    public class EmpStatementViewModel
+    public class EmpEaesStatementViewModel
     {
         public List<SelectListItem> RegistrationKind { get; set; }
         public string RegistrationCertificateNumber { get; set; }
         public string NormativeDocumentNumber { get; set; }
         public DateTime? RegistrationDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
-        public List<EmpStatementChangeViewModel> ChangeData { get; set; }
+        public List<EmpEaesStatementChangeViewModel> ChangeData { get; set; }
         public List<SelectListItem> CortractList { get; set; }
         public List<SelectListItem> RegistrationType { get; set; }
         public string LetterNumber { get; set; }
@@ -556,13 +544,13 @@ namespace PW.Ncels.Controllers
         public bool IsSterile { get; set; }
         public bool IsMedicalProductPresence { get; set; }
         public bool WithouAe { get; set; }
-        public List<EmpStatementStorageLifeViewModel> StorageLifeData { get; set; }
+        public List<EmpEaesStatementStorageLifeViewModel> StorageLifeData { get; set; }
         public string TransportConditions { get; set; }
         public string StorageConditions { get; set; }
-        public List<EmpStatementCountryRegistrationViewModel> CountryRegistrationData { get; set; }
+        public List<EmpEaesStatementCountryRegistrationViewModel> CountryRegistrationData { get; set; }
         public string Production { get; set; }
-        public List<EmpStatementMedicalDeviceComplectationViewModel> MedicalDeviceComplectationData { get; set; }
-        public List<EmpStatementMedicalDevicePackageViewModel> MedicalDevicePackageData { get; set; }
+        public List<EmpEaesStatementMedicalDeviceComplectationViewModel> MedicalDeviceComplectationData { get; set; }
+        public List<EmpEaesStatementMedicalDevicePackageViewModel> MedicalDevicePackageData { get; set; }
         public bool IsComplectation { get; set; }
         public string ManufacturerType { get; set; }
         public string ManufacturerNameRu { get; set; }
@@ -589,6 +577,6 @@ namespace PW.Ncels.Controllers
         public Guid Id { get; set; }
         public Guid? ContractId { get; set; }
         public string RegistrationTypeValue { get; set; }
-        public IEnumerable<EmpStatementSampleVm> Samples { get; set; }
+        public IEnumerable<EmpEaesStatementSampleVm> Samples { get; set; }
     }
 }

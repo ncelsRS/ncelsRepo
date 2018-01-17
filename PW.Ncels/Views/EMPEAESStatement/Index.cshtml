@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Все</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Журнал заявлений</a>
+            </li>
+            <li class="active">
+                <strong>Все</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="empStatementCtrl">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Список всех заявлений
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" type="button" onclick="location.href = '@Url.Action("Statement", "EMPStatement")'">
+                            <i class="fa fa-file-text-o"></i> Создать заявление
+                        </button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <grid-object url="/EMPStatement/GetStatements" column-order="5"></grid-object>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function actionsEmpContractListHtmlAction(data, type, full, meta, $scope) {
+        return '<a  class="pw-task-link" href="/EMPStatement/Statement?id=' + full.Id + '" >' + data + '</a>';
+    }
+
+    function dateformatHtml(data, type, full, meta) {
+        if (data == null)
+            return '';
+        var d = new Date(parseInt(data.slice(6, -2)));
+
+        var yyyy = d.getFullYear();
+        var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
+        var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+
+        return dd + "." + mm + "." + yyyy;
+    }
+
+    function empStatementCtrl($scope, $http, DTColumnBuilder) {
+
+        function renderEmpNumFunc(data, type, full, meta) {
+            return actionsEmpContractListHtmlAction(data, type, full, meta, $scope);
+        };
+
+        $scope.dtColumns = [
+            DTColumnBuilder.newColumn("Kind", "Вид").withOption('name', 'Kind').renderWith(renderEmpNumFunc),
+            DTColumnBuilder.newColumn("Type", "Тип заявления").withOption('name', 'Type'),
+            DTColumnBuilder.newColumn("MedicalDeviceName", "Наименование изделия/материала").withOption('name', 'MedicalDeviceName'),
+            DTColumnBuilder.newColumn("Number", "Номер").withOption('name', 'Number'),
+            DTColumnBuilder.newColumn("Status", "Текущий статус").withOption('name', 'Status'),
+            DTColumnBuilder.newColumn("StartDate", "Дата направления").withOption('name', 'StartDate').renderWith(dateformatHtml),
+            DTColumnBuilder.newColumn("Actions", "Действия").withOption('name', 'Actions')
+        ];
+    }
+
+    angular
+        .module('app')
+        .controller('empStatementCtrl', ['$scope', '$http', 'DTColumnBuilder', empStatementCtrl]);
+
+</script>
