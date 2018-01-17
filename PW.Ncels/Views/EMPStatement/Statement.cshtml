@@ -138,6 +138,16 @@
 
         $scope.loadStatement();
 
+        $scope.contractChange = function () {
+            $http({
+                url: '/EMPStatement/GetContractData',
+                params: { id: $scope.object.ContractId }
+            }).success(function (res) {
+                if (res)
+                    $scope.object.RegistrationKindValue = res
+            });
+        };
+
         $scope.dic = {
             LevelRisks: [
                 { Value: "Level1", Text: "Класс 1 - с низкой степенью риска" },
@@ -945,7 +955,7 @@
                                         <div class="form-group">
                                             <label class="control-label col-lg-4">Договор</label>
                                             <div class="col-lg-8">
-                                                <ui-select ng-model="object.ContractId" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                <ui-select ng-model="object.ContractId" ng-change="contractChange()" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                                     <ui-select-match placeholder="Выберите договор">{{$select.selected.Text}}</ui-select-match>
                                                     <ui-select-choices repeat="item.Value as item in object.CortractList | filter: $select.search">
                                                         <div ng-bind-html="item.Text| highlight: $select.search"></div>

@@ -207,6 +207,15 @@ namespace PW.Ncels.Controllers
             return Json(statementVm, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult GetContractData(Guid id)
+        {
+            var res = _ctx.EMP_Contract
+                .Where(c => c.Id == id)
+                .Select(c => c.EMP_Ref_ContractType).FirstOrDefault();
+            return Json(res?.Code, JsonRequestBehavior.AllowGet);
+
+        }
+
         public ActionResult StatementSave(EmpStatementViewModel vm)
         {
             var statement = _ctx.EMP_Statement.FirstOrDefault(x => x.Id == vm.Id);
