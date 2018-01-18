@@ -58,7 +58,9 @@ namespace PW.Ncels.Controllers
         {
             var statement = _ctx.EMP_EAESStatement.FirstOrDefault(x => x.Id == id) ?? new EMP_EAESStatement()
             {
-                Agreement = "Гарантирую: достоверность и идентичность информации, содержащейся в регистрационном досье и заявлении, представление  образцов изделий медицинского назначения, стандартных образцов в количествах, достаточных для трехкратного анализа, специфические реагенты, расходные материалы, применяемые при проведении испытаний (в исключительных случаях и на условиях возврата), а также их соответствие нормативным документам, представляемым на регистрацию. Обязуюсь сообщать обо всех изменениях в регистрационное досье, а также представлять заявление и материалы при обнаружении побочных воздействий при применении изделия медицинского назначения, медицинской техники, ранее не указанных в инструкции по медицинскому применению изделий медицинского назначения / руководстве по эксплуатации медицинской техники."
+                Agreement = "Гарантирую: достоверность и идентичность информации, содержащейся в регистрационном досье и заявлении, представление  образцов изделий медицинского назначения, стандартных образцов в количествах, достаточных для трехкратного анализа, специфические реагенты, расходные материалы, применяемые при проведении испытаний (в исключительных случаях и на условиях возврата), а также их соответствие нормативным документам, представляемым на регистрацию. Обязуюсь сообщать обо всех изменениях в регистрационное досье, а также представлять заявление и материалы при обнаружении побочных воздействий при применении изделия медицинского назначения, медицинской техники, ранее не указанных в инструкции по медицинскому применению изделий медицинского назначения / руководстве по эксплуатации медицинской техники.",
+                DateOfIssue = DateTime.Now,
+                ManufacturerExpirationDate = DateTime.Now
             };
 
             var changes = _ctx.EMP_StatementChange.Where(x => x.StatementId == statement.Id).ToList();
@@ -213,7 +215,44 @@ namespace PW.Ncels.Controllers
                 //    Unit = s.Unit
                 //}),
                 RefCountry = statement.RefCountry,
-                ConCountry = statement.ConCountry
+                ConCountry = statement.ConCountry,
+                PlaceType = statement.PlaceType,
+                PlaceNameRu = statement.PlaceNameRu,
+                PlaceAllowedDocumentNumber = statement.PlaceAllowedDocumentNumber,
+                PlaceBossLastName = statement.PlaceBossLastName,
+                PlaceBossPosition = statement.PlaceBossPosition,
+                PlaceOrganizationForm = statement.PlaceOrganizationForm,
+                PlaceNameKz = statement.PlaceNameKz,
+                PlaceDateOfIssue = statement.PlaceDateOfIssue,
+                PlaceBossFirstName = statement.PlaceBossFirstName,
+                PlacePhone = statement.PlacePhone,
+                PlaceCountry = statement.PlaceCountry,
+                PlaceNameEn = statement.PlaceNameEn,
+                PlaceExpirationDate = statement.PlaceExpirationDate,
+                PlaceBossMiddleName = statement.PlaceBossMiddleName,
+                PlaceEmail = statement.PlaceEmail,
+                PlaceContactPersonInitials = statement.PlaceContactPersonInitials,
+                PlaceContactPersonPosition = statement.PlaceContactPersonPosition,
+                PlaceContactPersonFactAddress = statement.PlaceContactPersonFactAddress,
+                ShowerType = statement.ShowerType,
+                ShowerNameRu = statement.ShowerNameRu,
+                ShowerAllowedDocumentNumber = statement.ShowerPAllowedDocumentNumber,
+                ShowerBossLastName = statement.ShowerBossLastName,
+                ShowerBossPosition = statement.ShowerBossPosition,
+                ShowerOrganizationForm = statement.ShowerOrganizationForm,
+                ShowerNameKz = statement.ShowerNameKz,
+                ShowerDateOfIssue = statement.ShowerDateOfIssue,
+                ShowerBossFirstName = statement.ShowerBossFirstName,
+                ShowerPhone = statement.ShowerPhone,
+                ShowerCountry = statement.ShowerCountry,
+                ShowerNameEn = statement.ShowerNameEn,
+                ShowerExpirationDate = statement.ShowerExpirationDate,
+                ShowerBossMiddleName = statement.ShowerBossMiddleName,
+                ShowerEmail = statement.ShowerEmail,
+                ShowerContactPersonInitials = statement.ShowerContactPersonInitials,
+                ShowerContactPersonPosition = statement.ShowerContactPersonPosition,
+                ShowerContactPersonFactAddress = statement.ShowerContactPersonFactAddress,
+                ShowerContactPersonActualAddress = statement.ShowerContactPersonActualAddress
             };
             return Json(statementVm, JsonRequestBehavior.AllowGet);
         }
@@ -309,6 +348,44 @@ namespace PW.Ncels.Controllers
             statement.GarantExpDate = vm.GarantExpDate;
             statement.GarantNoExp = vm.GarantNoExp;
             statement.GarantUnit = vm.GarantUnit;
+
+            statement.PlaceType = vm.PlaceType;
+                statement.PlaceNameRu = vm.PlaceNameRu;
+                statement.PlaceAllowedDocumentNumber = vm.PlaceAllowedDocumentNumber;
+                statement.PlaceBossLastName = vm.PlaceBossLastName;
+                statement.PlaceBossPosition = vm.PlaceBossPosition;
+                statement.PlaceOrganizationForm = vm.PlaceOrganizationForm;
+                statement.PlaceNameKz = vm.PlaceNameKz;
+                statement.PlaceDateOfIssue = vm.PlaceDateOfIssue;
+                statement.PlaceBossFirstName = vm.PlaceBossFirstName;
+                statement.PlacePhone = vm.PlacePhone;
+                statement.PlaceCountry = vm.PlaceCountry;
+                statement.PlaceNameEn = vm.PlaceNameEn;
+                statement.PlaceExpirationDate = vm.PlaceExpirationDate;
+                statement.PlaceBossMiddleName = vm.PlaceBossMiddleName;
+                statement.PlaceEmail = vm.PlaceEmail;
+                statement.PlaceContactPersonInitials = vm.PlaceContactPersonInitials;
+                statement.PlaceContactPersonPosition = vm.PlaceContactPersonPosition;
+                statement.PlaceContactPersonFactAddress = vm.PlaceContactPersonFactAddress;
+                statement.ShowerType = vm.ShowerType;
+                statement.ShowerNameRu = vm.ShowerNameRu;
+                statement.ShowerPAllowedDocumentNumber = vm.ShowerAllowedDocumentNumber;
+                statement.ShowerBossLastName = vm.ShowerBossLastName;
+                statement.ShowerBossPosition = vm.ShowerBossPosition;
+                statement.ShowerOrganizationForm = vm.ShowerOrganizationForm;
+                statement.ShowerNameKz = vm.ShowerNameKz;
+                statement.ShowerDateOfIssue = vm.ShowerDateOfIssue;
+                statement.ShowerBossFirstName = vm.ShowerBossFirstName;
+                statement.ShowerPhone = vm.ShowerPhone;
+                statement.ShowerCountry = vm.ShowerCountry;
+                statement.ShowerNameEn = vm.ShowerNameEn;
+                statement.ShowerExpirationDate = vm.ShowerExpirationDate;
+                statement.ShowerBossMiddleName = vm.ShowerBossMiddleName;
+                statement.ShowerEmail = vm.ShowerEmail;
+                statement.ShowerContactPersonInitials = vm.ShowerContactPersonInitials;
+                statement.ShowerContactPersonPosition = vm.ShowerContactPersonPosition;
+                statement.ShowerContactPersonFactAddress = vm.ShowerContactPersonFactAddress;
+                statement.ShowerContactPersonActualAddress = vm.ShowerContactPersonActualAddress;
 
             if (vm.ChangeData != null)
             {
@@ -647,5 +724,42 @@ namespace PW.Ncels.Controllers
         public string GarantUnit { get; set; }
         public bool? GarantNoExp { get; set; }
         public IEnumerable<EmpEaesStatementRegCountry> RegCountries { get; set; }
+        public string PlaceType { get; set; }
+        public string PlaceNameRu { get; set; }
+        public string PlaceAllowedDocumentNumber { get; set; }
+        public string PlaceBossLastName { get; set; }
+        public string PlaceBossPosition { get; set; }
+        public string PlaceOrganizationForm { get; set; }
+        public string PlaceNameKz { get; set; }
+        public DateTime? PlaceDateOfIssue { get; set; }
+        public string PlaceBossFirstName { get; set; }
+        public string PlacePhone { get; set; }
+        public string PlaceCountry { get; set; }
+        public string PlaceNameEn { get; set; }
+        public DateTime? PlaceExpirationDate { get; set; }
+        public string PlaceBossMiddleName { get; set; }
+        public string PlaceEmail { get; set; }
+        public string PlaceContactPersonInitials { get; set; }
+        public string PlaceContactPersonPosition { get; set; }
+        public string PlaceContactPersonFactAddress { get; set; }
+        public string ShowerType { get; set; }
+        public string ShowerNameRu { get; set; }
+        public string ShowerAllowedDocumentNumber { get; set; }
+        public string ShowerBossLastName { get; set; }
+        public string ShowerBossPosition { get; set; }
+        public string ShowerOrganizationForm { get; set; }
+        public string ShowerNameKz { get; set; }
+        public DateTime? ShowerDateOfIssue { get; set; }
+        public string ShowerBossFirstName { get; set; }
+        public string ShowerPhone { get; set; }
+        public string ShowerCountry { get; set; }
+        public string ShowerNameEn { get; set; }
+        public DateTime? ShowerExpirationDate { get; set; }
+        public string ShowerBossMiddleName { get; set; }
+        public string ShowerEmail { get; set; }
+        public string ShowerContactPersonInitials { get; set; }
+        public string ShowerContactPersonPosition { get; set; }
+        public string ShowerContactPersonFactAddress { get; set; }
+        public string ShowerContactPersonActualAddress { get; set; }
     }
 }

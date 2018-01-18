@@ -158,6 +158,9 @@
         };
 
         $scope.dic = {
+            OrganizationForms: [
+                "пусто", "ТОО", "РГП", "АО"
+            ],
             LevelRisks: [
                 { Value: "Level1", Text: "Класс 1 - с низкой степенью риска" },
                 { Value: "Level2a", Text: "Класс 2а - со средней степенью риска" },
@@ -261,11 +264,9 @@
                 "день", "неделя", "месяц", "год"
             ],
             ManufacturerTypes: [
-                "Производитель",
-                "Уполномоченный представитель производителя",
-                "Контактные данные уполномоченного лица по мониторингу неблагоприятных событий (инцидентов) на территории РК",
-                "Производственная площадка",
-                "Заявитель"
+                "Полностью на данном производстве",
+                "Частично на данном производстве",
+                "Полностью на другом производстве"
             ]
         };
         $scope.dic.ChangeDataType = function (search, index) {
@@ -930,6 +931,10 @@
                 startSign('/EMPContract/SignData', id, funcSign);
             }
         }
+        $scope.manufacturPane = "1";
+        $scope.manufacturPaneClick = function(what){
+            $scope.manufacturPane = what;
+        }
 
     }
 
@@ -1353,168 +1358,522 @@
                         </div>
                         <div id="tab-3" class="tab-pane">
                             <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-lg-6 b-r">
-                                        <h4>Производитель</h4>
+                                <div class="btn-group">
+                                    <button type="button" class="btn"
+                                            ng-click="manufacturPaneClick(1)"
+                                            ng-class="{'btn-default': manufacturPane != '1', 'btn-primary': manufacturPane == '1'}">
+                                        Сведения о производителе
+                                    </button>
+                                    <button type="button" class="btn"
+                                            ng-click="manufacturPaneClick(2)"
+                                            ng-class="{'btn-default': manufacturPane != '2', 'btn-primary': manufacturPane == '2'}">
+                                        Сведения о производственной (ых) площадке (ах)
+                                    </button>
+                                    <button type="button" class="btn"
+                                            ng-click="manufacturPaneClick(3)"
+                                            ng-class="{'btn-default': manufacturPane != '3', 'btn-primary': manufacturPane == '3'}">
+                                        Сведения об уполномоченном представителе (при наличии)
+                                    </button>
+                                </div>
+                                <div class="panel" ng-show="manufacturPane == '1'">
+                                    <div class="row">
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Производство</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.ManufacturerType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.ManufacturerTypes | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на русском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameRu" ng-model="object.ManufacturerNameRu" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameRu">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>№ разрешительного документа</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="AllowedDocumentNumber" ng-model="object.AllowedDocumentNumber" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="AllowedDocumentNumber">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Фамилия первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossLastName" ng-model="object.BossLastName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossLastName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Должность первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossPosition" ng-model="object.BossPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossPosition">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Организационная форма</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.OrganizationForm" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.OrganizationForms | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="OrganizationForm" ng-model="object.OrganizationForm" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="OrganizationForm">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на государственном языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameKz" ng-model="object.ManufacturerNameKz" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameKz">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Дата выдачи</label>
+                                                <div class="input-group date">
+                                                    <input id="DateOfIssue" ng-model="object.DateOfIssue"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Имя первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossFirstName" ng-model="object.BossFirstName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossFirstName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Телефон, факс</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Phone" ng-model="object.Phone" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Phone">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 b-l">
+                                            <div class="form-group">
+                                                <label>Страна</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.Country" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.Countries | filter: $select.search"
+                                                                           refresh="dic.refreshCountries($select.search)">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="Country" ng-model="object.Country" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="Country">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на английском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameEn" ng-model="object.ManufacturerNameEn" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameEn">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Срок действия</label>
+                                                <div class="input-group date">
+                                                    <input id="ManufacturerExpirationDate" ng-model="object.ManufacturerExpirationDate"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Отчество первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossMiddleName" ng-model="object.BossMiddleName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossMiddleName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Электронная почта</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Email" ng-model="object.Email" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Email">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="pull-right">
-                                            <button type="button" class="k-button">Копировать</button>
-                                            <button type="button" class="k-button">Удалить</button>
+                                    <div class="row">
+                                        <div class="col-lg-6 b-r">
+                                            <div class="form-group">
+                                                <label>Фамилия, имя, отчество контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonInitials" ng-model="object.ContactPersonInitials" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonInitials">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Юридический адрес</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonLegalAddress" ng-model="object.ContactPersonLegalAddress" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonLegalAddress">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 b-l">
+                                            <div class="form-group">
+                                                <label>Должность контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonPosition" ng-model="object.ContactPersonPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonPosition">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Фактический адрес</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonFactAddress" ng-model="object.ContactPersonFactAddress" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonFactAddress">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-4 b-r">
-                                        <div class="form-group">
-                                            <label>Тип производителя</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <ui-select ng-model="object.ManufacturerType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
-                                                    <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
-                                                    <ui-select-choices repeat="item in dic.ManufacturerTypes | filter: $select.search">
-                                                        <div ng-bind-html="item| highlight: $select.search"></div>
-                                                    </ui-select-choices>
-                                                </ui-select>
-                                                @*<input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
-                                                    class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">*@
+                                <div class="panel" ng-show="manufacturPane == '2'">
+                                    <div class="row">
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Производство</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.PlaceType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.ManufacturerTypes | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на русском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameRu" ng-model="object.PlaceNameRu" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameRu">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>№ разрешительного документа</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="AllowedDocumentNumber" ng-model="object.PlaceAllowedDocumentNumber" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="AllowedDocumentNumber">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Фамилия первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossLastName" ng-model="object.PlaceBossLastName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossLastName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Должность первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossPosition" ng-model="object.PlaceBossPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossPosition">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>Наименование на русском языке</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ManufacturerNameRu" ng-model="object.ManufacturerNameRu" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameRu">
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Организационная форма</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.PlaceOrganizationForm" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.OrganizationForms | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="OrganizationForm" ng-model="object.OrganizationForm" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="OrganizationForm">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на государственном языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameKz" ng-model="object.PlaceNameKz" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameKz">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Дата выдачи</label>
+                                                <div class="input-group date">
+                                                    <input id="DateOfIssue" ng-model="object.PlaceDateOfIssue"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Имя первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossFirstName" ng-model="object.PlaceBossFirstName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossFirstName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Телефон, факс</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Phone" ng-model="object.PlacePhone" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Phone">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>№ разрешительного документа</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="AllowedDocumentNumber" ng-model="object.AllowedDocumentNumber" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="AllowedDocumentNumber">
+                                        <div class="col-lg-4 b-l">
+                                            <div class="form-group">
+                                                <label>Страна</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.PlaceCountry" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.Countries | filter: $select.search"
+                                                                           refresh="dic.refreshCountries($select.search)">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="Country" ng-model="object.Country" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="Country">*@
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Фамилия первого руководителя</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="BossLastName" ng-model="object.BossLastName" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="BossLastName">
+                                            <div class="form-group">
+                                                <label>Наименование на английском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameEn" ng-model="object.PlaceNameEn" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameEn">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Должность первого руководителя</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="BossPosition" ng-model="object.BossPosition" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="BossPosition">
+                                            <div class="form-group">
+                                                <label>Срок действия</label>
+                                                <div class="input-group date">
+                                                    <input id="ManufacturerExpirationDate" ng-model="object.PlaceExpirationDate"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Отчество первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossMiddleName" ng-model="object.PlaceBossMiddleName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossMiddleName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Электронная почта</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Email" ng-model="object.PlaceEmail" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Email">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 b-r">
-                                        <div class="form-group">
-                                            <label>Организационная форма</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="OrganizationForm" ng-model="object.OrganizationForm" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="OrganizationForm">
+                                    <div class="row">
+                                        <div class="col-lg-6 b-r">
+                                            <div class="form-group">
+                                                <label>Фамилия, имя, отчество контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonInitials" ng-model="object.PlaceContactPersonInitials" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonInitials">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>Наименование на государственном языке</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ManufacturerNameKz" ng-model="object.ManufacturerNameKz" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameKz">
+                                        <div class="col-lg-6 b-l">
+                                            <div class="form-group">
+                                                <label>Должность контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonPosition" ng-model="object.PlaceContactPersonPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonPosition">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Дата выдачи</label>
-                                            <div class="input-group date">
-                                                <input id="DateOfIssue" ng-model="object.DateOfIssue"
-                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
-                                                       view="date" min-view="date" format="DD.MM.YYYY">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Имя первого руководителя</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="BossFirstName" ng-model="object.BossFirstName" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="BossFirstName">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Телефон, факс</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="Phone" ng-model="object.Phone" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="Phone">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 b-l">
-                                        <div class="form-group">
-                                            <label>Страна</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="Country" ng-model="object.Country" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="Country">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Наименование на английском языке</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ManufacturerNameEn" ng-model="object.ManufacturerNameEn" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameEn">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Срок действия</label>
-                                            <div class="input-group date">
-                                                <input id="ManufacturerExpirationDate" ng-model="object.ManufacturerExpirationDate"
-                                                       class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
-                                                       view="date" min-view="date" format="DD.MM.YYYY">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Отчество первого руководителя</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="BossMiddleName" ng-model="object.BossMiddleName" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="BossMiddleName">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Электронная почта</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="Email" ng-model="object.Email" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="Email">
+                                            <div class="form-group">
+                                                <label>Фактический адрес</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonFactAddress" ng-model="object.PlaceContactPersonFactAddress" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonFactAddress">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-6 b-r">
-                                        <div class="form-group">
-                                            <label>Фамилия, имя, отчество контактного лица</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ContactPersonInitials" ng-model="object.ContactPersonInitials" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonInitials">
+                                <div class="panel" ng-show="manufacturPane == '3'">
+                                    <div class="row">
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Производство</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.ShowerType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.ManufacturerTypes | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на русском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameRu" ng-model="object.ShowerNameRu" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameRu">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>№ разрешительного документа</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="AllowedDocumentNumber" ng-model="object.ShowerAllowedDocumentNumber" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="AllowedDocumentNumber">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Фамилия первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossLastName" ng-model="object.ShowerBossLastName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossLastName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Должность первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossPosition" ng-model="object.ShowerBossPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossPosition">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>Юридический адрес</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ContactPersonLegalAddress" ng-model="object.ContactPersonLegalAddress" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonLegalAddress">
+                                        <div class="col-lg-4 b-r">
+                                            <div class="form-group">
+                                                <label>Организационная форма</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.ShowerOrganizationForm" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.OrganizationForms | filter: $select.search">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="OrganizationForm" ng-model="object.OrganizationForm" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="OrganizationForm">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на государственном языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameKz" ng-model="object.ShowerNameKz" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameKz">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Дата выдачи</label>
+                                                <div class="input-group date">
+                                                    <input id="DateOfIssue" ng-model="object.ShowerDateOfIssue"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Имя первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossFirstName" ng-model="object.ShowerBossFirstName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossFirstName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Телефон, факс</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Phone" ng-model="object.ShowerPhone" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Phone">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 b-l">
+                                            <div class="form-group">
+                                                <label>Страна</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <ui-select ng-model="object.ShowerCountry" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                        <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                        <ui-select-choices repeat="item in dic.Countries | filter: $select.search"
+                                                                           refresh="dic.refreshCountries($select.search)">
+                                                            <div ng-bind-html="item| highlight: $select.search"></div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                    @*<input id="Country" ng-model="object.Country" placeholder="Введите значение"
+                            class="form-control edit-control" type="text" ui-select-selected name="Country">*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Наименование на английском языке</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ManufacturerNameEn" ng-model="object.ShowerNameEn" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ManufacturerNameEn">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Срок действия</label>
+                                                <div class="input-group date">
+                                                    <input id="ManufacturerExpirationDate" ng-model="object.ShowerExpirationDate"
+                                                           class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                           view="date" min-view="date" format="DD.MM.YYYY">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Отчество первого руководителя</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="BossMiddleName" ng-model="object.ShowerBossMiddleName" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="BossMiddleName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Электронная почта</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="Email" ng-model="object.ShowerEmail" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="Email">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 b-l">
-                                        <div class="form-group">
-                                            <label>Должность контактного лица</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ContactPersonPosition" ng-model="object.ContactPersonPosition" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonPosition">
+                                    <div class="row">
+                                        <div class="col-lg-6 b-r">
+                                            <div class="form-group">
+                                                <label>Фамилия, имя, отчество контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonInitials" ng-model="object.ShowerContactPersonInitials" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonInitials">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Юридический адрес</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonLegalAddress" ng-model="object.ShowerContactPersonActualAddress" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonLegalAddress">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>Фактический адрес</label>
-                                            <div ng-class="{'input-group': showComments}">
-                                                <input id="ContactPersonFactAddress" ng-model="object.ContactPersonFactAddress" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ContactPersonFactAddress">
+                                        <div class="col-lg-6 b-l">
+                                            <div class="form-group">
+                                                <label>Должность контактного лица</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonPosition" ng-model="object.ShowerContactPersonPosition" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonPosition">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Фактический адрес</label>
+                                                <div ng-class="{'input-group': showComments}">
+                                                    <input id="ContactPersonFactAddress" ng-model="object.ShowerContactPersonFactAddress" placeholder="Введите значение"
+                                                           class="form-control edit-control" type="text" ui-select-selected name="ContactPersonFactAddress">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
