@@ -24,7 +24,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult GetStatements(ModelRequest request)
         {
-            var query = _ctx.EMP_Statement.Select(x => new
+            var query = _ctx.EMP_EAESStatement.Select(x => new
             {
                 Id = x.Id,
                 Kind = x.RegistrationKindValue == "1"
@@ -32,7 +32,6 @@ namespace PW.Ncels.Controllers
                     : x.RegistrationKindValue == "2"
                         ? "Перерегистрация"
                         : "Внесение изменений",
-                Type = x.RegistrationTypeValue == "1" ? "Ускоренная" : string.Empty,
                 MedicalDeviceName = x.MedicalDeviceNameRu,
                 Number = x.RegistrationCertificateNumber,
                 Status = "Черновик",
@@ -57,7 +56,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult LoadStatement(Guid? id)
         {
-            var statement = _ctx.EMP_Statement.FirstOrDefault(x => x.Id == id) ?? new EMP_Statement()
+            var statement = _ctx.EMP_EAESStatement.FirstOrDefault(x => x.Id == id) ?? new EMP_EAESStatement()
             {
                 Agreement = "Гарантирую: достоверность и идентичность информации, содержащейся в регистрационном досье и заявлении, представление  образцов изделий медицинского назначения, стандартных образцов в количествах, достаточных для трехкратного анализа, специфические реагенты, расходные материалы, применяемые при проведении испытаний (в исключительных случаях и на условиях возврата), а также их соответствие нормативным документам, представляемым на регистрацию. Обязуюсь сообщать обо всех изменениях в регистрационное досье, а также представлять заявление и материалы при обнаружении побочных воздействий при применении изделия медицинского назначения, медицинской техники, ранее не указанных в инструкции по медицинскому применению изделий медицинского назначения / руководстве по эксплуатации медицинской техники."
             };
@@ -70,12 +69,14 @@ namespace PW.Ncels.Controllers
 
             var statementVm = new EmpEaesStatementViewModel
             {
+                GarantExpDate = statement.GarantExpDate,
+                GarantNoExp = statement.GarantNoExp,
+                GarantUnit = statement.GarantUnit,
                 Id = statement.Id,
                 RegistrationKindValue = statement.RegistrationKindValue,
                 RegistrationKind = new List<SelectListItem>
                 {
                     new SelectListItem{Value = "1", Text = "Регистрация"},
-                    new SelectListItem{Value = "2", Text = "Перерегистрация"},
                     new SelectListItem{Value = "3", Text = "Внесение изменений"}
                 },
                 RegistrationCertificateNumber = statement.RegistrationCertificateNumber,
@@ -91,17 +92,13 @@ namespace PW.Ncels.Controllers
                     AfterChange = x.AfterChange
                 }).ToList(),
                 ContractId = statement.ContractId,
-                CortractList = _ctx.EMP_Contract.Select(x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Number + " " + x.MedicalDeviceName
-                }).ToList(),
-                RegistrationTypeValue = statement.RegistrationTypeValue,
-                RegistrationType = new List<SelectListItem>
-                {
-                    new SelectListItem{Value = "1", Text = "Ускоренная"},
-                    new SelectListItem{Value = "2", Text = "Обычная"}
-                },
+                CortractList = _ctx.EMP_Contract
+                    .Where(c => c.EMP_Ref_ContractScope.Code == "eaesrg" || c.EMP_Ref_ContractScope.Code == "eaesgp")
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Number + " " + x.MedicalDeviceName
+                    }).ToList(),
                 LetterNumber = statement.LetterNumber,
                 LetterDate = statement.LetterDate ?? DateTime.Now,
                 IsMt = statement.IsMt ?? false,
@@ -190,20 +187,33 @@ namespace PW.Ncels.Controllers
                 ContactPersonFactAddress = statement.ContactPersonFactAddress,
                 Agreement = statement.Agreement,
                 IsAgreed = statement.IsAgreed ?? false,
-                Samples = statement.EMP_StatementSamples.Select(s => new EmpEaesStatementSampleVm
-                {
-                    Id = s.Id,
-                    Addition = s.Addition,
-                    Conditions = s.Conditions,
-                    Count = s.Count,
-                    CreateDate = s.CreateDate,
-                    ExpirationDate = s.ExpirationDate,
-                    Name = s.Name,
-                    SampleType = s.SampleType,
-                    SeriesPart = s.SeriesPart,
-                    Storage = s.Storage,
-                    Unit = s.Unit
-                })
+                RegCountries = _ctx.EMP_EAESStatementRegCountry
+                    .Where(c => c.StatementId == statement.Id)
+                    .Select(c => new EmpEaesStatementRegCountry
+                    {
+                        Id = c.Id,
+                        Country = c.Country,
+                        DateOfIssue = c.DateOfIssue,
+                        ExpDate = c.ExpDate,
+                        IsIndefinitely = c.IsIndefinitely,
+                        RegNumber = c.RegNumber
+                    }),
+                //Samples = statement.EMP_StatementSamples.Select(s => new EmpEaesStatementSampleVm
+                //{
+                //    Id = s.Id,
+                //    Addition = s.Addition,
+                //    Conditions = s.Conditions,
+                //    Count = s.Count,
+                //    CreateDate = s.CreateDate,
+                //    ExpirationDate = s.ExpirationDate,
+                //    Name = s.Name,
+                //    SampleType = s.SampleType,
+                //    SeriesPart = s.SeriesPart,
+                //    Storage = s.Storage,
+                //    Unit = s.Unit
+                //}),
+                RefCountry = statement.RefCountry,
+                ConCountry = statement.ConCountry
             };
             return Json(statementVm, JsonRequestBehavior.AllowGet);
         }
@@ -212,18 +222,29 @@ namespace PW.Ncels.Controllers
         {
             var res = _ctx.EMP_Contract
                 .Where(c => c.Id == id)
-                .Select(c => c.EMP_Ref_ContractType).FirstOrDefault();
-            return Json(res?.Code, JsonRequestBehavior.AllowGet);
+                .Select(c => new
+                {
+                    IMNName = c.MedicalDeviceName,
+                    IMNNameKz = c.MedicalDeviceNameKz,
+                    Type = c.EMP_Ref_ContractType
+                }).FirstOrDefault();
+            var res1 = new
+            {
+                res.IMNName,
+                res.IMNNameKz,
+                res.Type?.Code
+            };
+            return Json(res1, JsonRequestBehavior.AllowGet);
 
         }
 
-        public ActionResult StatementSave(EmpStatementViewModel vm)
+        public ActionResult StatementSave(EmpEaesStatementViewModel vm)
         {
-            var statement = _ctx.EMP_Statement.FirstOrDefault(x => x.Id == vm.Id);
+            var statement = _ctx.EMP_EAESStatement.FirstOrDefault(x => x.Id == vm.Id);
             if (statement == null)
             {
-                statement = new EMP_Statement { Id = Guid.NewGuid() };
-                _ctx.EMP_Statement.Add(statement);
+                statement = new EMP_EAESStatement { Id = Guid.NewGuid() };
+                _ctx.EMP_EAESStatement.Add(statement);
             }
 
             statement.RegistrationKindValue = vm.RegistrationKindValue;
@@ -232,7 +253,6 @@ namespace PW.Ncels.Controllers
             if (vm.RegistrationDate != null) statement.RegistrationDate = vm.RegistrationDate;
             if (vm.ExpirationDate != null) statement.ExpirationDate = vm.ExpirationDate;
             statement.ContractId = vm.ContractId;
-            statement.RegistrationTypeValue = vm.RegistrationTypeValue;
             statement.LetterNumber = vm.LetterNumber;
             if (vm.LetterDate != null) statement.LetterDate = vm.LetterDate;
             statement.IsMt = vm.IsMt;
@@ -284,6 +304,11 @@ namespace PW.Ncels.Controllers
             statement.ContactPersonFactAddress = vm.ContactPersonFactAddress;
             statement.Agreement = vm.Agreement;
             statement.IsAgreed = vm.IsAgreed;
+            statement.RefCountry = vm.RefCountry;
+            statement.ConCountry = vm.ConCountry;
+            statement.GarantExpDate = vm.GarantExpDate;
+            statement.GarantNoExp = vm.GarantNoExp;
+            statement.GarantUnit = vm.GarantUnit;
 
             if (vm.ChangeData != null)
             {
@@ -383,27 +408,59 @@ namespace PW.Ncels.Controllers
                 }
             }
 
-            if (vm.Samples != null)
+            //if (vm.Samples != null)
+            //{
+            //    statement.EMP_StatementSamples = vm.Samples.Select(s =>
+            //    {
+            //        var res = new EMP_StatementSamples
+            //        {
+            //            Addition = s.Addition,
+            //            Conditions = s.Conditions,
+            //            Count = s.Count,
+            //            CreateDate = s.CreateDate,
+            //            ExpirationDate = s.ExpirationDate,
+            //            Name = s.Name,
+            //            SampleType = s.SampleType,
+            //            SeriesPart = s.SeriesPart,
+            //            StatementId = vm.Id,
+            //            Storage = s.Storage,
+            //            Unit = s.Unit
+            //        };
+            //        if (s.Id != 0) res.Id = s.Id;
+            //        return res;
+            //    }).ToList();
+            //}
+
+            if (vm.RegCountries != null && vm.RegCountries.Count() > 0)
             {
-                statement.EMP_StatementSamples = vm.Samples.Select(s =>
+                vm.RegCountries.ToList().ForEach(rc =>
                 {
-                    var res = new EMP_StatementSamples
+                    var current = _ctx.EMP_EAESStatementRegCountry.FirstOrDefault(c => c.Id == rc.Id);
+                    if (current != null)
                     {
-                        Addition = s.Addition,
-                        Conditions = s.Conditions,
-                        Count = s.Count,
-                        CreateDate = s.CreateDate,
-                        ExpirationDate = s.ExpirationDate,
-                        Name = s.Name,
-                        SampleType = s.SampleType,
-                        SeriesPart = s.SeriesPart,
-                        StatementId = vm.Id,
-                        Storage = s.Storage,
-                        Unit = s.Unit
-                    };
-                    if (s.Id != 0) res.Id = s.Id;
-                    return res;
-                }).ToList();
+                        current.IsIndefinitely = rc.IsIndefinitely;
+                        current.RegNumber = rc.RegNumber;
+                        current.StatementId = statement.Id;
+                        current.Country = rc.Country;
+                        current.DateOfIssue = rc.DateOfIssue ?? current.DateOfIssue;
+                        current.ExpDate = rc.ExpDate ?? current.ExpDate;
+                    }
+                    else
+                    {
+                        var nc = new EMP_EAESStatementRegCountry
+                        {
+                            Country = rc.Country,
+                            DateOfIssue = rc.DateOfIssue,
+                            ExpDate = rc.ExpDate,
+                            IsIndefinitely = rc.IsIndefinitely,
+                            RegNumber = rc.RegNumber,
+                            StatementId = statement.Id
+                        };
+                        if (nc.DateOfIssue == null)
+                            Console.Write("cheat");
+                        _ctx.EMP_EAESStatementRegCountry.Add(nc);
+                    }
+                });
             }
 
             _ctx.SaveChanges();
@@ -506,7 +563,15 @@ namespace PW.Ncels.Controllers
         public string AfterChange { get; set; }
     }
 
-
+    public class EmpEaesStatementRegCountry
+    {
+        public int Id { get; set; }
+        public string Country { get; set; }
+        public string RegNumber { get; set; }
+        public DateTime? DateOfIssue { get; set; }
+        public DateTime? ExpDate { get; set; }
+        public bool? IsIndefinitely { get; set; }
+    }
 
     public class EmpEaesStatementViewModel
     {
@@ -517,7 +582,6 @@ namespace PW.Ncels.Controllers
         public DateTime? ExpirationDate { get; set; }
         public List<EmpEaesStatementChangeViewModel> ChangeData { get; set; }
         public List<SelectListItem> CortractList { get; set; }
-        public List<SelectListItem> RegistrationType { get; set; }
         public string LetterNumber { get; set; }
         public DateTime? LetterDate { get; set; }
         public bool IsMt { get; set; }
@@ -576,7 +640,12 @@ namespace PW.Ncels.Controllers
         public string RegistrationKindValue { get; set; }
         public Guid Id { get; set; }
         public Guid? ContractId { get; set; }
-        public string RegistrationTypeValue { get; set; }
         public IEnumerable<EmpEaesStatementSampleVm> Samples { get; set; }
+        public string RefCountry { get; set; }
+        public string ConCountry { get; set; }
+        public int? GarantExpDate { get; set; }
+        public string GarantUnit { get; set; }
+        public bool? GarantNoExp { get; set; }
+        public IEnumerable<EmpEaesStatementRegCountry> RegCountries { get; set; }
     }
 }

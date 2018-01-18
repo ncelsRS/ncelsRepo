@@ -93,11 +93,13 @@ namespace PW.Ncels.Controllers
                     AfterChange = x.AfterChange
                 }).ToList(),
                 ContractId = statement.ContractId,
-                CortractList = _ctx.EMP_Contract.Select(x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Number + " " + x.MedicalDeviceName
-                }).ToList(),
+                CortractList = _ctx.EMP_Contract
+                    .Where(c => c.EMP_Ref_ContractScope.Code == "national")
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Number + " " + x.MedicalDeviceName
+                    }).ToList(),
                 RegistrationTypeValue = statement.RegistrationTypeValue,
                 RegistrationType = new List<SelectListItem>
                 {
@@ -222,7 +224,8 @@ namespace PW.Ncels.Controllers
                 }).FirstOrDefault();
             var res1 = new
             {
-                res.IMNName, res.IMNNameKz,
+                res.IMNName,
+                res.IMNNameKz,
                 res.Type?.Code
             };
             return Json(res1, JsonRequestBehavior.AllowGet);
