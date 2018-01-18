@@ -294,7 +294,8 @@
                                                                 </div>
                                                                 
                                                                 <div class="form-group" ng-show="showRegister">
-                                                                    <h4>Гос. реестр</h4>
+                                                                    <h4 ng-show="object.ContractScope == 'national'">Гос. реестр</h4>
+                                                                    <h4 ng-show="object.ContractScope != 'national'">Реестр МИ</h4>
                                                                     <label>Наименование производителя</label>
                                                                     <div ng-class="{'input-group': showComments}">
                                                                         <input ng-model="object.RegisterManufacturName" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="registerManufacturName" ng-disabled="true">
@@ -323,13 +324,13 @@
                                                                 <div class="form-group">
                                                                     <label>Номер телефона * </label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="manufacturPhone" ng-model="object.Manufactur.Contact.Phone" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" required ng-blur="validatePhone();" ng-model-options="{ allowInvalid: true}">
+                                                                        <input id="manufacturPhone" ng-model="object.Manufactur.Contact.Phone" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" required @*ng-blur="validatePhone();"*@ ng-model-options="{ allowInvalid: true}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <label>Номер телефона</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="manufacturPhone2" ng-model="object.Manufactur.Contact.Phone2" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" ng-blur="validatePhone();" ng-model-options="{ allowInvalid: true}">
+                                                                        <input id="manufacturPhone2" ng-model="object.Manufactur.Contact.Phone2" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" @*ng-blur="validatePhone();"*@ ng-model-options="{ allowInvalid: true}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
@@ -402,13 +403,13 @@
                                                                 <div class="form-group">
                                                                     <label>Расчетный счет *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="BankIikManufactur" ng-model="object.Manufactur.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValidManufactur" required ui-select-selected>
+                                                                        <input id="BankIikManufactur" ng-model="object.Manufactur.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" @*ng-disabled="bankValidManufactur"*@ required ui-select-selected>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <label>Валюта *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <ui-select ng-model="object.Manufactur.Contact.CurrencyId" ui-select-selected name="CurrencyId" required theme="bootstrap" ng-disabled="bankValidManufactur">
+                                                                        <ui-select ng-model="object.Manufactur.Contact.CurrencyId" ui-select-selected name="CurrencyId" required theme="bootstrap" ng-disabled="showContactInformationManufactur" @*ng-disabled="bankValidManufactur"*@>
                                                                             <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                             <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
                                                                                 <div ng-bind-html="item.Name| highlight: $select.search"></div>
@@ -419,7 +420,7 @@
                                                                 <div class="form-group" ng-if="object.Manufactur.IsResident == false">
                                                                     <label>SWIFT *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="bankBik" ng-model="object.Manufactur.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValidManufactur" required ui-select-selected>
+                                                                        <input id="bankBik" ng-model="object.Manufactur.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationManufactur" @*ng-disabled="bankValidManufactur"*@ required ui-select-selected>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -457,7 +458,7 @@
                                                                 <div class="form-group" ng-show="object.Declarant.IsResident == false">
                                                                     <label>Страна</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <ui-select ng-model="object.Declarant.CountryId" theme="bootstrap" ui-select-selected ng-required="object.Declarant.IsResident == false" ng-change="nonResidentCountryChange('Declarant');">
+                                                                        <ui-select ng-model="object.Declarant.Country" theme="bootstrap" ui-select-selected ng-required="object.Declarant.IsResident == false" ng-change="nonResidentCountryChange('Declarant');">
                                                                             <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                             <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
                                                                                 <div ng-bind-html="item.Name| highlight: $select.search"></div>
@@ -540,13 +541,13 @@
                                                                 <div class="form-group">
                                                                     <label>Номер телефона * </label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="Phone" ng-model="object.Declarant.Contact.Phone" ui-mask="+7 (999) 999-99-99" class="form-control edit-control" type="text" required ui-select-selected name="Phone" ng-disabled="showContactInformationDeclarant" required ng-blur="validatePhone();" ng-model-options="{ allowInvalid: true}">
+                                                                        <input id="Phone" ng-model="object.Declarant.Contact.Phone" ui-mask="+7 (999) 999-99-99" class="form-control edit-control" type="text" required ui-select-selected name="Phone" ng-disabled="showContactInformationDeclarant" required @*ng-blur="validatePhone();"*@ ng-model-options="{ allowInvalid: true}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <label>Номер телефона</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="Phone2" ng-model="object.Declarant.Contact.Phone2" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" ng-blur="validatePhone();" ng-model-options="{ allowInvalid: true}">
+                                                                        <input id="Phone2" ng-model="object.Declarant.Contact.Phone2" class="form-control edit-control" type="text" ng-disabled="showContactInformationDeclarant" ui-mask="+7 (999) 999-99-99" ui-select-selected name="manufacturPhone" @*ng-blur="validatePhone();"*@ ng-model-options="{ allowInvalid: true}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
@@ -619,13 +620,13 @@
                                                                 <div class="form-group">
                                                                     <label>Расчетный счет *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="BankIik" ng-model="object.Declarant.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValidDeclarant" @*ng-disabled="showContactInformationDeclarant"*@ required ui-select-selected>
+                                                                        <input id="BankIik" ng-model="object.Declarant.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" @*ng-disabled="bankValidDeclarant"*@ ng-disabled="showContactInformationDeclarant" required ui-select-selected>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <label>Валюта *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <ui-select ng-model="object.Declarant.Contact.CurrencyId" ui-select-selected name="CurrencyId" required ng-disabled="bankValidDeclarant || showContactInformationDeclarant" required theme="bootstrap">
+                                                                        <ui-select ng-model="object.Declarant.Contact.CurrencyId" ui-select-selected name="CurrencyId" required ng-disabled="showContactInformationDeclarant" required theme="bootstrap">
                                                                             <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                             <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
                                                                                 <div ng-bind-html="item.Name| highlight: $select.search"></div>
@@ -636,7 +637,7 @@
                                                                 <div class="form-group" ng-if="object.Declarant.IsResident == false">
                                                                     <label>SWIFT *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="declarantBankBik" ng-model="object.Declarant.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="bankValidDeclarant" @*ng-disabled="showContactInformationDeclarant"*@ required ui-select-selected>
+                                                                        <input id="declarantBankBik" ng-model="object.Declarant.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" @*ng-disabled="bankValidDeclarant"*@ ng-disabled="showContactInformationDeclarant" required ui-select-selected>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -765,7 +766,7 @@
                                                                 <div class="form-group" ng-show="object.Payer.IsResident == false">
                                                                     <label>Страна *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <ui-select ng-model="object.Payer.CountryId" theme="bootstrap" ui-select-selected ng-required="object.Payer.IsResident == false" ng-change="nonResidentCountryChange('Payer');">
+                                                                        <ui-select ng-model="object.Payer.Country" theme="bootstrap" ui-select-selected ng-required="object.Payer.IsResident == false" ng-change="nonResidentCountryChange('Payer');">
                                                                             <ui-select-match>{{$select.selected.Name}}</ui-select-match>
                                                                             <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
                                                                                 <div ng-bind-html="item.Name| highlight: $select.search"></div>
@@ -861,6 +862,12 @@
                                                                         <input id="BankIik1" ng-model="object.Payer.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected>
                                                                     </div>
                                                                 </div>
+                                                                <div class="form-group" ng-show="object.Payer.IsResident == false">
+                                                                    <label>Расчетный счет</label>
+                                                                    <div ng-class="{'input-group': showComments}">
+                                                                        <input id="BankIik2" ng-model="object.Payer.Contact.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected>
+                                                                    </div>
+                                                                </div>
 
                                                                 <div class="form-group">
                                                                     <label>Валюта *</label>
@@ -885,7 +892,7 @@
                                                                     <label ng-show="object.Payer.IsResident == true">БИК</label>
                                                                     <label ng-show="object.Payer.IsResident == false">SWIFT *</label>
                                                                     <div ng-class="{'input-group': showComments}">
-                                                                        <input id="SWIFT3" ng-model="object.Payer.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" ng-disabled="showContactInformationPayer" required ui-select-selected>
+                                                                        <input id="SWIFT3" ng-model="object.Payer.Contact.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" @*ng-disabled="showContactInformationPayer"*@ ui-select-selected>
                                                                     </div>
                                                                 </div>
 
@@ -1035,7 +1042,7 @@
                                                         <div class="form-group" ng-show="object.ContractScope == 'eaesgp'">
                                                             <label>Укажите номер заявления</label>
                                                             <div ng-class="{'input-group': showComments}">
-                                                                <input id="statementNumber" ng-model="" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected>
+                                                                <input id="statementNumber" ng-model="object.StatemantNumber" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected>
                                                             </div>
                                                         </div>
                                                     </div>

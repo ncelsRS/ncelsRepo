@@ -82,7 +82,7 @@
     loadExpertOrganizations($scope, $http);
     loadDictionary($scope, 'OpfType', $http);
     loadDictionary($scope, 'Country', $http);
-    loadDictionary($scope, 'Currency', $http);
+    //loadDictionary($scope, 'Currency', $http);
     loadEMPContractDocumentType($scope, $http);
     loadCurrency($scope, $http);
     loadBanks($scope, $http);
@@ -147,7 +147,11 @@
             method: 'POST',
             data: { Guid: modelGuid, contractViewModel: object }
         }).success(function (response) {
+            $scope.showRegister = false;
             $scope.object = response;
+            alert("Договор успешно сохранен");
+        }).error(function () {
+            alert("Возникла ошибка при сохранении договора");
         });
     }
 
@@ -841,20 +845,21 @@
                     $scope.object[obj].Contact.CurrencyId = resp.data.CurrencyId;
                     $scope.object[obj].Contact.BankNameRu = resp.data.BankNameRu;
                     $scope.object[obj].Contact.BankNameKz = resp.data.BankNameKz;
+                    $scope.object[obj].Contact.BankId = resp.data.BankId;
                     //$scope.saveDeclarantId(resp.data.Id);
                     //$scope.editProject();
                     debugger;
                     switch (obj) {
                         case 'Manufactur':
-                            $scope.showContactInformationManufactur = true;
+                            $scope.showContactInformationManufactur = false;//true;
                             $scope.manufacturNotFound = false;
                             break;
                         case 'Declarant':
-                            $scope.showContactInformationDeclarant = true;
+                            $scope.showContactInformationDeclarant = false;//true;
                             $scope.declarantNotFound = false;
                             break;
                         case 'Payer':
-                            $scope.showContactInformationPayer = true;
+                            $scope.showContactInformationPayer = false;//true;
                             $scope.payerNotFound = false;
                             break;
                     default:

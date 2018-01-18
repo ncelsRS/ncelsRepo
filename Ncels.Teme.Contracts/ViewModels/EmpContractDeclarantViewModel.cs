@@ -42,7 +42,8 @@ namespace Ncels.Teme.Contracts.ViewModels
         public string Iin { get; set; }
         public string BankAccount { get; set; }
 
-        public string HasProxy { get; set; }
+        public string BossDocType { get; set; }
+        public string BossDocTypeCode { get; set; }
         public string IsHasBossDocNumber { get; set; }
         public string BossDocNumber { get; set; }
         public string BossDocUnlimited { get; set; }

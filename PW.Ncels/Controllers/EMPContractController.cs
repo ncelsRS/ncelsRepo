@@ -209,7 +209,8 @@ namespace PW.Ncels.Controllers
                         declarantContact.CurrencyId,
                         declarantContact.BankNameRu,
                         declarantContact.BankNameKz,
-                        declarantContact.BankAccount
+                        declarantContact.BankAccount,
+                        declarantContact.BankId
                     };
                     return declarantJson;
                 }

@@ -22,5 +22,6 @@ namespace PW.Ncels.Database.Models.EMP
         public string ContractScope { get; set; }
         public bool HasProxy { get; set; }
         public int DocumentType { get; set; }
+        public string StatemantNumber { get; set; }
     }
 }
