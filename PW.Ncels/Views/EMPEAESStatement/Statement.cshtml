@@ -1,5 +1,4 @@
-﻿@using PW.Ncels.Database.DataModel
-@using PW.Ncels.Database.Constants
+﻿@using PW.Ncels.Database.Constants
 
 @model Guid?
 @{
@@ -113,6 +112,16 @@
                 Description: ""
             });
         };
+
+        $scope.addRegCountry = function(){
+            $scope.object.RegCountries.push({
+                Country: null,
+                RegNumber: null,
+                DateOfIssue: new Date(),
+                ExpDate: new Date(),
+                IsIndefinitely: null
+            });
+        }
 
         $scope.isChangesInsertion = function () {
             return $scope.object.RegistrationKindValue === "3";
@@ -1273,17 +1282,17 @@
                                                             </ui-select>
                                                         </td>
                                                         <td>
-                                                            <input type="number" class="form-control" ng-model="item.ExpirationDate">
+                                                            <input type="number" class="form-control" ng-model="object.GarantExpDate">
                                                         </td>
                                                         <td>
-                                                            <ui-select ng-model="item.Measure" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                            <ui-select ng-model="object.GarantUnit" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                                                 <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
                                                                 <ui-select-choices repeat="item in dic.DateUnits | filter: $select.search">
                                                                     <div ng-bind-html="item| highlight: $select.search"></div>
                                                                 </ui-select-choices>
                                                             </ui-select>
                                                         </td>
-                                                        <td><input type="checkbox" ng-model="item.IsIndefinitely" /></td>
+                                                        <td><input type="checkbox" ng-model="object.GarantNoExp" /></td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -1307,32 +1316,35 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
+                                                <tr ng-repeat="item in object.RegCountries">
                                                     <td>
-                                                        <ui-select ng-model="object.StorageConditions" theme="bootstrap" style="width: 100%" ui-select-selected>
+                                                        <ui-select ng-model="item.Country" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                                             <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
-                                                            <ui-select-choices repeat="item as item in dic.StorageConditions($select.search) | filter: $select.search">
+                                                            <ui-select-choices repeat="item in dic.Countries | filter: $select.search"
+                                                                               refresh="dic.refreshCountries($select.search)">
                                                                 <div ng-bind-html="item| highlight: $select.search"></div>
                                                             </ui-select-choices>
                                                         </ui-select>
                                                     </td>
                                                     <td>
-                                                        <input type="number" class="form-control" ng-model="item.ExpirationDate">
+                                                        <input type="text" class="form-control" ng-model="item.RegNumber">
                                                     </td>
                                                     <td>
-                                                        <ui-select ng-model="item.Measure" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
-                                                            <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
-                                                            <ui-select-choices repeat="item in dic.DateUnits | filter: $select.search">
-                                                                <div ng-bind-html="item| highlight: $select.search"></div>
-                                                            </ui-select-choices>
-                                                        </ui-select>
+                                                        <input ng-model="item.DateOfIssue"
+                                                               class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                               view="date" min-view="date" format="DD.MM.YYYY">
+                                                    </td>
+                                                    <td>
+                                                        <input ng-model="item.ExpDate"
+                                                               class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                               view="date" min-view="date" format="DD.MM.YYYY">
                                                     </td>
                                                     <td><input type="checkbox" ng-model="item.IsIndefinitely" /></td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                         <div class="form-group">
-                                            <button class="k-button" ng-click="addMedicalDeviceComplectationData()">Добавить</button>
+                                            <button class="k-button" ng-click="addRegCountry()">Добавить</button>
                                         </div>
                                     </div>
                                 </div>

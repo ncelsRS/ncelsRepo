@@ -187,6 +187,17 @@ namespace PW.Ncels.Controllers
                 ContactPersonFactAddress = statement.ContactPersonFactAddress,
                 Agreement = statement.Agreement,
                 IsAgreed = statement.IsAgreed ?? false,
+                RegCountries = _ctx.EMP_EAESStatementRegCountry
+                    .Where(c => c.StatementId == statement.Id)
+                    .Select(c => new EmpEaesStatementRegCountry
+                    {
+                        Id = c.Id,
+                        Country = c.Country,
+                        DateOfIssue = c.DateOfIssue,
+                        ExpDate = c.ExpDate,
+                        IsIndefinitely = c.IsIndefinitely,
+                        RegNumber = c.RegNumber
+                    }),
                 //Samples = statement.EMP_StatementSamples.Select(s => new EmpEaesStatementSampleVm
                 //{
                 //    Id = s.Id,
@@ -295,6 +306,9 @@ namespace PW.Ncels.Controllers
             statement.IsAgreed = vm.IsAgreed;
             statement.RefCountry = vm.RefCountry;
             statement.ConCountry = vm.ConCountry;
+            statement.GarantExpDate = vm.GarantExpDate;
+            statement.GarantNoExp = vm.GarantNoExp;
+            statement.GarantUnit = vm.GarantUnit;
 
             if (vm.ChangeData != null)
             {
@@ -417,6 +431,38 @@ namespace PW.Ncels.Controllers
             //    }).ToList();
             //}
 
+            if (vm.RegCountries != null && vm.RegCountries.Count() > 0)
+            {
+                vm.RegCountries.ToList().ForEach(rc =>
+                {
+                    var current = _ctx.EMP_EAESStatementRegCountry.FirstOrDefault(c => c.Id == rc.Id);
+                    if (current != null)
+                    {
+                        current.IsIndefinitely = rc.IsIndefinitely;
+                        current.RegNumber = rc.RegNumber;
+                        current.StatementId = statement.Id;
+                        current.Country = rc.Country;
+                        current.DateOfIssue = rc.DateOfIssue ?? current.DateOfIssue;
+                        current.ExpDate = rc.ExpDate ?? current.ExpDate;
+                    }
+                    else
+                    {
+                        var nc = new EMP_EAESStatementRegCountry
+                        {
+                            Country = rc.Country,
+                            DateOfIssue = rc.DateOfIssue,
+                            ExpDate = rc.ExpDate,
+                            IsIndefinitely = rc.IsIndefinitely,
+                            RegNumber = rc.RegNumber,
+                            StatementId = statement.Id
+                        };
+                        if (nc.DateOfIssue == null)
+                            Console.Write("cheat");
+                        _ctx.EMP_EAESStatementRegCountry.Add(nc);
+                    }
+                });
+            }
+
             _ctx.SaveChanges();
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
@@ -517,7 +563,15 @@ namespace PW.Ncels.Controllers
         public string AfterChange { get; set; }
     }
 
-
+    public class EmpEaesStatementRegCountry
+    {
+        public int Id { get; set; }
+        public string Country { get; set; }
+        public string RegNumber { get; set; }
+        public DateTime? DateOfIssue { get; set; }
+        public DateTime? ExpDate { get; set; }
+        public bool? IsIndefinitely { get; set; }
+    }
 
     public class EmpEaesStatementViewModel
     {
@@ -592,5 +646,6 @@ namespace PW.Ncels.Controllers
         public int? GarantExpDate { get; set; }
         public string GarantUnit { get; set; }
         public bool? GarantNoExp { get; set; }
+        public IEnumerable<EmpEaesStatementRegCountry> RegCountries { get; set; }
     }
 }
