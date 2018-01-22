@@ -581,6 +581,8 @@ namespace PW.Ncels.Database.Constants
 
         public const string ATTACH_STATEMENT_NAC_PROC = "sysAttachStatementNacProc";
 
+        public const string ATTACH_STATEMENT_EAES_PROC = "sysAttachStatementEaesProc";
+
         #endregion
 
         #endregion

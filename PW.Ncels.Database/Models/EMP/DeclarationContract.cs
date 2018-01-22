@@ -13,6 +13,7 @@ namespace PW.Ncels.Database.Models.EMP
         public string AddressLegalKz { get; set; }
         public string AddressFact { get; set; }
         public string Phone { get; set; }
+        public string Phone2 { get; set; }
         public string Email { get; set; }
         public string BossLastName { get; set; }
         public string BossFirstName { get; set; }

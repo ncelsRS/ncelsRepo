@@ -59,7 +59,10 @@ namespace PW.Ncels.Controllers
 
         public ActionResult LoadStatement(Guid? id)
         {
-            var statement = _ctx.EMP_Statement.FirstOrDefault(x => x.Id == id) ?? new EMP_Statement();
+            var statement = _ctx.EMP_Statement.FirstOrDefault(x => x.Id == id) ?? new EMP_Statement()
+            {
+                Agreement = "Гарантирую: достоверность и идентичность информации, содержащейся в регистрационном досье и заявлении, представление  образцов изделий медицинского назначения, стандартных образцов в количествах, достаточных для трехкратного анализа, специфические реагенты, расходные материалы, применяемые при проведении испытаний (в исключительных случаях и на условиях возврата), а также их соответствие нормативным документам, представляемым на регистрацию. Обязуюсь сообщать обо всех изменениях в регистрационное досье, а также представлять заявление и материалы при обнаружении побочных воздействий при применении изделия медицинского назначения, медицинской техники, ранее не указанных в инструкции по медицинскому применению изделий медицинского назначения / руководстве по эксплуатации медицинской техники."
+            };
 
             var changes = _ctx.EMP_StatementChange.Where(x => x.StatementId == statement.Id).ToList();
             var storageLifes = _ctx.EMP_StatementStorageLife.Where(x => x.StatementId == statement.Id).ToList();
@@ -90,11 +93,13 @@ namespace PW.Ncels.Controllers
                     AfterChange = x.AfterChange
                 }).ToList(),
                 ContractId = statement.ContractId,
-                CortractList = _ctx.EMP_Contract.Select(x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Number + " " + x.MedicalDeviceName
-                }).ToList(),
+                CortractList = _ctx.EMP_Contract
+                    .Where(c => c.EMP_Ref_ContractScope.Code == "national")
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Number + " " + x.MedicalDeviceName
+                    }).ToList(),
                 RegistrationTypeValue = statement.RegistrationTypeValue,
                 RegistrationType = new List<SelectListItem>
                 {
@@ -107,12 +112,13 @@ namespace PW.Ncels.Controllers
                 MedicalDeviceNameKz = statement.MedicalDeviceNameKz,
                 MedicalDeviceNameRu = statement.MedicalDeviceNameRu,
                 NomenclatureCode = statement.NomenclatureCode,
+                NmirkId = statement.NmirkId,
                 NomenclatureNameKz = statement.NomenclatureNameKz,
                 NomenclatureNameRu = statement.NomenclatureNameRu,
                 NomenclatureDescriptionKz = statement.NomenclatureDescriptionKz,
                 NomenclatureDescriptionRu = statement.NomenclatureDescriptionRu,
-                ApplicationAreaKz = statement.ApplicationAreaKz,
-                ApplicationAreaRu = statement.ApplicationAreaRu,
+                ApplicationAreaKz = statement.ApplicationAreaKz?.Split(",".ToCharArray())?.ToList(),
+                ApplicationAreaRu = statement.ApplicationAreaRu?.Split(",".ToCharArray())?.ToList(),
                 PurposeKz = statement.PurposeKz,
                 PurposeRu = statement.PurposeRu,
                 IsClosedSystem = statement.IsClosedSystem ?? false,
@@ -187,9 +193,43 @@ namespace PW.Ncels.Controllers
                 ContactPersonPosition = statement.ContactPersonPosition,
                 ContactPersonFactAddress = statement.ContactPersonFactAddress,
                 Agreement = statement.Agreement,
-                IsAgreed = statement.IsAgreed ?? false
+                IsAgreed = statement.IsAgreed ?? false,
+                Samples = statement.EMP_StatementSamples.Select(s => new EmpStatementSampleVm
+                {
+                    Id = s.Id,
+                    Addition = s.Addition,
+                    Conditions = s.Conditions,
+                    Count = s.Count,
+                    CreateDate = s.CreateDate,
+                    ExpirationDate = s.ExpirationDate,
+                    Name = s.Name,
+                    SampleType = s.SampleType,
+                    SeriesPart = s.SeriesPart,
+                    Storage = s.Storage,
+                    Unit = s.Unit
+                })
             };
             return Json(statementVm, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetContractData(Guid id)
+        {
+            var res = _ctx.EMP_Contract
+                .Where(c => c.Id == id)
+                .Select(c => new
+                {
+                    IMNName = c.MedicalDeviceName,
+                    IMNNameKz = c.MedicalDeviceNameKz,
+                    Type = c.EMP_Ref_ContractType
+                }).FirstOrDefault();
+            var res1 = new
+            {
+                res.IMNName,
+                res.IMNNameKz,
+                res.Type?.Code
+            };
+            return Json(res1, JsonRequestBehavior.AllowGet);
+
         }
 
         public ActionResult StatementSave(EmpStatementViewModel vm)
@@ -214,12 +254,13 @@ namespace PW.Ncels.Controllers
             statement.MedicalDeviceNameKz = vm.MedicalDeviceNameKz;
             statement.MedicalDeviceNameRu = vm.MedicalDeviceNameRu;
             statement.NomenclatureCode = vm.NomenclatureCode;
+            statement.NmirkId = vm.NmirkId;
             statement.NomenclatureNameKz = vm.NomenclatureNameKz;
             statement.NomenclatureNameRu = vm.NomenclatureNameRu;
             statement.NomenclatureDescriptionKz = vm.NomenclatureDescriptionKz;
             statement.NomenclatureDescriptionRu = vm.NomenclatureDescriptionRu;
-            statement.ApplicationAreaKz = vm.ApplicationAreaKz;
-            statement.ApplicationAreaRu = vm.ApplicationAreaRu;
+            statement.ApplicationAreaKz = string.Join(",", vm.ApplicationAreaKz);
+            statement.ApplicationAreaRu = string.Join(",", vm.ApplicationAreaRu);
             statement.PurposeKz = vm.PurposeKz;
             statement.PurposeRu = vm.PurposeRu;
             statement.IsClosedSystem = vm.IsClosedSystem;
@@ -357,6 +398,29 @@ namespace PW.Ncels.Controllers
                 }
             }
 
+            if (vm.Samples != null)
+            {
+                statement.EMP_StatementSamples = vm.Samples.Select(s =>
+                {
+                    var res = new EMP_StatementSamples
+                    {
+                        Addition = s.Addition,
+                        Conditions = s.Conditions,
+                        Count = s.Count,
+                        CreateDate = s.CreateDate,
+                        ExpirationDate = s.ExpirationDate,
+                        Name = s.Name,
+                        SampleType = s.SampleType,
+                        SeriesPart = s.SeriesPart,
+                        StatementId = vm.Id,
+                        Storage = s.Storage,
+                        Unit = s.Unit
+                    };
+                    if (s.Id != 0) res.Id = s.Id;
+                    return res;
+                }).ToList();
+            }
+
             _ctx.SaveChanges();
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
@@ -368,6 +432,43 @@ namespace PW.Ncels.Controllers
                 .Where(x => x.Type == type)
                 .Select(x => x.Name), JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult DicNMIRK(string search, int id = 0)
+        {
+            var res = _ctx.EXP_DIC_NMIRK
+                .Where(x =>
+                    x.Code.ToString().Contains(search)
+                    || x.NameRu.Contains(search)
+                    || x.NameKk.Contains(search)
+                    || x.Id == id)
+                .Take(50)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.NameRu,
+                    x.NameKk,
+                    x.DescriptionRu,
+                    x.Descriptionkk,
+                    x.Code
+                });
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+    }
+
+    public class EmpStatementSampleVm
+    {
+        public int Id { get; set; }
+        public string SampleType { get; set; }
+        public string Name { get; set; }
+        public int Count { get; set; }
+        public string Unit { get; set; }
+        public string SeriesPart { get; set; }
+        public string Storage { get; set; }
+        public string Conditions { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ExpirationDate { get; set; }
+        public bool? Addition { get; set; }
     }
 
     public class EmpStatementMedicalDevicePackageViewModel
@@ -420,6 +521,8 @@ namespace PW.Ncels.Controllers
         public string AfterChange { get; set; }
     }
 
+
+
     public class EmpStatementViewModel
     {
         public List<SelectListItem> RegistrationKind { get; set; }
@@ -440,8 +543,9 @@ namespace PW.Ncels.Controllers
         public string NomenclatureNameRu { get; set; }
         public string NomenclatureDescriptionKz { get; set; }
         public string NomenclatureDescriptionRu { get; set; }
-        public string ApplicationAreaKz { get; set; }
-        public string ApplicationAreaRu { get; set; }
+        public int? NmirkId { get; set; }
+        public List<string> ApplicationAreaKz { get; set; }
+        public List<string> ApplicationAreaRu { get; set; }
         public string PurposeKz { get; set; }
         public string PurposeRu { get; set; }
         public bool IsClosedSystem { get; set; }
@@ -488,5 +592,6 @@ namespace PW.Ncels.Controllers
         public Guid Id { get; set; }
         public Guid? ContractId { get; set; }
         public string RegistrationTypeValue { get; set; }
+        public IEnumerable<EmpStatementSampleVm> Samples { get; set; }
     }
 }

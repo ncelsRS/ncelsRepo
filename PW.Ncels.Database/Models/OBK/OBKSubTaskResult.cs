@@ -11,6 +11,7 @@ namespace PW.Ncels.Database.Models.OBK
         public Guid Id { get; set; }
         public string ProductNameRu { get; set; }
         public string ProductNameKz { get; set; }
+        public int RegisterId { get; set; }
         public string NdProduct { get;set; }
         public string Regulation { get; set; }
         public bool ExpertiseResult { get; set; }

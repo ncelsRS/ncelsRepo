@@ -45,6 +45,7 @@
                 }
             }).success(function (response) {
                 $scope.object = response;
+                updateSamplesTable();
             });
         }
 
@@ -136,6 +137,20 @@
         }
 
         $scope.loadStatement();
+
+        $scope.contractChange = function () {
+            $http({
+                url: '/EMPStatement/GetContractData',
+                params: { id: $scope.object.ContractId }
+            }).success(function (res) {
+                if (res && res.Code)
+                    $scope.object.RegistrationKindValue = res.Code;
+                if (res.IMNName)
+                    $scope.object.MedicalDeviceNameRu = res.IMNName;
+                if (res.IMNNameKz)
+                    $scope.object.MedicalDeviceNameKz = res.IMNNameKz;
+            });
+        };
 
         $scope.dic = {
             LevelRisks: [
@@ -232,7 +247,21 @@
                 if (dic.indexOf(search) === -1)
                     dic.unshift(search);
                 return dic;
-            }
+            },
+            SampleTypes: [
+                "Стандартные образцы",
+                "Образцы"
+            ],
+            DateUnits: [
+                "день", "неделя", "месяц", "год"
+            ],
+            ManufacturerTypes: [
+                "Производитель",
+                "Уполномоченный представитель производителя",
+                "Контактные данные уполномоченного лица по мониторингу неблагоприятных событий (инцидентов) на территории РК",
+                "Производственная площадка",
+                "Заявитель"
+            ]
         };
         $scope.dic.ChangeDataType = function (search, index) {
             switch ($scope.object.ChangeData[index].Name) {
@@ -394,9 +423,6 @@
         $scope.dic.MedicalDevicePackageDataName = function (index) {
             switch ($scope.object.MedicalDevicePackageData[index].Kind) {
                 case $scope.dic.MedicalDevicePackageDataKind[0]:
-                    console.log(index);
-                    console.log($scope.object.MedicalDevicePackageData[index].Kind);
-                    console.log($scope.dic.MedicalDevicePackageDataKind[0]);
                     return [
                         "01 автоинжектор",
                         "02 ампула",
@@ -748,19 +774,179 @@
                     break;
             }
         }
+
+        $scope.dic.nmirks = [];
+        $scope.dic.refreshNmirks = function (search) {
+            $http({
+                url: '/EMPStatement/DicNMIRK',
+                method: 'GET',
+                params: {
+                    search: search,
+                    id: $scope.object.NmirkId
+                }
+            }).success(function (res) {
+                $scope.dic.nmirks = res;
+            });
+        }
+
+
+        $scope.nmirkOnSelect = function (item, model) {
+            $scope.object.NmirkId = item.Id;
+            $scope.object.NomenclatureNameKz = item.NameRu;
+            $scope.object.NomenclatureNameRu = item.NameKk;
+            $scope.object.NomenclatureDescriptionKz = item.Descriptionkk;
+            $scope.object.NomenclatureDescriptionRu = item.DescriptionRu;
+            $scope.object.NomenclatureCode = item.Code;
+        }
+
+        $scope.sampleIndex = -1;
+        $scope.addOrEditSample = function (index) {
+            console.log(index);
+            if (index || index === 0)
+                $scope.sampleIndex = index;
+            else
+                $scope.sampleIndex = -1;
+            if ($scope.sampleIndex == -1)
+                $scope.sample = {
+                    Addition: null,
+                    SampleType: null,
+                    Name: null,
+                    Count: null,
+                    Unit: null,
+                    SeriesPart: null,
+                    CreateDate: new Date(),
+                    ExpirationDate: new Date()
+                };
+            else
+                $scope.sample = $scope.object.Samples[$scope.sampleIndex];
+            $scope.showSampleForm = true;
+        }
+
+        $scope.saveSample = function () {
+            let errors = "Введите следующие поля:";
+            if ($scope.sample.Addition === null)
+                errors += " Дополнительно";
+            if ($scope.sample.SampleType === null)
+                errors += " Тип материала";
+            if ($scope.sample.Name === null)
+                errors += " Наименование материала";
+            if ($scope.sample.Count === null)
+                errors += " Количество материала";
+            if ($scope.sample.Unit === null)
+                errors += " Единицы измерения";
+            if ($scope.sample.SeriesPart === null)
+                errors += " Серия/партия";
+            if (errors !== "Введите следующие поля:")
+                return alert(errors);
+            if ($scope.sampleIndex == -1)
+                $scope.object.Samples.push($scope.sample);
+            else
+                $scope.object.Samples[$scope.sampleIndex] = $scope.sample;
+            $scope.sample = {};
+            $scope.sampleIndex = -1;
+            $scope.showSampleForm = false;
+            updateSamplesTable();
+        }
+
+        $scope.cancelSample = function () {
+            $scope.sample = {};
+            $scope.sampleIndex = -1;
+            $scope.showSampleForm = false;
+        }
+
+        function updateSamplesTable() {
+            $("#samplesTable").DataTable({
+                data: $scope.object.Samples,
+                destroy: true,
+                searching: false,
+                iDisplayLength: 5,
+                LengthMenu: false,
+                bLengthChange: false,
+                autoWidth: true,
+                columns: [
+                    { data: "Addition", render: function (data) { return data == "true" ? "Да" : "Нет" } },
+                    { data: "SampleType" },
+                    { data: "Name" },
+                    { data: "Count" },
+                    { data: "Unit" },
+                    { data: "SeriesPart" },
+                    { data: "CreateDate" },
+                    { data: "ExpirationDate" },
+                    {
+                        render: function (data, type, row, info) {
+                            return `<button class='k-button' onclick='addOrEditSample(${info.row})'>Изменить</button>`;
+                        }
+                    }
+                ]
+            });
+        }
+
+        $('#samplesTable').DataTable({
+            data: null,
+            searching: false,
+            columns: [
+                { title: "Дополнительно" },
+                { title: "Тип материала" },
+                { title: "Наименование изделия/материала" },
+                { title: "Кол-во" },
+                { title: "Ед.изм." },
+                { title: "Серия" },
+                { title: "Дата изготовления" },
+                { title: "Срок годности" },
+                { title: "" }
+            ]
+        });
+
+        $scope.sendWithSign = function () {
+            $scope.doSign();
+        }
+
+        $scope.doSign = function () {
+            var id = $scope.object.ContractId;
+            if (id) {
+
+                var funcSign = function signData() {
+                    debugger;
+                    $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Выполняется подпись...</h1>', css: { opacity: 1 } });
+                    signXmlCall(function () {
+                        $http({
+                            url: '/EMPContract/SignContract',
+                            method: 'POST',
+                            data: JSON.stringify({ contractId: id, signedData: $("#Certificate").val() })
+                        }).success(function () {
+                            $("#btnBackToList").click();
+                        }).error(function () {
+                            alert("Возникла ошибка при подписании договора");
+                            $.unblockUI();
+                        });
+                    });
+                };
+
+                startSign('/EMPContract/SignData', id, funcSign);
+            }
+        }
+
     }
 
     angular
         .module('app')
         .controller('empStatementForm',
         ['$scope', '$http', 'DTColumnBuilder', '$interval', '$uibModal', '$window', empStatementForm]);
+
+    function addOrEditSample(index) {
+        angular.element($('#statementCreateForm')).scope().addOrEditSample(index);
+    }
 </script>
 
-<form name="statementCreateForm" ng-controller="empStatementForm">
+@Html.Partial("~/Views/Home/SignView.cshtml")
+
+<form id="statementCreateForm" ng-controller="empStatementForm">
     <div class="ibox-content ibox-heading">
         <div class="note-font btn-group">
             <button id="btnBackToList" class="btn btn-info btn-sm" type="button" onclick="location.href='@ViewBag.ReturnUrl'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
             <button class="btn btn-default btn-sm" type="button" ng-click="saveBtnClick()"><i class="fa fa-save"></i>Сохранить</button>
+            <button class="btn btn-success btn-sm" type="button" ng-click="sendWithOutSign()"><i class="fa fa-send"></i> Отправить без подписи</button>
+            <button class="btn btn-primary btn-sm" type="button" ng-click="sendWithSign()"><i class="fa fa-send"></i> Подписать и отправить</button>
         </div>
     </div>
     <div class="ibox-content">
@@ -771,7 +957,9 @@
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
                         <li class=""><a data-toggle="tab" href="#tab-2">Комплектация ИМН и МТ</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-7">Упаковка</a></li>
                         <li class=""><a data-toggle="tab" href="#tab-3">Производители и участники производства</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-6">Журнал образцов/материалов</a></li>
                         <li class=""><a data-toggle="tab" href="#tab-5" ng-click="tab5click();">Вложения</a></li>
                         <li class=""><a data-toggle="tab" href="#tab-4">Соглашение</a></li>
                     </ul>
@@ -783,7 +971,7 @@
                                         <div class="form-group">
                                             <label class="control-label col-lg-4">Договор</label>
                                             <div class="col-lg-8">
-                                                <ui-select ng-model="object.ContractId" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                <ui-select ng-model="object.ContractId" ng-change="contractChange()" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                                     <ui-select-match placeholder="Выберите договор">{{$select.selected.Text}}</ui-select-match>
                                                     <ui-select-choices repeat="item.Value as item in object.CortractList | filter: $select.search">
                                                         <div ng-bind-html="item.Text| highlight: $select.search"></div>
@@ -932,7 +1120,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4">
+                                    <div class="col-lg-4" ng-show="object.RegistrationTypeValue == '1'">
                                         <div class="form-group">
                                             <label class="control-label col-lg-4">№ письма</label>
                                             <div class="input-group">
@@ -941,7 +1129,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4">
+                                    <div class="col-lg-4" ng-show="object.RegistrationTypeValue == '1'">
                                         <div class="form-group">
                                             <label class="control-label col-lg-4">Дата письма</label>
                                             <div class="input-group date">
@@ -998,7 +1186,13 @@
 
                                 <div class="form-horizontal row">
                                     <div class="col-lg-12" align="center">
-                                        <label>Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)</label>
+                                        <ui-select ng-model="object.NmirkId" on-select="nmirkOnSelect($item, $model)" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                            <ui-select-match placeholder="Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)">{{$select.selected.Code + " " + $select.selected.NameRu}}</ui-select-match>
+                                            <ui-select-choices repeat="item.Id as item in dic.nmirks | filter: $select.search"
+                                                               refresh="dic.refreshNmirks($select.search)">
+                                                <div ng-bind-html="item.Code + ' ' + item.NameRu | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
                                     </div>
                                 </div>
 
@@ -1008,14 +1202,14 @@
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureNameKz" ng-model="object.NomenclatureNameKz" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureNameKz" ng-model="object.NomenclatureNameKz" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameKz">
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label>На государственном языке</label>
+                                            <label>На русском языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureNameRu" ng-model="object.NomenclatureNameRu" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureNameRu" ng-model="object.NomenclatureNameRu" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureNameRu">
                                             </div>
                                         </div>
@@ -1023,14 +1217,14 @@
                                         <div class="form-group">
                                             <label>На государственном языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureDescriptionKz" ng-model="object.NomenclatureDescriptionKz" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureDescriptionKz" ng-model="object.NomenclatureDescriptionKz" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionKz">
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label>На государственном языке</label>
+                                            <label>На русском языке</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="NomenclatureDescriptionRu" ng-model="object.NomenclatureDescriptionRu" placeholder="Введите значение"
+                                                <input readonly id="NomenclatureDescriptionRu" ng-model="object.NomenclatureDescriptionRu" placeholder="Введите значение"
                                                        class="form-control edit-control" type="text" ui-select-selected name="NomenclatureDescriptionRu">
                                             </div>
                                         </div>
@@ -1104,7 +1298,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row" ng-show="object.IsClosedSystem">
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <div ng-class="{'input-group': showComments}">
@@ -1180,7 +1374,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-lg-4">Средство изменения</label>
+                                            <label class="control-label col-lg-4">Средство измерения</label>
                                             <div class="radio-inline">
                                                 <label><input type="radio" name="IsMeasurementDevice" ng-model="object.IsMeasurementDevice" ng-value="true">Да</label>
                                             </div>
@@ -1259,15 +1453,12 @@
                                                             </ui-select>
                                                         </td>
                                                         <td>
-                                                            <input ng-model="item.ExpirationDate"
-                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
-                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                            <input type="number" class="form-control" ng-model="item.ExpirationDate">
                                                         </td>
                                                         <td>
                                                             <ui-select ng-model="item.Measure" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
                                                                 <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
-                                                                <ui-select-choices repeat="item in dic.Measures | filter: $select.search"
-                                                                                   refresh="dic.refreshMeasures($select.search)">
+                                                                <ui-select-choices repeat="item in dic.DateUnits | filter: $select.search">
                                                                     <div ng-bind-html="item| highlight: $select.search"></div>
                                                                 </ui-select-choices>
                                                             </ui-select>
@@ -1374,18 +1565,6 @@
                         <div id="tab-2" class="tab-pane">
                             <div class="panel-body">
                                 <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <div class="radio-inline">
-                                                <label><input type="radio" name="IsComplectation" ng-model="object.IsComplectation" ng-value="true">Комплектация ИМН и МТ</label>
-                                            </div>
-                                            <div class="radio-inline">
-                                                <label><input type="radio" name="IsComplectation" ng-model="object.IsComplectation" ng-value="false">Упаковка</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row" ng-show="object.IsComplectation">
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <table class="table table-striped table-bordered dataTable">
@@ -1432,7 +1611,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row" ng-show="!object.IsComplectation">
+                            </div>
+                        </div>
+                        <div id="tab-7" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <table class="table table-striped table-bordered dataTable">
@@ -1508,14 +1691,26 @@
                                     <div class="col-lg-6 b-r">
                                         <h4>Производитель</h4>
                                     </div>
+                                    <div class="col-lg-6">
+                                        <div class="pull-right">
+                                            <button type="button" class="k-button">Копировать</button>
+                                            <button type="button" class="k-button">Удалить</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4 b-r">
                                         <div class="form-group">
                                             <label>Тип производителя</label>
                                             <div ng-class="{'input-group': showComments}">
-                                                <input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
-                                                       class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">
+                                                <ui-select ng-model="object.ManufacturerType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                    <ui-select-match placeholder="Выберите значение">{{$select.selected}}</ui-select-match>
+                                                    <ui-select-choices repeat="item in dic.ManufacturerTypes | filter: $select.search">
+                                                        <div ng-bind-html="item| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                                @*<input id="ManufacturerType" ng-model="object.ManufacturerType" placeholder="Введите значение"
+                                                    class="form-control edit-control" type="text" ui-select-selected name="ManufacturerType">*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1689,6 +1884,104 @@
                                     </div>
                                     <div ng-show="true">
                                         <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_STATEMENT_NAC_PROC" id="@ModelGuid" path="@ModelGuid" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-6" class="tab-pane">
+                            <div class="panel-body">
+                                <table id="samplesTable" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                                <button type="button" class="k-button" ng-click="addOrEditSample()">Добавить</button>
+                                <br />
+                                <br />
+                                <div class="panel panel-default" ng-show="showSampleForm">
+                                    <div id="sampleEditionForm" class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Дополнительно
+                                                                <input type="checkbox" class="k-checkbox" ng-model="sample.Addition" />
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Тип материала
+                                                            </label>
+                                                            <ui-select ng-model="sample.SampleType" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                                <ui-select-match placeholder="Выберите значение..">{{$select.selected}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in dic.SampleTypes | filter: $select.search">
+                                                                    <div ng-bind-html="item| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Наименование материала
+                                                            </label>
+                                                            <input type="text" class="form-control" ng-model="sample.Name" placeholder="Введите значение.." />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Количество материала
+                                                            </label>
+                                                            <input type="number" class="form-control" ng-model="sample.Count" placeholder="Введите значение.." />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Единицы измерения
+                                                            </label>
+                                                            <ui-select ng-model="sample.Unit" theme="bootstrap" name="type" style="width: 100%" ui-select-selected>
+                                                                <ui-select-match placeholder="Выберите значение..">{{$select.selected}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in dic.Measures | filter: $select.search"
+                                                                                   refresh="dic.refreshMeasures($select.search)">
+                                                                    <div ng-bind-html="item| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Серия/партия
+                                                            </label>
+                                                            <input type="text" class="form-control" ng-model="sample.SeriesPart" placeholder="Введите значение.." />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Условия хранения
+                                                            </label>
+                                                            <input type="text" class="form-control" ng-model="sample.Conditions" placeholder="Введите значение.." />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Дата изготоволения
+                                                            </label>
+                                                            <input ng-model="sample.CreateDate"
+                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Дата истечения
+                                                            </label>
+                                                            <input ng-model="sample.ExpirationDate"
+                                                                   class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected date-time auto-close="true"
+                                                                   view="date" min-view="date" format="DD.MM.YYYY">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="k-button" ng-click="saveSample()">Сохранить</button>
+                                                <button type="button" class="k-button" ng-click="cancelSample()">Отменить</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

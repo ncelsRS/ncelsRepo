@@ -22,7 +22,8 @@
         'angular-storage',
             'ui.mask',
             'ui.grid',
-            'ui.grid.selection'
+            'ui.grid.selection',
+        'angularUtils.directives.dirPagination'
     ]);
 })();
 
