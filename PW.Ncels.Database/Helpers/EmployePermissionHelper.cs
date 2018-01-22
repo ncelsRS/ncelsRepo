@@ -1055,5 +1055,10 @@ namespace PW.Ncels.Database.Helpers
         public static bool OBKDictionaries { get { return IsVisibility("OBKDictionaries"); } }
         public static bool ZBKRegister { get { return IsVisibility("ZBKRegister"); } }
         #endregion
+
+        #region Учет бланков
+        public static bool BlankAccounting { get { return IsVisibility("BlankAccounting"); } }
+        public static bool UserCorruptsBlanks { get { return IsVisibility("UserCorruptsBlanks"); } }
+        #endregion
     }
 }

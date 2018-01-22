@@ -1,0 +1,315 @@
+﻿@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.DataModel
+@model Guid?
+
+@helper GridToolbarTemplateBlank()
+    {
+        <div class="pull-left">
+            <label>Дата от</label>
+            @( Html.Kendo().DatePicker().Name("dateFrom").Format("{0:dd.MM.yyyy}") )
+            <label>до</label>
+            @( Html.Kendo().DatePicker().Name("dateTo").Format("{0:dd.MM.yyyy}") )
+            @( Html.Kendo().Button().Name("searchBlanks")
+                                                                   .Content("Найти"))
+            @( Html.Kendo().Button().Name("decommission")
+                                                                   .Content("Списать"))
+            @( Html.Kendo().Button().Name("printBlanksReport")
+                                .Content("Экспорт"))
+
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload")
+                                            .Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@(Html.Kendo().Splitter()
+                                .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                                .Name(("splitter" + Model))
+                                .Panes(panes =>
+                                {
+                                    panes.Add()
+                                        .Size("250px")
+                                        .Collapsible(true)
+                                        .MaxSize("500px")
+                                        .MinSize("250px")
+                                        .Content(
+                                        @<div class="pwPanelBar">
+                                            @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                                                                           .Name("panelbar" + Model)
+                                                                                           .ExpandMode(PanelBarExpandMode.Multiple)
+                                                                                           .ExpandAll(true)
+                                                                                           .HtmlAttributes(new { style = "width:auto;" })
+                                                                                           .Items(panelbar =>
+                                                                                           {
+                                                                                                       panelbar.Add().Expanded(true);
+                                                                                                       panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Типысправочников_108__00)
+                                                                                   .Items(projects =>
+                                                                                   {
+                                                                                                           projects.Add().Text("Все").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "allBlank" } });
+
+                                                                                                           projects.Add().Text("Использованные списанные").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "usedDecommissioned" } });
+
+                                                                                                           projects.Add().Text("Испорченные списанные").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "usedCorrupted" } });
+
+                                                                                                           projects.Add().Text("Отчет по бланкам").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "blankReport" } });
+
+                                                                                                       });
+                                                                                                   })
+                                            )
+
+                                        </div>
+                                                                            );
+
+
+                                            panes.Add().Scrollable(false).Size("100%").Content(
+                                                                        @<div class="pwPanelBar">
+                                                                            @( Html.Kendo().Grid<OBK_BlankAccountingView>()
+                                                                                                                             .Name("OBK_BlankAccounting")
+                                                                                                                             .Columns(columns =>
+                                                                                                                             {
+                                                                                                                                         columns.Bound(p => p.Number).Title("Номер бланка").Width(100);
+                                                                                                                                         columns.Bound(p => p.RegisterDate).Format("{0:dd.MM.yyyy}").Title("Дата использования <br> (дата порчи)").Width(150);
+                                                                                                                                         columns.Bound(p => p.DecommissionedDate).Format("{0:dd.MM.yyyy}").Title("Дата списания").Width(150);
+                                                                                                                                         columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный <br>номер заключения");
+                                                                                                                                         columns.Bound(p => p.Declarant).Title("Заявитель").Width(100);
+                                                                                                                                         columns.Bound(p => p.Executor).Title("Исполнитель").Width(150);
+                                                                                                                                         columns.Bound(p => p.DocumentType).Title("Тип документа").Width(100);
+                                                                                                                                         columns.Bound(p => p.OrganName).Title("Филиал").Width(100);
+                                                                                                                                         columns.Bound(p => p.Sign).Title("Признак").Width(100);
+                                                                                                                                         columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").HeaderTemplate("<input class='checkbox' type='checkbox' id='SelectPageBlanks' style='float: left;'/> <span style='display: block;line-height: 18px;padding: .5em .6em .4em .6em;'>Выбрать все<span>").Width(150).Filterable(false).Sortable(false).HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+                                                                                                                                     })
+                                                                                                                             .AutoBind(false)
+                                                                                                                             .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                             .Resizable(resizable => resizable.Columns(true))
+                                                                                                                             .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplateBlank().ToHtmlString()); })
+                                                                                                                             .Groupable()
+                                                                                                                             .Sortable()
+                                                                                                                             .Filterable()
+                                                                                                                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                             .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                             .Pageable()
+                                                                                                                             .HtmlAttributes(new { style = "height:400px; font-size: 12px" })
+                                                                                                                             .DataSource(dataSource => dataSource
+                                                                                                                                 .Ajax()
+                                                                                                                                 .Sort(sort => { sort.Add("RegisterDate").Descending(); })
+                                                                                                                                 .PageSize(20)
+                                                                                                                                 .Read(read => read.Action("List", "BlankAccounting"))
+                                                                                                                             ))
+
+                                                                            <div id="@("totalDiv" + Model)">
+                                                                                <div class="row">
+                                                                                    <h6>Количество использованныз бланков: <span id="@("totalFresh" + Model)"></span></h6>
+                                                                                    <h6>Количество испорченных бланков: <span id="@("totalCorrupted" + Model)"></span></h6>
+                                                                                    <h6>Общее количество бланков: <span id="@("total" + Model)"></span></h6>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <h5>Расчетная потребность в бланках</h5>
+                                                                                    <h6>20% - результат (<span id="@("20"+Model)"></span>)</h6>
+                                                                                    <h6>25% - результат (<span id="@("25"+Model)"></span>)</h6>
+                                                                                    <h6>50% - результат (<span id="@("50"+Model)"></span>)</h6>
+                                                                                    <h6>75% - результат (<span id="@("75"+Model)"></span>)</h6>
+                                                                                    <h6>100% - результат (<span id="@("100"+Model)"></span>)</h6>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                             );
+
+                                    }))
+
+                                                                         <script>
+    $("#totalDiv" + "@Model").hide();
+    $(document).ready(function ()
+    {
+        InitDecommission();
+    });
+
+    $("#decommission").hide();
+    $("#printBlanksReport").hide();
+    $("#searchBlanks").attr("disabled", "disabled");
+    $("#decommission").addClass("k-state-disabled");
+
+    $("#allBlank").click(function ()
+    {
+        $("#totalDiv" + "@Model").hide();
+        var grid = $("#OBK_BlankAccounting").data("kendoGrid");
+
+        clearFilter(grid);
+
+        var filter = new Array();
+        filter.push(
+            { field: "Decommissioned", operator: "ne", value: true });
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        grid.showColumn("ExpConclusionNumber");
+        grid.showColumn("Declarant");
+        grid.showColumn("DocumentType");
+        grid.showColumn("Id");
+        grid.hideColumn("DecommissionedDate");
+
+        grid.dataSource.read();
+        $("#searchBlanks").removeAttr("disabled", "disabled");
+        $("#decommission").show();
+        $("#printBlanksReport").hide();
+    });
+
+    $("#usedDecommissioned").click(function ()
+    {
+        $("#totalDiv" + "@Model").hide();
+        var grid = $("#OBK_BlankAccounting").data("kendoGrid");
+        var filter = new Array();
+        clearFilter(grid);
+        filter.push(
+            { field: "Decommissioned", operator: "eq", value: true },
+            { field: "Corrupted", operator: "eq", value: false });
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        grid.showColumn("ExpConclusionNumber");
+        grid.showColumn("Declarant");
+        grid.showColumn("DocumentType");
+        grid.showColumn("DecommissionedDate");
+        grid.hideColumn("Id");
+
+        grid.dataSource.read();
+        $("#searchBlanks").removeAttr("disabled", "disabled");
+        $("#decommission").hide();
+        $("#printBlanksReport").hide();
+    });
+
+    $("#usedCorrupted").click(function ()
+    {
+        $("#totalDiv" + "@Model").hide();
+        var grid = $("#OBK_BlankAccounting").data("kendoGrid");
+        var filter = new Array();
+        clearFilter(grid);
+        filter.push(
+            { field: "Decommissioned", operator: "eq", value: true },
+            { field: "Corrupted", operator: "eq", value: true });
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        grid.hideColumn("ExpConclusionNumber");
+        grid.hideColumn("Declarant");
+        grid.hideColumn("DocumentType");
+        grid.hideColumn("Id");
+        grid.showColumn("DecommissionedDate");
+
+        grid.dataSource.read();
+        $("#searchBlanks").removeAttr("disabled", "disabled");
+        $("#decommission").hide();
+        $("#printBlanksReport").hide();
+    });
+
+    $("#blankReport").click(function ()
+    {
+        var grid = $("#OBK_BlankAccounting").data("kendoGrid");
+
+        clearFilter(grid);
+
+        grid.showColumn("ExpConclusionNumber");
+        grid.showColumn("Declarant");
+        grid.showColumn("DocumentType");
+        grid.showColumn("DecommissionedDate");
+        grid.hideColumn("Id");
+
+        var filter = new Array();
+        filter.push(
+            { field: "Decommissioned", operator: "eq", value: true });
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        grid.dataSource.read();
+        $("#searchBlanks").removeAttr("disabled", "disabled");
+        $("#decommission").hide();
+        $("#printBlanksReport").show();
+        $("#totalDiv" + "@Model").show();
+
+        calcToal(grid);
+    });
+
+    $("#searchBlanks").click(function ()
+    {
+        var from = $('#dateFrom').val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#dateTo').val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#OBK_BlankAccounting").data("kendoGrid");
+        var filter = new Array();
+        if (from != undefined && from != null && from != "")
+        {
+            filter.push(
+                { field: "RegisterDate", operator: "gte", value: fromDate });
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            filter.push(
+                { field: "RegisterDate", operator: "lte", value: toDate });
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        calcToal(grid);
+    });
+
+    $("#printBlanksReport").click(function ()
+    {
+        window.open('/BlankAccounting/ExportFile?from=' + $("#dateFrom").val() + '&to=' + $("#dateTo").val());
+    });
+
+    function calcToal(grid)
+    {
+        parameterMap = grid.dataSource.transport.parameterMap;
+
+        var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+        $.ajax({
+            type: 'POST',
+            url: '/BlankAccounting/Prediction/',
+            data: data,
+            success: function (data)
+            {
+                if (data.success == true){
+                    $("#total" + "@Model").text(data.result.total);
+                    $("#totalCorrupted" + "@Model").text(data.result.corrupted);
+                    $("#totalFresh" + "@Model").text(data.result.fresh);
+                    $("#20" + "@Model").text(Math.round(data.result.total * 1.2));
+                    $("#25" + "@Model").text(Math.round(data.result.total * 1.25));
+                    $("#50" + "@Model").text(Math.round(data.result.total * 1.5));
+                    $("#75" + "@Model").text(Math.round(data.result.total * 1.75));
+                    $("#100" + "@Model").text(Math.round(data.result.total * 2));
+                }
+            }
+        });
+    }
+
+    function clearFilter(grid)
+    {
+        if (grid.dataSource._filter != undefined)
+        {
+            for (var i = 0; i < grid.dataSource._filter.filters.length; i++)
+            {
+                if (grid.dataSource._filter.filters[i].field == 'Decommissioned' || grid.dataSource._filter.filters[i].field == 'Corrupted')
+                {
+                    grid.dataSource._filter.filters.splice(i, 1);
+                }
+            }
+        }
+    }
+
+                                                                         </script>

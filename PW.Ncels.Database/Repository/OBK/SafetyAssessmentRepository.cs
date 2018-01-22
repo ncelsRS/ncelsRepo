@@ -974,6 +974,26 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             AppContext.OBK_StageExpDocument.AddOrUpdate(expDocument);
             AppContext.SaveChanges();
+
+            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id);
+            if (blank == null)
+            {
+                var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+                blank = new OBK_BlankNumber()
+                {
+                    Id = Guid.NewGuid(),
+                    Object_Id = expDocument.Id,
+                    CreateDate = DateTime.Now,
+                    BlankTypeId = blankType.Id,
+                    Corrupted = false
+                };
+            }
+
+            blank.Number = int.Parse(expDocument.ExpBlankNumber);
+            blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+
+            AppContext.OBK_BlankNumber.AddOrUpdate(blank);
+            AppContext.SaveChanges();
         }
 
         public OBK_StageExpDocument GetStageExpDocument(int? prodSerId)
