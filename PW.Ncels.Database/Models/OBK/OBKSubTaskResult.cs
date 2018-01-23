@@ -25,6 +25,9 @@ namespace PW.Ncels.Database.Models.OBK
         public string UnitLaboratoryName { get; set; }
 
         public List<SubTaskIndicator> SubTaskIndicator { get; set; }
+
+        public string SubTaskCoExecutorName { get; set; }
+        public List<SubTaskIndicator> SubTaskIndicatorCoExecutor { get; set; }
     }
 
     public class SubTaskDetails
@@ -58,5 +61,7 @@ namespace PW.Ncels.Database.Models.OBK
         /// Фактическии полученный результат
         /// </summary>
         public string FactResult { get; set; }
+
+        public bool ExpertiseResult { get; set; }
     }
 }

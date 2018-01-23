@@ -73,12 +73,6 @@ namespace PW.Ncels.Controllers
             if (ModelState.IsValid)
             {
                 Employee employee = _context.Employees.FirstOrDefault(o => o.Login == model.Email);
-                //string providerName = Membership.Provider.ApplicationName;
-                //var providers = Membership.Providers;
-                //var n = Membership.ApplicationName;
-                //var user1 = Membership.GetUser(model.Email);
-                //var nP = user1.ResetPassword();
-                //var p2 = user1.GetPassword();
                 if (employee != null) {
                     if (Membership.ValidateUser(model.Email, model.Password))
                     {

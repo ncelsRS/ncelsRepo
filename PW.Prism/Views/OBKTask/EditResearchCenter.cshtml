@@ -101,7 +101,12 @@
                                                                 <td>@t.Quantity</td>
                                                                 <td>@t.IdNumber</td>
                                                                 <td>@t.LaboratoryName</td>
-                                                                <td>@Html.DropDownList("ExecutorLaboratoryId", t.ExecutorLaboratoryList, String.Empty, new { @class = "form-control task-control" })
+                                                                @*<td>@Html.DropDownList("ExecutorLaboratoryId", t.ExecutorLaboratoryList, String.Empty, new { @class = "form-control task-control" })</td>*@
+                                                                <td>
+                                                                    <div class="chzn-select">
+                                                                        @Html.ListBoxFor(x => t.ExternalCondition, t.ExecutorLaboratoryList,
+                                                                            new {@class = "chzn-select form-control task-control", data_placeholder = "Выбирите исполнителя...", name = "ExecutorLaboratoryList"})
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         }
@@ -153,6 +158,8 @@
 
 <script>
     
+    $("div.chzn-select select").chosen({ width: '100%' });
+    
     function sendToERC() {
         if (validERC) {
             sendToExecutorResearchCenters();
@@ -162,13 +169,23 @@
     }
 
     function sendToExecutorResearchCenters() {
-        debugger;
         var taskListResearchCenter = new Array();
+        var executorLaboratoryId = new Array();
         $('table#tableCreate tbody tr').each(function () {
-            debugger;
+            executorLaboratoryId = [];
             var rowId = $(this).attr('rowid');
-            var executorLaboratoryId = $(this).find('td select#ExecutorLaboratoryId option:selected').val();
-            taskListResearchCenter.push({ Id: rowId, LaboratoryAssistantId: executorLaboratoryId });
+
+            var selections = $(this).find('div.chzn-select option:selected');
+            if (selections.length > 0) {
+                selections.each(function () {
+                    var chValue = $(this).val();
+                    executorLaboratoryId.push(chValue);
+                });
+                taskListResearchCenter.push({ "Id": rowId, "LaboratoryAssistantIds": executorLaboratoryId });
+            }
+
+            //var executorLaboratoryId = $(this).find('td select#ExecutorLaboratoryId option:selected').val();
+            //taskListResearchCenter.push({ Id: rowId, LaboratoryAssistantId: executorLaboratoryId });
         });
 
         var model= {
@@ -186,7 +203,6 @@
             cache: false,
             success: function (data) {
                 if (data.isSuccess) {
-                    debugger;
                     alert("Задание передано исполнителю");
                     $("#sendToExecutorResearchCenters").attr("disabled", true);
                 } else {

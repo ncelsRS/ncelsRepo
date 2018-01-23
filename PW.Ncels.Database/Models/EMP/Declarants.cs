@@ -27,5 +27,8 @@ namespace PW.Ncels.Database.Models.EMP
         public int Status { get; set; }
         public Contacts Contact { get; set; }
         public string Iin { get; set; }
+
+        public Guid? Country { get; set; }
+        public Guid? NameNonResident { get; set; }
     }
 }

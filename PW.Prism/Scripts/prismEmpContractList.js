@@ -147,7 +147,7 @@ function panelEmpContractSelect(e) {
             var btnRegister = $("#register" + modelId);
             var findInActiveBlock = $("#findInActiveBlock" + modelId);
 
-            if (selectValue === "1" || (selectValue === "4" && stageCode === "1")) {
+            if (selectValue === "1") { //|| (selectValue === "4" && stageCode === "1")
                 btnToWork.attr("hidden", false);
             } else {
                 btnToWork.attr("hidden", true);

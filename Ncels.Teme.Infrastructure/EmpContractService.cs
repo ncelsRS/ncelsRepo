@@ -63,7 +63,8 @@ namespace Ncels.Teme.Infrastructure
                     ContractType = stage.EMP_Contract.EMP_Ref_ContractType.NameRu,
                     StageStatusCode = stage.EMP_Ref_StageStatus.Code,
                     ContractStageId = stage.Id,
-                    ContractStatusId = stage.EMP_Contract.EMP_DirectionToPayments.Select(x => x.OBK_Ref_PaymentStatus.Code).FirstOrDefault()
+                    ContractStatusId = stage.EMP_Contract.EMP_DirectionToPayments.Select(x => x.OBK_Ref_PaymentStatus.Code).FirstOrDefault(),
+                    ContractScopeName = stage.EMP_Contract.EMP_Ref_ContractScope.NameRu
                 });
 
             return q.AsQueryable();
@@ -81,7 +82,8 @@ namespace Ncels.Teme.Infrastructure
             var declarant = GetDeclarant(contract.OBK_Declarant, contract.OBK_DeclarantContact);
             declarant.Title = Declarant;
             declarant.Code = DeclarantCode;
-            declarant.HasProxy = contract.HasProxy == true ? "Да" : "Нет";
+            declarant.BossDocType = _uow.GetQueryable<EMP_Ref_ContractDocumentType>().FirstOrDefault(e=>e.Id == contract.OBK_DeclarantContact.BossDocType)?.NameRu;
+            declarant.BossDocTypeCode = _uow.GetQueryable<EMP_Ref_ContractDocumentType>().FirstOrDefault(e => e.Id == contract.OBK_DeclarantContact.BossDocType)?.Code;
             declarant.DocumentType = contract.DocumentType == 1 ? "Представительство" : contract.DocumentType == 2 ? "Доверенное лицо" : string.Empty;
 
             var payer = GetDeclarant(contract.OBK_DeclarantPayer, contract.OBK_DeclarantContactPayer);
@@ -104,6 +106,12 @@ namespace Ncels.Teme.Infrastructure
                 Payers = payers,
                 ChoosPayer = contract.ChoosePayer,
                 MedicalDeviceName = contract.MedicalDeviceName,
+                MedicalDeviceNameKz = contract.MedicalDeviceNameKz,
+                ContractScope = contract.EMP_Ref_ContractScope.Code,
+                ContractScopeName = contract.EMP_Ref_ContractScope.NameRu,
+                HolderType = _uow.GetQueryable<EMP_Ref_HolderType>().FirstOrDefault(e=>e.Id == contract.HolderType)?.NameRu,
+                ContractType = contract.EMP_Ref_ContractType.NameRu,
+                StatemantNumber = contract.StatemantNumber,
                 WorkCosts = contract.EMP_CostWorks.Select(x => new EmpContractWorkCostViewModel
                 {
                     WorkName = x.EMP_Ref_PriceList.EMP_Ref_ServiceType.NameRu,
@@ -240,7 +248,23 @@ namespace Ncels.Teme.Infrastructure
             var info = new DirectoryInfo(Path.Combine(ConfigurationManager.AppSettings[AttachPath], Root, doc));
             if (!info.Exists) info.Create();
 
-            var codes = new[] { EmpCodeConsts.ATTACH_CONTRACT_FILE, EmpCodeConsts.ATTACH_CONTRACT_DEGREERISK_FILE };
+            var contract = _uow.GetQueryable<EMP_Contract>().FirstOrDefault(e => e.Id == contractId);
+            if (contract == null) return null;
+
+            string[] codes = new string[] { };
+            switch (contract.EMP_Ref_ContractScope.Code)
+            {
+                case "national":
+                    codes = new[] { EmpCodeConsts.ATTACH_CONTRACT_FILE, EmpCodeConsts.ATTACH_CONTRACT_DEGREERISK_FILE };
+                    break;
+                case "eaesrg":
+                    codes = new[] { EmpCodeConsts.ATTACH_CONTRACT_FILE_EAES_RG };
+                    break;
+                case "eaesgp":
+                    codes = new[] { EmpCodeConsts.ATTACH_CONTRACT_FILE_EAES_GP };
+                    break;
+            }
+            
             var dicListQuery = _uow.GetQueryable<Dictionary>().Where(o => codes.Contains(o.Type));
 
             var markList = _uow.GetQueryable<FileLinksCategoryCom>().Where(e => e.DocumentId == contractId).ToList();
@@ -436,7 +460,7 @@ namespace Ncels.Teme.Infrastructure
                                      && stage.EMP_Contract.EMP_ContractStage.Any(x => x.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant);
             bool canLegalApprove = stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.LegalDepartmant
                                    && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork
-                                   && stage.EMP_Contract.EMP_ContractHistory.Any(x => x.OBK_Ref_ContractHistoryStatus.Code == OBK_Ref_ContractHistoryStatus.Returned);
+                                   && stage.EMP_Contract.EMP_ContractHistory.Any(x => x.OBK_Ref_ContractHistoryStatus.Code != OBK_Ref_ContractHistoryStatus.Returned);
             bool canValidationGroupUserApprove = IsEmployeeInUnit(empl, "ValidationGroup") && !IsEmployeeBossInUnit(empl, "ValidationGroup")
                 && stage.EMP_Ref_Stage.Code == CodeConstManager.EmpContractStage.ValidationGroup
                 && stage.EMP_Ref_StageStatus.Code == CodeConstManager.EmpContractStageStatus.InWork;
@@ -485,7 +509,7 @@ namespace Ncels.Teme.Infrastructure
         public string RegisterContract(Guid contractId)
         {
             var contract = _uow.GetQueryable<EMP_Contract>().First(x => x.Id == contractId);
-            contract.Number = GetLastNumberOfContract();
+            //contract.Number = GetLastNumberOfContract();
             contract.StartDate = DateTime.Now;
 
             var digitalSign = _uow.GetQueryable<EMP_ContractSignData>().FirstOrDefault(x => x.ContractId == contractId);

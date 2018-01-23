@@ -82,6 +82,8 @@ namespace PW.Ncels.Database.Models.OBK
 
         public Guid LaboratoryAssistantId { get; set; }
 
+        public List<Guid> LaboratoryAssistantIds { get; set; }
+
         /// <summary>
         /// если уже результат ИЦ создан
         /// </summary>
