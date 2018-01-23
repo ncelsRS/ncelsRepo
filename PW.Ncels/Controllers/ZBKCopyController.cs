@@ -100,7 +100,6 @@ namespace PW.Ncels.Controllers
             report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return new FileStreamResult(stream, "application/pdf");
-            //return File(stream, "application/pdf", name);
         }
 
         public ActionResult Update(Guid Id, int quantity, DateTime letterDate, string letterNumber)

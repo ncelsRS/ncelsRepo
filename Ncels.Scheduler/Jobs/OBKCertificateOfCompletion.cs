@@ -22,13 +22,25 @@ namespace Ncels.Scheduler.Jobs
             var acts = repo.GetCertificateOfCompletions();
             foreach (var act in acts)
             {
-                act.OBK_AssessmentDeclaration.StatusId = CodeConstManager.STATUS_OBK_SIGN_ACT;
-                act.SendNotification = true;
-                //отправка уведоления
-                new NotificationManager().SendNotificationFromCompany(
-                    string.Format("По заявке №{0} вынесено решение. Просим распечатать акт выполненных работ и предоставить Исполнителю с подписью и печатью.", act.OBK_AssessmentDeclaration.Number),
-                    ObjectType.ObkDeclaration, act.OBK_AssessmentDeclaration.Id.ToString(), act.OBK_AssessmentDeclaration.EmployeeId);
-                repo.UpdateNotificationToAct(act);
+                if (act.ZBKCopyId != null)
+                {
+                    act.SendNotification = true;
+
+                    new NotificationManager().SendNotificationFromCompany(
+                        "Просим распечатать акт выполненных работ и предоставить Исполнителю с подписью и печатью.", ObjectType.OBK_ZBKCopy, act.ZBKCopyId.ToString(),
+                        (Guid)repo.GetZBKCopy((Guid)act.ZBKCopyId).EmployeeId);
+                    repo.UpdateNotificationToAct(act);
+                }
+                else
+                {
+                    act.OBK_AssessmentDeclaration.StatusId = CodeConstManager.STATUS_OBK_SIGN_ACT;
+                    act.SendNotification = true;
+                    //отправка уведоления
+                    new NotificationManager().SendNotificationFromCompany(
+                        string.Format("По заявке №{0} вынесено решение. Просим распечатать акт выполненных работ и предоставить Исполнителю с подписью и печатью.", act.OBK_AssessmentDeclaration.Number),
+                        ObjectType.ObkDeclaration, act.OBK_AssessmentDeclaration.Id.ToString(), act.OBK_AssessmentDeclaration.EmployeeId);
+                    repo.UpdateNotificationToAct(act);
+                }
             }
         }
     }
