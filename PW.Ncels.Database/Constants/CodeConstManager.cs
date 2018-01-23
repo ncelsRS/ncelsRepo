@@ -703,5 +703,30 @@ namespace PW.Ncels.Database.Constants
             /// </summary>
             public const string New = "10";
         }
-    }
+
+        #region BlankTypes
+        public static class BlankTypes
+        {
+            /// <summary>
+            /// ЗБК
+            /// </summary>
+            public const string ZBK = "ZBK";
+
+            /// <summary>
+            /// Приложения
+            /// </summary>
+            public const string Application = "Application";
+
+            /// <summary>
+            /// Копия ЗБК
+            /// </summary>
+            public const string ZBKCopy = "ZBKCopy";
+
+            /// <summary>
+            /// Копия приложения ЗБК
+            /// </summary>
+            public const string ZBKApplicationCopy = "ZBKApplicationCopy";
+        }
+            #endregion
+        }
 }

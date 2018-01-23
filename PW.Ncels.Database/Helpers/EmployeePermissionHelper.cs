@@ -241,6 +241,11 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("ZBKRegister", @"Модуль 'Реестр ЗБК' 'Справочники'", "Возможность видеть реестр ЗБК", "Работа с справочниками");
             #endregion
 
+            #region Учет бланков
+            AddPermission("BlankAccounting", @"Модуль 'Учет бланков' 'Учет бланков'", "Возможность учет бланков", "Работа учетом бланков");
+            AddPermission("UserCorruptsBlanks", @"Модуль 'Учет бланков' 'Учет бланков'", "Внесение сведений по испорченным бланкам", "Работа учетом бланков");
+            #endregion
+
             RemoveNonActualKeys();
         }
 

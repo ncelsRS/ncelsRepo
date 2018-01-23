@@ -30,7 +30,8 @@ namespace Ncels.Scheduler.Jobs
                     if (dPaid.ZBKCopy_id != null)
                     {
                         new NotificationManager().SendNotificationFromCompany(
-                            "Необходимо предоставить оригинал ЗБК в ЦОЗ для оформления копий ЗБК.", ObjectType.OBK_ZBKCopy, dPaid.ZBKCopy_id.ToString(), 
+                             string.Format("Оплата по счету {0} получена. Теперь необходимо предоставить оригинал ЗБК в ЦОЗ для оформления копий ЗБК.", dPaid.InvoiceNumber1C),
+                            ObjectType.OBK_ZBKCopy, dPaid.ZBKCopy_id.ToString(),
                             (Guid)repo.GetZBKCopy((Guid)dPaid.ZBKCopy_id).EmployeeId);
                         repo.UpdateNotificationToPayment(dPaid, true);
                     }
@@ -50,12 +51,26 @@ namespace Ncels.Scheduler.Jobs
             {
                 if (dNotFullPaid.IsPaid && dNotFullPaid.IsNotFullPaid)
                 {
-                    var pay = Math.Round((decimal)(dNotFullPaid.PaymentBill - dNotFullPaid.PaymentValue), 2);
-                    //отправка уведоления
-                    new NotificationManager().SendNotificationFromCompany(
-                        string.Format("Оплата по счету {0} получена не в полном размере. Просим оплатить остаток суммы {1} для дальнейшей подачи заявки", dNotFullPaid.InvoiceNumber1C, pay),
-                        ObjectType.Unknown, dNotFullPaid.OBK_Contract.Id.ToString(), (Guid)dNotFullPaid.OBK_Contract.EmployeeId);
-                    repo.UpdateNotificationToPayment(dNotFullPaid, false);
+                    if (dNotFullPaid.ZBKCopy_id != null)
+                    {
+                        var pay = Math.Round((decimal)(dNotFullPaid.PaymentBill - dNotFullPaid.PaymentValue), 2);
+                        //отправка уведоления
+                        new NotificationManager().SendNotificationFromCompany(
+                            string.Format("Оплата по счету {0} получена не в полном размере. Просим оплатить остаток суммы {1} для дальнейшей подачи заявки", dNotFullPaid.InvoiceNumber1C, pay),
+                           ObjectType.OBK_ZBKCopy, dNotFullPaid.ZBKCopy_id.ToString(),
+                            (Guid)repo.GetZBKCopy((Guid)dNotFullPaid.ZBKCopy_id).EmployeeId);
+                        repo.UpdateNotificationToPayment(dNotFullPaid, false);
+                    }
+                    else
+                    {
+
+                        var pay = Math.Round((decimal)(dNotFullPaid.PaymentBill - dNotFullPaid.PaymentValue), 2);
+                        //отправка уведоления
+                        new NotificationManager().SendNotificationFromCompany(
+                            string.Format("Оплата по счету {0} получена не в полном размере. Просим оплатить остаток суммы {1} для дальнейшей подачи заявки", dNotFullPaid.InvoiceNumber1C, pay),
+                            ObjectType.Unknown, dNotFullPaid.OBK_Contract.Id.ToString(), (Guid)dNotFullPaid.OBK_Contract.EmployeeId);
+                        repo.UpdateNotificationToPayment(dNotFullPaid, false);
+                    }
                 }
             }
 

@@ -29,6 +29,7 @@ using PW.Ncels.Database.Notifications;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using System.IO;
+using System.Data.SqlTypes;
 
 namespace PW.Prism.Controllers
 {
@@ -94,13 +95,13 @@ namespace PW.Prism.Controllers
         [HttpGet]
         public ActionResult ZBKTransferRegister()
         {
-            return PartialView("~/Views/ZBKCopy/RegisterList.cshtml");
+            return PartialView("~/Views/ZBKCopy/ZBKTransferRegister.cshtml", Guid.NewGuid());
         }
 
         [HttpGet]
         public ActionResult ZBKRegister()
         {
-            return PartialView("~/Views/ZBKCopy/ZBKRegister.cshtml");
+            return PartialView("~/Views/ZBKCopy/ZBKRegister.cshtml", Guid.NewGuid());
         }
 
         [HttpPost]
@@ -110,7 +111,7 @@ namespace PW.Prism.Controllers
             return Json(data.ToDataSourceResult(request));
         }
 
-        public FileStreamResult ExportFile(DateTime from, DateTime to)
+        public FileStreamResult ExportFile(DateTime? from, DateTime? to)
         {
             StiReport report = new StiReport();
             report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKList.mrt"));
@@ -120,8 +121,13 @@ namespace PW.Prism.Controllers
                 data.ConnectionString = UserHelper.GetCnString();
             }
 
-            report.Dictionary.Variables["fromPeriod"].ValueObject = from;
-            report.Dictionary.Variables["toPeriod"].ValueObject = to;
+            if (from == null)
+            { report.Dictionary.Variables["fromPeriod"].ValueObject = (DateTime)SqlDateTime.MinValue; }
+            else { report.Dictionary.Variables["fromPeriod"].ValueObject = from; }
+
+            if (to == null)
+            { report.Dictionary.Variables["toPeriod"].ValueObject = (DateTime)SqlDateTime.MaxValue; }
+            else { report.Dictionary.Variables["toPeriod"].ValueObject = to; }
 
             report.Render(false);
             var stream = new MemoryStream();
@@ -160,9 +166,15 @@ namespace PW.Prism.Controllers
         [HttpPost]
         public ActionResult ReplaceBlank(int blankForReplace, int newBlank, Guid zbkCopyId)
         {
-            repository.ReplaceBlank(blankForReplace, newBlank, zbkCopyId);
+            var response = repository.ReplaceBlank(blankForReplace, newBlank, zbkCopyId);
 
-            return Json(new { success = true, result = repository.GetReplacedBlanks(zbkCopyId) });
+            if (response.response == false)
+            {
+                return Json(new { success = false, message = response.message });
+            }
+
+            return Json(new { success = true, message = response.message, result = repository.GetReplacedBlanks(zbkCopyId) });
+
         }
 
         [HttpPost]
