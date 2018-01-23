@@ -742,7 +742,8 @@ namespace PW.Ncels.Database.Repository.EMP
                 HasProxy = contract.HasProxy ?? false,
                 DocumentType = contract.DocumentType ?? 0,
                 DeclarantIsManufactur = (bool)contract.DeclarantIsManufactur,
-                ContractScope = GetContractScopeCode(contractId)
+                ContractScope = GetContractScopeCode(contractId),
+                StatemantNumber = contract.StatemantNumber
             };
             if (contract.OBK_DeclarantManufactur != null)
             {

@@ -57,7 +57,7 @@ namespace PW.Prism.Controllers.OBKTask
             var tasks = repo.GetTasks(id);
             var taskMaterial = repo.GetTaskMaterial(tasks);
             ViewData["Units"] = new SelectList(repo.GetUnits(code), "Id", "ShortName");
-            ViewData["ActReceptions"] = new SelectList(declarant.OBK_ActReception1, "Id", "Number");
+            ViewData["ActReceptions"] = new SelectList(declarant.OBK_ActReception, "Id", "Number");
 
             OBKCreateTaskViewModel task = new OBKCreateTaskViewModel
             {
