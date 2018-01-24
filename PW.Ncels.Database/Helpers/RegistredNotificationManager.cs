@@ -16,7 +16,7 @@ namespace PW.Ncels.Database.Helpers
             var db = UserHelper.GetCn();
             var model = new Notification
             {
-                EmployeesId = employeeId,
+                //EmployeesId = employeeId,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 Note = note,

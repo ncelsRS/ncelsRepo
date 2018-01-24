@@ -1,4 +1,10 @@
-﻿using System;
+﻿using PW.Ncels.Database.Constants;
+using PW.Ncels.Database.DataModel;
+using PW.Ncels.Database.Helpers;
+using PW.Ncels.Database.Models;
+using PW.Ncels.Database.Models.Expertise;
+using PW.Ncels.Database.Models.OBK;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
@@ -7,15 +13,6 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
-using Kendo.Mvc.Extensions;
-using Ncels.Helpers;
-using PW.Ncels.Database.Constants;
-using PW.Ncels.Database.DataModel;
-using PW.Ncels.Database.Helpers;
-using PW.Ncels.Database.Models;
-using PW.Ncels.Database.Models.Expertise;
-using PW.Ncels.Database.Models.OBK;
-using PW.Ncels.Database.Repository.Expertise;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -294,7 +291,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var attachedEntity = AppContext.Set<OBK_AssessmentDeclaration>().Find(declaration.Id);
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(declaration);
-            //AppContext.Commit(true);
+            AppContext.Commit(true);
             return declaration;
         }
 
@@ -893,7 +890,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var attachedEntity = AppContext.Set<OBK_AssessmentDeclaration>().Find(entity.Id);
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(entity);
-            //AppContext.Commit(true);
+            AppContext.Commit(true);
             //Отправка заявления на этап ЦОЗ
             if (entity.StatusId != CodeConstManager.STATUS_DRAFT_ID)
             {

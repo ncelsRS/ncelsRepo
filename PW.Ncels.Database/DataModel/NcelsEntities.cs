@@ -1,9 +1,6 @@
 ﻿namespace PW.Ncels.Database.DataModel
 {
-    using System;
     using System.Data.Entity;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
 
     public partial class NcelsEntities : DbContext
     {
@@ -2425,10 +2422,10 @@
                 .Property(e => e.rate)
                 .HasPrecision(18, 3);
 
-            //modelBuilder.Entity<OBK_ExpertCouncil>()
-            //    .HasMany(e => e.OBK_AssessmentDeclaration__OBK_ExpertCouncil)
-            //    .WithOptional(e => e.OBK_ExpertCouncil)
-            //    .HasForeignKey(e => e.ExpertCouncilId);
+            modelBuilder.Entity<OBK_ExpertCouncil>()
+                .HasMany(e => e.OBK_AssessmentDeclaration__OBK_ExpertCouncil)
+                .WithOptional(e => e.OBK_ExpertCouncil)
+                .HasForeignKey(e => e.ExpertCouncilId);
 
             modelBuilder.Entity<OBK_LetterPortalEdo>()
                 .HasMany(e => e.OBK_LetterFromEdo)

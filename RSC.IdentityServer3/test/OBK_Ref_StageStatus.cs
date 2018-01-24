@@ -24,6 +24,9 @@ namespace PW.Ncels.Database.DataModel
         public int Id { get; set; }
 
         [Required]
+        public int Test { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string Code { get; set; }
 
