@@ -2,70 +2,77 @@
 @using PW.Ncels.Database.DataModel
 @using PW.Ncels.Database.Helpers
 @using PW.Ncels.Database.Models
+@model Guid?
+
 @{
+    /**/
+
     var currentUser = UserHelper.GetCurrentEmployee().Id;
     var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
 }
 @helper GridToolbarTemplate()
     {
+        <div class="pull-left">
+            @( Html.Kendo().Button().Name("print" + Model).Content("Печать"))
+        </div>
 
         <div class="pull-right">
             <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
             <div style="display: inline-block">
-                @( Html.Kendo().Button().Name("reload")
-                               .Content("")
-                               .ImageUrl("/Content/images/reload.png"))
+                @( Html.Kendo().Button().Name("reload" + Model)
+                                               .Content("")
+                                               .ImageUrl("/Content/images/reload.png"))
             </div>
         </div>
 }
 
 @(Html.Kendo().Splitter()
-          .HtmlAttributes(new { @class = "pwSplitter k-block" })
-          .Name(("splitter"))
-          .Panes(panes =>
-          {
-              panes.Add().Scrollable(false).Size("100%").Content(
-                @<div class="pwPanelBar">
-                    @( Html.Kendo().Grid<OBK_ZBKTransferRegisterView>()
-                                     .Name("OBK_ZBKTransferRegisterView")                                                       
+                  .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                  .Name(("splitter"))
+                  .Panes(panes =>
+                  {
+                      panes.Add().Scrollable(false).Size("100%").Content(
+                        @<div class="pwPanelBar">
+                            @( Html.Kendo().Grid<OBK_ZBKTransferRegisterView>()
+                                                             .Name("OBK_ZBKTransferRegisterView" + Model)
 
-                                     .Columns(columns =>
-                                     {                                                            
-                                         columns.Bound(p => p.Id).ClientTemplate("#= renderNum(data) #").Title("№ n/n").Width(40);
-                                         columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата передачи ЗБК").Width(100);
-                                         columns.Bound(p => p.Declarant).Title("Наименование заявителя").Width(150);
-                                         columns.Bound(p => p.DrugFormFullName).Title("Наименование продукции").Width(300);
-                                         columns.Bound(p => p.RequestType).Title("Оригинал/Копия").Width(100);
-                                         columns.Bound(p => p.ConclusionNumber).Title("Номер ЗБК").Width(150);
-                                         columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(100);
-                                         columns.Bound(p => p.ReceiverFIO).Title("Получатель").Width(150);
+                                                             .Columns(columns =>
+                                                             {
+                                                                         columns.Bound(p => p.Id).ClientTemplate("#= renderNum(data) #").Title("№ n/n").Width(40);
+                                                                         columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата передачи ЗБК").Width(100);
+                                                                         columns.Bound(p => p.Declarant).Title("Наименование заявителя").Width(150);
+                                                                         columns.Bound(p => p.DrugFormFullName).Title("Наименование продукции").Width(300);
+                                                                         columns.Bound(p => p.RequestType).Title("Оригинал/Копия").Width(100);
+                                                                         columns.Bound(p => p.ConclusionNumber).Title("Номер ЗБК").Width(150);
+                                                                         columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(100);
+                                                                         columns.Bound(p => p.ReceiverFIO).Title("Получатель").Width(150);
+                                                                         columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Подпись").Width(90);
+                                                                     })
+                                                             .AutoBind(false)
+                                                             .Reorderable(reorderable => reorderable.Columns(true))
+                                                             .Resizable(resizable => resizable.Columns(true))
+                                                             .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                                                             .Groupable()
+                                                             .Sortable()
+                                                             .Filterable()
+                                                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                             .Scrollable(scrollable => scrollable.Virtual(true))
+                                                             .Pageable()
+                                                             .Events(o => o.DataBinding("function() { row = (this.dataSource.page() - 1) * this.dataSource.pageSize();}"))
+                                                             .HtmlAttributes(new { @class = "pwGrid" })
+                                                             .DataSource(dataSource => dataSource
+                                                                 .Ajax()
+                                                                 .Sort(sort => { sort.Add("SendDate").Descending(); })
+                                                                 .PageSize(50)
+                                                                 .Read(read => read.Action("ZBKTransferRegisterList", "ZBKCopy"))
+                                                                )
+                            ))
 
-                                     })
-                                     .AutoBind(false)
-                                     .Reorderable(reorderable => reorderable.Columns(true))
-                                     .Resizable(resizable => resizable.Columns(true))
-                                     .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
-                                     .Groupable()
-                                     .Sortable()
-                                     .Filterable()
-                                     .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
-                                     .Scrollable(scrollable => scrollable.Virtual(true))
-                                     .Pageable()
-                                     .Events(o => o.DataBinding("function() { row = (this.dataSource.page() - 1) * this.dataSource.pageSize();}"))
-                                     .HtmlAttributes(new { @class = "pwGrid" })
-                                     .DataSource(dataSource => dataSource
-                                         .Ajax()
-                                         .Sort(sort => { sort.Add("SendDate").Descending(); })
-                                         .PageSize(50)
-                                         .Read(read => read.Action("ZBKTransferRegisterList", "ZBKCopy"))
-                                        )
-                    ))
+                        </div>
+                                                  );
+                          }))
 
-                </div>
-                          );
-                  }))
-
-<script>
+                         <script>
 
     var row = 0;
 
@@ -76,8 +83,21 @@
 
     $(document).ready(function ()
     {
-        $("#OBK_ZBKTransferRegisterView").data("kendoGrid").dataSource.read();
-
+        $("#OBK_ZBKTransferRegisterView"+"@Model").data("kendoGrid").dataSource.read();
     });
+
+    $("reload" + "@Model").click(function ()
+    {
+        $("#OBK_ZBKTransferRegisterView"+"@Model").data("kendoGrid").dataSource.read();
+    });
+
+    $("print" + "@Model").click(function ()
+    {
+        var grid = $("#OBK_ZBKTransferRegisterView" + "@Model").data("kendoGrid");
+        parameterMap = grid.dataSource.transport.parameterMap;
+        var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+        window.open('/ZBKCopy/ExportFile?request=' + data);
+    });
+
 </script>
 

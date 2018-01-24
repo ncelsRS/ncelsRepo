@@ -4,13 +4,29 @@
 <div id="@("loader"+ Model)"></div>
 <form id="@("formReview" + Model)">
 
-    <div class="pwWinTitle">
-        <div class="pwWinTitleIconSend"></div>
-        <div class="pwWinTitleText"> Выдать результат заявителю?<span style="font-weight: bold" data-bind="text: document.DisplayName"></span></div>
+    <div class="row">
+        <div class="col-md-4">
+            <label>Получатель</label>
+        </div>
+        <div class="col-md-8">
+            <input id="@("receiver"+ Model)" class="k-textbox" style="width:300px;" />
+        </div>
     </div>
-    <div class="pwWinFooter">
-        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="closeSendExpert()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
-        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="sendExpertConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>Дата передачи</label>
+        </div>
+        <div class="col-md-8">
+            @(Html.Kendo().DatePicker().Name("receiveDate" + Model).HtmlAttributes(new { style = "width:300px" }))
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" data-role="button" id="TaskJobCancel" class="k-button " style="width:150px" onclick="closeSendExpert()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+            <button type="button" data-role="button" id="TaskJob" class="k-button pull-right" style="width:150px" onclick="sendExpertConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+        </div>
     </div>
 </form>
 
@@ -26,7 +42,11 @@
         $.ajax({
             type: 'POST',
             url: '/SafetyAssessment/OutputResult',
-            data: { id: name },
+            data: {
+                id: name,
+                receiver: $("receiver" + "@Model").val(),
+                receiveDate: $("receiveDate" + "@Model").val()
+            },
             success: function (result) {
                 $("#reject" + name).prop("enable", false);
                 $("#review" + name).prop("enable", false);

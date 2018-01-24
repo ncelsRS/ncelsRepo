@@ -50,6 +50,18 @@ namespace PW.Prism.Controllers.OBK
             }
         }
 
+        public ActionResult SaveTakenZBK(Guid declarationId)
+        {
+            var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == declarationId);
+            if (expDocument == null)
+            {
+                return Json(new { success = false, message="Заключение не существует!" });
+            }
+           // expDocument.ZBKTaken = true;
+            db.SaveChanges();
+            return Json(new { success = true, message="Успешно сохранено!" });
+        }
+
         public ActionResult Design(Guid[] id)
         {
             if (id == null)
@@ -62,10 +74,20 @@ namespace PW.Prism.Controllers.OBK
             //проверка для кнопки выдать результат
             var certificateOfComplection = model.OBK_AssessmentDeclaration.OBK_CertificateOfCompletion.FirstOrDefault(
                     e => e.AssessmentDeclarationId == model.DeclarationId);
+            var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == model.OBK_AssessmentDeclaration.Id);
+
             if (certificateOfComplection == null)
+            {
                 ViewBag.outputResultAct = false;
+                ViewBag.ZBKTaken = false;
+                ViewBag.ZBKTakenChecked = false;
+            }
             else
-                ViewBag.outputResultAct = certificateOfComplection.ActReturnedBack;
+            {
+                //ViewBag.outputResultAct = (certificateOfComplection.ActReturnedBack == true && expDocument.ZBKTaken == true);
+             //   ViewBag.ZBKTaken = (certificateOfComplection.ActReturnedBack == true && expDocument.ZBKTaken == null );
+               // ViewBag.ZBKTakenChecked = expDocument.ZBKTaken == true;
+            }
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
             ActionLogger.WriteInt(stageName + ": Получение заявления №" + model.OBK_AssessmentDeclaration.Number);
@@ -506,10 +528,10 @@ namespace PW.Prism.Controllers.OBK
             return PartialView(id);
         }
 
-        public ActionResult OutputResult(Guid id)
+        public ActionResult OutputResult(Guid id, string receiver, DateTime receiveDate)
         {
             var okbRepo = new SafetyAssessmentRepository();
-            okbRepo.SendOutputResult(id);
+            okbRepo.SendOutputResult(id, receiver, receiveDate);
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
 
