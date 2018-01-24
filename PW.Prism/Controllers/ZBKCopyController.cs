@@ -136,6 +136,21 @@ namespace PW.Prism.Controllers
             return File(stream, "application/excel", "СписокЗБК.xls");
         }
 
+        public FileStreamResult ExportFile([DataSourceRequest] DataSourceRequest request)
+        {
+            StiReport report = new StiReport();
+            report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKTransferList.mrt"));
+
+            var data = repository.ZBKRegister().ToDataSourceResult(request);
+            report.RegData("ZBKList", data);
+
+            report.Render(false);
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Excel, stream);
+            stream.Position = 0;
+            return File(stream, "application/excel", "СписокЗБК.xls");
+        }
+
         [HttpPost]
         public ActionResult SaveReceiver(string receiver, DateTime? receiveDate, Guid zbkCopyId, bool zbkCopiesReady)
         {
