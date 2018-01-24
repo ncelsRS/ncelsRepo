@@ -42,7 +42,7 @@ namespace PW.Prism.Controllers
         private ActionResult SendDocumentToAgreement(Guid docId, Guid[] executorIds, string documentType, string taskType = null)
         {
             taskType = string.IsNullOrEmpty(taskType) ? null : taskType;
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             var activityManager = new ActivityManager();
             switch (documentType)
             {

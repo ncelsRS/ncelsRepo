@@ -20,7 +20,7 @@ namespace PW.Prism.Controllers
 {
 	public class ContractDocController : Controller
 	{
-		private ncelsEntities db = new ncelsEntities();
+		private NcelsEntities db = new NcelsEntities();
 
 		// GET: Contracts
 		public ActionResult Index()

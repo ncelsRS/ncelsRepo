@@ -20,21 +20,21 @@ namespace PW.Ncels.Database.Repository
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public ARepository(ncelsEntities context)
+        public ARepository(NcelsEntities context)
         {
             AppContext = context;
         }
 
 
-        protected ncelsEntities AppContext { get; set; }
+        protected NcelsEntities AppContext { get; set; }
         // создание контекста базы данных. необходимо использовать using
-        public virtual ncelsEntities CreateDatabaseContext()
+        public virtual NcelsEntities CreateDatabaseContext()
         {
-            return new ncelsEntities();
+            return new NcelsEntities();
         }
-        public virtual ncelsEntities CreateDatabaseContext(bool isProxy)
+        public virtual NcelsEntities CreateDatabaseContext(bool isProxy)
         {
-            return new ncelsEntities(isProxy);
+            return new NcelsEntities(isProxy);
         }
 
         public DbSet<T> Set<T>() where T : class

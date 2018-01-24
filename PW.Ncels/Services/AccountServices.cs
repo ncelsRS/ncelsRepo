@@ -42,7 +42,7 @@ namespace PW.Ncels.Services {
 
 
 
-		public MessageModel PostRequest(ncelsEntities context, UnitModel request, int personType) {
+		public MessageModel PostRequest(NcelsEntities context, UnitModel request, int personType) {
 
 			Unit org = null;
 			string login = null;

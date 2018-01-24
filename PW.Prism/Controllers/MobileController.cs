@@ -43,7 +43,7 @@ namespace PW.Prism.Controllers {
 		//
 		// POST: /Account/LogOn
 
-		private ncelsEntities _db = UserHelper.GetCn();
+		private NcelsEntities _db = UserHelper.GetCn();
 
 		//новые
 		[HttpGet]

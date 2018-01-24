@@ -18,7 +18,7 @@ namespace PW.Ncels.Controllers
     [LogInfo]
     public class VisitController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult Index()
         { 

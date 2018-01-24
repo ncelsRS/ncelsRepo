@@ -12,21 +12,21 @@ namespace Ncels.Core.ActivityManager
 {
     public class ActivityManager
     {
-        private ncelsEntities _context;
+        private NcelsEntities _context;
         private ActivityRepository _activityRepository;
-        private static Dictionary<DocumentActionTypeKey, Func<ncelsEntities, DocumentAction>> _documentActions;
+        private static Dictionary<DocumentActionTypeKey, Func<NcelsEntities, DocumentAction>> _documentActions;
 
         static ActivityManager()
         {
             InitDocumentActions();
         }
 
-        public ActivityManager(): this(new ncelsEntities())
+        public ActivityManager(): this(new NcelsEntities())
         {
             
         }
 
-        public ActivityManager(ncelsEntities context)
+        public ActivityManager(NcelsEntities context)
         {
             _context = context;
             _activityRepository = new ActivityRepository(_context);
@@ -34,7 +34,7 @@ namespace Ncels.Core.ActivityManager
 
         private static void InitDocumentActions()
         {
-            _documentActions = new Dictionary<DocumentActionTypeKey, Func<ncelsEntities, DocumentAction>>();
+            _documentActions = new Dictionary<DocumentActionTypeKey, Func<NcelsEntities, DocumentAction>>();
             _documentActions.Add(new DocumentActionTypeKey(Dictionary.ExpAgreedDocType.Contract, Dictionary.ExpActivityType.ContractWithProcCenterHead),
                 c => new ContractAgreementWithProcHeadAction(c));
             _documentActions.Add(new DocumentActionTypeKey(Dictionary.ExpAgreedDocType.DirectionToPay, Dictionary.ExpActivityType.DirectionToPayAgrement),
@@ -71,7 +71,7 @@ namespace Ncels.Core.ActivityManager
 
         public void CreateActivity(Guid documentId, Guid documentTypeId, Guid activityTypeId, string documentValue, string documentTypeValue, string activityTypeValue, string text, string docNumber, DateTime? docDate)
         {
-            Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+            Func<NcelsEntities, DocumentAction> docActionInitizlizer;
             var documentType = _activityRepository.GetDocumentTypeById(documentTypeId);
             var activityType = _activityRepository.GetActivityTypeById(activityTypeId);
             _documentActions.TryGetValue(new DocumentActionTypeKey(documentType.Code, activityType.Code),
@@ -168,7 +168,7 @@ namespace Ncels.Core.ActivityManager
         public EXP_Activities SendToExecution(string activityTypeCode, Guid docId, string docTypeCode, string taskTypeCode, string docNumber,
             DateTime? docDate, params Guid[] executors)
         {
-            Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+            Func<NcelsEntities, DocumentAction> docActionInitizlizer;
             var docTypeId = _activityRepository.GetDocumentTypeIdByCode(docTypeCode);
             var documentType = _activityRepository.GetDocumentTypeById(docTypeId.Value);
             var activityTypeId = _activityRepository.GetActivityTypeIdByCode(activityTypeCode);
@@ -291,7 +291,7 @@ namespace Ncels.Core.ActivityManager
 
         public Employee GetExecutor(Guid documentId, string documentTypeCode, string activityTypeCode, EXP_AgreementProcSettingsTasks taskSetting)
         {
-            Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+            Func<NcelsEntities, DocumentAction> docActionInitizlizer;
             var documentTypeId = _activityRepository.GetDocumentTypeIdByCode(documentTypeCode);
             var activityTypeId = _activityRepository.GetActivityTypeIdByCode(activityTypeCode);
 
@@ -333,7 +333,7 @@ namespace Ncels.Core.ActivityManager
                     var task = _activityRepository.GetTasks(f => f.Id == taskId).FirstOrDefault();
                     var activity = _activityRepository.Get(f => f.Id == task.ActivityId).FirstOrDefault();
 
-                    Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+                    Func<NcelsEntities, DocumentAction> docActionInitizlizer;
                     var documentType = _activityRepository.GetDocumentTypeById(activity.DocumentTypeId);
                     var activityType = _activityRepository.GetActivityTypeById(activity.TypeId);
                     _documentActions.TryGetValue(new DocumentActionTypeKey(documentType.Code, activityType.Code),
@@ -374,7 +374,7 @@ namespace Ncels.Core.ActivityManager
                     var task = _activityRepository.GetTasks(f => f.Id == taskId).FirstOrDefault();
                     var activity = _activityRepository.Get(f => f.Id == task.ActivityId).FirstOrDefault();
 
-                    Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+                    Func<NcelsEntities, DocumentAction> docActionInitizlizer;
                     var documentType = _activityRepository.GetDocumentTypeById(activity.DocumentTypeId);
                     var activityType = _activityRepository.GetActivityTypeById(activity.TypeId);
 
@@ -405,7 +405,7 @@ namespace Ncels.Core.ActivityManager
                     var task = _activityRepository.GetTasks(f => f.Id == taskId).FirstOrDefault();
                     var activity = _activityRepository.Get(f => f.Id == task.ActivityId).FirstOrDefault();
 
-                    Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+                    Func<NcelsEntities, DocumentAction> docActionInitizlizer;
                     var documentType = _activityRepository.GetDocumentTypeById(activity.DocumentTypeId);
                     var activityType = _activityRepository.GetActivityTypeById(activity.TypeId);
 
@@ -433,7 +433,7 @@ namespace Ncels.Core.ActivityManager
         public string GetDataForSign(Guid taskId)
         {
             var task = _activityRepository.GetTasks(f => f.Id == taskId).FirstOrDefault();
-            Func<ncelsEntities, DocumentAction> docActionInitizlizer;
+            Func<NcelsEntities, DocumentAction> docActionInitizlizer;
             var documentType = _activityRepository.GetDocumentTypeById(task.EXP_Activities.DocumentTypeId);
             var activityType = _activityRepository.GetActivityTypeById(task.EXP_Activities.TypeId);
 

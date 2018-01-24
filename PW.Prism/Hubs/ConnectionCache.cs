@@ -51,7 +51,7 @@ namespace PW.Prism.Hubs
 
 	    private string GetTask(string userId)
 	    {
-		    ncelsEntities contextEntities = UserHelper.GetCn();
+		    NcelsEntities contextEntities = UserHelper.GetCn();
 		    Employee employee = contextEntities.Employees.FirstOrDefault(o => o.Login == userId);
 		    if (employee != null)
 		    {

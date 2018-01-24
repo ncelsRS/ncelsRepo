@@ -11,7 +11,7 @@ namespace PW.Prism.Controllers.OBK_OP
 {
     public class OPController : Controller
     {
-        public ncelsEntities repo = new ncelsEntities();
+        public NcelsEntities repo = new NcelsEntities();
 
         // GET: OP
         public ActionResult Index(Guid id)

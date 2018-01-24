@@ -10,7 +10,7 @@ namespace PW.Ncels.Database.Helpers
     //НДС
     public class TaxHelper
     {
-        private static ncelsEntities db = UserHelper.GetCn();
+        private static NcelsEntities db = UserHelper.GetCn();
 
         public static double GetNdsRef()
         {

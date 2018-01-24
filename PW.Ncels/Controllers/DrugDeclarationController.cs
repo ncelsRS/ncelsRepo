@@ -290,7 +290,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult ExportFilePdf(Guid id)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Заявление на проведение экспертизы лс.pdf";
             StiReport report = new StiReport();
             try

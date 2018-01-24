@@ -12,7 +12,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class FileStorageController : Controller
     {
-        private ncelsEntities _context=new ncelsEntities();
+        private NcelsEntities _context=new NcelsEntities();
         [HttpGet]   
         [AllowAnonymous]
         public FileResult Download(Guid id, FileType fileType)

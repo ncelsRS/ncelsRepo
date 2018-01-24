@@ -7,7 +7,7 @@ namespace PW.Ncels.Database.Notifications.NotificationGenerators
 {
     public class CommentForPriceAppNotificationGenerator : INotificationGenerator
     {
-        public Notification TryGenerateNotification<T>(ncelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class
+        public Notification TryGenerateNotification<T>(NcelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class
         {
             var priceAppComment = sourceObject as Document;
             if (priceAppComment == null) return null;

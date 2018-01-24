@@ -14,7 +14,7 @@ namespace PW.Ncels.Controllers {
 		[Authorize()]
 		// GET: Profile
 		public ActionResult Index() {
-			ncelsEntities db = UserHelper.GetCn();
+			NcelsEntities db = UserHelper.GetCn();
 			var employee = db.Employees.FirstOrDefault(x => x.Login == User.Identity.Name);
 			var model = new ProfileModel {
 				Email = employee.Email,

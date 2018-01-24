@@ -12,7 +12,7 @@ namespace PW.Ncels.Controllers {
 	[Authorize()]
 	public class OrganizationController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Organization
         public ActionResult Index()
         {

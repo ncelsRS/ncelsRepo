@@ -24,7 +24,7 @@ namespace PW.Prism.Controllers.OBKContract
 {
     public class OBKContractController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private OBKContractRepository obkRepo;
 
         public OBKContractController()
@@ -911,7 +911,7 @@ namespace PW.Prism.Controllers.OBKContract
 
         public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
             StiReport report = new StiReport();
             try
@@ -969,7 +969,7 @@ namespace PW.Prism.Controllers.OBKContract
 
         public ActionResult GetAdditionalContractTemplatePdf(Guid id, bool? isStream, string contractAdditionTypeCode)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             StiReport report = new StiReport();
             try
             {

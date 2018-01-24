@@ -35,7 +35,7 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public SafetyAssessmentRepository(ncelsEntities context) : base(context)
+        public SafetyAssessmentRepository(NcelsEntities context) : base(context)
         {
         }
 
@@ -294,7 +294,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var attachedEntity = AppContext.Set<OBK_AssessmentDeclaration>().Find(declaration.Id);
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(declaration);
-            AppContext.Commit(true);
+            //AppContext.Commit(true);
             return declaration;
         }
 
@@ -893,7 +893,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var attachedEntity = AppContext.Set<OBK_AssessmentDeclaration>().Find(entity.Id);
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(entity);
-            AppContext.Commit(true);
+            //AppContext.Commit(true);
             //Отправка заявления на этап ЦОЗ
             if (entity.StatusId != CodeConstManager.STATUS_DRAFT_ID)
             {

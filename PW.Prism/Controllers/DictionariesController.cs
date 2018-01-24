@@ -13,7 +13,7 @@ namespace PW.Prism.Controllers
 {
     public class DictionariesController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Dictionaries
         private ReadOnlyDictionaryRepository rodRepository = new ReadOnlyDictionaryRepository();
         

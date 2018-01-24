@@ -6,6 +6,7 @@ using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services.Default;
 using IdentityServer3.Core.Services.InMemory;
 using PW.Ncels.Database.DataModel;
+using RSC.DataModel;
 using Task = System.Threading.Tasks.Task;
 
 namespace RSC.IdentityServer3
@@ -17,7 +18,7 @@ namespace RSC.IdentityServer3
             if (Membership.ValidateUser(context.UserName, context.Password))
                 return;
 
-            using (var ctx = new ncelsEntities())
+            using (var ctx = new NcelsEntities())
             {
                 var user = await ctx.aspnet_Users.FirstOrDefaultAsync(x => x.UserName == context.UserName);
                 if (user == null) return;

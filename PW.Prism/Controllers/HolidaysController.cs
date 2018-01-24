@@ -15,7 +15,7 @@ using PW.Ncels.Database.Helpers;
 
 namespace PW.Prism.Controllers {
 	public class HolidaysController : Controller {
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 		public ActionResult ListByEmployee([DataSourceRequest] DataSourceRequest request, string employeId) {
 			var data = db.Holidays

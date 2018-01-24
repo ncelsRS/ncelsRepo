@@ -23,7 +23,7 @@ namespace PW.Prism.Controllers.PriceProject
 {
     public class ProtocolController : Controller{
 
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: Protocol
         public ActionResult Index(){

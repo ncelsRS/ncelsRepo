@@ -20,7 +20,7 @@ namespace PW.Prism.Controllers
 	[Authorize]
     public class AdministrativeMainDocController : Controller
     {
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 		// GET: /OutgoingDoc/
 		public ActionResult Index() {

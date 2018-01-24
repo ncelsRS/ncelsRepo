@@ -29,7 +29,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class OBKDefectiveProductsController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: /Reference/
         public ActionResult Index()

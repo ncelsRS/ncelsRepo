@@ -13,7 +13,7 @@ namespace PW.Prism.Controllers
     public class GridController : Controller
     {
         // GET: Grid
-        private readonly ncelsEntities _db = UserHelper.GetCn();
+        private readonly NcelsEntities _db = UserHelper.GetCn();
 
         #region Exp
 

@@ -15,7 +15,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
         private const string ON_AGREEMENT_CODE = "ON_AGREEMENT";//На согласовании
         private const string AGREED_CODE = "AGREED";//Согласован
         private const string REFUSED_CODE = "REFUSED";//Отказ
-        public ExpertiseTranslateAgreementAction(ncelsEntities context) : base(context)
+        public ExpertiseTranslateAgreementAction(NcelsEntities context) : base(context)
         {
         }
         public override Guid GetExecutor(Guid documentId, Guid activityTypeId, int orderNum)

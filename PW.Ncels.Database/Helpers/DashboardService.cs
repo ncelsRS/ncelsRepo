@@ -111,7 +111,7 @@ namespace PW.Ncels.Database.Helpers {
 		}
 
 		private string GetCnString() {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			if (HttpContext.Current.Session == null)
 				return ConfigurationManager.ConnectionStrings["ApplicationServices"].ConnectionString;
 			if (HttpContext.Current.Session[UserHelper.ConnectKey] == null) {

@@ -18,7 +18,7 @@ namespace PW.Ncels.Controllers
     [Authorize()]
     public class UploadController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
 
         public ActionResult FileView(Guid id)

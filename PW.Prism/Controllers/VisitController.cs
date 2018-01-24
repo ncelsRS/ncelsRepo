@@ -25,7 +25,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class VisitController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult VisitTypeList()
         {

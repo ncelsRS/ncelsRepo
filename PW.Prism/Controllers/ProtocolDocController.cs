@@ -18,7 +18,7 @@ namespace PW.Prism.Controllers
 	[Authorize]
     public class ProtocolDocController : Controller
     {
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 		// GET: /OutgoingDoc/
 		public ActionResult Index() {

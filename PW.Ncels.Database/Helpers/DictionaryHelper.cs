@@ -105,7 +105,7 @@ namespace PW.Ncels.Database.Helpers
         public static List<DictionaryInfo> GetNomenclatureList()
         {
 
-            ncelsEntities entities = UserHelper.GetCn();
+            NcelsEntities entities = UserHelper.GetCn();
             var items = entities.Dictionaries.Where(o => o.Type == "Nomenclature").GroupBy(o => o.Year);
             return items.Select(o => new DictionaryInfo()
             {
@@ -119,7 +119,7 @@ namespace PW.Ncels.Database.Helpers
         public static List<DictionaryInfo> GetCorRefTypeList()
         {
 
-            ncelsEntities entities = UserHelper.GetCn();
+            NcelsEntities entities = UserHelper.GetCn();
             var items = entities.Dictionaries.Where(o => o.Type == "DepartmentTypeDictionary").ToList();
             var data = items.Select(o => new DictionaryInfo()
             {
@@ -134,12 +134,12 @@ namespace PW.Ncels.Database.Helpers
 
         public static Guid GetDictionaryIdFirst(string type)
         {
-            ncelsEntities entities = UserHelper.GetCn();
+            NcelsEntities entities = UserHelper.GetCn();
             var dic = entities.Dictionaries.FirstOrDefault(m => m.Type == type);
             return dic?.Id ?? Guid.Empty;
         }
 
-        public static int GetType(ncelsEntities db, Guid id)
+        public static int GetType(NcelsEntities db, Guid id)
         {
             if (db.PriceProjects.Any(m => m.Id == id))
             {
@@ -157,7 +157,7 @@ namespace PW.Ncels.Database.Helpers
 
         public static Guid GetDicIdByCode(string type, string code)
         {
-            ncelsEntities db = UserHelper.GetCn();
+            NcelsEntities db = UserHelper.GetCn();
             var dic = db.Dictionaries.FirstOrDefault(m => m.Type == type && m.Code == code);
             if (dic != null)
             {
@@ -168,13 +168,13 @@ namespace PW.Ncels.Database.Helpers
 
         public static Dictionary GetDicItemByCode(string type, string code)
         {
-            ncelsEntities db = UserHelper.GetCn();
+            NcelsEntities db = UserHelper.GetCn();
             var dic = db.Dictionaries.AsNoTracking().FirstOrDefault(m => m.Type == type && m.Code == code);
             return dic;
         }
         public static Dictionary GetDicItemById(Guid id)
         {
-            ncelsEntities db = UserHelper.GetCn();
+            NcelsEntities db = UserHelper.GetCn();
             return db.Dictionaries.AsNoTracking().FirstOrDefault(m => m.Id == id);
         }
     }

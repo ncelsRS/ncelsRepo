@@ -27,7 +27,7 @@ using Document = PW.Ncels.Database.DataModel.Document;
 namespace PW.Prism.Controllers {
 	[Authorize]
 	public class ProjectDocController : Controller {
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 		// GET: /OutgoingDoc/
 		public ActionResult Index() {

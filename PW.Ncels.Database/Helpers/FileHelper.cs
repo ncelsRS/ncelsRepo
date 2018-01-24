@@ -203,7 +203,7 @@ namespace PW.Ncels.Database.Helpers
         {
             string savefileName = Path.Combine(PathRoot, Root, fileid, Path.GetFileName(fileName));
             string filePdf = Path.Combine(PathRoot, Root, fileid, fileName + RootPreview, Extension);
-            ncelsEntities entities = UserHelper.GetCn();
+            NcelsEntities entities = UserHelper.GetCn();
             PW.Ncels.Database.DataModel.Document document = entities.Documents.Find(new Guid(fileid));
             Guid guid = Guid.NewGuid();
             string pathImage = Path.Combine(PathRoot, guid + ".bmp");
@@ -338,7 +338,7 @@ namespace PW.Ncels.Database.Helpers
                 return PathRoot;
             }
             {
-                ncelsEntities entities = UserHelper.GetCn();
+                NcelsEntities entities = UserHelper.GetCn();
 
                 var archive = entities.Archives.FirstOrDefault(o => o.IsCurrent);
                 if (archive != null)
@@ -520,7 +520,7 @@ namespace PW.Ncels.Database.Helpers
 
             return "ОК";
         }
-        public static Guid DeleteAttach(ncelsEntities db, string categ, string doc, string fileId)
+        public static Guid DeleteAttach(NcelsEntities db, string categ, string doc, string fileId)
         {
             var fileLinkId = Guid.Parse(Path.GetFileNameWithoutExtension(fileId));
             var fileLink = db.FileLinks.FirstOrDefault(e => e.Id == fileLinkId);
@@ -561,7 +561,7 @@ namespace PW.Ncels.Database.Helpers
             }
             return Guid.Empty;
         }
-        public static object GetAttachList(ncelsEntities db, string doc, string type, bool byMetadata = false, string excludeCodes = null)
+        public static object GetAttachList(NcelsEntities db, string doc, string type, bool byMetadata = false, string excludeCodes = null)
         {
             try
             {
@@ -629,7 +629,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-        public static byte[] GetDocumentAttachFile(ncelsEntities db, Guid documentId)
+        public static byte[] GetDocumentAttachFile(NcelsEntities db, Guid documentId)
         {
             try
             {
@@ -661,7 +661,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-        public static FileInfo GetProtocolAttachFile(ncelsEntities db, Guid protocolId)
+        public static FileInfo GetProtocolAttachFile(NcelsEntities db, Guid protocolId)
         {
             try
             {
@@ -690,7 +690,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-        public static IEnumerable GetAttachListByDoc(ncelsEntities db, string id, string dicid)
+        public static IEnumerable GetAttachListByDoc(NcelsEntities db, string id, string dicid)
         {
             try
             {
@@ -717,7 +717,7 @@ namespace PW.Ncels.Database.Helpers
                 return new List<object>();
             }
         }
-        public static IEnumerable GetAttachListEdit(ncelsEntities db, string doc, string type, bool byMetadata = false,
+        public static IEnumerable GetAttachListEdit(NcelsEntities db, string doc, string type, bool byMetadata = false,
             string excludeCodes = null, bool isShowComment = false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
         {
             /* try
@@ -821,7 +821,7 @@ namespace PW.Ncels.Database.Helpers
                       }*/
         }
 
-        public static IEnumerable GetAttachListWithCodeEdit(ncelsEntities db, string doc, string type, bool byMetadata = false,
+        public static IEnumerable GetAttachListWithCodeEdit(NcelsEntities db, string doc, string type, bool byMetadata = false,
             string excludeCodes = null, bool isShowComment = false, IEnumerable<Tuple<string, string>> includeDictionaries = null)
         {
             /* try
@@ -925,7 +925,7 @@ namespace PW.Ncels.Database.Helpers
                       }*/
         }
 
-        public static bool CheckAttachList(ncelsEntities db, string id, string type)
+        public static bool CheckAttachList(NcelsEntities db, string id, string type)
         {
             try
             {
@@ -949,7 +949,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-        public static object SaveAttach(string code, string path, HttpRequestBase requestBase, bool saveMetadata, string originFileId, ncelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
+        public static object SaveAttach(string code, string path, HttpRequestBase requestBase, bool saveMetadata, string originFileId, NcelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
         {
             if (!saveMetadata && string.IsNullOrEmpty(code) && string.IsNullOrEmpty(path))
                 throw new ArgumentException("Невозможно сохранить файл без привязки к объекту, без категории и без метаданных");
@@ -1033,7 +1033,7 @@ namespace PW.Ncels.Database.Helpers
             }
             return "Ок";
         }
-        public static object SaveAttachNewVersion(string code, string path, string originFile, HttpRequestBase requestBase, ncelsEntities db)
+        public static object SaveAttachNewVersion(string code, string path, string originFile, HttpRequestBase requestBase, NcelsEntities db)
         {
             if (!string.IsNullOrEmpty(originFile)
                 && ((string.IsNullOrEmpty(code) && !string.IsNullOrEmpty(path)) || (!string.IsNullOrEmpty(code) && string.IsNullOrEmpty(path))))
@@ -1099,7 +1099,7 @@ namespace PW.Ncels.Database.Helpers
             }
             return "Ок";
         }
-        public static void SaveAttachNewVersion(string category, string document, string originFile, string fileName, Stream file, ncelsEntities db)
+        public static void SaveAttachNewVersion(string category, string document, string originFile, string fileName, Stream file, NcelsEntities db)
         {
             if (!string.IsNullOrEmpty(originFile)
                 && ((string.IsNullOrEmpty(category) && !string.IsNullOrEmpty(document)) || (!string.IsNullOrEmpty(category) && string.IsNullOrEmpty(document))))
@@ -1133,7 +1133,7 @@ namespace PW.Ncels.Database.Helpers
             db.FileLinks.Add(historyFileLink);
             db.SaveChanges();
         }
-        public static void SaveFile(string category, string document, string fileName, Stream file, ncelsEntities db)
+        public static void SaveFile(string category, string document, string fileName, Stream file, NcelsEntities db)
         {
             if (((string.IsNullOrEmpty(category) && !string.IsNullOrEmpty(document)) || (!string.IsNullOrEmpty(category) && string.IsNullOrEmpty(document))))
                 throw new ArgumentException("Невозможно сохранить файл с привязкой к объекту или категории");
@@ -1596,7 +1596,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
         public static object SaveNextFileVersion(string code, string path, string originFile,
-            HttpRequestBase requestBase, ncelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
+            HttpRequestBase requestBase, NcelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
         {
             if (!string.IsNullOrEmpty(originFile)
                 &&

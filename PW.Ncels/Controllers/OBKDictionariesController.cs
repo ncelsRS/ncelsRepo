@@ -9,7 +9,7 @@ namespace PW.Ncels.Controllers
 {
     public class OBKDictionariesController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         [Authorize()]
         [HttpGet]

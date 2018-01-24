@@ -8,7 +8,7 @@ using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Recources;
-using ncelsEntities = PW.Ncels.Database.DataModel.ncelsEntities;
+using NcelsEntities = PW.Ncels.Database.DataModel.NcelsEntities;
 
 namespace PW.Prism.Controllers
 {
@@ -97,7 +97,7 @@ namespace PW.Prism.Controllers
 
             if (ModelState.IsValid)
             {
-                ncelsEntities ncelsEntities = new ncelsEntities();
+                NcelsEntities ncelsEntities = new NcelsEntities();
 
 
                 Employee employee = ncelsEntities.Employees.Include("Position").FirstOrDefault(o => o.Login == model.UserName);

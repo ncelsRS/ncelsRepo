@@ -9,9 +9,9 @@ using PW.Ncels.Database.Repository;
 
 namespace PW.Ncels.Database.DataModel
 {
-    public partial class ncelsEntities : IDbContext
+    public partial class NcelsEntities : IDbContext
     {
-        public ncelsEntities(bool isProxy)
+        public NcelsEntities(bool isProxy)
             : this()
         {
             this.Configuration.ProxyCreationEnabled = isProxy;

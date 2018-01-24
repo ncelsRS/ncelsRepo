@@ -20,7 +20,7 @@ namespace PW.Ncels.Database.Repository
             this.dbSet = AppContext.Set<TEntity>();
         }
 
-        public ARepositoryGeneric(ncelsEntities context) : base(context)
+        public ARepositoryGeneric(NcelsEntities context) : base(context)
         {
             this.dbSet = AppContext.Set<TEntity>();
         }
@@ -106,7 +106,7 @@ namespace PW.Ncels.Database.Repository
         }
 
 
-        public ncelsEntities GetContext()
+        public NcelsEntities GetContext()
         {
             return AppContext;
         }

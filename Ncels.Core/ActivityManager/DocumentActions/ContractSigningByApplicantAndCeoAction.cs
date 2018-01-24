@@ -10,7 +10,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
     public class ContractSigningByApplicantAndCeoAction : DocumentAction
     {
         private NotificationManager _notificationManager = new NotificationManager();
-        public ContractSigningByApplicantAndCeoAction(ncelsEntities context) : base(context)
+        public ContractSigningByApplicantAndCeoAction(NcelsEntities context) : base(context)
         {
         }
 

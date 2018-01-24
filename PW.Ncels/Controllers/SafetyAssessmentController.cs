@@ -31,7 +31,7 @@ namespace PW.Ncels.Controllers
     [Authorize]
     public class SafetyAssessmentController : ComAssessmentController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: SafetyAssessment
         public ActionResult Index()
@@ -127,7 +127,7 @@ namespace PW.Ncels.Controllers
         /// <returns></returns>
         public ActionResult ExportFilePdf(Guid id)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Заявление на проведение оценки безопасности и качества лс.pdf";
             StiReport report = new StiReport();
             try

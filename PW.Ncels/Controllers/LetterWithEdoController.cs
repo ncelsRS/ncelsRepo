@@ -17,7 +17,7 @@ namespace PW.Ncels.Controllers
     public class LetterWithEdoController : ACommonController
     {
         // GET: LetterWithEdo
-        ncelsEntities db = new ncelsEntities();
+        NcelsEntities db = new NcelsEntities();
         public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
 
@@ -96,7 +96,7 @@ namespace PW.Ncels.Controllers
         public ActionResult AddLetter()
         {
             LetterModel model = new LetterModel();
-            using (ncelsEntities db= new ncelsEntities())
+            using (NcelsEntities db= new NcelsEntities())
             {
                 var employee = db.Employees.FirstOrDefault(x => x.Login == User.Identity.Name);
                 model.AuthorID = employee.Id;
@@ -114,7 +114,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult SignViewStart(LetterModel model)
         {
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 var data = db.OBK_LetterAttachments.Where(x => x.LetterId == model.ID).Select(x => new AttachDoc {
                     AttachmentName = x.AttachmentName,
@@ -129,7 +129,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult SignOperation(long id)
         {
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                     LetterModelSign sign = new LetterModelSign();
                     var data = db.OBK_LetterAttachments.Where(x => x.ID == id).Select(x => new { x.ContentFile }).FirstOrDefault();
@@ -159,7 +159,7 @@ namespace PW.Ncels.Controllers
         {
             bool success = true;
             var counter = 0;
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 try {
                     OBK_LetterAttachments attach = db.OBK_LetterAttachments.Where(x => x.ID == id).FirstOrDefault();
@@ -218,7 +218,7 @@ namespace PW.Ncels.Controllers
         {
             if (model != null)
             {
-                using (ncelsEntities db = new ncelsEntities())
+                using (NcelsEntities db = new NcelsEntities())
                 {
                     OBK_LetterRegistration letterRegistartin = new OBK_LetterRegistration();
                     letterRegistartin.LetterRegDate = model.LetterRegDate;
@@ -290,7 +290,7 @@ namespace PW.Ncels.Controllers
         public ActionResult EditGet(long id)
         {
             LetterModel model = new LetterModel();
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 OBK_LetterPortalEdo dataFromDB = db.OBK_LetterPortalEdo.Where(x => x.ID == id).FirstOrDefault();
                 if (dataFromDB != null)
@@ -320,7 +320,7 @@ namespace PW.Ncels.Controllers
         public ActionResult DetailsIncoming(long id)
         {
             LetterModelFromEdo model = new LetterModelFromEdo();
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 OBK_LetterFromEdo dataFromDB = db.OBK_LetterFromEdo.Where(x => x.ID == id).FirstOrDefault();
                 if (dataFromDB != null)
@@ -353,7 +353,7 @@ namespace PW.Ncels.Controllers
         [HttpPost]
         public ActionResult DeleteIncoming(LetterModelFromEdo model)
         {
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 OBK_LetterFromEdo edo = db.OBK_LetterFromEdo.Where(x => x.ID == model.ID).FirstOrDefault();
                 if (edo != null)
@@ -378,7 +378,7 @@ namespace PW.Ncels.Controllers
         [HttpPost]
         public ActionResult DeleteOutgoing(LetterModel model)
         {
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 OBK_LetterPortalEdo edo = db.OBK_LetterPortalEdo.Where(x => x.ID == model.ID).FirstOrDefault();
                 if (edo != null)
@@ -396,7 +396,7 @@ namespace PW.Ncels.Controllers
         [HttpPost]
         public ActionResult Edit(LetterModel model)
         {
-            using (ncelsEntities db = new ncelsEntities())
+            using (NcelsEntities db = new NcelsEntities())
             {
                 OBK_LetterPortalEdo dataFromDB = db.OBK_LetterPortalEdo.Where(x => x.ID == model.ID).FirstOrDefault();
                 if (dataFromDB != null)

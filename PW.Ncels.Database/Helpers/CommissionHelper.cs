@@ -9,7 +9,7 @@ namespace PW.Ncels.Database.Helpers
     {
         public static void SendNotifications()
         {
-            using (var db = new ncelsEntities())
+            using (var db = new NcelsEntities())
             {
                 var needDate = DateTime.Now.Date.AddDays(3);
                 var dbUnits = db.Commissions.Where(x => x.IsComplete == false && x.Date <= needDate && x.IsNeedSendTimeOverNotifications != false)
@@ -31,7 +31,7 @@ namespace PW.Ncels.Database.Helpers
 
         public static void SendChangeDateNotifications(int commissionId, DateTime prevDate)
         {
-            using (var db = new ncelsEntities())
+            using (var db = new NcelsEntities())
             {
                 var dbCommission = db.Commissions.Single(x => x.Id == commissionId);
                 var dbUnits = db.CommissionUnits.Where(x=>x.CommissionId == commissionId).ToList();

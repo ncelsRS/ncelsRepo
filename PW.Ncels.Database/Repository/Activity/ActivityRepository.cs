@@ -14,7 +14,7 @@ namespace PW.Ncels.Database.Repository.Activity
         public ActivityRepository(bool isProxy = true):base(isProxy)
         { }
 
-        public ActivityRepository(ncelsEntities context) : base(context)
+        public ActivityRepository(NcelsEntities context) : base(context)
         {
             
         }

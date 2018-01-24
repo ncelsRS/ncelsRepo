@@ -24,7 +24,7 @@ namespace PW.Ncels.Database.Helpers
         }
         private static List<string> _actualPermissionKeys;
 
-        private static ncelsEntities db = UserHelper.GetCn();
+        private static NcelsEntities db = UserHelper.GetCn();
         public static void Init()
         {
             _actualPermissionKeys = new List<string>();
@@ -402,7 +402,7 @@ namespace PW.Ncels.Database.Helpers
         {
             if (_employeePermissions == null)
             {
-                ncelsEntities ncelsEntities = UserHelper.GetCn();
+                NcelsEntities ncelsEntities = UserHelper.GetCn();
                 var permissions = ncelsEntities.EmployeePermissionRoles.Join(ncelsEntities.PermissionRoleKeys, x => x.PermissionRoleId, x => x.PermissionRoleId,
                     (epr, prk) => new EmployeePermission
                     {

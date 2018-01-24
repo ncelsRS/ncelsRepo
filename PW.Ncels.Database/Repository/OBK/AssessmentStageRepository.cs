@@ -13,7 +13,7 @@ namespace PW.Ncels.Database.Repository.OBK
     {
         public AssessmentStageRepository() { }
 
-        public AssessmentStageRepository(ncelsEntities context) : base(context) { }
+        public AssessmentStageRepository(NcelsEntities context) : base(context) { }
 
         public OBK_AssessmentStage GetById(Guid? id)
         {

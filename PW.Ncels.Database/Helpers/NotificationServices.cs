@@ -30,7 +30,7 @@ namespace PW.Ncels.Database.Helpers
 
 
       
-        public async Task<object> GetCurrentList(ncelsEntities db, ModelRequest request)
+        public async Task<object> GetCurrentList(NcelsEntities db, ModelRequest request)
         {
             try {
                 var employeeId = UserHelper.GetCurrentEmployee().Id;
@@ -74,7 +74,7 @@ namespace PW.Ncels.Database.Helpers
 
         }
 
-        public async Task<object> GetNewNotification(ncelsEntities context)
+        public async Task<object> GetNewNotification(NcelsEntities context)
         {
             var employeeId = UserHelper.GetCurrentEmployee().Id;
 
@@ -87,7 +87,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
 
-        public ModelMessage SetViewed(ncelsEntities context, List<int> list)
+        public ModelMessage SetViewed(NcelsEntities context, List<int> list)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-        public async Task<List<Notification>> GetListAllNotification(ncelsEntities context)
+        public async Task<List<Notification>> GetListAllNotification(NcelsEntities context)
         {
             var employeeId = UserHelper.GetCurrentEmployee().Id;
 

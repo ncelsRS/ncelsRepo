@@ -9,7 +9,7 @@ namespace PW.Ncels.Database.Notifications
 {
     public class NotificationManager
     {
-        private readonly ncelsEntities _dbContext;
+        private readonly NcelsEntities _dbContext;
 
         private static Dictionary<NotificationTypeKey, INotificationGenerator> _notificationGenerators;
 
@@ -20,7 +20,7 @@ namespace PW.Ncels.Database.Notifications
 
         public NotificationManager()
         {
-            _dbContext = new ncelsEntities();
+            _dbContext = new NcelsEntities();
         }
         /// <summary>
         /// Создаем уведомление

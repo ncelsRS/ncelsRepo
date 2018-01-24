@@ -116,7 +116,7 @@ namespace PW.Ncels.Database.Helpers
 					}
 
 
-					ncelsEntities db = UserHelper.GetCn();
+					NcelsEntities db = UserHelper.GetCn();
 					DateTime dt = DateTime.Now;
 					Guid groupId = new Guid();
 					foreach (string e in emails)

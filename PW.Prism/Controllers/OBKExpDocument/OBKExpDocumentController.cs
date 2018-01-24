@@ -25,7 +25,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
     public class OBKExpDocumentController : Controller
     {
         OBKExpDocumentRepository expRepo = new OBKExpDocumentRepository();
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult ExpDocumentView(Guid id)
         {

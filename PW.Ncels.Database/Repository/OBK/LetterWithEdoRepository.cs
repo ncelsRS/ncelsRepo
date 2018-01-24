@@ -33,7 +33,7 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public LetterWithEdoRepository(ncelsEntities context) : base(context)
+        public LetterWithEdoRepository(NcelsEntities context) : base(context)
         {
         }
 

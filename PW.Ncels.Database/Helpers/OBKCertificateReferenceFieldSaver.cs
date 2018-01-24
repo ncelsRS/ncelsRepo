@@ -12,7 +12,7 @@ namespace PW.Ncels.Database.Helpers
     public class OBKCertificateReferenceFieldSaver
     {
         Dictionary<string, string> propertyNameRuList;
-        ncelsEntities db = UserHelper.GetCn();
+        NcelsEntities db = UserHelper.GetCn();
 
         public OBKCertificateReferenceFieldSaver()
         {

@@ -29,7 +29,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class OBKCertificateReferenceController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private OBKCertificateReferenceFieldSaver fieldSaver = new Ncels.Database.Helpers.OBKCertificateReferenceFieldSaver();
         // GET: /Reference/
         public ActionResult Index()

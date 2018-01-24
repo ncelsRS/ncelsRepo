@@ -22,7 +22,7 @@ namespace PW.Ncels.Controllers
     [Authorize()]
     public class PriceController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult PriceSave(Price model)
         {

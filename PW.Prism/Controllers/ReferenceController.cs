@@ -29,7 +29,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class ReferenceController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult ContactAsync()
         {

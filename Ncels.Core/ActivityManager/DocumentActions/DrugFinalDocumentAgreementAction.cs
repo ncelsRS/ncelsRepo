@@ -8,7 +8,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
 {
     public class DrugFinalDocumentAgreementAction : DocumentAction
     {
-        public DrugFinalDocumentAgreementAction(ncelsEntities context) : base(context)
+        public DrugFinalDocumentAgreementAction(NcelsEntities context) : base(context)
         {
         }
 

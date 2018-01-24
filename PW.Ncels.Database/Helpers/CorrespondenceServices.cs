@@ -28,7 +28,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
 
-        public async Task<object> GetOutgoing(ncelsEntities db, ModelRequest request,int type)
+        public async Task<object> GetOutgoing(NcelsEntities db, ModelRequest request,int type)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace PW.Ncels.Database.Helpers
             }
 
         }
-        public async Task<object> GetCurrentList(ncelsEntities db, ModelRequest request,Guid id)
+        public async Task<object> GetCurrentList(NcelsEntities db, ModelRequest request,Guid id)
         {
             try
             {

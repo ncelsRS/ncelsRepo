@@ -11,7 +11,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
 {
     public class ExpertiseLetterAgreementAction : DocumentAction
     {
-        public ExpertiseLetterAgreementAction(ncelsEntities context) : base(context)
+        public ExpertiseLetterAgreementAction(NcelsEntities context) : base(context)
         {
         }
 

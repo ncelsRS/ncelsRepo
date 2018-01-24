@@ -36,7 +36,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class BlankAccountingController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private BlankAccountingRepository repository = new BlankAccountingRepository();
 
         // GET: /Reference/

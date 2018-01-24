@@ -23,7 +23,7 @@ namespace PW.Ncels.Database.Helpers
             }
         }
 
-		public async Task<object> GetProject(ncelsEntities db, ModelRequest request,bool isRegisterProject,int? type) {
+		public async Task<object> GetProject(NcelsEntities db, ModelRequest request,bool isRegisterProject,int? type) {
 			try {
                 //Database query
                 var employeeId = UserHelper.GetCurrentEmployee().Id;
@@ -91,7 +91,7 @@ namespace PW.Ncels.Database.Helpers
 
 		}
 
-        public async Task<object> GetPriceRework(ncelsEntities db, ModelRequest request,int type)
+        public async Task<object> GetPriceRework(NcelsEntities db, ModelRequest request,int type)
         {
             try
             {
@@ -137,7 +137,7 @@ namespace PW.Ncels.Database.Helpers
 
         }
 
-        public async Task<object> GetSrReestrView(ncelsEntities db, ModelRequest request,int type) {
+        public async Task<object> GetSrReestrView(NcelsEntities db, ModelRequest request,int type) {
             //Database query
             var v = db.SrReestrViews.Where(m=>m.type == type).AsQueryable();
             //search
@@ -159,7 +159,7 @@ namespace PW.Ncels.Database.Helpers
             return new { draw = request.Draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, Data = list };
         }
 
-        public async Task<object> GetPpPriceList(ncelsEntities db, ModelRequest request, int type){
+        public async Task<object> GetPpPriceList(NcelsEntities db, ModelRequest request, int type){
             //Database query
             var v = db.PP_PharmaList.Where(m => m.Type == type).AsQueryable();
 
@@ -170,7 +170,7 @@ namespace PW.Ncels.Database.Helpers
             return new { draw = request.Draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, Data = list };
         }
 
-        public async Task<object> GetOrphanDrugsViewView(ncelsEntities db, ModelRequest request)
+        public async Task<object> GetOrphanDrugsViewView(NcelsEntities db, ModelRequest request)
         {
 
             //Database query
@@ -199,7 +199,7 @@ namespace PW.Ncels.Database.Helpers
             return new { draw = request.Draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, Data = await expertiseViews.ToListAsync() };
         }
 
-        public Organization GetOrganizationPrice(ncelsEntities db,Guid orgId,  int type) {
+        public Organization GetOrganizationPrice(NcelsEntities db,Guid orgId,  int type) {
             var employeeId = UserHelper.GetCurrentEmployee().Id;
 
             var priceProject =  db.PriceProjects.FirstOrDefault(m => m.OwnerId == employeeId);

@@ -122,7 +122,7 @@ namespace PW.Ncels.Database.Helpers
 				}).OrderBy(o => o.Name).ToList();
 		}
 
-	    public static StiReport GetReport(Guid id, ncelsEntities db)
+	    public static StiReport GetReport(Guid id, NcelsEntities db)
 	    {
             var project = db.ProjectsViews.FirstOrDefault(m => m.Id == id);
             StiReport report = new StiReport();
@@ -189,7 +189,7 @@ namespace PW.Ncels.Database.Helpers
             }
 	        return report;
 	    }
-        private static StiReport GetExaminationDrug(Guid id, ncelsEntities db, ProjectsView project)
+        private static StiReport GetExaminationDrug(Guid id, NcelsEntities db, ProjectsView project)
         {
             var report = new StiReport();
             report.Load(HttpContext.Current.Server.MapPath("~/Reports/Mrts/ExaminationDrug.mrt"));
@@ -224,7 +224,7 @@ namespace PW.Ncels.Database.Helpers
             return report;
         }
 
-        public static MemoryStream GetReportPdf(Guid id, ncelsEntities db)
+        public static MemoryStream GetReportPdf(Guid id, NcelsEntities db)
 	    {
 	        StiReport report = GetReport(id, db);
             report.Render(false);

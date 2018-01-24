@@ -29,11 +29,11 @@ namespace PW.Ncels.Controllers
 
 
         //entity
-        private ncelsEntities _context;
+        private NcelsEntities _context;
 
         public AccountController()
         {
-            _context = new ncelsEntities();
+            _context = new NcelsEntities();
         }
 
         //

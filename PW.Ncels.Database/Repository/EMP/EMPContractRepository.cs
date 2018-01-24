@@ -31,7 +31,7 @@ namespace PW.Ncels.Database.Repository.EMP
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public EMPContractRepository(ncelsEntities context) : base(context) { }
+        public EMPContractRepository(NcelsEntities context) : base(context) { }
 
         /// <summary>
         /// загрузка списка заявлений

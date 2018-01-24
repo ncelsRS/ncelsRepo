@@ -14,7 +14,7 @@ namespace PW.Prism.Controllers.Base
     public class BaseController : Controller
     {
         // Filter By Current User
-        protected IQueryable<T> FilterByCurrentUser<T>(IQueryable<T> query, ncelsEntities dbContext) where T: class, ITmcRequest
+        protected IQueryable<T> FilterByCurrentUser<T>(IQueryable<T> query, NcelsEntities dbContext) where T: class, ITmcRequest
         {
             var user = UserHelper.GetCurrentEmployee();
             var headDep = dbContext.Units.FirstOrDefault(d => d.Code == OrganizationConsts.HeadCode);
@@ -24,7 +24,7 @@ namespace PW.Prism.Controllers.Base
             return query;
         }
 
-        protected IQueryable<T> FilterOwnerByCurrentUser<T>(IQueryable<T> query, ncelsEntities dbContext) where T : class, ITmcRequest
+        protected IQueryable<T> FilterOwnerByCurrentUser<T>(IQueryable<T> query, NcelsEntities dbContext) where T : class, ITmcRequest
         {
             var user = UserHelper.GetCurrentEmployee();
             var headDep = dbContext.Units.FirstOrDefault(d => d.Code == OrganizationConsts.HeadCode);

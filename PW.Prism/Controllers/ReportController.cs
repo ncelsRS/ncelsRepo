@@ -23,7 +23,7 @@ namespace PW.Prism.Controllers
 {
     public class ReportController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: /Report/
         public ActionResult Index()
@@ -299,7 +299,7 @@ namespace PW.Prism.Controllers
                 }
 
 
-                using (var dLocal = new ncelsEntities())
+                using (var dLocal = new NcelsEntities())
                 {
                     TmcReport report = new TmcReport()
                     {

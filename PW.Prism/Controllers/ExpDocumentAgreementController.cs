@@ -11,7 +11,7 @@ namespace PW.Prism.Controllers
 {
     public class ExpDocumentAgreementController : Controller
     {
-        private ncelsEntities _db = new ncelsEntities();
+        private NcelsEntities _db = new NcelsEntities();
         public ActionResult Index(string filterId = "newTasks")
         {
             ViewBag.FilterId = filterId;

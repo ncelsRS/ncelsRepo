@@ -192,7 +192,7 @@ namespace PW.Prism.Controllers.Expertise
 
         public ActionResult DeclarationSearch()
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             ViewBag.EXP_DIC_Type = db.EXP_DIC_Type.ToList().Select(e => new SelectListItem()
             {
                 Value = e.Id.ToString(),
@@ -213,7 +213,7 @@ namespace PW.Prism.Controllers.Expertise
         public ActionResult SendExpertiseDocumentToAgreement(Guid docId, string documentType, Guid? executorId=null, string taskType = null)
         {
             taskType = string.IsNullOrEmpty(taskType) ? null : taskType;
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             var repository = new DrugDeclarationRepository();
             var stageRepo = new ExpertiseStageRepository();
             var activityManager = new ActivityManager();
@@ -311,7 +311,7 @@ namespace PW.Prism.Controllers.Expertise
                 ViewBag.DeclarationId = id;
                 var steps = new List<DeclarationStepsModel>();
                 int priorityInList = 0;
-                using (var db = new ncelsEntities())
+                using (var db = new NcelsEntities())
                 {
                     var currentEmployeeGuid = UserHelper.GetCurrentEmployee().Id;
                     var stages = db.EXP_ExpertiseStage.Where(x => x.DeclarationId == id2);
@@ -544,7 +544,7 @@ namespace PW.Prism.Controllers.Expertise
 
         public ActionResult ExportFilePdf(Guid id)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Заявление на проведение экспертизы лс.pdf";
             StiReport report = new StiReport();
             try
@@ -583,7 +583,7 @@ namespace PW.Prism.Controllers.Expertise
 
         public ActionResult ListCommissions([DataSourceRequest] DataSourceRequest request, Guid stageId, long dosageId)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             return Json(db.EXP_ExpertiseStageDosageCommissionView.Where(e => e.StageId == stageId && e.DrugDosageId == dosageId).ToDataSourceResult(request));
         }
 

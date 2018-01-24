@@ -14,7 +14,7 @@ namespace PW.Prism.Controllers.PriceProject{
     [Authorize]
     public class PriceProcessingController : Controller{
 
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: Processing
         public ActionResult Index()

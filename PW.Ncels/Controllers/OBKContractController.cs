@@ -306,7 +306,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult GetContractAdditionalTemplatePdf(Guid id, string contractAdditionTypeCode)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
             StiReport report = new StiReport();
             try
@@ -354,7 +354,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult GetContractTemplatePdf(Guid id)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
             StiReport report = new StiReport();
             try

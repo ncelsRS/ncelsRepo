@@ -28,7 +28,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
 
-        public async Task<object> GetOutgoing(ncelsEntities db, ModelRequest request, int type)
+        public async Task<object> GetOutgoing(NcelsEntities db, ModelRequest request, int type)
         {
             try
             {

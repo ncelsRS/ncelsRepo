@@ -28,7 +28,7 @@ namespace PW.Ncels.Database.Helpers
 			return string.Format(text, singInfo, DateTime.Now.ToString("dd.MM.yyyy hh:mm"), isSing ? "Да" : "Нет");
 		}
 
-		private static void DeleteOldDocument(ncelsEntities objectContext, Document project) {
+		private static void DeleteOldDocument(NcelsEntities objectContext, Document project) {
 			if (!string.IsNullOrEmpty(project.DestinationId)) {
 				Guid id = new Guid(project.DestinationId);
 				Document document = objectContext.Documents.First(o => o.Id == id);
@@ -88,7 +88,7 @@ namespace PW.Ncels.Database.Helpers
 		/// <param name="currentEmployee"></param>
 		/// <param name="singInfo">Информация о подписывающем</param>
 		public static void ConvertInOutgouingDocument(Document document, Document project, Employee currentEmployee, string singInfo) {
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			document.QrCode = GetQrCode(GetTextQRcode(singInfo, !string.IsNullOrEmpty(project.Digest)));
 			document.MainTaskId = project.MainTaskId;
 			document.MainDocumentId = project.MainDocumentId;
@@ -128,7 +128,7 @@ namespace PW.Ncels.Database.Helpers
 		public static void ConvertInCorrespondentDocument(Document document, Document project, Employee currentEmployee,
 			string singInfo)
 		{
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			Template template = context.Templates.First(o => o.Id == project.TemplateId);
 			document.QrCode = GetQrCode(GetTextQRcode(singInfo, !string.IsNullOrEmpty(project.Digest)));
 			//Template convTemplate = context.Templates.First(o => o.Id == template.ConvertDictionaryTypeId);
@@ -187,7 +187,7 @@ namespace PW.Ncels.Database.Helpers
 		public static void ConvertInAdminDocument(Document document, Document project, Employee currentEmployee,
 			string singInfo)
 		{
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			Template template = context.Templates.First(o => o.Id == project.TemplateId);
 			document.QrCode = GetQrCode(GetTextQRcode(singInfo, !string.IsNullOrEmpty(project.Digest)));
 			//Template convTemplate = context.Templates.First(o => o.Id == template.ConvertDictionaryTypeId);
@@ -260,7 +260,7 @@ namespace PW.Ncels.Database.Helpers
 
 		public static void CreateIncomingDocs(Document document)
 		{
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			List<Item> items = DictionaryHelper.GetItems(document.CorrespondentsId, document.CorrespondentsValue);
 			List<string> listEmail = new List<string>();
 			if (items.Count > 0)

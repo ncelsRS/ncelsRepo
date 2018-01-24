@@ -31,7 +31,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class ApplicationController : Controller
     {
-        private readonly ncelsEntities _db = UserHelper.GetCn();
+        private readonly NcelsEntities _db = UserHelper.GetCn();
 
         // GET: /IncomingDoc/
 

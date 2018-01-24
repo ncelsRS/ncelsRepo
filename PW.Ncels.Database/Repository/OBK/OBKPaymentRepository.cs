@@ -27,7 +27,7 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public OBKPaymentRepository(ncelsEntities context) : base(context) { }
+        public OBKPaymentRepository(NcelsEntities context) : base(context) { }
 
 
         public void SavePayments(Guid contractId)

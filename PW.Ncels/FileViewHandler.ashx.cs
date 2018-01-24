@@ -11,7 +11,7 @@ namespace PW.Ncels
     /// </summary>
     public class FileViewHandler : IHttpHandler
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public void ProcessRequest(HttpContext context) {
             MemoryStream stream = null;

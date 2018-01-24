@@ -13,7 +13,7 @@ namespace PW.Ncels.Controllers
 	[Authorize()]
 	public class CompositionController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
     
 
         public ActionResult CompositionSave(Composition model) {

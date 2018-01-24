@@ -12,7 +12,7 @@ namespace PW.Prism.Controllers
 {
     public class NotificationController : Controller
     {
-        private ncelsEntities _db = new ncelsEntities();
+        private NcelsEntities _db = new NcelsEntities();
 
         public ActionResult Index()
         {

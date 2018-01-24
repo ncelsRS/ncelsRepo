@@ -7,7 +7,7 @@ namespace PW.Ncels.Database.Notifications.NotificationGenerators
 {
     public class ContractRejectedNotificationGenerator : INotificationGenerator
     {
-        public Notification TryGenerateNotification<T>(ncelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class
+        public Notification TryGenerateNotification<T>(NcelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class
         {
             var contractRemarkDoc = sourceObject as Document;
             if (contractRemarkDoc == null) return null;

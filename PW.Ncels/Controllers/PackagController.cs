@@ -13,7 +13,7 @@ namespace PW.Ncels.Controllers {
 	public class PackagController : ACommonController
     {
         // GET: Packag
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Organization
         public ActionResult Index() {
             return View();

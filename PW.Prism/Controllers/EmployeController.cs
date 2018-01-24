@@ -28,7 +28,7 @@ namespace PW.Prism.Controllers
 {
 	public class EmployeController : Controller
 	{
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 
 		// GET: /Employe/

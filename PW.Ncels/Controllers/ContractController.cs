@@ -23,7 +23,7 @@ namespace PW.Ncels.Controllers
     [Authorize()]
     public class ContractController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private readonly ContractRepository _contractRepository = new ContractRepository(false);
         public ActionResult Index()
         {

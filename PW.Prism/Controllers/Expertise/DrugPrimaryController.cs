@@ -202,7 +202,7 @@ namespace PW.Prism.Controllers.Expertise
 
         public FileStreamResult ExportFile(Guid id)
         {
-            var db=new ncelsEntities();
+            var db=new NcelsEntities();
             var repo = new DrugPrimaryRepository();
             var correspondence = repo.GetCorespondence(id.ToString());
             var reportTemplate = "";

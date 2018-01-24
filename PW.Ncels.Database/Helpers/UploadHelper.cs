@@ -34,7 +34,7 @@ namespace PW.Ncels.Database.Helpers
 			
 			FileHelper.BuildPreview(file, id.ToString(), name);
 
-			ncelsEntities service = UserHelper.GetCn();
+			NcelsEntities service = UserHelper.GetCn();
 			Document document = service.Documents.FirstOrDefault(o => o.AttachPath == id);
 			if (document != null && document.IsAttachments == false) {
 				document.IsAttachments = true;
@@ -55,7 +55,7 @@ namespace PW.Ncels.Database.Helpers
 		public static void Upload(byte[] file, string name, Guid id) {
 			FileHelper.BuildPreview(file, id.ToString(), name);
 
-			ncelsEntities service = UserHelper.GetCn();
+			NcelsEntities service = UserHelper.GetCn();
 			Document document = service.Documents.FirstOrDefault(o => o.Id == id);
 			if (document != null && document.IsAttachments == false) {
 				document.IsAttachments = true;
@@ -65,7 +65,7 @@ namespace PW.Ncels.Database.Helpers
 
 		public static void UploadReplace(byte[] file, string name, string id, List<ReplaceItem> items) {
 			FileHelper.BuildPreview(file, id.ToString(), name, items);
-			ncelsEntities service = UserHelper.GetCn();
+			NcelsEntities service = UserHelper.GetCn();
 			Document document = service.Documents.FirstOrDefault(o => o.AttachPath == id);
 			if (document != null && document.IsAttachments == false) {
 				document.IsAttachments = true;
@@ -85,7 +85,7 @@ namespace PW.Ncels.Database.Helpers
 
 		public static void DeleteFile(string id, string name) {
 			FileHelper.DeleteFile(id, name);
-			ncelsEntities service = UserHelper.GetCn();
+			NcelsEntities service = UserHelper.GetCn();
 			Document document = service.Documents.FirstOrDefault(o => o.AttachPath == id);
 			if (document != null && document.IsAttachments) {
 				document.IsAttachments = FileHelper.GetFiles(id, false).Count > 0;

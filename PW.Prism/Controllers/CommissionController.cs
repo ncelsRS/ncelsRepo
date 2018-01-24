@@ -21,7 +21,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class CommissionController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult CommissionList()
         {

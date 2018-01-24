@@ -14,7 +14,7 @@ namespace PW.Ncels.Controllers
 {
     public class CorrespondenceController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult Index() {
             return View();

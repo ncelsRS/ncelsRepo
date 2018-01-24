@@ -9,7 +9,7 @@ using PW.Ncels.Database.Helpers;
 namespace PW.Prism.Controllers {
     public class ManageController : Controller {
 
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         
         public ActionResult Index() {
             return View();

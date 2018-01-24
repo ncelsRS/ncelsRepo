@@ -33,7 +33,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class IncomingDocController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private NotificationManager _notificationManager = new NotificationManager();
 
         // GET: /IncomingDoc/
@@ -521,7 +521,7 @@ namespace PW.Prism.Controllers
 
                     db.SaveChanges();
 
-                    ncelsEntities dbVew = UserHelper.GetCn();
+                    NcelsEntities dbVew = UserHelper.GetCn();
                     baseDocument = dbVew.Documents.Find(document.Id);
                     DocumentModel model = new DocumentModel(baseDocument);
 

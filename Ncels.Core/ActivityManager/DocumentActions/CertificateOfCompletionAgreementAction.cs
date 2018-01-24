@@ -8,7 +8,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
 {
     public class CertificateOfCompletionAgreementAction : DocumentAction
     {
-        public CertificateOfCompletionAgreementAction(ncelsEntities context) : base(context)
+        public CertificateOfCompletionAgreementAction(NcelsEntities context) : base(context)
         {
         }
 

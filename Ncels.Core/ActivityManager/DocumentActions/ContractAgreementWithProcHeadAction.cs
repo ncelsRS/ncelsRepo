@@ -8,7 +8,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
 {
     public class ContractAgreementWithProcHeadAction : DocumentAction
     {
-        public ContractAgreementWithProcHeadAction(ncelsEntities context) : base(context)
+        public ContractAgreementWithProcHeadAction(NcelsEntities context) : base(context)
         {
         }
 

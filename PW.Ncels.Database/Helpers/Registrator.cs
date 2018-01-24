@@ -15,7 +15,7 @@ namespace PW.Ncels.Database.Helpers {
 		/// </summary>
 		/// <param name="document"></param>
 		public static void SetRepeaterNumber(Document document) {
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			int number = 0;
 			string strNumber = string.Empty;
 			if (document.RepeaterId.HasValue) {
@@ -53,7 +53,7 @@ namespace PW.Ncels.Database.Helpers {
 		/// </summary>
 		/// <param name="document"></param>
 		public static void SetNumber(Document document) {
-			ncelsEntities context = UserHelper.GetCn();
+			NcelsEntities context = UserHelper.GetCn();
 			int number = 0;
 			string strNumber = string.Empty;
 			if (document.RepeaterId.HasValue) {
@@ -175,7 +175,7 @@ namespace PW.Ncels.Database.Helpers {
 			document.DisplayName = BuildDisplayName(document);
 		}
 
-		private static int GetNumber(Document document, ncelsEntities context) {
+		private static int GetNumber(Document document, NcelsEntities context) {
 			IList<Setting> settings = context.Settings.Where(x => x.Type == "Counts").ToList();
 			int value;
 			string countName = string.Empty;
@@ -291,7 +291,7 @@ namespace PW.Ncels.Database.Helpers {
         /// <returns></returns>
         public static int GetNumber(string settingType)
         {
-            ncelsEntities context = new ncelsEntities();
+            NcelsEntities context = new NcelsEntities();
             IList<Setting> settings = context.Settings.Where(x => x.Type == "Counts" && x.UniqueName == settingType).ToList();
             int value;
             string countName = settingType;

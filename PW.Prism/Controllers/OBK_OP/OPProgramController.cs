@@ -11,13 +11,13 @@ namespace PW.Prism.Controllers.OBK_OP
 {
     public class OPProgramController : Controller
     {
-        private readonly ncelsEntities repo;
+        private readonly NcelsEntities repo;
 
         const int programStageId = 16; // in dbo.OBK_Ref_Stages
 
         public OPProgramController()
         {
-            repo = new ncelsEntities();
+            repo = new NcelsEntities();
         }
 
         [HttpGet]

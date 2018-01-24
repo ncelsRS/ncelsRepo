@@ -109,7 +109,7 @@ namespace PW.Prism.Controllers
             //var documents = db.Documents.Include(d => d.Template);
             return PartialView(guid);
         }
-        private ncelsEntities db = new ncelsEntities();
+        private NcelsEntities db = new NcelsEntities();
 
         public ActionResult ObkRead([DataSourceRequest] DataSourceRequest request) {
             var data = db.ReesrtObks.ToList().OrderBy(o => o.name);

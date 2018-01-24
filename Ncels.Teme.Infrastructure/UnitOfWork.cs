@@ -6,11 +6,11 @@ namespace Ncels.Teme.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private ncelsEntities _ctx;
+        private NcelsEntities _ctx;
 
         public UnitOfWork()
         {
-            _ctx = new ncelsEntities();
+            _ctx = new NcelsEntities();
         }
 
         public IQueryable<T> GetQueryable<T>() where T : class

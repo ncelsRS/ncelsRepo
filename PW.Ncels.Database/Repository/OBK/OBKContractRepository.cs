@@ -50,7 +50,7 @@ namespace PW.Ncels.Database.Repository.OBK
             }
         }
 
-        public OBKContractRepository(ncelsEntities context) : base(context) { }
+        public OBKContractRepository(NcelsEntities context) : base(context) { }
 
         public IEnumerable<OBK_ProductInfo> GetSearchReestr(int regType, string regNumber, string tradeName, bool drugEndDateExpired)
         {
@@ -1960,7 +1960,7 @@ namespace PW.Ncels.Database.Repository.OBK
             SaveAttach(code, path, stream, fileName, saveMetadata, originField, AppContext);
         }
 
-        public static object SaveAttach(string code, string path, Stream stream, string fileName, bool saveMetadata, string originFileId, ncelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
+        public static object SaveAttach(string code, string path, Stream stream, string fileName, bool saveMetadata, string originFileId, NcelsEntities db, string lang = "", string comment = "", int? numOfPages = null)
         {
             if (!saveMetadata && string.IsNullOrEmpty(code) && string.IsNullOrEmpty(path))
                 throw new ArgumentException("Невозможно сохранить файл без привязки к объекту, без категории и без метаданных");
@@ -2211,7 +2211,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private Stream GetContractTemplatePdf(Guid id)
         {
-            var db = new ncelsEntities();
+            var db = new NcelsEntities();
             string name = "Договор_на_проведение_оценки_безопасности_и_качества.pdf";
             StiReport report = new StiReport();
             try

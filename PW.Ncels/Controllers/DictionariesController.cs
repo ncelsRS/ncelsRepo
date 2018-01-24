@@ -11,7 +11,7 @@ namespace PW.Ncels.Controllers
     
     public class DictionariesController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Dictionaries
 
         [HttpGet]

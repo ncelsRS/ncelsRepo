@@ -27,11 +27,11 @@ namespace PW.Ncels.Database.DataModel
             [ScriptIgnore(ApplyToOverrides = true)]
             public virtual Dictionary Status { get; set; }
 
-          /*  [ScriptIgnore(ApplyToOverrides = true)]
-            public virtual Employee ExecuterEmp { get; set; }
-*/
-     /*       [ScriptIgnore(ApplyToOverrides = true)]
-            public virtual Employee SenderEmp { get; set; }*/
+            /*  [ScriptIgnore(ApplyToOverrides = true)]
+              public virtual Employee ExecuterEmp { get; set; }
+  */
+            /*       [ScriptIgnore(ApplyToOverrides = true)]
+                   public virtual Employee SenderEmp { get; set; }*/
 
             [ScriptIgnore(ApplyToOverrides = true)]
             public virtual EXP_DrugDeclaration EXP_DrugDeclaration { get; set; }

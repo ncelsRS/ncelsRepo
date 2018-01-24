@@ -5,9 +5,9 @@ namespace Ncels.Core.ActivityManager
 {
     public abstract class DocumentAction
     {
-        protected ncelsEntities _context;
+        protected NcelsEntities _context;
 
-        public DocumentAction(ncelsEntities context)
+        public DocumentAction(NcelsEntities context)
         {
             _context = context;
         }

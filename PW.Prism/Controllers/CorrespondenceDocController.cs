@@ -22,7 +22,7 @@ namespace PW.Prism.Controllers
 	[Authorize]
     public class CorrespondenceDocController : Controller
     {
-		private ncelsEntities db = UserHelper.GetCn();
+		private NcelsEntities db = UserHelper.GetCn();
 
 		// GET: /OutgoingDoc/
 		public ActionResult Index() {

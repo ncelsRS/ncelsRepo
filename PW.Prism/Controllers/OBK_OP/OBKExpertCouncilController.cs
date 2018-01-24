@@ -10,7 +10,7 @@ namespace PW.Prism.Controllers.OBK_OP
 {
     public class OBKExpertCouncilController : Controller
     {
-        private ncelsEntities repo = new ncelsEntities();
+        private NcelsEntities repo = new NcelsEntities();
 
         // GET: OBKExpertCouncil
         public ActionResult Index()

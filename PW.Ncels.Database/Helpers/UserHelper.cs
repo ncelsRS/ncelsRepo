@@ -18,7 +18,7 @@ namespace PW.Ncels.Database.Helpers
         /// </summary>
         /// <returns></returns>
 		public static Employee GetCurrentEmployee() {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
             try {
                 //return entities.Employees.Include("Position").First();
                 return entities.Employees.Include("Position").
@@ -33,7 +33,7 @@ namespace PW.Ncels.Database.Helpers
 		}
 
 		public static Unit GetDepartment() {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			//return entities.Employees.Include("Position").First();
 			return entities.Employees.Include("Position.Parent.Parent").
 				Where(x => x.Login == HttpContext.Current.User.Identity.Name).
@@ -42,7 +42,7 @@ namespace PW.Ncels.Database.Helpers
 
         public static Unit GetDepartmentUpper()
         {
-            ncelsEntities entities = new ncelsEntities();
+            NcelsEntities entities = new NcelsEntities();
             //return entities.Employees.Include("Position").First();
             var unit1 = entities.Employees.Include("Position.Parent.Parent").
                 Where(x => x.Login == HttpContext.Current.User.Identity.Name).
@@ -58,7 +58,7 @@ namespace PW.Ncels.Database.Helpers
         // [Todo] нужно доделать обход по дереву оргструктуры
         public static bool IsUserInDepartmentByCode(string departmentCode)
         {
-            ncelsEntities entities = new ncelsEntities();
+            NcelsEntities entities = new NcelsEntities();
             var lookup = entities.Units //.Where(un => un.Employee.Login == HttpContext.Current.User.Identity.Name)
                 .ToLookup(x => x.ParentId);
             return lookup[null].SelectRecursive(x => lookup[x.ParentId]).Any(un => un.Code == departmentCode);
@@ -66,7 +66,7 @@ namespace PW.Ncels.Database.Helpers
 
         public static Unit GetCompany()
         {
-            ncelsEntities entities = new ncelsEntities();
+            NcelsEntities entities = new NcelsEntities();
             //return entities.Employees.Include("Position").First();
             return entities.Employees.Include("Position.Parent.Parent").
                 Where(x => x.Login == HttpContext.Current.User.Identity.Name).
@@ -77,21 +77,21 @@ namespace PW.Ncels.Database.Helpers
             if (HttpContext.Current.User == null)
                 return "Не найден";
 
-            ncelsEntities entities = new ncelsEntities();
+            NcelsEntities entities = new NcelsEntities();
 			var user = entities.Employees.Include("Position").
 				Where(x => x.Login == HttpContext.Current.User.Identity.Name).FirstOrDefault();
 			return user != null ? user.DisplayName : "Не найден";
 		}
 
 		public static string GetCurrentShortName() {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			var user = entities.Employees.Include("Position").
 				Where(x => x.Login == HttpContext.Current.User.Identity.Name).FirstOrDefault();
 			return user != null ? user.ShortName : "Не найден";
 		}
 
 		public static IEnumerable<Guid> GetDeputy(string currentEmployeeId) {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			return
 				entities.Employees.Where(
 					x => x.DeputyId != null && x.DeputyId.Contains(currentEmployeeId) && x.Position != null).
@@ -99,7 +99,7 @@ namespace PW.Ncels.Database.Helpers
 		}
 
 		public static IEnumerable<Guid> GetAssistants(string currentEmployeeId) {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			return
 				entities.Employees.Where(
 					x => x.AssistantsId != null && x.AssistantsId.Contains(currentEmployeeId) && x.Position != null).
@@ -107,14 +107,14 @@ namespace PW.Ncels.Database.Helpers
 		}
 
 		public const string ConnectKey = "ConnectKey";
-		public static ncelsEntities GetCn()
+		public static NcelsEntities GetCn()
 		{
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			if (HttpContext.Current==null || HttpContext.Current.Session == null)
 				return entities;
 			if (HttpContext.Current.Session[ConnectKey] == null)
 			{
-				ncelsEntities cn = new ncelsEntities();
+				NcelsEntities cn = new NcelsEntities();
 				return cn;
 			}
 			else
@@ -122,8 +122,8 @@ namespace PW.Ncels.Database.Helpers
 				string key = HttpContext.Current.Session[ConnectKey].ToString();
 				var connet = entities.Settings.FirstOrDefault(o => o.UniqueName == key);
 				if (connet == null)
-					return new ncelsEntities();
-				return new ncelsEntities(connet.Value);
+					return new NcelsEntities();
+                return new NcelsEntities(connet.Value);
 			}
 
 		
@@ -140,7 +140,7 @@ namespace PW.Ncels.Database.Helpers
 		}
 
 		public static string GetCnString() {
-			ncelsEntities entities = new ncelsEntities();
+			NcelsEntities entities = new NcelsEntities();
 			if (HttpContext.Current.Session == null)
 				return System.Configuration.ConfigurationManager.ConnectionStrings["ApplicationServices"].ConnectionString;
 			if (HttpContext.Current.Session[ConnectKey] == null) {
@@ -156,7 +156,7 @@ namespace PW.Ncels.Database.Helpers
 		}
 
 	    public static bool CheckGuide(string id) {
-	        using (var entities = new ncelsEntities()) {
+	        using (var entities = new NcelsEntities()) {
 	            var employees = entities.Employees.Where(m=>m.IsGuide).Select(m=>m.Id).ToList();
 	            return employees.Any(item => id.Contains(item.ToString()));
 	        }

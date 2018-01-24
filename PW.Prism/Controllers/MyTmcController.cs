@@ -14,7 +14,7 @@ namespace PW.Prism.Controllers
 {
     public class MyTmcController : LimsBaseController
     {
-        private ncelsEntities db = new ncelsEntities();
+        private NcelsEntities db = new NcelsEntities();
 
         // заявка на получение. Не использутеся
         public ActionResult RequestList()

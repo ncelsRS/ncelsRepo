@@ -15,7 +15,7 @@ namespace PW.Ncels.Controllers
     public class NotificationController : ACommonController
     {
 
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: Notification
         public ActionResult Index()

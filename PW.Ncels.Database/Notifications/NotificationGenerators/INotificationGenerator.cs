@@ -15,6 +15,6 @@ namespace PW.Ncels.Database.Notifications.NotificationGenerators
         /// <param name="notificationTypeKey">Тип уведомления</param>
         /// <param name="sourceObject">Объект со всей необходимой информацией для генерации уведомления</param>
         /// <returns>Уведомление либо null если не получилось сгенерировать</returns>
-        Notification TryGenerateNotification<T>(ncelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class;
+        Notification TryGenerateNotification<T>(NcelsEntities dbContext, NotificationTypeKey notificationTypeKey, T sourceObject) where T : class;
     }
 }

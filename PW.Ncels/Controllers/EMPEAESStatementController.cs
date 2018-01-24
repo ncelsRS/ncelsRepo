@@ -10,11 +10,11 @@ namespace PW.Ncels.Controllers
 {
     public class EMPEAESStatementController : Controller
     {
-        private ncelsEntities _ctx;
+        private NcelsEntities _ctx;
 
         public EMPEAESStatementController()
         {
-            _ctx = new ncelsEntities();
+            _ctx = new NcelsEntities();
         }
 
         public ActionResult Index()

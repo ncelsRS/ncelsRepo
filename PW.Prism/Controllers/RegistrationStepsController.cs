@@ -11,7 +11,7 @@ namespace PW.Prism.Controllers
 {
     public class RegistrationStepsController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: RegistrationSteps
 
         public ActionResult EditRegNomer()

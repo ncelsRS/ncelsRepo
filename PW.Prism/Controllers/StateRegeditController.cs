@@ -11,7 +11,7 @@ namespace PW.Prism.Controllers
 {
     public class StateRegeditController : Controller
     {
-        private ncelsEntities db = new ncelsEntities();
+        private NcelsEntities db = new NcelsEntities();
 
         /// Сначала я думал поиск производителя, это поиск производителя, а оказалось это поиск зарегистрированных ЛС и тд.. если не пригодится удалить
         public ActionResult ProducerList()

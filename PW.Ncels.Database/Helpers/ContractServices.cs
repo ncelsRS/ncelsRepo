@@ -28,7 +28,7 @@ namespace PW.Ncels.Database.Helpers
         }
 
 
-        public async Task<object> GetContracts(ncelsEntities db, ModelRequest request,int ? code)
+        public async Task<object> GetContracts(NcelsEntities db, ModelRequest request,int ? code)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace PW.Ncels.Database.Helpers
 
         }
 
-        public async Task<object> ReadSigning(ncelsEntities db, ModelRequest request)
+        public async Task<object> ReadSigning(NcelsEntities db, ModelRequest request)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace PW.Ncels.Database.Helpers
 
         }
 
-        public async Task<object> ReadSigned(ncelsEntities db, ModelRequest request)
+        public async Task<object> ReadSigned(NcelsEntities db, ModelRequest request)
         {
             try
             {

@@ -36,7 +36,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class ZBKCopyController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private ZBKCopyRepository repository = new ZBKCopyRepository();
 
         // GET: /Reference/

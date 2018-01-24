@@ -22,7 +22,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class ProjectController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Project
 
         #region views

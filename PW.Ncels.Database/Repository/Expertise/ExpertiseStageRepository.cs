@@ -18,7 +18,7 @@ namespace PW.Ncels.Database.Repository.Expertise
         {
 
         }
-        public ExpertiseStageRepository(ncelsEntities context) : base(context)
+        public ExpertiseStageRepository(NcelsEntities context) : base(context)
         {
 
         }
@@ -464,7 +464,7 @@ namespace PW.Ncels.Database.Repository.Expertise
             var executors = AppContext.EXP_RegistrationExpSteps
                 .Where(e => e.RefId == stageId && e.EXP_RegistrationTypes.RefId == regTypeId)
                 .SelectMany(e => e.Executors).ToList();
-            if (executors.Count == 0)
+            if (executors.Count() == 0)
             {
                 executors.Add(AppContext.Employees.FirstOrDefault(e => e.Login == "grebennikova.v"));                
             }

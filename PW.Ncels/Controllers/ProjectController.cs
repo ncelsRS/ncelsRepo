@@ -31,7 +31,7 @@ namespace PW.Ncels.Controllers {
 	[Authorize()]
 	public class ProjectController : ACommonController
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         // GET: Project
 
 #region VIEWS

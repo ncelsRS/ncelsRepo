@@ -30,7 +30,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class TaskController : Controller
     {
-        private readonly ncelsEntities _db = UserHelper.GetCn();
+        private readonly NcelsEntities _db = UserHelper.GetCn();
         private readonly NotificationManager _notificationManager = new NotificationManager();
 
         // GET: /Task/
@@ -1578,7 +1578,7 @@ namespace PW.Prism.Controllers
             activity.Text = taskAction.Text;
             activity.ExecutionDate = taskAction.ExecutionDate;
             _db.SaveChanges();
-            _db.ActivityIsMainLine(activity.DocumentId);
+            //_db.ActivityIsMainLine(activity.DocumentId);
 
             return Content(bool.TrueString);
         }

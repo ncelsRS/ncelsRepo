@@ -22,7 +22,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class ContractController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private ContractRepository _contractRepository = new ContractRepository(false);
         private ActivityManager _activityManager = new ActivityManager();
 

@@ -23,7 +23,7 @@ namespace PW.Ncels.Database.Repository.Contract
             AppContext = CreateDatabaseContext(isProxy);
         }
 
-        public ContractRepository(ncelsEntities context) : base(context)
+        public ContractRepository(NcelsEntities context) : base(context)
         {
 
         }

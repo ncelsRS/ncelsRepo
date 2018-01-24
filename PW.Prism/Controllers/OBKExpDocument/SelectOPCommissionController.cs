@@ -13,7 +13,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
 {
     public class SelectOPCommissionController : Controller
     {
-        public ncelsEntities repo = new ncelsEntities();
+        public NcelsEntities repo = new NcelsEntities();
 
         public ActionResult SelectCommissionOP(Guid id)
         {

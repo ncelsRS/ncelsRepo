@@ -64,7 +64,7 @@ namespace PW.Prism {
 		}
 
 		private void CheckLogins() {
-			ncelsEntities db = new ncelsEntities();
+			NcelsEntities db = new NcelsEntities();
 			IQueryable<string> logins = db.Employees.Select(x => x.Login);
 			foreach (string login in logins)
 				if (login != null && Membership.GetUser(login) == null)
@@ -73,7 +73,7 @@ namespace PW.Prism {
 		}
 
         private void CreateLogins() {
-            ncelsEntities db = new ncelsEntities();
+            NcelsEntities db = new NcelsEntities();
             var employees = db.Employees.Where(x => x.Login == null).ToList();
             foreach (var employee in employees) {
                 if (!employee.LastName.IsNullOrWhiteSpace() && !employee.FirstName.IsNullOrWhiteSpace()) {

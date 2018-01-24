@@ -9,7 +9,7 @@ namespace Ncels.Core.ActivityManager.DocumentActions
 {
     public class DirectionToPayAgreementAction : DocumentAction
     {
-        public DirectionToPayAgreementAction(ncelsEntities context) : base(context)
+        public DirectionToPayAgreementAction(NcelsEntities context) : base(context)
         {
         }
 

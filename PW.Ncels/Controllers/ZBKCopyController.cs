@@ -33,7 +33,7 @@ namespace PW.Ncels.Controllers
     {
         private ZBKCopyRepository repository = new ZBKCopyRepository();
         private OBKPaymentRepository payRepo = new OBKPaymentRepository();
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         public ActionResult Index()
         {

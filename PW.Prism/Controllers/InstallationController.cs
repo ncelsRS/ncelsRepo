@@ -11,7 +11,7 @@ namespace PW.Prism.Controllers
 {
     public class InstallationController : Controller
     {
-        private ncelsEntities db = new ncelsEntities();
+        private NcelsEntities db = new NcelsEntities();
 
         // GET: Installation
         public ActionResult Index()

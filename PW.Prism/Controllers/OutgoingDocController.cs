@@ -23,7 +23,7 @@ namespace PW.Prism.Controllers
 	[Authorize]
     public class OutgoingDocController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
         private NotificationManager _notificationManager=new NotificationManager();
 
         // GET: /OutgoingDoc/
@@ -311,7 +311,7 @@ namespace PW.Prism.Controllers
 
 
                 db.SaveChanges();
-				ncelsEntities dbVew = UserHelper.GetCn();
+				NcelsEntities dbVew = UserHelper.GetCn();
 				baseDocument = dbVew.Documents.Find(document.Id);
 				DocumentModel model = new DocumentModel(baseDocument);
 				UploadHelper.ReplaceDocument(baseDocument.Id.ToString(), "Проект.docx", "DocumentNumber", baseDocument.Number);

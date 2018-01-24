@@ -19,7 +19,7 @@ namespace PW.Prism {
 			string id = Request["Id"];
 			string isPrint = Request["isPrint"];
 			if (!string.IsNullOrEmpty(id)) {
-				ncelsEntities context = UserHelper.GetCn();
+				NcelsEntities context = UserHelper.GetCn();
 				Guid guid = Guid.Parse(id);
 
 				Document doc =  context.Documents.FirstOrDefault(o => o.Id == guid);

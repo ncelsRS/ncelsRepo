@@ -29,7 +29,7 @@ namespace PW.Prism.Controllers
     [Authorize]
     public class OBK_Ref_ValueAddedTaxController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private NcelsEntities db = UserHelper.GetCn();
 
         // GET: /Reference/
         public ActionResult Index()
