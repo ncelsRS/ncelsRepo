@@ -586,6 +586,9 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private string ResearchCenterResultName(IQueryable<OBK_TaskMaterial> tms)
         {
+            var result = tms.Where(e=>e.StatusId == new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.Completed).Id);
+            if (!result.Any()) return "Испытания не завершены";
+
             var tm = tms.FirstOrDefault(e => e.OBK_ResearchCenterResult.Any(x => x.ExpertiseResult == null));
             if (tm != null)
                 return "Испытания не завершены";
@@ -600,31 +603,29 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private bool? ResearchCenterResult(List<OBK_TaskMaterial> taskMaterials)
         {
+            var result = taskMaterials.Where(e => e.StatusId == new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.Completed).Id);
+            if (!result.Any()) return null;
+
             var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
             if (obkTaskMaterial != null)
-            {
                 return null;
-            }
             var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
             if (obkTaskMaterial1 != null)
-            {
                 return false;
-            }
             var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
             if (obkTaskMaterial2 != null)
-            {
                 return true;
-            }
             return null;
         }
 
         public SubTaskDetails GetTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
         {
 
-            var userId = UserHelper.GetCurrentEmployee().Id;
+            var statusId = new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.Completed).Id;
+            //var userId = UserHelper.GetCurrentEmployee().Id;
             var tes = AppContext.OBK_TaskExecutor.Where(
                 e => e.OBK_Tasks.AssessmentDeclarationId == assessmentDeclarationId &&
-                     e.OBK_TaskMaterial.ProductSeriesId == productSeriesId);
+                     e.OBK_TaskMaterial.ProductSeriesId == productSeriesId && e.OBK_TaskMaterial.StatusId == statusId);
 
             var stds = new SubTaskDetails();
             var strs = new List<OBKSubTaskResult>();
