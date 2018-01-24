@@ -6,8 +6,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 using Aspose.Cells;
 using Aspose.Cells.Rendering;
@@ -552,90 +554,51 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBKExpertiseConclusion ExpertiseConclusion(Guid declarationId)
         {
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == declarationId);
+            if (ad == null)
+                return null;
             var taskMaterails = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == declarationId).GroupBy(d => d.ProductSeriesId);
             var productSeries = AppContext.OBK_Procunts_Series.Where(e => taskMaterails.Any(s => s.Key == e.Id));
-            if (productSeries.Any())
+            if (!productSeries.Any()) return null;
+            
+            var okbConclusion = new OBKExpertiseConclusion();
+            var eConclusions = new List<ExpertiseConclusion>();
+            foreach (var ps in productSeries)
             {
-                OBKExpertiseConclusion okbConclusion = new OBKExpertiseConclusion();
-                List<ExpertiseConclusion> eConclusions = new List<ExpertiseConclusion>();
-                foreach (var ps in productSeries)
+                var ec = new ExpertiseConclusion
                 {
-                    ExpertiseConclusion ec = new ExpertiseConclusion
-                    {
-                        ProductSeriesId = ps.Id,
-                        ProductNameRu = ps.OBK_RS_Products.NameRu,
-                        ProductNameKz = ps.OBK_RS_Products.NameKz,
-                        ProductSeries = ps.Series,
-                        SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
-                        ResearchCenterResultName = ResearchCenterResultName1(ps.OBK_TaskMaterial.ToList()),
-                        //ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial),
-                        //ResearchCenterResult = ResearchCenterResult(ps.OBK_TaskMaterial),
-                        ResearchCenterResult = ResearchCenterResult1(ps.OBK_TaskMaterial.ToList()),
-                        BtnValid = ad.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0
-                    };
-                    eConclusions.Add(ec);
-                }
-                okbConclusion.AssessmentDeclarationId = declarationId;
-                okbConclusion.AssessmentDeclarationType = ad?.OBK_Ref_Type.Code;
-                okbConclusion.ExpertiseConclusion = eConclusions;
-                return okbConclusion;
+                    ProductSeriesId = ps.Id,
+                    ProductNameRu = ps.OBK_RS_Products.NameRu,
+                    ProductNameKz = ps.OBK_RS_Products.NameKz,
+                    ProductSeries = ps.Series,
+                    SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
+                    ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial.AsQueryable()),
+                    ResearchCenterResult = ResearchCenterResult(ps.OBK_TaskMaterial.ToList()),
+                    BtnValid = ad.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0
+                };
+                eConclusions.Add(ec);
             }
-            return null;
+            okbConclusion.AssessmentDeclarationId = declarationId;
+            okbConclusion.AssessmentDeclarationType = ad?.OBK_Ref_Type.Code;
+            okbConclusion.ExpertiseConclusion = eConclusions;
+            return okbConclusion;
+            
         }
 
-        //private string ResearchCenterResultName(ICollection<OBK_TaskMaterial> taskMaterials)
-        //{
-        //    foreach (var taskMaterial in taskMaterials)
-        //    {
-        //        if (taskMaterial.ExpertiseResult != null)
-        //        {
-        //            if ((bool)!taskMaterial.ExpertiseResult)
-        //            {
-        //                return "Не соответсвует требованиям";
-        //            }
-        //        }
-        //        else { return "Испытания не завершены"; }
-        //    }
-        //    return "Соотвествует требованиям";
-        //}
-
-        private string ResearchCenterResultName1(List<OBK_TaskMaterial> taskMaterials)
+        private string ResearchCenterResultName(IQueryable<OBK_TaskMaterial> tms)
         {
-            var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
-            if (obkTaskMaterial != null)
-            {
+            var tm = tms.FirstOrDefault(e => e.OBK_ResearchCenterResult.Any(x => x.ExpertiseResult == null));
+            if (tm != null)
                 return "Испытания не завершены";
-            }
-            var obkTaskMaterial1 = taskMaterials.Find(e => e.ExpertiseResult == false);
-            if (obkTaskMaterial1 != null)
-            {
+            var tm1 = tms.FirstOrDefault(e => e.OBK_ResearchCenterResult.Any(x => x.ExpertiseResult == false));
+            if (tm1 != null)
                 return "Не соответсвует требованиям";
-            }
-            var obkTaskMaterial2 = taskMaterials.Find(e => e.ExpertiseResult == true);
-            if (obkTaskMaterial2 != null)
-            {
+            var tm2 = tms.FirstOrDefault(e => e.OBK_ResearchCenterResult.Any(x => x.ExpertiseResult == true));
+            if (tm2 != null)
                 return "Соотвествует требованиям";
-            }
             return null;
         }
 
-        //private bool? ResearchCenterResult(ICollection<OBK_TaskMaterial> taskMaterials)
-        //{
-        //    foreach (var taskMaterial in taskMaterials)
-        //    {
-        //        if (taskMaterial.ExpertiseResult != null)
-        //        {
-        //            if ((bool)!taskMaterial.ExpertiseResult)
-        //            {
-        //                return false;
-        //            }
-        //        }
-        //        else { return null; }
-        //    }
-        //    return true;
-        //}
-
-        private bool? ResearchCenterResult1(List<OBK_TaskMaterial> taskMaterials)
+        private bool? ResearchCenterResult(List<OBK_TaskMaterial> taskMaterials)
         {
             var obkTaskMaterial = taskMaterials.Find(e => e.ExpertiseResult == null);
             if (obkTaskMaterial != null)
@@ -657,26 +620,28 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public SubTaskDetails GetTaskDetails(Guid assessmentDeclarationId, int productSeriesId)
         {
-            var taskMaterials =
-                AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == assessmentDeclarationId &&
-                                                       e.ProductSeriesId == productSeriesId);
 
-            SubTaskDetails stds = new SubTaskDetails();
-            List<OBKSubTaskResult> strs = new List<OBKSubTaskResult>();
-            foreach (var taskMaterial in taskMaterials)
+            var userId = UserHelper.GetCurrentEmployee().Id;
+            var tes = AppContext.OBK_TaskExecutor.Where(
+                e => e.OBK_Tasks.AssessmentDeclarationId == assessmentDeclarationId &&
+                     e.OBK_TaskMaterial.ProductSeriesId == productSeriesId);
+
+            var stds = new SubTaskDetails();
+            var strs = new List<OBKSubTaskResult>();
+            foreach (var te in tes)
             {
-                OBKSubTaskResult str = new OBKSubTaskResult
+                var str = new OBKSubTaskResult
                 {
-                    ProductNameRu = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu,
-                    ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz,
-                    Regulation = taskMaterial.Regulation,
-                    ExpertiseResultName = taskMaterial.ExpertiseResult == null ? "Испытания не завершены" : (bool)taskMaterial.ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествует требованиям",
-                    LaboratoryExpertName = taskMaterial.Employee?.DisplayName,
-                    LaboratoryTypeName = taskMaterial.OBK_Ref_LaboratoryType?.NameRu,
-                    UnitLaboratoryName = taskMaterial.Unit?.DisplayName,
-                    SubTaskNumber = taskMaterial.SubTaskNumber,
-                    SubTaskCreateDate = taskMaterial.CreatedDate,
-                    SubTaskIndicator = taskMaterial.OBK_ResearchCenterResult.Select(e => new SubTaskIndicator
+                    ProductNameRu = te.OBK_TaskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu,
+                    ProductNameKz = te.OBK_TaskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz,
+                    Regulation = te.OBK_TaskMaterial.Regulation,
+                    //ExpertiseResultName = te.ExpertiseResult == null ? "Испытания не завершены" : (bool)te.ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествует требованиям",
+                    LaboratoryExpertName = te.Employee?.DisplayName,
+                    LaboratoryTypeName = te.OBK_TaskMaterial.OBK_Ref_LaboratoryType?.NameRu,
+                    UnitLaboratoryName = te.OBK_TaskMaterial.Unit?.DisplayName,
+                    SubTaskNumber = te.OBK_TaskMaterial.SubTaskNumber,
+                    SubTaskCreateDate = te.OBK_TaskMaterial.CreatedDate,
+                    SubTaskIndicator = te.OBK_TaskMaterial.OBK_ResearchCenterResult.Where(x=>x.ExecutorId == te.ExecutorId).Select(e => new SubTaskIndicator
                     {
                         LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
                         LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
@@ -684,13 +649,51 @@ namespace PW.Ncels.Database.Repository.OBK
                         FactResult = e.FactResult,
                         Humidity = e.Humidity,
                         LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
-                        LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz
+                        LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
+                        ExpertiseResultName = e.ExpertiseResult == null ? "Испытания не завершены" : (bool)e.ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествует требованиям",
                     }).ToList()
                 };
                 strs.Add(str);
             }
             stds.SubTaskResult = strs;
             return stds;
+
+
+
+
+            //var tms =
+            //    AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == assessmentDeclarationId &&
+            //                                           e.ProductSeriesId == productSeriesId);
+            
+            //foreach (var tm in tms)
+            //{
+            //    var str = new OBKSubTaskResult
+            //    {
+            //        ProductNameRu = tm.OBK_Procunts_Series.OBK_RS_Products.NameRu,
+            //        ProductNameKz = tm.OBK_Procunts_Series.OBK_RS_Products.NameKz,
+            //        Regulation = tm.Regulation,
+            //        ExpertiseResultName = tm.ExpertiseResult == null ? "Испытания не завершены" : (bool)tm.ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествует требованиям",
+            //        //LaboratoryExpertName = taskMaterial.Employee?.DisplayName,
+            //        LaboratoryExpertName = tm.Employee?.DisplayName,
+            //        LaboratoryTypeName = tm.OBK_Ref_LaboratoryType?.NameRu,
+            //        UnitLaboratoryName = tm.Unit?.DisplayName,
+            //        SubTaskNumber = tm.SubTaskNumber,
+            //        SubTaskCreateDate = tm.CreatedDate,
+            //        SubTaskIndicator = tm.OBK_ResearchCenterResult.Select(e => new SubTaskIndicator
+            //        {
+            //            LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
+            //            LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
+            //            Claim = e.Claim,
+            //            FactResult = e.FactResult,
+            //            Humidity = e.Humidity,
+            //            LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
+            //            LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz
+            //        }).ToList()
+            //    };
+            //    strs.Add(str);
+            //}
+            //stds.SubTaskResult = strs;
+            //return stds;
         }
 
         public OBKExpertiseConclusionPositive ExpertiseConclusionPositive(int productSeriesId, Guid adId)

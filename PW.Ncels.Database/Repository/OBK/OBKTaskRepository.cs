@@ -640,7 +640,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     IdNumber = taskMaterial.IdNumber,
                     LaboratoryName = taskMaterial.OBK_Ref_LaboratoryType.NameRu,
                     ExecutorLaboratoryName = taskMaterial.OBK_TaskExecutor.FirstOrDefault(e=>e.ExecutorId == userId)?.Employee.DisplayName, //Employee.DisplayName,
-                    //ExecutorLaboratorySign = taskMaterial.OBK_TaskExecutor.FirstOrDefault(e=>e.TaskMaterialId == taskMaterial.Id)?.SignedData != null,
+                    ExecutorLaboratorySign = taskMaterial.OBK_TaskExecutor.FirstOrDefault(e=>e.TaskMaterialId == taskMaterial.Id)?.SignedData != null,
                     CreateBtnValid = taskMaterial.OBK_ResearchCenterResult.FirstOrDefault(e=>e.ExecutorId == userId)?.ExpertiseResult != null //taskMaterial.ExpertiseResult != null
                 };
                 taskListResearchCenters.Add(taskListResearchCenter);
@@ -666,12 +666,18 @@ namespace PW.Ncels.Database.Repository.OBK
                     subTaskResult.NdProduct = taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +
                                               taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber;
                     subTaskResult.SubTaskNumber = taskMaterial.OBK_Tasks.TaskNumber + "/" + SubTaskCount(taskMaterialId);
-                    if (taskMaterial.OBK_TaskExecutor.Count > 1)
+                    subTaskResult.Regulation = taskMaterial.Regulation;
+
+                    if (taskMaterial.OBK_TaskExecutor.Count(e => e.ExecutorType == 2) <= 1) return subTaskResult;
+
+                    //if (!taskMaterial.OBK_ResearchCenterResult.GroupBy(x=>x.ExecutorId != userId).Any()) return subTaskResult;
+
+                    List<SubTaskCoExecutorResults> stcers = new List<SubTaskCoExecutorResults>();
+                    foreach (var tm in taskMaterial.OBK_TaskExecutor.Where(e=>e.ExecutorId != userId))
                     {
-                        subTaskResult.SubTaskCoExecutorName = taskMaterial.OBK_ResearchCenterResult
-                            .FirstOrDefault(e => e.ExecutorId != userId)
-                            ?.Employee.DisplayName;
-                        subTaskResult.SubTaskIndicatorCoExecutor = taskMaterial.OBK_ResearchCenterResult.Where(e=>e.ExecutorId != userId).Select(
+                        SubTaskCoExecutorResults stcer = new SubTaskCoExecutorResults();
+                        stcer.SubTaskCoExecutorName = tm.Employee.DisplayName;
+                        stcer.SubTaskIndicatorCoExecutor = tm.OBK_TaskMaterial.OBK_ResearchCenterResult.Where(e => e.ExecutorId == tm.ExecutorId).Select(
                             e => new SubTaskIndicator
                             {
                                 LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
@@ -681,25 +687,28 @@ namespace PW.Ncels.Database.Repository.OBK
                                 Humidity = e.Humidity,
                                 LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
                                 LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
-                                ExpertiseResult = (bool)e.ExpertiseResult
+                                ExpertiseResult = (bool)e.ExpertiseResult,
+                                ExecutorSign = tm.SignedData != null//e.OBK_TaskMaterial.OBK_TaskExecutor.FirstOrDefault(x => x.TaskMaterialId == taskMaterial.Id)?.SignedData != null
                             }).ToList();
+                        stcers.Add(stcer);
                     }
+                    subTaskResult.SubTaskCoExecutorResult = stcers;
+                    
                     return subTaskResult;
                 }
 
-                OBKSubTaskResult str = new OBKSubTaskResult
-                {
-                    Id = taskMaterial.Id,
-                    IsNew = false,
-                    RegisterId = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.RegisterId,
-                    ProductNameRu = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu,
-                    ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz,
-                    NdProduct = taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +
-                                taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber,
-                    Regulation = taskMaterial.Regulation,
-                    //ExpertiseResult = (bool) taskMaterial.ExpertiseResult,
-                    SubTaskNumber = taskMaterial.SubTaskNumber,
-                    SubTaskIndicator = taskMaterial.OBK_ResearchCenterResult.Where(e => e.ExecutorId == userId).Select(e => new SubTaskIndicator
+                OBKSubTaskResult str = new OBKSubTaskResult();
+                str.Id = taskMaterial.Id;
+                str.IsNew = false;
+                str.RegisterId = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.RegisterId;
+                str.ProductNameRu = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameRu;
+                str.ProductNameKz = taskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz;
+                str.NdProduct = taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +
+                                taskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber;
+                str.Regulation = taskMaterial.Regulation;
+                str.SubTaskNumber = taskMaterial.SubTaskNumber;
+                str.SubTaskIndicator = taskMaterial.OBK_ResearchCenterResult.Where(e => e.ExecutorId == userId)
+                    .Select(e => new SubTaskIndicator
                     {
                         LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
                         LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
@@ -708,9 +717,19 @@ namespace PW.Ncels.Database.Repository.OBK
                         Humidity = e.Humidity,
                         LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
                         LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
-                        ExpertiseResult = (bool)e.ExpertiseResult
-                    }).ToList(),
-                    SubTaskIndicatorCoExecutor = taskMaterial.OBK_ResearchCenterResult.Where(e => e.ExecutorId != userId).Select(
+                        ExpertiseResult = (bool) e.ExpertiseResult
+                    })
+                    .ToList();
+                if (taskMaterial.OBK_TaskExecutor.Count(e => e.ExecutorType == 2) <= 1) return str;
+
+                //if (!taskMaterial.OBK_ResearchCenterResult.GroupBy(x => x.ExecutorId != userId).Any()) return str;
+
+                List<SubTaskCoExecutorResults> stcerss = new List<SubTaskCoExecutorResults>();
+                foreach (var tm in taskMaterial.OBK_TaskExecutor.Where(e => e.ExecutorId != userId))
+                {
+                    SubTaskCoExecutorResults stcer = new SubTaskCoExecutorResults();
+                    stcer.SubTaskCoExecutorName = tm.Employee.DisplayName;
+                    stcer.SubTaskIndicatorCoExecutor = tm.OBK_TaskMaterial.OBK_ResearchCenterResult.Where(e => e.ExecutorId == tm.ExecutorId).Select(
                         e => new SubTaskIndicator
                         {
                             LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
@@ -720,13 +739,12 @@ namespace PW.Ncels.Database.Repository.OBK
                             Humidity = e.Humidity,
                             LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
                             LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
-                            ExpertiseResult = (bool)e.ExpertiseResult
-                        }).ToList(),
-                    SubTaskCoExecutorName = taskMaterial.OBK_ResearchCenterResult
-                        .FirstOrDefault(e => e.ExecutorId != userId)
-                        ?.Employee.DisplayName
-            };
-                
+                            ExpertiseResult = (bool)e.ExpertiseResult,
+                            ExecutorSign = tm.SignedData != null//e.OBK_TaskMaterial.OBK_TaskExecutor.FirstOrDefault(x => x.TaskMaterialId == taskMaterial.Id && x.ExecutorId== tm.ExecutorId)?.SignedData != null
+                        }).ToList();
+                    stcerss.Add(stcer);
+                }
+                str.SubTaskCoExecutorResult = stcerss;
                 return str;
             }
             return null;
@@ -739,7 +757,7 @@ namespace PW.Ncels.Database.Repository.OBK
             return tmCount;
         }
 
-        public bool SaveSubTaskResult(OBKSubTaskResult subTaskResult)
+        public string SaveSubTaskResult(OBKSubTaskResult subTaskResult)
         {
             try
             {
@@ -747,7 +765,14 @@ namespace PW.Ncels.Database.Repository.OBK
                 var taskMaterial = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.Id == subTaskResult.Id);
                 if (taskMaterial != null)
                 {
-                    //taskMaterial.ExpertiseResult = subTaskResult.ExpertiseResult;
+                    foreach (var rcr in taskMaterial.OBK_ResearchCenterResult)
+                    {
+                        if (subTaskResult.SubTaskIndicator.Any(sti => rcr.LaboratoryMarkId == sti.LaboratoryMarkId))
+                        {
+                            return "Показатель '" + rcr.OBK_Ref_LaboratoryMark.NameRu + "' был заполнен исполнителем: " + rcr.Employee.DisplayName;
+                        }
+                    }
+
                     taskMaterial.Regulation = subTaskResult.Regulation;
                     taskMaterial.SubTaskNumber = subTaskResult.SubTaskNumber;
                     taskMaterial.CreatedDate = DateTime.Now;
@@ -770,13 +795,13 @@ namespace PW.Ncels.Database.Repository.OBK
                     }
                     AppContext.OBK_ResearchCenterResult.AddRange(rcs);
                     AppContext.SaveChanges();
-                    return true;
+                    return "save";
                 }
-                return false;
+                return "notFound";
             }
             catch (Exception)
             {
-                return false;
+                return "error";
             }
         }
 
@@ -792,13 +817,14 @@ namespace PW.Ncels.Database.Repository.OBK
                 ProductNameKz = reslutTaskMaterial.OBK_Procunts_Series.OBK_RS_Products.NameKz,
                 NdProduct = reslutTaskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " +
                             reslutTaskMaterial.OBK_Procunts_Series.OBK_RS_Products?.NdNumber,
-                ExpertiseResult = (bool)reslutTaskMaterial.ExpertiseResult,
+                Regulation = reslutTaskMaterial.Regulation,
                 SubTaskIndicator = reslutTaskMaterial.OBK_ResearchCenterResult.Select(e=> new SubTaskIndicator
                 {
                     LaboratoryMarkId = e.LaboratoryMarkId,
                     Claim = e.Claim,
                     FactResult = e.FactResult,
-                    Humidity = e.Humidity
+                    Humidity = e.Humidity,
+                    ExpertiseResult = (bool)e.ExpertiseResult
                 }).ToList()
             };
             var xmlData = SerializeHelper.SerializeDataContract(str);

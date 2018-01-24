@@ -9,26 +9,110 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">Просмотр результатов испытаний</h4>
     </div>
-    @foreach (var s in Model.SubTaskResult)
+    @if (Model.SubTaskResult.Count > 0)
+    {
+        foreach (var s in Model.SubTaskResult)
+        {
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>№ протокола</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@s.SubTaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Дата создания</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@s.SubTaskCreateDate">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Результат</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.ExpertiseResultName" value="@s.ExpertiseResultName">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Исполнитель</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryExpertName" value="@s.LaboratoryExpertName">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Лаборатория</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.UnitLaboratoryName" value="@s.UnitLaboratoryName">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Вид испытания</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryTypeName" value="@s.LaboratoryTypeName">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-striped table-bordered table-hover tableModalTaskDetails">
+                            <thead>
+                            <tr>
+                                <td>Показатель</td>
+                                <td>Обозначение нормативных документов на методы испытаний</td>
+                                <td>Требования НД</td>
+                                <td>Фактически полученный результат</td>
+                                <td>Т 0С и влажность (%)</td>
+                                <td>Результат</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @if (s.SubTaskIndicator.Count > 0)
+                            {
+                                foreach (var t in s.SubTaskIndicator)
+                                {
+                                    <tr>
+                                        <td>@t.LaboratoryMarkNameRu</td>
+                                        <td>@t.LaboratoryRegulationNameRu</td>
+                                        <td>@t.Claim</td>
+                                        <td>@t.FactResult</td>
+                                        <td>@t.Humidity</td>
+                                        <td>@t.ExpertiseResultName</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" style="text-align: center;"><label>Нет данных</label></td></tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
     {
         <div class="modal-body">
             <div class="row">
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>№ протокола</label>
-                        <input class="form-control" type="text" disabled="disabled" value="@s.SubTaskNumber">
+                        <input class="form-control" type="text" disabled="disabled">
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>Дата создания</label>
-                        <input class="form-control" disabled="disabled" type="text" value="@s.SubTaskCreateDate">
+                        <input class="form-control" disabled="disabled" type="text">
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>Результат</label>
-                        <input class="form-control" disabled="disabled" type="text" title="@s.ExpertiseResultName" value="@s.ExpertiseResultName">
+                        <input class="form-control" disabled="disabled" type="text">
                     </div>
                 </div>
             </div>
@@ -36,25 +120,25 @@
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>Исполнитель</label>
-                        <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryExpertName" value="@s.LaboratoryExpertName">
+                        <input class="form-control" disabled="disabled" type="text">
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>Лаборатория</label>
-                        <input class="form-control" disabled="disabled" type="text" title="@s.UnitLaboratoryName" value="@s.UnitLaboratoryName">
+                        <input class="form-control" disabled="disabled" type="text">
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="form-group">
                         <label>Вид испытания</label>
-                        <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryTypeName" value="@s.LaboratoryTypeName">
+                        <input class="form-control" disabled="disabled" type="text">
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <table class="table table-striped table-bordered table-hover tableModalTaskDetails">
+                    <table class="table table-striped table-bordered table-hover">
                         <thead>
                         <tr>
                             <td>Показатель</td>
@@ -62,26 +146,11 @@
                             <td>Требования НД</td>
                             <td>Фактически полученный результат</td>
                             <td>Т 0С и влажность (%)</td>
+                            <td>Результат</td>
                         </tr>
                         </thead>
                         <tbody>
-                        @if (s.SubTaskIndicator.Count > 0)
-                        {
-                            foreach (var t in s.SubTaskIndicator)
-                            {
-                                <tr>
-                                    <td>@t.LaboratoryMarkNameRu</td>
-                                    <td>@t.LaboratoryRegulationNameRu</td>
-                                    <td>@t.Claim</td>
-                                    <td>@t.FactResult</td>
-                                    <td>@t.Humidity</td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr><td colspan="5" style="text-align: center;"><label>Нет данных</label></td></tr>
-                        }
+                            <tr><td colspan="6" style="text-align: center;"><label>Испытания не начаты</label></td></tr>
                         </tbody>
                     </table>
                 </div>

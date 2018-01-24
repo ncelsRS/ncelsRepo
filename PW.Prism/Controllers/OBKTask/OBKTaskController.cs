@@ -354,7 +354,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult SaveSubTaskResult(OBKSubTaskResult subTaskResult)
         {
             var result = repo.SaveSubTaskResult(subTaskResult);
-            return Json(new { isSuccess = result });
+            return Json(new { result });
         }
 
         public ActionResult GetSignSubTaskExpert(Guid id)

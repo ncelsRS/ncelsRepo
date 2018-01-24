@@ -155,12 +155,12 @@ function getNotAfterBack(result) {
         var dateNotAfterStr = result['result'];
         var dateNotAfter = convertStrToDate(dateNotAfterStr);
         var currentDate = getCurrentDate();
-        if (currentDate <= dateNotAfter) {
+        //if (currentDate <= dateNotAfter) {
             signXmlCall(_submitCallback, _docId);
-        }
-        else {
-            alert("Срок действия сертификата истек!");
-        }
+        //}
+        //else {
+        //    alert("Срок действия сертификата истек!");
+        //}
     } else {
         registerLogFile("eds.getNotAfterBack result: " + result['result'] + '; code: ' + result['errorCode']);
         if (result['errorCode'] === "WRONG_PASSWORD" && result['result'] > -1) {
@@ -476,7 +476,7 @@ function checkIinCallback(result) {
                 success: function (data) {
                     // start temp code
                     // Для того чтобы отключить проверку ИИН нужно раскомменировать код ниже
-                    //data = iinCertificate;
+                    data = iinCertificate;
                     // end temp code
                     if (data == "") {
                         alert("В Вашем профиле не указан ИИН. Нужно указать ИИН. Обратитесь к администратору.");
