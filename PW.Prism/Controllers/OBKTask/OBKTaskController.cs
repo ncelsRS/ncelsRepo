@@ -291,15 +291,13 @@ namespace PW.Prism.Controllers.OBKTask
 
         private string ModifyFilters(IEnumerable<IFilterDescriptor> filters)
         {
-            if (filters.Any())
+            if (!filters.Any()) return null;
+            foreach (var filter in filters)
             {
-                foreach (var filter in filters)
+                var descriptor = filter as FilterDescriptor;
+                if (descriptor != null && descriptor.Member == "StageStatusCode")
                 {
-                    var descriptor = filter as FilterDescriptor;
-                    if (descriptor != null && descriptor.Member == "StageStatusCode")
-                    {
-                        return descriptor.Value.ToString();
-                    }
+                    return descriptor.Value.ToString();
                 }
             }
             return null;
@@ -354,7 +352,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult SaveSubTaskResult(OBKSubTaskResult subTaskResult)
         {
             var result = repo.SaveSubTaskResult(subTaskResult);
-            return Json(new { isSuccess = result });
+            return Json(new { result });
         }
 
         public ActionResult GetSignSubTaskExpert(Guid id)

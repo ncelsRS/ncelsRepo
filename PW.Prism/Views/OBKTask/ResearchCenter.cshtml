@@ -3,16 +3,12 @@
 @using PW.Ncels.Database.Models.OBK
 @model Guid
     
-@helper GridToolbarTemplate() {
+@*@helper GridToolbarTemplate() {
     <div class="pull-right">
-        <div style="display: inline-block" id="columnMenu@( Model)" class="custom-grid-menu"></div>
-        <div style="display: inline-block">
-            @( Html.Kendo().Button().Name("reload" + Model)
-                   .Content("")
-                   .ImageUrl("/Content/images/reload.png"))
+        <div style="display: inline-block" id="columnMenu@( Model)" class="custom-grid-menu">
         </div>
     </div>
-}
+}*@
 @(Html.Kendo().Splitter()
       .HtmlAttributes(new { @class = "pwSplitter k-block" })
       .Name(("splitter" + Model))
@@ -25,11 +21,11 @@
               .MinSize("250px")
               .Content(
                   @<div class="pwPanelBar">
-                      @( Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                      @( Html.Kendo().PanelBar().HtmlAttributes(new {@class = "pwPanelBar"})
                              .Name("panelbar" + Model)
                              .ExpandMode(PanelBarExpandMode.Multiple)
                              .ExpandAll(true)
-                             .HtmlAttributes(new { style = "width:auto;" })
+                             .HtmlAttributes(new {style = "width:auto;"})
                              .Events(e => e.Select("panelResearchCenter"))
                              .Items(panelbar =>
                              {
@@ -72,6 +68,11 @@
 
           panes.Add().Scrollable(false).Size("100%").Content(
               @<div class="pwPanelBar">
+                   <div id="pwSix">
+                       @( Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                             .Content("")
+                             .ImageUrl("/Content/images/reload.png"))
+                   </div>
                   @( Html.Kendo().Grid<OBKResearchCenterListView>()
                          .Name("gridResearchCenter" + Model)
                          .Columns(columns =>
@@ -91,14 +92,14 @@
                          .AutoBind(false)
                          .Reorderable(reorderable => reorderable.Columns(true))
                          .Resizable(resizable => resizable.Columns(true))
-                         .ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                         //.ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
                          .Groupable()
                          .Sortable()
                          .Filterable()
                          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
                          .Scrollable(scrollable => scrollable.Virtual(true))
                          .Pageable()
-                         .HtmlAttributes(new { @class = "pwGrid" })
+                         .HtmlAttributes(new {@class = "pwGrid"})
                          .DataSource(dataSource => dataSource
                              .Ajax()
                              //.Sort(sort => { sort.Add("FirstSendDate").Descending(); })

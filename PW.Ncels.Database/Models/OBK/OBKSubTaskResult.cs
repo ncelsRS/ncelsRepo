@@ -26,8 +26,7 @@ namespace PW.Ncels.Database.Models.OBK
 
         public List<SubTaskIndicator> SubTaskIndicator { get; set; }
 
-        public string SubTaskCoExecutorName { get; set; }
-        public List<SubTaskIndicator> SubTaskIndicatorCoExecutor { get; set; }
+        public List<SubTaskCoExecutorResults> SubTaskCoExecutorResult { get; set; }
     }
 
     public class SubTaskDetails
@@ -63,5 +62,13 @@ namespace PW.Ncels.Database.Models.OBK
         public string FactResult { get; set; }
 
         public bool ExpertiseResult { get; set; }
+        public string ExpertiseResultName { get; set; }
+        public bool ExecutorSign { get; set; }
+    }
+
+    public class SubTaskCoExecutorResults
+    {
+        public string SubTaskCoExecutorName { get; set; }
+        public List<SubTaskIndicator> SubTaskIndicatorCoExecutor { get; set; }
     }
 }
