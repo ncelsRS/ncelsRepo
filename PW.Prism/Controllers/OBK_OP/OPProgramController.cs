@@ -23,6 +23,38 @@ namespace PW.Prism.Controllers.OBK_OP
         [HttpGet]
         public ActionResult Program(Guid declarationId)
         {
+            var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == programStageId);
+            if (stage == null)
+            {
+                stage = new OBK_AssessmentStage
+                {
+                    Id = Guid.NewGuid(),
+                    StartDate = DateTime.Now,
+                    DeclarationId = declarationId,
+                    StageId = programStageId,
+                    StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPProgramNew").Select(x => x.Id).FirstOrDefault()
+                };
+                repo.OBK_AssessmentStage.Add(stage);
+                repo.SaveChanges();
+                var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+                var members = repo.OBK_OP_Commission
+                    .Where(x => x.DeclarationId == declarationId)
+                    .Select(x => new { x.RoleId, x.EmployeeId })
+                    .ToList();
+                members.ForEach(member =>
+                {
+                    var executor = new OBK_AssessmentStageExecutors
+                    {
+                        AssessmentStageId = stage.Id,
+                        ExecutorId = member.EmployeeId,
+                        ExecutorType = member.RoleId == new Guid("3935ad57-dea8-4d41-bb94-c99bc56973df")
+                            ? CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
+                            : CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
+                    };
+                    repo.OBK_AssessmentStageExecutors.Add(executor);
+                });
+                repo.SaveChanges();
+            }
             return PartialView(declarationId);
         }
 
@@ -32,8 +64,23 @@ namespace PW.Prism.Controllers.OBK_OP
             var res = repo.OBK_AssessmentDeclarationProgram
                 .FirstOrDefault(x => x.DeclarationId == declarationId)
                 .ToVM();
+
+            var stage = repo.OBK_AssessmentStage
+                .Where(x => x.DeclarationId == declarationId && x.StageId == 16)
+                .Select(x => new { x.Id, StatusCode = x.OBK_Ref_StageStatus.Code })
+                .FirstOrDefault();
+            res.StatusCode = stage.StatusCode;
+            var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+            res.IsExecutor = repo.OBK_AssessmentStageExecutors
+                .Any(x => x.AssessmentStageId == stage.Id
+                    && x.ExecutorId == currentEmployeeId
+                    && (
+                    ((res.StatusCode == "OPProgramNew" || res.StatusCode == "OPProgramSigned") && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
+                        || ((res.StatusCode != "OPProgramNew" && res.StatusCode != "OPProgramSigned") && (x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR))
+                        ));
             res.Attach = FileHelper.GetAttachListEdit(repo, declarationId.ToString(), "assessmentDeclarationOPProgram")
                 .ToDataSourceResult(new Kendo.Mvc.UI.DataSourceRequest());
+            repo.Dispose();
             return Json(new { isSuccess = true, data = res }, JsonRequestBehavior.AllowGet);
         }
 
@@ -48,6 +95,8 @@ namespace PW.Prism.Controllers.OBK_OP
             }
             program.Id = Guid.NewGuid();
             repo.OBK_AssessmentDeclarationProgram.Add(program.ToDB());
+            var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == program.DeclarationId && x.StageId == programStageId);
+            stage.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPProgramSigned").Select(x => x.Id).FirstOrDefault();
             repo.SaveChanges();
             return Json(new { isSuccess = true, data = program }, JsonRequestBehavior.AllowGet);
         }
@@ -58,9 +107,9 @@ namespace PW.Prism.Controllers.OBK_OP
             var stage = repo.OBK_AssessmentStage
                 .FirstOrDefault(x => x.StageId == programStageId && x.DeclarationId == declarationId);
             if (stage == null)
-                return Json(new { isError = true, data = "Stage not found" });
+                return Json(new { isError = true, data = "Документ прошел не все стадии, выберите согласующих" });
             stage.StageStatusId = repo.OBK_Ref_StageStatus
-                .Where(x => x.Code == "inWork")
+                .Where(x => x.Code == "OPProgramInConfirm")
                 .Select(x => x.Id)
                 .FirstOrDefault();
             repo.SaveChanges();
@@ -72,37 +121,12 @@ namespace PW.Prism.Controllers.OBK_OP
         [HttpGet]
         public ActionResult ListExecutors(Guid declarationId)
         {
-            var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == programStageId);
-            if (stage == null)
-            {
-                stage = new OBK_AssessmentStage
-                {
-                    Id = Guid.NewGuid(),
-                    StartDate = DateTime.Now,
-                    DeclarationId = declarationId,
-                    StageId = programStageId,
-                    StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "inQueue").Select(x => x.Id).FirstOrDefault()
-                };
-                repo.OBK_AssessmentStage.Add(stage);
-                repo.SaveChanges();
-                var members = repo.OBK_OP_Commission
-                    .Where(x => x.DeclarationId == declarationId)
-                    .Select(x => x.EmployeeId)
-                    .ToList();
-                members.ForEach(member =>
-                {
-                    var executor = new OBK_AssessmentStageExecutors
-                    {
-                        AssessmentStageId = stage.Id,
-                        ExecutorId = member,
-                        ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
-                    };
-                    repo.OBK_AssessmentStageExecutors.Add(executor);
-                });
-                repo.SaveChanges();
-            }
+            var stageId = repo.OBK_AssessmentStage
+                .Where(x => x.DeclarationId == declarationId && x.StageId == programStageId)
+                .Select(x => x.Id)
+                .FirstOrDefault();
             var executors = repo.OBK_AssessmentStageExecutors
-                .Where(x => x.AssessmentStageId == stage.Id)
+                .Where(x => x.AssessmentStageId == stageId)
                 .Select(x => new
                 {
                     x.ExecutorId,

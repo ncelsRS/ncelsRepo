@@ -359,6 +359,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 return false;
             }
             copy.zbkCopiesReady = true;
+            copy.zbkCopyReadyDate = DateTime.Now;
 
             var notification = new NotificationManager().SendNotificationFromCompany(
                          "Ваш запрос на копии ЗБК готов. Просим вас забрать копии ЗБК.",
@@ -763,7 +764,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             }
 
-            bool blankExistence = AppContext.OBK_BlankNumber.Any(o => o.Number == newBlank);
+            bool blankExistence = AppContext.OBK_BlankNumber.Any(o => o.Number == newBlank && o.Object_Id == zbkCopyId);
 
             var negative = new OBK_BlankResponse
             {

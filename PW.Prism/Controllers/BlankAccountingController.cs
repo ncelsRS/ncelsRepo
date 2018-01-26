@@ -94,24 +94,13 @@ namespace PW.Prism.Controllers
             return Json(new { success = response.response, message = response.message });
         }
 
-        public FileStreamResult ExportFile(DateTime? from, DateTime? to)
+        public FileStreamResult ExportFile([DataSourceRequest] DataSourceRequest request)
         {
             StiReport report = new StiReport();
             report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKBlanks.mrt"));
-            var currentEmployee = UserHelper.GetCurrentEmployee();
-            foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
-            {
-                data.ConnectionString = UserHelper.GetCnString();
-            }
-
-            if (from == null)
-            { report.Dictionary.Variables["fromPeriod"].ValueObject = (DateTime)SqlDateTime.MinValue; }
-            else { report.Dictionary.Variables["fromPeriod"].ValueObject = from; }
-
-            if (to == null)
-            { report.Dictionary.Variables["toPeriod"].ValueObject = (DateTime)SqlDateTime.MaxValue; }
-            else { report.Dictionary.Variables["toPeriod"].ValueObject = to; }
-
+            report.Compile();
+            var data = repository.List().ToDataSourceResult(request);
+            report.RegBusinessObject("List", data.Data);
             report.Render(false);
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Excel, stream);

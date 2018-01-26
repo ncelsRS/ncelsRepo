@@ -1016,7 +1016,7 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_StageExpDocument.FirstOrDefault(e => e.AssessmentDeclarationId == id);
         }
 
-        public void SendOutputResult(Guid id, string receiver, DateTime receiveDate)
+        public void SendOutputResult(Guid id, string receiverFio, DateTime receivedDate)
         {
             var stages = AppContext.OBK_AssessmentStage.Where(e => e.OBK_AssessmentDeclaration.Id == id);
             var declarant = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
@@ -1045,7 +1045,9 @@ namespace PW.Ncels.Database.Repository.OBK
                         break;
                 }
             }
-           // var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.)
+            declarant.ReceiverFIO = receiverFio;
+            declarant.ReceivedDate = receivedDate;
+            declarant.ExtraditeDate = DateTime.Now;
             AppContext.SaveChanges();
         }
 

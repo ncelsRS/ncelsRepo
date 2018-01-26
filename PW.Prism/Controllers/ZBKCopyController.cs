@@ -111,24 +111,13 @@ namespace PW.Prism.Controllers
             return Json(data.ToDataSourceResult(request));
         }
 
-        public FileStreamResult ExportFile(DateTime? from, DateTime? to)
+        public FileStreamResult ExportFile([DataSourceRequest] DataSourceRequest request)
         {
             StiReport report = new StiReport();
             report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKList.mrt"));
-            var currentEmployee = UserHelper.GetCurrentEmployee();
-            foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
-            {
-                data.ConnectionString = UserHelper.GetCnString();
-            }
-
-            if (from == null)
-            { report.Dictionary.Variables["fromPeriod"].ValueObject = (DateTime)SqlDateTime.MinValue; }
-            else { report.Dictionary.Variables["fromPeriod"].ValueObject = from; }
-
-            if (to == null)
-            { report.Dictionary.Variables["toPeriod"].ValueObject = (DateTime)SqlDateTime.MaxValue; }
-            else { report.Dictionary.Variables["toPeriod"].ValueObject = to; }
-
+            report.Compile();
+            var data = repository.ZBKRegister().ToDataSourceResult(request);
+            report.RegBusinessObject("ZBKList", data.Data);
             report.Render(false);
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Excel, stream);
@@ -136,19 +125,18 @@ namespace PW.Prism.Controllers
             return File(stream, "application/excel", "СписокЗБК.xls");
         }
 
-        public FileStreamResult ExportFile([DataSourceRequest] DataSourceRequest request)
+        public FileStreamResult ExportTransferZbk([DataSourceRequest] DataSourceRequest request)
         {
             StiReport report = new StiReport();
             report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKTransferList.mrt"));
-
-            var data = repository.ZBKRegister().ToDataSourceResult(request);
-            report.RegData("ZBKList", data);
-
+            report.Compile();
+            var data = repository.ZBKTransferRegister().ToDataSourceResult(request);
+            report.RegBusinessObject("ZBKList", data.Data);
             report.Render(false);
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Excel, stream);
             stream.Position = 0;
-            return File(stream, "application/excel", "СписокЗБК.xls");
+            return File(stream, "application/excel", "Список Передачи ЗБК.xls");
         }
 
         [HttpPost]

@@ -183,8 +183,8 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБиК");
             AddPermission("CanViewMenuItemOBKResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБиК");
             AddPermission("CanViewMenuItemNewResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Новые\"", "Работа с заявлениями ОБиК");
-            AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБК'", "Оценка производства", "Работа с заявлениями ОБК");
-            AddPermission("CanExpertCouncil", @"Модуль 'ОБК'", "Экспертный совет", "Работа в экспертном совете");
+            AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБиК'", "Оценка производства", "Работа с заявлениями ОБиК");
+            AddPermission("CanExpertCouncil", @"Модуль 'ОБиК'", "Экспертный совет", "Работа в экспертном совете");
 
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
