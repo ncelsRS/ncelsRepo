@@ -18,6 +18,8 @@ namespace PW.Ncels.Database.Models.OBK
         public string UnitName { get; set; }
         public int? TaskStatusId { get; set; }
         public bool IsShow { get; set; }
+        public int ExecutorCode { get; set; }
+        public bool ChiefSign { get; set; }
         public IEnumerable<SelectListItem> StorageConditions { get; set; }
         public IEnumerable<SelectListItem> ExternalConditions { get; set; }
         public IEnumerable<SelectListItem> Researchcenters { get; set; }

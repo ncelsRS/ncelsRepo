@@ -10,8 +10,9 @@ namespace PW.Ncels.Database.Models.OBK
     public class OBKManagerResearchCenter
     {
         public Guid TaskId { get; set; }
+        public Guid BossId { get; set; }
+        public IEnumerable<SelectListItem> BossSelectList { get; set; }
         public List<UnitLaboratories> UnitLaboratory { get; set; }
-
         public List<ManagerLaboratories> ManagerLaboratory { get; set; }
     }
 
