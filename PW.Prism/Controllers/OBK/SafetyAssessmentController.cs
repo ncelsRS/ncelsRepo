@@ -52,12 +52,12 @@ namespace PW.Prism.Controllers.OBK
 
         public ActionResult SaveTakenZBK(Guid declarationId)
         {
-            var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.AssessmentDeclarationId == declarationId);
-            if (expDocument == null)
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
+            if (declaration == null)
             {
                 return Json(new { success = false, message="Заключение не существует!" });
             }
-           // expDocument.ZBKTaken = true;
+            declaration.ZBKTaken = true;
             db.SaveChanges();
             return Json(new { success = true, message="Успешно сохранено!" });
         }
@@ -80,13 +80,11 @@ namespace PW.Prism.Controllers.OBK
             {
                 ViewBag.outputResultAct = false;
                 ViewBag.ZBKTaken = false;
-                ViewBag.ZBKTakenChecked = false;
             }
             else
             {
-                //ViewBag.outputResultAct = (certificateOfComplection.ActReturnedBack == true && expDocument.ZBKTaken == true);
-             //   ViewBag.ZBKTaken = (certificateOfComplection.ActReturnedBack == true && expDocument.ZBKTaken == null );
-               // ViewBag.ZBKTakenChecked = expDocument.ZBKTaken == true;
+                ViewBag.outputResultAct = (certificateOfComplection.ActReturnedBack == true && model.OBK_AssessmentDeclaration.ZBKTaken == true);
+                ViewBag.ZBKTaken = model.OBK_AssessmentDeclaration.ZBKTaken == true;
             }
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
@@ -528,10 +526,10 @@ namespace PW.Prism.Controllers.OBK
             return PartialView(id);
         }
 
-        public ActionResult OutputResult(Guid id, string receiver, DateTime receiveDate)
+        public ActionResult OutputResult(Guid id, string receiverFio, DateTime receivedDate)
         {
             var okbRepo = new SafetyAssessmentRepository();
-            okbRepo.SendOutputResult(id, receiver, receiveDate);
+            okbRepo.SendOutputResult(id, receiverFio, receivedDate);
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
 
