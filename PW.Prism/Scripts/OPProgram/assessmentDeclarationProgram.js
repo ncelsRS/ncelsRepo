@@ -12,10 +12,14 @@
         this._dateFrom;
         this._dateTo;
         this._attachedFile;
+        this.StatusCode;
+        this.IsExecutor;
         if (program) {
             this.DateFrom = program.DateFrom;
             this.DateTo = program.DateTo;
             this.AttachedFile = program.Attach;
+            this.StatusCode = program.StatusCode;
+            this.IsExecutor = program.IsExecutor;
         }
     }
 
@@ -58,7 +62,6 @@
         };
     }
 }
-
 class Executor {
     constructor(entity) {
         this._html = {
@@ -125,14 +128,29 @@ var executor;
 
 var executors;
 
-function showUploadProgram() {
-    $("#saveProgram" + modelId).show();
-    $("#listExecutors" + modelId).hide();
-}
-
-function showExecutorsSelect() {
-    $("#saveProgram" + modelId).hide();
-    $("#listExecutors" + modelId).show();
+var statuses = {
+    OPProgramNew: "new",
+    OPProgramSigned: "signed",
+    OPProgramInConfirm: "inconfirm",
+    OPProgramConfirmed: "confirmed"
+};
+var statusesArr = [];
+Object.keys(statuses).forEach(key => {
+    var value = statuses[key];
+    statusesArr.push("show-executor-" + value);
+    statusesArr.push("show-nonexecutor-" + value);
+});
+function updateHtmlVisible() {
+    var status = program.IsExecutor
+        ? "show-executor-"
+        : "show-nonexecutor-";
+    status += statuses[program.StatusCode];
+    $("#tableProgramExecutors" + modelId).DataTable().column(4).visible(status === 'show-executor-signed');
+    statusesArr.forEach(s => {
+        if (s != status)
+            $("." + s).hide();
+    });
+    $("." + status).show();
 }
 
 function loadProgram() {
@@ -144,10 +162,7 @@ function loadProgram() {
         success: function (res) {
             if (res.isSuccess) {
                 program = new Program(res.data);
-                if (res.data)
-                    showExecutorsSelect();
-                else
-                    showUploadProgram();
+                updateHtmlVisible();
             } else
                 alert('Произошла ошибка');
         }
@@ -166,7 +181,6 @@ function deleteAttach() {
         }
     })
 }
-
 function downloadAttach() {
     var item = program.AttachedFile.Items[0];
     var link = document.createElement('a');
@@ -188,7 +202,7 @@ function saveProgram() {
         data: JSON.stringify(res),
         success: function (res) {
             if (res.isSuccess) {
-                openExecutorsSelect();
+                loadProgram();
             }
             else {
                 alert("Ошибка");
@@ -222,7 +236,10 @@ function loadExecutors() {
                         { data: "FullName" },
                         { data: "FullName" },
                         { data: "FullName" },
-                        { data: "", targets: -1, defaultContent: "<button type='button' class='k-button'>Удалить</button>" }
+                        {
+                            data: "", targets: -1,
+                            defaultContent: "<button type='button' class='k-button'>Удалить</button>"
+                        }
                     ]
                 });
             }
@@ -285,7 +302,6 @@ function saveExecutor(e) {
         }
     })
 }
-
 function cancelExecutor(e) {
     executor.destroy();
 }
@@ -295,12 +311,13 @@ function sendToWork() {
         return alert("Выберите подтверждающих");
     $.ajax({
         url: "/OPProgram/SendToWork",
+        method: "POST",
         data: {
             declarationId: modelId
         },
         success: function (res) {
             if (res.isSuccess) {
-
+                loadProgram();
             }
             if (res.isError) {
                 return alert("Ошибка: " + res.data.Message);
@@ -367,8 +384,8 @@ function initExecutorsTable() {
 function init() {
     initKendoUpload();
     initExecutorsTable();
-    loadProgram();
     loadExecutors();
+    loadProgram();
 }
 
 init();

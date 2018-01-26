@@ -2413,7 +2413,10 @@ namespace PW.Ncels.Database.Repository.OBK
             var contract = AppContext.OBK_Contract.Where(x => x.Id == contractId).FirstOrDefault();
             var shortName = contract?.Unit?.ShortName;
 
-            var list = AppContext.OBK_ContractExtHistory.Where(x => x.ContractId == contractId).OrderBy(x => x.Created).AsEnumerable()
+            var list = AppContext.OBK_ContractExtHistory
+                .Where(x => x.ContractId == contractId)
+                .OrderBy(x => x.Created)
+                .ToList()
                 .Select(x => new
                 {
                     Created = x.Created.ToString(DateHelper.DATE_TIME_FORMAT),
@@ -2422,7 +2425,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     Author = x.Employee != null ? x.Employee.DisplayName : shortName,
                     StatusDescriptionRu = x.OBK_Ref_ContractExtHistoryStatus.DescriptionRu,
                     StatusDescriptionKz = x.OBK_Ref_ContractExtHistoryStatus.DescriptionKz
-                }).ToList();
+                })
+                .ToList();
 
             return list;
         }
