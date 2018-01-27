@@ -23,15 +23,17 @@ using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Repository.Common;
 using PW.Ncels.Database.Repository.Expertise;
 using Document = PW.Ncels.Database.DataModel.Document;
+using PW.Ncels.Database.Repository.OBK;
+using Stimulsoft.Report;
+using System.IO;
 
 namespace PW.Prism.Controllers
 {
     [Authorize]
     public class OBKDefectiveProductsController : Controller
     {
-        private ncelsEntities db = UserHelper.GetCn();
+        private OBKDefectiveProductsRepository repository = new OBKDefectiveProductsRepository();
 
-        // GET: /Reference/
         public ActionResult Index()
         {
             Guid guid = Guid.NewGuid();
@@ -39,68 +41,61 @@ namespace PW.Prism.Controllers
             return PartialView(guid);
         }
 
-        public ActionResult AllList([DataSourceRequest] DataSourceRequest request)
+        public ActionResult ListNotSended([DataSourceRequest] DataSourceRequest request)
         {
-            var data =
-                db.OBK_Ref_ValueAddedTax.OrderBy(o => o.Value).Select(o => new
+            return Json(repository.ListNotSended().ToDataSourceResult(request));
+        }
+
+        public ActionResult ListSended([DataSourceRequest] DataSourceRequest request)
+        {
+            return Json(repository.ListSended().ToDataSourceResult(request));
+        }
+
+        //TODO Отправка письма ЭДО
+        public ActionResult SendEDO(List<Guid> ides)
+        {
+            if (ides == null)
+            {
+                return Json(new { success = false });
+            }
+
+            var result = repository.SendEDO(ides);
+
+            return Json(new { success = result });
+        }
+
+        public ActionResult SaveLetterDetails(string number, DateTime date, List<Guid> ides)
+        {
+            repository.SaveLetterDetails(number, date, ides);
+            return Json(new { success = true });
+        }
+
+        public FileStreamResult ShowPdfLetter(string ides)
+        {
+            List<Guid> list = new List<Guid>();
+            if (ides != null && !ides.Equals(""))
+            {
+                var arr = ides.Split(',');
+                foreach (var temp in arr)
                 {
-                    Id = o.Id,
-                    Value = o.Value,
-                    Year = o.Year,
-                });
-            return Json(data.ToDataSourceResult(request));
-        }
-
-
-        [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DicCreate([DataSourceRequest] DataSourceRequest request, OBKReferenceValAdTaxModel dictionary,
-            string type)
-        {
-            if (dictionary != null && ModelState.IsValid)
-            {
-
-                OBK_Ref_ValueAddedTax d = new OBK_Ref_ValueAddedTax()
-                {
-                    Id = Guid.NewGuid(),
-                    Year = (int)dictionary.Year,
-                    Value = (double)dictionary.Value,
-                };
-                db.OBK_Ref_ValueAddedTax.Add(d);
-                db.SaveChanges();
-                dictionary.Id = d.Id;
+                    list.Add(Guid.Parse(temp));
+                }
             }
 
-            return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
-        }
+            var letterList = repository.LetterList(list);
 
-        [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DicUpdate([DataSourceRequest] DataSourceRequest request, OBKReferenceValAdTaxModel dictionary,
-            string type)
-        {
-            if (dictionary != null && ModelState.IsValid)
-            {
-                OBK_Ref_ValueAddedTax d = db.OBK_Ref_ValueAddedTax.First(o => o.Id == dictionary.Id);
-                d.Value = (double)dictionary.Value;
-                d.Year = (int)dictionary.Year;
-                
-                db.SaveChanges();
-            }
+            StiReport report = new StiReport();
+            report.Load(Server.MapPath("../Reports/Mrts/OBK/OBKDefectiveProducts.mrt"));
 
-            return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
-        }
 
-        [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult DicDestroy([DataSourceRequest] DataSourceRequest request, OBKReferenceValAdTaxModel dictionary,
-            string type)
-        {
-            if (dictionary != null)
-            {
-                OBK_Ref_ValueAddedTax d = db.OBK_Ref_ValueAddedTax.First(o => o.Id == dictionary.Id);
-                db.OBK_Ref_ValueAddedTax.Remove(d);
-                db.SaveChanges();
-            }
-
-            return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
+            report.RegBusinessObject("ZBKList", letterList.ToList());
+            report.RegBusinessObject("Organ", new { name = "РГП на ПХВ «Национальный центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники» МЗ РК" });
+            report.Compile();
+            report.Render(false);
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
         }
 
     }
