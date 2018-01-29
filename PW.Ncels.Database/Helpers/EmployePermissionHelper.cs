@@ -1060,5 +1060,9 @@ namespace PW.Ncels.Database.Helpers
         public static bool BlankAccounting { get { return IsVisibility("BlankAccounting"); } }
         public static bool UserCorruptsBlanks { get { return IsVisibility("UserCorruptsBlanks"); } }
         #endregion
+
+        #region Список бракованной продукции
+        public static bool DefectiveProducts { get { return IsVisibility("DefectiveProducts"); } }
+        #endregion
     }
 }
