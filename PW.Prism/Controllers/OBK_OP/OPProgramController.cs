@@ -71,13 +71,14 @@ namespace PW.Prism.Controllers.OBK_OP
                 .FirstOrDefault();
             res.StatusCode = stage.StatusCode;
             var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+            var statusesForExecutorType1 = new[] { "OPProgramNew", "OPProgramSigned", "OPProgramConfirmed", "OPProgramInReWork" };
+            var statusesForExecutorType2 = new[] { "OPProgramInConfirm" };
             res.IsExecutor = repo.OBK_AssessmentStageExecutors
                 .Any(x => x.AssessmentStageId == stage.Id
                     && x.ExecutorId == currentEmployeeId
-                    && (
-                    ((res.StatusCode == "OPProgramNew" || res.StatusCode == "OPProgramSigned") && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
-                        || ((res.StatusCode != "OPProgramNew" && res.StatusCode != "OPProgramSigned") && (x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR))
-                        ));
+                    && x.ExecuteResult == null
+                    && ((statusesForExecutorType1.Contains(res.StatusCode) && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING)
+                        || (statusesForExecutorType2.Contains(res.StatusCode) && (x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR))));
             res.Attach = FileHelper.GetAttachListEdit(repo, declarationId.ToString(), "assessmentDeclarationOPProgram")
                 .ToDataSourceResult(new Kendo.Mvc.UI.DataSourceRequest());
             repo.Dispose();
@@ -112,10 +113,91 @@ namespace PW.Prism.Controllers.OBK_OP
                 .Where(x => x.Code == "OPProgramInConfirm")
                 .Select(x => x.Id)
                 .FirstOrDefault();
+            repo.OBK_AssessmentStageExecutors
+                .Where(x => x.AssessmentStageId == stage.Id)
+                .ToList()
+                .ForEach(x =>
+                {
+                    x.ExecuteResult = null;
+                    x.ExecuteComment = null;
+                    x.Date = null;
+                });
             repo.SaveChanges();
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult NotMeetRequirements(Guid declarationId, string comment)
+        {
+            try
+            {
+                var stage = repo.OBK_AssessmentStage
+                    .FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == programStageId);
+                if (stage == null) throw new ArgumentException("Stage not found");
+                var executors = stage.OBK_AssessmentStageExecutors
+                    .Where(x => x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
+                    .ToList();
+                var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+                var executor = executors.FirstOrDefault(x => x.ExecutorId == currentEmployeeId);
+                if (executor == null) throw new ArgumentException("Current employee is not executor");
+                executor.ExecuteComment = comment;
+                executor.ExecuteResult = 0;
+                stage.StageStatusId = repo.OBK_Ref_StageStatus
+                    .Where(x => x.Code == "OPProgramInReWork")
+                    .Select(x => x.Id)
+                    .FirstOrDefault();
+                repo.SaveChanges();
+                return Json(new { isSuccess = true, data = new { StatusCode = "OPProgramInReWork" } }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult MeetRequirements(Guid declarationId, string comment)
+        {
+            try
+            {
+                var stage = repo.OBK_AssessmentStage
+                    .FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == programStageId);
+                if (stage == null) throw new ArgumentException("Stage not found");
+                var executors = stage.OBK_AssessmentStageExecutors
+                    .Where(x => x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
+                    .ToList();
+                var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+                var executor = executors.FirstOrDefault(x => x.ExecutorId == currentEmployeeId);
+                if (executor == null) throw new ArgumentException("Current employee is not executor");
+                executor.ExecuteComment = comment;
+                executor.ExecuteResult = 1;
+                executor.Date = DateTime.Now;
+                repo.SaveChanges();
+                bool isAllConfirmed = executors.All(x => x.ExecuteResult == 1);
+                if (!isAllConfirmed)
+                    return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+                stage.StageStatusId = repo.OBK_Ref_StageStatus
+                    .Where(x => x.Code == "OPProgramConfirmed")
+                    .Select(x => x.Id)
+                    .FirstOrDefault();
+                repo.SaveChanges();
+                return Json(new { isSuccess = true, data = new { StatusCode = "OPProgramConfirmed" } }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         #region SelectExecutors
         [HttpGet]
@@ -126,11 +208,17 @@ namespace PW.Prism.Controllers.OBK_OP
                 .Select(x => x.Id)
                 .FirstOrDefault();
             var executors = repo.OBK_AssessmentStageExecutors
-                .Where(x => x.AssessmentStageId == stageId)
+                .Where(x => x.AssessmentStageId == stageId && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
+                .AsEnumerable()
                 .Select(x => new
                 {
                     x.ExecutorId,
-                    x.Employee.FullName
+                    x.Employee.FullName,
+                    ExecuteResult = x.ExecuteResult == null ? "" :
+                        x.ExecuteResult == 1 ? "Соответствует требованиям"
+                        : "Не соответствует требованиям",
+                    x.ExecuteComment,
+                    Date = x.Date?.ToString("yyyy-MM-dd") ?? ""
                 });
 
             return Json(new { isSuccess = true, data = executors }, JsonRequestBehavior.AllowGet);

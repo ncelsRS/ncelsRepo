@@ -253,6 +253,10 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("UserCorruptsBlanks", @"Модуль 'Учет бланков' 'Учет бланков'", "Внесение сведений по испорченным бланкам", "Работа учетом бланков");
             #endregion
 
+            #region Список бракованной продукции
+            AddPermission("DefectiveProducts", @"Модуль 'Список бракованной продукции' 'Список бракованной продукции'", "Внесение сведений по бракованной продукции", "Работа c бракованной продукции");
+            #endregion
+
             RemoveNonActualKeys();
         }
 
