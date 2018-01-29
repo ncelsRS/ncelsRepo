@@ -306,6 +306,7 @@ namespace PW.Prism.Controllers.OBKTask
                     var result = repo.EditExpertResearchCenter(taskId, unitLabId);
                     return PartialView("EditExpertResearchCenter", result);
                 case OBK_Ref_StageStatus.RequiresSigning:
+                case OBK_Ref_StageStatus.OnApprove:
                 case OBK_Ref_StageStatus.Completed:
                     var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId);
                     return PartialView("EditChiefResearchCenter", resposnse);

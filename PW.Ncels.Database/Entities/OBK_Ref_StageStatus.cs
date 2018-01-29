@@ -72,7 +72,10 @@ namespace PW.Ncels.Database.DataModel
         /// Оценка производства завершена
         /// </summary>
         public const string OPCompleted = "OPCompleted";
-
+        /// <summary>
+        /// На утверждении
+        /// </summary>
+        public const string OnApprove = "onApprove";
         #region статусы для задания
 
         /// <summary>
