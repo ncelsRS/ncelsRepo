@@ -132,7 +132,8 @@ var statuses = {
     OPProgramNew: "new",
     OPProgramSigned: "signed",
     OPProgramInConfirm: "inconfirm",
-    OPProgramConfirmed: "confirmed"
+    OPProgramConfirmed: "confirmed",
+    OPProgramInReWork: "inrework"
 };
 var statusesArr = [];
 Object.keys(statuses).forEach(key => {
@@ -233,9 +234,9 @@ function loadExecutors() {
                     autoWidth: true,
                     columns: [
                         { data: "FullName" },
-                        { data: "FullName" },
-                        { data: "FullName" },
-                        { data: "FullName" },
+                        { data: "ExecuteResult" },
+                        { data: "ExecuteComment" },
+                        { data: "Date" },
                         {
                             data: "", targets: -1,
                             defaultContent: "<button type='button' class='k-button'>Удалить</button>"
@@ -318,6 +319,7 @@ function sendToWork() {
         success: function (res) {
             if (res.isSuccess) {
                 loadProgram();
+                loadExecutors();
             }
             if (res.isError) {
                 return alert("Ошибка: " + res.data.Message);
@@ -378,6 +380,43 @@ function initExecutorsTable() {
     $('#tableProgramExecutors' + modelId + ' tbody').on('click', 'button', function () {
         var data = $("#tableProgramExecutors" + modelId).DataTable().row($(this).parents('tr')).data();
         return removeExecutor(data);
+    });
+}
+
+function notMeetRequirements() {
+    var comment = $("#executorComment" + modelId).val();
+    if (!comment || comment == "") return alert("Введите комментарий");
+    $.ajax({
+        url: "/OPProgram/NotMeetRequirements",
+        method: "POST",
+        data: {
+            declarationId: modelId,
+            comment: comment
+        },
+        success: function (res) {
+            loadProgram();
+        },
+        error: function (err) {
+            console.error(err);
+        }
+    });
+}
+function meetRequirements() {
+    var comment = $("#executorComment" + modelId).val();
+    $.ajax({
+        url: "/OPProgram/MeetRequirements",
+        method: "POST",
+        data: {
+            declarationId: modelId,
+            comment: comment
+        },
+        success: function (res) {
+            loadProgram();
+            loadExecutors();
+        },
+        error: function (err) {
+            console.error(err);
+        }
     });
 }
 
