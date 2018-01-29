@@ -1,31 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Migrations;
-using System.Linq;
-using System.Net;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.Web.Script.Serialization;
-using Antlr.Runtime;
-using Aspose.Pdf;
-using Kendo.Mvc.Extensions;
-using Kendo.Mvc.Infrastructure;
+﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Helpers;
-using PW.Ncels.Database.Models;
-using PW.Ncels.Database.DataModel;
-using PW.Ncels.Database.Repository.Common;
-using PW.Ncels.Database.Repository.Expertise;
-using Document = PW.Ncels.Database.DataModel.Document;
 using PW.Ncels.Database.Repository.OBK;
 using Stimulsoft.Report;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace PW.Prism.Controllers
 {
