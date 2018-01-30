@@ -1052,5 +1052,38 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         #endregion
+
+        #region
+        public IQueryable<OBK_ArchiveView> ArchiveList()
+        {
+            return AppContext.OBK_ArchiveView;
+        }
+
+        public object RequestTypeList()
+        {
+            return AppContext.OBK_Ref_Type.Where(o => o.ViewOption == 1).Select(o => new { Id = o.Id, Name = o.NameRu }).OrderBy(o => o.Name);
+        }
+
+        public object CountryList()
+        {
+            return AppContext.Dictionaries.Where(o => "Country".Equals(o.Type)).Select(o => new { Id = o.Id, Name = o.Name }).OrderBy(o => o.Name);
+        }
+
+        public IQueryable<OBK_ZBKArchiveView> ZBKCopyList(Guid? declarationId)
+        {
+            return AppContext.OBK_ZBKArchiveView.Where(o => o.AssessmentDeclarationId == declarationId);
+        }
+
+        public IQueryable<AdditionalContractArchive> AdditionalContractList(Guid? contractId)
+        {
+            return AppContext.OBK_Contract.Where(o => o.ParentId == contractId).Select(o => new AdditionalContractArchive
+            {
+                Id = o.Id,
+                Number = o.Number,
+                StartDate = o.StartDate,
+                additionalType = o.Dictionary.Name
+            });
+        }
+        #endregion
     }
 }

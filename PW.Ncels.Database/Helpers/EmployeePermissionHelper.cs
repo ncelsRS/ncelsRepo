@@ -250,6 +250,10 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("DefectiveProducts", @"Модуль 'Список бракованной продукции' 'Список бракованной продукции'", "Внесение сведений по бракованной продукции", "Работа c бракованной продукции");
             #endregion
 
+            #region Архив
+            AddPermission("Archive", @"Модуль 'Архив' 'Архив'", "Просмотр архива заявлений", "Просмотр архива заявлений");
+            #endregion
+
             RemoveNonActualKeys();
         }
 

@@ -1064,5 +1064,10 @@ namespace PW.Ncels.Database.Helpers
         #region Список бракованной продукции
         public static bool DefectiveProducts { get { return IsVisibility("DefectiveProducts"); } }
         #endregion
+
+        #region Архив
+        public static bool Archive { get { return IsVisibility("Archive"); } }
+        #endregion
+        
     }
 }

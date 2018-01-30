@@ -169,5 +169,13 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             return null;
         }
+
+        #region
+        public OBK_AssessmentStage GetStageByDeclaration(Guid declarationId)
+        {
+            var stage = AppContext.OBK_AssessmentStage.FirstOrDefault(o => o.DeclarationId == declarationId && o.StageId == 2);
+            return stage;
+        }
+        #endregion
     }
 }
