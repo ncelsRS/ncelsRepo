@@ -9,14 +9,15 @@ namespace PW.Ncels.Database.Models.OBK
     public class OBKSubTaskResult
     {
         public Guid Id { get; set; }
+        public Guid TaskExecutorId { get; set; }
         public string ProductNameRu { get; set; }
         public string ProductNameKz { get; set; }
         public int RegisterId { get; set; }
         public string NdProduct { get;set; }
         public string Regulation { get; set; }
         public bool ExpertiseResult { get; set; }
-        public string ExpertiseResultName { get; set; }
-        public bool IsNew { get; set; }
+        //public string ExpertiseResultName { get; set; }
+        public string Type { get; set; }
         public string SubTaskNumber { get; set; }
         public DateTime? SubTaskCreateDate { get; set; }
 
@@ -31,11 +32,14 @@ namespace PW.Ncels.Database.Models.OBK
 
     public class SubTaskDetails
     {
+        public Guid AssessmentDeclarationId { get; set; }
+        public int ProductSeriesId { get; set; }
         public List<OBKSubTaskResult> SubTaskResult { get; set; }
     }
 
     public class SubTaskIndicator
     {
+        public Guid ResearchCenterId { get; set; }
         /// <summary>
         /// Показатель
         /// </summary>
@@ -64,6 +68,7 @@ namespace PW.Ncels.Database.Models.OBK
         public bool ExpertiseResult { get; set; }
         public string ExpertiseResultName { get; set; }
         public bool ExecutorSign { get; set; }
+        public bool TaskComment { get; set; }
     }
 
     public class SubTaskCoExecutorResults

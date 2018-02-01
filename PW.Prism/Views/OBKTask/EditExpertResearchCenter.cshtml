@@ -17,14 +17,6 @@
 
 <div id="editTaskPanel_@Model" style="margin-left: 10px; margin-right: 10px; width: auto; height: 550px; overflow-y: scroll;">
     <div class="pwPage pwPageEx" style="overflow: hidden; width: auto;">
-        @*<div class="pwToolbar">
-            <div class="btn-toolbar" role="toolbar">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" onclick="sendToChief()">Отправить руководителю</button>
-                </div>
-            </div>
-        </div>
-        <br/>*@
         <div class="panel panel-default">
             <div class="panel-heading">
                 Просмотр задания на проведение испытаний
@@ -98,8 +90,8 @@
                                                             {<label id="els_@t.Id">Нет</label>}
                                                         </td>
                                                         <td>
-                                                            <button type="button" class="btn btn-blue" disabled="@t.CreateBtnValid" id="createResultBtn_@t.Id" onclick="createResult(this, true)">Создать</button>
-                                                            <button type="button" class="btn btn-blue" disabled="@cbv" id="showResultBtn_@t.Id" onclick="createResult(this, false)">Просмотр</button>
+                                                            <button type="button" class="btn btn-blue" disabled="@t.CreateBtnValid" id="createResultBtn_@t.Id" onclick="createResult(this, 'create')">Создать</button>
+                                                            <button type="button" class="btn btn-blue" disabled="@cbv" id="showResultBtn_@t.Id" onclick="createResult(this, 'show')">Просмотр</button>
                                                         </td>
                                                     </tr>
                                                 }
@@ -122,13 +114,29 @@
 
 <script>
 
-    function createResult(e, isNew) {
+    function createResult(e, type) {
         debugger;
         var taskMaterialId = $(e).closest('tr').attr('rowProductId');
         $.ajax({
             type: 'GET',
             url: '/OBKTask/SubTaskResult',
-            data: { taskMaterialId: taskMaterialId, isNew: isNew },
+            data: { taskMaterialId: taskMaterialId, type: type },
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#resultContent_@Model.TaskId').html(data);
+                $("#panelCreateResult_@Model.TaskId").show();
+            }
+        });
+    }
+
+    function editResult() {
+        debugger;
+        var taskMaterialId = $(e).closest('tr').attr('rowProductId');
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/SubTaskResult',
+            data: { taskMaterialId: taskMaterialId, type: type },
             cache: false,
             success: function (data) {
                 debugger;
@@ -148,7 +156,7 @@
             success: function (data) {
                 if (data.isSuccess)
                     alert('Задание передано руководителю');
-                else 
+                else
                     alert('Необходимо подписать задание');
             }
         });

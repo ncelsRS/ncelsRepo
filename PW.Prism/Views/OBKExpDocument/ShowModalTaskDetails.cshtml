@@ -1,9 +1,17 @@
 ﻿@model PW.Ncels.Database.Models.OBK.SubTaskDetails
-    @*<style>
-        table.tableModalTaskDetails tr, td {
-            
-        }
-    </style>*@
+
+<style>
+    /*td {
+        border: 1px #beebff solid;
+        padding: 5px;
+    }*/
+
+    .add-commnet {
+        background-color: #dd4353;
+        color: #2e2e2e;
+    }
+</style>
+
 <div class="modal-content">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -15,24 +23,24 @@
         {
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <div class="form-group">
                             <label>№ протокола</label>
                             <input class="form-control" type="text" disabled="disabled" value="@s.SubTaskNumber">
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-6">
                         <div class="form-group">
                             <label>Дата создания</label>
                             <input class="form-control" disabled="disabled" type="text" value="@s.SubTaskCreateDate">
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    @*<div class="col-lg-4">
                         <div class="form-group">
                             <label>Результат</label>
                             <input class="form-control" disabled="disabled" type="text" title="@s.ExpertiseResultName" value="@s.ExpertiseResultName">
                         </div>
-                    </div>
+                    </div>*@
                 </div>
                 <div class="row">
                     <div class="col-lg-4">
@@ -54,9 +62,14 @@
                         </div>
                     </div>
                 </div>
+                
+                <div hidden="hidden" id="panelTaskComment_@s.TaskExecutorId">
+                    <div id="taskComment_@s.TaskExecutorId"></div>
+                </div>
+                
                 <div class="row">
                     <div class="col-lg-12">
-                        <table class="table table-striped table-bordered table-hover tableModalTaskDetails">
+                        <table id="tableSubTaskIndicator_@s.TaskExecutorId" class="table table-bordered">
                             <thead>
                             <tr>
                                 <td>Показатель</td>
@@ -65,6 +78,7 @@
                                 <td>Фактически полученный результат</td>
                                 <td>Т 0С и влажность (%)</td>
                                 <td>Результат</td>
+                                <td></td>
                             </tr>
                             </thead>
                             <tbody>
@@ -72,13 +86,23 @@
                             {
                                 foreach (var t in s.SubTaskIndicator)
                                 {
-                                    <tr>
+                                    var className = "";
+                                    if (t.TaskComment) { className = "class=add-commnet"; }
+
+                                    <tr @className tableId="@s.Id" rcId="@t.ResearchCenterId" teId="@s.TaskExecutorId">
                                         <td>@t.LaboratoryMarkNameRu</td>
                                         <td>@t.LaboratoryRegulationNameRu</td>
                                         <td>@t.Claim</td>
                                         <td>@t.FactResult</td>
                                         <td>@t.Humidity</td>
                                         <td>@t.ExpertiseResultName</td>
+                                        <td>
+                                            <span class="input-group-addon">
+                                                <a class="subTaskComment" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </td>
                                     </tr>
                                 }
                             }
@@ -150,7 +174,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="6" style="text-align: center;"><label>Испытания не завершены</label></td></tr>
+                        <tr><td colspan="6" style="text-align: center;"><label>Испытания не завершены</label></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -158,6 +182,43 @@
         </div>
     }
     <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="returnToExecutor" onclick="returnToResearchCenter('@Model.AssessmentDeclarationId', '@Model.ProductSeriesId')" style="display: none" data-dismiss="modal">Отправить на доработку</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
     </div>
 </div>
+
+
+<script>
+    $(".subTaskComment").click(function () {
+        debugger;
+        var table = $(this).parent().parent().parent();
+        var rcId = table.attr('rcId');
+        //var tableId = table.attr('tableId');
+        var teId = table.attr('teId');
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/TaskComment?rcId=' + rcId + '&teId=' + teId,
+            cache: false,
+            success: function (data) {
+                debugger;
+                $("#taskComment_" + teId).html(data);
+                $("#panelTaskComment_" + teId).show();
+            }
+        });
+    });
+
+    function returnToResearchCenter(adId, psId) {
+        debugger;
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/ReturnToResearchCenter?adId=' + adId + '&psId=' + psId,
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data.isSuccess) {
+                    $("#panelTaskDetails_" + adId).hide();
+                }
+            }
+        });
+    }
+</script>

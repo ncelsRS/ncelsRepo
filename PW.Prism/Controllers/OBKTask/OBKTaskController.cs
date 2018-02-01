@@ -302,10 +302,10 @@ namespace PW.Prism.Controllers.OBKTask
                     var model = repo.EditResearchCenter(taskId, unitLabId);
                     return PartialView(model);
                 case OBK_Ref_StageStatus.InWork:
-                case OBK_Ref_StageStatus.InReWork:
                     var result = repo.EditExpertResearchCenter(taskId, unitLabId);
                     return PartialView("EditExpertResearchCenter", result);
                 case OBK_Ref_StageStatus.RequiresSigning:
+                case OBK_Ref_StageStatus.InReWork:
                 case OBK_Ref_StageStatus.OnApprove:
                 case OBK_Ref_StageStatus.Completed:
                     var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId);
@@ -322,10 +322,10 @@ namespace PW.Prism.Controllers.OBKTask
             return Json(new {isSuccess = true});
         }
 
-        public ActionResult SubTaskResult(Guid taskMaterialId, bool isNew)
+        public ActionResult SubTaskResult(Guid taskMaterialId, string type)
         {
-            var model = repo.SubTaskResult(taskMaterialId, isNew);
-            if (isNew)
+            var model = repo.SubTaskResult(taskMaterialId, type);
+            if (type == "create")
             {
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
                 ViewData["LabNdMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
@@ -334,7 +334,6 @@ namespace PW.Prism.Controllers.OBKTask
             }
             else
             {
-              
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name");
@@ -388,6 +387,12 @@ namespace PW.Prism.Controllers.OBKTask
         {
             var model = repo.GetTaskDetails(taskId, productSeriesId, executorCode);
             return PartialView(model);
+        }
+
+        public ActionResult ReturnToExecutor(Guid tid)
+        {
+            repo.ReturnToExecutor(tid);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

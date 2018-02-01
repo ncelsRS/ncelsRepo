@@ -34,7 +34,7 @@
             <div class="btn-toolbar" role="toolbar">
                 <div class="btn-group">
                     <button type="button" class="btn btn-default" @{ if (Model.ChiefSign) { <text> disabled="disabled" </text> } } onclick="chiefSignBtn()">Подписать</button>
-                    <button type="button" class="btn btn-default" onclick="">Вернуть на доработку</button>
+                    <button type="button" class="btn btn-default" onclick="returnToExecutor('@Model.TaskId')">Вернуть на доработку</button>
                 </div>
             </div>
         </div>
@@ -118,6 +118,20 @@
                 debugger;
                 $('#responseContent_@Model.TaskId').html(data);
                 $('#panelTaskDetails_@Model.TaskId').modal('show');
+            }
+        });
+    }
+
+    function returnToExecutor(tid) {
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ReturnToExecutor?tid=' + tid,
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data.isSuccess) {
+                    alert('Задание отправлено в работу исполнителю');
+                }
             }
         });
     }
