@@ -161,7 +161,7 @@ namespace PW.Prism.Controllers.OBKContract
             ViewBag.ShowSignContractBtn = IsSignContractBtnAllowed(id.Value);
 
 
-            return PartialView("Contract", contract);
+            return PartialView("~/Views/OBKContract/Contract.cshtml", contract);
         }
 
         private bool IsMeetsRequirementsBtnAllowed(Guid contractId)

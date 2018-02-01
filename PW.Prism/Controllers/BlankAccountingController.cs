@@ -94,6 +94,12 @@ namespace PW.Prism.Controllers
             return Json(new { success = response.response, message = response.message });
         }
 
+        public ActionResult GetExpertOrganizations()
+        {
+            var data = repository.GetExpertOrganizations();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         public FileStreamResult ExportFile([DataSourceRequest] DataSourceRequest request)
         {
             StiReport report = new StiReport();

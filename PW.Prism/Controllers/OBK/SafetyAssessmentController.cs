@@ -25,6 +25,14 @@ namespace PW.Prism.Controllers.OBK
     public class SafetyAssessmentController : PrimsSafetyAssessmentController
     {
         private ncelsEntities db = UserHelper.GetCn();
+        SafetyAssessmentRepository repository;
+        AssessmentStageRepository stageRepository;
+
+        public SafetyAssessmentController()
+        {
+            repository = new SafetyAssessmentRepository();
+            stageRepository = new AssessmentStageRepository();
+        }
 
         public ActionResult ListRegister([DataSourceRequest] DataSourceRequest request, string type, int stage, DeclarationRegistryFilter customFilter = null)
         {
@@ -55,11 +63,11 @@ namespace PW.Prism.Controllers.OBK
             var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
             if (declaration == null)
             {
-                return Json(new { success = false, message="Заключение не существует!" });
+                return Json(new { success = false, message = "Заключение не существует!" });
             }
             declaration.ZBKTaken = true;
             db.SaveChanges();
-            return Json(new { success = true, message="Успешно сохранено!" });
+            return Json(new { success = true, message = "Успешно сохранено!" });
         }
 
         public ActionResult Design(Guid[] id)
@@ -607,11 +615,12 @@ namespace PW.Prism.Controllers.OBK
             model.ApplicantId = reception.ApplicantId;
             model.ActDate = actD;
             model.Address = model.Address;
-            model.Worker = UserHelper.GetCurrentEmployee().FullName;
-
+            var employee = UserHelper.GetCurrentEmployee();
+            model.Worker = employee.FullName;
+            model.WorkerId = employee.Id;
             db.SaveChanges();
 
-            return Json(new { success = true });
+            return Json(new { success = true, worker = model.Worker});
         }
 
         public ActionResult DeleteExpertActReception(Guid? actReceptionId)
@@ -738,5 +747,66 @@ namespace PW.Prism.Controllers.OBK
 
             return PartialView("ActTemplate");
         }
+
+
+        #region Архив
+        public ActionResult Archive()
+        {
+            return PartialView(Guid.NewGuid());
+        }
+
+        public ActionResult ArchiveList([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = repository.ArchiveList();
+            return Json(data.ToDataSourceResult(request));
+        }
+
+        public ActionResult RequestTypeList()
+        {
+            var data = repository.RequestTypeList();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult CountryList()
+        {
+            var data = repository.CountryList();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ArchiveDetails(Guid id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var model = stageRepository.GetStageByDeclaration(id);
+            FillDeclarationControl(model.OBK_AssessmentDeclaration);
+            var expDocumentResult = new OBKExpDocumentRepository().GetStageExpDocResult(model.DeclarationId);
+            ViewBag.HasExpDocumentResult = expDocumentResult != null;
+            return PartialView("~/Views/SafetyAssessment/ArchiveDetails.cshtml", model);
+        }
+
+        public ActionResult ZBKCopies(Guid declarationId)
+        {
+            return PartialView("ZBKCopies", declarationId);
+        }
+
+        public ActionResult ZBKCopyList([DataSourceRequest] DataSourceRequest request, Guid? declarationId)
+        {
+            var data = repository.ZBKCopyList(declarationId);
+            return Json(data.ToDataSourceResult(request));
+        }
+
+        public ActionResult AdditionalContract(Guid? contractId)
+        {
+            return PartialView(contractId);
+        }
+
+        public ActionResult AdditionalContractList([DataSourceRequest] DataSourceRequest request, Guid? contractId)
+        {
+            var data = repository.AdditionalContractList(contractId);
+            return Json(data.ToDataSourceResult(request));
+        }
+        #endregion
     }
 }

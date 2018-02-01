@@ -2,143 +2,149 @@
 
 <script>
     var modelId = "@Model";
+    function filterUnits() {
+        return {
+            organizationId: executor.OrganizationId
+        }
+    }
+    function filterEmployees() {
+        return {
+            declarationId: modelId,
+            unitId: executor.UnitId
+        }
+    }
 </script>
 
-<script src="~/Scripts/OPProgram/assessmentDeclarationProgram.js"></script>
-
-<div class="panel panel-default">
-    <div class="panel-heading">Программа проведения оценки условий производства</div>
-    <div class="panel-body">
-        <div class="input-group">
-            <button type="button" onclick="saveProgram()"
-                    class="k-button show-executor-new show-executor-inrework">
-                Сохранить (в будущем - подписать)
-            </button>
-            <button type="button" class="k-button show-executor-signed" onclick="sendToWork()">Отправить на согласование</button>
-            <div class="show-executor-inconfirm">
-                <textarea id="executorComment@(Model)" style="width: 100%" class="k-textbox"></textarea>
-                <br /><br />
-                <button type="button" onclick="notMeetRequirements()"
-                        class="k-button">
-                    Вернуть на доработку
-                </button>
-                <button type="button" onclick="meetRequirements()"
-                        class="k-button">
-                    Соответствует требованиям
-                </button>
+<div class="input-group">
+    <button type="button" onclick="saveProgram()"
+            class="k-button show-executor-new show-executor-inrework">
+        Сохранить (в будущем - подписать)
+    </button>
+    <button type="button" class="k-button show-executor-signed" onclick="sendToWork()">Отправить на согласование</button>
+    <div class="show-executor-inconfirm">
+        <textarea id="executorComment@(Model)" style="width: 100%" class="k-textbox"></textarea>
+        <br /><br />
+        <button type="button" onclick="notMeetRequirements()"
+                class="k-button">
+            Вернуть на доработку
+        </button>
+        <button type="button" onclick="meetRequirements()"
+                class="k-button">
+            Соответствует требованиям
+        </button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-lg-8">
+        <div class="col-lg-5">
+            <div class="input-group">
+                <label for="organizationName@(Model)">Наименование организации</label>
+                <input type="text" id="organizationName@(Model)" class="k-textbox" style="width: 100%" readonly />
             </div>
         </div>
-        <br />
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="col-lg-5">
-                    <div class="input-group">
-                        <label for="organizationName@(Model)">Наименование организации</label>
-                        <input type="text" id="organizationName@(Model)" class="k-textbox" style="width: 100%" readonly />
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                    <div class="input-group">
-                        <label>Период проведения</label>
-                        <br />
-                        с
-                        @(Html.Kendo().DatePicker()
+        <div class="col-lg-7">
+            <div class="input-group">
+                <label>Период проведения</label>
+                <br />
+                с
+                @(Html.Kendo().DatePicker()
                                             .Name("declarationProgramDateFrom" + Model)
                                             .Start(CalendarView.Month)
                                             .Depth(CalendarView.Month)
                                             .Format("dd.MM.yyyy")
                                             .Value(DateTime.Now.ToString("yyyy-MM-dd"))
-                        )
-                        по
-                        @(Html.Kendo().DatePicker()
+                )
+                по
+                @(Html.Kendo().DatePicker()
                                             .Name("declarationProgramDateTo" + Model)
                                             .Start(CalendarView.Month)
                                             .Depth(CalendarView.Month)
                                             .Format("dd.MM.yyyy")
                                             .Value(DateTime.Now.ToString("yyyy-MM-dd"))
-                        )
-                    </div>
-                </div>
+                )
             </div>
         </div>
-        
+    </div>
+</div>
+
+<br />
+<div id="assessmentDeclarationOPProgramKendoUpload@(Model)" class="row" hidden>
+    <div class="col-lg-6">
+        <label>Прикрепить файл</label>
+        <input name="files" id="files@(Model)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" class="form-control" />
+    </div>
+</div>
+<div id="assessmentDeclarationOPProgramLink@(Model)" hidden>
+    <button type="button" class="k-button" onclick="downloadAttach()">Скачать программу</button>
+    <button type="button" hidden class="k-button show-executor-signed show-executor-inrework" onclick="deleteAttach()">Удалить программу</button>
+</div>
+<br />
+<div id="listExecutors@(Model)" hidden
+     class="panel panel-default show-executor-signed  show-executor-inconfirm show-nonexecutor-inconfirm show-executor-inrework show-nonexecutor-inrework show-executor-confirmed show-nonexecutor-confirmed">
+    <div class="panel-heading">Список согласующих</div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProgramExecutors@(Model)" width="100%"></table>
         <br />
-        <div id="assessmentDeclarationOPProgramKendoUpload@(Model)" class="row" hidden>
-            <div class="col-lg-6">
-                <label>Прикрепить файл</label>
-                <input name="files" id="files@(Model)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" class="form-control" />
-            </div>
-        </div>
-        <div id="assessmentDeclarationOPProgramLink@(Model)" hidden>
-            <button type="button" class="k-button" onclick="downloadAttach()">Скачать программу</button>
-            <button type="button" hidden class="k-button show-executor-signed show-executor-inrework" onclick="deleteAttach()">Удалить программу</button>
-        </div>
-        <br />
-        <div id="listExecutors@(Model)" hidden
-             class="panel panel-default show-executor-signed  show-executor-inconfirm show-nonexecutor-inconfirm show-executor-inrework show-nonexecutor-inrework show-executor-confirmed show-nonexecutor-confirmed">
-            <div class="panel-heading">Список согласующих</div>
+        <button type="button" onclick="addExecutor()" hidden
+                class="k-button show-executor-signed">
+            Добавить
+        </button>
+        <br /><br />
+        <div id="creatyOrModifyPanel@(Model)" class="panel panel-default" hidden>
             <div class="panel-body">
-                <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProgramExecutors@(Model)" width="100%"></table>
-                <br />
-                <button type="button" onclick="addExecutor()" hidden
-                        class="k-button show-executor-signed">
-                    Добавить
-                </button>
-                <br /><br />
-                <div id="creatyOrModifyPanel@(Model)" class="panel panel-default" hidden>
-                    <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
                         <div class="row">
-                            <div class="col-lg-6">
-                                <div class="row">
-                                    <div class="col-lg-5">
-                                        <label for="organization">Организация</label>
-                                    </div>
-                                    <div class="col-lg-7">
-                                        @(Html.Kendo().DropDownList()
+                            <div class="col-lg-5">
+                                <label for="organization">Организация</label>
+                            </div>
+                            <div class="col-lg-7">
+                                @(Html.Kendo().DropDownList()
                                             .Name("OrganizationId" + Model)
                                             .OptionLabel("Выберите организацию..")
                                             .AutoBind(false)
                                             .DataValueField("Id").DataTextField("Name")
                                             .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "OPProgram")))
                                             .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-5">
-                                        <label for="unit">Структурное подразделение</label>
-                                    </div>
-                                    <div class="col-lg-7">
-                                        @(Html.Kendo().DropDownList().Name("UnitId" + Model)
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <label for="unit">Структурное подразделение</label>
+                            </div>
+                            <div class="col-lg-7">
+                                @(Html.Kendo().DropDownList().Name("UnitId" + Model)
                                             .OptionLabel("Выберите подразделение..")
                                             .AutoBind(false)
                                             .DataValueField("Id").DataTextField("Name")
                                             .DataSource(cf => cf.Read(read => read.Action("ListUnits", "OPProgram").Data("filterUnits")).ServerFiltering(true))
                                             .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
                                             .CascadeFrom("OrganizationId" + Model))
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-5">
-                                        <label for="EmployeeId">ФИО</label>
-                                    </div>
-                                    <div class="col-lg-7">
-                                        @(Html.Kendo().DropDownList().Name("EmployeeId" + Model)
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <label for="EmployeeId">ФИО</label>
+                            </div>
+                            <div class="col-lg-7">
+                                @(Html.Kendo().DropDownList().Name("EmployeeId" + Model)
                                             .OptionLabel("Выберите сотрудника..")
                                             .AutoBind(false)
                                             .DataValueField("Id").DataTextField("FullName")
                                             .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "OPProgram").Data("filterEmployees")).ServerFiltering(true))
                                             .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
                                             .CascadeFrom("UnitId" + Model))
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                        <button type="button" onclick="saveExecutor(event)" class="btn btn-primary">Сохранить</button>
-                        <button type="button" onclick="cancelExecutor(event)" class="btn btn-default">Отменить</button>
                     </div>
                 </div>
-
+                <button type="button" onclick="saveExecutor(event)" class="btn btn-primary">Сохранить</button>
+                <button type="button" onclick="cancelExecutor(event)" class="btn btn-default">Отменить</button>
             </div>
         </div>
+
     </div>
 </div>
+
+<script src="~/Scripts/OP/assessmentDeclarationProgram.js"></script>

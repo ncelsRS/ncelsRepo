@@ -1,0 +1,95 @@
+﻿@model PW.Ncels.Database.DataModel.OBK_AssessmentStage
+
+<div class="pwTabContent k-block">
+    <table class="pwTable">
+
+        <tr class="pwContent">
+            <td class="pwContentLeft k-block" style="width: 150px">
+                <div id="ArchiveMenu" style="font-size: 14px; ">
+                    <div class="list-group panel">
+                        <a href="#" onclick="archiveContract(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span>Договор</a>
+                        <a href="#" onclick="archiveDeclaration(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span>Заявление</a>
+                        <a href="#" onclick="archiveZBKCopy(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span>Копий ЗБК</a>
+                        <a href="#" onclick="archiveAdditionalContract(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span>Доп. соглашений</a>
+
+                    </div>
+                </div>
+            </td>
+            <td class="pwContentRight k-block" id="@("archiveContentRightId"+ Model.Id)" style="height:700px;">
+                <div>
+                    <div id="@("archivePage" + Model.Id)" style="height:650px;">
+                        @{
+                            Html.RenderAction("Edit", "OBKContract", new { id = Model.OBK_AssessmentDeclaration.ContractId });
+                        }
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+    </table>
+</div>
+<script>
+    var gridElement = $("#archiveContentRightId" + '@Model.Id');
+    gridElement.height($(window).height() - 120);
+
+    function archiveContract()
+    {
+        window.Showbusy(event);
+        $.ajax({
+            type: 'POST',
+            url: '/OBKContract/Edit',
+            data: { id: '@Model.OBK_AssessmentDeclaration.ContractId' },
+            success: function (data)
+            {
+                $("#archivePage" + "@Model.Id").html(data);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function archiveDeclaration()
+    {
+        window.Showbusy(event);
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/Edit',
+            data: { id: '@Model.Id' },
+            success: function (data)
+            {
+                $("#archivePage" + "@Model.Id").html(data);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function archiveZBKCopy()
+    {
+        window.Showbusy(event);
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/ZBKCopies',
+            data: { declarationId: '@Model.DeclarationId' },
+            success: function (data)
+            {
+                $("#archivePage" + "@Model.Id").html(data);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function archiveAdditionalContract()
+    {
+        window.Showbusy(event);
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/AdditionalContract',
+            data: { contractId: '@Model.OBK_AssessmentDeclaration.ContractId' },
+            success: function (data)
+            {
+                $("#archivePage" + "@Model.Id").html(data);
+                $("#loading").hide();
+            }
+        });
+    }
+
+</script>

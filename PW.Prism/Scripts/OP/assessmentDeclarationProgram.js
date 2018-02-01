@@ -266,18 +266,6 @@ function removeExecutor(data) {
     });
 }
 
-function filterUnits() {
-    return {
-        organizationId: executor.OrganizationId
-    }
-}
-function filterEmployees() {
-    return {
-        declarationId: modelId,
-        unitId: executor.UnitId
-    }
-}
-
 function saveExecutor(e) {
     if (!executor) return;
     var id = executor.EmployeeId;
