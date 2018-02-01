@@ -37,6 +37,7 @@ namespace PW.Ncels.Database.Repository.OBK
             foreach (var temp in blanks)
             {
                 temp.Decommissioned = true;
+                temp.DecommissionedDate = DateTime.Now;
             }
             AppContext.SaveChanges();
         }
@@ -45,6 +46,15 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var userId = UserHelper.GetCurrentEmployee().Id;
             return AppContext.OBK_CorruptedBlankNumberView.Where(o => o.CorruptEmployee == userId);
+        }
+
+        public object GetExpertOrganizations()
+        {
+          return AppContext.Units.Where(x => x.Code == "00").Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name
+            }).ToList();
         }
 
         public OBK_BlankResponse SaveCorrupted(int number, DateTime date)

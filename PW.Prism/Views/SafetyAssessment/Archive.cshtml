@@ -1,0 +1,309 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid?
+
+@{
+    var currentUser = UserHelper.GetCurrentEmployee().Id;
+    var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
+}
+
+@(Html.Kendo().Splitter()
+                                          .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                                          .Name(("splitter"))
+                                          .Panes(panes =>
+                                          {
+                                              panes.Add().Scrollable(false).Size("100%").Content(
+                                                    @<div class="pwPanelBar">
+
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>№ договора</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <input id="@("contractNumber" + Model)" class="k-text" style="width:100%">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>№ заявки</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <input id="@("declarationNumber" + Model)" class="k-text" style="width:100%">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>Тип заявки</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        @(Html.Kendo().DropDownList().Name("requestType" + Model)
+.HtmlAttributes(new { @class = "pwWidth100" })
+.AutoBind(false)
+.OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+.DataTextField("Name")
+.DataValueField("Id")
+.DataSource(dataSource => dataSource.Read(read => read.Action("RequestTypeList", "SafetyAssessment"))))
+
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>Период подачи</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                <div class="row">
+                                                                                    @(Html.Kendo().DatePicker().Name("dateFrom" + Model).HtmlAttributes(new { style = "width:120px" }))
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                <div class="row">
+                                                                                    @(Html.Kendo().DatePicker().Name("dateTo" + Model).HtmlAttributes(new { style = "width:120px" }))
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>Заявитель</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <input id="@("declarant" + Model)" class="k-text" style="width:100%">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>Страна</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        @(Html.Kendo().DropDownList().Name("Country" + Model)
+.HtmlAttributes(new { @class = "pwWidth100" })
+.AutoBind(false)
+.OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+.DataTextField("Name")
+.DataValueField("Id")
+.DataSource(dataSource => dataSource.Read(read => read.Action("CountryList", "SafetyAssessment"))))
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>Продукция</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <input id="@("product" + Model)" class="k-text" style="width:100%">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <p>№ заключения</p>
+                                                                    </div>
+                                                                    <div class="col-md-8">
+                                                                        <input class="k-text" id="@("expConclusionNumber" + Model)" style="width:100%">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <button class="k-button" id="@("find" + Model)" style="width:100px;">Найти</button>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <button class="k-button" id="@("clear" + Model)" style="width:150px;">Очистить поиск</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        @( Html.Kendo().Grid<OBK_ArchiveView>()
+                                                                                                                                         .Name("OBK_ArchiveView" + Model)
+
+                                                                                                                                         .Columns(columns =>
+                                                                                                                                         {
+                                                                                                                                             columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
+                                                    .HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+                                                                                                                                             columns.Bound(p => p.DeclarationNumber).Width(125).ClientTemplate(
+                                                                                                                                                 "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                                                                                                                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getArchiveDetails('#=Id#', '#=DeclarationNumber#','" + controllerName + "')\"><span style=\"color:rgb(66,139,202);\">#=DeclarationNumber#</span></button>" +
+                                                                                                                                                 "</div>"
+                                                                                                                                                 ).Title("№ заявления");
+                                                                                                                                            columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи").Width(150);
+                                                                                                                                             columns.Bound(p => p.RequestType).Title("Вид регистрации").Width(300);
+                                                                                                                                             columns.Bound(p => p.Declarant).Title("Заявитель").Width(100);
+                                                                                                                                             columns.Bound(p => p.Country).Title("Страна").Width(150);
+                                                                                                                                             columns.Bound(p => p.ContractNumber).Title("№ договора").Width(100);
+                                                                                                                                             columns.Bound(p => p.BlankNumber).Title("№ бланка").Width(150);
+                                                                                                                                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи").Width(150);
+                                                                                                                                             columns.Bound(p => p.Product).Visible(false);
+                                                                                                                                             columns.Bound(p => p.ExpConclusionNumber).Visible(false);
+                                                                                                                                         })
+                                                                                                                                         .AutoBind(false)
+                                                                                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                         .Groupable()
+                                                                                                                                         .Sortable()
+                                                                                                                                         .Filterable()
+                                                                                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                         .Pageable()
+                                                                                                                                         .HtmlAttributes(new { @class = "pwGrid" })
+                                                                                                                                         .DataSource(dataSource => dataSource
+                                                                                                                                             .Ajax()
+                                                                                                                                             .Sort(sort => { sort.Add("SendDate").Descending(); })
+                                                                                                                                             .PageSize(10)
+                                                                                                                                             .Read(read => read.Action("ArchiveList", "SafetyAssessment"))
+                                                                                                                                            )
+                                                        ))
+
+                                                    </div>
+                                                                                                    );
+                                                  }))
+
+                                                     <script>
+
+    $(document).ready(function ()
+    {
+         $("#OBK_ArchiveView"+"@Model").data("kendoGrid").dataSource.read();
+    });
+
+   $("#find" + "@Model").click(function ()
+    {
+        var grid = $("#OBK_ArchiveView" + "@Model").data("kendoGrid");
+        var filter = [];
+
+       if(checkEmpty("#contractNumber")){
+           filter.push({ field: "ContractNumber", operator: "contains", value: getFilterVal("#contractNumber")});
+       }
+       if(checkEmpty("#declarationNumber")){
+           filter.push({ field: "DeclarationNumber", operator: "contains", value: getFilterVal("#declarationNumber")});
+       }
+       if (checkEmpty("#requestType"))
+       {
+           filter.push({ field: "RequestType", operator: "eq", value: getDropDownVal("#requestType")});
+       }
+       if (checkEmpty("#dateFrom"))
+       {
+           var from = getFilterVal("#dateFrom");
+           var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+           filter.push({ field: "SendDate", operator: "gte", value: fromDate});
+       }
+       if (checkEmpty("#dateTo"))
+       {
+           var to = getFilterVal("#dateTo");
+           var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+           filter.push({ field: "SendDate", operator: "lte", value: toDate});
+       }
+       if(checkEmpty("#declarant")){
+           filter.push({ field: "Declarant", operator: "contains", value: getFilterVal("#declarant")});
+       }
+        if(checkEmpty("#Country")){
+            filter.push({ field: "Country", operator: "contains", value: getDropDownVal("#Country")});
+       }
+       if(checkEmpty("#product")){
+           filter.push({ field: "Product", operator: "contains", value: getFilterVal("#product")});
+       }
+        if(checkEmpty("#expConclusionNumber")){
+            filter.push({ field: "ExpConclusionNumber", operator: "contains", value: getFilterVal("#expConclusionNumber")});
+       }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+
+        grid.dataSource.read();
+
+    });
+
+    $("#clear" + "@Model").click(function ()
+    {
+        clearFilter("#contractNumber");
+        clearFilter("#declarationNumber");
+        clearFilter("#dateFrom");
+        clearFilter("#dateTo");
+        clearFilter("#declarant");
+        $("#Country" + "@Model").data('kendoDropDownList').select(0);
+        $("#requestType" + "@Model").data('kendoDropDownList').select(0);
+        clearFilter("#product");
+        clearFilter("#expConclusionNumber");
+
+        var grid = $("#OBK_ArchiveView" + "@Model").data("kendoGrid");
+        grid.dataSource.filter({
+            logic: "and",
+            filters: []
+        });
+    });
+
+    function checkEmpty(name)
+    {
+        if ($.trim($(name + "@Model").val()) != ""){
+            return true;
+        }
+        return false;
+    }
+
+    function clearFilter(name)
+    {
+        $(name + "@Model").val("");
+    }
+
+    function getFilterVal(name){
+        return $.trim($(name + "@Model").val());
+    }
+
+    function getDropDownVal(name){
+        return $.trim($(name + "@Model").data("kendoDropDownList").text());
+    }
+
+function getArchiveDetails(parameters, number, controllerName) {
+    if (docArray.indexOf(parameters.toLowerCase()) !== -1)
+        docArray.splice(docArray.indexOf(parameters.toLowerCase()), 1);
+    var element = document.getElementById(parameters);
+    if (element === null) {
+        var tabStrip = $("#tabstrip").data("kendoTabStrip");
+        var content = '<div id="' + parameters + '"> </div>';
+        var idContent = '#' + parameters;
+        tabStrip.append({
+            text: 'Заявление: № ' + number,
+            content: content
+
+        });
+
+        tabStrip.select(tabStrip.items().length - 1);
+
+        var gridElement = $(idContent);
+
+        gridElement.height($(window).height() - 100);
+
+        $.ajax({
+            url: "/" + controllerName + "/ArchiveDetails?id=" + parameters,
+            //type: "POST",
+            success: function (result) {
+                // refreshes partial view
+                $(idContent).html(result);
+                $('.mark-check-found').each(function () {
+                    var idcontrol = $(this).attr('idCheck');
+                    $("#" + idcontrol).prop("checked", true);
+                });
+            }
+        });
+    } else {
+
+        var itesm = $('#' + parameters)[0].parentElement.getAttribute('id').split('-')[1];
+        if (itesm) {
+            $("#tabstrip").data("kendoTabStrip").select(itesm - 1);
+        }
+    }
+    //alert(parameters);
+}
+
+</script>
+

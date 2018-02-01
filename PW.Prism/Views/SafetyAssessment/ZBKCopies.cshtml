@@ -1,0 +1,66 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid?
+
+@{
+    var currentUser = UserHelper.GetCurrentEmployee().Id;
+    var controllerName = @ViewContext.RouteData.GetRequiredString("controller");
+}
+
+@(Html.Kendo().Splitter()
+                                          .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                                          .Name(("splitter"))
+                                          .Panes(panes =>
+                                          {
+                                              panes.Add().Scrollable(false).Size("100%").Content(
+                                                    @<div class="pwPanelBar">
+
+                                                        @( Html.Kendo().Grid<OBK_ZBKArchiveView>()
+                                                                                                                                         .Name("ZBKCopyArchiveView" + Model)
+
+                                                                                                                                         .Columns(columns =>
+                                                                                                                                         {
+
+                                                                                                                                             columns.Bound(p => p.ExpConclusionNumber).ClientTemplate(
+                                                                                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                                                                                     "<button  type='button' style='width:140px;' class='btn btn-default btn-xs' onclick=\"getZBKCopyDetails('#=Id#', '#=ExpConclusionNumber#','ZbkCopy')\" ><span style=\"color:rgb(66,139,202);\">#=ExpConclusionNumber#</span></button>" +
+                                                                                                     "</div>"
+                                                                                                     ).Title("№ заключения");
+                                                                                                                                             columns.Bound(p => p.ReceiverFIO).Title("Кому выдан");
+                                                                                                                                             columns.Bound(p => p.CopyQuantity).Title("Количество копий");
+                                                                                                                                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи");
+                                                                                                                                             columns.Bound(p => p.DisplayName).Title("Исполнитель");
+                                                                                                                                         })
+                                                                                                                                         .AutoBind(false)
+                                                                                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                         .Groupable()
+                                                                                                                                         .Sortable()
+                                                                                                                                         .Filterable()
+                                                                                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                         .Pageable()
+                                                                                                                                         .HtmlAttributes(new { @class = "pwGrid" })
+                                                                                                                                         .DataSource(dataSource => dataSource
+                                                                                                                                             .Ajax()
+                                                                                                                                             .Sort(sort => { sort.Add("ExtraditeDate").Descending(); })
+                                                                                                                                             .PageSize(10)
+                                                                                                                                             .Read(read => read.Action("ZBKCopyList", "SafetyAssessment", new { declarationId = Model}))
+                                                                                                                                            )
+                                                        ))
+
+                                                    </div>
+                                                                                                    );
+                                                  }))
+
+                                                     <script>
+
+    $(document).ready(function ()
+    {
+        $("#ZBKCopyArchiveView"+"@Model").data("kendoGrid").dataSource.read();
+    });
+
+</script>
+

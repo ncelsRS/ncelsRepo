@@ -570,7 +570,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public IEnumerable<OBK_AssessmentDeclaration> AssessmentDeclarationNumbers()
         {
             var userId = UserHelper.GetCurrentEmployee().Id;
-            return AppContext.OBK_AssessmentDeclaration.Where(o => o.EmployeeId == userId);
+            return AppContext.OBK_AssessmentDeclaration.Where(o => o.EmployeeId == userId && o.Number != null);
         }
 
         public IEnumerable<OBK_Ref_Type> OBK_Ref_Type()
