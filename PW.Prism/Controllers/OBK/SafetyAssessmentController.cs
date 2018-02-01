@@ -615,11 +615,12 @@ namespace PW.Prism.Controllers.OBK
             model.ApplicantId = reception.ApplicantId;
             model.ActDate = actD;
             model.Address = model.Address;
-            model.Worker = UserHelper.GetCurrentEmployee().FullName;
-
+            var employee = UserHelper.GetCurrentEmployee();
+            model.Worker = employee.FullName;
+            model.WorkerId = employee.Id;
             db.SaveChanges();
 
-            return Json(new { success = true });
+            return Json(new { success = true, worker = model.Worker});
         }
 
         public ActionResult DeleteExpertActReception(Guid? actReceptionId)

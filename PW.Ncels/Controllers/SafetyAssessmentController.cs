@@ -636,6 +636,12 @@ namespace PW.Ncels.Controllers
             if (string.IsNullOrEmpty(model.Number))
             {
                 model.Number = repository.GetAppNumber();
+                var act = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == model.Id);
+                if (act != null)
+                {
+                    act.Number = model.Number;
+                    db.SaveChanges();
+                }
             }
             repository.SaveOrUpdate(model, UserHelper.GetCurrentEmployee().Id);
             repository.SaveHisotry(history, UserHelper.GetCurrentEmployee().Id);
@@ -680,6 +686,13 @@ namespace PW.Ncels.Controllers
             if (string.IsNullOrEmpty(model.Number))
             {
                 model.Number = repository.GetAppNumber();
+                var act = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == model.Id);
+                if (act != null)
+                {
+                    act.Number = model.Number;
+                    db.SaveChanges();
+                }
+                
             }
             repository.SaveOrUpdate(model, UserHelper.GetCurrentEmployee().Id);
             repository.SaveHisotry(history, UserHelper.GetCurrentEmployee().Id);
