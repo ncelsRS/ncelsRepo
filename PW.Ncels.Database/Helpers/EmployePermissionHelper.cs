@@ -1058,6 +1058,7 @@ namespace PW.Ncels.Database.Helpers
 
         #region Учет бланков
         public static bool BlankAccounting { get { return IsVisibility("BlankAccounting"); } }
+        public static bool UsedBlanks { get { return IsVisibility("UsedBlanks"); } }
         public static bool UserCorruptsBlanks { get { return IsVisibility("UserCorruptsBlanks"); } }
         #endregion
 
