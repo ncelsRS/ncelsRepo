@@ -1,0 +1,41 @@
+﻿@model Guid
+
+<script>
+    var modelId = "@Model";
+</script>
+
+<div class="">
+    <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableAEReport@(Model)" width="100%"></table>
+</div>
+<div id="editProtocolPanel@(Model)" class="panel panel-default" hidden>
+    <div class="panel-body">
+        <div>
+            <label>Изменить протокол</label>
+            <input type="text" id="protocolNumber@(Model)" class="k-textbox" />
+        </div>
+        <br />
+        <label for="productName@(Model)">Наименование продукции</label>
+        <textarea id="productName@(Model)" readonly class="k-textbox" style="width: 100%"></textarea>
+        <br /><br />
+        <label for="executor@(Model)">Исполнитель</label>
+        <br />
+        <input type="text" id="executor@(Model)" class="k-textbox" />
+        <br /><br />
+        <label for="result@(Model)">Результат испытаний</label>
+        @(Html.Kendo().DropDownList()
+            .Name("result" + Model)
+            .OptionLabel("Выберите результат..")
+            .AutoBind(false)
+            .DataValueField("Value").DataTextField("Text")
+            .DataSource(cf => cf.Read(read => read.Action("ResultTypes", "OPAEReport")))
+            .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+        )
+        <br /><br />
+        <div class="pull-left">
+            <button type="button" onclick="saveProtocol()" class="k-button">Сохранить</button>
+            <button type="button" onclick="cancelEditProtocol()" class="k-button">Отменить</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/OP/OPAEReport.js"></script>
