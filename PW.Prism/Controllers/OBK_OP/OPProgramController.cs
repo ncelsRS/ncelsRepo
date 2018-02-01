@@ -4,6 +4,7 @@ using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Prism.ViewModels.OBK.OP;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -167,6 +168,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 var stage = repo.OBK_AssessmentStage
                     .FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == programStageId);
                 if (stage == null) throw new ArgumentException("Stage not found");
+
                 var executors = stage.OBK_AssessmentStageExecutors
                     .Where(x => x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
                     .ToList();
@@ -177,13 +179,66 @@ namespace PW.Prism.Controllers.OBK_OP
                 executor.ExecuteResult = 1;
                 executor.Date = DateTime.Now;
                 repo.SaveChanges();
+
+                // Если не все еще подтвердили, просто возвращаем результат
                 bool isAllConfirmed = executors.All(x => x.ExecuteResult == 1);
                 if (!isAllConfirmed)
                     return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+
+                // Если подтвердили все - двигаем заявку дальше на заполнение протоколов и заполнение отчета ОП
+
                 stage.StageStatusId = repo.OBK_Ref_StageStatus
                     .Where(x => x.Code == "OPProgramConfirmed")
                     .Select(x => x.Id)
                     .FirstOrDefault();
+
+                var protocolList = new List<OBK_AssessmentProtocolOP>();
+                var i = 0;
+                stage.OBK_AssessmentDeclaration
+                    .OBK_Contract
+                    .OBK_RS_Products
+                    .Where(x => x.ExpertisePlace == 1)
+                    .ToList().ForEach(product =>
+                    {
+                        var protocol = new OBK_AssessmentProtocolOP
+                        {
+                            DeclarationId = stage.DeclarationId,
+                            ExecuteResult = null,
+                            Executor = null,
+                            Number = $"{stage.OBK_AssessmentDeclaration.Number}-{(++i).ToString()}",
+                            NameRu = product.NameRu,
+                            NameKz = product.NameKz
+                        };
+                        protocolList.Add(protocol);
+                    });
+                repo.OBK_AssessmentProtocolOP.AddRange(protocolList);
+
+                var reportOP = new OBK_AssessmentReportOP
+                {
+                    Date = null,
+                    ExecuteResult = null,
+                    Result = null,
+                    DeclarationId = declarationId,
+                    StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportNew").Select(x => x.Id).Single()
+                };
+                repo.OBK_AssessmentReportOP.Add(reportOP);
+                repo.SaveChanges();
+
+                var reportExecutors = new List<OBK_AssessmentReportOPExecutors>();
+                repo.OBK_AssessmentStageExecutors
+                    .Where(x => x.AssessmentStageId == stage.Id && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
+                    .ToList()
+                    .ForEach(e =>
+                    {
+                        var newExecutor = new OBK_AssessmentReportOPExecutors
+                        {
+                            ReportId = reportOP.Id,
+                            EmployeeId = e.ExecutorId,
+                            ExecuteResult = null
+                        };
+                        repo.OBK_AssessmentReportOPExecutors.Add(newExecutor);
+                    });
+
                 repo.SaveChanges();
                 return Json(new { isSuccess = true, data = new { StatusCode = "OPProgramConfirmed" } }, JsonRequestBehavior.AllowGet);
             }
