@@ -56,7 +56,6 @@
 
 
 function panelResearchCenter(e) {
-    debugger;
     var selectType = $(e.item).find("> .k-link").attr('ItemType');
     if (selectType !== null) {
         var selectValue = $(e.item).find("> .k-link").attr('ItemId');

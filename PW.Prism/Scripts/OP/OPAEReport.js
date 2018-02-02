@@ -164,9 +164,7 @@ function initAEReportTable() {
 
 // Details
 
-function init() {
+function protocolsInit() {
     initAEReportTable();
     loadProtocols();
 }
-
-init();

@@ -4,7 +4,8 @@
             StatusName: $("#opReportStatus" + modelId),
             Result: $("#result" + modelId),
             ExecuteResultCode: $("#resultReportOP" + modelId).data("kendoDropDownList"),
-            ExecuteResultName: $("#resultReportOPLabel" + modelId)
+            ExecuteResultName: $("#resultReportOPLabel" + modelId),
+            KendoUpload: $("#reportOPFiles" + modelId)
         };
         this.Id = entity.Id;
         this.DeclarationId = entity.DeclarationId;
@@ -15,11 +16,12 @@
         this.ExecuteResultName = entity.ExecuteResultName;
         this.Result = entity.Result;
         this.IsExecutor = entity.IsExecutor;
+        this.AttachedFile = entity.Attach.Data[0];
     }
 
-    set StatusName(value) { this._html.StatusName.val(value); }
+    set StatusName(value) { this._html.StatusName.html(value); }
 
-    set ExecuteResultName(value) { this._html.ExecuteResultName.val(value); }
+    set ExecuteResultName(value) { this._html.ExecuteResultName.html(value); }
 
     set ExecuteResultCode(value) { this._html.ExecuteResultCode.value(value); }
     get ExecuteResultCode() { this._html.ExecuteResultCode.value(); }
@@ -37,14 +39,13 @@
         };
     }
 }
-
-class Executor {
+class ReportExecutor {
     constructor(entity) {
         this._html = {
-            OrganizationId: $("#OrganizationId" + modelId).data('kendoDropDownList'),
-            UnitId: $("#UnitId" + modelId).data('kendoDropDownList'),
-            EmployeeId: $("#EmployeeId" + modelId).data('kendoDropDownList'),
-            Panel: $("#creatyOrModifyPanel" + modelId)
+            OrganizationId: $("#ReportOrganizationId" + modelId).data('kendoDropDownList'),
+            UnitId: $("#ReportUnitId" + modelId).data('kendoDropDownList'),
+            EmployeeId: $("#ReportEmployeeId" + modelId).data('kendoDropDownList'),
+            Panel: $("#creatyOrModifyReportExecutorPanel" + modelId)
         };
 
         if (entity) {
@@ -100,6 +101,8 @@ class Executor {
 }
 
 var report;
+var reportExecutor;
+var reportExecutors;
 
 function loadReport() {
     $.ajax({
@@ -109,73 +112,108 @@ function loadReport() {
         },
         success: function (res) {
             report = new ReportOP(res);
+            updateReportHtmlVisible();
         },
         error: function (err) {
             console.error(err);
         }
     });
 }
-
-function loadExecutors() {
+function loadReportExecutors() {
     $.ajax({
-        url: "/OPProgram/ListExecutors",
+        url: "/OPReport/ListExecutors",
         data: {
             declarationId: modelId
         },
         success: function (res) {
-            if (res.isSuccess) {
-                executors = res.data;
-                $("#tableReportOPExecutors" + modelId).DataTable({
-                    language: {
-                        url: "/Content/json/Russian.json"
-                    },
-                    data: res.data,
-                    destroy: true,
-                    searching: false,
-                    iDisplayLength: 5,
-                    LengthMenu: false,
-                    bLengthChange: false,
-                    autoWidth: true,
-                    columns: [
-                        { data: "FullName" },
-                        { data: "ExecuteResult" },
-                        { data: "ExecuteComment" },
-                        { data: "Date" },
-                        {
-                            data: "", targets: -1,
-                            defaultContent: "<button type='button' class='k-button'>Удалить</button>"
-                        }
-                    ]
-                });
-            }
-            if (res.isError) {
-                return alert("Ошибка: " + res.data.Message);
-            }
+            reportExecutors = res;
+            $("#tableReportOPExecutors" + modelId).DataTable({
+                language: {
+                    url: "/Content/json/Russian.json"
+                },
+                data: res,
+                destroy: true,
+                searching: false,
+                iDisplayLength: 5,
+                LengthMenu: false,
+                bLengthChange: false,
+                autoWidth: true,
+                columns: [
+                    { data: "FullName" },
+                    { data: "ExecuteResultName" },
+                    { data: "Comment" },
+                    { data: "Date" },
+                    {
+                        data: "", targets: -1,
+                        defaultContent: "<button type='button' class='k-button'>Удалить</button>"
+                    }
+                ]
+            });
         }
     })
 }
-function addExecutor() {
-    executor = new Executor({});
+
+var statusesR = {
+    OPReportNew: "new",
+    OPReportInConfirm: "inconfirm",
+    OPReportConfirmed: "confirmed",
+    OPReportOnReWork: "inrework"
+};
+var statusesArrR = [];
+Object.keys(statusesR).forEach(key => {
+    var value = statusesR[key];
+    statusesArrR.push("show-e-" + value);
+    statusesArrR.push("show-none-" + value);
+});
+function updateReportHtmlVisible() {
+    var status = report.IsExecutor
+        ? "show-e-"
+        : "show-none-";
+    status += statusesR[report.StatusCode];
+    $("#tableReportOPExecutors" + modelId).DataTable().column(4).visible(status === 'show-e-new');
+    statusesArrR.forEach(s => {
+        if (s != status)
+            $("." + s).hide();
+    });
+    $("." + status).show();
 }
-function removeExecutor(data) {
+
+function sendReportOPToWork() {
     $.ajax({
-        url: "/OPProgram/RemoveStageExecutor",
+        url: "/OPReport/SendToWork",
         data: {
-            executorId: data.ExecutorId,
+            declarationId: modelId
+        },
+        success: function (res) {
+            loadReport();
+        },
+        error: function (err) {
+            console.error(err);
+        }
+    })
+}
+
+function addReportExecutor() {
+    reportExecutor = new ReportExecutor({});
+}
+function removeReportExecutor(data) {
+    $.ajax({
+        url: "/OPReport/RemoveStageExecutor",
+        data: {
+            executorId: data.EmployeeId,
             declarationId: modelId
         },
         success: function () {
-            loadExecutors();
+            loadReportExecutors();
         }
     });
 }
-
-function saveExecutor(e) {
-    if (!executor) return;
-    var id = executor.EmployeeId;
+function saveReportExecutor(e) {
+    if (!reportExecutor) return;
+    var id = reportExecutor.EmployeeId;
     if (!id) return alert("Выберите сотрудника");
     $.ajax({
-        url: "OPProgram/UpsertStageExecutor",
+        url: "OPReport/UpsertStageExecutor",
         method: "POST",
         data: {
             employeeId: id,
@@ -183,8 +221,8 @@ function saveExecutor(e) {
         },
         success: function (res) {
             if (res.isSuccess) {
-                loadExecutors();
-                executor.destroy();
+                loadReportExecutors();
+                reportExecutor.destroy();
             }
             if (res.isError) {
                 alert("Ошибка: " + res.data.Message);
@@ -195,11 +233,31 @@ function saveExecutor(e) {
         }
     })
 }
-function cancelExecutor(e) {
-    executor.destroy();
+function cancelReportExecutor(e) {
+    reportExecutor.destroy();
 }
 
-function initKendoUpload() {
+function deleteReportAttach() {
+    var item = report.AttachedFile.Items[0];
+    $.ajax({
+        url: '/Upload/FileDelete?' + item.AttachId + "&fileId=" + item.AttachName,
+        success: function (res) {
+            loadReport();
+        },
+        error: function (err) {
+            alert("Произошла ошибка, попробуйте еще раз..");
+        }
+    })
+}
+function downloadAttach() {
+    var item = report.AttachedFile.Items[0];
+    var link = document.createElement('a');
+    link.setAttribute('href', '/Upload/FileDownload?' + item.AttachId + "&fileId=" + item.AttachName);
+    link.setAttribute('download', 'download');
+    onload = link.click();
+}
+
+function initReportKendoUpload() {
     $("#reportOPFiles" + modelId).kendoUpload({
         localization: {
             select: 'Выбрать файл...',
@@ -212,17 +270,32 @@ function initKendoUpload() {
         multiple: false,
         async: {
             saveUrl: "/Upload/filePost",
+            removeUrl: '/Upload/FileDelete',
             autoUpload: false
         },
         upload: function (e) {
+            debugger;
             e.data = {
-                code: program.AttachedFile.Id,
+                code: report.AttachedFile.Id,
                 path: modelId,
                 saveMetadata: true
             };
         },
+        remove: function (e) {
+            debugger;
+            e.data = {
+                fileUidToRemove: e.files[0].uid
+            };
+            //?' + item.AttachId + "&fileId=" + item.AttachName
+            //fileUidToRemove = e.files[0].uid;
+            //e.preventDefault();
+
+            //kendo.confirm("Remove the file?").then(function () {
+            //    $("#files").data("kendoUpload").removeFileByUid(fileUidToRemove);
+            //});
+        },
         success: function (e) {
-            loadProgram();
+            //loadReport();
         },
         error: function (e) {
             alert("Ошибка: " + e.Message + e.message);
@@ -245,15 +318,15 @@ function initExecutorsTable() {
             { title: "Действия" }
         ]
     });
-    $('#tableProgramExecutors' + modelId + ' tbody').on('click', 'button', function () {
-        var data = $("#tableProgramExecutors" + modelId).DataTable().row($(this).parents('tr')).data();
-        return removeExecutor(data);
+    $('#tableReportOPExecutors' + modelId + ' tbody').on('click', 'button', function () {
+        var data = $("#tableReportOPExecutors" + modelId).DataTable().row($(this).parents('tr')).data();
+        return removeReportExecutor(data);
     });
 }
 
-function init() {
-    initKendoUpload();
+function reportInit() {
+    initReportKendoUpload();
+    initExecutorsTable();
     loadReport();
+    loadReportExecutors();
 }
-
-init();

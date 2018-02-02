@@ -1,4 +1,5 @@
-﻿@using Quartz.Util
+﻿@using System.Web.UI.WebControls
+@using Quartz.Util
 @model PW.Ncels.Database.Models.OBK.OBKSubTaskResult
 
 @{
@@ -128,10 +129,12 @@
                                                                 var expResult = Model.SubTaskIndicator[i].ExpertiseResult ? "Соотвествует требованиям" : " Не соотвествет требованиям";
                                                                 if (Model.SubTaskIndicator[i].TaskComment)
                                                                 {
-                                                                    <tr class="add-commnet" rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
+                                                                    //var lmid = Model.SubTaskIndicator[i].LaboratoryMarkId;
+                                                                    //var lmNdid = Model.SubTaskIndicator[i].RegulationId;
+                                                                    <tr rowid="@rowId" class="add-commnet" rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
                                                                         <td>@rowId</td>
-                                                                        <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", value = Model.SubTaskIndicator[i].LaboratoryMarkId, onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
-                                                                        <td>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</td>
+                                                                        <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)ViewData["LabMarks"], String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
+                                                                        <td><select id="regulation_@rowId" name="regulation"  class="form-control subtask-control"><option value='@Model.SubTaskIndicator[i].RegulationId'>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</option></select></td>
                                                                         <td><input type="text" id="claim" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Claim" /></td>
                                                                         <td><input type="text" id="factResult" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].FactResult" /></td>
                                                                         <td><input type="text" id="humidity" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Humidity" /></td>
@@ -170,9 +173,19 @@
                                                     @if (Model.Type == "create")
                                                     {
                                                         <tfoot>
+                                                        <tr>
+                                                            <td colspan="8" style="text-align: left;">
+                                                                <button type="button" class="btn btn-default" id="addRowTableBtn" onclick="addRowTable()">Добавить</button>
+                                                            </td>
+                                                        </tr>
+                                                        </tfoot>
+                                                    }
+                                                    @if (Model.Type != "create" && Model.SubTaskIndicator.Any(x=>x.TaskComment))
+                                                    {
+                                                        <tfoot>
                                                             <tr>
                                                                 <td colspan="8" style="text-align: left;">
-                                                                    <button type="button" class="btn btn-default" id="addRowTableBtn" onclick="addRowTable()">Добавить</button>
+                                                                    <button type="button" class="btn btn-default" id="saveRemarkTableBtn_@Model.Id"  onclick="saveRemark()">Сохранить</button>
                                                                 </td>
                                                             </tr>
                                                         </tfoot>
@@ -299,6 +312,7 @@
     }
 
     function GetRegulation(labMarkId, tr) {
+        debugger;
         var rowId = $(tr).attr('rowid');
         $.ajax({
             url: '/OBKTask/GetRegulation',
@@ -440,18 +454,18 @@
                     if (result.isSuccess) {
                         $("label#els_@Model.Id").remove();
                         $("#expertSign_@Model.Id").append('<label>Да</label>');
-                            alert("Результат успешно подписан");
-                        } else {
-                            alert("Ошибка при подписании");
-                        }
+                        alert("Результат успешно подписан");
+                    } else {
+                        alert("Ошибка при подписании");
                     }
-                });
-            }
+                }
+            });
+        }
     }
 
     function validSubTask() {
         var valid = true;
-        $('.subtask-control').each(function () {
+        $('.subtask-control').each(function() {
             if ($(this).val() == "" || $(this).val() == null) {
                 $(this).css({ 'border-color': '#a94442' });
                 valid = false;
@@ -469,7 +483,7 @@
     }
 
 
-    $(".subTaskComment").click(function () {
+    $(".subTaskComment").click(function() {
         debugger;
         var table = $(this).parent().parent().parent();
         var rcId = table.attr('rcId');
@@ -478,11 +492,60 @@
             type: 'GET',
             url: '/OBKExpDocument/TaskComment?rcId=' + rcId + '&teId=' + teId,
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 debugger;
                 $("#taskComment_" + teId).html(data);
                 $("#panelTaskComment_" + teId).show();
             }
         });
     });
+
+    function saveRemark() {
+        debugger;
+        var subTaskIndicator = new Array();
+        $("table#tableExpertResult_@Model.Id tbody tr.add-commnet").each(function () {
+            debugger;
+            var rowid = $(this).attr('rowid');
+            var researchCenterId = $(this).attr('rcId');
+            var laboratoryMarkId = $(this).find('select#LaboratoryMarkId option:selected').val();
+            var regulationId = $(this).find('select#regulation_' + rowid + ' option:selected').val();
+            var claim = $(this).find('input#claim').val();
+            var factResult = $(this).find('input#factResult').val();
+            var humidity = $(this).find('input#humidity').val();
+            var expertiseResult = $(this).find('#ExpertiseResult').val();
+            subTaskIndicator.push({
+                ResearchCenterId: researchCenterId,
+                LaboratoryMarkId: laboratoryMarkId,
+                RegulationId: regulationId,
+                Claim: claim,
+                FactResult: factResult,
+                Humidity: humidity,
+                ExpertiseResult: expertiseResult
+            });
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKTask/SaveSubTaskRemark',
+            data: JSON.stringify(subTaskIndicator),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    $("table#tableExpertResult_@Model.Id tbody tr.add-commnet").each(function () {
+                        debugger;
+                        var rowid = $(this).attr('rowid');
+                        $(this).find('select#LaboratoryMarkId').attr('disabled', true);
+                        $(this).find('select#regulation_' + rowid).attr('disabled', true);
+                        $(this).find('input#claim').attr('disabled', true);
+                        $(this).find('input#factResult').attr('disabled', true);
+                        $(this).find('input#humidity').attr('disabled', true);
+                        $(this).find('#ExpertiseResult').attr('disabled', true);
+                    });
+                    $("#saveRemarkTableBtn_@Model.Id").attr('disabled', true);
+                }
+            }
+        });
+    }
 </script>

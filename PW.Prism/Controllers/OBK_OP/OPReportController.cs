@@ -1,9 +1,8 @@
-﻿using PW.Ncels.Database.DataModel;
+﻿using Kendo.Mvc.Extensions;
+using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace PW.Prism.Controllers.OBK_OP
@@ -27,6 +26,13 @@ namespace PW.Prism.Controllers.OBK_OP
         {
             try
             {
+                var currentUserId = UserHelper.GetCurrentEmployee().Id;
+                var statusCode = repo.OBK_AssessmentReportOP
+                    .Where(x => x.DeclarationId == declarationId)
+                    .Select(x => x.OBK_Ref_StageStatus.Code)
+                    .FirstOrDefault();
+                var statusCodesForExecutorType1 = new[] { "OPReportNew", "OPReportConfirmed", "OPReportOnReWork" };
+                var statusCodesForExecutorType2 = new[] { "OPReportInConfirm" };
                 var res = repo.OBK_AssessmentReportOP
                     .Where(x => x.DeclarationId == declarationId)
                     .ToList()
@@ -43,10 +49,16 @@ namespace PW.Prism.Controllers.OBK_OP
                             x.ExecuteResult == 1 ? "Соответствует требованиям"
                             : "Не соответствует требованиям",
                         IsExecutor = repo.OBK_AssessmentReportOPExecutors
-                            .Any(y => y.ReportId == x.Id && y.EmployeeId == UserHelper.GetCurrentEmployee().Id && y.ExecuteResult == null)
+                            .Any(y => y.ReportId == x.Id && y.EmployeeId == currentUserId && y.ExecuteResult == null
+                                && (statusCodesForExecutorType1.Contains(statusCode) && y.Type == 1)
+                                    || (statusCodesForExecutorType2.Contains(statusCode) && y.Type == 2)),
+                        Attach = FileHelper
+                            .GetAttachListEdit(repo, declarationId.ToString(), "assessmentDeclarationOPReport")
+                            .ToDataSourceResult(new Kendo.Mvc.UI.DataSourceRequest())
                     })
                     .FirstOrDefault();
                 if (res == null) throw new ArgumentException("Report not found");
+
                 return Json(res, JsonRequestBehavior.AllowGet);
             }
             catch (ArgumentException ex)
@@ -61,19 +73,59 @@ namespace PW.Prism.Controllers.OBK_OP
             }
         }
 
-        public ActionResult LoadExecutors(Guid declarationId)
+        public ActionResult SendToWork(Guid declarationId)
+        {
+            try
+            {
+                var report = repo.OBK_AssessmentReportOP
+                    .FirstOrDefault(x => x.DeclarationId == declarationId);
+                if (report == null) throw new ArgumentException("ReportOP not found in DB");
+                report.StageStatusId = repo.OBK_Ref_StageStatus
+                    .Where(x => x.Code == "OPReportInConfirm")
+                    .Select(x => x.Id)
+                    .FirstOrDefault();
+
+                repo.OBK_AssessmentReportOPExecutors
+                    .Where(x => x.ReportId == report.Id)
+                    .ToList()
+                    .ForEach(executor =>
+                    {
+                        executor.ExecuteResult = null;
+                        executor.Comment = null;
+                        executor.Date = null;
+                    });
+                repo.SaveChanges();
+                return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #region SelectExecutors
+        public ActionResult ListExecutors(Guid declarationId)
         {
             try
             {
                 var res = repo.OBK_AssessmentReportOPExecutors
-                    .Where(x => x.OBK_AssessmentReportOP.DeclarationId == declarationId)
+                    .Where(x => x.OBK_AssessmentReportOP.DeclarationId == declarationId && x.Type == 2)
+                    .ToList()
                     .Select(x => new
                     {
                         x.Id,
                         x.ReportId,
-                        Name = x.Employee.FullName,
+                        x.EmployeeId,
+                        x.Employee.FullName,
                         x.Comment,
                         x.ExecuteResult,
+                        Date = x.Date?.ToString("dd.MM.yyyy"),
                         ExecuteResultName = x.ExecuteResult == null ? "" :
                             x.ExecuteResult == 1 ? "Соответствует требованиям"
                             : "Не соответствует требованиям"
@@ -91,6 +143,70 @@ namespace PW.Prism.Controllers.OBK_OP
                 return Json(ex.Message, JsonRequestBehavior.AllowGet);
             }
         }
+
+        public ActionResult ListOrganization()
+        {
+            var orgs = repo.Units
+                .Where(x => x.Id == new Guid("8f0b91f3-af29-4d3c-96d6-019cbbdfc8be")) // Только НЦЭЛС
+                .Select(x => new { x.Id, x.Name }).ToList();
+            return Json(orgs, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ListUnits(Guid organizationId)
+        {
+            var units = repo.Units
+                .Where(x => x.ParentId == organizationId)
+                .Select(x => new { x.Id, x.Name }).ToList();
+            return Json(units, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ListEmployees(Guid declarationId, Guid unitId)
+        {
+            var currentUserId = UserHelper.GetCurrentEmployee().Id;
+            var employeeIds = repo.OBK_AssessmentReportOPExecutors
+                .Where(c => c.OBK_AssessmentReportOP.DeclarationId == declarationId)
+                .Select(e => e.EmployeeId);
+            var employees = repo.Employees
+                .Where(x => (
+                    x.Position.ParentId == unitId
+                    || x.Position.Parent.ParentId == unitId
+                    || x.Position.Parent.Parent.ParentId == unitId)
+                    && !employeeIds.Contains(x.Id) && x.Id != currentUserId)
+                .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name }).ToList();
+            return Json(employees, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult UpsertStageExecutor(Guid employeeId, Guid declarationId)
+        {
+            var reportId = repo.OBK_AssessmentReportOP.Where(x => x.DeclarationId == declarationId).Select(x => x.Id).FirstOrDefault();
+
+            var old = repo.OBK_AssessmentReportOPExecutors
+                .FirstOrDefault(x => x.ReportId == reportId && x.EmployeeId == employeeId);
+
+            if (old == null)
+            {
+                var newExecutor = new OBK_AssessmentReportOPExecutors
+                {
+                    ReportId = reportId,
+                    EmployeeId = employeeId
+                };
+
+                repo.OBK_AssessmentReportOPExecutors.Add(newExecutor);
+
+                repo.SaveChanges();
+            }
+
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult RemoveStageExecutor(Guid executorId, Guid declarationId)
+        {
+            var old = repo.OBK_AssessmentReportOPExecutors
+                .FirstOrDefault(x => x.OBK_AssessmentReportOP.DeclarationId == declarationId && x.EmployeeId == executorId);
+            repo.OBK_AssessmentReportOPExecutors.Remove(old);
+            repo.SaveChanges();
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
 
         #region Dictionaries
         [HttpGet]
