@@ -9,7 +9,7 @@ INSERT INTO [dbo].[OBK_Ref_StageStatus]
            ,[DateCreate]
            ,[IsDeleted])
      VALUES
-           (15
+           ((select max(Id) + 1 from [ncels].[dbo].[OBK_Ref_StageStatus])
            ,'requiresIssuingZBKCopy'
            ,N'Требует выдачи копии ЗБК'
            ,N'Требует выдачи копии ЗБК'

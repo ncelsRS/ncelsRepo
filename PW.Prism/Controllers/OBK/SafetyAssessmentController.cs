@@ -66,6 +66,7 @@ namespace PW.Prism.Controllers.OBK
                 return Json(new { success = false, message = "Заключение не существует!" });
             }
             declaration.ZBKTaken = true;
+            declaration.ExtraditeDate = DateTime.Now;
             db.SaveChanges();
             return Json(new { success = true, message = "Успешно сохранено!" });
         }
@@ -92,7 +93,8 @@ namespace PW.Prism.Controllers.OBK
             else
             {
                 ViewBag.outputResultAct = (certificateOfComplection.ActReturnedBack == true && model.OBK_AssessmentDeclaration.ZBKTaken == true);
-                ViewBag.ZBKTaken = model.OBK_AssessmentDeclaration.ZBKTaken == true;
+                ViewBag.ZBKTaken = (model.OBK_AssessmentDeclaration.ZBKTaken) == true;
+                ViewBag.ActReturnedBack = certificateOfComplection.ActReturnedBack;
             }
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
