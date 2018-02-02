@@ -152,6 +152,9 @@ function updateHtmlVisible() {
             $("." + s).hide();
     });
     $("." + status).show();
+    if (program.StatusCode == "OPProgramConfirmed") {
+        $(".show-program-confirmed").show();
+    }
 }
 
 function loadProgram() {
@@ -163,6 +166,10 @@ function loadProgram() {
         success: function (res) {
             if (res.isSuccess) {
                 program = new Program(res.data);
+                if (program.StatusCode == "OPProgramConfirmed") {
+                    protocolsInit();
+                    reportInit();
+                }
                 updateHtmlVisible();
             } else
                 alert('Произошла ошибка');
