@@ -226,7 +226,7 @@ namespace PW.Prism.Controllers.OBK_OP
 
                 var reportExecutors = new List<OBK_AssessmentReportOPExecutors>();
                 repo.OBK_AssessmentStageExecutors
-                    .Where(x => x.AssessmentStageId == stage.Id && x.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
+                    .Where(x => x.AssessmentStageId == stage.Id)
                     .ToList()
                     .ForEach(e =>
                     {
@@ -234,7 +234,8 @@ namespace PW.Prism.Controllers.OBK_OP
                         {
                             ReportId = reportOP.Id,
                             EmployeeId = e.ExecutorId,
-                            ExecuteResult = null
+                            ExecuteResult = null,
+                            Type = e.ExecutorType
                         };
                         repo.OBK_AssessmentReportOPExecutors.Add(newExecutor);
                     });
@@ -342,7 +343,7 @@ namespace PW.Prism.Controllers.OBK_OP
 
         public ActionResult RemoveStageExecutor(Guid executorId, Guid declarationId)
         {
-            var old = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.ExecutorId == executorId);
+            var old = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.ExecutorId == executorId && x.OBK_AssessmentStage.DeclarationId == declarationId && x.OBK_AssessmentStage.StageId == programStageId);
             repo.OBK_AssessmentStageExecutors.Remove(old);
             repo.SaveChanges();
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
