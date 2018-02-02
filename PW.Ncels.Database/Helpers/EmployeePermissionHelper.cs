@@ -180,12 +180,19 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("CanSafetyAssessmentExecutorsAssignment", @"Модуль 'ОБиК'", "Распределение заявлений", "Работа с заявлениями ОБиК");
             AddPermission("CanSARejectAndReviewButton", @"Модуль 'ОБиК'", "Функционал подверждения или отклонения заявки ЦОЗ", "Работа с заявлениями ОБиК");
             AddPermission("CanSafetyExpertiseDocumentList", @"Модуль 'ОБиК'", "Экспертиза документов", "Работа с заявлениями ОБиК");
-            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заявлениями ОБиК");
-            AddPermission("CanViewMenuItemOBKResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заявлениями ОБиК");
-            AddPermission("CanViewMenuItemNewResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Новые\"", "Работа с заявлениями ОБиК");
             AddPermission("CanSafetyOPDocumentList", @"Модуль 'ОБиК'", "Оценка производства", "Работа с заявлениями ОБиК");
             AddPermission("CanExpertCouncil", @"Модуль 'ОБиК'", "Экспертный совет", "Работа в экспертном совете");
-
+            
+            //Испытательный центр
+            AddPermission("CanViewMenuItemOBKTaskList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Задания на испытания\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemOBKResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Испытательный центр\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemNewResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Новые\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemInWorkResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"В работе\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemRequiresSigningResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"На подписании\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemOnApproveResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"На утверждении\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemInReWorkResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"На доработке\"", "Работа с заданиями ИЦл/ИЛ");
+            AddPermission("CanViewMenuItemCompletedResearchCenterList", @"Модуль 'ОБиК'", "Просмотр пункта меню \"Выполненные\"", "Работа с заданиями ИЦл/ИЛ");
+            
             // Организационная стуктура
             AddPermission("CanChangeBankUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление банковских реквизитов для организации", "Работа с организационной структурой");
             AddPermission("CanChangeSignerUnits", @"Модуль 'Организационная структура'", "Просмотр и добавление подписывающих лиц для организации", "Работа с организационной структурой");
@@ -1000,7 +1007,26 @@ namespace PW.Ncels.Database.Helpers
         /// Просмотр пункта меню "Новые"
         /// </summary>
         public static bool CanViewMenuItemNewResearchCenterList { get { return IsVisibility("CanViewMenuItemNewResearchCenterList"); } }
-
+        /// <summary>
+        /// Просмотр пункта меню "В работе"
+        /// </summary>
+        public static bool CanViewMenuItemInWorkResearchCenterList { get { return IsVisibility("CanViewMenuItemInWorkResearchCenterList"); } }
+        /// <summary>
+        /// Просмотр пункта меню "На подписании"
+        /// </summary>
+        public static bool CanViewMenuItemRequiresSigningResearchCenterList { get { return IsVisibility("CanViewMenuItemRequiresSigningResearchCenterList"); } }
+        /// <summary>
+        /// Просмотр пункта меню "На утверждении"
+        /// </summary>
+        public static bool CanViewMenuItemOnApproveResearchCenterList { get { return IsVisibility("CanViewMenuItemOnApproveResearchCenterList"); } }
+        /// <summary>
+        /// Просмотр пункта меню "На доработке"
+        /// </summary>
+        public static bool CanViewMenuItemInReWorkResearchCenterList { get { return IsVisibility("CanViewMenuItemInReWorkResearchCenterList"); } }
+        /// <summary>
+        /// Просмотр пункта меню "Выполненные"
+        /// </summary>
+        public static bool CanViewMenuItemCompletedResearchCenterList { get { return IsVisibility("CanViewMenuItemCompletedResearchCenterList"); } }
         #endregion
 
         #region Организационная структура настройки реквизитов

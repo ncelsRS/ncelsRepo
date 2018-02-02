@@ -202,7 +202,6 @@ namespace PW.Ncels.Database.Repository.OBK
 
             if (directionPay.ZBKCopy_id != null)
             {
-                directionPay.IsPaid = true;
                 AppContext.SaveChanges();
                 new NotificationManager().SendNotificationFromCompany(
                     string.Format("По вашему запросу на оформление копий ЗБК поступил счет на оплату", directionPay.OBK_Contract.Number),

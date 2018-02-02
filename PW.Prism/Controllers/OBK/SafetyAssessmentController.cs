@@ -66,6 +66,7 @@ namespace PW.Prism.Controllers.OBK
                 return Json(new { success = false, message = "Заключение не существует!" });
             }
             declaration.ZBKTaken = true;
+            declaration.ExtraditeDate = DateTime.Now;
             db.SaveChanges();
             return Json(new { success = true, message = "Успешно сохранено!" });
         }
@@ -92,7 +93,8 @@ namespace PW.Prism.Controllers.OBK
             else
             {
                 ViewBag.outputResultAct = (certificateOfComplection.ActReturnedBack == true && model.OBK_AssessmentDeclaration.ZBKTaken == true);
-                ViewBag.ZBKTaken = model.OBK_AssessmentDeclaration.ZBKTaken == true;
+                ViewBag.ZBKTaken = (model.OBK_AssessmentDeclaration.ZBKTaken) == true;
+                ViewBag.ActReturnedBack = certificateOfComplection.ActReturnedBack;
             }
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
@@ -615,11 +617,12 @@ namespace PW.Prism.Controllers.OBK
             model.ApplicantId = reception.ApplicantId;
             model.ActDate = actD;
             model.Address = model.Address;
-            model.Worker = UserHelper.GetCurrentEmployee().FullName;
-
+            var employee = UserHelper.GetCurrentEmployee();
+            model.Worker = employee.FullName;
+            model.WorkerId = employee.Id;
             db.SaveChanges();
 
-            return Json(new { success = true });
+            return Json(new { success = true, worker = model.Worker});
         }
 
         public ActionResult DeleteExpertActReception(Guid? actReceptionId)

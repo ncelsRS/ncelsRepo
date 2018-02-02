@@ -1,11 +1,6 @@
 ﻿@model PW.Ncels.Database.Models.OBK.SubTaskDetails
 
 <style>
-    /*td {
-        border: 1px #beebff solid;
-        padding: 5px;
-    }*/
-
     .add-commnet {
         background-color: #dd4353;
         color: #2e2e2e;
@@ -35,12 +30,6 @@
                             <input class="form-control" disabled="disabled" type="text" value="@s.SubTaskCreateDate">
                         </div>
                     </div>
-                    @*<div class="col-lg-4">
-                        <div class="form-group">
-                            <label>Результат</label>
-                            <input class="form-control" disabled="disabled" type="text" title="@s.ExpertiseResultName" value="@s.ExpertiseResultName">
-                        </div>
-                    </div>*@
                 </div>
                 <div class="row">
                     <div class="col-lg-4">
@@ -66,10 +55,10 @@
                 <div hidden="hidden" id="panelTaskComment_@s.TaskExecutorId">
                     <div id="taskComment_@s.TaskExecutorId"></div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-lg-12">
-                        <table id="tableSubTaskIndicator_@s.TaskExecutorId" class="table table-bordered">
+                        <table class="table table-bordered">
                             <thead>
                             <tr>
                                 <td>Показатель</td>
@@ -78,6 +67,7 @@
                                 <td>Фактически полученный результат</td>
                                 <td>Т 0С и влажность (%)</td>
                                 <td>Результат</td>
+                                <td>Подписан</td>
                                 <td></td>
                             </tr>
                             </thead>
@@ -88,14 +78,17 @@
                                 {
                                     var className = "";
                                     if (t.TaskComment) { className = "class=add-commnet"; }
-
-                                    <tr @className tableId="@s.Id" rcId="@t.ResearchCenterId" teId="@s.TaskExecutorId">
+                                    <tr @className rcId="@t.ResearchCenterId" teId="@s.TaskExecutorId">
                                         <td>@t.LaboratoryMarkNameRu</td>
                                         <td>@t.LaboratoryRegulationNameRu</td>
                                         <td>@t.Claim</td>
                                         <td>@t.FactResult</td>
                                         <td>@t.Humidity</td>
                                         <td>@t.ExpertiseResultName</td>
+                                        <td>
+                                            @if (t.ExecutorSign) { <label>Да</label> }
+                                            else { <label>Нет</label> }
+                                        </td>
                                         <td>
                                             <span class="input-group-addon">
                                                 <a class="subTaskComment" href="#">
@@ -182,18 +175,15 @@
         </div>
     }
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" id="returnToExecutor" onclick="returnToResearchCenter('@Model.AssessmentDeclarationId', '@Model.ProductSeriesId')" style="display: none" data-dismiss="modal">Отправить на доработку</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
     </div>
 </div>
-
 
 <script>
     $(".subTaskComment").click(function () {
         debugger;
         var table = $(this).parent().parent().parent();
         var rcId = table.attr('rcId');
-        //var tableId = table.attr('tableId');
         var teId = table.attr('teId');
         $.ajax({
             type: 'GET',
@@ -206,19 +196,4 @@
             }
         });
     });
-
-    function returnToResearchCenter(adId, psId) {
-        debugger;
-        $.ajax({
-            type: 'GET',
-            url: '/OBKExpDocument/ReturnToResearchCenter?adId=' + adId + '&psId=' + psId,
-            cache: false,
-            success: function (data) {
-                debugger;
-                if (data.isSuccess) {
-                    $("#panelTaskDetails_" + adId).hide();
-                }
-            }
-        });
-    }
 </script>

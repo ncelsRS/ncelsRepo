@@ -59,7 +59,7 @@ namespace PW.Prism.Controllers.OBKTask
             ViewData["Units"] = new SelectList(repo.GetUnits(code), "Id", "ShortName");
             ViewData["ActReceptions"] = new SelectList(declarant.OBK_ActReception, "Id", "Number");
 
-            OBKCreateTaskViewModel task = new OBKCreateTaskViewModel
+            var task = new OBKCreateTaskViewModel
             {
                 AssessmentDeclarationId = id
             };
@@ -67,13 +67,13 @@ namespace PW.Prism.Controllers.OBKTask
             var labs = repo.GeLaboratoryTypes();
             task.LaboratoryTypeList = new MultiSelectList(labs, "Id", "NameRu", task.LaboratoryTypeIds);
 
-            List<OBKProductViewModel> productViewModel = new List<OBKProductViewModel>();
-            List<OBKProductViewModel> modalViewModel = new List<OBKProductViewModel>();
+            var productViewModel = new List<OBKProductViewModel>();
+            var modalViewModel = new List<OBKProductViewModel>();
 
-            List<OBKTaskViewModel> taskViewModel = new List<OBKTaskViewModel>();
+            var taskViewModel = new List<OBKTaskViewModel>();
             foreach (var t in tasks)
             {
-                OBKTaskViewModel tvm = new OBKTaskViewModel
+                var tvm = new OBKTaskViewModel
                 {
                     TaskNumber = t.TaskNumber,
                     RegisterDate = t.RegisterDate,
@@ -155,7 +155,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult ShowModalExecutor(string code, Guid id)
         {
             ViewData["Executors"] = new SelectList(repo.GetExecutors(code), "Id", "DisplayName");
-            OBKShowModalExecutor model = new OBKShowModalExecutor
+            var model = new OBKShowModalExecutor
             {
                 Id = id,
                 Code = code
@@ -188,26 +188,19 @@ namespace PW.Prism.Controllers.OBKTask
             var userId = UserHelper.GetCurrentEmployee().Id;
             var taskExecutor = repo.GetTaskExecutor(taskId, userId);
 
-            if (taskExecutor.StageId == CodeConstManager.STAGE_OBK_COZ)
+            switch (taskExecutor.StageId)
             {
-                var taskViewModel = repo.EditTask(taskId);
-                ViewBag.SendToIC = taskViewModel.SentToIC == null;
-                ViewBag.CozAccept = taskViewModel.CozExecutorName != null;
-
-                return PartialView(taskViewModel);
-            }
-
-            if (taskExecutor.StageId == CodeConstManager.STAGE_OBK_ICL)
-            {
-                var taskReseachCenter = repo.EditTaskResearchCenter(taskId);
-
-                //if(taskReseachCenter.TaskStatusId != null && taskReseachCenter.)
-                return PartialView("TaskResearchCenter", taskReseachCenter);
-            }
-            else
-            {
-                OBKTaskListViewModel taskList = new OBKTaskListViewModel();
-                return PartialView(taskList);
+                case CodeConstManager.STAGE_OBK_COZ:
+                    var taskViewModel = repo.EditTask(taskId);
+                    ViewBag.SendToIC = taskViewModel.SentToIC == null;
+                    ViewBag.CozAccept = taskViewModel.CozExecutorName != null;
+                    return PartialView(taskViewModel);
+                case CodeConstManager.STAGE_OBK_ICL:
+                    var taskReseachCenter = repo.EditTaskResearchCenter(taskId);
+                    return PartialView("TaskResearchCenter", taskReseachCenter);
+                default:
+                    var taskList = new OBKTaskListViewModel();
+                    return PartialView(taskList);
             }
         }
 
@@ -267,8 +260,6 @@ namespace PW.Prism.Controllers.OBKTask
 
         #endregion
 
-
-
         #region Испытательный центр
 
         public ActionResult ResearchCenter()
@@ -280,10 +271,9 @@ namespace PW.Prism.Controllers.OBKTask
         {
             var filterStatus = ModifyFilters(request.Filters);
 
-            //var organizationId = UserHelper.GetCurrentEmployee().OrganizationId;
             var departamentId = UserHelper.GetDepartment().Id;
             var userId = UserHelper.GetCurrentEmployee().Id;
-            //var list = repo.GetCenterListViews(departamentId, userId);
+
             var list = repo.GetResearchCenterListView(departamentId, userId, filterStatus);
             var result = list.ToDataSourceResult(request);
             return Json(result);
@@ -312,15 +302,18 @@ namespace PW.Prism.Controllers.OBKTask
                     var model = repo.EditResearchCenter(taskId, unitLabId);
                     return PartialView(model);
                 case OBK_Ref_StageStatus.InWork:
-                case OBK_Ref_StageStatus.InReWork:
                     var result = repo.EditExpertResearchCenter(taskId, unitLabId);
                     return PartialView("EditExpertResearchCenter", result);
                 case OBK_Ref_StageStatus.RequiresSigning:
+                case OBK_Ref_StageStatus.InReWork:
+                case OBK_Ref_StageStatus.OnApprove:
                 case OBK_Ref_StageStatus.Completed:
                     var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId);
                     return PartialView("EditChiefResearchCenter", resposnse);
+                default:
+                    var history = repo.EditTaskHistory(taskId);
+                    return PartialView("EditTaskHistory", history);
             }
-            return PartialView(null);
         }
 
         public ActionResult SendToExecutorReseachCenter(OBKTaskResearchCenter taskResearchCenter)
@@ -329,10 +322,10 @@ namespace PW.Prism.Controllers.OBKTask
             return Json(new {isSuccess = true});
         }
 
-        public ActionResult SubTaskResult(Guid taskMaterialId, bool isNew)
+        public ActionResult SubTaskResult(Guid taskMaterialId, string type)
         {
-            var model = repo.SubTaskResult(taskMaterialId, isNew);
-            if (isNew)
+            var model = repo.SubTaskResult(taskMaterialId, type);
+            if (type == "create")
             {
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
                 ViewData["LabNdMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
@@ -341,7 +334,6 @@ namespace PW.Prism.Controllers.OBKTask
             }
             else
             {
-              
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name");
@@ -381,7 +373,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult GetRegulation(Guid id)
         {
             var result = repo.GetRegulation(id);
-            SelectList maskNd = new SelectList(result, "Id", "NameRu");
+            var maskNd = new SelectList(result, "Id", "NameRu");
             return Json(maskNd);
         }
 
@@ -389,6 +381,18 @@ namespace PW.Prism.Controllers.OBKTask
         {
             var result = repo.SendToChief(taskId);
             return Json(new {isSuccess = result}, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ShowModalTaskDetails(Guid taskId, int productSeriesId, int executorCode)
+        {
+            var model = repo.GetTaskDetails(taskId, productSeriesId, executorCode);
+            return PartialView(model);
+        }
+
+        public ActionResult ReturnToExecutor(Guid tid)
+        {
+            repo.ReturnToExecutor(tid);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

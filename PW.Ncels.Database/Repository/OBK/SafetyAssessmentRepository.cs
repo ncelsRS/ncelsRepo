@@ -1018,7 +1018,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public void SendOutputResult(Guid id, string receiverFio, DateTime receivedDate)
         {
-            var stages = AppContext.OBK_AssessmentStage.Where(e => e.OBK_AssessmentDeclaration.Id == id);
+            var stages = AppContext.OBK_AssessmentStage.Where(e => e.OBK_AssessmentDeclaration.Id == id).ToList();
             var declarant = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
             if (declarant == null)
                 return;
@@ -1047,7 +1047,7 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             declarant.ReceiverFIO = receiverFio;
             declarant.ReceivedDate = receivedDate;
-            declarant.ExtraditeDate = DateTime.Now;
+         
             AppContext.SaveChanges();
         }
 

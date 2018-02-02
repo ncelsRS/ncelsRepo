@@ -604,10 +604,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
                         return Json(new { isSuccess = true, series });
                     }
-                    else
-                    {
-                        return Json(new { isSuccess = true });
-                    }
+                    return Json(new { isSuccess = true });
                 }
 
             }
@@ -665,6 +662,24 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var model = expRepo.ShowExpertiseConclusionNegative(productSeriesId, adId);
             return PartialView("ExpertiseConclusionNegative", model);
+        }
+
+        public ActionResult TaskComment(Guid rcId, Guid teId)
+        {
+            var result = expRepo.GetTaskComments(rcId, teId);
+            return PartialView(result);
+        }
+
+        public ActionResult SaveTaskComment(Guid rcId, string note)
+        {
+            expRepo.SaveTaskComment(rcId, note);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ReturnToResearchCenter(Guid adId, int psId)
+        {
+            expRepo.ReturnToResearchCenter(adId, psId);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
         #endregion

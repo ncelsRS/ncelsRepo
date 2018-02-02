@@ -562,15 +562,29 @@ namespace PW.Ncels.Database.Repository.OBK
                            sendDate = zbkCopy.SendDate
                        };
 
-            var res = data.ToList();
-
-            return res.AsQueryable();
+            return data;
         }
 
-        public IEnumerable<OBK_AssessmentDeclaration> AssessmentDeclarationNumbers()
+        public IEnumerable<object> AssessmentDeclarationNumbers()
         {
+
             var userId = UserHelper.GetCurrentEmployee().Id;
-            return AppContext.OBK_AssessmentDeclaration.Where(o => o.EmployeeId == userId && o.Number != null);
+            var statusId = AppContext.OBK_Ref_Status.FirstOrDefault(o => CodeConstManager.STATUS_OBK_CONCLUSION_ISSUE.ToString().Equals(o.Code)).Id;
+
+            var data = from StageExpDoc in AppContext.OBK_StageExpDocument
+                       join adec in AppContext.OBK_AssessmentDeclaration
+                            on StageExpDoc.AssessmentDeclarationId equals adec.Id into AssessmentDeclaraion
+                       from AssessDec in AssessmentDeclaraion.DefaultIfEmpty()
+                       where AssessDec.EmployeeId == userId && AssessDec.StatusId == statusId
+                       && StageExpDoc.ExpConclusionNumber != null
+                       select new
+                       {
+                           Id = AssessDec.Id,
+                           Number = AssessDec.Number
+                       };
+
+
+            return data;
         }
 
         public IEnumerable<OBK_Ref_Type> OBK_Ref_Type()

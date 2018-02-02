@@ -1,16 +1,16 @@
 ﻿@model PW.Ncels.Database.Models.OBK.OBKExpertiseConclusion
 
-@*<style>
-    table.tableExpertConclusion tbody tr.selected:nth-child(even) {
-        background-color:lightgoldenrodyellow !important;
+<style>
+    td {
+        border: 1px #beebff solid; 
+        padding: 5px;
     }
-    table.tableExpertConclusion tbody tr.selected:nth-child(odd) {
-        background-color:lightgoldenrodyellow !important;
+
+    .selected {
+        background-color: #beebff;
+        color: #2e2e2e;
     }
-    table.tableExpertConclusion tbody tr.selected:hover {
-        background-color:lightgoldenrodyellow !important;
-    }
-</style>*@
+</style>
 
 <div class="panel-body">
     <div class="panel panel-default">
@@ -19,7 +19,11 @@
                 <div class="pwToolbar">
                     <div class="btn-toolbar" role="toolbar">
                         <div class="btn-group">
-                            <button type="button" id="ecSignBtn" class="btn btn-default">Завершить ОБК и подписать</button>
+                            <button type="button" id="ecSignBtn_@Model.AssessmentDeclarationId" disabled="disabled" class="btn btn-default">Завершить ОБиК и подписать</button>
+                            <button type="button" class="btn btn-default" id="result_@Model.AssessmentDeclarationId" onclick="createResult()" style="display:none">Сформировать ответ</button>
+                            <button type="button" class="btn btn-default" id="showResult_@Model.AssessmentDeclarationId" onclick="showResult()" style="display:none">Просмотр</button>
+                            <button type="button" class="btn btn-default" id="showPdfResult_@Model.AssessmentDeclarationId" onclick="showPdfResult()" style="display:none">Печатная форма</button>
+                            <button type="button" class="btn btn-default" style="display:none">Печатная форма протокола</button>
                         </div>
                     </div>
                 </div>
@@ -33,40 +37,46 @@
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <div class="col-lg-12">
-                                        <table id="tableExpertConclusion" class="table table-striped table-bordered table-hover tableExpertConclusion">
+                                        <table id="tableExperConclution_@Model.AssessmentDeclarationId" class="table table-bordered">
                                             <thead>
                                             <tr>
-                                                @*<td></td>*@
-                                                <td>Наименование продукции</td>
-                                                <td>Серия</td>
-                                                <td>Результат</td>
                                                 <td></td>
+                                                <td><b>Наименование продукции</b></td>
+                                                <td><b>Серия</b></td>
+                                                <td><b>Результат</b></td>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @foreach (var t in Model.ExpertiseConclusion)
+                                            @for (var index = 0; index < Model.ExpertiseConclusion.Count; index++)
                                             {
-                                                <tr>
+                                                var t = Model.ExpertiseConclusion[index];
+                                                var i = index + 1;
+                                                <tr rowid="@t.ProductSeriesId" rcr="@t.ResearchCenterResult">
+                                                    <td>@i</td>
                                                     <td>@t.ProductNameRu</td>
-                                                    <td><a onclick="getTasksDetails('@Model.AssessmentDeclarationId', '@t.ProductSeriesId')"><span style="color: rgb(66, 139, 202);">@t.ProductSeries</span></a></td>
-                                                    <td>@t.ResearchCenterResultName</td>
                                                     <td>
+                                                        <a onclick="getTasksDetails('@Model.AssessmentDeclarationId', '@t.ProductSeriesId')">
+                                                            <span style="color: rgb(66, 139, 202);">@t.ProductSeries</span>
+                                                        </a>
+                                                    </td>
+                                                    <td>@t.ResearchCenterResultName</td>
+                                                    @*<td>
                                                         @if (t.ResearchCenterResult != null)
                                                         {
                                                             if ((bool) t.ResearchCenterResult)
                                                             {
-                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createPositiveResult_@t.ProductSeriesId" onclick="createResult(true, '@t.ProductSeriesId')">Заключение</button>
+                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createPositiveResult_@(t.ProductSeriesId)" onclick="createResult(true, '@t.ProductSeriesId')">Заключение</button>
                                                                 <button type="button" class="btn btn-default" onclick="showResult(true, '@t.ProductSeriesId')">Просмотр</button>
-                                                                <button type="button" class="btn btn-default" id="showPdfPositiveResult_@t.ProductSeriesId" onclick="showPdfResult(true, '@t.ProductSeriesId')">Печатная форма</button>
+                                                                <button type="button" class="btn btn-default" id="showPdfPositiveResult_@(t.ProductSeriesId)" onclick="showPdfResult(true, '@t.ProductSeriesId')">Печатная форма</button>
                                                             }
                                                             else
                                                             {
-                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createNegativeResult_@t.ProductSeriesId" onclick="createResult(false, '@t.ProductSeriesId')">Отказ</button>
+                                                                <button type="button" class="btn btn-default" disabled="@t.BtnValid" id="createNegativeResult_@(t.ProductSeriesId)" onclick="createResult(false, '@t.ProductSeriesId')">Отказ</button>
                                                                 <button type="button" class="btn btn-default" onclick="showResult(false, '@t.ProductSeriesId')">Просмотр</button>
-                                                                <button type="button" class="btn btn-default" id="showPdfNegativeResult_@t.ProductSeriesId" onclick="showPdfResult(false, '@t.ProductSeriesId')">Печатная форма</button>
+                                                                <button type="button" class="btn btn-default" id="showPdfNegativeResult_@(t.ProductSeriesId)" onclick="showPdfResult(false, '@t.ProductSeriesId')">Печатная форма</button>
                                                             }
                                                         }
-                                                    </td>
+                                                    </td>*@
                                                 </tr>
                                             }
                                             </tbody>
@@ -82,13 +92,37 @@
                 </div>
             </div>
         </div>
-        <div hidden="hidden" id="panelTaskDetails" class="modal fade">
-            <div id="responseContent" class="modal-dialog modal-lg" style="width: 1100px !important;"></div>
+        <div hidden="hidden" id="panelTaskDetails_@Model.AssessmentDeclarationId" class="modal fade">
+            <div id="responseContent_@Model.AssessmentDeclarationId" class="modal-dialog modal-lg" style="width: 1100px !important;"></div>
         </div>
     </div>
 </div>
 
 <script>
+
+    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").click(function () {
+        $(this).addClass('selected').siblings().removeClass('selected');
+        $("#panelExpertiseConclusion_@Model.AssessmentDeclarationId").hide();
+        if ($(this).attr('rcr') == "2")
+            btnHide('hide');
+        else
+            btnHide('show');
+    });
+
+    function btnHide(code) {
+        switch (code) {
+            case "hide":
+                $("#result_@Model.AssessmentDeclarationId").hide();
+                $("#showResult_@Model.AssessmentDeclarationId").show();
+                $("#showPdfResult_@Model.AssessmentDeclarationId").show();
+                break;
+            case "show":
+                $("#result_@Model.AssessmentDeclarationId").show();
+                $("#showResult_@Model.AssessmentDeclarationId").hide();
+                $("#showPdfResult_@Model.AssessmentDeclarationId").hide();
+                break;
+        }
+    }
 
     function getTasksDetails(adId, productSeriesId) {
         $.ajax({
@@ -98,20 +132,19 @@
             cache: false,
             success: function (data) {
                 debugger;
-                $('#responseContent').html(data);
-                $('#panelTaskDetails').modal('show');
+                $('#responseContent_@Model.AssessmentDeclarationId').html(data);
+                $('#panelTaskDetails_@Model.AssessmentDeclarationId').modal('show');
             }
         });
     }
 
-    function createResult(e, productSeriesId) {
-        debugger;
+    function createResult() {
+        var table = $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr.selected");
+        var productSeriesId = table.attr("rowid");
+        var rcr = table.attr("rcr");
         var url = null;
-        if (e)
-            url = '/OBKExpDocument/ExpertiseConclusionPositive?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
-        else
-            url = '/OBKExpDocument/ExpertiseConclusionNegative?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
-
+        rcr === "1" ? url = '/OBKExpDocument/ExpertiseConclusionPositive?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId' :
+                      url = '/OBKExpDocument/ExpertiseConclusionNegative?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
         $.ajax({
             type: 'GET',
             url: url,
@@ -124,10 +157,12 @@
         });
     }
 
-    function showResult(e, productSeriesId) {
-        debugger;
+    function showResult() {
+        var table = $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr.selected");
+        var productSeriesId = table.attr("rowid");
+        var rcr = table.attr("rcr");
         var url = null;
-        if (e)
+        if (rcr === "1")
             url = '/OBKExpDocument/ShowExpertiseConclusionPositive?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
         else
             url = '/OBKExpDocument/ShowExpertiseConclusionNegative?productSeriesId=' + productSeriesId + '&adId=' + '@Model.AssessmentDeclarationId';
@@ -145,7 +180,7 @@
     }
 
 
-    $("#ecSignBtn").click(function () {
+    $("#ecSignBtn_@Model.AssessmentDeclarationId").click(function () {
         var modelId = '@Model.AssessmentDeclarationId';
         $.ajax({
             type: 'GET',
@@ -172,18 +207,14 @@
         }
     });
 
-    function showPdfResult(e, productSeriesId) {
-        if (e) {
-            if (productSeriesId == null)
-                alert("Выберите серию из таблицы");
-            window.open('/OBKExpDocument/ExpDocumentExportFilePdf?productSeriesId=' +
-                productSeriesId +
-                '&id=' + '@Model.AssessmentDeclarationId');
-        } else {
-            if (productSeriesId == null)
-                alert("Выберите серию из таблицы");
+    function showPdfResult() {
+        var table = $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr.selected");
+        var productSeriesId = table.attr("rowid");
+        var rcr = table.attr("rcr");
+        if (rcr === "1")
+            window.open('/OBKExpDocument/ExpDocumentExportFilePdf?productSeriesId=' + productSeriesId + '&id=' + '@Model.AssessmentDeclarationId');
+        else
             window.open('/OBKExpDocument/ExpDocumentMotivRefusExportFilePdf?id=' + '@Model.AssessmentDeclarationId');
-        }
     }
 
 </script>
