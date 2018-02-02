@@ -903,24 +903,29 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public void ReturnToResearchCenter(Guid adId, int psId)
         {
+            int[] code = { 1, 3 };
             var tms = AppContext.OBK_TaskMaterial.Where(
                 e => e.ProductSeriesId == psId && e.OBK_Tasks.AssessmentDeclarationId == adId &&
                      e.OBK_ResearchCenterResult.Any(x => x.TaskMaterialId == e.Id && x.OBK_ResearchCenterResultCom.Any()));
             var tes = AppContext.OBK_TaskExecutor.Where(
-                e => tms.Any(x => x.TaskId == e.TaskId) && e.ExecutorType ==
-                     CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING);
+                e => tms.Any(x => x.TaskId == e.TaskId) && e.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING); //&& e.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
+            var tebs = AppContext.OBK_TaskExecutor.Where(
+                e => tms.Any(x => x.TaskId == e.TaskId) && e.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_SIGNER);
             var statusId = new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.InReWork).Id;
             foreach (var te in tes)
             {
                 foreach (var tm in tms)
                 {
-                    if (tm.UnitLaboratoryId == GetUnitLaboratory(te.ExecutorId))
-                    {
-                        te.IsCompleted = false;
-                        te.SignedData = null;
-                        tm.StatusId = statusId;
-                    }
+                    if (tm.UnitLaboratoryId != GetUnitLaboratory(te.ExecutorId)) continue;
+                    te.IsCompleted = false;
+                    te.SignedData = null;
+                    tm.StatusId = statusId;
                 }
+            }
+            foreach (var teb in tebs)
+            {
+                teb.IsCompleted = false;
+                teb.SignedData = null;
             }
             AppContext.SaveChanges();
         }

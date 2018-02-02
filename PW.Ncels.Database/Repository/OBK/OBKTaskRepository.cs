@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Text;
@@ -101,6 +102,11 @@ namespace PW.Ncels.Database.Repository.OBK
         public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulation(Guid id)
         {
             return AppContext.OBK_Ref_LaboratoryRegulation.Where(e => !e.IsDeleted && e.LaboratoryMarkId == id);
+        }
+
+        public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulation()
+        {
+            return AppContext.OBK_Ref_LaboratoryRegulation.Where(e => !e.IsDeleted);
         }
 
         public List<Employee> GetExecutors(string code)
@@ -723,15 +729,17 @@ namespace PW.Ncels.Database.Repository.OBK
                 .Select(e => new SubTaskIndicator
                 {
                     ResearchCenterId = e.Id,
+                    LaboratoryMarkId = e.OBK_Ref_LaboratoryMark.Id,
                     LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
                     LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
                     Claim = e.Claim,
                     FactResult = e.FactResult,
                     Humidity = e.Humidity,
+                    RegulationId = e.OBK_Ref_LaboratoryRegulation.Id,
                     LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
                     LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
                     ExpertiseResult = (bool) e.ExpertiseResult,
-                    TaskComment = e.OBK_ResearchCenterResultCom.Count > 0
+                    TaskComment = e.OBK_ResearchCenterResultCom.Count(x=>!x.Fixed) > 0
                 })
                 .ToList();
             if (taskMaterial.OBK_TaskExecutor.Count(e => e.ExecutorType == 2) <= 1) return str;
@@ -746,11 +754,13 @@ namespace PW.Ncels.Database.Repository.OBK
                     .Select(
                         e => new SubTaskIndicator
                         {
+                            LaboratoryMarkId = e.OBK_Ref_LaboratoryMark.Id,
                             LaboratoryMarkNameRu = e.OBK_Ref_LaboratoryMark.NameRu,
                             LaboratoryMarkNameKz = e.OBK_Ref_LaboratoryMark.NameKz,
                             Claim = e.Claim,
                             FactResult = e.FactResult,
                             Humidity = e.Humidity,
+                            RegulationId = e.OBK_Ref_LaboratoryRegulation.Id,
                             LaboratoryRegulationNameRu = e.OBK_Ref_LaboratoryRegulation.NameRu,
                             LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
                             ExpertiseResult = (bool) e.ExpertiseResult,
@@ -1125,6 +1135,29 @@ namespace PW.Ncels.Database.Repository.OBK
                 rcr.OBK_TaskMaterial.StatusId = statusId;
             }
             AppContext.SaveChanges();
+        }
+
+        public void SaveSubTaskRemark(List<SubTaskIndicator> stis)
+        {
+            foreach (var sti in stis)
+            {
+                var rcr = AppContext.OBK_ResearchCenterResult.FirstOrDefault(e => sti.ResearchCenterId == e.Id);
+                if (rcr == null) continue;
+                rcr.Claim = sti.Claim;
+                rcr.FactResult = sti.FactResult;
+                rcr.Humidity = sti.Humidity;
+                rcr.LaboratoryMarkId = sti.LaboratoryMarkId;
+                rcr.LaboratoryRegulationId = sti.RegulationId;
+                rcr.ExpertiseResult = sti.ExpertiseResult;
+
+                var rcrcs = AppContext.OBK_ResearchCenterResultCom.Where(e => sti.ResearchCenterId == e.ResearchCenterResultId);
+                if (!rcrcs.Any()) continue;
+                foreach (var rcrc in rcrcs)
+                {
+                    rcrc.Fixed = true;
+                }
+                AppContext.SaveChanges();
+            }
         }
     }
 }

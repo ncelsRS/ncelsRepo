@@ -335,6 +335,7 @@ namespace PW.Prism.Controllers.OBKTask
             else
             {
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
+                ViewData["LabMaskNd"]  = new SelectList(repo.GetRegulation(), "Id", "NameRu");
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name");
             }
@@ -393,6 +394,12 @@ namespace PW.Prism.Controllers.OBKTask
         {
             repo.ReturnToExecutor(tid);
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveSubTaskRemark(List<SubTaskIndicator> stis)
+        {
+            repo.SaveSubTaskRemark(stis);
+            return Json(new { isSuccess = true });
         }
 
         /// <summary>
