@@ -952,8 +952,15 @@ namespace PW.Ncels.Database.Repository.OBK
             // добавить этап обк (stage)
             if (stage == 15)
             {
-                var expert = AppContext.OBK_OP_Commission.Where(e => e.EmployeeId == userId);
-                var q = AppContext.OBK_AssessmentDeclarationRegisterView.Where(e => expert.Any(x => x.DeclarationId == e.DeclarationId));
+                var commissionExecutor = AppContext.OBK_OP_Commission.Where(e => e.EmployeeId == userId);
+                var programExecutor = AppContext.OBK_AssessmentStageExecutors.Where(e => e.ExecutorId == userId);
+                var reportOPExecutor = AppContext.OBK_AssessmentReportOPExecutors.Where(e => e.EmployeeId == userId);
+                var stageId = AppContext.OBK_AssessmentStage.Where(x => x.StageId == stage);
+                var q = AppContext.OBK_AssessmentDeclarationRegisterView
+                    .Where(e => stageId.Any(x => x.DeclarationId == e.DeclarationId)
+                                && (commissionExecutor.Any(x => x.DeclarationId == e.DeclarationId)
+                                || programExecutor.Any(x => x.OBK_AssessmentStage.DeclarationId == e.DeclarationId)
+                                || reportOPExecutor.Any(x => x.OBK_AssessmentReportOP.DeclarationId == e.DeclarationId)));
                 return q;
             }
             else

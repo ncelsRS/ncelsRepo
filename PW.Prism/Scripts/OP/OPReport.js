@@ -2,7 +2,7 @@
     constructor(entity) {
         this._html = {
             StatusName: $("#opReportStatus" + modelId),
-            Result: $("#result" + modelId),
+            Result: $("#reportOPResult" + modelId),
             ExecuteResultCode: $("#resultReportOP" + modelId).data("kendoDropDownList"),
             ExecuteResultName: $("#resultReportOPLabel" + modelId),
             KendoUpload: $("#reportOPFiles" + modelId)
@@ -17,14 +17,15 @@
         this.Result = entity.Result;
         this.IsExecutor = entity.IsExecutor;
         this.AttachedFile = entity.Attach.Data[0];
+        initReportKendoUpload(this.AttachedFile.Items);
     }
 
-    set StatusName(value) { this._html.StatusName.html(value); }
+    set StatusName(value) { return this._html.StatusName.html(value); }
 
     set ExecuteResultName(value) { this._html.ExecuteResultName.html(value); }
 
     set ExecuteResultCode(value) { this._html.ExecuteResultCode.value(value); }
-    get ExecuteResultCode() { this._html.ExecuteResultCode.value(); }
+    get ExecuteResultCode() { return this._html.ExecuteResultCode.value(); }
 
     set Result(value) { this._html.Result.val(value); }
     get Result() { return this._html.Result.val(); }
@@ -47,7 +48,6 @@ class ReportExecutor {
             EmployeeId: $("#ReportEmployeeId" + modelId).data('kendoDropDownList'),
             Panel: $("#creatyOrModifyReportExecutorPanel" + modelId)
         };
-
         if (entity) {
             this.OrganizationId = entity.OrganizationId;
             this.UnitId = entity.UnitId;
@@ -112,6 +112,7 @@ function loadReport() {
         },
         success: function (res) {
             report = new ReportOP(res);
+            loadReportExecutors();
             updateReportHtmlVisible();
         },
         error: function (err) {
@@ -170,11 +171,18 @@ function updateReportHtmlVisible() {
         ? "show-e-"
         : "show-none-";
     status += statusesR[report.StatusCode];
-    $("#tableReportOPExecutors" + modelId).DataTable().column(4).visible(status === 'show-e-new');
+    $("#tableReportOPExecutors" + modelId).DataTable().column(4).visible(status == 'show-e-new' || status == "show-e-inrework");
     statusesArrR.forEach(s => {
         if (s != status)
             $("." + s).hide();
     });
+    if (status == "show-e-new" || status == "show-e-inrework") {
+        $("#reportOPFilesContainer" + modelId + " .k-dropzone").show();
+    }
+    else {
+        $("#reportOPFilesContainer" + modelId + " .k-dropzone").hide();
+        report._html.Result.attr("readonly", "readonly");
+    }
     $("." + status).show();
 }
 
@@ -182,7 +190,9 @@ function sendReportOPToWork() {
     $.ajax({
         url: "/OPReport/SendToWork",
         data: {
-            declarationId: modelId
+            declarationId: modelId,
+            executeResult: report.ExecuteResultCode,
+            result: report.Result
         },
         success: function (res) {
             loadReport();
@@ -190,7 +200,37 @@ function sendReportOPToWork() {
         error: function (err) {
             console.error(err);
         }
-    })
+    });
+}
+function reportOPMeetRequirements() {
+    $.ajax({
+        url: "/OPReport/MeetRequirements",
+        data: {
+            declarationId: modelId,
+            comment: $("#executorReportComment" + modelId).val()
+        },
+        success: function (res) {
+            loadReport();
+        },
+        error: function (err) {
+            console.error(err);
+        }
+    });
+}
+function reportOPNotMeetRequirements() {
+    $.ajax({
+        url: "/OPReport/NotMeetRequirements",
+        data: {
+            declarationId: modelId,
+            comment: $("#executorReportComment" + modelId).val()
+        },
+        success: function (res) {
+            loadReport();
+        },
+        error: function (err) {
+            console.error(err);
+        }
+    });
 }
 
 function addReportExecutor() {
@@ -257,7 +297,21 @@ function downloadAttach() {
     onload = link.click();
 }
 
-function initReportKendoUpload() {
+var kendoUploadInizialised = false;
+function getLinkForFile(attachId) {
+    return "/Upload/FileDownload?" + attachId;
+}
+function initReportKendoUpload(attachItems) {
+    if (kendoUploadInizialised) return;
+    kendoUploadInizialised = true;
+    var attachedFiles = [];
+    attachItems.forEach(function (item) {
+        attachedFiles.push({
+            name: item.AttachName,
+            size: item.AttachSize,
+            extension: item.AttachId
+        });
+    });
     $("#reportOPFiles" + modelId).kendoUpload({
         localization: {
             select: 'Выбрать файл...',
@@ -267,14 +321,15 @@ function initReportKendoUpload() {
             headerStatusUploading: "Загрузка...",
             headerStatusUploaded: "Загружено!"
         },
-        multiple: false,
+        multiple: true,
+        files: attachedFiles,
+        template: kendo.template($('#reportOPFileTemplate' + modelId).html()),
         async: {
             saveUrl: "/Upload/filePost",
             removeUrl: '/Upload/FileDelete',
             autoUpload: false
         },
         upload: function (e) {
-            debugger;
             e.data = {
                 code: report.AttachedFile.Id,
                 path: modelId,
@@ -282,23 +337,20 @@ function initReportKendoUpload() {
             };
         },
         remove: function (e) {
-            debugger;
-            e.data = {
-                fileUidToRemove: e.files[0].uid
-            };
-            //?' + item.AttachId + "&fileId=" + item.AttachName
-            //fileUidToRemove = e.files[0].uid;
-            //e.preventDefault();
-
-            //kendo.confirm("Remove the file?").then(function () {
-            //    $("#files").data("kendoUpload").removeFileByUid(fileUidToRemove);
-            //});
+            var params = e.files[0].extension.split('&');
+            var data = {};
+            params.forEach(p => {
+                var a = p.split("=");
+                data[a[0]] = a[1];
+            });
+            e.data = data;
         },
         success: function (e) {
-            //loadReport();
+            if (e.operation === "upload")
+                e.files[0].extension = e.response.Id;
         },
         error: function (e) {
-            alert("Ошибка: " + e.Message + e.message);
+            alert("Ошибка: " + e);
         }
     });
 }
@@ -325,8 +377,6 @@ function initExecutorsTable() {
 }
 
 function reportInit() {
-    initReportKendoUpload();
     initExecutorsTable();
     loadReport();
-    loadReportExecutors();
 }

@@ -15,20 +15,21 @@
     }
 </script>
 <br /><br />
-<div class="form-group">
-    <button type="button" onclick="sendReportOPToWork()" hidden
-            class="k-button show-e-new show-e-inrework">
-        Отправить на согласование
-    </button>
-    <button type="button" onclick="reportOPMeetRequirements()" hidden
-            class="k-button show-e-inconfirm">
-        Соответствует требованиям
-    </button>
-    <button type="button" onclick="reportOPNotMeetRequirements()" hidden
-            class="k-button show-e-inconfirm">
-        Не соответствует требованиям
-    </button>
-</div>
+      <div class="form-group">
+          <textarea id="executorReportComment@(Model)" style="width: 100%" class="k-textbox show-e-inconfirm"></textarea>
+          <button type="button" onclick="sendReportOPToWork()" hidden
+                  class="k-button show-e-new show-e-inrework">
+              Отправить на согласование
+          </button>
+          <button type="button" onclick="reportOPMeetRequirements()" hidden
+                  class="k-button show-e-inconfirm">
+              Соответствует требованиям
+          </button>
+          <button type="button" onclick="reportOPNotMeetRequirements()" hidden
+                  class="k-button show-e-inconfirm">
+              Не соответствует требованиям
+          </button>
+      </div>
 <br />
 <div class="form-group">
     <label>Статус: </label>
@@ -36,31 +37,25 @@
 </div>
 <label>Результат</label>
 <br />
-<textarea id="result@(Model)" style="width: 100%" class="k-textbox"></textarea>
+<textarea id="reportOPResult@(Model)" style="width: 100%" class="k-textbox"></textarea>
 <br /><br />
 <label>Вывод</label><br />
 <span hidden class="show-e-new show-e-inrework">
     @(Html.Kendo().DropDownList()
-                .Name("resultReportOP" + Model)
-                .OptionLabel("Выберите результат..")
-                .AutoBind(false)
-                .DataValueField("Value").DataTextField("Text")
-                .DataSource(cf => cf.Read(read => read.Action("ResultTypes", "OPReport")))
-                .HtmlAttributes(new { @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                                .Name("resultReportOP" + Model)
+                                                .OptionLabel("Выберите результат..")
+                                                .AutoBind(false)
+                                                .DataValueField("Value").DataTextField("Text")
+                                                .DataSource(cf => cf.Read(read => read.Action("ResultTypes", "OPReport")))
+                                                .HtmlAttributes(new { @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
 </span>
 <label id="resultReportOPLabel@(Model)" hidden
        class="show-e-inconfirm show-e-confirmed show-none-new show-none-inconfirm show-none-confirmed show-none-inrework">
 </label>
 <br /><br />
-<div class="form-group">
+<div id="reportOPFilesContainer@(Model)">
     <label>Документы</label>
     <input name="files" id="reportOPFiles@(Model)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" class="form-control" />
-</div>
-<div id="assessmentDeclarationOPProgramKendoUpload@(Model)" class="row" hidden>
-    <div class="col-lg-6">
-        <label>Прикрепить файл</label>
-        <input name="files" id="reportOPFiles@(Model)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" class="form-control" />
-    </div>
 </div>
 
 <div id="listExecutors@(Model)"
@@ -84,12 +79,12 @@
                             </div>
                             <div class="col-lg-7">
                                 @(Html.Kendo().DropDownList()
-                                            .Name("ReportOrganizationId" + Model)
-                                            .OptionLabel("Выберите организацию..")
-                                            .AutoBind(false)
-                                            .DataValueField("Id").DataTextField("Name")
-                                            .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "OPReport")))
-                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                                                            .Name("ReportOrganizationId" + Model)
+                                                                            .OptionLabel("Выберите организацию..")
+                                                                            .AutoBind(false)
+                                                                            .DataValueField("Id").DataTextField("Name")
+                                                                            .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "OPReport")))
+                                                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
                             </div>
                         </div>
                         <div class="row">
@@ -98,12 +93,12 @@
                             </div>
                             <div class="col-lg-7">
                                 @(Html.Kendo().DropDownList().Name("ReportUnitId" + Model)
-                                            .OptionLabel("Выберите подразделение..")
-                                            .AutoBind(false)
-                                            .DataValueField("Id").DataTextField("Name")
-                                            .DataSource(cf => cf.Read(read => read.Action("ListUnits", "OPReport").Data("reportFilterUnits")).ServerFiltering(true))
-                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                            .CascadeFrom("ReportOrganizationId" + Model))
+                                                                            .OptionLabel("Выберите подразделение..")
+                                                                            .AutoBind(false)
+                                                                            .DataValueField("Id").DataTextField("Name")
+                                                                            .DataSource(cf => cf.Read(read => read.Action("ListUnits", "OPReport").Data("reportFilterUnits")).ServerFiltering(true))
+                                                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                            .CascadeFrom("ReportOrganizationId" + Model))
                             </div>
                         </div>
                         <div class="row">
@@ -112,12 +107,12 @@
                             </div>
                             <div class="col-lg-7">
                                 @(Html.Kendo().DropDownList().Name("ReportEmployeeId" + Model)
-                                            .OptionLabel("Выберите сотрудника..")
-                                            .AutoBind(false)
-                                            .DataValueField("Id").DataTextField("FullName")
-                                            .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "OPReport").Data("reportFilterEmployees")).ServerFiltering(true))
-                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                            .CascadeFrom("ReportUnitId" + Model))
+                                                                            .OptionLabel("Выберите сотрудника..")
+                                                                            .AutoBind(false)
+                                                                            .DataValueField("Id").DataTextField("FullName")
+                                                                            .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "OPReport").Data("reportFilterEmployees")).ServerFiltering(true))
+                                                                            .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                            .CascadeFrom("ReportUnitId" + Model))
                             </div>
                         </div>
                     </div>
@@ -128,5 +123,16 @@
         </div>
     </div>
 </div>
+
+<script id="reportOPFileTemplate@(Model)" type="text/x-kendo-template">
+    <span class='k-progress'></span>
+    <div class="file-wrapper">
+        <span class='file-icon'></span>
+        <h5>
+            <a href="#=getLinkForFile(files[0].extension)#">#=name#</a>
+        </h5>
+        <button type='button' class='k-upload-action show-e-new'></button>
+    </div>
+</script>
 
 <script src="~/Scripts/OP/OPReport.js"></script>
