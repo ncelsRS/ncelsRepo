@@ -65,6 +65,10 @@ namespace PW.Prism.Controllers.OBK_OP
             var declaration = repo.OBK_AssessmentDeclaration.FirstOrDefault(x => x.Id == declarationId);
             var status = repo.OBK_Ref_Status.FirstOrDefault(x => x.Code == "6");
             declaration.StatusId = status.Id;
+
+            var reportOP = repo.OBK_AssessmentReportOP.FirstOrDefault(x => x.DeclarationId == declarationId);
+            reportOP.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportCompleted").Select(x => x.Id).FirstOrDefault();
+
             repo.SaveChanges();
             return Json(new { isSuccess = true });
         }
