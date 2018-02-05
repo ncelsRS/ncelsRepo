@@ -22,7 +22,6 @@ namespace PW.Ncels.Database.Models.OBK
         public string SeriesParty { get; set; }
         public string ResearchCenterResultName { get; set; }
         public int ResearchCenterResult { get; set; }
-
-        //public bool BtnValid { get; set; }
+        public int BtnResult { get; set; }
     }
 }

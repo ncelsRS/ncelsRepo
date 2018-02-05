@@ -1159,6 +1159,61 @@ namespace PW.Ncels.Database.Repository.OBK
                 AppContext.SaveChanges();
             }
         }
+
+        public Dictionary<string, string> GetTaskTemplateData(Guid tmId)
+        {
+            var result = new Dictionary<string, string>();
+            var t = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.Id == tmId);
+            if (t == null) return null;
+            result.Add("SubTaskNumber", t.SubTaskNumber);
+            result.Add("SubTaskCreatedDate", t.CreatedDate?.ToShortDateString());
+            result.Add("Declarant", t.OBK_Tasks.OBK_AssessmentDeclaration.OBK_Contract.OBK_Declarant?.NameRu);
+            result.Add("ProductName", t.OBK_Procunts_Series.OBK_RS_Products?.NameRu);
+            result.Add("ActReceptionNumber", t.OBK_Tasks.OBK_ActReception?.Number);
+            result.Add("ActReceptionDate", t.OBK_Tasks.OBK_ActReception?.ActDate?.ToShortDateString());
+            result.Add("ProducerName", t.OBK_Procunts_Series.OBK_RS_Products?.ProducerNameRu + " (" + t.OBK_Procunts_Series.OBK_RS_Products?.CountryNameRu + ")");
+            result.Add("Series", t.OBK_Procunts_Series.Series);
+            result.Add("SeriesStartDate", t.OBK_Procunts_Series.SeriesStartdate);
+            result.Add("SeriesEndDate", t.OBK_Procunts_Series.SeriesEndDate);
+            result.Add("Quantity", t.Quantity.ToString());
+            result.Add("NdName", t.OBK_Procunts_Series.OBK_RS_Products?.NdName + " " + t.OBK_Procunts_Series.OBK_RS_Products?.NdName);
+            result.Add("Regulation", t.Regulation);
+            return result;
+        }
+
+        public Aspose.Words.Document GetTaskTemplateTableData(Aspose.Words.Document doc, Guid tmId)
+        {
+            var rcrs = AppContext.OBK_ResearchCenterResult.Where(e => e.TaskMaterialId == tmId);
+
+            var builder = new Aspose.Words.DocumentBuilder(doc);
+            builder.Document.SelectNodes("//Run[@Text='SubTaskTable']");
+
+            builder.StartTable();
+            builder.InsertCell();
+            builder.Write("Наименование показателя");
+            builder.InsertCell();
+            builder.Write("Требования НД");
+            builder.InsertCell();
+            builder.Write("Фактически полученные ре-зультаты");
+            builder.InsertCell();
+            builder.Write("Т ºС и влажность(%)");
+            builder.EndRow();
+
+            if (!rcrs.Any()) return doc;
+            foreach (var rcr in rcrs)
+            {
+                builder.InsertCell();
+                builder.Write(rcr.OBK_Ref_LaboratoryMark.NameRu);
+                builder.InsertCell();
+                builder.Write(rcr.Claim);
+                builder.InsertCell();
+                builder.Write(rcr.FactResult);
+                builder.InsertCell();
+                builder.Write(rcr.Humidity);
+                builder.EndRow();
+            }
+            return doc;
+        }
     }
 }
 
