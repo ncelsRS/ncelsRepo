@@ -158,7 +158,8 @@ var statusesR = {
     OPReportNew: "new",
     OPReportInConfirm: "inconfirm",
     OPReportConfirmed: "confirmed",
-    OPReportOnReWork: "inrework"
+    OPReportOnReWork: "inrework",
+    OPReportCompleted: "completed"
 };
 var statusesArrR = [];
 Object.keys(statusesR).forEach(key => {
