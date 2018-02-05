@@ -489,7 +489,7 @@
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
         { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
         { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" },
-        { name: 'ButtonComments', displayName: '', width: '*', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        { name: 'ButtonComments', displayName: '', maxWidth: '50', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
 
     $scope.gridOptionsCalculatorAdditional.data = $scope.addedServicesAdditional;
@@ -2152,9 +2152,9 @@ function initCalculator($scope, $interval, $http) {
         { name: 'UnitOfMeasurementId', displayName: 'Единица измерения - ИД', width: "*", visible: false },
         { name: 'PriceWithoutTax', displayName: 'Цена в тенге, без НДС', width: "*" },
         { name: 'Count', displayName: 'Количество услуг (работ)', width: "*" },
-        { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', width: "*" },
-        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', width: "*" },
-        { name: 'ButtonComments', displayName: '', width: '*', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
+        { name: 'FinalCostWithoutTax', displayName: 'Итоговая стоимость услуги, в тенге без НДС', minWidth: "200" },
+        { name: 'FinalCostWithTax', displayName: 'Итоговая стоимость услуги, в тенге с НДС', minWidth: "200" },
+        { name: 'ButtonComments', displayName: '', maxWidth: '40', cellTemplate: '<span class="input-group-addon"><a valval="{{row.entity.Id}}" class="obkpricedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>' }
     ];
 
     $scope.gridOptionsCalculator.data = $scope.addedServices;

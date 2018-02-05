@@ -734,20 +734,22 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKContractServiceViewModel> GetContractPrices(Guid contractId)
         {
-            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId).Select(x => new OBKContractServiceViewModel
-            {
-                Id = x.Id,
-                ServiceName = x.OBK_Ref_PriceList.NameRu,
-                ServiceId = x.PriceRefId,
-                UnitOfMeasurementId = x.OBK_Ref_PriceList.UnitId,
-                UnitOfMeasurementName = x.OBK_Ref_PriceList.Dictionary.Name,
-                PriceWithoutTax = x.OBK_Ref_PriceList.Price,
-                Count = x.Count,
-                FinalCostWithoutTax = x.PriceWithoutTax,
-                FinalCostWithTax = x.PriceWithTax,
-                ProductId = x.ProductId,
-                ProductName = x.OBK_RS_Products.NameRu
-            }
+            var list = AppContext.OBK_ContractPrice
+                .Where(x => x.ContractId == contractId && x.ProductId != null)
+                .Select(x => new OBKContractServiceViewModel
+                {
+                    Id = x.Id,
+                    ServiceName = x.OBK_Ref_PriceList.NameRu,
+                    ServiceId = x.PriceRefId,
+                    UnitOfMeasurementId = x.OBK_Ref_PriceList.UnitId,
+                    UnitOfMeasurementName = x.OBK_Ref_PriceList.Dictionary.Name,
+                    PriceWithoutTax = x.OBK_Ref_PriceList.Price,
+                    Count = x.Count,
+                    FinalCostWithoutTax = x.PriceWithoutTax,
+                    FinalCostWithTax = x.PriceWithTax,
+                    ProductId = x.ProductId,
+                    ProductName = x.OBK_RS_Products.NameRu
+                }
             ).ToList();
             return list;
         }
@@ -3027,15 +3029,15 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var emp = UserHelper.GetCurrentEmployee();
             var balance = (from a in AppContext.OBK_ContractCom
-                join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
-                where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
-                select c).Count();
+                           join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                           where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
+                           select c).Count();
             if (balance != 0)
             {
                 var listComments = (from a in AppContext.OBK_ContractCom
-                    join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
-                    where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
-                    select c).ToList<OBK_ContractComRecord>();
+                                    join c in AppContext.OBK_ContractComRecord on a.Id equals c.CommentId
+                                    where a.ContractId == contractId && c.UserId == emp.Id && a.ControlId == controlID && a.Id == idContractCom
+                                    select c).ToList<OBK_ContractComRecord>();
 
                 foreach (OBK_ContractComRecord v in listComments)
                 {

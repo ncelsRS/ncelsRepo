@@ -259,7 +259,7 @@ namespace PW.Prism.Controllers
             return File(file, "application/force-download", fileName);
         }
 
-        [HttpGet]
+        //[HttpGet]
         public ActionResult FileDelete(string id = null, string path = null, string name = null, string fileId = null)
         {
             if (fileId != null)

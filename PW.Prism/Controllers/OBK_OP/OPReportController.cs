@@ -50,10 +50,10 @@ namespace PW.Prism.Controllers.OBK_OP
                             : "Не соответствует требованиям",
                         IsExecutor = repo.OBK_AssessmentReportOPExecutors
                             .Any(y => y.ReportId == x.Id && y.EmployeeId == currentUserId && y.ExecuteResult == null
-                                && (statusCodesForExecutorType1.Contains(statusCode) && y.Type == 1)
-                                    || (statusCodesForExecutorType2.Contains(statusCode) && y.Type == 2)),
+                                && ((statusCodesForExecutorType1.Contains(statusCode) && y.Type == 1)
+                                    || (statusCodesForExecutorType2.Contains(statusCode) && y.Type == 2))),
                         Attach = FileHelper
-                            .GetAttachListEdit(repo, declarationId.ToString(), "assessmentDeclarationOPReport")
+                            .GetAttachListEdit(repo, declarationId.ToString(), "assessmentDeclarationOPReport", true)
                             .ToDataSourceResult(new Kendo.Mvc.UI.DataSourceRequest())
                     })
                     .FirstOrDefault();
@@ -73,7 +73,7 @@ namespace PW.Prism.Controllers.OBK_OP
             }
         }
 
-        public ActionResult SendToWork(Guid declarationId)
+        public ActionResult SendToWork(Guid declarationId, int executeResult, string result)
         {
             try
             {
@@ -84,6 +84,9 @@ namespace PW.Prism.Controllers.OBK_OP
                     .Where(x => x.Code == "OPReportInConfirm")
                     .Select(x => x.Id)
                     .FirstOrDefault();
+
+                report.ExecuteResult = executeResult;
+                report.Result = result;
 
                 repo.OBK_AssessmentReportOPExecutors
                     .Where(x => x.ReportId == report.Id)
@@ -96,6 +99,69 @@ namespace PW.Prism.Controllers.OBK_OP
                     });
                 repo.SaveChanges();
                 return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult MeetRequirements(Guid declarationId, string comment)
+        {
+            try
+            {
+                var report = repo.OBK_AssessmentReportOP.FirstOrDefault(x => x.DeclarationId == declarationId);
+                if (report == null) throw new ArgumentException("Report not found");
+                var executors = repo.OBK_AssessmentReportOPExecutors.Where(x => x.ReportId == report.Id && x.Type == 2).ToList();
+                var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+                var executor = executors.FirstOrDefault(x => x.EmployeeId == currentEmployeeId);
+                if (executor == null) throw new ArgumentException("Current employee is not executor");
+                executor.Comment = comment;
+                executor.ExecuteResult = 1;
+
+                if (executors.All(x => x.ExecuteResult == 1))
+                {
+                    report.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportConfirmed").Select(x => x.Id).Single();
+                }
+
+                repo.SaveChanges();
+                return Json(new { isSuccess = true, data = new { StatusCode = "OPReportConfirmed" } }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult NotMeetRequirements(Guid declarationId, string comment)
+        {
+            try
+            {
+                var report = repo.OBK_AssessmentReportOP.FirstOrDefault(x => x.DeclarationId == declarationId);
+                if (report == null) throw new ArgumentException("Report not found");
+                var executors = repo.OBK_AssessmentReportOPExecutors.Where(x => x.ReportId == report.Id && x.Type == 2).ToList();
+                var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
+                var executor = executors.FirstOrDefault(x => x.EmployeeId == currentEmployeeId);
+                if (executor == null) throw new ArgumentException("Current employee is not executor");
+                executor.Comment = comment;
+                executor.ExecuteResult = 0;
+
+                report.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportOnReWork").Select(x => x.Id).Single();
+
+                repo.SaveChanges();
+                return Json(new { isSuccess = true, data = new { StatusCode = "OPReportOnReWork" } }, JsonRequestBehavior.AllowGet);
             }
             catch (ArgumentException ex)
             {
@@ -187,7 +253,8 @@ namespace PW.Prism.Controllers.OBK_OP
                 var newExecutor = new OBK_AssessmentReportOPExecutors
                 {
                     ReportId = reportId,
-                    EmployeeId = employeeId
+                    EmployeeId = employeeId,
+                    Type = 2
                 };
 
                 repo.OBK_AssessmentReportOPExecutors.Add(newExecutor);
