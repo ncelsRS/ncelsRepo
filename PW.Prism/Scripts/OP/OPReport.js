@@ -12,6 +12,7 @@
         this.StatusCode = entity.StatusCode;
         this.StatusName = entity.StatusName;
         this.Date = entity.Date;
+        this._ExecuteResultCode;
         this.ExecuteResultCode = entity.ExecuteResultCode;
         this.ExecuteResultName = entity.ExecuteResultName;
         this.Result = entity.Result;
@@ -24,8 +25,13 @@
 
     set ExecuteResultName(value) { this._html.ExecuteResultName.html(value); }
 
-    set ExecuteResultCode(value) { this._html.ExecuteResultCode.value(value); }
-    get ExecuteResultCode() { return this._html.ExecuteResultCode.value(); }
+    set ExecuteResultCode(value) {
+        this._html.ExecuteResultCode.value(value);
+        this._ExecuteResultCode = value;
+    }
+    get ExecuteResultCode() {
+        return this._ExecuteResultCode;
+    }
 
     set Result(value) { this._html.Result.val(value); }
     get Result() { return this._html.Result.val(); }
@@ -183,6 +189,14 @@ function updateReportHtmlVisible() {
     else {
         $("#reportOPFilesContainer" + modelId + " .k-dropzone").hide();
         report._html.Result.attr("readonly", "readonly");
+    }
+    if (status == "show-e-confirmed" && report.ExecuteResultCode == "1") {
+        $("#sendToUobk" + modelId).show();
+        $("#sendToECDiv" + modelId).hide();
+    }
+    else if (status == "show-e-confirmed") {
+        $("#sendToUobk" + modelId).hide();
+        $("#sendToECDiv" + modelId).show();
     }
     $("." + status).show();
 }

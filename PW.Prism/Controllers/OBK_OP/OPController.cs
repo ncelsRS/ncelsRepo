@@ -28,7 +28,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 declarationStage = new OBK_AssessmentStage
                 {
                     Id = Guid.NewGuid(),
-                    StageId = 3,
+                    StageId = 2,
                     StageStatusId = 1,
                     DeclarationId = declarationId,
                     StartDate = DateTime.Now

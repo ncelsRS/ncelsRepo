@@ -37,5 +37,31 @@ namespace PW.Prism.Controllers.OBK_OP
             repo.SaveChanges();
             return Json(new { isSuccess = true });
         }
+
+        public ActionResult ListFutureCouncils()
+        {
+            try
+            {
+                var res = repo.OBK_ExpertCouncil
+                    .Where(x => x.Date > DateTime.Now.AddDays(1))
+                    .Select(x => new
+                    {
+                        Value = x.Id,
+                        Text = x.Name
+                    })
+                    .AsEnumerable();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
