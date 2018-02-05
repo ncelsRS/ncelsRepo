@@ -22,6 +22,10 @@ using PW.Ncels.Database.Models.OBK;
 using PW.Prism.Helpers;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
+using Aspose.Cells;
+using Aspose.Words;
+using SaveFormat = Aspose.Words.SaveFormat;
+using SaveOptions = Aspose.Words.Saving.SaveOptions;
 
 namespace PW.Prism.Controllers.OBKTask
 {
@@ -224,7 +228,7 @@ namespace PW.Prism.Controllers.OBKTask
             report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
             report.Render(false);
             Stream stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Pdf, stream);
+            report.ExportDocument(StiExportFormat.Word2007, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", $"Задание №{taskNumber}.pdf");
         }
@@ -412,6 +416,24 @@ namespace PW.Prism.Controllers.OBKTask
             var name = "doc_" + registerId + ".zip";
             var file = InstructionFileHelper.GetInstructionFile(registerId);
             return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, name);
+        }
+
+        [Authorize]
+        public ActionResult SubTaskProtokol(Guid tmId)
+        {
+            string templatePath;
+            Dictionary<string, string> templateData;
+            templatePath = Server.MapPath("~/Reports/Mrts/OBK/TaskProtocol.docx");
+            var doc = new Aspose.Words.Document(templatePath);
+            templateData = repo.GetTaskTemplateData(tmId);
+            repo.GetTaskTemplateTableData(doc, tmId);
+            templateData.Add("PageCount", doc.PageCount.ToString());
+            doc.ReplaceText(templateData);
+            var file = new MemoryStream();
+            doc.Save(file, SaveFormat.Docx);
+            file.Position = 0;
+            return File(file, "application/msword",
+                "Протокол №" + templateData.FirstOrDefault(e => e.Key == "SubTaskNumber").Value + ".docx");
         }
 
         #endregion

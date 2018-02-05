@@ -21,6 +21,7 @@ namespace Ncels.Helpers
                 doc.Range.Replace(string.Format("{{{{{0}}}}}", templateItem.Key), templateItem.Value ?? "", false, false);
             }
         }
+
         public static void InserQrCodes(this Document document, string placeHolder, string barCodeData)
         {
             Regex regex = new Regex(string.Format("{{{{{0}}}}}", placeHolder), RegexOptions.IgnoreCase);

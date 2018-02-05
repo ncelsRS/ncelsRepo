@@ -572,8 +572,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     ProductSeries = ps.Series,
                     SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
                     ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial.AsQueryable()),
-                    ResearchCenterResult = ps.OBK_StageExpDocument.Count(e=>e.ProductSeriesId == ps.Id) > 0 ? 2 : ps.OBK_TaskMaterial.All(x=>x.OBK_ResearchCenterResult.All(e=>e.ExpertiseResult == true)) ? 1 : 0
-                    //BtnValid = ad.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0
+                    ResearchCenterResult = ps.OBK_TaskMaterial.All(x => x.OBK_ResearchCenterResult.All(e => e.ExpertiseResult == true)) ? 1 : 0,//ps.OBK_StageExpDocument.Count(e=>e.ProductSeriesId == ps.Id) > 0 ? 2 : ps.OBK_TaskMaterial.All(x=>x.OBK_ResearchCenterResult.All(e=>e.ExpertiseResult == true)) ? 1 : 0
+                    BtnResult = ps.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0 ? 2:3
                 };
                 eConclusions.Add(ec);
             }
@@ -903,7 +903,6 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public void ReturnToResearchCenter(Guid adId, int psId)
         {
-            int[] code = { 1, 3 };
             var tms = AppContext.OBK_TaskMaterial.Where(
                 e => e.ProductSeriesId == psId && e.OBK_Tasks.AssessmentDeclarationId == adId &&
                      e.OBK_ResearchCenterResult.Any(x => x.TaskMaterialId == e.Id && x.OBK_ResearchCenterResultCom.Any()));
