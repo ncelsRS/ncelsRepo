@@ -1186,8 +1186,6 @@ namespace PW.Ncels.Database.Repository.OBK
             var rcrs = AppContext.OBK_ResearchCenterResult.Where(e => e.TaskMaterialId == tmId);
 
             var builder = new Aspose.Words.DocumentBuilder(doc);
-            builder.Document.SelectNodes("//Run[@Text='SubTaskTable']");
-
             builder.StartTable();
             builder.InsertCell();
             builder.Write("Наименование показателя");
@@ -1212,6 +1210,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 builder.Write(rcr.Humidity);
                 builder.EndRow();
             }
+
+            //var section = doc.Sections[0];
+            //var body = section.Body;
+            //var curNode = body.FirstChild;
+            //builder.MoveTo(curNode);
+
             return doc;
         }
     }

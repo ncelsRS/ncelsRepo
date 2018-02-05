@@ -228,7 +228,7 @@ namespace PW.Prism.Controllers.OBKTask
             report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
             report.Render(false);
             Stream stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Word2007, stream);
+            report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", $"Задание №{taskNumber}.pdf");
         }
