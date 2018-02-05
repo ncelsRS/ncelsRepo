@@ -463,13 +463,6 @@ namespace PW.Ncels.Database.Repository.OBK
             var stageStatusCoz = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => OBK_Ref_StageStatus.RequiresIssuingZBKCopy.ToString().Equals(o.Code));
             stageCoz.StageStatusId = stageStatusCoz.Id;
 
-            var stageExecutors = AppContext.OBK_ZBKCopyStageExecutors.FirstOrDefault(o => o.ZBKCopyStageId == stage.Id);
-            var executor = AppContext.Employees.FirstOrDefault(o => o.Id == stageExecutors.ExecutorId);
-
-            var notification = new NotificationManager().SendNotificationFromCompany(
-                           "Уведомление о поступлении акта выполненных работ",
-                           ObjectType.OBK_ZBKCopy, copy.Id.ToString(), (Guid)copy.EmployeeId);
-
             var payment = AppContext.OBK_DirectionToPayments.FirstOrDefault(o => o.ZBKCopy_id == copy.Id);
 
             OBK_CertificateOfCompletion certificate = new OBK_CertificateOfCompletion();
@@ -678,6 +671,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Id == declaration.TypeId);
             var stageStatusCode = AppContext.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
             var currentUserId = UserHelper.GetCurrentEmployee().Id.ToString();
+            var certificateCompletion = AppContext.OBK_CertificateOfCompletion.FirstOrDefault(o => o.ZBKCopyId == zbkCopy.Id);
 
             model.Declarer = declarantContact.BossLastName + " " + declarantContact.BossFirstName
                 + " " + declarantContact.BossMiddleName;
@@ -704,6 +698,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.LetterNumber = zbkCopy.LetterNumber;
             model.Nds = TaxHelper.GetNdsRef() + 1;
             model.IsBoss = AppContext.Units.Any(o => currentUserId.Equals(o.BossId));
+            model.actNumber1C = (certificateCompletion.ActReturnedBack == true && certificateCompletion.ActNumber1C != null);
             return model;
         }
 
@@ -859,6 +854,8 @@ namespace PW.Ncels.Database.Repository.OBK
             var organization = AppContext.Dictionaries.FirstOrDefault(o => o.Id == declarant.OrganizationFormId);
             var refType = AppContext.OBK_Ref_Type.FirstOrDefault(o => o.Id == declaration.TypeId);
             var directionPayment = AppContext.OBK_DirectionToPayments.FirstOrDefault(o => o.ZBKCopy_id == ZBKCopyId);
+            var cerCompition = AppContext.OBK_CertificateOfCompletion.FirstOrDefault(o => o.ZBKCopyId == ZBKCopyId);
+
             if (zbkCopy.StatusId != null)
             {
                 var refStatus = AppContext.OBK_Ref_Status.FirstOrDefault(o => o.Id == zbkCopy.StatusId);
@@ -887,6 +884,7 @@ namespace PW.Ncels.Database.Repository.OBK
             model.Nds = TaxHelper.GetNdsRef() + 1;
             model.LetterNumber = zbkCopy.LetterNumber;
             model.LetterDate = zbkCopy.LetterDate;
+            model.actNumber1C = (cerCompition != null && cerCompition.ActNumber1C != null && cerCompition.ActReturnedBack == true);
 
             if (directionPayment != null && directionPayment.ZBKCopy_id != null && directionPayment.InvoiceNumber1C != null)
             {

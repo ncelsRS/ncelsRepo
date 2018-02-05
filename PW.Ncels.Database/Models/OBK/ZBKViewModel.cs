@@ -27,6 +27,7 @@ namespace PW.Ncels.Database.Models.OBK
         public string StageStatusCode { get; set; }
         public string Notes { get; set; }
         public bool? PaymentInvoice { get; set; }
+        public bool? actNumber1C { get; set; }
         public int? refStatus { get; set; }
         public bool? OriginalsGiven { get; set; }
         public DateTime? ExtraditeDate { get; set; }
