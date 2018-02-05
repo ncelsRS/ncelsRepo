@@ -30,7 +30,10 @@
         this._ExecuteResultCode = value;
     }
     get ExecuteResultCode() {
-        return this._ExecuteResultCode;
+        var res = this._html.ExecuteResultCode.value();
+        if (!res)
+            res = this._ExecuteResultCode;
+        return res;
     }
 
     set Result(value) { this._html.Result.val(value); }
