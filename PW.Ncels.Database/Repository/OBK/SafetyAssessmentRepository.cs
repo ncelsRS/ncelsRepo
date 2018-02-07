@@ -121,6 +121,15 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Applicant.ToList();
         }
 
+        /// <summary>
+        /// Показать список продуктов
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_RS_Products> OBKContractProducts(Guid? contractId)
+        {
+            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId).ToList();
+        }
+
 
         /// <summary>
         /// Показать список 
@@ -1060,7 +1069,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         #endregion
 
-        #region
+        #region Архив
         public IQueryable<OBK_ArchiveView> ArchiveList()
         {
             return AppContext.OBK_ArchiveView;
