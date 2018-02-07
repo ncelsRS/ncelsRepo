@@ -38,7 +38,6 @@
     get DateTo() { return this._dateTo; }
 
     set AttachedFile(file) {
-        debugger;
         this._attachedFile = file.Data[0];
         if (this._attachedFile.Items.length === 0) {
             this._html.KendoUpload.show();
@@ -191,7 +190,6 @@ function deleteAttach() {
     })
 }
 function downloadProgramAttach() {
-    debugger;
     var item = program.AttachedFile.Items[0];
     var link = document.createElement('a');
     link.setAttribute('href', '/Upload/FileDownload?' + item.AttachId + "&fileId=" + item.AttachName);

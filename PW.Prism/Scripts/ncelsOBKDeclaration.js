@@ -197,16 +197,6 @@ function getDeclarationDetails(parameters, number, controllerName) {
     //alert(parameters);
 }
 
-
-
-
-
-
-
-
-
-
-
 function showInformIcon(isShow) {
     debugger;
     if (isShow) {
