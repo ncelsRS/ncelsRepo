@@ -1,5 +1,8 @@
 ﻿@model Guid
 <script>
+    var modelId = "@Model";
+    var isAssessmentExecutor = "@ViewBag.IsExecutor" === "True";
+
     function sendToUOBK() {
         $.ajax({
             type: "POST",
@@ -20,7 +23,24 @@
     }
 
     function sendToEC() {
-        alert("Функционал в разработке");
+        var expertCouncilId = $("#ecSelect" + modelId).data("kendoDropDownList").value();
+        if (!expertCouncilId) return alert("Выберите экспертный совет");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SendToEC")',
+            data: {
+                declarationId: '@Model',
+                expertCouncilId: expertCouncilId
+            },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                loadProgram();
+            },
+            error: function (err) {
+                alert("Ошибка: " + err.message);
+            }
+        });
     }
 
 </script>
@@ -31,18 +51,23 @@
                 <div class="panel-body" id="productExpertiseId">
                     <div class="row" style="margin-bottom: 10px">
                         <div class="col-sm-12">
-                            <button id="sendToUobk@(Model)" type="button" class="k-button" onclick="sendToUOBK(event)" hidden>Передать в УОБиК</button>
-                            <div id="sendToECDiv(@Model)" class="form-group" style="display: none">
-                                @(Html.Kendo().DropDownList()
-                                            .Name("ecSelect" + Model)
-                                            .OptionLabel("Выберите Экспертный Совет..")
-                                            .AutoBind(false)
-                                            .DataValueField("Value").DataTextField("Text")
-                                            .DataSource(cf => cf.Read(read => read.Action("ListFutureCouncils", "OBKExpertCouncil")))
-                                            .HtmlAttributes(new { @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
-                                <button type="button" class="k-button" onclick="sendToEC(event)">Отправить в Экспертный совет</button>
+                            <div id="sendToUobk@(Model)" class="form-group" hidden>
+                                <button type="button" class="k-button" onclick="sendToUOBK(event)">Передать в УОБиК</button>
                             </div>
-                            <br /><br />
+                            <div id="sendToEC@(Model)" class="row" hidden>
+                                <div class="form-group col-lg-4">
+                                    @(Html.Kendo().DropDownList()
+                                    .Name("ecSelect" + Model)
+                                    .OptionLabel("Выберите Экспертный Совет..")
+                                    .AutoBind(false)
+                                    .DataValueField("Value").DataTextField("Text")
+                                    .DataSource(cf => cf.Read(read => read.Action("ListFutureCouncils", "OBKExpertCouncil")))
+                                    .HtmlAttributes(new { @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                </div>
+                                <div class="form-group col-lg-4">
+                                    <button type="button" class="k-button" onclick="sendToEC(event)">Отправить в Экспертный совет</button>
+                                </div>
+                            </div>
                             <div class="tabs-container">
                                 <ul class="nav nav-tabs">
                                     <li class="active">

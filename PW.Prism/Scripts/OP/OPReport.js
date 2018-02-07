@@ -193,14 +193,15 @@ function updateReportHtmlVisible() {
         $("#reportOPFilesContainer" + modelId + " .k-dropzone").hide();
         report._html.Result.attr("readonly", "readonly");
     }
-    if (status == "show-e-confirmed" && report.ExecuteResultCode == "1") {
-        $("#sendToUobk" + modelId).show();
-        $("#sendToECDiv" + modelId).hide();
-    }
-    else if (status == "show-e-confirmed") {
-        $("#sendToUobk" + modelId).hide();
-        $("#sendToECDiv" + modelId).show();
-    }
+    if (report.StatusCode == "OPReportConfirmed" && isAssessmentExecutor)
+        if (report.ExecuteResultCode == "1") {
+            $("#sendToUobk" + modelId).show();
+            $("#sendToEC" + modelId).hide();
+        }
+        else {
+            $("#sendToUobk" + modelId).hide();
+            $("#sendToEC" + modelId).show();
+        }
     $("." + status).show();
 }
 
