@@ -11,11 +11,19 @@ namespace PW.Prism.Controllers.OBK_OP
 {
     public class OPController : Controller
     {
+        public readonly Guid UOBK = new Guid("f5eb95b6-fdf0-4f5a-afb6-85839419aa93");
+
+
         public ncelsEntities repo = new ncelsEntities();
 
         // GET: OP
         public ActionResult Index(Guid id)
         {
+            var userId = UserHelper.GetCurrentEmployee().Id;
+            ViewBag.IsExecutor = repo.OBK_AssessmentStageExecutors
+                .Any(x => x.OBK_AssessmentStage.DeclarationId == id
+                          && x.OBK_AssessmentStage.OBK_Ref_Stage.Code == "15"
+                          && x.ExecutorId == userId);
             return PartialView(id);
         }
 
@@ -43,19 +51,22 @@ namespace PW.Prism.Controllers.OBK_OP
 
             var executor = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.AssessmentStageId == declarationStage.Id && x.ExecutorType == 1);
 
+            var employeeIdstr = repo.Units.Where(x => x.Id == UOBK).Select(x => x.BossId).FirstOrDefault();
+            var employeeId = new Guid(employeeIdstr);
+
             if (executor == null)
             {
                 executor = new OBK_AssessmentStageExecutors
                 {
                     AssessmentStageId = declarationStage.Id,
-                    ExecutorId = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784"),
+                    ExecutorId = employeeId,
                     ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                 };
                 repo.OBK_AssessmentStageExecutors.Add(executor);
             }
             else
             {
-                executor.ExecutorId = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                executor.ExecutorId = employeeId;
             }
 
             var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == 15);
@@ -71,6 +82,47 @@ namespace PW.Prism.Controllers.OBK_OP
 
             repo.SaveChanges();
             return Json(new { isSuccess = true });
+        }
+
+        public ActionResult SendToEC(Guid declarationId, int expertCouncilId)
+        {
+            try
+            {
+                var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.OBK_Ref_Stage.Code == "15");
+                stage.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportOnEC").Select(x => x.Id).Single();
+
+                var relationship = repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    .FirstOrDefault(x => x.DeclarationId == declarationId && x.ExpertCouncilId == expertCouncilId);
+                if (relationship == null)
+                {
+                    var newRel = new OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    {
+                        DeclarationId = declarationId,
+                        ExpertCouncilId = expertCouncilId
+                    };
+                    repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil.Add(newRel);
+                }
+
+                var report = repo.OBK_AssessmentReportOP.FirstOrDefault(x => x.DeclarationId == declarationId);
+                report.StageStatusId = repo.OBK_Ref_StageStatus
+                    .Where(x => x.Code == "OPReportCompleted")
+                    .Select(x => x.Id)
+                    .FirstOrDefault();
+
+                repo.SaveChanges();
+
+                return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
         }
 
     }
