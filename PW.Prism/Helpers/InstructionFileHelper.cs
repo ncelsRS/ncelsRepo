@@ -13,6 +13,27 @@ namespace PW.Prism.Helpers
     /// </summary>
     public static class InstructionFileHelper
     {
+        public static int GetInstructionFileCount(int instructionid)
+        {
+            int dbFields = 0;
+            var conString = GetConnectionString();
+            var queryString = "SELECT COUNT(*) FROM register_nd WHERE nd_file_type_id=1 AND register_id = @instructionid";
+            using (SqlConnection con = new SqlConnection(conString))
+            {
+                SqlCommand command = new SqlCommand(queryString, con);
+                command.Parameters.AddWithValue("@instructionid", instructionid);
+                con.Open();
+                SqlDataReader reader = command.ExecuteReader(); 
+                while (reader.Read())
+                {
+                    dbFields = reader.FieldCount;
+                    break;
+                }
+                reader.Close();
+            }
+            return dbFields;
+        }
+
         public static byte[] GetInstructionFile(int instructionid)
         {
             byte[] fileBytes = null;

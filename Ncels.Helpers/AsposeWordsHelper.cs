@@ -13,7 +13,7 @@ namespace Ncels.Helpers
 {
     public static class AsposeWordsHelper
     {
-        public static void ReplaceText(this Aspose.Words.Document doc, Dictionary<string, string> templateItems)
+        public static void ReplaceText(this Document doc, Dictionary<string, string> templateItems)
         {
             if (templateItems == null) return;
             foreach (var templateItem in templateItems)

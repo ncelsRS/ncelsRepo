@@ -241,6 +241,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult SendToReseachCenter(OBKTaskResearchCenter taskResearchCenter)
         {
             var result = repo.SendToReseachCenter(taskResearchCenter);
+            //repo.GenericNumber(taskResearchCenter.TaskId);
             return Json(new { isSuccess = result });
         }
 
@@ -405,6 +406,12 @@ namespace PW.Prism.Controllers.OBKTask
             repo.SaveSubTaskRemark(stis);
             return Json(new { isSuccess = true });
         }
+        [HttpPost]
+        public ActionResult GetInstuctionCount(int registerId)
+        {
+            var instructionCount = InstructionFileHelper.GetInstructionFileCount(registerId);
+            return Json(instructionCount, JsonRequestBehavior.AllowGet);
+        }
 
         /// <summary>
         /// Полчение файла АНД
@@ -419,15 +426,16 @@ namespace PW.Prism.Controllers.OBKTask
         }
 
         [Authorize]
-        public ActionResult SubTaskProtokol(Guid tmId)
+        public ActionResult SubTaskProtokol(int psId)
         {
             string templatePath;
             Dictionary<string, string> templateData;
             templatePath = Server.MapPath("~/Reports/Mrts/OBK/TaskProtocol.docx");
             var doc = new Aspose.Words.Document(templatePath);
-            templateData = repo.GetTaskTemplateData(tmId);
-            repo.GetTaskTemplateTableData(doc, tmId);
+            templateData = repo.GetTaskTemplateData(psId);
+            repo.GetTaskTemplateTableData(doc, psId);
             templateData.Add("PageCount", doc.PageCount.ToString());
+            templateData.Add("SubTaskResult", repo.GetResultTaskMaterila(psId) ? "<u>соответствуют</u>/не соответствуют" : "соответствуют/<u>не соответствуют</u>");
             doc.ReplaceText(templateData);
             var file = new MemoryStream();
             doc.Save(file, SaveFormat.Docx);
