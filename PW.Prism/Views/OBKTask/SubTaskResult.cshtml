@@ -30,7 +30,17 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="form-group">
-                    <a href="@Url.Action("GetInstruction","OBKTask", new { registerId = Model.RegisterId})">Скачать АНД</a>
+                    @*<a href="@Url.Action("GetInstruction","OBKTask", new { registerId = Model.RegisterId})">Скачать АНД</a>*@
+                    <div class="row">
+                        <div class="col-lg-12">
+                            @*<div>&nbsp;</div>
+                            <label>Инструкции</label>*@
+                            <div id="noinstructions_@Model.Id" style="display: none">
+                                <span>Нет доступных инструкций</span>
+                            </div>
+                            <ul id="listinstructions_@Model.Id" style="display: none"></ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -77,8 +87,8 @@
                                     <div class="col-lg-12">
                                         @if (Model.Type == "create")
                                         {<button type="button" class="btn btn-default" id="saveResultBtn" onclick="saveResult()">Сохранить</button>}
-                                        else
-                                        {<button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("SubTaskProtokol", "OBKTask", new { tmid = Model.Id})'">Печатная форма протокола</button>}
+                                        @*else
+                                        {<button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("SubTaskProtokol", "OBKTask", new { tmid = Model.Id})'">Печатная форма протокола</button>}*@
                                         <button type="button" class="btn btn-default" onclick="signBtn()">Подписать</button>
                                         <button type="button" class="btn btn-default">Отмена</button>
                                     </div>
@@ -274,6 +284,35 @@
 
 
 <script>
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetInstuctionCount", "OBKTask")',
+            data: { 'registerId': '@Model.RegisterId' },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data > 0) {
+                    $("#listinstructions_@Model.Id").empty();
+                    $("#listinstructions_@Model.Id").append('<li><a href="/OBKContract/GetInstruction?registerId=' + '@Model.RegisterId' + '">' + 'Скачать АНД' + '</a></li>');
+
+                    $("#noinstructions_@Model.Id").hide();
+                    $("#listinstructions_@Model.Id").show();
+                }
+                else {
+                    $("#listinstructions_@Model.Id").empty();
+                    $("#noinstructions_@Model.Id").show();
+                    $("#listinstructions_@Model.Id").hide();
+                }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    });
+
     if('@Model.Regulation.IsNullOrWhiteSpace()' === 'False'){$("#textRegulation").val('@Model.Regulation')}
     if ('@Model.Type' === 'create') { $("#ExpertiseResult").val(''); }
 
@@ -550,14 +589,4 @@
             }
         });
     }
-
-    @*function showsubTaskProtokol() {
-        $.ajax({
-            type: 'GET',
-            url: '/OBKTask/SubTaskProtokol?tmId=' + '@Model.Id',
-            cache: false,
-            success: function (data) {
-            }
-        });
-    }*@
 </script>

@@ -33,5 +33,10 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const string AccountantCode = "accounting";
 
+        /// <summary>
+        /// Отдел снабжения
+        /// </summary>
+        public const string SupplyDivision = "supplyDivision";
+
     }
 }

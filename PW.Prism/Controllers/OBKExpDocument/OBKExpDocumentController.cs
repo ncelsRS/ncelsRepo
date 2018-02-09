@@ -682,6 +682,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ShowSignBtn(Guid adId)
+        {
+            var result = expRepo.GetValidShowSignBtn(adId);
+            return Json(new {isSuccess = result }, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
     }
 }

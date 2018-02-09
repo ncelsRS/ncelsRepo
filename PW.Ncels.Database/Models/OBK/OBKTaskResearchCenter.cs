@@ -20,6 +20,7 @@ namespace PW.Ncels.Database.Models.OBK
         public bool IsShow { get; set; }
         public int ExecutorCode { get; set; }
         public bool ChiefSign { get; set; }
+        public string StatusCode { get; set; }
         public IEnumerable<SelectListItem> StorageConditions { get; set; }
         public IEnumerable<SelectListItem> ExternalConditions { get; set; }
         public IEnumerable<SelectListItem> Researchcenters { get; set; }

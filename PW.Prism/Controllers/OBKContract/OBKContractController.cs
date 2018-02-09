@@ -1050,14 +1050,15 @@ namespace PW.Prism.Controllers.OBKContract
         [HttpPost]
         public ActionResult GetInstuctions(int registerId)
         {
-            var instructions = obkRepo.GetInstructions(registerId);
-            return Json(instructions, JsonRequestBehavior.AllowGet);
+            //var instructions = obkRepo.GetInstructions(registerId);
+            var instructionCount = InstructionFileHelper.GetInstructionFileCount(registerId);
+            return Json(instructionCount, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetInstruction(int registerId)
         {
             var name = "doc_" + registerId + ".zip";
-            var file = obkRepo.GetInstructionFile(registerId);
+            var file = InstructionFileHelper.GetInstructionFile(registerId);
             return File(file, System.Net.Mime.MediaTypeNames.Application.Octet, name);
         }
 
