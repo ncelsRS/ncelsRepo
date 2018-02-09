@@ -18,6 +18,7 @@ using PW.Ncels.Database.Repository.Security;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace PW.Prism.Controllers.OBK
 {
@@ -172,34 +173,9 @@ namespace PW.Prism.Controllers.OBK
             return PartialView(null);
         }
 
-        public ActionResult GetActReception(Guid id)
-        {
-            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
-            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
-            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == stage.OBK_AssessmentDeclaration.Id);
-            if (model == null)
-            {
-                model = new OBK_ActReception();
-            }
 
-            ViewData["AssessmentDeclarationId"] = declaration.Id;
-            ViewData["ContractId"] = declaration.ContractId;
 
-            if (declaration.ApplicantAgreement == true)
-            {
-                var expDocResult = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == declaration.Id);
-                ViewData["expDocResult"] = expDocResult;
-                return PartialView("ExpertActReception", model);
-            }
 
-            if (stage != null)
-            {
-                ViewData["ProductSampleList"] =
-                    new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
-            }
-
-            return PartialView("ActReception", model);
-        }
 
         public ActionResult LoadActData(Guid id, Guid AssessmentDeclarationId)
         {
@@ -543,6 +519,51 @@ namespace PW.Prism.Controllers.OBK
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult RequestSamples(Guid? declarationId)
+        {
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
+
+            NotificationManager notification = new NotificationManager();
+
+            var text = "Уведомляем Вас о том, что необходимо предоставить образцы в ЦОЗ.";
+            notification.SendNotificationFromCompany(text, ObjectType.ObkDeclaration, declaration.Id.ToString(), declaration.EmployeeId);
+
+            return Json(new { Success = true });
+        }
+
+        #region Акт отбора
+        public ActionResult SaveProductSeries(string productSeries, Guid actReceptionId)
+        {
+            var format = "dd.MM.yyyy"; // your datetime format
+            var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
+            var series = JsonConvert.DeserializeObject<List<SerieProduct>>(productSeries, dateTimeConverter).ToList();
+            repository.SaveProductSeries(series, actReceptionId);
+            return Json("");
+        }
+
+        public ActionResult GetProduct(int productId)
+        {
+            var data = db.OBK_RS_Products.FirstOrDefault(o => o.Id == productId);
+            if (data == null)
+            {
+                return Json(new { success = false });
+            }
+            return Json(new { success = true, name = data.DrugFormFullName, producer = data.ProducerNameRu });
+        }
+
+        public ActionResult GetSerialActs([DataSourceRequest] DataSourceRequest request, Guid assessmentId)
+        {
+            var data = db.OBK_ActReception.Where(o => o.OBK_AssessmentDeclarationId == assessmentId).Select(o => new
+            AddedAct{
+                Id = o.Id,
+                ActDate = o.ActDate,
+                Number = o.Number,
+                Worker = o.Worker
+            });
+
+            return Json(data.ToDataSourceResult(request));
+        }
+
         public ActionResult ExpertActData(Guid assessmentId)
         {
             var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == assessmentId);
@@ -570,11 +591,6 @@ namespace PW.Prism.Controllers.OBK
                 db.SaveChanges();
             }
 
-            if (model.AttachPath == null)
-            {
-                //model.AttachPath = 
-            }
-
             var safetyRepository = new SafetyAssessmentRepository();
 
             ViewData["ProductSampleList"] =
@@ -596,6 +612,137 @@ namespace PW.Prism.Controllers.OBK
                 new SelectList(safetyRepository.OBKApplicants(), "Id", "NameRU");
 
             return PartialView(model);
+        }
+
+        public ActionResult GetActReception(Guid id)
+        {
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == stage.OBK_AssessmentDeclaration.Id);
+            if (model == null)
+            {
+                model = new OBK_ActReception();
+            }
+
+            ViewData["AssessmentDeclarationId"] = declaration.Id;
+            ViewData["ContractId"] = declaration.ContractId;
+
+            if (declaration.ApplicantAgreement == true)
+            {
+                var expDocResult = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == declaration.Id);
+                ViewData["expDocResult"] = expDocResult;
+                return PartialView("ExpertActReception", model);
+            }
+
+            if (stage != null)
+            {
+                ViewData["ProductSampleList"] =
+                    new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
+            }
+
+            return PartialView("ActReception", model);
+        }
+
+        public ActionResult DocumentReadSeries(string filePath)
+        {
+            OBKCertificateFileModel fileModel = new OBKCertificateFileModel()
+            {
+                AttachPath = filePath,
+                AttachFiles = UploadHelper.GetFilesInfo(filePath, false)
+            };
+
+            return Content(JsonConvert.SerializeObject(fileModel, Formatting.Indented, new JsonSerializerSettings() { DateFormatString = "dd.MM.yyyy HH:mm" }));
+
+        }
+
+        public ActionResult SerialActData(Guid? assessmentId)
+        {
+            var assessment = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == assessmentId);
+            var numberCount = db.OBK_ActReception.Where(o => o.OBK_AssessmentDeclarationId == assessmentId).Count();
+
+            ViewData["ContractId"] = assessment.ContractId;
+            ViewData["AttachPath"] = FileHelper.GetObjectPathRoot();
+
+            var model = new OBK_ActReception();
+            model.Id = Guid.NewGuid();
+            var exp = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == assessmentId);
+
+            model.Number = assessment.Number + "-" + (numberCount + 1);
+            model.OBK_AssessmentDeclarationId = assessmentId;
+            var employee = db.Employees.FirstOrDefault(o => o.Id == assessment.EmployeeId);
+            model.Declarer = employee.DisplayName;
+
+            var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assessment.ContractId);
+            model.Producer = product.ProducerNameRu;
+
+            ViewData["ProductSampleList"] =
+                new SelectList(repository.GetProductSamples(), "Id", "Name");
+
+            ViewData["InspectionInstalledList"] =
+                new SelectList(repository.GetInspectionInstalls(), "Id", "Name");
+
+            ViewData["PackageConditionList"] =
+                new SelectList(repository.GetPackageConditions(), "Id", "Name");
+
+            ViewData["StorageConditionsList"] =
+                new SelectList(repository.GetStorageConditions(), "Id", "Name");
+
+            ViewData["MarkingList"] =
+                new SelectList(repository.GetMarkings(), "Id", "Name");
+
+            ViewData["OBKApplicants"] =
+                new SelectList(repository.OBKApplicants(), "Id", "NameRU");
+
+            ViewData["ProductList"] =
+               new SelectList(repository.OBKContractProducts(assessment.ContractId, model.Id), "Id", "DrugFormFullName");
+
+            return PartialView(model);
+        }
+
+        public ActionResult GetSerialActReception(Guid id)
+        {
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
+
+            ViewData["AssessmentDeclarationId"] = declaration.Id;
+            ViewData["ContractId"] = declaration.ContractId;
+
+            return PartialView("SerialActReception", Guid.NewGuid());
+        }
+
+        public ActionResult EditSerialActData(Guid actReceptionId, Guid contractid)
+        {
+            var model = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+
+            ViewData["ProductSampleList"] =
+           new SelectList(repository.GetProductSamples(), "Id", "Name");
+
+            ViewData["InspectionInstalledList"] =
+                new SelectList(repository.GetInspectionInstalls(), "Id", "Name");
+
+            ViewData["PackageConditionList"] =
+                new SelectList(repository.GetPackageConditions(), "Id", "Name");
+
+            ViewData["StorageConditionsList"] =
+                new SelectList(repository.GetStorageConditions(), "Id", "Name");
+
+            ViewData["MarkingList"] =
+                new SelectList(repository.GetMarkings(), "Id", "Name");
+
+            ViewData["OBKApplicants"] =
+                new SelectList(repository.OBKApplicants(), "Id", "NameRU");
+
+            ViewData["ProductList"] =
+               new SelectList(repository.OBKContractProducts(contractid, model.Id), "Id", "DrugFormFullName");
+
+            return PartialView("SerialActData", model);
+
+        }
+
+        public ActionResult SaveSerialExpertActReception(OBK_ActReception reception, string actDate)
+        {
+            repository.SaveSerialExpertActReception(reception, actDate);
+            return Json(new { success = true, worker = reception.Worker });
         }
 
         public ActionResult SaveExpertActReception(OBK_ActReception reception, string actDate)
@@ -622,7 +769,7 @@ namespace PW.Prism.Controllers.OBK
             model.WorkerId = employee.Id;
             db.SaveChanges();
 
-            return Json(new { success = true, worker = model.Worker});
+            return Json(new { success = true, worker = model.Worker });
         }
 
         public ActionResult DeleteExpertActReception(Guid? actReceptionId)
@@ -652,6 +799,12 @@ namespace PW.Prism.Controllers.OBK
             return Json(new { success = true });
         }
 
+        public ActionResult DeleteSerialActReception(Guid? actReceptionId)
+        {
+            repository.DeleteSerialActReception(actReceptionId);
+            return Json(new { success = true });
+        }
+
         public ActionResult GetSamples2(Guid? Id)
         {
             SafetyAssessmentRepository repository = new SafetyAssessmentRepository();
@@ -660,6 +813,19 @@ namespace PW.Prism.Controllers.OBK
             {
                 var result = repository.GetProductSeries(Id).AsEnumerable().ToArray();
                 return Json(new { isSuccess = true, data = result });
+
+            }
+
+            return Json(new { isSuccess = false });
+
+        }
+
+        public ActionResult GetSerialSamples(Guid? actReceptionId)
+        {
+            if (actReceptionId != null)
+            {
+                var result = repository.GetSeriaProductSeries(actReceptionId).AsEnumerable().ToArray();
+                return Json(new { isSuccess = true, list = result });
 
             }
 
@@ -677,6 +843,12 @@ namespace PW.Prism.Controllers.OBK
             return PartialView("MeasureSelectView", measureId);
         }
 
+        public ActionResult MeasureSelectList([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = repository.GetMeasures().Select(o => new { Id = o.id, Name = o.name }).OrderBy(o => o.Name);
+            return Json(new { success = true, list = data.ToList() });
+        }
+
         public ActionResult MeasureSelect2(int measureId, Guid assessmentId, int? serieId)
         {
             var safetyRepository = new SafetyAssessmentRepository();
@@ -688,25 +860,21 @@ namespace PW.Prism.Controllers.OBK
             return PartialView("MeasureSelectView", serieId);
         }
 
-        public ActionResult RequestSamples(Guid? declarationId)
-        {
-            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
-
-            NotificationManager notification = new NotificationManager();
-
-            var text = "Уведомляем Вас о том, что необходимо предоставить образцы в ЦОЗ.";
-            notification.SendNotificationFromCompany(text, ObjectType.ObkDeclaration, declaration.Id.ToString(), declaration.EmployeeId);
-
-            return Json(new { Success = true });
-        }
-
-        public ActionResult PrintActReception(Guid contractId, Guid actReceptionId, bool view)
+        public ActionResult PrintActReception(Guid contractId, Guid actReceptionId, bool view, bool serial = false)
         {
             var db = new ncelsEntities();
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBK/ObkActReception.mrt"));
+                if (serial == true)
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/OBKSerialActReception.mrt"));
+                }
+                else
+                {
+                    report.Load(Server.MapPath("~/Reports/Mrts/OBK/ObkActReception.mrt"));
+                }
+
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -738,7 +906,7 @@ namespace PW.Prism.Controllers.OBK
 
         }
 
-        public ActionResult ActTemplate(Guid actReceptionId)
+        public ActionResult ActTemplate(Guid actReceptionId, bool serial = false)
         {
             var act = db.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
 
@@ -746,10 +914,18 @@ namespace PW.Prism.Controllers.OBK
 
             ViewData["ContractId"] = declaration.ContractId;
             ViewData["ActReceptionId"] = actReceptionId;
-
+            if (serial)
+            {
+                ViewData["Serial"] = "true";
+            }
+            else
+            {
+                ViewData["Serial"] = "false";
+            }
+            
             return PartialView("ActTemplate");
         }
-
+        #endregion
 
         #region Архив
         public ActionResult Archive()
