@@ -652,9 +652,8 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (ad.OBK_Ref_Type.Code)
             {
                 case CodeConstManager.OBK_SA_PARTY:
-                    return PartyExpertiseConclusionPositive(productSeriesId, ad);
                 case CodeConstManager.OBK_SA_SERIAL:
-                    break;
+                    return PartyExpertiseConclusionPositive(productSeriesId, ad);               
                 case CodeConstManager.OBK_SA_DECLARATION:
                     break;
             }
@@ -937,6 +936,21 @@ namespace PW.Ncels.Database.Repository.OBK
             return unit.Parent.Id;
         }
 
+        public bool GetValidShowSignBtn(Guid adId)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == adId);
+            if (ad == null) return false;
+            foreach (var p in ad.OBK_Contract.OBK_RS_Products)
+            {
+                foreach (var ps in p.OBK_Procunts_Series)
+                {
+                    var sed = ps.OBK_StageExpDocument.FirstOrDefault(e => e.ProductSeriesId == ps.Id);
+                    if (sed == null)
+                        return false;
+                }
+            }
+            return true;
+        }
 
         #endregion
 

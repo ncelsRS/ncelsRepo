@@ -86,6 +86,7 @@
                     $('.form-disabled').each(function () {
                         $(this).attr('disabled', true);
                     });
+                    showEcSignBtn();
                     @*$('#createNegativeResult_@Model.ProductSeriesId').attr('disabled', true);
                     $('#showPdfNegativeResult_@Model.ProductSeriesId').removeAttribute('disabled');*@
                 } else {
@@ -93,6 +94,39 @@
                 }
             }
         });
+    }
+
+    function showEcSignBtn() {
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/ShowSignBtn',
+            data: { adId: '@Model.AssessmentDeclarationId' },
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    $("#ecSignBtn_@Model.AssessmentDeclarationId").show();
+                    btnHide('hide');
+                } else {
+                    $("#ecSignBtn_@Model.AssessmentDeclarationId").hide();
+                    btnHide('show');
+                }
+            }
+        });
+    }
+
+    function btnHide(code) {
+        switch (code) {
+        case "hide":
+            $("#result_@Model.AssessmentDeclarationId").hide();
+            $("#showResult_@Model.AssessmentDeclarationId").show();
+            $("#showPdfResult_@Model.AssessmentDeclarationId").show();
+            break;
+        case "show":
+            $("#result_@Model.AssessmentDeclarationId").show();
+            $("#showResult_@Model.AssessmentDeclarationId").hide();
+            $("#showPdfResult_@Model.AssessmentDeclarationId").hide();
+            break;
+        }
     }
 
     function closeExpConclusionNegative() {
