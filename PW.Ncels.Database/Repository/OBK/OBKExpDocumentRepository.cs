@@ -20,6 +20,7 @@ using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Notifications;
+using static PW.Ncels.Database.Constants.CodeConstManager;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -719,6 +720,10 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
 
+                    var blankNumber = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == model.Id);
+                    blankNumber.Number = int.Parse(ecp.ecBlankNumber);
+                    blankNumber.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+
                     AppContext.SaveChanges();
                     return true;
                 }
@@ -746,6 +751,20 @@ namespace PW.Ncels.Database.Repository.OBK
                     //AppContext.OBK_StageExpDocumentResult.Add(sedr);
                     AppContext.OBK_StageExpDocument.Add(sed);
                     AppContext.SaveChanges();
+
+                    var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => BlankTypes.ZBK.Equals(o.Code));
+
+                    var blankNumber = new OBK_BlankNumber();
+                    blankNumber.Id = Guid.NewGuid();
+                    blankNumber.Number = int.Parse(ecp.ecBlankNumber);
+                    blankNumber.CreateDate = DateTime.Now;
+                    blankNumber.Object_Id = sed.Id;
+                    blankNumber.BlankTypeId = blankType.Id;
+                    blankNumber.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+                    blankNumber.Corrupted = false;
+                    AppContext.OBK_BlankNumber.Add(blankNumber);
+                    AppContext.SaveChanges();
+
                     return true;
                 }
             }
