@@ -706,6 +706,13 @@ namespace PW.Prism.Controllers.OBK
 
             ViewData["AssessmentDeclarationId"] = declaration.Id;
             ViewData["ContractId"] = declaration.ContractId;
+            
+            var stageStatus = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            if (OBK_Ref_StageStatus.RequiresConclusion.Equals(stageStatus.Code) )
+            {
+                ViewData["HideAdd"] = true;
+            }
+            
 
             return PartialView("SerialActReception", Guid.NewGuid());
         }
