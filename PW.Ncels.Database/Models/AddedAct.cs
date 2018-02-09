@@ -7,6 +7,7 @@ namespace PW.Ncels.Database.Models
     {
         public string Number { get; set; }
         public string Worker { get; set; }
-        public string ActDate { get; set; }
+        public DateTime? ActDate { get; set; }
+        public Guid Id { get; set; }
     }
 }

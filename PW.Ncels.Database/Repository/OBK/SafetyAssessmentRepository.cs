@@ -125,9 +125,9 @@ namespace PW.Ncels.Database.Repository.OBK
         /// Показать список продуктов
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OBK_RS_Products> OBKContractProducts(Guid? contractId)
+        public IEnumerable<OBK_RS_Products> OBKContractProducts(Guid? contractId, Guid? actReception)
         {
-            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId).ToList();
+            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId && (o.ActReceptionId == null || o.ActReceptionId == actReception)).ToList();
         }
 
 
@@ -1063,7 +1063,7 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             declarant.ReceiverFIO = receiverFio;
             declarant.ReceivedDate = receivedDate;
-         
+
             AppContext.SaveChanges();
         }
 
@@ -1099,6 +1099,118 @@ namespace PW.Ncels.Database.Repository.OBK
                 StartDate = o.StartDate,
                 additionalType = o.Dictionary.Name
             });
+        }
+
+        public void DeleteSerialActReception(Guid? actReceptionId)
+        {
+            var forUpdateAct = AppContext.OBK_RS_Products.Where(o => o.ActReceptionId == actReceptionId).ToList();
+            foreach (var temp in forUpdateAct)
+            {
+                temp.UsedInSerie = null;
+                temp.ActReceptionId = null;
+            }
+
+            var forDeleteProductsIdes = forUpdateAct.Select(o => o.Id).ToList();
+            var forDeleteSeries = AppContext.OBK_Procunts_Series.Where(o => forDeleteProductsIdes.Contains(o.OBK_RS_ProductsId)).ToList();
+            AppContext.OBK_Procunts_Series.RemoveRange(forDeleteSeries);
+            AppContext.SaveChanges();
+
+            var act = AppContext.OBK_ActReception.FirstOrDefault(o => o.Id == actReceptionId);
+            AppContext.OBK_ActReception.Remove(act);
+            AppContext.SaveChanges();
+        }
+        #endregion
+
+        #region Акт отбора
+        public void SaveProductSeries(List<SerieProduct> productSeries, Guid actReceptionId)
+        {
+            //Удаляем
+            var forUpdateAct = AppContext.OBK_RS_Products.Where(o => o.ActReceptionId == actReceptionId).ToList();
+            foreach(var temp in forUpdateAct)
+            {
+                temp.UsedInSerie = null;
+                temp.ActReceptionId = null;
+            }
+
+            var forDeleteProductsIdes = forUpdateAct.Select(o => o.Id).ToList();
+            var forDeleteSeries = AppContext.OBK_Procunts_Series.Where(o => forDeleteProductsIdes.Contains(o.OBK_RS_ProductsId)).ToList();
+            AppContext.OBK_Procunts_Series.RemoveRange(forDeleteSeries);
+            AppContext.SaveChanges();
+
+            //Записываем
+            var productIdes = productSeries.Select(o => o.ProductId).ToList();
+            var products = AppContext.OBK_RS_Products.Where(o => productIdes.Contains(o.Id)).ToList();
+
+            foreach (var temp in products)
+            {
+                temp.UsedInSerie = true;
+                temp.ActReceptionId = actReceptionId;
+            }
+
+            AppContext.SaveChanges();
+
+            foreach (var temp in productSeries)
+            {
+                OBK_Procunts_Series serie = new OBK_Procunts_Series()
+                {
+                    Series = temp.serie,
+                    SeriesStartdate = temp.startDate,
+                    SeriesEndDate = temp.endDate,
+                    SeriesParty = temp.serieParty,
+                    OBK_RS_ProductsId = temp.ProductId,
+                    SeriesMeasureId = temp.MeasureId,
+                    Quantity = temp.quantity,
+                };
+
+                AppContext.OBK_Procunts_Series.Add(serie);
+            }
+
+            AppContext.SaveChanges();
+        }
+
+        public void SaveSerialExpertActReception(OBK_ActReception reception, string actDate)
+        {
+            DateTime? actD = null;
+            if (actDate != null || !actDate.Equals(""))
+            {
+                actD = DateTime.Parse(actDate);
+            }
+            reception.ActDate = actD;
+            var employee = UserHelper.GetCurrentEmployee();
+            reception.Worker = employee.FullName;
+            reception.WorkerId = employee.Id;
+            AppContext.OBK_ActReception.AddOrUpdate(reception);
+
+            AppContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Показать список c проставлением дополнительной информации по владельцу
+        /// </summary>
+        /// <param name="employeeId">владелец</param>
+        /// <returns></returns>
+        public IQueryable<object> GetSeriaProductSeries(Guid? actReceptionId)
+        {
+            var data = from series in AppContext.OBK_Procunts_Series
+                       join product in AppContext.OBK_RS_Products on series.OBK_RS_ProductsId equals product.Id
+                       join contract in AppContext.OBK_Contract on product.ContractId equals contract.Id
+                       join measure in AppContext.sr_measures on series.SeriesMeasureId equals measure.id
+                       where product.ActReceptionId == actReceptionId
+                       select new
+                       {
+                           serieId = series.Id,
+                           name = product.DrugFormFullName != null ? product.DrugFormFullName : product.NameRu,
+                           measure = measure.name,
+                           measureId = series.SeriesMeasureId,
+                           serie = series.Series,
+                           serieParty = series.SeriesParty,
+                           seriesStartDate = series.SeriesStartdate,
+                           seriesEndDate = series.SeriesEndDate,
+                           quantity = series.Quantity,
+                           producerName = product.ProducerNameRu,
+                           productId = product.Id
+                       };
+            return data;
         }
         #endregion
     }

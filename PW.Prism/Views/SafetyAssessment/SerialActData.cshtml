@@ -206,7 +206,7 @@ new
                     <div class="row" style="margin-top:30px;">
                         <div class="col-lg-12">
                             <a href="#" onclick="saveExpertAct(event)" id="viewActDataBtn" class="k-button" style="background-color: #0066cc; width:130px; color: white;font-weight: 700;">Сохранить</a>
-                            <a class="k-button" onclick="closeAct(event)" data-dismiss="modal" style="background-color: #3399ff; width:150px; color: white;font-weight: 700;">Отменить</a>
+                            <a class="k-button" data-dismiss="modal" style="background-color: #3399ff; width:150px; color: white;font-weight: 700;">Отменить</a>
                         </div>
                     </div>
                     <span id="popupNotification"></span>
@@ -254,7 +254,26 @@ new
 
     $('input[name="files"]').attr('id', 'files' + fileId);
 
-    InitializeActRecepttionFile(fileId);
+    var addedProducts = [];
+    var measureList = [];
+
+    $(document).ready(function ()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/MeasureSelectList/',
+            success: function (data)
+            {
+                if (data.success == true)
+                {
+                    measureList = data.list;
+                    getSamples();
+                }
+            }
+        });
+
+        InitializeSerialActRecepttionFile(fileId, '@ViewData["AttachPath"]');
+    })
 
     var popupNotification = $("#popupNotification").kendoNotification({
         position: {
@@ -266,7 +285,7 @@ new
         }
     });
 
-    var addedProducts = [];
+    
     function addProduct()
     {
         var productId = $("#product" + "@Model.Id").val();
@@ -307,23 +326,18 @@ new
                         $("#start-" + productId).kendoDatePicker();
                         $("#end-" + productId).kendoDatePicker();
 
-                        $.ajax({
-                            type: 'POST',
-                            url: '/SafetyAssessment/MeasureSelectList/',
-                            success: function (data)
-                            {
-                                if (data.success == true){
-                                    $("#measure-" + productId).kendoDropDownList({
-                                        autoBind: false,
-                                        minLength: 3,
-                                        dataTextField: "Name",
-                                        dataValueField: "Id",
-                                        dataSource: data.list,
-                                        filter: "contains",
-                                    });
-                                }
-                            }
-                        });
+                        
+                        if (data.success == true){
+                            $("#measure-" + productId).kendoDropDownList({
+                                autoBind: false,
+                                minLength: 3,
+                                dataTextField: "Name",
+                                dataValueField: "Id",
+                                dataSource: measureList,
+                                filter: "contains",
+                            });
+                        }
+                        
 
                     }
                 }
@@ -342,11 +356,6 @@ new
         var row = table.row($(element).parents('tr'));
         row.remove().draw();
 
-    }
-
-    function closeAct()
-    {
-        deleteAct();
     }
 
     function deleteAct()
@@ -381,20 +390,29 @@ new
 
         var result = true;
         var $j_object = $(".act-input-control-" + '@Model.Id');
-
         $j_object.each(function () {
-           var ch = $(this).val();
-           if (ch === "") {
-               result = false;
+            if ($(this).is("input"))
+            {
+                var ch = $(this).val();
+                if (ch === "")
+                {
+                    result = false;
+                }
             }
+
         });
 
         var $m_object = $(".act-select-control-"+'@Model.Id');
         $m_object.each(function () {
-           var ch = $(this).val();
-           if (ch === "") {
-               result = false;
+            if ($(this).is("input"))
+            {
+                var ch = $(this).val();
+                if (ch === "")
+                {
+                    result = false;
+                }
             }
+
         });
 
         if (result == false){
@@ -429,9 +447,8 @@ new
           return;
           } else
           {
-              debugger;
-        //SaveExpertActReception();
-        saveProductSeries();
+
+        SaveExpertActReception();
         }
     }
 
@@ -441,7 +458,7 @@ new
         var number = $("#Number").val();
         $.ajax({
             type : 'POST',
-            url : '/SafetyAssessment/SaveExpertActReception/',
+            url: '/SafetyAssessment/SaveSerialExpertActReception/',
             data: {
                 reception : {
                     Id: '@Model.Id',
@@ -457,6 +474,8 @@ new
                     AttachPath: $("#AttachPath").val(),
                     Declarer: $("#Declarer").val(),
                     ProductSamplesId: $("#ProductSamplesId").val(),
+                    OBK_AssessmentDeclarationId: '@Model.OBK_AssessmentDeclarationId',
+                    Number: '@Model.Number'
                 },
                 actDate : actDate
             },
@@ -464,7 +483,9 @@ new
                 if (data.success == true)
                 {
                     $("#modal" + $("#ActReceptionId").val()).modal("hide");
-                    getSerialActs();
+                    //reInitSerialActs();
+                    reloadAddedActs();
+                    saveProductSeries();
                 }
             }
         });
@@ -477,7 +498,6 @@ new
                         searching: false,
                         paging: false,
                         bInfo: false,
-                        data: data.data,
                         "columns": [
                             { data: 'name', sWidth: "50px",title:"Наименование образцов предьявленной продукции"},
                             { data: 'measure', sWidth: "20px",title:"Ед. измерения"},
@@ -493,7 +513,9 @@ new
                         "columnDefs": [
                             { "visible": false, "targets": 9 }
                         ]
-                    });
+        });
+
+        initTableData(data.list);
 
         $("#InspectionInstalledId").change(function () {
         $("#InspectionInstalledContext-text").html($('#InspectionInstalledId').find(":selected").text());
@@ -502,22 +524,77 @@ new
     }
 
 
-    $.ajax({
-        processData: false,
-        type: "POST",
-        url: '/SafetyAssessment/GetSamples2?id=' + '@ViewData["ContractId"]',
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-                if (data.isSuccess) {
-                    initSamplesTable(data);
-            }
-        },
-        error: function (e) {
-            alert("Connection Failed. Please Try Again", e);
-        }
-    });
 
+    function initTableData(list)
+    {
+        for (var i = 0; i < list.length; i++){
+            table.row.add({
+                "name": list[i].name,
+                "measure": "<input id='measure-" + list[i].productId + "' style='width:200px;' class='act-select-control-" + fileId + "'>",
+                "serie": "<input id='serie-" + list[i].productId + "' style='width:50px;' class='act-input-control-" + fileId + "' value='" + list[i].serie +"' >",
+                "serieParty": "<input id='serieParty-" + list[i].productId + "' style='width:50px;' class='act-input-control-" + fileId + "' value='" + list[i].serieParty +"' >",
+                "seriesStartDate": "<input id='start-" + list[i].productId + "' style='width:120px;' class='act-input-control-" + fileId + "'>",
+                "seriesEndDate": "<input id='end-" + list[i].productId + "' style='width:120px;' class='act-input-control-" + fileId + "'>",
+                "producerName": list[i].producerName,
+                "quantity": "<input id='quantity-" + list[i].productId + "' style='width:50px;' class='act-input-control-" + fileId + "'  value='" + list[i].quantity +"' >",
+                "delete": "<a onclick='deleteProduct(" + list[i].productId + ", this)' class='k-button'> Удалить</a>",
+                "productId": list[i].productId
+            })
+
+            table.draw();
+
+            var start = list[i].seriesStartDate;
+            var startDate = new Date(start.split(".")[2] + '-' + start.split(".")[1] + '-' + start.split(".")[0]);
+
+            var end = list[i].seriesEndDate;
+            var endDate = new Date(end.split(".")[2] + '-' + end.split(".")[1] + '-' + end.split(".")[0]);
+
+            $("#start-" + list[i].productId).kendoDatePicker({
+                value: start
+            });
+
+            $("#end-" + list[i].productId).kendoDatePicker({
+                value: endDate
+            });
+
+            $("#measure-" + list[i].productId).kendoDropDownList({
+                autoBind: false,
+                minLength: 3,
+                dataTextField: "Name",
+                dataValueField: "Id",
+                dataSource: measureList,
+                filter: "contains",
+            })
+
+            $("#measure-" + list[i].productId).data('kendoDropDownList').value(list[i].measureId);
+
+            addedProducts.push(String(list[i].productId));
+        }
+    }
+
+
+
+    function getSamples()
+    {
+        $.ajax({
+            processData: false,
+            type: "POST",
+            url: '/SafetyAssessment/GetSerialSamples?actReceptionId=' + '@Model.Id',
+            dataType: 'json',
+            cache: false,
+            success: function (data)
+            {
+                if (data.isSuccess)
+                {
+                    initSamplesTable(data);
+                }
+            },
+            error: function (e)
+            {
+                alert("Connection Failed. Please Try Again", e);
+            }
+        });
+    }
 
     function getSelectBox(serieId, _measureId, _assessmentId) {
 
@@ -566,25 +643,28 @@ function saveProductSeries(){
 
     var productSeries = JSON.stringify(series);
 
-                     $.ajax({
-                        type: "POST",
-                        url: '/SafetyAssessment/SaveProductSeries/',
-                        data: {'productSeries':productSeries, 'actReceptionId':'@Model.Id'},
-                        dataType: 'json',
-                        cache: false,
-                        success: function(data) {
-                            $("#loading").hide();
+    $.ajax({
+        type: "POST",
+        url: '/SafetyAssessment/SaveProductSeries/',
+        data: { 'productSeries': productSeries, 'actReceptionId': '@Model.Id' },
+        dataType: 'json',
+        cache: false,
+        success: function (data)
+        {
+            $("#loading").hide();
 
-                            if(data.Success === true){
-                                $("#commandRow").hide();
-                                $(".avalable-control").attr('disabled', 'disabled');
-                                $(".comment-control").attr('disabled', 'disabled');
-                            }
-                        },
-                        error: function(data) {
-                            alert("1Error" + data);
-                        }
-                        });
+            if (data.Success === true)
+            {
+                $("#commandRow").hide();
+                $(".avalable-control").attr('disabled', 'disabled');
+                $(".comment-control").attr('disabled', 'disabled');
+            }
+        },
+        error: function (data)
+        {
+            alert("1Error" + data);
+        }
+    });
 
 
     }
