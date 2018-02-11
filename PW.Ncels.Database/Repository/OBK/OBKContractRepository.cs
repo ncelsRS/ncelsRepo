@@ -1648,7 +1648,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IQueryable<object> GetExpertOrganizations()
         {
-            var items = AppContext.Units.Where(x => x.Code == "00").Select(x => new
+            var items = AppContext.Units.Where(x => OrganizationConsts.Filials.Contains(x.Code)).Select(x => new
             {
                 Id = x.Id,
                 Name = x.ShortName
