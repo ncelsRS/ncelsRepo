@@ -58,7 +58,8 @@ namespace PW.Ncels.Controllers
 
         public ActionResult SearchDrug(int regType, string drugNumber, string drugTradeName, bool drugEndDateExpired)
         {
-            var list = obkRepo.GetSearchReestr(regType, drugNumber, drugTradeName, drugEndDateExpired);
+            //var list = obkRepo.GetSearchReestr(regType, drugNumber, drugTradeName, drugEndDateExpired);
+            var list = obkRepo.GetSearchYellowReestr(regType, drugNumber, drugTradeName, drugEndDateExpired);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
