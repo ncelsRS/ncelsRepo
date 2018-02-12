@@ -554,7 +554,8 @@ namespace PW.Prism.Controllers.OBK
         public ActionResult GetSerialActs([DataSourceRequest] DataSourceRequest request, Guid assessmentId)
         {
             var data = db.OBK_ActReception.Where(o => o.OBK_AssessmentDeclarationId == assessmentId).Select(o => new
-            AddedAct{
+            AddedAct
+            {
                 Id = o.Id,
                 ActDate = o.ActDate,
                 Number = o.Number,
@@ -706,13 +707,13 @@ namespace PW.Prism.Controllers.OBK
 
             ViewData["AssessmentDeclarationId"] = declaration.Id;
             ViewData["ContractId"] = declaration.ContractId;
-            
+
             var stageStatus = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
-            if (OBK_Ref_StageStatus.RequiresConclusion.Equals(stageStatus.Code) )
+            if (OBK_Ref_StageStatus.InWork.Equals(stageStatus.Code))
             {
-                ViewData["HideAdd"] = true;
+                ViewData["ShowAddEdit"] = true;
             }
-            
+
 
             return PartialView("SerialActReception", Guid.NewGuid());
         }
@@ -856,6 +857,17 @@ namespace PW.Prism.Controllers.OBK
             return Json(new { success = true, list = data.ToList() });
         }
 
+        public ActionResult ContractAvailableProducts([DataSourceRequest] DataSourceRequest request, Guid contractId)
+        {
+            var data = repository.OBKContractAvailableProducts(contractId).Select(o => new ContractAvailableProducts
+            {
+                Name = o.DrugFormFullName,
+                Producer = o.ProducerNameRu
+            });
+
+            return Json(data.ToDataSourceResult(request));
+        }
+
         public ActionResult MeasureSelect2(int measureId, Guid assessmentId, int? serieId)
         {
             var safetyRepository = new SafetyAssessmentRepository();
@@ -929,7 +941,7 @@ namespace PW.Prism.Controllers.OBK
             {
                 ViewData["Serial"] = "false";
             }
-            
+
             return PartialView("ActTemplate");
         }
         #endregion

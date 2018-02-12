@@ -127,7 +127,17 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IEnumerable<OBK_RS_Products> OBKContractProducts(Guid? contractId, Guid? actReception)
         {
-            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId && (o.ActReceptionId == null || o.ActReceptionId == actReception)).ToList();
+            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId && o.ExpertisePlace == 0
+            && (o.ActReceptionId == null || o.ActReceptionId == actReception)).ToList();
+        }
+
+        /// <summary>
+        /// Показать список доступных продуктов
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<OBK_RS_Products> OBKContractAvailableProducts(Guid? contractId)
+        {
+            return AppContext.OBK_RS_Products.Where(o => o.ContractId == contractId && o.ActReceptionId == null && o.ExpertisePlace == 0).ToList();
         }
 
 
