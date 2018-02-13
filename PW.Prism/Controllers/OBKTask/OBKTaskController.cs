@@ -298,7 +298,6 @@ namespace PW.Prism.Controllers.OBKTask
             switch (stautsCode)
             {
                 case OBK_Ref_StageStatus.New:
-                    //todo добавить статус и вызывать разные view
                     var model = repo.EditResearchCenter(taskId, unitLabId);
                     return PartialView(model);
                 case OBK_Ref_StageStatus.InWork:

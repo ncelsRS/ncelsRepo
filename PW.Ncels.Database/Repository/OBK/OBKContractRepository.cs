@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web.WebPages;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -63,7 +64,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var list = new List<OBK_ProductInfo>();
             if (!string.IsNullOrEmpty(regNumber)) {  rn = string.Format(" and r.reg_number like '%{0}%'", regNumber); }
             if (!string.IsNullOrEmpty(tradeName)) { tn = string.Format(" and r.name like '%{0}%'", tradeName); }
-            if (!drugEndDateExpired) { sed = string.Format(" and r.expiration_date IS NOT NULL and r.expiration_date >= '{0}'", DateTime.Now); }
+            if (!drugEndDateExpired) { sed = string.Format(" and (r.expiration_date IS NULL or r.expiration_date >= '{0}')", DateTime.Now); } else { sed = string.Format(" and (r.expiration_date IS NOT NULL or r.expiration_date < '{0}')", DateTime.Now); }
             var conString = ConfigurationManager.ConnectionStrings["register_portal"].ToString();
             var queryString = string.Format(@"SELECT r.id AS productId, r.reg_number AS regNumber, r.reg_number_kz AS regNumberKz, r.name AS name, r.name_kz AS nameKz, rt.id AS regTypeId, rt.name AS regTypeName, rt.name_kz AS regTypeNameKz, r.reg_date AS regDate, r.expiration_date AS expireDate, p.name AS producerName, p.name_kz AS producerNameKz, c.name AS countryName, c.name_kz AS countryNameKz, rd.nd_name AS ndName, rd.nd_number AS ndNumber, rm.degree_risk_id AS degreeRiskId, r.id AS registerId FROM register r LEFT JOIN register_drugs rd ON r.id = rd.id LEFT JOIN reg_types rt ON r.reg_type_id = rt.id LEFT JOIN register_mt rm ON r.id = rm.id LEFT JOIN register_producers rp ON r.id = rp.register_id LEFT JOIN producers p ON rp.producer_id = p.id LEFT JOIN countries c ON rp.country_id = c.id WHERE r.reg_type_id = {0} {1} {2} {3}", regType, rn, tn, sed);
             using (SqlConnection con = new SqlConnection(conString))
@@ -83,12 +84,12 @@ namespace PW.Ncels.Database.Repository.OBK
                     var rTypeId = (int?)dt.Rows[i]["regTypeId"] ?? 0;
                     var rTypeName = dt.Rows[i]["regTypeName"]?.ToString();
                     var rDate = (DateTime)dt.Rows[i]["regDate"];
-                    var expireDate = (DateTime)dt.Rows[i]["expireDate"];
+                    var expireDate = dt.Rows[i]["expireDate"].ToString();
                     var pName = dt.Rows[i]["producerName"]?.ToString();
                     var pNameKz = dt.Rows[i]["producerNameKz"]?.ToString();
                     var cName = dt.Rows[i]["countryName"]?.ToString();
                     var cNameKz = dt.Rows[i]["countryNameKz"]?.ToString();
-                    var dRiskId = dt.Rows[i]["degreeRiskId"] == null ? (int?) dt.Rows[i]["degreeRiskId"] : 0;
+                    var dRiskId = dt.Rows[i]["degreeRiskId"].ToString();
                     var ndName = dt.Rows[i]["ndName"]?.ToString();
                     var ndNumber = dt.Rows[i]["ndNumber"]?.ToString();
                     var registerId = (int?)dt.Rows[i]["registerId"] ?? 0;
@@ -102,12 +103,12 @@ namespace PW.Ncels.Database.Repository.OBK
                         RegTypeId = rTypeId,
                         RegTypeName = rTypeName,
                         RegDate = rDate,
-                        ExpireDate = expireDate,
+                        ExpireDate = expireDate.IsEmpty() ? null : (DateTime?)Convert.ToDateTime(expireDate),
                         ProducerName = pName,
                         ProducerNameKz = pNameKz,
                         CountryName = cName,
                         CountryNameKz = cNameKz,
-                        DegreeRiskId = dRiskId,
+                        DegreeRiskId = dRiskId.IsEmpty() ? null : (int?)dt.Rows[i]["degreeRiskId"],
                         NdName = ndName,
                         NdNumber = ndNumber,
                         RegisterId = registerId
