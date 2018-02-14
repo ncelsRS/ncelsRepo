@@ -1,4 +1,5 @@
 ﻿using Kendo.Mvc.Extensions;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using System;
@@ -213,7 +214,7 @@ namespace PW.Prism.Controllers.OBK_OP
         public ActionResult ListOrganization()
         {
             var orgs = repo.Units
-                .Where(x => x.Id == new Guid("8f0b91f3-af29-4d3c-96d6-019cbbdfc8be")) // Только НЦЭЛС
+                .Where(x => x.Code == OrganizationConsts.NCELS) // Только НЦЭЛС
                 .Select(x => new { x.Id, x.Name }).ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }

@@ -1,6 +1,7 @@
 ﻿using Kendo.Mvc;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using System;
@@ -47,7 +48,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
         public ActionResult ListOrganization()
         {
             var orgs = repo.Units
-                .Where(x => x.Id == new Guid("8f0b91f3-af29-4d3c-96d6-019cbbdfc8be"))
+                .Where(x => x.Code == OrganizationConsts.NCELS)
                 .Select(x => new { x.Id, x.Name }).ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }
@@ -85,7 +86,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
         public ActionResult ListRoles(Guid declarationId)
         {
             // Костыль по ролям, роли должны быть в enum, т.к. без изменения кода невозможно изменять роли
-            var chairManeRoleId = new Guid("3935ad57-dea8-4d41-bb94-c99bc56973df");
+            var chairManeRoleId = repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Chairman").Id;
             var isHasChairman = repo.OBK_OP_Commission.Any(c => c.DeclarationId == declarationId && c.RoleId == chairManeRoleId);
             var roles = repo.OBK_OP_CommissionRoles
                 .Where(r => !isHasChairman || r.Id != chairManeRoleId)

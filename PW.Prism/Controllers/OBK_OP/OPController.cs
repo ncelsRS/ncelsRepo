@@ -6,17 +6,15 @@ using PW.Ncels.Database.Repository.Common;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace PW.Prism.Controllers.OBK_OP
 {
     public class OPController : Controller
     {
-        public readonly Guid UOBK = new Guid("f5eb95b6-fdf0-4f5a-afb6-85839419aa93");
+        //public readonly Guid UOBK = new Guid("f5eb95b6-fdf0-4f5a-afb6-85839419aa93");
 
 
         public ncelsEntities repo = new ncelsEntities();
@@ -56,7 +54,7 @@ namespace PW.Prism.Controllers.OBK_OP
 
             var executor = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.AssessmentStageId == declarationStage.Id && x.ExecutorType == 1);
 
-            var employeeIdstr = repo.Units.Where(x => x.Id == UOBK).Select(x => x.BossId).FirstOrDefault();
+            var employeeIdstr = repo.Units.Where(x => x.Code == OrganizationConsts.UobkDepartament).Select(x => x.BossId).FirstOrDefault();
             var employeeId = new Guid(employeeIdstr);
 
             if (executor == null)
