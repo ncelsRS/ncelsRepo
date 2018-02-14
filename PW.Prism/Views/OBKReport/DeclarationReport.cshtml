@@ -46,14 +46,14 @@
 
                                                                          .Columns(columns =>
                                                                          {
-                                                                                     columns.Bound(p => p.Number).Title("Номер заявки").Width(100);
-                                                                                     columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(150);
+                                                                                     columns.Bound(p => p.Number).Title("Номер заявки").Width(90);
+                                                                                     columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(80);
                                                                                      columns.Bound(p => p.DeclarationType).Title("Тип заявки").Width(150);
                                                                                      columns.Bound(p => p.Declarant).Title("Наименование фирмы-заявителя").Width(100);
                                                                                      columns.Bound(p => p.Desicion).Title("Решение по заявке").Width(150);
-                                                                                     columns.Bound(p => p.ActInfo).Title("Дата отбора образцов").Width(100);
+                                                                                     columns.Bound(p => p.ActInfo).Title("Дата отбора образцов").Width(180);
                                                                                      columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
-                                                                                     columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Примечание").Width(90);
+                                                                                     columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Примечание").Width(60);
                                                                                  })
                                                                          .AutoBind(false)
                                                                          .Reorderable(reorderable => reorderable.Columns(true))
@@ -69,7 +69,7 @@
                                                                          .DataSource(dataSource => dataSource
                                                                              .Ajax()
                                                                              .Sort(sort => { sort.Add("SendDate").Descending(); })
-                                                                             .PageSize(50)
+                                                                             .PageSize(30)
                                                                              .Read(read => read.Action("DeclarationReportList", "OBKReport"))
                                                                             )
                                 ))
@@ -78,19 +78,33 @@
                                                               );
                               }))
 
-<script>
+                             <script>
+
+    function reloadDeclarationReport(){
+            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+    }
 
     $("#reload" + "@Model").click(function ()
-    {
-        $("#DeclarationReportView"+"@Model").data("kendoGrid").dataSource.read();
-    });
+        {
+            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+        });
 
-    $("#print" + "@Model").click(function ()
+    $("#printDeclarationReport" + "@Model").click(function ()
     {
-        var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
-        parameterMap = grid.dataSource.transport.parameterMap;
-        var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
-        window.open('/ZBKCopy/ExportTransferZbk?request=' + $.param(data));
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+
+         if(fr != '' || to != '' || org != ''){
+             var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
+             parameterMap = grid.dataSource.transport.parameterMap;
+             var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+             window.open('/OBKReport/ExportDeclarationReport?request=' + $.param(data));
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+        
     });
 
      function initDeclarationReportFilters(){
@@ -99,37 +113,42 @@
         var to = $('#dateTo' + "@Model").val();
         var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
         var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
-        var filter = grid.dataSource.filter().filters;
+         var filterArr = grid.dataSource.filter();
+         var filter = [];
+         if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+         }
+
         var expertOrganizations = $('#expertOrganizations' + '@Model').val();
 
         if (from != undefined && from != null && from != "")
         {
-            checkRemove(filter, "RegisterDate", "gte");
+            checkRemove(filter, "SendDate", "gte");
             filter.push(
-                { field: "RegisterDate", operator: "gte", value: fromDate });
+                { field: "SendDate", operator: "gte", value: fromDate });
         } else
         {
-            checkRemove(filter, "RegisterDate", "gte");
+            checkRemove(filter, "SendDate", "gte");
         }
 
         if (to != undefined && to != null && to != "")
         {
-            checkRemove(filter, "RegisterDate", "lte");
+            checkRemove(filter, "SendDate", "lte");
             filter.push(
-                { field: "RegisterDate", operator: "lte", value: toDate });
+                { field: "SendDate", operator: "lte", value: toDate });
         } else
         {
-            checkRemove(filter, "RegisterDate", "lte");
+            checkRemove(filter, "SendDate", "lte");
         }
 
         if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
         {
-            checkRemove(filter, "OrganName", "eq");
+            checkRemove(filter, "ExpertOrganization", "eq");
             filter.push(
-                { field: "OrganName", operator: "eq", value: getDropDownVal("#expertOrganizations") });
+                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizations") });
         } else
         {
-            checkRemove(filter, "OrganName", "eq");
+            checkRemove(filter, "ExpertOrganization", "eq");
         }
 
         grid.dataSource.filter({
@@ -138,10 +157,33 @@
         });
     }
 
-    $("#searchBlanks").click(function ()
-    {
-        initDeclarationReportFilters();
+    function getDropDownVal(name){
+        return $.trim($(name + "@Model").data("kendoDropDownList").text());
+    };
+
+     $("#searchDeclaration" + "@Model").click(function ()
+     {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+
+         if(fr != '' || to != '' || org != ''){
+             initDeclarationReportFilters();
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
     });
 
-</script>
+    function checkRemove(arr, field, operator) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].field == field && arr[i].operator == operator)
+            {
+                arr.splice(i, 1);
+            }
+        }
+    }
+
+                             </script>
 
