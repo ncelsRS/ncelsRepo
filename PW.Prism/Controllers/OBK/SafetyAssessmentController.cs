@@ -641,6 +641,9 @@ namespace PW.Prism.Controllers.OBK
                     new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
             }
 
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
+
             return PartialView("ActReception", model);
         }
 
@@ -714,6 +717,8 @@ namespace PW.Prism.Controllers.OBK
                 ViewData["ShowAddEdit"] = true;
             }
 
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
 
             return PartialView("SerialActReception", Guid.NewGuid());
         }

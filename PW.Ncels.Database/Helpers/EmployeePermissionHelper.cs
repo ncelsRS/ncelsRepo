@@ -263,6 +263,10 @@ namespace PW.Ncels.Database.Helpers
             AddPermission("Archive", @"Модуль 'Архив' 'Архив'", "Просмотр архива заявлений", "Просмотр архива заявлений");
             #endregion
 
+            #region Отчеты ОБиК
+            AddPermission("DeclarationReport", @"Модуль 'Отчеты ОБиК' 'Отчеты ОБиК'", "Просмотр журнала учета заявок", "Просмотр журнала учета заявок");
+            #endregion
+
             RemoveNonActualKeys();
         }
 
