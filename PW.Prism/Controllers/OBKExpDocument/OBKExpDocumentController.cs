@@ -52,6 +52,8 @@ namespace PW.Prism.Controllers.OBKExpDocument
             ViewData["ExecutorType"] = expRepo.ExecutorType(model.Id);
             ViewData["SignExpDocument"] = expRepo.checkSignData(stage.Id);
 
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
 
             return PartialView(model);
         }
@@ -472,6 +474,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     ViewBag.ExpRejectReasonNameKz = result.ExpReasonNameKz;
                 }
             }
+
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
 
             return PartialView(model);
         }

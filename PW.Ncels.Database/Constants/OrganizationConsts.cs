@@ -82,7 +82,7 @@ namespace PW.Ncels.Database.Constants
         /// <summary>
         /// Территориальный филиал г.Актобе
         /// </summary>
-        public const string Aktobe = "04";
+        public const string Aktobe = "00_04";
 
         public static readonly List<string> Filials = new List<string>()
         {

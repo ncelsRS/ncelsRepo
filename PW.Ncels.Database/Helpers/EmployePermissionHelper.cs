@@ -1069,6 +1069,10 @@ namespace PW.Ncels.Database.Helpers
         #region Архив
         public static bool Archive { get { return IsVisibility("Archive"); } }
         #endregion
-        
+
+        #region Отчеты ОБиК
+        public static bool DeclarationReport { get { return IsVisibility("DeclarationReport"); } }
+        #endregion
+
     }
 }

@@ -823,11 +823,14 @@ namespace PW.Ncels.Database.Repository.OBK
             foreach (var temp in list)
             {
                 var replaced = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.ParentId == temp.Id);
-                replacedBlanks.Add(new OBKReplacedBlanks()
+                if (replaced != null)
                 {
-                    CorruptedBlankNumber = FormatBlankNumber((int)temp.Number),
-                    NewBlankNumber = FormatBlankNumber((int)replaced.Number)
-                });
+                    replacedBlanks.Add(new OBKReplacedBlanks()
+                    {
+                        CorruptedBlankNumber = FormatBlankNumber((int)temp.Number),
+                        NewBlankNumber = FormatBlankNumber((int)replaced.Number)
+                    });
+                }
             }
 
             return replacedBlanks;
