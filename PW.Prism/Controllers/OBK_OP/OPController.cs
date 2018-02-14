@@ -134,20 +134,6 @@ namespace PW.Prism.Controllers.OBK_OP
         {
             try
             {
-                var expDocResult = new { ExpResult = "" };
-                if (expDocResult != null)
-                {
-                    ViewBag.HasExpDocumentResult = true;
-                    var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
-                    ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name", expDocResult.ExpResult);
-                }
-                else
-                {
-                    ViewBag.HasExpDocumentResult = false;
-                    var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
-                    ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name");
-                }
-
                 return PartialView(declarationId);
             }
             catch (ArgumentException ex)
@@ -232,6 +218,76 @@ namespace PW.Prism.Controllers.OBK_OP
                 return File(stream, "application/pdf", name);
             }
 
+        }
+
+        [HttpGet]
+        public ActionResult GetSign(Guid id)
+        {
+            var reslutStage = repo.OBK_AssessmentStage.FirstOrDefault(
+                e => e.DeclarationId == id && e.StageId == CodeConstManager.STAGE_OBK_PIMS);
+
+            if (reslutStage == null)
+                return null;
+
+            OBK_AssessmentStage ad = new OBK_AssessmentStage
+            {
+                Id = reslutStage.Id,
+                DeclarationId = reslutStage.DeclarationId
+            };
+            var xmlData = SerializeHelper.SerializeDataContract(ad);
+            var signData = xmlData.Replace("utf-16", "utf-8");
+            return Json(new { data = signData }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveSigned(Guid id, string signedData)
+        {
+            try
+            {
+                var stage = repo.OBK_AssessmentStage.Single(x => x.DeclarationId == id && x.OBK_Ref_Stage.Code == "15");
+                var userId = UserHelper.GetCurrentEmployee().Id;
+                var stageSign = repo.OBK_AssessmentStageSignData
+                    .FirstOrDefault(e => e.AssessmentStageId == stage.Id
+                                        && e.SignerId == userId);
+                if (stageSign == null)
+                {
+                    var stageSignData = new OBK_AssessmentStageSignData
+                    {
+                        Id = Guid.NewGuid(),
+                        AssessmentStageId = stage.Id,
+                        SignerId = userId,
+                        SignXmlData = signedData,
+                        SignDateTime = DateTime.Now
+                    };
+                    stage.OBK_AssessmentStageSignData.Add(stageSignData);
+                }
+                else
+                {
+                    stageSign.SignXmlData = signedData;
+                    stageSign.SignDateTime = DateTime.Now;
+                }
+
+                var message = "Документ успешно подписан";
+
+                stage.StageStatusId = repo.OBK_Ref_StageStatus.Single(x => x.Code == "OPCompleted").Id;
+                stage.OBK_AssessmentDeclaration.StatusId = repo.OBK_Ref_StageStatus.Single(x => x.Code == "completed").Id;
+
+                var reportStage = repo.OBK_AssessmentReportOP.Single(x => x.DeclarationId == id);
+                reportStage.StageStatusId = stage.OBK_AssessmentDeclaration.StatusId;
+
+                repo.SaveChanges();
+
+                return Json(new { message });
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
         }
 
         #endregion

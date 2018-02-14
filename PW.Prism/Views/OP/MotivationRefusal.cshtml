@@ -57,10 +57,6 @@
         mrUpdateHtml();
     }
 
-    function mrSign() {
-
-    }
-
     function viewOpMotivationRefuse() {
         $.ajax({
             type: 'POST',
@@ -68,6 +64,37 @@
             data: { declarationId: modelId },
             success: function (data) {
                 $("#mrOPWindowFrame" + modelId).html(data);
+            }
+        });
+    }
+
+    function mrSign() {
+        $.ajax({
+            type: 'GET',
+            url: '/OP/GetSign?id=' + modelId,
+            data: { declarationId : modelId },
+            success: function (result) {
+                startSign(result.data, modelId, saveMotivationRefuseSign);
+            }
+        });
+    }
+
+    function saveMotivationRefuseSign(signedData, id) {
+        var data1 = {
+            id: id,
+            signedData: signedData
+        };
+        var json = JSON.stringify(data1);
+        $.ajax({
+            type: 'POST',
+            url: '/OP/SaveSigned',
+            contentType: 'application/json; charset=utf-8',
+            data: json,
+            success: function (result) {
+                alert(result.message);
+                loadReport();
+                loadRefusal();
+                mrUpdateHtml();
             }
         });
     }
