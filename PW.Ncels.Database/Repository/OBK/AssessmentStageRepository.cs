@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
@@ -94,27 +95,17 @@ namespace PW.Ncels.Database.Repository.OBK
                     StartDate = startDate,
                     EndDate = daysOnStage != null ? (DateTime?)startDate.AddDays(daysOnStage) : null
                 };
-                //todo брать руководителя цоз из настроек
-
                 var newStageExecutor = new OBK_AssessmentStageExecutors
                 {
                     AssessmentStageId = newStage.Id,
-                    ExecutorId = GetExecutorByDicStageId(nextStageId, declaration.TypeId).Id,
+                    ExecutorId = GetExecutorByDicStageId(nextStageId, declaration.OBK_Contract.ExpertOrganization, declaration.TypeId).Id,
                     ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                 };
 
                 newStage.OBK_AssessmentStageExecutors.Add(newStageExecutor);
                 AppContext.OBK_AssessmentStage.Add(newStage);
-                //if (nextStageId == CodeConstManager.STAGE_ANALITIC)
-                //{
-                //    isAnalitic = true;
-                //}
             }
             AppContext.SaveChanges();
-            //if (isAnalitic)
-            //{
-            //    CreateDirectionMaterial(declarationId, GetExecutorByDicStageId(CodeConstManager.STAGE_ANALITIC));
-            //}
             return true;
         }
         /// <summary>
@@ -147,25 +138,54 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Ref_StageStatus.AsNoTracking().FirstOrDefault(e => e.Code == code);
         }
 
-        public Employee GetExecutorByDicStageId(int stageId, int type = 0)
+        public Employee GetExecutorByDicStageId(int stageId, Guid? expertOrganization, int type = 0)
         {
-            //цоз
-            if (stageId == 1)
+            try
             {
-                var organization = AppContext.Units.FirstOrDefault(e => e.Id == new Guid("BBF0867E-E3EC-4B02-8B7D-B08FE96A893B"));
-                return AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId));
+                //цоз
+                if (stageId == 1)
+                {
+                    var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == expertOrganization && e.Code == OrganizationConsts.CozDepartament) ??
+                               AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.CozDepartament)) ??
+                              AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.CozDepartament);
+                    if (organization == null)
+                        throw new Exception("Нет подраделения ЦОЗ для Unit.Id=" + expertOrganization);
+                    var employe = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId));
+                    if (employe == null)
+                        throw new Exception("Не назначен руководитель для подраделения ЦОЗ для Unit.Id=" + expertOrganization);
+                    return employe;
+                }
+                // уобк
+                if (stageId == 2 && type != 1)
+                {
+                    var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament) ??
+                                        AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament)) ??
+                                       AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+                    if (organization == null)
+                        throw new Exception("Нет подраделения уобк для Unit.Id=" + expertOrganization);
+                    var employe = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId));
+                    if (employe == null)
+                        throw new Exception("Не назначен руководитель для подраделения уобк для Unit.Id=" + expertOrganization);
+                    return employe;
+                }
+                // УВиРНФПиМС экспретиза документов
+                if (stageId == 2 && type == 1)
+                {
+                    var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == expertOrganization && e.Code == OrganizationConsts.PpisDepartament) ??
+                                        AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.PpisDepartament)) ??
+                                       AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.PpisDepartament);
+                    if (organization == null)
+                        throw new Exception("Нет подраделения УВиРНФПиМС для Unit.Id=" + expertOrganization);
+                    var employe = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId));
+                    if (employe == null)
+                        throw new Exception("Не назначен руководитель для подраделения УВиРНФПиМС для Unit.Id=" + expertOrganization);
+                    return employe;
+                }
             }
-            // уобк
-            if (stageId == 2 && type != 1)
+            catch (Exception e)
             {
-                return AppContext.Employees.FirstOrDefault(
-                    e => e.Id == new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784"));
-            }
-            // УВиРНФПиМС экспретиза документов
-            if (stageId == 2 && type == 1)
-            {
-                var organization = AppContext.Units.FirstOrDefault(e => e.Id == new Guid("102aae37-a9b0-4a1b-97c5-8478dbe6f94a"));
-                return AppContext.Employees.FirstOrDefault(e => e.Id == new Guid(organization.BossId));
+                LogHelper.Log.Debug("Ошибка в структуре: " + e.Message);
+                throw;
             }
             return null;
         }

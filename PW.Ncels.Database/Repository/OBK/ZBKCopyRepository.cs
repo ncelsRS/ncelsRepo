@@ -698,7 +698,8 @@ namespace PW.Ncels.Database.Repository.OBK
             model.LetterNumber = zbkCopy.LetterNumber;
             model.Nds = TaxHelper.GetNdsRef() + 1;
             model.IsBoss = AppContext.Units.Any(o => currentUserId.Equals(o.BossId));
-            model.actNumber1C = (certificateCompletion.ActReturnedBack == true && certificateCompletion.ActNumber1C != null);
+            model.actNumber1C = (certificateCompletion != null && certificateCompletion.ActReturnedBack == true 
+                && certificateCompletion.ActNumber1C != null);
             return model;
         }
 

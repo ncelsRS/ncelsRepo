@@ -50,7 +50,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public object GetExpertOrganizations()
         {
-          return AppContext.Units.Where(x => x.Code == "00").Select(x => new
+          return AppContext.Units.Where(x => OrganizationConsts.Filials.Contains(x.Code)).Select(x => new
             {
                 Id = x.Id,
                 Name = x.Name

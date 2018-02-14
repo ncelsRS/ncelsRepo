@@ -20,6 +20,7 @@ using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Notifications;
+using static PW.Ncels.Database.Constants.CodeConstManager;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -652,9 +653,8 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (ad.OBK_Ref_Type.Code)
             {
                 case CodeConstManager.OBK_SA_PARTY:
-                    return PartyExpertiseConclusionPositive(productSeriesId, ad);
                 case CodeConstManager.OBK_SA_SERIAL:
-                    break;
+                    return PartyExpertiseConclusionPositive(productSeriesId, ad);               
                 case CodeConstManager.OBK_SA_DECLARATION:
                     break;
             }
@@ -719,6 +719,10 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
 
+                    var blankNumber = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == model.Id);
+                    blankNumber.Number = int.Parse(ecp.ecBlankNumber);
+                    blankNumber.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+
                     AppContext.SaveChanges();
                     return true;
                 }
@@ -746,6 +750,20 @@ namespace PW.Ncels.Database.Repository.OBK
                     //AppContext.OBK_StageExpDocumentResult.Add(sedr);
                     AppContext.OBK_StageExpDocument.Add(sed);
                     AppContext.SaveChanges();
+
+                    var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => BlankTypes.ZBK.Equals(o.Code));
+
+                    var blankNumber = new OBK_BlankNumber();
+                    blankNumber.Id = Guid.NewGuid();
+                    blankNumber.Number = int.Parse(ecp.ecBlankNumber);
+                    blankNumber.CreateDate = DateTime.Now;
+                    blankNumber.Object_Id = sed.Id;
+                    blankNumber.BlankTypeId = blankType.Id;
+                    blankNumber.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+                    blankNumber.Corrupted = false;
+                    AppContext.OBK_BlankNumber.Add(blankNumber);
+                    AppContext.SaveChanges();
+
                     return true;
                 }
             }
@@ -937,6 +955,21 @@ namespace PW.Ncels.Database.Repository.OBK
             return unit.Parent.Id;
         }
 
+        public bool GetValidShowSignBtn(Guid adId)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == adId);
+            if (ad == null) return false;
+            foreach (var p in ad.OBK_Contract.OBK_RS_Products)
+            {
+                foreach (var ps in p.OBK_Procunts_Series)
+                {
+                    var sed = ps.OBK_StageExpDocument.FirstOrDefault(e => e.ProductSeriesId == ps.Id);
+                    if (sed == null)
+                        return false;
+                }
+            }
+            return true;
+        }
 
         #endregion
 

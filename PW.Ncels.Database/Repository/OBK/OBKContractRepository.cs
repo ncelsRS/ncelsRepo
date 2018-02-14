@@ -16,8 +16,11 @@ using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web.WebPages;
+using Kendo.Mvc.Extensions;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -51,6 +54,72 @@ namespace PW.Ncels.Database.Repository.OBK
         }
 
         public OBKContractRepository(ncelsEntities context) : base(context) { }
+
+        public List<OBK_ProductInfo> GetSearchYellowReestr(int regType, string regNumber, string tradeName, bool drugEndDateExpired)
+        {
+            if (regNumber == null && tradeName == null)
+                return null;
+            string rn = null;
+            string tn = null;
+            string sed = null;
+            var list = new List<OBK_ProductInfo>();
+            if (!string.IsNullOrEmpty(regNumber)) {  rn = string.Format(" and r.reg_number like '%{0}%'", regNumber); }
+            if (!string.IsNullOrEmpty(tradeName)) { tn = string.Format(" and r.name like '%{0}%'", tradeName); }
+            if (!drugEndDateExpired) { sed = string.Format(" and (r.expiration_date IS NULL or r.expiration_date >= '{0}')", DateTime.Now); } else { sed = string.Format(" and (r.expiration_date IS NOT NULL or r.expiration_date < '{0}')", DateTime.Now); }
+            var conString = ConfigurationManager.ConnectionStrings["register_portal"].ToString();
+            var queryString = string.Format(@"SELECT r.id AS productId, r.reg_number AS regNumber, r.reg_number_kz AS regNumberKz, r.name AS name, r.name_kz AS nameKz, rt.id AS regTypeId, rt.name AS regTypeName, rt.name_kz AS regTypeNameKz, r.reg_date AS regDate, r.expiration_date AS expireDate, p.name AS producerName, p.name_kz AS producerNameKz, c.name AS countryName, c.name_kz AS countryNameKz, rd.nd_name AS ndName, rd.nd_number AS ndNumber, rm.degree_risk_id AS degreeRiskId, r.id AS registerId FROM register r LEFT JOIN register_drugs rd ON r.id = rd.id LEFT JOIN reg_types rt ON r.reg_type_id = rt.id LEFT JOIN register_mt rm ON r.id = rm.id LEFT JOIN register_producers rp ON r.id = rp.register_id LEFT JOIN producers p ON rp.producer_id = p.id LEFT JOIN countries c ON rp.country_id = c.id WHERE r.reg_type_id = {0} {1} {2} {3}", regType, rn, tn, sed);
+            using (SqlConnection con = new SqlConnection(conString))
+            {
+                con.Open();
+                SqlCommand command = new SqlCommand(queryString, con);
+                SqlDataReader reader = command.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var pId = (int)dt.Rows[i]["productId"];
+                    var rNumber = dt.Rows[i]["regNumber"]?.ToString();
+                    var rNumberKz = dt.Rows[i]["regNumberKz"]?.ToString();
+                    var name = dt.Rows[i]["name"]?.ToString();
+                    var nameKz = dt.Rows[i]["nameKz"]?.ToString();
+                    var rTypeId = (int?)dt.Rows[i]["regTypeId"] ?? 0;
+                    var rTypeName = dt.Rows[i]["regTypeName"]?.ToString();
+                    var rDate = (DateTime)dt.Rows[i]["regDate"];
+                    var expireDate = dt.Rows[i]["expireDate"].ToString();
+                    var pName = dt.Rows[i]["producerName"]?.ToString();
+                    var pNameKz = dt.Rows[i]["producerNameKz"]?.ToString();
+                    var cName = dt.Rows[i]["countryName"]?.ToString();
+                    var cNameKz = dt.Rows[i]["countryNameKz"]?.ToString();
+                    var dRiskId = dt.Rows[i]["degreeRiskId"].ToString();
+                    var ndName = dt.Rows[i]["ndName"]?.ToString();
+                    var ndNumber = dt.Rows[i]["ndNumber"]?.ToString();
+                    var registerId = (int?)dt.Rows[i]["registerId"] ?? 0;
+                    var instruction = new OBK_ProductInfo
+                    {
+                        ProductId = pId,
+                        RegNumber = rNumber,
+                        RegNumberKz = rNumberKz,
+                        Name = name,
+                        NameKz = nameKz,
+                        RegTypeId = rTypeId,
+                        RegTypeName = rTypeName,
+                        RegDate = rDate,
+                        ExpireDate = expireDate.IsEmpty() ? null : (DateTime?)Convert.ToDateTime(expireDate),
+                        ProducerName = pName,
+                        ProducerNameKz = pNameKz,
+                        CountryName = cName,
+                        CountryNameKz = cNameKz,
+                        DegreeRiskId = dRiskId.IsEmpty() ? null : (int?)dt.Rows[i]["degreeRiskId"],
+                        NdName = ndName,
+                        NdNumber = ndNumber,
+                        RegisterId = registerId
+                    };
+                    list.Add(instruction);
+                }
+                reader.Close();
+            }
+            return list;
+        }
 
         public IEnumerable<OBK_ProductInfo> GetSearchReestr(int regType, string regNumber, string tradeName, bool drugEndDateExpired)
         {
@@ -1108,36 +1177,114 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKDrugFormViewModel> GetDrugForms(int productId)
         {
-            var drugForms = AppContext.sr_drug_forms.Where(x => x.register_id == productId).Select(y => new OBKDrugFormViewModel
+            List<OBKDrugFormViewModel> list = new List<OBKDrugFormViewModel>();
+            var queryString = "SELECT * FROM drug_forms df WHERE df.register_id = @productId";
+            var conString = GetConnectionString();
+            using (SqlConnection con = new SqlConnection(conString))
             {
-                Id = y.id,
-                RegisterId = y.register_id,
-                BoxCount = y.box_count,
-                FullName = y.full_name,
-                FullNameKz = y.full_name_kz
-            }).ToList();
-            return drugForms;
+                SqlCommand command = new SqlCommand(queryString, con);
+                command.Parameters.AddWithValue("@productId", productId);
+                con.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var id = (int) dt.Rows[i]["id"];
+                    var registerId = (int) dt.Rows[i]["register_id"];
+                    var boxCount = dt.Rows[i]["box_count"].ToString();
+                    var fullName = dt.Rows[i]["full_name"].ToString();
+                    var fullNameKz = dt.Rows[i]["full_name_kz"].ToString();
+                    var mtPart = new OBKDrugFormViewModel
+                    {
+                        Id = id,
+                        RegisterId = registerId,
+                        BoxCount = boxCount,
+                        FullName = fullName,
+                        FullNameKz = fullNameKz
+                    };
+                    list.Add(mtPart);
+                }
+                reader.Close();
+            }
+            return list;
+
+            //var drugForms = AppContext.sr_drug_forms.Where(x => x.register_id == productId).Select(y => new OBKDrugFormViewModel
+            //{
+            //    Id = y.id,
+            //    RegisterId = y.register_id,
+            //    BoxCount = y.box_count,
+            //    FullName = y.full_name,
+            //    FullNameKz = y.full_name_kz
+            //}).ToList();
+            //return drugForms;
         }
 
         public List<OBKMtPartViewModel> GetMtParts(int productId)
         {
-            var meParts = AppContext.sr_register_mt_parts.Where(x => x.register_id == productId).Select(y => new OBKMtPartViewModel
+            List<OBKMtPartViewModel> list = new List<OBKMtPartViewModel>();
+            var queryString = "SELECT * FROM register_mt_parts rmp WHERE rmp.register_id = @productId";
+            var conString = GetConnectionString();
+            using (SqlConnection con = new SqlConnection(conString))
             {
-                Id = y.id,
-                RegisterId = y.register_id,
-                Name = y.name,
-                NameKz = y.name_kz,
-                PartNumber = y.part_number,
-                Model = y.model,
-                Specification = y.specification,
-                SpecificationKz = y.specification_kz,
-                ProducerName = y.producer_name,
-                CountryName = y.country_name,
-                ProducerNameKz = y.producer_name_kz,
-                CountryNameKz = y.country_name_kz,
+                SqlCommand command = new SqlCommand(queryString, con);
+                command.Parameters.AddWithValue("@productId", productId);
+                con.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var id = (int)dt.Rows[i]["id"];
+                    var registerId = (int)dt.Rows[i]["register_id"];
+                    var name = dt.Rows[i]["name"].ToString();
+                    var nameKz = dt.Rows[i]["name_kz"].ToString();
+                    var partNumber = (int?)dt.Rows[i]["part_number"];
+                    var model = dt.Rows[i]["model"].ToString();
+                    var specification = dt.Rows[i]["specification"].ToString();
+                    var specificationKz = dt.Rows[i]["specification_kz"].ToString();
+                    var producerName = dt.Rows[i]["producer_name"].ToString();
+                    var countryName = dt.Rows[i]["country_name"].ToString();
+                    var producerNameKz = dt.Rows[i]["producer_name_kz"].ToString();
+                    var countryNameKz = dt.Rows[i]["country_name_kz"].ToString();
+                    var mtPart = new OBKMtPartViewModel {
+                        Id = id,
+                        RegisterId = registerId,
+                        Name = name,
+                        NameKz = nameKz,
+                        PartNumber = partNumber,
+                        Model = model,
+                        Specification = specification,
+                        SpecificationKz = specificationKz,
+                        ProducerName = producerName,
+                        CountryName = countryName,
+                        ProducerNameKz = producerNameKz,
+                        CountryNameKz = countryNameKz
+                    };
+                    list.Add(mtPart);
+                }
+                reader.Close();
+            }
+            return list;
 
-            }).ToList();
-            return meParts;
+
+            //var meParts = AppContext.sr_register_mt_parts.Where(x => x.register_id == productId).Select(y => new OBKMtPartViewModel
+            //{
+            //    Id = y.id,
+            //    RegisterId = y.register_id,
+            //    Name = y.name,
+            //    NameKz = y.name_kz,
+            //    PartNumber = y.part_number,
+            //    Model = y.model,
+            //    Specification = y.specification,
+            //    SpecificationKz = y.specification_kz,
+            //    ProducerName = y.producer_name,
+            //    CountryName = y.country_name,
+            //    ProducerNameKz = y.producer_name_kz,
+            //    CountryNameKz = y.country_name_kz,
+
+            //}).ToList();
+            //return meParts;
         }
 
         public IQueryable<OBK_ContractRegisterView> GetContracts()
@@ -1171,7 +1318,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 };
 
                 // Руководитель ЦОЗ
-                Guid bossCozGuid = new Guid("3100E850-F7D8-48A4-A5AC-4BF5D50D98D2");
+                //var organization = AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament);
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament);
+                Guid bossCozGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("3100E850-F7D8-48A4-A5AC-4BF5D50D98D2");
+
                 var stageExecutorCoz = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = obkContractStageCoz,
@@ -1213,7 +1365,11 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
 
                     // Руководитель УОБК
-                    Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                    //var organ = AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+                    var organ = (AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament) ??
+                                        AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament)) ??
+                                       AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+                    Guid bossUobkGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organ.BossId)).Id;//new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
                     var stageExecutorUOBK = new OBK_ContractStageExecutors()
                     {
                         OBK_ContractStage = obkContractStageUOBK,
@@ -1635,10 +1791,10 @@ namespace PW.Ncels.Database.Repository.OBK
             return count.Sum(e => e.PriceWithTax).ToString();
         }
 
-        public IQueryable<object> GetSigners()
+        public IQueryable<object> GetSigners(Guid expertOrganizationId)
         {
-            string[] signerCodes = { "ncels_deputyceo", "ncels_ceo" };
-            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code)).Select(e => new
+            string[] signerCodes = { OrganizationConsts.Сeo, OrganizationConsts.Deputyceo };
+            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code) && e.Units.Any(x=>x.ParentId == expertOrganizationId || x.Parent.ParentId == expertOrganizationId || x.Parent.Parent.ParentId == expertOrganizationId)).Select(e => new
             {
                 e.Id,
                 Name = e.Position.ShortName + " " + e.ShortName
@@ -1648,7 +1804,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IQueryable<object> GetExpertOrganizations()
         {
-            var items = AppContext.Units.Where(x => x.Code == "00").Select(x => new
+            var items = AppContext.Units.Where(x => OrganizationConsts.Filials.Contains(x.Code)).Select(x => new
             {
                 Id = x.Id,
                 Name = x.ShortName
@@ -1721,9 +1877,12 @@ namespace PW.Ncels.Database.Repository.OBK
                     ParentStageId = parentStage.Id,
                     ResultId = null
                 };
-
+                
                 // Руководитель ДЭФ
-                var bossDefGuid = new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode);
+                var bossDefGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
                 var stageExecutor = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = stageDef,
@@ -1744,7 +1903,10 @@ namespace PW.Ncels.Database.Repository.OBK
                 stageChild.ResultId = null;
 
                 // Руководитель ДЭФ
-                var bossDefGuid = new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode);
+                var bossDefGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
                 var stageExecutor = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = stageChild,

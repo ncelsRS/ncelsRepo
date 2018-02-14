@@ -497,7 +497,7 @@
     // Grid Calculator Additional end
 
     loadExpertOrganizations($scope, $http);
-    loadContractSigners($scope, $http);
+    //loadContractSigners($scope, $http);
     loadDictionary($scope, 'Currency', $http);
     loadObkRefTypes($scope, $http);
     loadObkOrganizations($scope, $http);
@@ -528,6 +528,12 @@
                 $scope.NamesNonResidents = resp.data;
             }
         });
+    }
+
+    $scope.editExpertOrganization = function () {
+        $scope.ContractSigners = [];
+        $scope.object.Signer = null;
+        loadContractSigners($scope, $http, $scope.object.ExpertOrganization);
     }
 
     $scope.loadNamesNonResidents();
@@ -1419,9 +1425,11 @@
                 $scope.object.Number = resp.data.Number;
                 $scope.changeViewMode();
 
-
                 $scope.refTypeChange(false);
-
+                if (resp.data.ExpertOrganization != null) {
+                    loadContractSigners($scope, $http, resp.data.ExpertOrganization);
+                }
+                
                 $http({
                     method: 'GET',
                     url: '/OBKContract/GetDeclarant',
@@ -2061,11 +2069,14 @@ function loadExpertOrganizations($scope, $http) {
     });
 }
 
-function loadContractSigners($scope, $http) {
+function loadContractSigners($scope, $http, expertOrganization) {
     $http({
         method: "GET",
         url: "/OBKContract/GetSigners",
-        data: "JSON"
+        data: "JSON",
+        params: {
+            expertOrganizationId: expertOrganization
+        }
     }).success(function (result) {
         $scope.ContractSigners = result;
     });

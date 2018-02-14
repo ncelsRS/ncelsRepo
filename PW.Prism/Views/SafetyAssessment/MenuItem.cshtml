@@ -28,7 +28,7 @@
         });
     }
 
-    function showPartyExpDocument() {
+    function showPartyExpDocument(event) {
         var itemId = '@Model.Id';
         window.Showbusy(event);
         $.ajax({
@@ -44,7 +44,7 @@
         });
     }
 
-    function showExpDocument() {
+    function showExpDocument(event) {
         var itemId = '@Model.Id';
         window.Showbusy(event);
         $.ajax({
@@ -65,6 +65,18 @@
         window.Showbusy(event);
         $.ajax({
             url: "/SafetyAssessment/GetActReception?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            }
+        });
+    }
+
+    function showSerialActReception(event) {
+        var itemId = '@Model.Id';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/SafetyAssessment/GetSerialActReception?Id=" + itemId,
             success: function (result) {
                 $("#page" + '@Model.Id').html(result);
                 $("#loading").hide();
@@ -134,7 +146,7 @@
     }*@
 
 
-    function showActSelection() {
+    function showActSelection(event) {
         $.ajax({
             type : 'POST',
             url : '/SafetyAssessment/ExpertActData/',
@@ -150,7 +162,7 @@
         });
     }
 
-    function showExpDocDeclarationResponse() {
+    function showExpDocDeclarationResponse(event) {
         var itemId = '@Model.Id';
         window.Showbusy(event);
         $.ajax({
@@ -167,7 +179,7 @@
     }
 
 
-    function showSelectCommissionOP() {
+    function showSelectCommissionOP(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
         $.ajax({
@@ -187,7 +199,7 @@
         $('#menuItemSelectCommissionOP').show();
     }
 
-    function showOPDocumentList() {
+    function showOPDocumentList(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
         $.ajax({
@@ -219,7 +231,7 @@
         });
     }
 
-    function showTask() {
+    function showTask(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
         $.ajax({
@@ -239,8 +251,8 @@
         showMentuItemSelectCommissionOP();
     }
 
-
-    function showExpertiseConclusion() {
+    
+    function showExpertiseConclusion(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
         $.ajax({
@@ -262,7 +274,6 @@
     <div class="list-group panel">
         <a href="#" onclick="showDeclaration(event)" class="list-group-item"><span class="glyphicon glyphicon-file"></span> Заявление</a>
         <a href="#" onclick="showAttachFile(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Перечень документов</a>
-
         @{if (Model.OBK_AssessmentDeclaration.KfSelection == true)
             {
                 <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
@@ -275,21 +286,18 @@
             }
         }
 
-        @{if (Model.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
-            {
-                if (Model.OBK_AssessmentDeclaration.ApplicantAgreement == true)
-                {
-                    <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
-                }
-            }
-        }
-        @*@{ if (Model.OBK_AssessmentDeclaration.GDPItself != true && Model.OBK_AssessmentDeclaration.KfSelection != true)
-                {
-                    <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
-                }
-            }*@
         @if (Model.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC)
         {
+
+            if (CodeConstManager.OBK_SA_SERIAL.Equals(Model.OBK_AssessmentDeclaration.TypeId.ToString()))
+            {
+                <a href="#" onclick="showSerialActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>                    
+            }
+
+            if (Model.OBK_AssessmentDeclaration.ApplicantAgreement == true)
+                {
+                    <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
+                }
             @*<a href="#" onclick="showExpDoc(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов</a>*@
             if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_PARTY)
             {

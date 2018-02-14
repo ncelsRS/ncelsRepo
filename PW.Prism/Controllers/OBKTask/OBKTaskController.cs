@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Migrations;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
+using Aspose.BarCode;
+using Aspose.Words;
+using Aspose.Words.Drawing;
 using Kendo.Mvc;
 using Kendo.Mvc.UI;
 using PW.Ncels.Database.DataModel;
@@ -16,16 +16,11 @@ using PW.Ncels.Database.Repository.Common;
 using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.ViewModels.OBK;
 using Kendo.Mvc.Extensions;
-using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models.OBK;
 using PW.Prism.Helpers;
 using Stimulsoft.Report;
-using Stimulsoft.Report.Dictionary;
-using Aspose.Cells;
-using Aspose.Words;
-using SaveFormat = Aspose.Words.SaveFormat;
-using SaveOptions = Aspose.Words.Saving.SaveOptions;
+using Symbology = Aspose.Pdf.InteractiveFeatures.Forms.Symbology;
 
 namespace PW.Prism.Controllers.OBKTask
 {
@@ -228,7 +223,7 @@ namespace PW.Prism.Controllers.OBKTask
             report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
             report.Render(false);
             Stream stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Word2007, stream);
+            report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", $"Задание №{taskNumber}.pdf");
         }
@@ -253,6 +248,7 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult SaveManagerLaboratory(OBKManagerResearchCenter managerResearchCenter)
         {
             repo.SaveManagerLaboratory(managerResearchCenter);
+            repo.GenerateSubTaskNumber(managerResearchCenter.TaskId);
             return Json(new {isSuccess = true});
         }
 
@@ -302,7 +298,6 @@ namespace PW.Prism.Controllers.OBKTask
             switch (stautsCode)
             {
                 case OBK_Ref_StageStatus.New:
-                    //todo добавить статус и вызывать разные view
                     var model = repo.EditResearchCenter(taskId, unitLabId);
                     return PartialView(model);
                 case OBK_Ref_StageStatus.InWork:
@@ -312,7 +307,7 @@ namespace PW.Prism.Controllers.OBKTask
                 case OBK_Ref_StageStatus.InReWork:
                 case OBK_Ref_StageStatus.OnApprove:
                 case OBK_Ref_StageStatus.Completed:
-                    var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId);
+                    var resposnse = repo.EditChiefResearchCenter(taskId, unitLabId, stautsCode);
                     return PartialView("EditChiefResearchCenter", resposnse);
                 default:
                     var history = repo.EditTaskHistory(taskId);
@@ -405,6 +400,12 @@ namespace PW.Prism.Controllers.OBKTask
             repo.SaveSubTaskRemark(stis);
             return Json(new { isSuccess = true });
         }
+        [HttpPost]
+        public ActionResult GetInstuctionCount(int registerId)
+        {
+            var instructionCount = InstructionFileHelper.GetInstructionFileCount(registerId);
+            return Json(instructionCount, JsonRequestBehavior.AllowGet);
+        }
 
         /// <summary>
         /// Полчение файла АНД
@@ -419,21 +420,18 @@ namespace PW.Prism.Controllers.OBKTask
         }
 
         [Authorize]
-        public ActionResult SubTaskProtokol(Guid tmId)
+        public ActionResult SubTaskProtokol(int psId)
         {
-            string templatePath;
-            Dictionary<string, string> templateData;
-            templatePath = Server.MapPath("~/Reports/Mrts/OBK/TaskProtocol.docx");
-            var doc = new Aspose.Words.Document(templatePath);
-            templateData = repo.GetTaskTemplateData(tmId);
-            repo.GetTaskTemplateTableData(doc, tmId);
-            templateData.Add("PageCount", doc.PageCount.ToString());
-            doc.ReplaceText(templateData);
-            var file = new MemoryStream();
-            doc.Save(file, SaveFormat.Docx);
-            file.Position = 0;
-            return File(file, "application/msword",
-                "Протокол №" + templateData.FirstOrDefault(e => e.Key == "SubTaskNumber").Value + ".docx");
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/TaskProtocol.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("tmp", repo.GetTaskProtocolData(psId));
+            report.Render(false);
+            Stream stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Word2007, stream);
+            stream.Position = 0;
+            return File(stream, "application/msword", $"Протокол.docx");
         }
 
         #endregion
