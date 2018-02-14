@@ -219,10 +219,10 @@ namespace PW.Ncels.Database.Repository.OBK
                             task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskNew).Id;
                         }
                     }
-                    //костыль, переносим в другой статус
+                    var userId = UserHelper.GetCurrentEmployee().Id;
                     var stage =
                         AppContext.OBK_AssessmentStage.FirstOrDefault(
-                            e => e.DeclarationId == id && e.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC);
+                            e => e.DeclarationId == id && e.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC && e.OBK_AssessmentStageExecutors.Any(x=>x.ExecutorId == userId));
                     stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.RequiresConclusion).Id;
                     break;
                     //отдел снажения ИЦл

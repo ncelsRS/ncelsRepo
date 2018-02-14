@@ -48,7 +48,7 @@ namespace PW.Prism.Controllers.OBK_OP
                     {
                         AssessmentStageId = stage.Id,
                         ExecutorId = member.EmployeeId,
-                        ExecutorType = member.RoleId == new Guid("3935ad57-dea8-4d41-bb94-c99bc56973df")
+                        ExecutorType = member.RoleId == repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Member").Id
                             ? CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                             : CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
                     };
@@ -283,7 +283,7 @@ namespace PW.Prism.Controllers.OBK_OP
         public ActionResult ListOrganization()
         {
             var orgs = repo.Units
-                .Where(x => x.Id == new Guid("8f0b91f3-af29-4d3c-96d6-019cbbdfc8be"))
+                .Where(x => x.Code == OrganizationConsts.NCELS)
                 .Select(x => new { x.Id, x.Name }).ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }

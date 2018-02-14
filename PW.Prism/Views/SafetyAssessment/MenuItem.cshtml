@@ -215,6 +215,22 @@
         });
     }
 
+    function showExpertCouncilWorkPage() {
+        var itemId = '@Model.DeclarationId';
+        window.Showbusy(event);
+        $.ajax({
+            url: "/OBKExpertCouncil/WorkPage?Id=" + itemId,
+            success: function (result) {
+                $("#page" + '@Model.Id').html(result);
+                $("#loading").hide();
+            },
+            error: function () {
+                $("#loading").hide();
+                ShowAlert("Ошибка!", window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+
     function showTask(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
@@ -307,13 +323,18 @@
             if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL)
             {
                 <a id="menuItemSelectCommissionOP" style="display: none" href="#" onclick="showSelectCommissionOP(event)" class="list-group-item">
-                    <span class="glyphicon glyphicon-star-empty"></span>Комиссия СОП</a>
+                    <span class="glyphicon glyphicon-star-empty"></span>Комиссия СОП
+                </a>
             }
         }
 
         @if (Model.StageId == CodeConstManager.STAGE_OBK_PIMS)
         {
             <a href="#" onclick="showOPDocumentList(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Оценка производства</a>
+            if (Model.OBK_Ref_StageStatus.Code == "OPReportOnEC" && PW.Ncels.Database.Helpers.EmployePermissionHelper.CanExpertCouncil)
+            {
+                <a href="#" onclick="showExpertCouncilWorkPage(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертный совет</a>
+            }
         }
 
         @if (Model.StageId != CodeConstManager.STAGE_OBK_COZ && Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)

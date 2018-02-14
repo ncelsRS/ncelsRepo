@@ -202,6 +202,13 @@ function updateReportHtmlVisible() {
             $("#sendToUobk" + modelId).hide();
             $("#sendToEC" + modelId).show();
         }
+    if (report.StatusCode == "OPMotivatedRefusalNew") {
+        $(".show-motivation-refusal").show();
+        mrInit();
+    }
+    else {
+        $(".show-motivation-refusal").hide();
+    }
     $("." + status).show();
 }
 

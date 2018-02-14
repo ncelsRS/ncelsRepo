@@ -43,18 +43,28 @@ function expertCouncilSave(e) {
     });
 }
 
+var ec;
+
+var selectEvent;
 function EC_panelEventSelect(e) {
+    if (!e) e = selectEvent;
+    selectEvent = e;
     var selectType = $(e.item).find("> .k-link").attr('dataType');
-    if (selectType !== null) {
-        var selectValue = $(e.item).find("> .k-link").attr('dataValue');
-        var gridId = $(e.item).find("> .k-link").attr('ModelId');
+    if (selectType) {
+        var el = $(e.item).find("> .k-link");
+        ec = {};
+        ec.Id = el.attr('dataValue');
+        ec.IsCompleted = el.attr("dataIsCompleted");
+        ec.Number = el.attr("dataNumber");
+        ec.ActualDate = el.attr("dataActualDate");
+        var gridId = el.attr('ModelId');
         var grid = $("#EC_gridAssessmentDeclaration").data("kendoGrid");
         var filter = new Array();
 
         if (selectType === "ExpertCouncilId") {
-            filter.push({ field: "ExpertCouncilId", operator: "eq", value: selectValue });
+            filter.push({ field: "ExpertCouncilId", operator: "eq", value: ec.Id });
         }
-        if (selectValue === '') {
+        if (ec.Id === '') {
             grid.dataSource.filter([]);
         } else {
             grid.dataSource.filter({
@@ -62,5 +72,6 @@ function EC_panelEventSelect(e) {
                 filters: filter
             });
         }
+        updateHtmlVisible();
     }
 }
