@@ -65,8 +65,7 @@ namespace PW.Prism.Controllers.OBKContract
 
             var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
             var expertOrganizations = obkRepo.GetExpertOrganizations();
-            var signers = obkRepo.GetSigners();
-
+            
             var countries = db.Dictionaries.Where(x => x.Type == "Country").ToList();
             var organizationForms = db.Dictionaries.Where(x => x.Type == "OpfType").ToList();
             var docTypes = db.Dictionaries.Where(x => x.Type == "OBKContractDocumentType").ToList();
@@ -103,7 +102,11 @@ namespace PW.Prism.Controllers.OBKContract
             ViewBag.Contract = obkContract;
             ViewBag.ContractTypes = new SelectList(contractTypes, "Id", "Name", obkContract.Type);
             ViewBag.ExpertOrganizations = new SelectList(expertOrganizations, "Id", "Name", obkContract.ExpertOrganization);
-            ViewBag.Signers = new SelectList(signers, "Id", "Name", obkContract.Signer);
+            if (obkContract.ExpertOrganization != null)
+            {
+                var signers = obkRepo.GetSigners((Guid)obkContract.ExpertOrganization);
+                ViewBag.Signers = new SelectList(signers, "Id", "Name", obkContract.Signer);
+            }
             ViewBag.Countries = new SelectList(countries, "Id", "Name", declarant.CountryId);
             ViewBag.OrganizationForms = new SelectList(organizationForms, "Id", "Name", declarant.OrganizationFormId);
             Guid selectedNonResident = Guid.Empty;

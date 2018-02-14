@@ -466,9 +466,9 @@ namespace PW.Ncels.Controllers
             return new FileStreamResult(stream, "application/pdf");
         }
 
-        public ActionResult GetSigners()
+        public ActionResult GetSigners(Guid expertOrganizationId)
         {
-            var signers = obkRepo.GetSigners();
+            var signers = obkRepo.GetSigners(expertOrganizationId);
             return Json(signers.ToList(), JsonRequestBehavior.AllowGet);
         }
 

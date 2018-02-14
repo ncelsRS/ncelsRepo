@@ -20,6 +20,7 @@ using System.Linq.Dynamic;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.WebPages;
+using Kendo.Mvc.Extensions;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -1317,7 +1318,12 @@ namespace PW.Ncels.Database.Repository.OBK
                 };
 
                 // Руководитель ЦОЗ
-                Guid bossCozGuid = new Guid("3100E850-F7D8-48A4-A5AC-4BF5D50D98D2");
+                //var organization = AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament);
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.CozDepartament);
+                Guid bossCozGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("3100E850-F7D8-48A4-A5AC-4BF5D50D98D2");
+
                 var stageExecutorCoz = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = obkContractStageCoz,
@@ -1359,7 +1365,11 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
 
                     // Руководитель УОБК
-                    Guid bossUobkGuid = new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
+                    //var organ = AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+                    var organ = (AppContext.Units.FirstOrDefault(e => e.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament) ??
+                                        AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament)) ??
+                                       AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == contract.ExpertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+                    Guid bossUobkGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organ.BossId)).Id;//new Guid("14D1A1F0-9501-4232-9C29-E9C394D88784");
                     var stageExecutorUOBK = new OBK_ContractStageExecutors()
                     {
                         OBK_ContractStage = obkContractStageUOBK,
@@ -1781,10 +1791,10 @@ namespace PW.Ncels.Database.Repository.OBK
             return count.Sum(e => e.PriceWithTax).ToString();
         }
 
-        public IQueryable<object> GetSigners()
+        public IQueryable<object> GetSigners(Guid expertOrganizationId)
         {
-            string[] signerCodes = { "ncels_deputyceo", "ncels_ceo" };
-            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code)).Select(e => new
+            string[] signerCodes = { OrganizationConsts.Сeo, OrganizationConsts.Deputyceo };
+            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code) && e.Units.Any(x=>x.ParentId == expertOrganizationId || x.Parent.ParentId == expertOrganizationId || x.Parent.Parent.ParentId == expertOrganizationId)).Select(e => new
             {
                 e.Id,
                 Name = e.Position.ShortName + " " + e.ShortName
@@ -1867,9 +1877,12 @@ namespace PW.Ncels.Database.Repository.OBK
                     ParentStageId = parentStage.Id,
                     ResultId = null
                 };
-
+                
                 // Руководитель ДЭФ
-                var bossDefGuid = new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode);
+                var bossDefGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
                 var stageExecutor = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = stageDef,
@@ -1890,7 +1903,10 @@ namespace PW.Ncels.Database.Repository.OBK
                 stageChild.ResultId = null;
 
                 // Руководитель ДЭФ
-                var bossDefGuid = new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
+                var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode) ??
+                                    AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode)) ??
+                                   AppContext.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode);
+                var bossDefGuid = AppContext.Employees.FirstOrDefault(x => x.Id == new Guid(organization.BossId)).Id;//new Guid("C9746027-F617-4791-8EEE-1CD80F2EDD5B");
                 var stageExecutor = new OBK_ContractStageExecutors()
                 {
                     OBK_ContractStage = stageChild,
