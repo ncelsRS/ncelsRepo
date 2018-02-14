@@ -1,8 +1,13 @@
-﻿using PW.Ncels.Database.Constants;
+﻿using Ncels.Helpers;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
+using PW.Ncels.Database.Repository.Common;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dictionary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -70,7 +75,7 @@ namespace PW.Prism.Controllers.OBK_OP
             }
 
             var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == 15);
-            stage.StageStatusId = 14;
+            stage.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "14").Select(x => x.Id).Single();
             stage.EndDate = DateTime.Now;
             stage.FactEndDate = stage.EndDate;
             var declaration = repo.OBK_AssessmentDeclaration.FirstOrDefault(x => x.Id == declarationId);
@@ -125,5 +130,112 @@ namespace PW.Prism.Controllers.OBK_OP
             }
         }
 
+        #region MotivationRefusal
+
+        public ActionResult MotivationRefusal(Guid declarationId)
+        {
+            try
+            {
+                var expDocResult = new { ExpResult = "" };
+                if (expDocResult != null)
+                {
+                    ViewBag.HasExpDocumentResult = true;
+                    var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
+                    ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name", expDocResult.ExpResult);
+                }
+                else
+                {
+                    ViewBag.HasExpDocumentResult = false;
+                    var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
+                    ViewData["UObkExpertiseResult"] = new SelectList(booleans, "ExpertiseResult", "Name");
+                }
+
+                return PartialView(declarationId);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult GetMotivationRefusal(Guid declarationId)
+        {
+            try
+            {
+                var res = repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    .Where(x => x.DeclarationId == declarationId)
+                    .ToList()
+                    .Select(x => new
+                    {
+                        DeclarantName = x.OBK_AssessmentDeclaration.OBK_Contract.OBK_Declarant.NameRu,
+                        DeclarationNumber = x.OBK_AssessmentDeclaration.Number,
+                        ECNumber = x.OBK_ExpertCouncil.Number,
+                        ECDate = x.OBK_ExpertCouncil.ActualDate?.ToString("dd.MM.yyyy"),
+                        ECResult = x.Comment
+                    })
+                    .FirstOrDefault();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        public ActionResult ViewMotivationRefuse(Guid declarationId)
+        {
+            return PartialView("MotivationRefuseTemplate", declarationId);
+        }
+
+        public ActionResult PrintMotivationRefuse(Guid declarationId, bool view)
+        {
+            StiReport report = new StiReport();
+            try
+            {
+                report.Load(Server.MapPath("~/Reports/Mrts/OBK/ObkOPMotivRefus.mrt"));
+                foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
+                {
+                    data.ConnectionString = UserHelper.GetCnString();
+                }
+                report.Dictionary.Variables[0].ValueObject = declarationId;
+                report.Render(false);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+
+            string name = "Мотивированный отказ" + DateTime.Now.ToString() + ".pdf";
+
+            if (view)
+            {
+                return new FileStreamResult(stream, "application/pdf");
+
+            }
+            else
+            {
+                return File(stream, "application/pdf", name);
+            }
+
+        }
+
+        #endregion
     }
 }

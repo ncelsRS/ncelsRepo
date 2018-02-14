@@ -1,9 +1,7 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using PW.Ncels.Database.DataModel;
-using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
-using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.ViewModels.OBK.ExpertCouncil;
 using System;
 using System.Linq;
@@ -29,10 +27,11 @@ namespace PW.Prism.Controllers.OBK_OP
         public ActionResult ListRegister([DataSourceRequest] DataSourceRequest request, DeclarationRegistryFilter customFilter = null)
         {
             var list = repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
-                .Where(x => x.OBK_AssessmentDeclaration.OBK_AssessmentStage.FirstOrDefault(s => s.OBK_Ref_Stage.Code == "15").OBK_Ref_StageStatus.Code == "OPReportOnEC")
+                //.Where(x => x.OBK_AssessmentDeclaration.OBK_AssessmentStage.FirstOrDefault(s => s.OBK_Ref_Stage.Code == "15").OBK_Ref_StageStatus.Code == "OPReportOnEC")
                 .Select(x => new ECDeclarationListMV
                 {
                     Id = x.DeclarationId,
+                    StageId = x.OBK_AssessmentDeclaration.OBK_AssessmentStage.FirstOrDefault(s => s.OBK_Ref_Stage.Code == "15").Id,
                     ExpertCouncilId = x.ExpertCouncilId,
                     Number = x.OBK_AssessmentDeclaration.Number,
                     FirstSendDate = x.OBK_AssessmentDeclaration.FirstSendDate,
@@ -41,21 +40,11 @@ namespace PW.Prism.Controllers.OBK_OP
                     ContractNumber = x.OBK_AssessmentDeclaration.OBK_Contract.Number,
                     ContractDate = x.OBK_AssessmentDeclaration.OBK_Contract.StartDate,
                     Result = x.Result,
+                    ResultName = x.Result == 1
+                            ? "Продолжить проведение ОБиК"
+                            : x.Result == 2 ? "Отказать в дальнейшем проведении ОБиК" : "",
                     Comment = x.Comment
                 });
-                //.ToList()
-                //.Select(x => new
-                //{
-                //    x.Id,
-                //    x.Number,
-                //    x.DeclarantName,
-                //    x.Country,
-                //    x.ContractNumber,
-                //    x.Result,
-                //    x.Comment,
-                //    FirstSendDate = x.FirstSendDate?.ToString("dd.MM.yyyy"),
-                //    ContractDate = x.ContractDate?.ToString("dd.MM.yyyy")
-                //});
             return Json(list.ToDataSourceResult(request));
         }
 
@@ -108,7 +97,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 var date = DateTime.Now;
                 date.AddDays(1);
                 var res = repo.OBK_ExpertCouncil
-                    .Where(x => x.Date > date)
+                    .Where(x => x.IsComplited != true && x.Date > date)
                     .ToList()
                     .Select(x => new
                     {
@@ -129,5 +118,116 @@ namespace PW.Prism.Controllers.OBK_OP
                 return Json(ex.Message, JsonRequestBehavior.AllowGet);
             }
         }
+
+        #region Work in council
+        public ActionResult WorkPage(Guid Id)
+        {
+            return PartialView(Id);
+        }
+
+        public ActionResult LoadECResult(Guid declarationId)
+        {
+            try
+            {
+                var res = repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    .Where(x => x.DeclarationId == declarationId)
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Result,
+                        x.Comment
+                    })
+                    .FirstOrDefault();
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult SaveECResult(Guid declarationId, int result, string comment)
+        {
+            try
+            {
+                var relation = repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    .Single(x => x.DeclarationId == declarationId);
+                relation.Result = result;
+                relation.Comment = comment;
+
+                repo.SaveChanges();
+
+                return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult CloseEC(int ecId, string number, DateTime date)
+        {
+            try
+            {
+                var ec = repo.OBK_ExpertCouncil.Single(x => x.Id == ecId);
+                ec.Number = number;
+                ec.ActualDate = date;
+                ec.IsComplited = true;
+
+                repo.OBK_AssessmentDeclaration__OBK_ExpertCouncil
+                    .Where(x => x.ExpertCouncilId == ecId)
+                    .ToList()
+                    .ForEach(ad =>
+                    {
+                        ad.OBK_AssessmentDeclaration
+                                .OBK_AssessmentStage
+                                .Single(s => s.OBK_Ref_Stage.Code == "15")
+                                .StageStatusId = repo.OBK_Ref_StageStatus.Single(ss => ss.Code == "inWork").Id;
+
+                        if (ad.Result == 2)
+                        {
+                            ad.OBK_AssessmentDeclaration.OBK_AssessmentReportOP.Single().StageStatusId = repo.OBK_Ref_StageStatus.Single(ss => ss.Code == "OPMotivatedRefusalNew").Id;
+                        }
+                    });
+
+                repo.SaveChanges();
+
+                return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(ex, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
+
+        #region Dictionaries
+        public ActionResult ECResult()
+        {
+            return Json(new object[]
+            {
+                new { Value = 1, Text = "Продолжить проведение ОБиК" },
+                new { Value = 2, Text = "Отказать в дальнейшем проведении ОБиК" }
+            }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }
