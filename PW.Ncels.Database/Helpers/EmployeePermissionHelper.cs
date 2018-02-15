@@ -264,7 +264,10 @@ namespace PW.Ncels.Database.Helpers
             #endregion
 
             #region Отчеты ОБиК
-            AddPermission("DeclarationReport", @"Модуль 'Отчеты ОБиК' 'Отчеты ОБиК'", "Просмотр журнала учета заявок", "Просмотр журнала учета заявок");
+            AddPermission("DeclarationReport", @"Модуль 'Отчеты ОБиК' 'Отчеты ОБиК'", "Просмотр журнала учета заявок", "Просмотр отчетов ОБиК");
+            AddPermission("ZBKReport", @"Модуль 'Отчеты ОБиК' 'Отчеты ОБиК'", "Просмотр журнала ЗБК", "Просмотр отчетов ОБиК");
+            AddPermission("ZBKCopyReport", @"Модуль 'Отчеты ОБиК' 'Отчеты ОБиК'", "Просмотр журнала копий ЗБК", "Просмотр отчетов ОБиК");
+
             #endregion
 
             RemoveNonActualKeys();
