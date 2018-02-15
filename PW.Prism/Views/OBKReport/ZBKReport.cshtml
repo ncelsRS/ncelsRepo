@@ -41,19 +41,18 @@
                       {
                           panes.Add().Scrollable(false).Size("100%").Content(
                             @<div class="pwPanelBar">
-                                @( Html.Kendo().Grid<DeclarationReportView>()
-                                                                         .Name("DeclarationReportView" + Model)
+                                @( Html.Kendo().Grid<OBK_ZBKReportView>()
+                                                                         .Name("OBK_ZBKReportView" + Model)
 
                                                                          .Columns(columns =>
                                                                          {
-                                                                             columns.Bound(p => p.Number).Title("Номер заявки").Width(90);
-                                                                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(80);
-                                                                             columns.Bound(p => p.DeclarationType).Title("Тип заявки").Width(150);
-                                                                             columns.Bound(p => p.Declarant).Title("Наименование фирмы-заявителя").Width(100);
-                                                                             columns.Bound(p => p.Desicion).Title("Решение по заявке").Width(150);
-                                                                             columns.Bound(p => p.ActInfo).Title("Дата отбора образцов").Width(180);
-                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Примечание").Width(60);
+                                                                             columns.Bound(p => p.ExpStartDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи заключения").Width(80);
+                                                                             columns.Bound(p => p.BlankNumber).Title("Номер бланка заключения").Width(150);
+                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный номер заключения").Width(100);
+                                                                             columns.Bound(p => p.DeclarationNumber).Title("Номер заявки").Width(150);
+                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(180);
+                                                                             columns.Bound(p => p.Declarant).Title("Заявитель").Width(150);
+                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Подпись лица, выдавшего бланк заключения").Width(60);
                                                                          })
                                                                          .AutoBind(false)
                                                                          .Reorderable(reorderable => reorderable.Columns(true))
@@ -68,9 +67,9 @@
                                                                          .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
                                                                          .DataSource(dataSource => dataSource
                                                                              .Ajax()
-                                                                             .Sort(sort => { sort.Add("SendDate").Descending(); })
+                                                                             .Sort(sort => { sort.Add("ExpStartDate").Descending(); })
                                                                              .PageSize(30)
-                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { type = 0, reportType = ViewData["reportType"]}))
+                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { type = 0, reportType = ViewData["reportType"] }))
                                                                             )
                                 ))
 
@@ -81,12 +80,12 @@
                              <script>
 
     function reloadDeclarationReport(){
-            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#OBK_ZBKReportView" + "@Model").data("kendoGrid").dataSource.read();
     }
 
     $("#reload" + "@Model").click(function ()
         {
-            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#OBK_ZBKReportView" + "@Model").data("kendoGrid").dataSource.read();
         });
 
     $("#export" + "@Model").click(function ()
@@ -96,7 +95,7 @@
          var org = $("#expertOrganizations" + "@Model").val();
 
          if(fr != '' || to != '' || org != ''){
-             var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
+             var grid = $("#OBK_ZBKReportView" + "@Model").data("kendoGrid");
              parameterMap = grid.dataSource.transport.parameterMap;
              var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
              window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@ViewData["reportType"]");
@@ -104,15 +103,15 @@
          {
              alert("Заполните основные параметры поиска!");
          }
-        
+
     });
 
-     function initDeclarationReportFilters(){
+     function initZBKReportFilters(){
         var from = $('#dateFrom' + "@Model").val();
         var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
         var to = $('#dateTo' + "@Model").val();
         var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
-        var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
+        var grid = $("#OBK_ZBKReportView" + "@Model").data("kendoGrid");
          var filterArr = grid.dataSource.filter();
          var filter = [];
          if(filterArr != undefined || filterArr != null){
@@ -123,22 +122,22 @@
 
         if (from != undefined && from != null && from != "")
         {
-            checkRemove(filter, "SendDate", "gte");
+            checkRemove(filter, "ExpStartDate", "gte");
             filter.push(
-                { field: "SendDate", operator: "gte", value: fromDate });
+                { field: "ExpStartDate", operator: "gte", value: fromDate });
         } else
         {
-            checkRemove(filter, "SendDate", "gte");
+            checkRemove(filter, "ExpStartDate", "gte");
         }
 
         if (to != undefined && to != null && to != "")
         {
-            checkRemove(filter, "SendDate", "lte");
+            checkRemove(filter, "ExpStartDate", "lte");
             filter.push(
-                { field: "SendDate", operator: "lte", value: toDate });
+                { field: "ExpStartDate", operator: "lte", value: toDate });
         } else
         {
-            checkRemove(filter, "SendDate", "lte");
+            checkRemove(filter, "ExpStartDate", "lte");
         }
 
         if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
@@ -168,7 +167,7 @@
          var org = $("#expertOrganizations" + "@Model").val();
 
          if(fr != '' || to != '' || org != ''){
-             initDeclarationReportFilters();
+             initZBKReportFilters();
          } else
          {
              alert("Заполните основные параметры поиска!");

@@ -1071,7 +1071,19 @@ namespace PW.Ncels.Database.Helpers
         #endregion
 
         #region Отчеты ОБиК
+        /// <summary>
+        /// Журнал учета заявок
+        /// </summary>
         public static bool DeclarationReport { get { return IsVisibility("DeclarationReport"); } }
+        /// <summary>
+        /// Журнал учета бланков заключений о безопасности и качестве
+        /// </summary>
+        public static bool ZBKReport { get { return IsVisibility("ZBKReport"); } }
+        /// <summary>
+        /// Журнал учета бланков копий заключений о безопасности и качестве
+        /// </summary>
+        public static bool ZBKCopyReport { get { return IsVisibility("ZBKCopyReport"); } }
+
         #endregion
 
     }
