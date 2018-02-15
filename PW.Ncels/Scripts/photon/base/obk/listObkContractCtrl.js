@@ -1815,7 +1815,8 @@
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var outputErrors = true;
-        if (!formValid && $scope.contractCreateForm.$error && outputErrors) {
+        var validFactories = $scope.factoriesValidate();
+        if (!formValid && $scope.contractCreateForm.$error && outputErrors && validFactories) {
             //var errors = [];
 
             //for (var key in $scope.contractCreateForm.$error) {
@@ -1846,12 +1847,23 @@
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var filesValid = $scope.checkFileValidation();
-        if (formValid && productInfoExist && filesValid) {
+        var validFactories = $scope.factoriesValidate();
+        if (formValid && productInfoExist && filesValid && validFactories) {
             $scope.doSign();
         }
         else {
             alert("Заполните обязательные поля, информацию о продукции и загрузите вложения!");
         }
+    }
+
+    $scope.factoriesValidate = function () {
+        var isFactoryRequired = false;
+        if (!$scope.addedProducts || $scope.addedProducts.length == 0) return false;
+        $scope.addedProducts.forEach(p => {
+            if (p.expertisePlace == "1") isFactoryRequired = true;
+        });
+        if (!$scope.factories || $scope.factories.length == 0) return false;
+        return true;
     }
 
     $scope.doSign = function () {
