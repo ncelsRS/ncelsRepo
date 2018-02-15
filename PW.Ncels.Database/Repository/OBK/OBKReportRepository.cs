@@ -29,5 +29,15 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             return AppContext.DeclarationReportViews;
         }
+
+        public IQueryable<OBK_ZBKReportView> ZBKReportList()
+        {
+            return AppContext.OBK_ZBKReportView;
+        }
+
+        public IQueryable<OBK_ZBKCopyReportView> ZBKCopyReportList()
+        {
+            return AppContext.OBK_ZBKCopyReportView;
+        }
     }
 }
