@@ -72,6 +72,11 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.Units.Where(e => code.Contains(e.Code));
         }
 
+        public IQueryable<Unit> GetUnits(List<string> code)
+        {
+            return AppContext.Units.Where(e => code.Contains(e.Code));
+        }
+
         public Unit GetUnit(Guid unitId)
         {
             return AppContext.Units.FirstOrDefault(e => e.Id == unitId);
@@ -121,19 +126,39 @@ namespace PW.Ncels.Database.Repository.OBK
         public List<Employee> GetExecutors(string code)
         {
             var userOrgId = UserHelper.GetCurrentEmployee().OrganizationId;
-            var unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.ParentId == userOrgId);
-            if (unit == null)
-                unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.Parent.ParentId == userOrgId);
+            var unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.ParentId == userOrgId) ?? AppContext.Units.FirstOrDefault(e => e.Code == code && e.Parent.ParentId == userOrgId);
             var units = AppContext.Units.Where(e => e.ParentId == unit.Id);
             var employee = AppContext.Employees.Where(e => units.Any(x => x.EmployeeId == e.Id)).ToList();
-            if (!employee.Any())
+            if (employee.Any()) return employee;
+            if (unit?.BossId != null)
             {
-                if (unit.BossId != null)
-                {
-                    employee = AppContext.Employees.Where(e => unit.BossId == e.Id.ToString()).ToList();
-                }
+                employee = AppContext.Employees.Where(e => unit.BossId == e.Id.ToString()).ToList();
             }
             return employee;
+        }
+
+        /// <summary>
+        /// Отправка в ЦОЗ по ТФ
+        /// </summary>
+        /// <param name="adId"></param>
+        public List<UnitLaboratories> GetFilialExecutors(Guid adId)
+        {
+            //var ulId = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == adId).GroupBy(e=>e.UnitLaboratoryId);
+            var uIds = AppContext.OBK_Tasks.Where(e => e.AssessmentDeclarationId == adId);
+            var units = AppContext.Units.Where(e => uIds.Any(x => x.UnitId == e.ParentId && e.Code == OrganizationConsts.CozDepartament));
+            if(!units.Any()) units = AppContext.Units.Where(e => uIds.Any(x => x.UnitId == e.Parent.ParentId && e.Code == OrganizationConsts.CozDepartament));
+            if(!units.Any()) return null;
+            var uls = new List<UnitLaboratories>();
+            foreach (var unit in units)
+            {
+                var ul = new UnitLaboratories
+                {
+                    UnitDisplayName = unit.DisplayName,
+                    ExecutorLaboratory = new SelectList(GetEmployees(unit.Id), "Id", "DisplayName")
+                };
+                uls.Add(ul);
+            }
+            return uls;
         }
 
         public void SaveTask(OBKCreateTaskViewModel model)

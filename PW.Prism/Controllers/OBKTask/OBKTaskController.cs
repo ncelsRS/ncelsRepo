@@ -45,7 +45,7 @@ namespace PW.Prism.Controllers.OBKTask
                 ViewBag.Message = "Заявка не соотвествует требованиями";
                 return PartialView("ShowMessage");
             }
-            string[] code = { "00" };
+            //string[] code = { "00" };
             //заявление
             var declarant = repo.GetAssessmentDeclaration(id);
             if (declarant == null)
@@ -53,9 +53,10 @@ namespace PW.Prism.Controllers.OBKTask
                 ViewBag.Message = "Заявка не найдена";
                 return PartialView("ShowMessage");
             }
+            ViewBag.DecalrationType = declarant.TypeId;
             var tasks = repo.GetTasks(id);
             var taskMaterial = repo.GetTaskMaterial(tasks);
-            ViewData["Units"] = new SelectList(repo.GetUnits(code), "Id", "ShortName");
+            ViewData["Units"] = new SelectList(repo.GetUnits(OrganizationConsts.Filials), "Id", "ShortName");
             ViewData["ActReceptions"] = new SelectList(declarant.OBK_ActReception, "Id", "Number");
 
             var task = new OBKCreateTaskViewModel
@@ -100,21 +101,21 @@ namespace PW.Prism.Controllers.OBKTask
                     var count = taskMaterial.Count(e => e.ProductSeriesId == productSeries.Id);
 
                     // для создания задания(не отмеченные ранее)
-                    if (count == 0)
+                    if (count != 0) continue;
+                    var modalView = new OBKProductViewModel
                     {
-                        var modalView = new OBKProductViewModel
-                        {
-                            Id = productSeries.Id,
-                            ProductNameRu = product.NameRu,
-                            ProductNameKz = product.NameKz,
-                            Series = productSeries.Series,
-                            SeriesMeasure = productSeries.sr_measures.name,
-                            SeriesStartdate = productSeries.SeriesStartdate,
-                            SeriesEndDate = productSeries.SeriesEndDate,
-                            Quantity = productSeries.Quantity
-                        };
-                        modalViewModel.Add(modalView);
-                    }
+                        Id = productSeries.Id,
+                        ProductId = product.Id,
+                        ActReceptionId = product.ActReceptionId,
+                        ProductNameRu = product.NameRu,
+                        ProductNameKz = product.NameKz,
+                        Series = productSeries.Series,
+                        SeriesMeasure = productSeries.sr_measures.name,
+                        SeriesStartdate = productSeries.SeriesStartdate,
+                        SeriesEndDate = productSeries.SeriesEndDate,
+                        Quantity = productSeries.Quantity
+                    };
+                    modalViewModel.Add(modalView);
                 }
             }
             task.ProductViewModels = productViewModel;
@@ -160,6 +161,12 @@ namespace PW.Prism.Controllers.OBKTask
                 Code = code
             };
             return PartialView(model);
+        }
+
+        public ActionResult ShowModalFilialExecutor(Guid adId)
+        {
+            var results = repo.GetFilialExecutors(adId);
+            return PartialView(results);
         }
 
         #region ЦОЗ список созданных заданий

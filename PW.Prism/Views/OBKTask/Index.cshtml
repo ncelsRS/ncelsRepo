@@ -3,6 +3,7 @@
 @{
     var registerDate = DateTime.Now.ToShortDateString();
     var taskCount = Model.TaskViewModels.Count + 1;
+    var type = ViewBag.DecalrationType;
 }
 <div id="loadPanel">
     <div id="partialPanel" class="pwPage" style="margin-left: 10px; margin-right: 60px; width: 90%">
@@ -111,7 +112,7 @@
                                 <div class="col-lg-12">
                                     <div class="form-group">
                                         <label>№ акта отбора*</label>
-                                        @Html.DropDownList("ActReceptionId", (IEnumerable<SelectListItem>) (ViewData["ActReceptions"]), String.Empty, new {@class = "form-control"})
+                                        @Html.DropDownList("ActReceptionId", (IEnumerable<SelectListItem>) ViewData["ActReceptions"], String.Empty, new {@class = "form-control", id = "actReception_" + Model.AssessmentDeclarationId})
                                     </div>
                                 </div>
                             </div>
@@ -119,7 +120,7 @@
                                 <div class="col-lg-12">
                                     <div class="form-group">
                                         <label>ИЦл/ИЛ*</label>
-                                        @Html.DropDownList("UnitId", (IEnumerable<SelectListItem>) (ViewData["Units"]), String.Empty, new {@class = "form-control"})
+                                        @Html.DropDownList("UnitId", (IEnumerable<SelectListItem>) ViewData["Units"], String.Empty, new {@class = "form-control"})
                                     </div>
                                 </div>
                             </div>
@@ -140,7 +141,7 @@
                                         <tbody>
                                         @foreach (var t in Model.ModalViewModels)
                                         {
-                                            <tr rowid="@t.Id">
+                                            <tr rowid="@t.Id" productId="@t.ProductId" actId="@t.ActReceptionId">
                                                 <td>@t.ProductNameRu</td>
                                                 <td>@t.SeriesMeasure</td>
                                                 <td>@t.Series</td>
@@ -150,8 +151,8 @@
                                                 <td>
                                                     <div class="chzn-select">
                                                         @Html.ListBoxFor(x => Model.LaboratoryTypeIds, Model.LaboratoryTypeList,
-                                                            new {@class = "chzn-select form-control", data_placeholder = "Выбирите значание...", name = "LaboratoryTypeList"})
-                                                    </div>
+                                                            new {@class = "form-control", data_placeholder = "Выбирите значание...", name = "LaboratoryTypeList"})
+                                                    </div>  
                                                 </td>
                                             </tr>
                                         }
@@ -178,12 +179,33 @@
 <script>
 
     setDateFormat(".date-control");
-
-    $("div.chzn-select select").chosen({ width: '100%' });
-
+    $("div.chzn-select select").chosen({width: '100%'});
     function callCreatTaskView() {
         $("#modalCreateTask").modal();
     }
+
+    $("div.chzn-select").change(function() {
+        var count = $(this).find('option:selected').size();
+        if (count > 0)
+            $("div.chzn-select").not(this).hide();
+        else {
+            $('div.chzn-select').not(this).removeAttr('selected');
+            $("div.chzn-select").show();
+        }
+    });
+
+    $("#actReception_@Model.AssessmentDeclarationId").change(function() {
+        debugger;
+        var actSelect = $("option:selected", this);
+        $("#taskNumber").val(actSelect.text() + '/' + @taskCount);
+        if (@type == 1) {
+            var actId = $(this).val();
+            $('table#tableCreateTask_@Model.AssessmentDeclarationId' + ' tbody tr').each(function() {
+                var product = $(this).attr('actId');
+                if (actId === product) {$(this).hide();}else{$(this).show();}
+            });
+        }
+    });
 
     function sendCOZ() {
         debugger;
@@ -191,6 +213,21 @@
             type: 'GET',
             url: '/OBKTask/ShowModalExecutor',
             data: {code:'coz', id: '@Model.AssessmentDeclarationId'},
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#dialogContent').html(data);
+                $('#modalDialog_@Model.AssessmentDeclarationId').modal('show');
+            }
+        });
+    }
+
+    function send() {
+        debugger;
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ShowModalFilialExecutor',
+            data: {adId: '@Model.AssessmentDeclarationId'},
             cache: false,
             success: function (data) {
                 debugger;
@@ -209,16 +246,11 @@
         }
     }
 
-    $('table#tableCreateTask_' + '@Model.AssessmentDeclarationId' + ' tbody tr').each(function() {
-        $(this).find('div.chzn-select option:selected');
-        
-    });
-
     function saveTask() {
         debugger;
         var modalViewModels = new Array();
         var laboratoryTypeIds = new Array();
-        $('table#tableCreateTask_' + '@Model.AssessmentDeclarationId' + ' tbody tr').each(function() {
+        $('table#tableCreateTask_@Model.AssessmentDeclarationId tbody tr').each(function() {
             laboratoryTypeIds = [];
             var row = $(this).attr('rowid');
             var selections = $(this).find('div.chzn-select option:selected');
@@ -240,7 +272,7 @@
             TaskNumber: $("#taskNumber").val(),
             RegisterDate: $("#registerDate").val(),
             ActNumber: '@Model.ActNumber',
-            ActReceptionId: $("#ActReceptionId").val(),
+            ActReceptionId: $("#actReception_@Model.AssessmentDeclarationId").val(),
             UnitId: $("#UnitId").val(),
             LaboratoryTypeIds: laboratoryTypeIds,
             AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
@@ -313,19 +345,26 @@
         }
     };
 
-    $("#ActReceptionId").on('change', function (e) {
-        var actSelect = $("option:selected", this);
-        $("#taskNumber").val(actSelect.text() + '/' + @taskCount);
-    });
-
     function validModal() {
         var validFile = true;
-        if ($("#taskNumber").val() == null || $("#taskNumber").val() == "")
+        if ($("#taskNumber").val() == null || $("#taskNumber").val() == "") {
+            $("#taskNumber").css({ 'border-color': '#a94442' });
             validFile = false;
-        if ($("#UnitId").val() == null || $("#UnitId").val() == "")
+        } else {
+            $("#taskNumber").css({ 'border-color': '#cccccc' });
+        }
+        if ($("#UnitId").val() == null || $("#UnitId").val() == "") {
+            $("#UnitId").css({ 'border-color': '#a94442' });
             validFile = false;
-        if ($("#ActReceptionId").val() == null || $("#ActReceptionId").val() == "")
+        } else {
+            $("#UnitId").css({ 'border-color': '#cccccc' });
+        }
+        if ($("#actReception_@Model.AssessmentDeclarationId").val() == null || $("#actReception_@Model.AssessmentDeclarationId").val() == "") {
+            $("#actReception_@Model.AssessmentDeclarationId").css({ 'border-color': '#a94442' });
             validFile = false;
+        } else {
+            $("#actReception_@Model.AssessmentDeclarationId").css({ 'border-color': '#cccccc' });
+        }
         return validFile;
     }
 </script>
