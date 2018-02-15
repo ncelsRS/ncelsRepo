@@ -192,8 +192,10 @@ function deleteAttach() {
 function downloadProgramAttach() {
     var item = program.AttachedFile.Items[0];
     var link = document.createElement('a');
+    link.setAttribute("hidden", true);
     link.setAttribute('href', '/Upload/FileDownload?' + item.AttachId + "&fileId=" + item.AttachName);
     link.setAttribute('download', 'download');
+    $("body").append(link);
     onload = link.click();
 }
 
