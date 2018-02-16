@@ -143,17 +143,43 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <param name="adId"></param>
         public List<UnitLaboratories> GetFilialExecutors(Guid adId)
         {
-            //var ulId = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == adId).GroupBy(e=>e.UnitLaboratoryId);
-            var uIds = AppContext.OBK_Tasks.Where(e => e.AssessmentDeclarationId == adId);
-            var units = AppContext.Units.Where(e => uIds.Any(x => x.UnitId == e.ParentId && e.Code == OrganizationConsts.CozDepartament));
-            if(!units.Any()) units = AppContext.Units.Where(e => uIds.Any(x => x.UnitId == e.Parent.ParentId && e.Code == OrganizationConsts.CozDepartament));
-            if(!units.Any()) return null;
+            //var uIds = AppContext.OBK_Tasks.Where(e => e.AssessmentDeclarationId == adId).GroupBy(x=>x.UnitId);
+            //var units = AppContext.Units.Where(e => uIds.Any(x => x.Key == e.ParentId && e.Code == OrganizationConsts.CozDepartament));
+            //if(!units.Any()) units = AppContext.Units.Where(e => uIds.Any(x => x.Key == e.Parent.ParentId && e.Code == OrganizationConsts.CozDepartament));
+            //if(!units.Any()) return null;
+            //var uls = new List<UnitLaboratories>();
+            //foreach (var unit in units)
+            //{
+            //    var ul = new UnitLaboratories
+            //    {
+            //        UnitDisplayName = unit.Parent.DisplayName,
+            //        ExecutorLaboratory = new SelectList(GetEmployees(unit.Id), "Id", "DisplayName")
+            //    };
+            //    uls.Add(ul);
+            //}
+            //return uls;
+
+            var uIds = AppContext.OBK_Tasks.Where(e => e.AssessmentDeclarationId == adId).GroupBy(x => x.UnitId);
             var uls = new List<UnitLaboratories>();
-            foreach (var unit in units)
+            foreach (var uId in uIds)
             {
-                var ul = new UnitLaboratories
+                var unit = AppContext.Units.FirstOrDefault(e => e.ParentId == uId.Key && e.Code == OrganizationConsts.CozDepartament) ??
+                           AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == uId.Key && e.Code == OrganizationConsts.CozDepartament);
+                UnitLaboratories ul;
+                if (unit == null)
                 {
-                    UnitDisplayName = unit.DisplayName,
+                    unit = AppContext.Units.FirstOrDefault(e => e.Id == uId.Key);
+                    ul = new UnitLaboratories
+                    {
+                        UnitDisplayName = unit.Parent.DisplayName,
+                        ExecutorLaboratory = new SelectList(GetEmployees(unit.Id), "Id", "DisplayName")
+                    };
+                    uls.Add(ul);
+                    continue;
+                }
+                ul = new UnitLaboratories
+                {
+                    UnitDisplayName = unit.Parent.DisplayName,
                     ExecutorLaboratory = new SelectList(GetEmployees(unit.Id), "Id", "DisplayName")
                 };
                 uls.Add(ul);
