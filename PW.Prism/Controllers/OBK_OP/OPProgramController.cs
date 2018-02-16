@@ -36,7 +36,7 @@ namespace PW.Prism.Controllers.OBK_OP
                     StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPProgramNew").Select(x => x.Id).FirstOrDefault()
                 };
                 repo.OBK_AssessmentStage.Add(stage);
-                repo.SaveChanges();
+
                 var currentEmployeeId = UserHelper.GetCurrentEmployee().Id;
                 var members = repo.OBK_OP_Commission
                     .Where(x => x.DeclarationId == declarationId)
@@ -48,7 +48,7 @@ namespace PW.Prism.Controllers.OBK_OP
                     {
                         AssessmentStageId = stage.Id,
                         ExecutorId = member.EmployeeId,
-                        ExecutorType = member.RoleId == repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Member").Id
+                        ExecutorType = member.RoleId == repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Chairman").Id
                             ? CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                             : CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR
                     };
