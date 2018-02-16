@@ -4,6 +4,19 @@
 
 @{
     OBK_StageExpDocumentResult expDocumentResult = (OBK_StageExpDocumentResult)ViewData["expDocResult"];
+    string selectionDate = "";
+    if (expDocumentResult != null)
+    {
+        if (expDocumentResult.SelectionDate != null)
+        {
+            selectionDate = ((DateTime)expDocumentResult.SelectionDate).ToString("dd.MM.yyyy");
+        }
+        if (expDocumentResult.SelectionTime != null)
+        {
+            selectionDate = selectionDate + " " + ((DateTime)expDocumentResult.SelectionTime).ToString("hh:mm");
+        }
+    }
+
 
     var date = DateTime.Now;
     if (Model.ActDate != null)
@@ -26,7 +39,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>@expDocumentResult.SelectionTime</td>
+                            <td>@selectionDate</td>
                             <td>@expDocumentResult.SelectionPlace</td>
                         </tr>
                     </tbody>
@@ -101,7 +114,8 @@
         $("#viewActReceptionBtn").hide();
     }
 
-    if ('@ViewData["StageStatus"]' != '@OBK_Ref_StageStatus.RequiresSigning'){
+    if ('@ViewData["StageStatus"]' != '@OBK_Ref_StageStatus.DocumentReviewCompleted')
+    {
         $("#deleteActReceptionBtn").hide();
         $("#editActReceptionBtn").hide();
     }

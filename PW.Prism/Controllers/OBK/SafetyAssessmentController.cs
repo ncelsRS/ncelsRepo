@@ -620,6 +620,7 @@ namespace PW.Prism.Controllers.OBK
             var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
             var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
             var model = db.OBK_ActReception.FirstOrDefault(o => o.OBK_AssessmentDeclarationId == stage.OBK_AssessmentDeclaration.Id);
+
             if (model == null)
             {
                 model = new OBK_ActReception();
@@ -627,6 +628,8 @@ namespace PW.Prism.Controllers.OBK
 
             ViewData["AssessmentDeclarationId"] = declaration.Id;
             ViewData["ContractId"] = declaration.ContractId;
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
 
             if (declaration.ApplicantAgreement == true)
             {
@@ -640,9 +643,6 @@ namespace PW.Prism.Controllers.OBK
                 ViewData["ProductSampleList"] =
                     new SelectList(db.Dictionaries.Where(o => o.Type == "ProductSample"), "Id", "Name");
             }
-
-            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
-            ViewData["StageStatus"] = stageObj.Code;
 
             return PartialView("ActReception", model);
         }
