@@ -129,7 +129,7 @@ namespace PW.Ncels.Controllers
         {
             var db = new ncelsEntities();
             var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
-            var fileName = assessmentDeclaration.OBK_Ref_Type.Code == "" 
+            var fileName = assessmentDeclaration.OBK_Ref_Type.Code == "1" 
                 ? "SafetyAssessmentDeclaration.mrt" 
                 : "SafetyAssessmentDeclaration.mrt";
             string name = "Заявление на проведение оценки безопасности и качества лс.pdf";
