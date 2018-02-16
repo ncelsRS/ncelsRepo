@@ -101,7 +101,6 @@
     }
 
     function saveEcPositive() {
-        debugger;
         var model = {
             AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
             ProductSeriesId: '@Model.ProductSeriesId',
@@ -130,48 +129,17 @@
                     $('.form-disabled').each(function () {
                         $(this).attr('disabled', true);
                     });
-                    showEcSignBtn();
-                    @*$('#createPositiveResult_@Model.ProductSeriesId').attr('disabled', true);
-                    $('#showPdfPositiveResult_@Model.ProductSeriesId').removeAttribute('disabled');*@
+                    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").each(function () {
+                        var psid = $(this).attr('rowid');
+                        if (psid == '@Model.ProductSeriesId') {
+                            $(this).attr('br', '2');
+                        }
+                    });
                 } else {
                     alert('Ошибка при сохранении');
                 }
             }
         });
-    }
-
-    function showEcSignBtn() {
-        $.ajax({
-            type: 'GET',
-            url: '/OBKExpDocument/ShowSignBtn',
-            data: { adId: '@Model.AssessmentDeclarationId' },
-            cache: false,
-            success: function (data) {
-                if (data.isSuccess) {
-                    $("#ecSignBtn_@Model.AssessmentDeclarationId").show();
-                    btnHide('hide');
-                } else {
-                    $("#ecSignBtn_@Model.AssessmentDeclarationId").hide();
-                    btnHide('show');
-                }
-            }
-        });
-    }
-
-    function btnHide(code) {
-        debugger;
-        switch (code) {
-        case "hide":
-            $("#result_@Model.AssessmentDeclarationId").hide();
-            $("#showResult_@Model.AssessmentDeclarationId").show();
-            $("#showPdfResult_@Model.AssessmentDeclarationId").show();
-            break;
-        case "show":
-            $("#result_@Model.AssessmentDeclarationId").show();
-            $("#showResult_@Model.AssessmentDeclarationId").hide();
-            $("#showPdfResult_@Model.AssessmentDeclarationId").hide();
-            break;
-        }
     }
 
     function closeExpConclusion() {
