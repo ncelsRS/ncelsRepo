@@ -54,7 +54,12 @@ namespace PW.Prism.Controllers.OBK_OP
 
             var executor = repo.OBK_AssessmentStageExecutors.FirstOrDefault(x => x.AssessmentStageId == declarationStage.Id && x.ExecutorType == 1);
 
-            var employeeIdstr = repo.Units.Where(x => x.Code == OrganizationConsts.UobkDepartament).Select(x => x.BossId).FirstOrDefault();
+            var expertOrganization = repo.OBK_AssessmentDeclaration.FirstOrDefault(x => x.Id == declarationId).OBK_Contract.ExpertOrganization;
+            var organization = (repo.Units.FirstOrDefault(e => e.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament) ??
+                               repo.Units.FirstOrDefault(e => e.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament)) ??
+                              repo.Units.FirstOrDefault(e => e.Parent.Parent.ParentId == expertOrganization && e.Code == OrganizationConsts.UobkDepartament);
+
+            var employeeIdstr = organization.BossId;
             var employeeId = new Guid(employeeIdstr);
 
             if (executor == null)
@@ -73,7 +78,7 @@ namespace PW.Prism.Controllers.OBK_OP
             }
 
             var stage = repo.OBK_AssessmentStage.FirstOrDefault(x => x.DeclarationId == declarationId && x.StageId == 15);
-            stage.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "14").Select(x => x.Id).Single();
+            stage.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPCompleted").Select(x => x.Id).Single();
             stage.EndDate = DateTime.Now;
             stage.FactEndDate = stage.EndDate;
             var declaration = repo.OBK_AssessmentDeclaration.FirstOrDefault(x => x.Id == declarationId);
