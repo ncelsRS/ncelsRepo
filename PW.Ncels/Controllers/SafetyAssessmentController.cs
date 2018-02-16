@@ -128,11 +128,15 @@ namespace PW.Ncels.Controllers
         public ActionResult ExportFilePdf(Guid id)
         {
             var db = new ncelsEntities();
+            var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
+            var fileName = assessmentDeclaration.OBK_Ref_Type.Code == "" 
+                ? "SafetyAssessmentDeclaration.mrt" 
+                : "SafetyAssessmentDeclaration.mrt";
             string name = "Заявление на проведение оценки безопасности и качества лс.pdf";
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/SafetyAssessmentDeclaration.mrt"));
+                report.Load(Server.MapPath("~/Reports/Mrts/" + fileName));
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -148,7 +152,7 @@ namespace PW.Ncels.Controllers
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
             Stream stream = new MemoryStream();
-            var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
+            
             var assessmentDeclarationHistory = assessmentDeclaration.OBK_AssessmentDeclarationHistory.Where(dh => dh.XmlSign != null)
                 .OrderByDescending(dh => dh.DateCreate).FirstOrDefault();
             if (assessmentDeclarationHistory != null)
