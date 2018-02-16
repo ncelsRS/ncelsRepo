@@ -3,7 +3,9 @@
     var modelId = "@Model";
     var isAssessmentExecutor = "@ViewBag.IsExecutor" === "True";
 
-    function sendToUOBK() {
+    function sendToUOBK(e) {
+        var button = $(e.srcElement);
+        button.attr("disabled", "disabled");
         $.ajax({
             type: "POST",
             url: '@Url.Action("SendToUOBK")',
@@ -15,6 +17,7 @@
             success: function (data) {
                 alert('Заявка отправлена в УОБиК');
                 loadProgram();
+                button.attr("disabled", false);
             },
             error: function (err) {
                 alert("Ошибка: " + err.message);
@@ -22,9 +25,11 @@
         });
     }
 
-    function sendToEC() {
+    function sendToEC(e) {
         var expertCouncilId = $("#ecSelect" + modelId).data("kendoDropDownList").value();
         if (!expertCouncilId) return alert("Выберите экспертный совет");
+        var button = $(e.srcElement);
+        button.attr("disabled", "disabled");
         $.ajax({
             type: "POST",
             url: '@Url.Action("SendToEC")',
@@ -36,6 +41,7 @@
             cache: false,
             success: function (data) {
                 loadProgram();
+                button.attr("disabled", false);
             },
             error: function (err) {
                 alert("Ошибка: " + err.message);
@@ -51,7 +57,7 @@
                 <div class="panel-body" id="productExpertiseId">
                     <div class="row" style="margin-bottom: 10px">
                         <div class="col-sm-12">
-                            <div id="sendToUobk@(Model)" class="form-group" hidden>
+                            <div id="sendToUobk@(Model)" class="form-group">
                                 <button type="button" class="k-button" onclick="sendToUOBK(event)">Передать в УОБиК</button>
                             </div>
                             <div id="sendToEC@(Model)" class="row" hidden>
