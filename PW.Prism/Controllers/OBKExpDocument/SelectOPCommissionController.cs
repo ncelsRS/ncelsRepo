@@ -49,7 +49,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var orgs = repo.Units
                 .Where(x => x.Code == OrganizationConsts.NCELS)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }
 
@@ -57,7 +59,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var units = repo.Units
                 .Where(x => x.ParentId == organizationId)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(units, JsonRequestBehavior.AllowGet);
         }
 
@@ -66,7 +70,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var employee = repo.Employees.FirstOrDefault(x => x.Id == employeeId);
             var positions = repo.Units
                 .Where(x => x.PositionState == 1 && x.Id == employee.PositionId)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(positions, JsonRequestBehavior.AllowGet);
         }
 
@@ -79,13 +85,14 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     || x.Position.Parent.ParentId == unitId
                     || x.Position.Parent.Parent.ParentId == unitId)
                     && !employeeIds.Contains(x.Id))
-                .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name }).ToList();
+                .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name })
+                .OrderBy(x => x.FullName)
+                .ToList();
             return Json(employees, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult ListRoles(Guid declarationId)
         {
-            // Костыль по ролям, роли должны быть в enum, т.к. без изменения кода невозможно изменять роли
             var chairManeRoleId = repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Chairman").Id;
             var isHasChairman = repo.OBK_OP_Commission.Any(c => c.DeclarationId == declarationId && c.RoleId == chairManeRoleId);
             var roles = repo.OBK_OP_CommissionRoles

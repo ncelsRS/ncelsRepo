@@ -174,7 +174,6 @@ function getDeclarationDetails(parameters, number, controllerName) {
         var gridElement = $(idContent);
 
         gridElement.height($(window).height() - 100);
-        debugger;
         $.ajax({
             url: "/" + controllerName + "/Edit?id=" + parameters,
             //type: "POST",
