@@ -847,7 +847,7 @@ namespace PW.Ncels.Database.Repository.OBK
             if (ps == null) return null;
             var ecp = new OBKExpertiseConclusionPositive();
             ecp.ToShow = true;
-            ecp.AssessmentDeclarationId = ps.Id;
+            ecp.AssessmentDeclarationId = adId;
             ecp.ProductSeriesId = productSeriesId;
             ecp.ecEndDate = ps.ExpEndDate?.ToString();
             ecp.ecReasonNameRu = ps.ExpReasonNameRu;

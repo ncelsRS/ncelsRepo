@@ -1000,7 +1000,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             AppContext.OBK_StageExpDocument.AddOrUpdate(expDocument);
             AppContext.SaveChanges();
-
+            if(!expDocument.ExpResult) return;
             var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id);
             if (blank == null)
             {

@@ -312,6 +312,20 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return File(stream, "application/pdf", name);
         }
 
+        //public ActionResult ExpDocumentRejectFormPdf(Guid id)
+        //{
+        //    var report = new StiReport();
+        //    var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKTask.mrt");
+        //    report.Load(path);
+        //    report.Compile();
+        //    report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
+        //    report.Render(false);
+        //    Stream stream = new MemoryStream();
+        //    report.ExportDocument(StiExportFormat.Pdf, stream);
+        //    stream.Position = 0;
+        //    return File(stream, "application/pdf", "Уведомление об отказе.pdf");
+        //}
+
         public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
         {
             string name = "Заключение о безопасности и качества.pdf";
