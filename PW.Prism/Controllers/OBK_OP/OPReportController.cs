@@ -125,6 +125,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 if (executor == null) throw new ArgumentException("Current employee is not executor");
                 executor.Comment = comment;
                 executor.ExecuteResult = 1;
+                executor.Date = DateTime.Now;
 
                 if (executors.All(x => x.ExecuteResult == 1))
                 {
@@ -158,6 +159,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 if (executor == null) throw new ArgumentException("Current employee is not executor");
                 executor.Comment = comment;
                 executor.ExecuteResult = 0;
+                executor.Date = DateTime.Now;
 
                 report.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportOnReWork").Select(x => x.Id).Single();
 

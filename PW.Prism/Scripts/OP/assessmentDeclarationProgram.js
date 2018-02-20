@@ -128,6 +128,8 @@ var executor;
 
 var executors;
 
+var visibleControlProgramExecutors = false;
+
 var statuses = {
     OPProgramNew: "new",
     OPProgramSigned: "signed",
@@ -146,7 +148,8 @@ function updateHtmlVisible() {
         ? "show-executor-"
         : "show-nonexecutor-";
     status += statuses[program.StatusCode];
-    $("#tableProgramExecutors" + modelId).DataTable().column(4).visible(status === 'show-executor-signed');
+    visibleControlProgramExecutors = status === 'show-executor-signed';
+    $("#tableProgramExecutors" + modelId).DataTable().column(4).visible(visibleControlProgramExecutors);
     statusesArr.forEach(s => {
         if (s != status)
             $("." + s).hide();
@@ -155,8 +158,16 @@ function updateHtmlVisible() {
     if (program.StatusCode == "OPProgramConfirmed") {
         $(".show-program-confirmed").show();
     }
+    if (["show-executor-new", "show-executor-inrework"].indexOf(status) == -1) {
+        program._html.DateFrom.readonly();
+        program._html.DateTo.readonly();
+    }
+    else {
+        program._html.DateFrom.readonly(false);
+        program._html.DateTo.readonly(false);
+    }
 }
-
+var allInits = false;
 function loadProgram() {
     $.ajax({
         url: 'OPProgram/LoadProgram',
@@ -166,9 +177,10 @@ function loadProgram() {
         success: function (res) {
             if (res.isSuccess) {
                 program = new Program(res.data);
-                if (program.StatusCode == "OPProgramConfirmed") {
+                if (program.StatusCode == "OPProgramConfirmed" && !allInits) {
                     protocolsInit();
                     reportInit();
+                    allInits = true;
                 }
                 updateHtmlVisible();
             } else
@@ -247,7 +259,7 @@ function loadExecutors() {
                         { data: "ExecuteComment" },
                         { data: "Date" },
                         {
-                            data: "", targets: -1,
+                            data: "", targets: -1, visible: visibleControlProgramExecutors,
                             defaultContent: "<button type='button' class='k-button'>Удалить</button>"
                         }
                     ]
