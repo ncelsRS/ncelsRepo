@@ -8,6 +8,7 @@ using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Controller;
 using PW.Ncels.Database.DataModel;
+using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Repository.Common;
 using PW.Ncels.Database.Repository.OBK;
 using PW.Prism.ViewModels.OBK;
@@ -45,7 +46,15 @@ namespace PW.Prism.Controllers.OBK
             var model = GetAssessmentStage(id);
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var expDocumentResult = new OBKExpDocumentRepository().GetStageExpDocResult(model.DeclarationId);
-            ViewBag.HasExpDocumentResult = expDocumentResult != null;
+            ViewBag.ExpDocumentResult = expDocumentResult?.ExpResult;
+            if (model.OBK_Ref_Stage.Code == "15")
+            {
+                var userId = UserHelper.GetCurrentEmployee().Id;
+                ViewBag.IsCommissionMember = new ncelsEntities()
+                    .OBK_OP_Commission
+                    .Any(x => x.DeclarationId == model.DeclarationId && x.EmployeeId == userId);
+            }
+            
             return PartialView("~/Views/SafetyAssessment/Edit.cshtml", model);
         }
 

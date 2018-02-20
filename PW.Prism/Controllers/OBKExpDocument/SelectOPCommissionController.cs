@@ -28,13 +28,17 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var result = members.Select(x =>
             {
                 var employee = x.Employee;
+                var unit = repo.Units.FirstOrDefault(u => u.ParentId == employee.OrganizationId
+                        && (u.Id == employee.Position.ParentId
+                            || u.Id == employee.Position.Parent.ParentId
+                            || u.Id == employee.Position.Parent.Parent.ParentId));
                 return new
                 {
                     x.Id,
                     employee.OrganizationId,
                     Organization = employee.Organization.Name,
-                    UnitId = employee.Position.ParentId,
-                    Unit = repo.Units.FirstOrDefault(u => u.Id == employee.Position.ParentId)?.Name,
+                    UnitId = unit?.Id,
+                    Unit = unit?.Name,
                     Position = employee.Position.Name,
                     EmployeeId = employee.Id,
                     FIO = employee.FullName,
@@ -49,7 +53,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var orgs = repo.Units
                 .Where(x => x.Code == OrganizationConsts.NCELS)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }
 
@@ -57,7 +63,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
         {
             var units = repo.Units
                 .Where(x => x.ParentId == organizationId)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(units, JsonRequestBehavior.AllowGet);
         }
 
@@ -66,11 +74,13 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var employee = repo.Employees.FirstOrDefault(x => x.Id == employeeId);
             var positions = repo.Units
                 .Where(x => x.PositionState == 1 && x.Id == employee.PositionId)
-                .Select(x => new { x.Id, x.Name }).ToList();
+                .Select(x => new { x.Id, x.Name })
+                .OrderBy(x => x.Name)
+                .ToList();
             return Json(positions, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult ListEmployees(Guid declarationId, Guid unitId)
+        public ActionResult ListEmployees(Guid declarationId, Guid unitId, string mode)
         {
             var employeeIds = repo.OBK_OP_Commission.Where(c => c.DeclarationId == declarationId).Select(e => e.EmployeeId);
             var employees = repo.Employees
@@ -78,16 +88,19 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     x.Position.ParentId == unitId
                     || x.Position.Parent.ParentId == unitId
                     || x.Position.Parent.Parent.ParentId == unitId)
-                    && !employeeIds.Contains(x.Id))
-                .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name }).ToList();
+                    && (!employeeIds.Contains(x.Id) || mode == "2"))
+                .Select(x => new { x.Id, x.FullName, PositionName = x.Position.Name })
+                .OrderBy(x => x.FullName)
+                .ToList();
             return Json(employees, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult ListRoles(Guid declarationId)
+        public ActionResult ListRoles(Guid declarationId, string mode)
         {
-            // Костыль по ролям, роли должны быть в enum, т.к. без изменения кода невозможно изменять роли
             var chairManeRoleId = repo.OBK_OP_CommissionRoles.Single(x => x.Code == "Chairman").Id;
-            var isHasChairman = repo.OBK_OP_Commission.Any(c => c.DeclarationId == declarationId && c.RoleId == chairManeRoleId);
+            var isHasChairman = mode == "2" 
+                ? false
+                : repo.OBK_OP_Commission.Any(c => c.DeclarationId == declarationId && c.RoleId == chairManeRoleId);
             var roles = repo.OBK_OP_CommissionRoles
                 .Where(r => !isHasChairman || r.Id != chairManeRoleId)
                 .Select(x => new { x.Id, Name = x.NameRu }).ToList();
@@ -106,6 +119,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
             else
             {
                 var memberOld = repo.OBK_OP_Commission.FirstOrDefault(x => x.Id == member.Id);
+                memberOld.EmployeeId = member.EmployeeId;
                 memberOld.RoleId = member.RoleId;
             }
             repo.SaveChanges();

@@ -277,7 +277,7 @@ namespace PW.Prism.Controllers.OBK_OP
                 stage.OBK_AssessmentDeclaration.StatusId = repo.OBK_Ref_StageStatus.Single(x => x.Code == "completed").Id;
 
                 var reportStage = repo.OBK_AssessmentReportOP.Single(x => x.DeclarationId == id);
-                reportStage.StageStatusId = stage.OBK_AssessmentDeclaration.StatusId;
+                reportStage.StageStatusId = repo.OBK_Ref_StageStatus.FirstOrDefault(x => x.Code == "OPMotivatedRefusalCompleted").Id;
 
                 repo.SaveChanges();
 

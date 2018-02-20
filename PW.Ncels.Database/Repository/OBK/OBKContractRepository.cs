@@ -804,7 +804,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public List<OBKContractServiceViewModel> GetContractPrices(Guid contractId)
         {
             var list = AppContext.OBK_ContractPrice
-                .Where(x => x.ContractId == contractId && x.ProductId != null)
+                .Where(x => x.ContractId == contractId)
                 .Select(x => new OBKContractServiceViewModel
                 {
                     Id = x.Id,
