@@ -52,7 +52,7 @@
                                                         var t = Model.ExpertiseConclusion[index];
                                                         var i = index + 1;
                                                         var btnResult = t.BtnResult;
-                                                        <tr rowid="@t.ProductSeriesId" rcr="@t.ResearchCenterResult" br="@btnResult">
+                                                        <tr rowid="@t.ProductSeriesId" rcr="@t.ResearchCenterResult" br="@btnResult" rcrn="@t.ResearchCenterResultName">
                                                             <td>@i</td>
                                                             <td>@t.ProductNameRu</td>
                                                             <td>
@@ -84,16 +84,24 @@
 @*</div>*@
 <script>
 
-    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").click(function () {
+    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").click(function() {
         $(this).addClass('selected').siblings().removeClass('selected');
         $("#panelExpertiseConclusion_@Model.AssessmentDeclarationId").hide();
         $("#showProtocol_@Model.AssessmentDeclarationId").show();
         showEcSignBtnValid();
         var code = $(this).attr('br');
-        if (code === "2")
-            btnHide('hide');
-        else
-            btnHide('show');
+        var code2 = $(this).attr('rcrn');
+        if (code2 === "Испытания не завершены") {
+            $("#result_@Model.AssessmentDeclarationId").hide();
+            $("#showResult_@Model.AssessmentDeclarationId").hide();
+            $("#showPdfResult_@Model.AssessmentDeclarationId").hide();
+            $("#showProtocol_@Model.AssessmentDeclarationId").hide();
+        } else {
+            if (code === "2")
+                btnHide('hide');
+            else
+                btnHide('show');
+        }
     });
 
     function showProtocol() {
