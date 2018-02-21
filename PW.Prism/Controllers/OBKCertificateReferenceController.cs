@@ -100,7 +100,6 @@ namespace PW.Prism.Controllers
 
             if (dictionary != null && ModelState.IsValid)
             {
-
                 OBK_CertificateReference d = new OBK_CertificateReference()
                 {
                     Id = (Guid)dictionary.Id,
@@ -114,6 +113,8 @@ namespace PW.Prism.Controllers
                     CertificateTypeId = dictionary.CertificateTypeId,
                     LastInspection = dictionary.LastInspection,
                     AttachPath = dictionary.AttachPath,
+                    CreateDate = DateTime.Now,
+                    ExpertOrganization = UserHelper.GetCurrentEmployee().OrganizationId
                 };
                 if (dictionary.EndDate >= DateTime.Now)
                 {

@@ -1,0 +1,438 @@
+﻿@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Constants
+@model Guid?
+
+<script>
+
+    function GetlaboratoryId()
+    {
+        var labId = $("#LaboratoryNamesList" + "@Model").val();
+        return { unitLaboratoryId: labId }
+    }
+
+</script>
+
+@helper ToolbarSpecialistsReport()
+    {
+        <div class="pull-left">
+            <label>ОПС</label>
+            @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
+                                                                                        .AutoBind(false)
+                                                                                        .OptionLabel("Все")
+                                                                                        .DataTextField("Name")
+                                                                                        .DataValueField("Id")
+                                                                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                                                                        .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
+            <label>ФИО</label>
+            @(Html.Kendo().DropDownList().Name("laboratoryWorkers" + Model)
+                        .AutoBind(false)
+                        .OptionLabel("Все")
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .HtmlAttributes(new { @style = "width: 400px" })
+                        .DataSource(dataSource => dataSource.Read(read => read.Action("LaboratoryWorkers", "OBKReport"))))
+
+            @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))
+            @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
+            <br><br>
+            <label>Дата начала</label>
+            @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>Дата окончания</label>
+            @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
+
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload" + Model).Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@helper ToolbarLaboratoryReport()
+    {
+        <div class="pull-left">
+            <label>ОПС</label>
+            @(Html.Kendo().DropDownList().Name("expertOrganizationsLab" + Model)
+                                                                                        .AutoBind(false)
+                                                                                        .OptionLabel("Все")
+                                                                                        .DataTextField("Name")
+                                                                                        .DataValueField("Id")
+                                                                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                                                                        .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
+            <label>Лаборатории</label>
+            @(Html.Kendo().DropDownList().Name("LaboratoryNamesList" + Model)
+                        .AutoBind(false)
+                        .OptionLabel("Все")
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .HtmlAttributes(new { @style = "width: 400px" })
+                        .DataSource(dataSource => dataSource.Read(read => read.Action("LaboratoryNamesList", "OBKReport"))))
+
+            @( Html.Kendo().Button().Name("searchLab" + Model).Content("Найти"))
+            @( Html.Kendo().Button().Name("exportLab" + Model).Content("Экспорт"))
+            <br><br>
+            <label>Дата начала</label>
+            @( Html.Kendo().DatePicker().Name("dateFromLab" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>Дата окончания</label>
+            @( Html.Kendo().DatePicker().Name("dateToLab" + Model).Format("{0:dd.MM.yyyy}") )
+
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reloadLab" + Model).Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+
+@(Html.Kendo().Splitter()
+                .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                .Name(("splitter" + Model))
+                    .Panes(panes =>
+                    {
+                        panes.Add().Size("250px").Collapsible(true).MaxSize("500px").MinSize("250px")
+              .Content(
+                        @<div class="pwPanelBar">
+                            @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                                                .Name("panelbar" + Model).ExpandMode(PanelBarExpandMode.Multiple).ExpandAll(true).HtmlAttributes(new { style = "width:auto;" })
+                                                                    .Items(panelbar =>
+                                                                        {
+                                                                                    panelbar.Add().Expanded(true);
+                                                                                    panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Типысправочников_108__00)
+                                                    .Items(projects =>
+                                                        {
+                                                                                projects.Add().Text("Отчет по специалистам").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "SpecialistsReport" } });
+                                                                                projects.Add().Text("Отчет по лабораториям").LinkHtmlAttributes(new Dictionary<string, object>() { { "Id", "LaboratoriesReport" } });
+                                                                            });
+                                                                                }))
+                        </div>
+                                              );
+
+                                panes.Add().Scrollable(false).Size("100%").Content(
+                                                                                @<div class="pwPanelBar">
+                                                                                    <div id="@("specialists-table" + Model)">
+                                                                                        @( Html.Kendo().Grid<OBK_SpecialistsReport>()
+                                                                                                    .Name("OBK_SpecialistsReport" + Model)
+                                                                                                    .Columns(columns =>
+                                                                                                    {
+                                                columns.Bound(p => p.TaskNumber).Title("Номер задания на испытания").Width(80);
+                                                columns.Bound(p => p.RegisterDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(100);
+                                                columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
+                                                columns.Bound(p => p.Declarant).Title("Заявитель").Width(120);
+                                                columns.Bound(p => p.ProtocolResult).Title("Кол-во протоколов").Width(80);
+                                                columns.Bound(p => p.ProtocolResult).Title("Кол-во протоколов с <br> результатом соответствует").Width(150);
+                                                columns.Bound(p => p.ProtocolResult).ClientTemplate("#=zero(ProtocolResult)#").Title("Кол-во протоколов с <br> результатом не соответствует").Width(100);
+                                                columns.Bound(p => p.ProtocolResult).ClientTemplate("<p></p>").Title("Кол-во просроченных протоколов").Width(80);
+                                                columns.Bound(p => p.ProductType).Title("Тип").Width(80);
+                                                columns.Bound(p => p.Executor).Visible(false);
+                                            })
+                                                                                                        .AutoBind(false)
+                                                                                                                                                                                 .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                                                                 .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                                                                 .ToolBar(toolbar => { toolbar.Template(ToolbarSpecialistsReport().ToHtmlString()); })
+                                                                                                                                                                                 .Groupable()
+                                                                                                                                                                                 .Sortable()
+                                                                                                                                                                                 .Filterable()
+                                                                                                                                                                                 .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                                                                 .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                                                                 .Pageable()
+                                                                                                                                                                                 .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                                                                                                                                 .DataSource(dataSource => dataSource
+                                                                                                                                                                                     .Ajax()
+                                                                                                                                                                                     .Sort(sort => { sort.Add("RegisterDate").Descending(); })
+                                                                                                                                                                                     .PageSize(30)
+                                                                                                                                                                                     .Read(read => read.Action("SpecialistsReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
+                                                                                                                                                                                    )
+                                                                                        ))
+
+                                                                                    </div>
+
+                                                                                    <div id="@("laboratory-table" + Model)">
+                                                                                        @( Html.Kendo().Grid<OBK_LaboratoryFunction_Result>()
+                                                                                                       .Name("OBK_LaboratoryFunction" + Model)
+                                                                                                       .Columns(columns =>
+                                                                                                       {
+                                                   columns.Bound(p => p.TaskNumber).Title("Номер задания").Width(80);
+                                                   columns.Bound(p => p.ExpertOrganization).Title("Орган по <br> сертификации").Width(150);
+                                                   columns.Bound(p => p.ProductName).Title("Наименование <br> продукции").Width(120);
+                                                   columns.Bound(p => p.SubTaskNumber).Title("Номер <br> протокола").Width(80);
+                                                   columns.Bound(p => p.ActDate).Format("{0:dd.MM.yyyy}").Title("Дата акта <br> отбора").Width(100);
+                                                   columns.Bound(p => p.SendToIC).Format("{0:dd.MM.yyyy}").Title("Дата <br> регистрации в ИЦ").Width(100);
+                                                   columns.Bound(p => p.ProductName).ClientTemplate("<p></p>").Title("Контрольная <br> дата").Width(80);
+                                                   columns.Bound(p => p.Tests).Title("Испытания").Width(80);
+                                                   columns.Bound(p => p.ProductName).ClientTemplate("<p></p>").Title("Дата <br> завершения ИЦл").Width(80);
+                                                   columns.Bound(p => p.ProtocolResult).ClientTemplate("#=protocolResult(ProtocolResult)#").Title("Результат").Width(120);
+                                               })
+                                                                                                           .AutoBind(false)
+                                                                                                                                                                                    .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                                                                    .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                                                                    .ToolBar(toolbar => { toolbar.Template(ToolbarLaboratoryReport().ToHtmlString()); })
+                                                                                                                                                                                    .Groupable()
+                                                                                                                                                                                    .Sortable()
+                                                                                                                                                                                    .Filterable()
+                                                                                                                                                                                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                                                                    .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                                                                    .Pageable()
+                                                                                                                                                                                    .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                                                                                                                                    .DataSource(dataSource => dataSource
+                                                                                                                                                                                        .Ajax()
+                                                                                                                                                                                        .Sort(sort => { sort.Add("SendToIC").Descending(); })
+                                                                                                                                                                                        .PageSize(30)
+                                                                                                                                                                                        .Read(read => read.Action("OBK_LaboratoryList", "OBKReport").Data("GetlaboratoryId"))
+                                                                                                                                                                                       )
+                                                                                        ))
+                                                                                    </div>
+                                                                                </div>
+                          );
+                                    }))
+
+                                                                                 <script>
+
+    $("#laboratory-table" + "@Model").hide();
+
+    $("#SpecialistsReport").click(function ()
+    {
+        $("#laboratory-table" + "@Model").hide();
+        $("#specialists-table" + "@Model").show();
+    });
+
+    $("#LaboratoriesReport").click(function ()
+    {
+        $("#specialists-table" + "@Model").hide();
+        $("#laboratory-table" + "@Model").show();
+    });
+
+    function protocolResult(result){
+        if (result == 1)
+        {
+            return "соответствует требованиям";
+        }
+            return "не соответствует требованиям";
+    }
+
+    function reloadSpecialistReport(){
+        $("#OBK_SpecialistsReport" + "@Model").data("kendoGrid").dataSource.read();
+    }
+
+    function zero(num){
+
+        if (num == 1)
+        {
+            return 0;
+        }
+        if (num == 0)
+        {
+            return 1;
+        }
+        return num;
+    }
+
+
+    $("#reload" + "@Model").click(function ()
+        {
+        $("#OBK_SpecialistsReport" + "@Model").data("kendoGrid").dataSource.read();
+        });
+
+    $("#reloadLab" + "@Model").click(function ()
+        {
+        $("#OBK_LaboratoryFunction" + "@Model").data("kendoGrid").dataSource.read();
+        });
+
+    $("#export" + "@Model").click(function ()
+    {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+
+         if(fr != '' || to != '' || org != ''){
+             var grid = $("#OBK_SpecialistsReport" + "@Model").data("kendoGrid");
+             parameterMap = grid.dataSource.transport.parameterMap;
+             var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+             window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@OBKReportCodes.SPECIALISTS_REPORT");
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+    $("#exportLab" + "@Model").click(function ()
+    {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+         var lab = $('#LaboratoryNamesList' + '@Model').val();
+
+         if(fr != '' || to != '' || org != '' || lab != ''){
+             var grid = $("#OBK_LaboratoryFunction" + "@Model").data("kendoGrid");
+             parameterMap = grid.dataSource.transport.parameterMap;
+             var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+             window.open('/OBKReport/ExportOBKLaboratoryReport?request=' + $.param(data) + "&unitLaboratoryId=" + $("#LaboratoryNamesList" + "@Model").val());
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+     function initZBKReportFilters(){
+        var from = $('#dateFrom' + "@Model").val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#dateTo' + "@Model").val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#OBK_SpecialistsReport" + "@Model").data("kendoGrid");
+         var filterArr = grid.dataSource.filter();
+         var filter = [];
+         if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+         }
+
+        var expertOrganizations = $('#expertOrganizations' + '@Model').val();
+        var laboratoryWorkers = $('#laboratoryWorkers' + '@Model').val();
+
+        if (from != undefined && from != null && from != "")
+        {
+            checkRemove(filter, "RegisterDate", "gte");
+            filter.push(
+                { field: "RegisterDate", operator: "gte", value: fromDate });
+        } else
+        {
+            checkRemove(filter, "RegisterDate", "gte");
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            checkRemove(filter, "RegisterDate", "lte");
+            filter.push(
+                { field: "RegisterDate", operator: "lte", value: toDate });
+        } else
+        {
+            checkRemove(filter, "RegisterDate", "lte");
+        }
+
+        if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+            filter.push(
+                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizations") });
+        } else
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+        }
+
+        if (laboratoryWorkers != undefined && laboratoryWorkers != null && laboratoryWorkers != "")
+        {
+            checkRemove(filter, "Executor", "eq");
+            filter.push(
+                { field: "Executor", operator: "eq", value: getDropDownVal("#laboratoryWorkers") });
+        } else
+        {
+            checkRemove(filter, "Executor", "eq");
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    function initLaboratoryFilters(){
+        var from = $('#dateFromLab' + "@Model").val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#dateToLab' + "@Model").val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#OBK_LaboratoryFunction" + "@Model").data("kendoGrid");
+         var filterArr = grid.dataSource.filter();
+         var filter = [];
+         if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+         }
+
+        var expertOrganizations = $('#expertOrganizationsLab' + '@Model').val();
+
+        if (from != undefined && from != null && from != "")
+        {
+            checkRemove(filter, "SendToIC", "gte");
+            filter.push(
+                { field: "SendToIC", operator: "gte", value: fromDate });
+        } else
+        {
+            checkRemove(filter, "SendToIC", "gte");
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            checkRemove(filter, "SendToIC", "lte");
+            filter.push(
+                { field: "SendToIC", operator: "lte", value: toDate });
+        } else
+        {
+            checkRemove(filter, "SendToIC", "lte");
+        }
+
+        if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+            filter.push(
+                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizationsLab") });
+        } else
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    function getDropDownVal(name){
+        return $.trim($(name + "@Model").data("kendoDropDownList").text());
+    };
+
+     $("#search" + "@Model").click(function ()
+     {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+         var lab = $('#laboratoryWorkers' + '@Model').val();
+
+         if(fr != '' || to != '' || org != '' || lab != ''){
+             initZBKReportFilters();
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+$("#searchLab" + "@Model").click(function ()
+{
+
+         var fr = $("#dateFromLab" + "@Model").val();
+         var to = $("#dateToLab" + "@Model").val();
+         var org = $("#expertOrganizationsLab" + "@Model").val();
+         var lab = $('#LaboratoryNamesList' + '@Model').val();
+
+         if(fr != '' || to != '' || org != '' || lab != ''){
+             initLaboratoryFilters();
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+    function checkRemove(arr, field, operator) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].field == field && arr[i].operator == operator)
+            {
+                arr.splice(i, 1);
+            }
+        }
+    }
+
+                                                                                 </script>

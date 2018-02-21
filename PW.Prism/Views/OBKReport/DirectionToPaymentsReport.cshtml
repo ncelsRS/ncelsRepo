@@ -12,6 +12,14 @@
             @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
             <label>Дата окончания</label>
             @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>ОПС</label>
+            @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
+                                        .AutoBind(false)
+                                        .OptionLabel("Все")
+                                        .DataTextField("Name")
+                                        .DataValueField("Id")
+                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                        .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
 
             @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))                                                                                 
             @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
@@ -20,8 +28,7 @@
         <div class="pull-right">
             <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
             <div style="display: inline-block">
-                @( Html.Kendo().Button().Name("reload")
-                                                                            .Content("").ImageUrl("/Content/images/reload.png"))
+                @( Html.Kendo().Button().Name("reload" + Model).Content("").ImageUrl("/Content/images/reload.png"))
             </div>
         </div>
 }
@@ -33,21 +40,20 @@
                       {
                           panes.Add().Scrollable(false).Size("100%").Content(
                             @<div class="pwPanelBar">
-                                @( Html.Kendo().Grid<OBK_ZBKCopyReportView>()
-                                                                         .Name("OBK_ZBKCopyReportView" + Model)
+                                @( Html.Kendo().Grid<DirectionPaymentsReportView>()
+                                                                         .Name("DirectionPaymentsReportView" + Model)
 
                                                                          .Columns(columns =>
                                                                          {
-                                                                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи копии заключения").Width(80);
-                                                                             columns.Bound(p => p.BlankInterval).Title("Номер бланка копии заключения").Width(150);
-                                                                             columns.Bound(p => p.BlankQuantity).Title("Количество бланков").Width(100);
-                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
-                                                                             columns.Bound(p => p.Declarant).Title("Наименование фирмы").Width(180);
-                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный номер заключения").Width(150);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Комментарий").Width(60);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Эксперт").Width(60);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("ЦОЗ").Width(60);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Заявитель").Width(60);
+                                                                             columns.Bound(p => p.TypeId).Title("Тип работ").Width(200);
+                                                                             columns.Bound(p => p.ContractNumber).Title("Номер договора").Width(70);
+                                                                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(80);
+                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(180);
+                                                                             columns.Bound(p => p.Declarant).Title("Наименование фирмы").Width(150);
+                                                                             columns.Bound(p => p.TotalPrice).Title("Сумма ОС").Width(60);
+                                                                             columns.Bound(p => p.InvoiceNumber1C).Title("Номер счета").Width(60);
+                                                                             columns.Bound(p => p.InvoiceDatetime1C).Format("{0:dd.MM.yyyy}").Title("Дата счета").Width(80);
+                                                                             columns.Bound(p => p.PayStatus).Title("Отметка о поступлении").Width(60);
                                                                          })
                                                                          .AutoBind(false)
                                                                          .Reorderable(reorderable => reorderable.Columns(true))
@@ -62,7 +68,7 @@
                                                                          .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
                                                                          .DataSource(dataSource => dataSource
                                                                              .Ajax()
-                                                                             .Sort(sort => { sort.Add("ExtraditeDate").Descending(); })
+                                                                             .Sort(sort => { sort.Add("SendDate").Descending(); })
                                                                              .PageSize(30)
                                                                              .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
                                                                             )
@@ -75,21 +81,22 @@
                              <script>
 
     function reloadDeclarationReport(){
-        $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#DirectionPaymentsReportView" + "@Model").data("kendoGrid").dataSource.read();
     }
 
     $("#reload" + "@Model").click(function ()
         {
-        $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#DirectionPaymentsReportView" + "@Model").data("kendoGrid").dataSource.read();
         });
 
     $("#export" + "@Model").click(function ()
     {
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
 
-         if(fr != '' || to != ''){
-             var grid = $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid");
+         if(fr != '' || to != '' || org != ''){
+             var grid = $("#DirectionPaymentsReportView" + "@Model").data("kendoGrid");
              parameterMap = grid.dataSource.transport.parameterMap;
              var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
              window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@ViewData["reportType"]");
@@ -105,31 +112,43 @@
         var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
         var to = $('#dateTo' + "@Model").val();
         var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
-        var grid = $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid");
+        var grid = $("#DirectionPaymentsReportView" + "@Model").data("kendoGrid");
          var filterArr = grid.dataSource.filter();
          var filter = [];
          if(filterArr != undefined || filterArr != null){
              filter = filterArr.filters;
          }
+                                 debugger;
+        var expertOrganizations = $('#expertOrganizations' + '@Model').val();
 
         if (from != undefined && from != null && from != "")
         {
-            checkRemove(filter, "ExtraditeDate", "gte");
+            checkRemove(filter, "SendDate", "gte");
             filter.push(
-                { field: "ExtraditeDate", operator: "gte", value: fromDate });
+                { field: "SendDate", operator: "gte", value: fromDate });
         } else
         {
-            checkRemove(filter, "ExtraditeDate", "gte");
+            checkRemove(filter, "SendDate", "gte");
         }
 
         if (to != undefined && to != null && to != "")
         {
-            checkRemove(filter, "ExtraditeDate", "lte");
+            checkRemove(filter, "SendDate", "lte");
             filter.push(
-                { field: "ExtraditeDate", operator: "lte", value: toDate });
+                { field: "SendDate", operator: "lte", value: toDate });
         } else
         {
-            checkRemove(filter, "ExtraditeDate", "lte");
+            checkRemove(filter, "SendDate", "lte");
+        }
+
+        if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+            filter.push(
+                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizations") });
+        } else
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
         }
 
         grid.dataSource.filter({
@@ -146,8 +165,9 @@
      {
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
 
-         if(fr != '' || to != ''){
+         if(fr != '' || to != '' || org != ''){
              initZBKReportFilters();
          } else
          {
