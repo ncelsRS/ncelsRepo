@@ -205,7 +205,7 @@ function updateReportHtmlVisible() {
             $("#sendToUobk" + modelId).hide();
             $("#sendToEC" + modelId).show();
         }
-    if (report.StatusCode == "OPReportCompleted")
+    if (report.StatusCode == "OPReportCompleted" && isAssessmentExecutor)
         $("#sendToUobk" + modelId).show();
     if (report.StatusCode == "OPMotivatedRefusalNew" || report.StatusCode == "OPMotivatedRefusalCompleted") {
         $(".show-motivation-refusal").show();
