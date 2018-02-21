@@ -63,7 +63,7 @@ namespace PW.Ncels.Database.Repository.OBK
             string tn = null;
             string sed = null;
             var list = new List<OBK_ProductInfo>();
-            if (!string.IsNullOrEmpty(regNumber)) {  rn = string.Format(" and r.reg_number like '%{0}%'", regNumber); }
+            if (!string.IsNullOrEmpty(regNumber)) { rn = string.Format(" and r.reg_number like '%{0}%'", regNumber); }
             if (!string.IsNullOrEmpty(tradeName)) { tn = string.Format(" and r.name like '%{0}%'", tradeName); }
             if (!drugEndDateExpired) { sed = string.Format(" and (r.expiration_date IS NULL or r.expiration_date >= '{0}')", DateTime.Now); } else { sed = string.Format(" and (r.expiration_date IS NOT NULL or r.expiration_date < '{0}')", DateTime.Now); }
             var conString = ConfigurationManager.ConnectionStrings["register_portal"].ToString();
@@ -838,21 +838,45 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public List<OBKContractServiceViewModel> GetContractPricesAdditional(Guid contractId)
         {
-            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null).Select(x => new OBKContractServiceViewModel
-            {
-                Id = x.Id,
-                ServiceName = x.OBK_Ref_PriceList.NameRu,
-                ServiceId = x.PriceRefId,
-                UnitOfMeasurementId = x.OBK_Ref_PriceList.UnitId,
-                UnitOfMeasurementName = x.OBK_Ref_PriceList.Dictionary.Name,
-                PriceWithoutTax = x.OBK_Ref_PriceList.Price,
-                Count = x.Count,
-                FinalCostWithoutTax = x.PriceWithoutTax,
-                FinalCostWithTax = x.PriceWithTax,
-                ProductId = x.ProductId,
-                ProductName = x.OBK_RS_Products.NameRu
-            }
+            var list = AppContext.OBK_ContractPrice.Where(x => x.ContractId == contractId && x.ProductId == null)
+                .Select(x => new OBKContractServiceViewModel
+                {
+                    Id = x.Id,
+                    ServiceName = x.OBK_Ref_PriceList.NameRu,
+                    ServiceId = x.PriceRefId,
+                    UnitOfMeasurementId = x.OBK_Ref_PriceList.UnitId,
+                    UnitOfMeasurementName = x.OBK_Ref_PriceList.Dictionary.Name,
+                    PriceWithoutTax = x.OBK_Ref_PriceList.Price,
+                    Count = x.Count,
+                    FinalCostWithoutTax = x.PriceWithoutTax,
+                    FinalCostWithTax = x.PriceWithTax,
+                    ProductId = x.ProductId,
+                    ProductName = x.OBK_RS_Products.NameRu
+                }
             ).ToList();
+            return list;
+        }
+
+        public List<OBKContractServiceViewModel> GetAllContractPrices(Guid contractId)
+        {
+            var list = AppContext.OBK_ContractPrice
+                .Where(x => x.ContractId == contractId 
+                    && (x.OBK_Contract.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL || x.ProductId != null))
+                .Select(x => new OBKContractServiceViewModel
+                {
+                    Id = x.Id,
+                    ServiceName = x.OBK_Ref_PriceList.NameRu,
+                    ServiceId = x.PriceRefId,
+                    UnitOfMeasurementId = x.OBK_Ref_PriceList.UnitId,
+                    UnitOfMeasurementName = x.OBK_Ref_PriceList.Dictionary.Name,
+                    PriceWithoutTax = x.OBK_Ref_PriceList.Price,
+                    Count = x.Count,
+                    FinalCostWithoutTax = x.PriceWithoutTax,
+                    FinalCostWithTax = x.PriceWithTax,
+                    ProductId = x.ProductId,
+                    ProductName = x.OBK_RS_Products.NameRu
+                })
+                .ToList();
             return list;
         }
 
@@ -1190,8 +1214,8 @@ namespace PW.Ncels.Database.Repository.OBK
                 dt.Load(reader);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    var id = (int) dt.Rows[i]["id"];
-                    var registerId = (int) dt.Rows[i]["register_id"];
+                    var id = (int)dt.Rows[i]["id"];
+                    var registerId = (int)dt.Rows[i]["register_id"];
                     var boxCount = dt.Rows[i]["box_count"].ToString();
                     var fullName = dt.Rows[i]["full_name"].ToString();
                     var fullNameKz = dt.Rows[i]["full_name_kz"].ToString();
@@ -1247,7 +1271,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     var countryName = dt.Rows[i]["country_name"].ToString();
                     var producerNameKz = dt.Rows[i]["producer_name_kz"].ToString();
                     var countryNameKz = dt.Rows[i]["country_name_kz"].ToString();
-                    var mtPart = new OBKMtPartViewModel {
+                    var mtPart = new OBKMtPartViewModel
+                    {
                         Id = id,
                         RegisterId = registerId,
                         Name = name,
@@ -1794,7 +1819,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public IQueryable<object> GetSigners(Guid expertOrganizationId)
         {
             string[] signerCodes = { OrganizationConsts.Сeo, OrganizationConsts.Deputyceo };
-            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code) && e.Units.Any(x=>x.ParentId == expertOrganizationId || x.Parent.ParentId == expertOrganizationId || x.Parent.Parent.ParentId == expertOrganizationId)).Select(e => new
+            var items = AppContext.Employees.Where(e => signerCodes.Contains(e.Position.Code) && e.Units.Any(x => x.ParentId == expertOrganizationId || x.Parent.ParentId == expertOrganizationId || x.Parent.Parent.ParentId == expertOrganizationId)).Select(e => new
             {
                 e.Id,
                 Name = e.Position.ShortName + " " + e.ShortName
@@ -1877,7 +1902,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     ParentStageId = parentStage.Id,
                     ResultId = null
                 };
-                
+
                 // Руководитель ДЭФ
                 var organization = (AppContext.Units.FirstOrDefault(e => e.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode) ??
                                     AppContext.Units.FirstOrDefault(e => e.Parent.ParentId == parentStage.OBK_Contract.ExpertOrganization && e.Code == OrganizationConsts.FinanceDepartmentCode)) ??

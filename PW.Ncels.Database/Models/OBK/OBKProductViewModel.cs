@@ -11,6 +11,8 @@ namespace PW.Ncels.Database.Models.OBK
         /// id серии
         /// </summary>
         public int Id { get; set; }
+        public int ProductId { get; set; }
+        public Guid? ActReceptionId { get; set; }
         public string ProductNameRu { get; set; }
         public string ProductNameKz { get; set; }
         public string Series { get; set; }

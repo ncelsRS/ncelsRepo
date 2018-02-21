@@ -66,7 +66,7 @@
                     panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
                         .Items(projects =>
                         {
-                            if (EmployePermissionHelper.CanSafetyAssessmentExecutorsAssignment)
+                            if (EmployePermissionHelper.CanSafetyAssessmentExecutorsAssignment && Model.DicStageId != CodeConstManager.STAGE_OBK_PIMS)
                                 projects.Add().Text("Новые").LinkHtmlAttributes(new Dictionary<string, object>()
                                 {
                                     {"ItemId", OBK_Ref_StageStatus.New}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "new" + Model.Guid.ToString()}
@@ -120,7 +120,13 @@
                                             {"ItemId", OBK_Ref_StageStatus.OnOP}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "onOP" + Model.Guid.ToString()}
                                         });
                             }
-                            projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
+                            if (Model.DicStageId == CodeConstManager.STAGE_OBK_PIMS)
+                                projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
+                                {
+                                    {"ItemId", OBK_Ref_StageStatus.OPCompleted}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "completed" + Model.Guid.ToString()}
+                                });
+                            else
+                                projects.Add().Text("Выполненные").LinkHtmlAttributes(new Dictionary<string, object>()
                                 {
                                     {"ItemId", OBK_Ref_StageStatus.Completed}, {"ItemType", "StageStatusCode"}, {"ModelId", Model.Guid.ToString()}, {"id", "completed" + Model.Guid.ToString()}
                                 });
@@ -160,8 +166,15 @@
                                                  //columns.Bound(p => p.)
                                                  columns.Bound(p => p.FirstSendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи").Width(120);
                                                  columns.Bound(p => p.RegType).Title("Вид регистрации").Width(350);
-                                                 columns.Bound(p => p.StatusName).Title("Статус").Width(150);
-                                                 
+                                                 if (Model.DicStageId == CodeConstManager.STAGE_OBK_PIMS)
+                                                 {
+                                                     columns.Bound(p => p.StageStatusNameRu).Title("Статус").Width(150);
+                                                 }
+                                                 else
+                                                 {
+                                                     columns.Bound(p => p.StatusName).Title("Статус").Width(150);
+                                                 }
+
                                                  columns.Bound(p => p.DeclarantName).Title("Заявитель").Width(150);
                                                  columns.Bound(p => p.CountryNameRu).Title("Страна").Width(150);
                                                  columns.Bound(p => p.ContractNumber).Title("№ договора").Width(150);

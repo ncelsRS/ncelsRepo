@@ -1,22 +1,82 @@
 ﻿@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
 <script>
+    function Member() {
+        var that = this;
+
+        var id;
+        this.mode = 0; // 1 - добавление нового, 2 - редактирование, используется в методе по кнопке Сохранить
+
+        this.getEntity = function () {
+            that.mode = 0;
+            var entity = {
+                Id: id,
+                EmployeeId: $("#EmployeeId@(Model.Id)").val(),
+                RoleId: $("#Role@(Model.Id)").val()
+            };
+            return entity;
+        }
+
+        this.add = function () {
+            id = null;
+            that.mode = 1;
+            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
+            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
+            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
+            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
+            organizationKendo.value('');
+            unitKendo.value('');
+            employeeKendo.value('');
+            roleKendo.value('');
+            $("#creatyOrModifyPanel").show();
+            organizationKendo.enable();
+            unitKendo.enable();
+            employeeKendo.enable();
+        }
+
+        this.edit = function (entity) {
+            id = entity.Id;
+            that.mode = 2;
+
+            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
+            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
+            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
+            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
+
+            organizationKendo.value(entity.OrganizationId);
+            unitKendo.value(entity.UnitId);
+            employeeKendo.value(entity.EmployeeId);
+            roleKendo.value(entity.RoleId);
+
+            $("#creatyOrModifyPanel").show();
+            organizationKendo.enable(false);
+        }
+
+        this.clearAndHide = function () {
+            this.add();
+            $("#creatyOrModifyPanel").hide();
+        }
+    }
+
     var membersCount = 0;
+    var hideBtns = false;
 
     function filterUnits() {
         return {
-            organizationId: $("#OrganizationId").val()
+            organizationId: $("#OrganizationId@(Model.Id)").val(),
         }
     }
     function filterEmployees() {
         return {
             declarationId: "@(Model.Id)",
-            unitId: $("#UnitId").val()
+            unitId: $("#UnitId@(Model.Id)").val(),
+            mode: currentMember.mode
         }
     }
 
     function filterRoles(e) {
         return {
-            declarationId: "@(Model.Id)"
+            declarationId: "@(Model.Id)",
+            mode: currentMember.mode
         }
     }
 
@@ -47,8 +107,8 @@
                             { "data": "Position" },
                             { "data": "RoleName" },
                             { "data": "FIO" },
-                            { "data": "", targets: -1, defaultContent: "<button type='button' class='k-button' data-bind='edit'>Изменить</button>" },
-                            { "data": "", targets: -1, defaultContent: "<button type='button' class='k-button' data-bind='rm'>Удалить</button>" }
+                            { "data": "", visible: !hideBtns, targets: -1, defaultContent: "<button type='button' class='k-button' data-bind='edit'>Изменить</button>" },
+                            { "data": "", visible: !hideBtns, targets: -1, defaultContent: "<button type='button' class='k-button' data-bind='rm'>Удалить</button>" }
                         ]
                     });
                 }
@@ -60,6 +120,7 @@
     }
 
     function saveCommissionMember(e) {
+        debugger;
         var member = currentMember.getEntity();
         if (!member.EmployeeId) return alert('Выберите сотрудника');
         if (!member.RoleId) return alert("Выберите роль");
@@ -87,63 +148,6 @@
 
     function cancelCommissionMember() {
         currentMember.clearAndHide();
-    }
-
-    function Member() {
-        var that = this;
-
-        var id;
-
-        this.mode = 0; // 1 - добавление нового, 2 - редактирование, используется в методе по кнопке Сохранить
-
-        this.getEntity = function () {
-            that.mode = 0;
-            var entity = {
-                Id: id,
-                EmployeeId: $("#EmployeeId").val(),
-                RoleId: $("#Role").val()
-            };
-            return entity;
-        }
-
-        this.add = function () {
-            id = null;
-            that.mode = 1;
-            var organizationKendo = $('#OrganizationId').data('kendoDropDownList');
-            var unitKendo = $('#UnitId').data('kendoDropDownList');
-            var employeeKendo = $('#EmployeeId').data('kendoDropDownList');
-            var roleKendo = $('#Role').data('kendoDropDownList');
-            organizationKendo.value('');
-            unitKendo.value('');
-            employeeKendo.value('');
-            roleKendo.value('');
-            $("#creatyOrModifyPanel").show();
-            organizationKendo.enable();
-            unitKendo.enable();
-            employeeKendo.enable();
-        }
-
-        this.edit = function (entity) {
-            id = entity.Id;
-            that.mode = 2;
-            var organizationKendo = $('#OrganizationId').data('kendoDropDownList');
-            var unitKendo = $('#UnitId').data('kendoDropDownList');
-            var employeeKendo = $('#EmployeeId').data('kendoDropDownList');
-            var roleKendo = $('#Role').data('kendoDropDownList');
-            organizationKendo.value(entity.OrganizationId);
-            unitKendo.value(entity.UnitId);
-            employeeKendo.value(entity.EmployeeId);
-            roleKendo.value(entity.RoleId);
-            $("#creatyOrModifyPanel").show();
-            organizationKendo.enable(false);
-            unitKendo.enable(false);
-            employeeKendo.enable(false);
-        }
-
-        this.clearAndHide = function () {
-            this.add();
-            $("#creatyOrModifyPanel").hide();
-        }
     }
 
     function addEmployee(e) {
@@ -174,8 +178,9 @@
         });
     }
 
-        function disableAll() {
+    function disableAll() {
         $('#OP@(Model.Id) button').hide();
+        hideBtns = true;
     }
 
     var currentMember;
@@ -206,13 +211,13 @@
             else if (action === 'rm')
                 return removeMember(data);
         });
-        updateTableMembers();
         if ('@Model.OBK_AssessmentStage.FirstOrDefault(s => s.StageId == 2).StageStatusId' === '13')
             disableAll();
+        updateTableMembers();
     });
 
     function sendToOP() {
-        if (membersCount < 3) return alert("Добавьте больше членов комиссии");
+        if (membersCount < 1) return alert("Добавьте больше членов комиссии");
         $.ajax({
             type: "POST",
             url: '@Url.Action("SendToOP", "SelectOPCommission")',
@@ -249,60 +254,60 @@
                             <div id="creatyOrModifyPanel" class="panel panel-default" style="display: none">
                                 <div class="panel-body">
                                     <div class="row">
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-8">
                                             <div class="row">
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-4">
                                                     <label for="organization">Организация</label>
                                                 </div>
-                                                <div class="col-lg-7">
-                                                    @(Html.Kendo().DropDownList().Name("OrganizationId")
-                                                                                .OptionLabel("Выберите организацию..")
-                                                                                .AutoBind(false)
-                                                                                .DataValueField("Id").DataTextField("Name")
-                                                                                .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "SelectOPCommission")))
-                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+                                                <div class="col-lg-8">
+                                                    @(Html.Kendo().DropDownList().Name("OrganizationId" + Model.Id)
+                                                        .OptionLabel("Выберите организацию..")
+                                                        .AutoBind(false)
+                                                        .DataValueField("Id").DataTextField("Name")
+                                                        .DataSource(cf => cf.Read(read => read.Action("ListOrganization", "SelectOPCommission")))
+                                                        .HtmlAttributes(new { data_bind = "value: currentEmployee.OrganizationId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-4">
                                                     <label for="unit">Структурное подразделение</label>
                                                 </div>
-                                                <div class="col-lg-7">
-                                                    @(Html.Kendo().DropDownList().Name("UnitId")
-                                                                                .OptionLabel("Выберите подразделение..")
-                                                                                .AutoBind(false)
-                                                                                .DataValueField("Id").DataTextField("Name")
-                                                                                .DataSource(cf => cf.Read(read => read.Action("ListUnits", "SelectOPCommission").Data("filterUnits")).ServerFiltering(true))
-                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                                                                .CascadeFrom("OrganizationId"))
+                                                <div class="col-lg-8">
+                                                    @(Html.Kendo().DropDownList().Name("UnitId" + Model.Id)
+                                                                .OptionLabel("Выберите подразделение..")
+                                                                .AutoBind(false)
+                                                                .DataValueField("Id").DataTextField("Name")
+                                                                .DataSource(cf => cf.Read(read => read.Action("ListUnits", "SelectOPCommission").Data("filterUnits")).ServerFiltering(true))
+                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.UnitId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                .CascadeFrom("OrganizationId" + Model.Id))
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-4">
                                                     <label for="EmployeeId">ФИО</label>
                                                 </div>
-                                                <div class="col-lg-7">
-                                                    @(Html.Kendo().DropDownList().Name("EmployeeId")
-                                                                                .OptionLabel("Выберите сотрудника..")
-                                                                                .AutoBind(false)
-                                                                                .DataValueField("Id").DataTextField("FullName")
-                                                                                .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "SelectOPCommission").Data("filterEmployees")).ServerFiltering(true))
-                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                                                                .CascadeFrom("UnitId"))
+                                                <div class="col-lg-8">
+                                                    @(Html.Kendo().DropDownList().Name("EmployeeId" + Model.Id)
+                                                                .OptionLabel("Выберите сотрудника..")
+                                                                .AutoBind(false)
+                                                                .DataValueField("Id").DataTextField("FullName")
+                                                                .DataSource(cf => cf.Read(read => read.Action("ListEmployees", "SelectOPCommission").Data("filterEmployees")).ServerFiltering(true))
+                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.EmployeeId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                .CascadeFrom("UnitId" + Model.Id))
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-4">
                                                     <label for="Role">Роль в комиссии</label>
                                                 </div>
-                                                <div class="col-lg-7">
-                                                    @(Html.Kendo().DropDownList().Name("Role")
-                                                                                .OptionLabel("Выберите роль в комиссии..")
-                                                                                .AutoBind(false)
-                                                                                .DataValueField("Id").DataTextField("Name")
-                                                                                .DataSource(cf => cf.Read(read => read.Action("ListRoles", "SelectOPCommission").Data("filterRoles")).ServerFiltering(true))
-                                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.RoleId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
-                                                                                .CascadeFrom("EmployeeId"))
+                                                <div class="col-lg-8">
+                                                    @(Html.Kendo().DropDownList().Name("Role" + Model.Id)
+                                                                .OptionLabel("Выберите роль в комиссии..")
+                                                                .AutoBind(false)
+                                                                .DataValueField("Id").DataTextField("Name")
+                                                                .DataSource(cf => cf.Read(read => read.Action("ListRoles", "SelectOPCommission").Data("filterRoles")).ServerFiltering(true))
+                                                                .HtmlAttributes(new { data_bind = "value: currentEmployee.RoleId", @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" })
+                                                                .CascadeFrom("EmployeeId" + Model.Id))
                                                 </div>
                                             </div>
                                         </div>

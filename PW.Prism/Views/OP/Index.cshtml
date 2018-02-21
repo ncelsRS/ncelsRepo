@@ -3,7 +3,9 @@
     var modelId = "@Model";
     var isAssessmentExecutor = "@ViewBag.IsExecutor" === "True";
 
-    function sendToUOBK() {
+    function sendToUOBK(e) {
+        var button = $(e.srcElement);
+        button.attr("disabled", "disabled");
         $.ajax({
             type: "POST",
             url: '@Url.Action("SendToUOBK")',
@@ -14,17 +16,21 @@
             cache: false,
             success: function (data) {
                 alert('Заявка отправлена в УОБиК');
+                button.attr("disabled", false);
                 loadProgram();
             },
             error: function (err) {
                 alert("Ошибка: " + err.message);
+                button.attr("disabled", false);
             }
         });
     }
 
-    function sendToEC() {
+    function sendToEC(e) {
         var expertCouncilId = $("#ecSelect" + modelId).data("kendoDropDownList").value();
         if (!expertCouncilId) return alert("Выберите экспертный совет");
+        var button = $(e.srcElement);
+        button.attr("disabled", "disabled");
         $.ajax({
             type: "POST",
             url: '@Url.Action("SendToEC")',
@@ -35,6 +41,8 @@
             dataType: 'json',
             cache: false,
             success: function (data) {
+                //button.attr("disabled", false);
+                $("#sendToUobk" + modelId).hide();
                 loadProgram();
             },
             error: function (err) {

@@ -196,7 +196,7 @@
     }
 
     function showMentuItemSelectCommissionOP() {
-        $('#menuItemSelectCommissionOP').show();
+        $('#menuItemSelectCommissionOP@(Model.Id)').show();
     }
 
     function showOPDocumentList(event) {
@@ -247,11 +247,11 @@
         });
     }
 
-    if ('@ViewBag.HasExpDocumentResult' === 'True') {
+    if ('@ViewBag.ExpDocumentResult' === 'True' || '@ViewBag.IsCommissionMember' == 'True') {
         showMentuItemSelectCommissionOP();
     }
 
-    
+
     function showExpertiseConclusion(event) {
         var itemId = '@Model.DeclarationId';
         window.Showbusy(event);
@@ -291,19 +291,19 @@
 
             if (CodeConstManager.OBK_SA_SERIAL.Equals(Model.OBK_AssessmentDeclaration.TypeId.ToString()))
             {
-                <a href="#" onclick="showSerialActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>                    
+                <a href="#" onclick="showSerialActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
             }
 
             if (Model.OBK_AssessmentDeclaration.ApplicantAgreement == true)
-                {
-                    <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
-                }
+            {
+                <a href="#" onclick="showActReception(event)" class="list-group-item"><span class="glyphicon glyphicon-folder-open"></span> Акт отбора</a>
+            }
             @*<a href="#" onclick="showExpDoc(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов</a>*@
-            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_PARTY)
+            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_DECLARATION)
             {
                 <a href="#" onclick="showExpDocument(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов</a>
             }
-            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_PARTY)
+            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)
             {
                 <a href="#" onclick="showPartyExpDocument(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов</a>
             }
@@ -315,17 +315,21 @@
             {
                 <a href="#" onclick="showExpertiseConclusion(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span>Экспертиза документов результат*</a>
             }
-            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)
+            //if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code != CodeConstManager.OBK_SA_DECLARATION)
+            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_PARTY
+            || (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL
+                && Model.OBK_AssessmentDeclaration.OBK_AssessmentStage.Any(s => s.OBK_Ref_Stage.Code == "15" && s.OBK_Ref_StageStatus.Code == "completed")))
             {
                 <a href="#" onclick="showTask(event)" class="list-group-item"><span class="glyphicon glyphicon-star-empty"></span> Задание на испытание</a>
             }
 
-            if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL)
-            {
-                <a id="menuItemSelectCommissionOP" style="display: none" href="#" onclick="showSelectCommissionOP(event)" class="list-group-item">
-                    <span class="glyphicon glyphicon-star-empty"></span>Комиссия СОП
-                </a>
-            }
+        }
+
+        @if (Model.OBK_AssessmentDeclaration.OBK_Ref_Type.Code == CodeConstManager.OBK_SA_SERIAL)
+        {
+            <a id="menuItemSelectCommissionOP@(Model.Id)" style="display: none" href="#" onclick="showSelectCommissionOP(event)" class="list-group-item">
+                <span class="glyphicon glyphicon-star-empty"></span>Комиссия СОП
+            </a>
         }
 
         @if (Model.StageId == CodeConstManager.STAGE_OBK_PIMS)

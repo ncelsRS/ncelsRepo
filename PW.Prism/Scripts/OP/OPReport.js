@@ -154,7 +154,7 @@ function loadReportExecutors() {
                     { data: "Comment" },
                     { data: "Date" },
                     {
-                        data: "", targets: -1,
+                        data: "", targets: -1, visible: visibleControlsReportOPExecutors,
                         defaultContent: "<button type='button' class='k-button'>Удалить</button>"
                     }
                 ]
@@ -176,12 +176,14 @@ Object.keys(statusesR).forEach(key => {
     statusesArrR.push("show-e-" + value);
     statusesArrR.push("show-none-" + value);
 });
+var visibleControlsReportOPExecutors = true;
 function updateReportHtmlVisible() {
     var status = report.IsExecutor
         ? "show-e-"
         : "show-none-";
     status += statusesR[report.StatusCode];
-    $("#tableReportOPExecutors" + modelId).DataTable().column(4).visible(status == 'show-e-new' || status == "show-e-inrework");
+    visibleControlsReportOPExecutors = status == 'show-e-new' || status == "show-e-inrework";
+    $("#tableReportOPExecutors" + modelId).DataTable().column(4).visible(visibleControlsReportOPExecutors);
     statusesArrR.forEach(s => {
         if (s != status)
             $("." + s).hide();
@@ -193,6 +195,7 @@ function updateReportHtmlVisible() {
         $("#reportOPFilesContainer" + modelId + " .k-dropzone").hide();
         report._html.Result.attr("readonly", "readonly");
     }
+    debugger;
     if (report.StatusCode == "OPReportConfirmed" && isAssessmentExecutor)
         if (report.ExecuteResultCode == "1") {
             $("#sendToUobk" + modelId).show();
@@ -202,7 +205,9 @@ function updateReportHtmlVisible() {
             $("#sendToUobk" + modelId).hide();
             $("#sendToEC" + modelId).show();
         }
-    if (report.StatusCode == "OPMotivatedRefusalNew") {
+    if (report.StatusCode == "OPReportCompleted" && isAssessmentExecutor)
+        $("#sendToUobk" + modelId).show();
+    if (report.StatusCode == "OPMotivatedRefusalNew" || report.StatusCode == "OPMotivatedRefusalCompleted") {
         $(".show-motivation-refusal").show();
         mrInit();
     }

@@ -1830,7 +1830,7 @@
             //}
         }
         var filesValid = $scope.checkFileValidation();
-        if (formValid && productInfoExist && filesValid) {
+        if (formValid && productInfoExist && filesValid && validFactories) {
             var modalInstance = $uibModal.open({
                 templateUrl: '/Project/Agreement',
                 controller: modalSendContract,
@@ -1858,11 +1858,11 @@
 
     $scope.factoriesValidate = function () {
         var isFactoryRequired = false;
-        if (!$scope.addedProducts || $scope.addedProducts.length == 0) return false;
+        if (!$scope.addedProducts || $scope.addedProducts.length == 0) return true;
         $scope.addedProducts.forEach(p => {
             if (p.expertisePlace == "1") isFactoryRequired = true;
         });
-        if (!$scope.factories || $scope.factories.length == 0) return false;
+        if (isFactoryRequired && !$scope.factories || $scope.factories.length == 0) return false;
         return true;
     }
 

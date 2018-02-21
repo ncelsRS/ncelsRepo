@@ -65,7 +65,7 @@ namespace PW.Prism.Controllers.OBKContract
 
             var contractTypes = db.OBK_Ref_Type.Where(x => x.ViewOption == CodeConstManager.OBK_VIEW_OPTION_SHOW_ON_CREATE).OrderBy(x => x.Id).Select(o => new { o.Id, Name = o.NameRu, o.Code, o.NameKz });
             var expertOrganizations = obkRepo.GetExpertOrganizations();
-            
+
             var countries = db.Dictionaries.Where(x => x.Type == "Country").ToList();
             var organizationForms = db.Dictionaries.Where(x => x.Type == "OpfType").ToList();
             var docTypes = db.Dictionaries.Where(x => x.Type == "OBKContractDocumentType").ToList();
@@ -748,7 +748,7 @@ namespace PW.Prism.Controllers.OBKContract
         [HttpPost]
         public ActionResult GetContractPrices(Guid contractId)
         {
-            var list = obkRepo.GetContractPrices(contractId);
+            var list = obkRepo.GetAllContractPrices(contractId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
@@ -908,8 +908,11 @@ namespace PW.Prism.Controllers.OBKContract
 
         public ActionResult AdditionalContractTemplateWindow(Guid additionalId, Guid? contractAdditionTypeId)
         {
-            return PartialView("AdditionalContractTemplate",new OBKEntityTemplate {Id = additionalId,
-                ContractAdditionTypeCode = obkRepo.ContractAdditionTypeCode(contractAdditionTypeId)});
+            return PartialView("AdditionalContractTemplate", new OBKEntityTemplate
+            {
+                Id = additionalId,
+                ContractAdditionTypeCode = obkRepo.ContractAdditionTypeCode(contractAdditionTypeId)
+            });
         }
 
         public ActionResult GetContractTemplatePdf(Guid id, bool? isStream)
