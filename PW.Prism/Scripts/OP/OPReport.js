@@ -195,6 +195,7 @@ function updateReportHtmlVisible() {
         $("#reportOPFilesContainer" + modelId + " .k-dropzone").hide();
         report._html.Result.attr("readonly", "readonly");
     }
+    debugger;
     if (report.StatusCode == "OPReportConfirmed" && isAssessmentExecutor)
         if (report.ExecuteResultCode == "1") {
             $("#sendToUobk" + modelId).show();
@@ -204,6 +205,8 @@ function updateReportHtmlVisible() {
             $("#sendToUobk" + modelId).hide();
             $("#sendToEC" + modelId).show();
         }
+    if (report.StatusCode == "OPReportCompleted")
+        $("#sendToUobk" + modelId).show();
     if (report.StatusCode == "OPMotivatedRefusalNew" || report.StatusCode == "OPMotivatedRefusalCompleted") {
         $(".show-motivation-refusal").show();
         mrInit();
