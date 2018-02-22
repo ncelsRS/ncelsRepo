@@ -701,6 +701,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ReturnToResearchCenters(List<OBKReturnToResearchCenter> rtrc)
+        {
+            expRepo.ReturnToResearchCenters(rtrc);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult ShowSignBtn(Guid adId)
         {
             var result = expRepo.GetValidShowSignBtn(adId);
@@ -709,4 +715,5 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         #endregion
     }
+
 }

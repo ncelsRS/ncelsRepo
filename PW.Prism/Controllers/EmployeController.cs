@@ -19,6 +19,7 @@ using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
@@ -1316,7 +1317,9 @@ namespace PW.Prism.Controllers
 				baseEmployee.ShortName = BuildShortName(baseEmployee);
 				baseEmployee.FullName = BuildFullName(baseEmployee);
 				baseEmployee.DisplayName = BuildDisplayName(baseEmployee);
-				if (string.IsNullOrEmpty(baseEmployee.FirstName))
+			    Unit u = db.Units.Find(employee.PositionId);
+                baseEmployee.OrganizationId = OrgId(u);
+                if (string.IsNullOrEmpty(baseEmployee.FirstName))
 					errorMessage.AppendLine("Имя не может быть пустым.<br/>");
 				if (string.IsNullOrEmpty(baseEmployee.LastName))
 					errorMessage.AppendLine("Фамилия не может быть пустой.<br/>");
@@ -1340,7 +1343,7 @@ namespace PW.Prism.Controllers
 
 	    public Guid OrgId(Unit unit)
 	    {
-		    if (!unit.ParentId.HasValue)
+		    if (!unit.ParentId.HasValue || OrganizationConsts.Filials.Contains(unit.Code))
 		    {
 			    return unit.Id;
 		    }
