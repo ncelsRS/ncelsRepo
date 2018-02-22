@@ -7,24 +7,44 @@
 
 @helper ToolbarDeclarationReport()
     {
-        <div class="pull-left">
-            <label>Дата начала</label>
-            @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
-            <label>Дата окончания</label>
-            @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
-            <label>ОПС</label>
-            @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
+<div class="pull-left">
+    <label>Дата начала</label>
+    @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
+    <label>Дата окончания</label>
+    @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
+    <label>ОПС</label>
+    @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
                                         .AutoBind(false)
-                                        .OptionLabel("Все")
+                                        .OptionLabel("ОПС")
                                         .DataTextField("Name")
                                         .DataValueField("Id")
                                         .HtmlAttributes(new { @style = "width: 300px" })
                                         .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
 
-            @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))                                                                                 
-            @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
+    @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))
+    @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
 
-        </div>
+    <br>    <br>
+    <label>Тип заявки</label>
+    @(Html.Kendo().DropDownList().Name("declarationType" + Model)
+                                        .AutoBind(false)
+                                        .OptionLabel("Все")
+                                        .DataTextField("Name")
+                                        .DataValueField("Id")
+                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                        .DataSource(dataSource => dataSource.Read(read => read.Action("OBK_Ref_Type", "OBKReport"))))
+    <label>Тип</label>
+    @(Html.Kendo().DropDownList().Name("productType" + Model)
+                                        .AutoBind(false)
+                                        .OptionLabel("Все")
+                                        .DataTextField("Name")
+                                        .DataValueField("Id")
+                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                        .DataSource(dataSource => dataSource.Read(read => read.Action("ProductTypes", "OBKReport"))))
+
+
+      <br>
+</div>
         <div class="pull-right">
             <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
             <div style="display: inline-block">
@@ -40,19 +60,28 @@
                       {
                           panes.Add().Scrollable(false).Size("100%").Content(
                             @<div class="pwPanelBar">
-                                @( Html.Kendo().Grid<DeclarationReportView>()
-                                                                         .Name("DeclarationReportView" + Model)
+                                @( Html.Kendo().Grid<ZBKDetailReportView>()
+                                                                         .Name("ZBKDetailReportView" + Model)
 
                                                                          .Columns(columns =>
                                                                          {
-                                                                             columns.Bound(p => p.Number).Title("Номер заявки").Width(90);
-                                                                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата поступления").Width(80);
+                                                                             columns.Bound(p => p.DeclarationNumber).Title("Номер заявки").Width(80);
+                                                                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата заявки").Width(80);
                                                                              columns.Bound(p => p.DeclarationType).Title("Тип заявки").Width(150);
-                                                                             columns.Bound(p => p.Declarant).Title("Наименование фирмы-заявителя").Width(100);
-                                                                             columns.Bound(p => p.Desicion).Title("Решение по заявке").Width(150);
-                                                                             columns.Bound(p => p.ActInfo).Title("Дата отбора образцов").Width(180);
+                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный номер заключения").Width(150);
+                                                                             columns.Bound(p => p.BlankNumber).Title("Номер бланка").Width(80);
+                                                                             columns.Bound(p => p.ExpStartDate).Format("{0:dd.MM.yyyy}").Title("Дата регистрации").Width(80);
+                                                                             columns.Bound(p => p.ExpStartDate).Format("{0:dd.MM.yyyy}").Title("Окончания срока действия    ").Width(80);
                                                                              columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
-                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Примечание").Width(60);
+                                                                             columns.Bound(p => p.ProductType).Title("Тип продукции").Width(60);
+                                                                             columns.Bound(p => p.ProducerName).Title("Наименование оцениваемой продукции").Width(150);
+                                                                             columns.Bound(p => p.SerieQuantity).Title("Кол-во серии").Width(150);
+                                                                             columns.Bound(p => p.ProtocolQuantity).Title("Кол-во протоколов").Width(150);
+                                                                             columns.Bound(p => p.ProducerName).Title("Изготовитель: страна, фирма Поставщик: страна, фирма").Width(150);
+                                                                             columns.Bound(p => p.ExpReasonName).Title("Заключение выдано на основании").Width(150);
+                                                                             columns.Bound(p => p.Declarant).Title("Заявитель: наименование, адрес (страна, регион, город, другие сведения), телефон").Width(150);
+                                                                             columns.Bound(p => p.SerieDetail).Title("Размер партии, единица измерения").Width(150);
+
                                                                          })
                                                                          .AutoBind(false)
                                                                          .Reorderable(reorderable => reorderable.Columns(true))
@@ -69,7 +98,7 @@
                                                                              .Ajax()
                                                                              .Sort(sort => { sort.Add("SendDate").Descending(); })
                                                                              .PageSize(30)
-                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"]}))
+                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
                                                                             )
                                 ))
 
@@ -80,12 +109,12 @@
                              <script>
 
     function reloadDeclarationReport(){
-            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#ZBKDetailReportView" + "@Model").data("kendoGrid").dataSource.read();
     }
 
     $("#reload" + "@Model").click(function ()
         {
-            $("#DeclarationReportView" + "@Model").data("kendoGrid").dataSource.read();
+        $("#ZBKDetailReportView" + "@Model").data("kendoGrid").dataSource.read();
         });
 
     $("#export" + "@Model").click(function ()
@@ -93,9 +122,12 @@
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
          var org = $("#expertOrganizations" + "@Model").val();
+         var declaration = $("#declarationType" + "@Model").val();
+         var product = $("#productType" + "@Model").val();
 
-         if(fr != '' || to != '' || org != ''){
-             var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
+
+         if(fr != '' || to != '' || org != '' || declaration != '' || product != ''){
+             var grid = $("#ZBKDetailReportView" + "@Model").data("kendoGrid");
              parameterMap = grid.dataSource.transport.parameterMap;
              var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
              window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@ViewData["reportType"]");
@@ -103,15 +135,15 @@
          {
              alert("Заполните основные параметры поиска!");
          }
-        
+
     });
 
-     function initDeclarationReportFilters(){
+     function initZBKReportFilters(){
         var from = $('#dateFrom' + "@Model").val();
         var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
         var to = $('#dateTo' + "@Model").val();
         var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
-        var grid = $("#DeclarationReportView" + "@Model").data("kendoGrid");
+        var grid = $("#ZBKDetailReportView" + "@Model").data("kendoGrid");
          var filterArr = grid.dataSource.filter();
          var filter = [];
          if(filterArr != undefined || filterArr != null){
@@ -119,6 +151,8 @@
          }
 
         var expertOrganizations = $('#expertOrganizations' + '@Model').val();
+        var declarationType = $("#declarationType" + "@Model").val();
+        var productType = $("#productType" + "@Model").val();
 
         if (from != undefined && from != null && from != "")
         {
@@ -150,6 +184,26 @@
             checkRemove(filter, "ExpertOrganization", "eq");
         }
 
+        if (declarationType != undefined && declarationType != null && declarationType != "")
+        {
+            checkRemove(filter, "DeclarationType", "eq");
+            filter.push(
+                { field: "DeclarationType", operator: "eq", value: getDropDownVal("#declarationType") });
+        } else
+        {
+            checkRemove(filter, "DeclarationType", "eq");
+        }
+
+        if (productType != undefined && productType != null && productType != "")
+        {
+            checkRemove(filter, "ProductType", "eq");
+            filter.push(
+                { field: "ProductType", operator: "eq", value: getDropDownVal("#productType") });
+        } else
+        {
+            checkRemove(filter, "ProductType", "eq");
+        }
+
         grid.dataSource.filter({
             logic: "and",
             filters: filter
@@ -165,9 +219,11 @@
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
          var org = $("#expertOrganizations" + "@Model").val();
+         var declaration = $("#declarationType" + "@Model").val();
+         var product = $("#productType" + "@Model").val();
 
-         if(fr != '' || to != '' || org != ''){
-             initDeclarationReportFilters();
+         if(fr != '' || to != '' || org != '' || declaration != '' || product != ''){
+             initZBKReportFilters();
          } else
          {
              alert("Заполните основные параметры поиска!");

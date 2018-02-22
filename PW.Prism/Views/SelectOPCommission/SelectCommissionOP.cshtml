@@ -1,5 +1,62 @@
 ﻿@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
 <script>
+    function Member() {
+        var that = this;
+
+        var id;
+        this.mode = 0; // 1 - добавление нового, 2 - редактирование, используется в методе по кнопке Сохранить
+
+        this.getEntity = function () {
+            that.mode = 0;
+            var entity = {
+                Id: id,
+                EmployeeId: $("#EmployeeId@(Model.Id)").val(),
+                RoleId: $("#Role@(Model.Id)").val()
+            };
+            return entity;
+        }
+
+        this.add = function () {
+            id = null;
+            that.mode = 1;
+            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
+            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
+            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
+            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
+            organizationKendo.value('');
+            unitKendo.value('');
+            employeeKendo.value('');
+            roleKendo.value('');
+            $("#creatyOrModifyPanel").show();
+            organizationKendo.enable();
+            unitKendo.enable();
+            employeeKendo.enable();
+        }
+
+        this.edit = function (entity) {
+            id = entity.Id;
+            that.mode = 2;
+
+            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
+            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
+            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
+            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
+
+            organizationKendo.value(entity.OrganizationId);
+            unitKendo.value(entity.UnitId);
+            employeeKendo.value(entity.EmployeeId);
+            roleKendo.value(entity.RoleId);
+
+            $("#creatyOrModifyPanel").show();
+            organizationKendo.enable(false);
+        }
+
+        this.clearAndHide = function () {
+            this.add();
+            $("#creatyOrModifyPanel").hide();
+        }
+    }
+
     var membersCount = 0;
     var hideBtns = false;
 
@@ -63,6 +120,7 @@
     }
 
     function saveCommissionMember(e) {
+        debugger;
         var member = currentMember.getEntity();
         if (!member.EmployeeId) return alert('Выберите сотрудника');
         if (!member.RoleId) return alert("Выберите роль");
@@ -90,64 +148,6 @@
 
     function cancelCommissionMember() {
         currentMember.clearAndHide();
-    }
-
-    function Member() {
-        var that = this;
-
-        var id;
-
-        this.mode = 0; // 1 - добавление нового, 2 - редактирование, используется в методе по кнопке Сохранить
-
-        this.getEntity = function () {
-            that.mode = 0;
-            var entity = {
-                Id: id,
-                EmployeeId: $("#EmployeeId").val(),
-                RoleId: $("#Role").val()
-            };
-            return entity;
-        }
-
-        this.add = function () {
-            id = null;
-            that.mode = 1;
-            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
-            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
-            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
-            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
-            organizationKendo.value('');
-            unitKendo.value('');
-            employeeKendo.value('');
-            roleKendo.value('');
-            $("#creatyOrModifyPanel").show();
-            organizationKendo.enable();
-            unitKendo.enable();
-            employeeKendo.enable();
-        }
-
-        this.edit = function (entity) {
-            id = entity.Id;
-            that.mode = 2;
-
-            var organizationKendo = $('#OrganizationId@(Model.Id)').data('kendoDropDownList');
-            var unitKendo = $('#UnitId@(Model.Id)').data('kendoDropDownList');
-            var employeeKendo = $('#EmployeeId@(Model.Id)').data('kendoDropDownList');
-            var roleKendo = $('#Role@(Model.Id)').data('kendoDropDownList');
-
-            organizationKendo.value(entity.OrganizationId);
-            unitKendo.value(entity.UnitId);
-            employeeKendo.value(entity.EmployeeId);
-            roleKendo.value(entity.RoleId);
-            
-            $("#creatyOrModifyPanel").show();
-            organizationKendo.enable(false);
-        }
-
-        this.clearAndHide = function () {
-            this.add();
-            $("#creatyOrModifyPanel").hide();
-        }
     }
 
     function addEmployee(e) {
