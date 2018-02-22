@@ -104,6 +104,8 @@
             $scope.loadDrugFormsAndMtParts();
 
             $scope.loadProductServiceNames();
+            //отчищаем поля формы выпуска, так как выбрали другую продукцию
+            $scope.clearDrugFormComponents();
 
             $scope.object.ProductServiceName = null;
         });
@@ -135,6 +137,10 @@
             $scope.product.DrugFormBoxCount = row.entity.BoxCount;
             $scope.product.DrugFormFullName = row.entity.FullName;
             $scope.product.DrugFormFullNameKz = row.entity.FullNameKz;
+
+            // полное наименование по ЛС при выборе формы выпуска
+            $scope.product.NameRu = row.entity.FullName;
+            $scope.product.NameKz = row.entity.FullNameKz;
         });
     };
 
