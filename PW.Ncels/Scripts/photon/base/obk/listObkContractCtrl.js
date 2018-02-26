@@ -1820,6 +1820,7 @@
 
 
     $scope.sendWithoutDigitalSign = function () {
+        debugger;
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var outputErrors = true;
@@ -1852,6 +1853,7 @@
     }
 
     $scope.sendWithDigitalSign = function () {
+        debugger;
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var filesValid = $scope.checkFileValidation();
@@ -1870,7 +1872,8 @@
         $scope.addedProducts.forEach(p => {
             if (p.expertisePlace == "1") isFactoryRequired = true;
         });
-        if (isFactoryRequired && !$scope.factories || $scope.factories.length == 0) return false;
+        if ($scope.object.Type == 1)
+            if (isFactoryRequired && !$scope.factories || $scope.factories.length == 0) return false;
         return true;
     }
 
