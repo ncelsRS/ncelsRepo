@@ -12,7 +12,7 @@
     <DataSources isList="true" count="3">
       <ActReception Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
         <Alias>ActReception</Alias>
-        <Columns isList="true" count="13">
+        <Columns isList="true" count="14">
           <value>ActDate,System.DateTime</value>
           <value>Applicant,System.String</value>
           <value>Declarer,System.String</value>
@@ -26,6 +26,7 @@
           <value>SelectionPlace,System.String</value>
           <value>StorageConditions,System.String</value>
           <value>Worker,System.String</value>
+          <value>Declarant,System.String</value>
         </Columns>
         <CommandTimeout>30</CommandTimeout>
         <Dictionary isRef="1" />
@@ -48,6 +49,7 @@
    ,marking.[Name] as Marking
    ,actRec.[Worker]
    ,sedr.[SelectionPlace] as SelectionPlace
+   ,[OBK_Declarant].[NameRu] as Declarant
   FROM [ncels].[dbo].[OBK_ActReception] as actRec 
  left join [ncels].[dbo].[OBK_Applicant] app on actRec.[ApplicantId] = app.[Id]
  left join [ncels].[dbo].[Dictionaries] samples on actRec.[ProductSamplesId] = samples.[Id]
@@ -56,7 +58,10 @@
  left join [ncels].[dbo].[OBK_Dictionaries] storage on actRec.[StorageConditionsId] = storage.[Id]
  left join [ncels].[dbo].[OBK_Dictionaries] marking on actRec.[MarkingId] = marking.[Id]
  left join [ncels].[dbo].[OBK_StageExpDocumentResult] sedr on actRec.[OBK_AssessmentDeclarationId] = sedr.[AssessmetDeclarationId]
- where actRec.Id = @ActReceptionId 
+ left join [ncels].[dbo].[OBK_AssessmentDeclaration] on [OBK_AssessmentDeclaration].[Id] = actRec.[OBK_AssessmentDeclarationId]
+ left join [ncels].[dbo].[OBK_Contract] on [OBK_Contract].[Id] = [OBK_AssessmentDeclaration].[ContractId]
+ left join [ncels].[dbo].[OBK_Declarant] on [OBK_Declarant].[Id] = [OBK_Contract].[DeclarantId]  
+where actRec.Id = @ActReceptionId 
 </SqlCommand>
       </ActReception>
       <ProductSeries Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
@@ -130,12 +135,12 @@ SELECT
     <Page1 Ref="6" type="Page" isKey="true">
       <Border>None;Black;2;Solid;False;4;Black</Border>
       <Brush>Transparent</Brush>
-      <Components isList="true" count="22">
+      <Components isList="true" count="48">
         <Text1 Ref="7" type="Text" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>2.8,0.6,14,2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,12</Font>
+          <Font>Times New Roman,12</Font>
           <HorAlignment>Center</HorAlignment>
           <Margins>0,0,0,0</Margins>
           <Name>Text1</Name>
@@ -149,14 +154,14 @@ SELECT
         <Text2 Ref="8" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,3.6,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,3.6,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Margins>0,0,0,0</Margins>
           <Name>Text2</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Заявитель:  {ActReception.Declarer}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Заявитель:  {ActReception.Declarant}, {ActReception.Declarer} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -164,7 +169,7 @@ SELECT
         </Text2>
         <Text3 Ref="9" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>6.4,4,6.8,0.4</ClientRectangle>
+          <ClientRectangle>6.2,4,7.2,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Margins>0,0,0,0</Margins>
@@ -179,15 +184,15 @@ SELECT
         <Text4 Ref="10" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,6.8,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,6.8,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>3c8895c6e55b4619b510e596474e471a</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text4</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Отбор проб произвел:  {ActReception.Worker}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Отбор проб произвел: {ActReception.Worker} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -196,15 +201,15 @@ SELECT
         <Text5 Ref="11" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,5.2,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,5.2,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>80dff3246cfb482cb37769208b9e2085</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text5</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Адрес и место отбора:  {ActReception.SelectionPlace}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Адрес и место отбора:  {ActReception.SelectionPlace} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -213,15 +218,15 @@ SELECT
         <Text6 Ref="12" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,8.4,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,8.6,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>2e4c1ca3a42b4ff0880653ddd360c95e</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text6</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Акт составлен:  {ActReception.Worker}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Акт составлен: {ActReception.Worker} ({ActReception.Applicant}) &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -230,15 +235,15 @@ SELECT
         <Text7 Ref="13" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,10,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,10.4,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>3a91a32454ae4c26a2c4b6d2b2cc8b0f</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text7</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;с участием:  {ActReception.Producer}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;с участием: &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -246,7 +251,7 @@ SELECT
         </Text7>
         <Text8 Ref="14" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>4.6,7.2,7.8,0.4</ClientRectangle>
+          <ClientRectangle>4.8,7.2,8.2,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>aa9d7efaa7494ab18fb9526c360911c3</Guid>
@@ -261,7 +266,7 @@ SELECT
         </Text8>
         <Text9 Ref="15" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>3.8,8.8,12.2,0.4</ClientRectangle>
+          <ClientRectangle>3.8,9,12.8,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>ca41adeccc0c4a639c1ea9d21292dec4</Guid>
@@ -275,7 +280,7 @@ SELECT
         </Text9>
         <Text10 Ref="16" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>2.8,10.4,9,0.4</ClientRectangle>
+          <ClientRectangle>3,10.8,9,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>8d0f9c6466b7447192fc23e2e1662d24</Guid>
@@ -290,15 +295,15 @@ SELECT
         <Text12 Ref="17" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,11.8,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,12.2,17.6,1.6</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>719e36108ed24637959e30abd5e0af50</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text12</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Образцы предъявленной продукции отобраны в соответствии с:  {ActReception.ProductSamples} &lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Образцы предъявленной продукции отобраны в соответствии с:  {ActReception.ProductSamples} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -306,7 +311,7 @@ SELECT
         </Text12>
         <Text17 Ref="18" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>11.8,12.2,4,0.4</ClientRectangle>
+          <ClientRectangle>12.6,12.6,4,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>091262f0218c4d338f62c880978390c6</Guid>
@@ -321,15 +326,15 @@ SELECT
         <Text13 Ref="19" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,13.6,17.6,0.8</ClientRectangle>
+          <ClientRectangle>0.8,13.8,17.6,0.8</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>171a5e5221ad423fb46ee899d8c36a69</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text13</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;для испытаний с целью оценки безопасности и качества продукции&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;для испытаний с целью оценки безопасности и качества продукции&lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -338,15 +343,15 @@ SELECT
         <Text14 Ref="20" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,15,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,14.6,17.6,1.2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>d6d54f23e6e74eeb8d6d45322f16c532</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text14</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Продукция получена по:&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Продукция получена по: &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -354,7 +359,7 @@ SELECT
         </Text14>
         <Text16 Ref="21" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>5,15.4,5,0.4</ClientRectangle>
+          <ClientRectangle>5.4,15,5.4,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>22cab3d24a2b47fcbb65e4b5fa21152e</Guid>
@@ -369,7 +374,7 @@ SELECT
         </Text16>
         <Text18 Ref="22" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>5,16.2,4,0.4</ClientRectangle>
+          <ClientRectangle>5.2,15.8,4,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>1e01781a3da34a228320b2f9a2d2ef78</Guid>
@@ -385,15 +390,15 @@ SELECT
         <Text20 Ref="23" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,17,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,16.4,17.6,1.2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>da9d3d95913e4fe585179a71ca6d5dfe</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text20</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Поставщик:  {ActReception.Provider}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Поставщик:  {ActReception.Provider} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -402,15 +407,15 @@ SELECT
         <Text21 Ref="24" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,18.6,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,18,17.6,1.2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>b03b97cce2bd4bd2b2eb7ef3c3d0452e</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text21</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Осмотром установлено: {ActReception.InspectionInstalled}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Осмотром установлено: {ActReception.InspectionInstalled} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -419,15 +424,15 @@ SELECT
         <Text22 Ref="25" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,20.4,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,19.6,17.6,1.4</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>ee9f53eb4e6d416a86f205d5c752390a</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text22</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Условия хранения: {ActReception.StorageConditions}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Условия хранения: {ActReception.StorageConditions} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -436,15 +441,15 @@ SELECT
         <Text29 Ref="26" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,22.2,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,21.4,17.6,2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>00c7a690346848ecb219935469ea2e7e</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text29</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Вид и состояние тары, упаковки, емкостей: {ActReception.PackageCondition}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Вид и состояние тары, упаковки, емкостей: {ActReception.PackageCondition} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -453,15 +458,15 @@ SELECT
         <Text30 Ref="27" type="Text" isKey="true">
           <AllowHtmlTags>True</AllowHtmlTags>
           <Brush>Transparent</Brush>
-          <ClientRectangle>0.8,24,17.6,1.2</ClientRectangle>
+          <ClientRectangle>0.8,23.8,17.6,1.2</ClientRectangle>
           <Conditions isList="true" count="0" />
-          <Font>Arial,10</Font>
+          <Font>Times New Roman,12</Font>
           <Guid>e5829e09a2d8415380f2917a3769983a</Guid>
           <Margins>0,0,0,0</Margins>
           <Name>Text30</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Text>&lt;line-height="2"&gt;Надписи на упаковке и этикетках: {ActReception.Marking}&lt;/line-height&gt;</Text>
+          <Text>&lt;line-height="1.7"&gt;Надписи на упаковке и этикетках: {ActReception.Marking} &lt;/line-height&gt;</Text>
           <TextBrush>[0:0:0]</TextBrush>
           <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
           <TextQuality>Wysiwyg</TextQuality>
@@ -469,7 +474,7 @@ SELECT
         </Text30>
         <Text31 Ref="28" type="Text" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>3.2,17.4,6.4,0.4</ClientRectangle>
+          <ClientRectangle>3.4,16.8,6.6,0.4</ClientRectangle>
           <Conditions isList="true" count="0" />
           <Font>Arial,6</Font>
           <Guid>e5e2d539ec3545a99eccfed65316eb27</Guid>
@@ -481,6 +486,448 @@ SELECT
           <TextBrush>[0:0:0]</TextBrush>
           <Type>Expression</Type>
         </Text31>
+        <Text11 Ref="29" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>5,2.4,11.4,1</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Times New Roman,11,Bold</Font>
+          <Guid>47cd6904bd934ccfbe3e101009130337</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text11</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Text>Акт отбора образцов №{ActReception.Number} от {ActReception.ActDate.ToString("dd.MM.yyyy")} года</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text11>
+        <Text15 Ref="30" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>2.8,4,15.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>a3b012bcf1b1430d8f280afba169b930</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text15</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text15>
+        <Text19 Ref="31" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,4.8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>1563268dacf04fffa3234fc3ad6c0816</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text19</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text19>
+        <Text53 Ref="32" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.8,5.6,13.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>76d4d7a624464d80b6978fdd639e883a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text53</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text53>
+        <Text54 Ref="33" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,6.4,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>0a9de13c8aff4e13b2068f3847c56ecd</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text54</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text54>
+        <Text55 Ref="34" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>0492124bc6b94be285cb1acedbaa11b4</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text55</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text55>
+        <Text56 Ref="35" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,9.8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>925cc6951f0b4858b90a50821a623f8c</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text56</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text56>
+        <Text57 Ref="36" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,11.8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>51c1406d4d684c9ba17c5ff083e2ffc2</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text57</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text57>
+        <Text58 Ref="37" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,13.4,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>6ad11baa24494414a0eed255497fea98</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text58</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text58>
+        <Text60 Ref="38" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,15.8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>55c606935e9e4fd68d4deb96d2e89a8a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text60</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text60>
+        <Text61 Ref="39" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,17.6,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>06e987c8b8fc4881bbd315ca49b770b8</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text61</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text61>
+        <Text62 Ref="40" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,19.2,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>59126ed6fe794c5c85648ac9a68ab05a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text62</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text62>
+        <Text63 Ref="41" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,20.8,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>86a40e08298f4f7a8206ce8c92a692cd</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text63</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text63>
+        <Text64 Ref="42" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,22.6,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>e19b81adfaac4ca79ca9f3bf7b454593</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text64</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text64>
+        <Text65 Ref="43" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,25,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>40176a0b12a84985ad0ce8fceb59f76c</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text65</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text65>
+        <Text66 Ref="44" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.8,7.2,13.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>ecbed87f767140b1b86877eb31e9fdba</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text66</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text66>
+        <Text67 Ref="45" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>3.6,9,14.8,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>34ed05bad92f4a7ea2cca0d3a0b7d485</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text67</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text67>
+        <Text68 Ref="46" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>3,10.8,15.4,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>4ec01f5d45024922b3c7aa5cd52b7e8b</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text68</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text68>
+        <Text69 Ref="47" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.2,12.6,6.2,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>59f4e672bcac4f2ba82854c274491e1a</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text69</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text69>
+        <Text70 Ref="48" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>5.2,15,13.2,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>f826225d2aa44f2b85b1030f032e5804</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text70</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text70>
+        <Text71 Ref="49" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>3,16.8,15.4,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>9e8d843f5c2d439b896963033d37c9ad</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text71</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text71>
+        <Text72 Ref="50" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>5.2,18.4,13.2,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>3c66add6b4d44019bed43d31cc0dd4bd</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text72</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text72>
+        <Text73 Ref="51" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,20,14.2,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>50d7d732684f4238bc8189f9eeaac7e9</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text73</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text73>
+        <Text74 Ref="52" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.6,21.8,9.8,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>31e8eacd0b1540828701e659e53a1874</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text74</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text74>
+        <Text75 Ref="53" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>7,24.2,11.4,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>4e8350754de04cb595f706ab2a6b3db8</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text75</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text75>
+        <Text59 Ref="54" type="Text" isKey="true">
+          <AllowHtmlTags>True</AllowHtmlTags>
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,23.4,17.6,0.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>64a5005724ac48589ff078e9bd5014bb</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text59</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <TextQuality>Wysiwyg</TextQuality>
+          <Type>Expression</Type>
+        </Text59>
       </Components>
       <Conditions isList="true" count="0" />
       <Guid>22a1b5deeba644f1857f139cde4734a1</Guid>
@@ -489,29 +936,29 @@ SELECT
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="29" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="55" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page1>
-    <Page2 Ref="30" type="Page" isKey="true">
+    <Page2 Ref="56" type="Page" isKey="true">
       <Border>None;Black;2;Solid;False;4;Black</Border>
       <Brush>[255:255:255]</Brush>
       <Components isList="true" count="4">
-        <PageHeaderBand1 Ref="31" type="PageHeaderBand" isKey="true">
+        <PageHeaderBand1 Ref="57" type="PageHeaderBand" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>0,0.4,19,1</ClientRectangle>
           <Components isList="true" count="1">
-            <Text32 Ref="32" type="Text" isKey="true">
+            <Text32 Ref="58" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>0.2,0.4,19,1</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,11</Font>
+              <Font>Times New Roman,11</Font>
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text32</Name>
-              <Page isRef="30" />
-              <Parent isRef="31" />
+              <Page isRef="56" />
+              <Parent isRef="57" />
               <Text>Образцы отобраны от продукции, предъявленной под наименованием</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
@@ -519,14 +966,14 @@ SELECT
           </Components>
           <Conditions isList="true" count="0" />
           <Name>PageHeaderBand1</Name>
-          <Page isRef="30" />
-          <Parent isRef="30" />
+          <Page isRef="56" />
+          <Parent isRef="56" />
         </PageHeaderBand1>
-        <HeaderTasks Ref="33" type="HeaderBand" isKey="true">
+        <HeaderTasks Ref="59" type="HeaderBand" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>0,2.2,19,2</ClientRectangle>
           <Components isList="true" count="16">
-            <HeaderTasks_Number Ref="34" type="Text" isKey="true">
+            <HeaderTasks_Number Ref="60" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>0,0,4.4,1.2</ClientRectangle>
@@ -536,15 +983,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_Number</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Наименование образцов предьявленной продукции</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_Number>
-            <HeaderTasks_ResponsibleValue Ref="35" type="Text" isKey="true">
+            <HeaderTasks_ResponsibleValue Ref="61" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>4.4,0,1.8,1.2</ClientRectangle>
@@ -554,15 +1001,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_ResponsibleValue</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Ед. измерения</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_ResponsibleValue>
-            <HeaderTasks_OutgoingNumber Ref="36" type="Text" isKey="true">
+            <HeaderTasks_OutgoingNumber Ref="62" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>6.2,0,1.8,1.2</ClientRectangle>
@@ -572,8 +1019,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_OutgoingNumber</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Номер партии
 </Text>
               <TextBrush>Black</TextBrush>
@@ -581,7 +1028,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_OutgoingNumber>
-            <HeaderTasks_AutoOutgoingDate Ref="37" type="Text" isKey="true">
+            <HeaderTasks_AutoOutgoingDate Ref="63" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>8,0,1.4,1.2</ClientRectangle>
@@ -591,8 +1038,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_AutoOutgoingDate</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Размер партии
 </Text>
               <TextBrush>Black</TextBrush>
@@ -600,7 +1047,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_AutoOutgoingDate>
-            <HeaderTasks_CorrespondentsValue Ref="38" type="Text" isKey="true">
+            <HeaderTasks_CorrespondentsValue Ref="64" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>9.4,0,2.2,1.2</ClientRectangle>
@@ -610,8 +1057,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_CorrespondentsValue</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Дата изготовления
 </Text>
               <TextBrush>Black</TextBrush>
@@ -619,7 +1066,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_CorrespondentsValue>
-            <HeaderTasks_AutoExecutionDate Ref="39" type="Text" isKey="true">
+            <HeaderTasks_AutoExecutionDate Ref="65" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>17.8,0,1.2,1.2</ClientRectangle>
@@ -629,8 +1076,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_AutoExecutionDate</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Кол-во 
 </Text>
               <TextBrush>Black</TextBrush>
@@ -638,7 +1085,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_AutoExecutionDate>
-            <HeaderTasks_MonitoringType Ref="40" type="Text" isKey="true">
+            <HeaderTasks_MonitoringType Ref="66" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>16,0,1.8,1.2</ClientRectangle>
@@ -648,8 +1095,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>HeaderTasks_MonitoringType</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Срок годности
 </Text>
               <TextBrush>Black</TextBrush>
@@ -657,7 +1104,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </HeaderTasks_MonitoringType>
-            <Text33 Ref="41" type="Text" isKey="true">
+            <Text33 Ref="67" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>0,1.2,4.4,1.2</ClientRectangle>
@@ -667,15 +1114,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text33</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>1</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text33>
-            <Text34 Ref="42" type="Text" isKey="true">
+            <Text34 Ref="68" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>4.4,1.2,1.8,1.2</ClientRectangle>
@@ -685,15 +1132,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text34</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>2</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text34>
-            <Text35 Ref="43" type="Text" isKey="true">
+            <Text35 Ref="69" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>6.2,1.2,1.8,1.2</ClientRectangle>
@@ -703,8 +1150,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text35</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>3
 </Text>
               <TextBrush>Black</TextBrush>
@@ -712,7 +1159,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text35>
-            <Text36 Ref="44" type="Text" isKey="true">
+            <Text36 Ref="70" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>8,1.2,1.4,1.2</ClientRectangle>
@@ -722,8 +1169,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text36</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>4
 </Text>
               <TextBrush>Black</TextBrush>
@@ -731,7 +1178,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text36>
-            <Text37 Ref="45" type="Text" isKey="true">
+            <Text37 Ref="71" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>9.4,1.2,2.2,1.2</ClientRectangle>
@@ -741,8 +1188,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text37</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>5
 </Text>
               <TextBrush>Black</TextBrush>
@@ -750,7 +1197,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text37>
-            <Text38 Ref="46" type="Text" isKey="true">
+            <Text38 Ref="72" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>16,1.2,1.8,1.2</ClientRectangle>
@@ -760,15 +1207,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text38</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>7</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text38>
-            <Text39 Ref="47" type="Text" isKey="true">
+            <Text39 Ref="73" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>17.8,1.2,1.2,1.2</ClientRectangle>
@@ -778,15 +1225,15 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text39</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>8</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text39>
-            <Text41 Ref="48" type="Text" isKey="true">
+            <Text41 Ref="74" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>11.6,0,4.4,1.2</ClientRectangle>
@@ -796,8 +1243,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text41</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>Производитель
 </Text>
               <TextBrush>Black</TextBrush>
@@ -805,7 +1252,7 @@ SELECT
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text41>
-            <Text42 Ref="49" type="Text" isKey="true">
+            <Text42 Ref="75" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>[221:217:195]</Brush>
               <ClientRectangle>11.6,1.2,4.4,1.2</ClientRectangle>
@@ -815,8 +1262,8 @@ SELECT
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text42</Name>
-              <Page isRef="30" />
-              <Parent isRef="33" />
+              <Page isRef="56" />
+              <Parent isRef="59" />
               <Text>6
 </Text>
               <TextBrush>Black</TextBrush>
@@ -828,16 +1275,16 @@ SELECT
           <Conditions isList="true" count="0" />
           <Guid>d88ffae59a724d9897b2e38fcc9f26a3</Guid>
           <Name>HeaderTasks</Name>
-          <Page isRef="30" />
-          <Parent isRef="30" />
+          <Page isRef="56" />
+          <Parent isRef="56" />
           <PrintOnAllPages>False</PrintOnAllPages>
         </HeaderTasks>
-        <DataBand1 Ref="50" type="DataBand" isKey="true">
+        <DataBand1 Ref="76" type="DataBand" isKey="true">
           <Brush>Transparent</Brush>
           <BusinessObjectGuid isNull="true" />
           <ClientRectangle>0,5,19,0.8</ClientRectangle>
           <Components isList="true" count="8">
-            <DataTasks_AutoDocumentDate Ref="51" type="Text" isKey="true">
+            <DataTasks_AutoDocumentDate Ref="77" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -848,18 +1295,18 @@ SELECT
               <Guid>e4291c75b88240f4863cd000dec4561d</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>DataTasks_AutoDocumentDate</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.NameRu}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="52" type="DateFormat" isKey="true">
+              <TextFormat Ref="78" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </DataTasks_AutoDocumentDate>
-            <Text27 Ref="53" type="Text" isKey="true">
+            <Text27 Ref="79" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -870,18 +1317,18 @@ SELECT
               <Guid>e843b261b7334c93af03252eea4c9205</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text27</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.Series}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="54" type="DateFormat" isKey="true">
+              <TextFormat Ref="80" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text27>
-            <Text26 Ref="55" type="Text" isKey="true">
+            <Text26 Ref="81" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -892,18 +1339,18 @@ SELECT
               <Guid>b1cdde4380f04014943b4314b1695f62</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text26</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.seriesStartDate}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="56" type="DateFormat" isKey="true">
+              <TextFormat Ref="82" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text26>
-            <Text24 Ref="57" type="Text" isKey="true">
+            <Text24 Ref="83" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -914,18 +1361,18 @@ SELECT
               <Guid>088bc3affed247978be8fe54149cc0b1</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text24</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.seriesEndDate}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="58" type="DateFormat" isKey="true">
+              <TextFormat Ref="84" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text24>
-            <Text28 Ref="59" type="Text" isKey="true">
+            <Text28 Ref="85" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -936,18 +1383,18 @@ SELECT
               <Guid>9caf9df355ca42b1a01b5ee85ceb82ae</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text28</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.Quantity}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="60" type="DateFormat" isKey="true">
+              <TextFormat Ref="86" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text28>
-            <Text23 Ref="61" type="Text" isKey="true">
+            <Text23 Ref="87" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -958,18 +1405,18 @@ SELECT
               <Guid>d25ccc1f7e0247869f549cd13d3ed129</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text23</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.Measure}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="62" type="DateFormat" isKey="true">
+              <TextFormat Ref="88" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text23>
-            <Text25 Ref="63" type="Text" isKey="true">
+            <Text25 Ref="89" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -980,18 +1427,18 @@ SELECT
               <Guid>b7b862c805874ea3830e5258ad2ff7fb</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text25</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.SeriesParty}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="64" type="DateFormat" isKey="true">
+              <TextFormat Ref="90" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text25>
-            <Text43 Ref="65" type="Text" isKey="true">
+            <Text43 Ref="91" type="Text" isKey="true">
               <Border>All;Black;1;Solid;False;4;Black</Border>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
@@ -1002,11 +1449,11 @@ SELECT
               <Guid>6ae14d9709604939802190f8b6762b7d</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text43</Name>
-              <Page isRef="30" />
-              <Parent isRef="50" />
+              <Page isRef="56" />
+              <Parent isRef="76" />
               <Text>{ProductSeries.ProducerName}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="66" type="DateFormat" isKey="true">
+              <TextFormat Ref="92" type="DateFormat" isKey="true">
                 <StringFormat>f</StringFormat>
               </TextFormat>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
@@ -1020,159 +1467,160 @@ SELECT
           <Filters isList="true" count="0" />
           <Guid>6efb2c57453e42048b729406269f9f04</Guid>
           <Name>DataBand1</Name>
-          <Page isRef="30" />
-          <Parent isRef="30" />
+          <Page isRef="56" />
+          <Parent isRef="56" />
           <Sort isList="true" count="0" />
         </DataBand1>
-        <FooterBand1 Ref="67" type="FooterBand" isKey="true">
+        <FooterBand1 Ref="93" type="FooterBand" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>0,6.6,19,10.6</ClientRectangle>
           <Components isList="true" count="10">
-            <Text40 Ref="68" type="Text" isKey="true">
+            <Text40 Ref="94" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>0.8,1.8,17.4,3.2</ClientRectangle>
+              <ClientRectangle>0.6,0.6,18,3.2</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Margins>0,0,0,0</Margins>
               <Name>Text40</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
-              <Text>Контрольные образцы в количествах, равных количеству отобранных образцов, опечатаны и хранятся в надлежащих условиях в течение срока действия заключения безопасности и качества продукции у заявителя. Представитель экспертной организации или территориального департамента уполномоченного органа (ответственное лицо организации оптовой реализации, производитель, в случае, если отбираемые образцы хранятся на оптовом складе, имеющем сертификат GDP, на складе производителя имеющего сертификат GMP)
+              <Page isRef="56" />
+              <Parent isRef="93" />
+              <Text>Контрольные образцы в количествах, равных количеству отобранных образцов, опечатаны и хранятся в надлежащих условиях в течение срока действия заключения безопасности и качества продукции у заявителя.
+Представитель экспертной организации или территориального департамента уполномоченного органа (ответственное лицо организации оптовой реализации, производитель, в случае, если отбираемые образцы хранятся на оптовом складе, имеющем сертификат GDP, на складе производителя имеющего сертификат GMP)
 </Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text40>
-            <Text44 Ref="69" type="Text" isKey="true">
+            <Text44 Ref="95" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>1.8,5.6,4.8,1</ClientRectangle>
+              <ClientRectangle>0.6,4.8,4.8,1</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Margins>0,0,0,0</Margins>
               <Name>Text44</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>Представитель экспертной 
 организации</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text44>
-            <Text45 Ref="70" type="Text" isKey="true">
+            <Text45 Ref="96" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>1.8,7.2,3.6,0.8</ClientRectangle>
+              <ClientRectangle>0.6,6.2,3.6,0.8</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Guid>5749f693e2cc438798acb95514c330c5</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text45</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>или члены комиссии</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text45>
-            <Text46 Ref="71" type="Text" isKey="true">
+            <Text46 Ref="97" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>1.8,8.6,3.6,0.8</ClientRectangle>
+              <ClientRectangle>0.6,7.6,3.6,0.8</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Guid>b6cdc9d6949d4c42921aa6c56b56a28f</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text46</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>Заявитель</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text46>
-            <Text47 Ref="72" type="Text" isKey="true">
+            <Text47 Ref="98" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>8.4,5.6,10.2,0.6</ClientRectangle>
+              <ClientRectangle>7.2,4.8,11.4,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Guid>2dccd0738b8d4205a95a4dfc02cb1b85</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text47</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>_________________{ExpertNames.EmployeeName}</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text47>
-            <Text48 Ref="73" type="Text" isKey="true">
+            <Text48 Ref="99" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.4,7.6,1.4,0.4</ClientRectangle>
+              <ClientRectangle>8,6.6,1.4,0.4</ClientRectangle>
               <Conditions isList="true" count="0" />
               <Font>Arial,7</Font>
               <Guid>9cdbb9109c964f0a80919c7950fd1771</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text48</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>подпись</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text48>
-            <Text49 Ref="74" type="Text" isKey="true">
+            <Text49 Ref="100" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>8.4,8.6,10.2,0.6</ClientRectangle>
+              <ClientRectangle>7.2,7.6,11.4,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Guid>e1a4857f04fe4c7999a418f254c320d8</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text49</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>_________________{ActReception.Declarer}</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text49>
-            <Text50 Ref="75" type="Text" isKey="true">
+            <Text50 Ref="101" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>8.4,7.2,3.6,0.6</ClientRectangle>
+              <ClientRectangle>7.2,6.2,3.6,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,10</Font>
+              <Font>Times New Roman,11</Font>
               <Guid>d5af6a6530af44ef978ad0187d8af20b</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text50</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>_________________</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text50>
-            <Text52 Ref="76" type="Text" isKey="true">
+            <Text52 Ref="102" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.4,6,1.4,0.4</ClientRectangle>
+              <ClientRectangle>8,5.2,1.4,0.4</ClientRectangle>
               <Conditions isList="true" count="0" />
               <Font>Arial,7</Font>
               <Guid>9193ce410b8f46fa8c10c70e984a0549</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text52</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>подпись</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <Type>Expression</Type>
             </Text52>
-            <Text51 Ref="77" type="Text" isKey="true">
+            <Text51 Ref="103" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.4,9,1.4,0.4</ClientRectangle>
+              <ClientRectangle>8,8,1.4,0.4</ClientRectangle>
               <Conditions isList="true" count="0" />
               <Font>Arial,7</Font>
               <Guid>bd395d50008f43eb8915b725bbef6257</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text51</Name>
-              <Page isRef="30" />
-              <Parent isRef="67" />
+              <Page isRef="56" />
+              <Parent isRef="93" />
               <Text>подпись</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
@@ -1181,8 +1629,8 @@ SELECT
           </Components>
           <Conditions isList="true" count="0" />
           <Name>FooterBand1</Name>
-          <Page isRef="30" />
-          <Parent isRef="30" />
+          <Page isRef="56" />
+          <Parent isRef="56" />
         </FooterBand1>
       </Components>
       <Conditions isList="true" count="0" />
@@ -1192,13 +1640,13 @@ SELECT
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="78" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="104" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page2>
   </Pages>
-  <PrinterSettings Ref="79" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="105" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -1210,10 +1658,10 @@ SELECT
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Report</ReportAlias>
-  <ReportChanged>2/9/2018 10:00:57 AM</ReportChanged>
+  <ReportChanged>2/26/2018 11:39:59 AM</ReportChanged>
   <ReportCreated>12/5/2017 4:05:17 PM</ReportCreated>
   <ReportFile>C:\Projects\ncelsRepo\PW.Prism\Reports\Mrts\OBK\OBKSerialActReception.mrt</ReportFile>
-  <ReportGuid>07d2b74f7ff643a5b43f4ed12f0a1166</ReportGuid>
+  <ReportGuid>273192691035448cbf157248ed3204a3</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2015.1.0</ReportVersion>
