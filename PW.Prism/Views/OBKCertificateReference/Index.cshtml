@@ -4,8 +4,7 @@
 <script>
 
     function FindCertificateByType() {
-        var grid = $("#gridListCertificateDic" + '@Model').data("kendoGrid");
-        grid.dataSource.read();
+        initOBKCertificateFilters();
     }
 
     function additionalInfo() {
@@ -64,15 +63,7 @@
             .Name(("splitter" + Model))
             .Panes(panes =>
             {
-            panes.Add()
-                .Size("250px")
-                .Collapsible(true)
-                .MaxSize("500px")
-                .MinSize("250px")
-                .Content(
-                @<div class="pwPanelBar">
-                </div>
-                );
+          
 
 panes.Add().Scrollable(false).Size("100%").Content(
     @<div class="pwPanelBar">
@@ -124,6 +115,7 @@ panes.Add().Scrollable(false).Size("100%").Content(
                                columns.Bound(p => p.CertificateProducer).Title("Орган выдачи сертификата").Width(80);
                                columns.Bound(p => p.LastInspection).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.LastInspection).Width(80);
                                columns.Bound(p => p.CertificateType).Title(PW.Ncels.Database.Recources.Messages.Type).Width(50);
+                               columns.Bound(p => p.CertificateValidityCode).Visible(false);
 
                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
                            })
@@ -135,6 +127,7 @@ panes.Add().Scrollable(false).Size("100%").Content(
                              .Filterable()
                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
                             .HtmlAttributes(new { @class = "pwGridRef" })
+                            .Pageable()
                             .Events(ev => ev.Edit("addDeleteButton"))
                             .DataSource(dataSource => dataSource
                                .Ajax().Events(e => e.Sync("refresh"))
@@ -167,65 +160,57 @@ panes.Add().Scrollable(false).Size("100%").Content(
              );
             }))
 
-<script>
-
+     <script>
 
     resizeGrid('@("#gridListCertificateDic" + Model)');
 
-    function InitFilterOBKDictionaryGrid(nameRu) {
+    $("#reload" + "@Model").click(function (e) {
+        var grid = $("#gridListCertificateDic" + nameRu).data("kendoGrid");
+        grid.dataSource.read();
+    });
 
-        $("#reload" + nameRu).click(function (e) {
-            var grid = $("#gridListCertificateDic" + nameRu).data("kendoGrid");
-            grid.dataSource.read();
-        });
-        $("#findText" + nameRu).keypress(function (d) {
-            if (d.keyCode == 13) {
-                $("#find" + nameRu).click();
-            }
-        });
-        $("#find" + nameRu).click(function (e) {
 
-            var text = $("#findText" + nameRu).val();
-            var findType = $("#findType" + nameRu).val();
-            var grid = $("#gridListDic" + nameRu).data("kendoGrid");
+    function initOBKCertificateFilters()
+    {
+        var grid = $("#gridListCertificateDic" + "@Model").data("kendoGrid");
+        var filterArr = grid.dataSource.filter();
+        var filter = [];
+        if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+        }
 
-            if (text != '') {
-                $filter = new Array();
-                if (findType == 0) {
+         var findType = $('#findType' + '@Model').val();
 
-                    $filter.push({ field: "Code", operator: "contains", value: text });
-                    $filter.push({ field: "NameRu", operator: "contains", value: text });
-                    $filter.push({ field: "NameKz", operator: "contains", value: text });
+         debugger;
 
-                }
-                if (findType == 1) {
-                    $filter.push({ field: "Code", operator: "contains", value: text });
-                }
-                if (findType == 2) {
-                    $filter.push({ field: "NameRu", operator: "contains", value: text });
-                }
-                if (findType == 3) {
-                    $filter.push({ field: "Note", operator: "contains", value: text });
-                }
-                grid.dataSource.filter({
-                    logic: "or",
-                    filters: $filter
-                });
-            } else {
+         if (findType != undefined && findType != null && findType != "" && findType != "all")
+        {
+             checkRemove(filter, "CertificateValidityCode", "eq");
+            filter.push(
+                { field: "CertificateValidityCode", operator: "eq", value: findType });
+        } else
+        {
+             checkRemove(filter, "CertificateValidityCode", "eq");
+        }
 
-                grid.dataSource.filter([]);
-            }
-        });
-
-        $("#findText" + nameRu).change(function (e) {
-            if ($("#findText" + nameRu).val() == '') {
-                var grid = $("#gridListCertificateDic" + nameRu).data("kendoGrid");
-                grid.dataSource.read();
-            }
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
         });
     }
 
     InitFilterOBKDictionaryGrid('@Model.ToString()');
+
+    function checkRemove(arr, field, operator)
+    {
+        for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].field == field && arr[i].operator == operator)
+                    {
+                    arr.splice(i, 1);
+                    }
+            }
+    }
 
 
 function changeCountry(e) {
@@ -246,4 +231,4 @@ function changeCountry(e) {
         $("#DocumentId").val(id).change();
     }
 
-</script>
+     </script>
