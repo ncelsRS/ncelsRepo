@@ -72,7 +72,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IQueryable<LaboratoryListFunction_Result> LaboratoryListFunction_Result()
         {
-            return AppContext.LaboratoryListFunction(UserHelper.GetCurrentEmployee().OrganizationId);
+            return AppContext.LaboratoryListFunction(UserHelper.GetCurrentEmployee().OrganizationId).Where(o => !"Руководство".Equals(o.Name));
         }
 
         public IQueryable<OBK_SpecialistsReport> OBK_SpecialistsReport()
