@@ -16,6 +16,7 @@ namespace Ncels.Scheduler.Jobs
 
         public void Execute(IJobExecutionContext context)
         {
+            System.Threading.Thread.Sleep(100000);
             repository.UpdateCertificates();
         }
     }
