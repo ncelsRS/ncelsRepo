@@ -1816,6 +1816,12 @@ namespace PW.Ncels.Database.Repository.OBK
             return count.Sum(e => e.PriceWithTax).ToString();
         }
 
+        public double GetPriceCountNumber(Guid contractId)
+        {
+            var count = AppContext.OBK_ContractPrice.Where(e => e.ContractId == contractId).ToList();
+            return count.Sum(e => e.PriceWithTax);
+        }
+
         public IQueryable<object> GetSigners(Guid expertOrganizationId)
         {
             string[] signerCodes = { OrganizationConsts.Сeo, OrganizationConsts.Deputyceo };
@@ -2418,6 +2424,9 @@ namespace PW.Ncels.Database.Repository.OBK
 
                 var priceText = RuDateAndMoneyConverter.ToTextTenge(Convert.ToDouble(price), false);
                 report.Dictionary.Variables["PriceCountName"].ValueObject = priceText;
+
+                var priceKz = new OBKContractRepository().GetPriceCountNumber(id);
+                report.Dictionary.Variables["PriceCountNameKz"].ValueObject = PriceHelperKz.ConvertKzNumbers(priceKz);
 
                 report.Render(false);
             }

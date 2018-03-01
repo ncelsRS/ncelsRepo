@@ -1033,6 +1033,15 @@ namespace PW.Ncels.Database.Recources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Наименование на казахском.
+        /// </summary>
+        public static string PositionNameKz {
+            get {
+                return ResourceManager.GetString("PositionNameKz", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Наименование производителя.
         /// </summary>
         public static string ProducerName {
