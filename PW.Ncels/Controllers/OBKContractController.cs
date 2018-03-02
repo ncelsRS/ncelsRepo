@@ -374,6 +374,9 @@ namespace PW.Ncels.Controllers
                 var priceText = RuDateAndMoneyConverter.ToTextTenge(Convert.ToDouble(price), false);
                 report.Dictionary.Variables["PriceCountName"].ValueObject = priceText;
 
+                var priceKz = new OBKContractRepository().GetPriceCountNumber(id); 
+                report.Dictionary.Variables["PriceCountNameKz"].ValueObject = PriceHelperKz.ConvertKzNumbers(priceKz);
+
                 report.Render(false);
             }
             catch (Exception ex)

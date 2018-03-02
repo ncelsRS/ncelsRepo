@@ -49,8 +49,8 @@ namespace PW.Ncels.Database.Models
 			unit.PositionState = PositionState;
 			unit.Email = Email;
 			unit.Rank = Rank;
-
-			unit.ParentId = ParentId;
+            unit.Bin = Bin;
+            unit.ParentId = ParentId;
 			unit.UnitTypeDictionaryId = DictionaryHelper.GetItemsId(UnitTypeDictionaryId);
 			unit.BossId = DictionaryHelper.GetItemsId(BossId);
 			unit.ManagerId = DictionaryHelper.GetItemsId(ManagerId);
@@ -74,6 +74,7 @@ namespace PW.Ncels.Database.Models
 		public string Name { get; set; }
 		public string NameKz { get; set; }
 
+        public string Bin { get; set; }
 		public string NameFull { get; set; }
 		public string ShortName { get; set; }
 		public List<Item> UnitTypeDictionaryId { get; set; }
