@@ -312,20 +312,6 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return File(stream, "application/pdf", name);
         }
 
-        //public ActionResult ExpDocumentRejectFormPdf(Guid id)
-        //{
-        //    var report = new StiReport();
-        //    var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKTask.mrt");
-        //    report.Load(path);
-        //    report.Compile();
-        //    report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
-        //    report.Render(false);
-        //    Stream stream = new MemoryStream();
-        //    report.ExportDocument(StiExportFormat.Pdf, stream);
-        //    stream.Position = 0;
-        //    return File(stream, "application/pdf", "Уведомление об отказе.pdf");
-        //}
-
         public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
         {
             string name = "Заключение о безопасности и качества.pdf";
@@ -376,6 +362,25 @@ namespace PW.Prism.Controllers.OBKExpDocument
             report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", name);
+        }
+
+        /// <summary>
+        /// Печатная форма отказа
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult ExpDocumentRejectFormPdf(int productSeriesId, Guid id, int pid)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKExpRejectDocument.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("rm", expRepo.GetExpRejectFormData(id, productSeriesId, pid));
+            report.Render(false);
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return File(stream, "application/pdf", $"Уведомление об отказе.Pdf");
         }
 
         [HttpGet]

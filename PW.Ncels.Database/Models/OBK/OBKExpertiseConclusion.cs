@@ -15,6 +15,7 @@ namespace PW.Ncels.Database.Models.OBK
 
     public class ExpertiseConclusion
     {
+        public int ProductId { get; set; }
         public int ProductSeriesId { get; set; }
         public string ProductNameRu { get; set; }
         public string ProductNameKz { get; set; }

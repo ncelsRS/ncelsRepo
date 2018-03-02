@@ -1281,6 +1281,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var t = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.ProductSeriesId == psId);
             if (t == null) return null;
+            var ceoInfo = AppContext.OBK_TaskExecutor.FirstOrDefault(e=>e.TaskId == t.OBK_Tasks.Id && e.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER && e.ExecutorType == 3);
             var rcrs = AppContext.OBK_ResearchCenterResult.Where(e => e.OBK_TaskMaterial.ProductSeriesId == psId);
             var obj = new
             {
@@ -1305,6 +1306,25 @@ namespace PW.Ncels.Database.Repository.OBK
                     ps.FactResult,
                     ps.Humidity
                 }).ToList()
+            };
+            return obj;
+        }
+
+        public object GetTaskProtocolExecutorListData(int psId)
+        {
+            var t = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.ProductSeriesId == psId);
+            if (t == null) return null;
+            var ceoInfo = AppContext.OBK_TaskExecutor.FirstOrDefault(e => e.TaskId == t.OBK_Tasks.Id && e.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER && e.ExecutorType == 3);
+            var obj = new
+            {
+                ExecutorList = t.OBK_TaskMaterailExecutor.Where(x => x.OBK_TaskExecutor.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER).Select(el => new
+                {
+                    ExeutorType = el.OBK_TaskExecutor.ExecutorType,
+                    FullName = el.OBK_TaskExecutor.Employee.LastName + " " + el.OBK_TaskExecutor.Employee.FirstName[0] + ". " + el.OBK_TaskExecutor.Employee.MiddleName[0] + ".",
+                    Position = el.OBK_TaskExecutor.Employee.Position.ShortName
+                }).ToList().OrderByDescending(e=>e.ExeutorType),
+                CeoName = ceoInfo?.Employee.LastName + " " + ceoInfo?.Employee.FirstName[0] + ". " + ceoInfo?.Employee.MiddleName[0] + ".",
+                Ceo = ceoInfo?.Employee.Position.ShortName
             };
             return obj;
         }

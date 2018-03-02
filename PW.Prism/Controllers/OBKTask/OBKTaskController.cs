@@ -434,6 +434,7 @@ namespace PW.Prism.Controllers.OBKTask
             report.Load(path);
             report.Compile();
             report.RegBusinessObject("tmp", repo.GetTaskProtocolData(psId));
+            report.RegBusinessObject("tmpExecutors", repo.GetTaskProtocolExecutorListData(psId));
             report.Render(false);
             Stream stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Word2007, stream);
