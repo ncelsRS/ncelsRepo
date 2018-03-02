@@ -299,6 +299,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
                 report.Dictionary.Variables["StageExpDocumentId"].ValueObject = Convert.ToInt32(productSeriesId);
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
+                var serieId = Convert.ToInt32(productSeriesId);
+                var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.ProductSeriesId == serieId);
+                report.Dictionary.Variables["StartMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpStartDate);
+                report.Dictionary.Variables["StartMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpStartDate);
+                report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
+                report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
 
                 report.Render(false);
             }

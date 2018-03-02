@@ -620,8 +620,11 @@ namespace PW.Prism.Controllers
 	                RegionId = o.Dic.Id,
 	                RegionName = o.Dic.Name,
 	                AddressNameRu = o.UAddress.AddressNameRu,
-	                AddressNameKz = o.UAddress.AddressNameKz
-	            });
+	                AddressNameKz = o.UAddress.AddressNameKz,
+                    PostalCode = o.UAddress.PostalCode,
+                    ShortCityNameRu = o.UAddress.ShortCityNameRu,
+                    ShortCityNameKz = o.UAddress.ShortCityNameKz
+                });
 	        return Json(data.ToDataSourceResult(request, ModelState));
 	    }
 
@@ -646,7 +649,10 @@ namespace PW.Prism.Controllers
 	            dbUnitsAddress.AddressNameRu = unitsAddress.AddressNameRu;
 	            dbUnitsAddress.AddressNameKz = unitsAddress.AddressNameKz;
 	            dbUnitsAddress.RegionId = unitsAddress.RegionId;
-	            db.UnitsAddresses.Add(dbUnitsAddress);
+                dbUnitsAddress.PostalCode = unitsAddress.PostalCode;
+                dbUnitsAddress.ShortCityNameRu = unitsAddress.ShortCityNameRu;
+                dbUnitsAddress.ShortCityNameKz = unitsAddress.ShortCityNameKz;
+                db.UnitsAddresses.Add(dbUnitsAddress);
 	            db.SaveChanges();
 	        }
 	        return Json(new[] { unitsAddress }.ToDataSourceResult(request, ModelState));
@@ -664,7 +670,10 @@ namespace PW.Prism.Controllers
 	                dbUnitsAddress.AddressNameRu = unitsAddress.AddressNameRu;
 	                dbUnitsAddress.AddressNameKz = unitsAddress.AddressNameKz;
 	                dbUnitsAddress.RegionId = unitsAddress.RegionId;
-	                db.SaveChanges();
+                    dbUnitsAddress.PostalCode = unitsAddress.PostalCode;
+                    dbUnitsAddress.ShortCityNameRu = unitsAddress.ShortCityNameRu;
+                    dbUnitsAddress.ShortCityNameKz = unitsAddress.ShortCityNameKz;
+                    db.SaveChanges();
 	            }
 
 	        }
