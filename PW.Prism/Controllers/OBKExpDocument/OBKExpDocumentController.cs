@@ -287,7 +287,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         public ActionResult ExpDocumentExportFilePdf(string productSeriesId, Guid id)
         {
-            string name = "Заключение о безопасности и качества.pdf";
+            string name = $"Заключение о безопасности и качества.docx";
             StiReport report = new StiReport();
             try
             {
@@ -313,9 +313,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
             var stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Pdf, stream);
+            report.ExportDocument(StiExportFormat.Word2007, stream);
             stream.Position = 0;
-            return File(stream, "application/pdf", name);
+            return File(stream, "application/msword", name);
         }
 
         //public ActionResult ExpDocumentRejectFormPdf(Guid id)

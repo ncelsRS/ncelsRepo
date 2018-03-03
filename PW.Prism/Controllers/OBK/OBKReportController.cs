@@ -134,13 +134,14 @@ namespace PW.Prism.Controllers.OBK
             return File(stream, "application/excel", "Отчет.xls");
         }
 
-        public ActionResult ExportOBKLaboratoryReport(Guid? unitLaboratoryId)
+        public ActionResult ExportOBKLaboratoryReport([DataSourceRequest] DataSourceRequest request, Guid? unitLaboratoryId)
         {
             StiReport report = new StiReport();
             report.Load(Server.MapPath("../Reports/Mrts/OBK/OBKLaboratoryReport.mrt"));
             report.Compile();
             var data = repository.OBK_LaboratoryFunction(unitLaboratoryId);
-            report.RegBusinessObject("List", data);
+            var result = data.ToDataSourceResult(request);
+            report.RegBusinessObject("List", result.Data);
             report.Render(false);
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Excel, stream);
