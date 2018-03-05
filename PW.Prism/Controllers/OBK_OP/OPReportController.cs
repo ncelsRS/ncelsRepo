@@ -34,6 +34,7 @@ namespace PW.Prism.Controllers.OBK_OP
                     .FirstOrDefault();
                 var statusCodesForExecutorType1 = new[] { "OPReportNew", "OPReportConfirmed", "OPReportOnReWork" };
                 var statusCodesForExecutorType2 = new[] { "OPReportInConfirm" };
+
                 var res = repo.OBK_AssessmentReportOP
                     .Where(x => x.DeclarationId == declarationId)
                     .ToList()
