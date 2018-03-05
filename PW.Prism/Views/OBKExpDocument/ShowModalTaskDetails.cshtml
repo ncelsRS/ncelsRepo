@@ -1,11 +1,6 @@
 ﻿@model PW.Ncels.Database.Models.OBK.SubTaskDetails
 
 <style>
-    /*td {
-        border: 1px #beebff solid;
-        padding: 5px;
-    }*/
-
     .add-commnet {
         background-color: #dd4353;
         color: #2e2e2e;
@@ -61,14 +56,6 @@
                     <div id="taskComment_@s.TaskExecutorId"></div>
                 </div>
                 
-                @*<div class="row">
-                    <div class="col-lg-12">
-                        <div class="form-group">
-                            <button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("SubTaskProtokol", "OBKTask", new { tmid = s.Id})'">Печатная форма протокола</button>
-                        </div>
-                    </div>
-                </div>*@
-                
                 <div class="row">
                     <div class="col-lg-12">
                         <table id="tableSubTaskIndicator_@s.TaskExecutorId" class="table table-bordered">
@@ -84,7 +71,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @if (s.SubTaskIndicator.Count > 0)
+                            @if (s.SubTaskIndicator != null && s.SubTaskIndicator.Count > 0)
                             {
                                 foreach (var t in s.SubTaskIndicator)
                                 {
@@ -195,7 +182,6 @@
         debugger;
         var table = $(this).parent().parent().parent();
         var rcId = table.attr('rcId');
-        //var tableId = table.attr('tableId');
         var teId = table.attr('teId');
         $.ajax({
             type: 'GET',
@@ -211,9 +197,22 @@
 
     function returnToResearchCenter(adId, psId) {
         debugger;
+        var commentIds = new Array();
+        $(".add-commnet").each(function () {
+            var tmId = $(this).attr('tableId');
+            var rcId = $(this).attr('rcId');
+            var teId = $(this).attr('teId');
+            commentIds.push({ TaskmaterailId: tmId, ResearchCenterId: rcId, TaskExecutorId: teId });
+        });
+
+        debugger;
+
         $.ajax({
-            type: 'GET',
-            url: '/OBKExpDocument/ReturnToResearchCenter?adId=' + adId + '&psId=' + psId,
+            type: 'POST',
+            url: '/OBKExpDocument/ReturnToResearchCenters',
+            data: JSON.stringify(commentIds),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
             cache: false,
             success: function (data) {
                 debugger;
@@ -222,5 +221,17 @@
                 }
             }
         });
+
+        //$.ajax({
+        //    type: 'GET',
+        //    url: '/OBKExpDocument/ReturnToResearchCenter?adId=' + adId + '&psId=' + psId,
+        //    cache: false,
+        //    success: function (data) {
+        //        debugger;
+        //        if (data.isSuccess) {
+        //            $("#panelTaskDetails_" + adId).hide();
+        //        }
+        //    }
+        //});
     }
 </script>

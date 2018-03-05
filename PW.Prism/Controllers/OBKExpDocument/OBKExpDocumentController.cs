@@ -287,7 +287,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         public ActionResult ExpDocumentExportFilePdf(string productSeriesId, Guid id)
         {
-            string name = "Заключение о безопасности и качества.pdf";
+            string name = $"Заключение о безопасности и качества.docx";
             StiReport report = new StiReport();
             try
             {
@@ -299,6 +299,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
                 report.Dictionary.Variables["StageExpDocumentId"].ValueObject = Convert.ToInt32(productSeriesId);
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
+                var serieId = Convert.ToInt32(productSeriesId);
+                var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.ProductSeriesId == serieId);
+                report.Dictionary.Variables["StartMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpStartDate);
+                report.Dictionary.Variables["StartMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpStartDate);
+                report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
+                report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
 
                 report.Render(false);
             }
@@ -307,24 +313,10 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
             var stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Pdf, stream);
+            report.ExportDocument(StiExportFormat.Word2007, stream);
             stream.Position = 0;
-            return File(stream, "application/pdf", name);
+            return File(stream, "application/msword", name);
         }
-
-        //public ActionResult ExpDocumentRejectFormPdf(Guid id)
-        //{
-        //    var report = new StiReport();
-        //    var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKTask.mrt");
-        //    report.Load(path);
-        //    report.Compile();
-        //    report.RegBusinessObject("taskModel", repo.GetTaskReportData(taskId));
-        //    report.Render(false);
-        //    Stream stream = new MemoryStream();
-        //    report.ExportDocument(StiExportFormat.Pdf, stream);
-        //    stream.Position = 0;
-        //    return File(stream, "application/pdf", "Уведомление об отказе.pdf");
-        //}
 
         public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
         {
@@ -376,6 +368,25 @@ namespace PW.Prism.Controllers.OBKExpDocument
             report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", name);
+        }
+
+        /// <summary>
+        /// Печатная форма отказа
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult ExpDocumentRejectFormPdf(int productSeriesId, Guid id, int pid)
+        {
+            var report = new StiReport();
+            var path = System.Web.HttpContext.Current.Server.MapPath("~/Reports/Mrts/OBK/OBKExpRejectDocument.mrt");
+            report.Load(path);
+            report.Compile();
+            report.RegBusinessObject("rm", expRepo.GetExpRejectFormData(id, productSeriesId, pid));
+            report.Render(false);
+            var stream = new MemoryStream();
+            report.ExportDocument(StiExportFormat.Pdf, stream);
+            stream.Position = 0;
+            return File(stream, "application/pdf", $"Уведомление об отказе.Pdf");
         }
 
         [HttpGet]
@@ -701,6 +712,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
             return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ReturnToResearchCenters(List<OBKReturnToResearchCenter> rtrc)
+        {
+            expRepo.ReturnToResearchCenters(rtrc);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult ShowSignBtn(Guid adId)
         {
             var result = expRepo.GetValidShowSignBtn(adId);
@@ -709,4 +726,5 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         #endregion
     }
+
 }

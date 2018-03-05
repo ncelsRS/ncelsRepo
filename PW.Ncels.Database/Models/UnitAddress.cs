@@ -9,5 +9,8 @@ namespace PW.Ncels.Database.Models
         public string RegionName { get; set; }
         public string AddressNameRu { get; set; }
         public string AddressNameKz { get; set; }
+        public string PostalCode { get; set; }
+        public string ShortCityNameRu { get; set; }
+        public string ShortCityNameKz { get; set; }
     }
 }

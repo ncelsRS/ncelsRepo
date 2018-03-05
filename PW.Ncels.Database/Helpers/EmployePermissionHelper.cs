@@ -1083,7 +1083,30 @@ namespace PW.Ncels.Database.Helpers
         /// Журнал учета бланков копий заключений о безопасности и качестве
         /// </summary>
         public static bool ZBKCopyReport { get { return IsVisibility("ZBKCopyReport"); } }
-
+        /// <summary>
+        /// Журнал учета бланков копий заключений о безопасности и качестве
+        /// </summary>
+        public static bool DirectionPaymentsReport { get { return IsVisibility("DirectionPaymentsReport"); } }
+        /// <summary>
+        /// Отчет о выдаче заключений о безопасности и качестве
+        /// </summary>
+        public static bool ZBKDetailReport { get { return IsVisibility("ZBKDetailReport"); } }
+        /// <summary>
+        /// Отчет о выдаче забракованной продукции
+        /// </summary>
+        public static bool ZBKDefectiveProductReport { get { return IsVisibility("ZBKDefectiveProductReport"); } }
+        /// <summary>
+        /// GMP отчет
+        /// </summary>
+        public static bool GMPReport { get { return IsVisibility("GMPReport"); } }
+        /// <summary>
+        /// Сводный отчет по ТФ
+        /// </summary>
+        public static bool SummaryReportTF { get { return IsVisibility("SummaryReportTF"); } }
+        /// <summary>
+        /// Отчет о проведенных лабораторных испытаниях по оценке безопасности и качества
+        /// </summary>
+        public static bool LaboratoryTestsReport { get { return IsVisibility("LaboratoryTestsReport"); } }
         #endregion
 
     }

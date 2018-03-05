@@ -104,6 +104,8 @@
             $scope.loadDrugFormsAndMtParts();
 
             $scope.loadProductServiceNames();
+            //отчищаем поля формы выпуска, так как выбрали другую продукцию
+            $scope.clearDrugFormComponents();
 
             $scope.object.ProductServiceName = null;
         });
@@ -135,6 +137,10 @@
             $scope.product.DrugFormBoxCount = row.entity.BoxCount;
             $scope.product.DrugFormFullName = row.entity.FullName;
             $scope.product.DrugFormFullNameKz = row.entity.FullNameKz;
+
+            // полное наименование по ЛС при выборе формы выпуска
+            $scope.product.NameRu = row.entity.FullName;
+            $scope.product.NameKz = row.entity.FullNameKz;
         });
     };
 
@@ -784,6 +790,8 @@
             return alert('Выберите место проведения аналитической экспертизы');
         if (!$scope.product.Dimension && $scope.object.Type == 1 && $scope.product.RegTypeId == 2)
             return alert('Внесите размерность');
+        var conf = confirm("Необходимо проверить поля \"Наименование продукции\" и \"Наименование продукции на казахском\", содержание которых отображается в ЗБК продукции. Наименование продукции в ЗБК должно содержать торговое название продукции, дозировку, фасовку, форму выпуска (для лекарственных средств), размерность и комплектность (для изделий мед. назначения)\"");
+        if (!conf) return null;
         if ($scope.mode == 1) {
             var id = $scope.product.ProductId;
             if (id) {
@@ -1812,6 +1820,7 @@
 
 
     $scope.sendWithoutDigitalSign = function () {
+        debugger;
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var outputErrors = true;
@@ -1830,7 +1839,7 @@
             //}
         }
         var filesValid = $scope.checkFileValidation();
-        if (formValid && productInfoExist && filesValid) {
+        if (formValid && productInfoExist && filesValid && validFactories) {
             var modalInstance = $uibModal.open({
                 templateUrl: '/Project/Agreement',
                 controller: modalSendContract,
@@ -1844,6 +1853,7 @@
     }
 
     $scope.sendWithDigitalSign = function () {
+        debugger;
         var formValid = $scope.contractCreateForm.$valid;
         var productInfoExist = $scope.addedProducts.length > 0;
         var filesValid = $scope.checkFileValidation();
@@ -1858,11 +1868,12 @@
 
     $scope.factoriesValidate = function () {
         var isFactoryRequired = false;
-        if (!$scope.addedProducts || $scope.addedProducts.length == 0) return false;
+        if (!$scope.addedProducts || $scope.addedProducts.length == 0) return true;
         $scope.addedProducts.forEach(p => {
             if (p.expertisePlace == "1") isFactoryRequired = true;
         });
-        if (!$scope.factories || $scope.factories.length == 0) return false;
+        if ($scope.object.Type == 1)
+            if (isFactoryRequired && !$scope.factories || $scope.factories.length == 0) return false;
         return true;
     }
 

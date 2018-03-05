@@ -32,12 +32,18 @@ namespace PW.Ncels.Controllers
     public class SafetyAssessmentController : ComAssessmentController
     {
         private ncelsEntities db = UserHelper.GetCn();
-
+        private SafetyAssessmentRepository repository;
         // GET: SafetyAssessment
         public ActionResult Index()
         {
             return View();
         }
+
+        public SafetyAssessmentController()
+        {
+            repository = new SafetyAssessmentRepository();
+        }
+
 
         /// <summary>
         /// подача заявления
@@ -129,8 +135,8 @@ namespace PW.Ncels.Controllers
         {
             var db = new ncelsEntities();
             var assessmentDeclaration = db.OBK_AssessmentDeclaration.FirstOrDefault(dd => dd.Id == id);
-            var fileName = assessmentDeclaration.OBK_Ref_Type.Code == "1" 
-                ? "SafetyAssessmentDeclaration.mrt" 
+            var fileName = assessmentDeclaration.OBK_Ref_Type.Code == "1"
+                ? "SafetyAssessmentDeclaration.mrt"
                 : "SafetyAssessmentDeclaration.mrt";
             string name = "Заявление на проведение оценки безопасности и качества лс.pdf";
             StiReport report = new StiReport();
@@ -152,7 +158,7 @@ namespace PW.Ncels.Controllers
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
             Stream stream = new MemoryStream();
-            
+
             var assessmentDeclarationHistory = assessmentDeclaration.OBK_AssessmentDeclarationHistory.Where(dh => dh.XmlSign != null)
                 .OrderByDescending(dh => dh.DateCreate).FirstOrDefault();
             if (assessmentDeclarationHistory != null)
@@ -696,7 +702,7 @@ namespace PW.Ncels.Controllers
                     act.Number = model.Number;
                     db.SaveChanges();
                 }
-                
+
             }
             repository.SaveOrUpdate(model, UserHelper.GetCurrentEmployee().Id);
             repository.SaveHisotry(history, UserHelper.GetCurrentEmployee().Id);
@@ -731,17 +737,22 @@ namespace PW.Ncels.Controllers
             ViewData["ContractId"] = assess.ContractId;
             var product = db.OBK_RS_Products.FirstOrDefault(o => o.ContractId == assess.ContractId);
 
-            if (model.ActDate == null)
+            if (model.Producer == null && product != null)
             {
-                model.ActDate = DateTime.Now;
-                ViewData["ActDateNull"] = true;
+                repository.UpdateAct(assess, "Producer", model.Id, product.ProducerNameRu,
+            UserHelper.GetCurrentEmployee().Id.ToString(), "Producer");
             }
 
+            if (model.ActDate == null)
+            {
+                repository.UpdateAct(assess, "Declarer", model.Id, UserHelper.GetCurrentEmployee().FullName,
+                UserHelper.GetCurrentEmployee().Id.ToString(), "Declarer"); ;
+            }
 
             if (model.Declarer == null)
             {
-                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
-                ViewData["DeclarerNull"] = true;
+                repository.UpdateAct(assess, "ActDate", model.Id, DateTime.Now.ToString(),
+                    UserHelper.GetCurrentEmployee().Id.ToString(), "ActDate");
             }
 
             var safetyRepository = new SafetyAssessmentRepository();
@@ -790,20 +801,20 @@ namespace PW.Ncels.Controllers
 
             if (model.Producer == null && product != null)
             {
-                model.Producer = product.ProducerNameRu;
-                ViewData["ProducerNull"] = true;
+                repository.UpdateAct(assess, "Producer", model.Id, product.ProducerNameRu,
+            UserHelper.GetCurrentEmployee().Id.ToString(), "Producer");
             }
 
             if (model.ActDate == null)
             {
-                model.ActDate = DateTime.Now;
-                ViewData["ActDateNull"] = true;
+                repository.UpdateAct(assess, "ActDate", model.Id, DateTime.Now.ToString(),
+                   UserHelper.GetCurrentEmployee().Id.ToString(), "ActDate");
             }
 
             if (model.Declarer == null)
             {
-                model.Declarer = UserHelper.GetCurrentEmployee().DisplayName;
-                ViewData["DeclarerNull"] = true;
+                repository.UpdateAct(assess, "Declarer", model.Id, UserHelper.GetCurrentEmployee().DisplayName,
+                    UserHelper.GetCurrentEmployee().Id.ToString(), "Declarer"); ;
             }
 
             ViewData["ContractId"] = assess.ContractId;
@@ -896,7 +907,7 @@ namespace PW.Ncels.Controllers
             var executors = db.OBK_AssessmentStageExecutors.Where(o => o.AssessmentStageId == stage.Id).ToList();
             var expDocumentResult = db.OBK_StageExpDocumentResult.FirstOrDefault(o => o.AssessmetDeclarationId == id);
 
-            expDocumentResult.ExpResult = false;   
+            expDocumentResult.ExpResult = false;
 
             foreach (OBK_AssessmentStageExecutors exec in executors)
             {

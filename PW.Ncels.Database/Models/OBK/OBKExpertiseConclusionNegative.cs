@@ -11,6 +11,7 @@ namespace PW.Ncels.Database.Models.OBK
     {
         public bool ToShow { get; set; }
         public Guid AssessmentDeclarationId { get; set; }
+        public int? ProductId { get; set; }
         public int ProductSeriesId { get; set; }
         public string ExpReasonNameRu { get; set; }
         public string ExpReasonNameKz { get; set; }

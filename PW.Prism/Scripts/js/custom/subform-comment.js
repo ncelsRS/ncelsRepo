@@ -247,6 +247,7 @@ $(document).ready(function () {
 
 
     $(".obkcontractdialog").click(function () {
+        debugger;
         var inputControl = $(this).parent().prev();
         var modelId = $("#modelId").val();
 

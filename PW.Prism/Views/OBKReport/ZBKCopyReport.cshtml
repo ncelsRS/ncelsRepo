@@ -8,18 +8,10 @@
 @helper ToolbarDeclarationReport()
     {
         <div class="pull-left">
-            <label>Дата от</label>
+            <label>Дата начала</label>
             @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
-            <label>до</label>
+            <label>Дата окончания</label>
             @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
-            <label>ОПС</label>
-            @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
-                                        .AutoBind(false)
-                                        .OptionLabel("Все")
-                                        .DataTextField("Name")
-                                        .DataValueField("Id")
-                                        .HtmlAttributes(new { @style = "width: 300px" })
-                                        .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
 
             @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))                                                                                 
             @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
@@ -72,7 +64,7 @@
                                                                              .Ajax()
                                                                              .Sort(sort => { sort.Add("ExtraditeDate").Descending(); })
                                                                              .PageSize(30)
-                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { type = 0, reportType = ViewData["reportType"] }))
+                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
                                                                             )
                                 ))
 
@@ -95,9 +87,8 @@
     {
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
-         var org = $("#expertOrganizations" + "@Model").val();
 
-         if(fr != '' || to != '' || org != ''){
+         if(fr != '' || to != ''){
              var grid = $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid");
              parameterMap = grid.dataSource.transport.parameterMap;
              var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
@@ -121,8 +112,6 @@
              filter = filterArr.filters;
          }
 
-        var expertOrganizations = $('#expertOrganizations' + '@Model').val();
-
         if (from != undefined && from != null && from != "")
         {
             checkRemove(filter, "ExtraditeDate", "gte");
@@ -143,16 +132,6 @@
             checkRemove(filter, "ExtraditeDate", "lte");
         }
 
-        if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
-        {
-            checkRemove(filter, "ExpertOrganization", "eq");
-            filter.push(
-                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizations") });
-        } else
-        {
-            checkRemove(filter, "ExpertOrganization", "eq");
-        }
-
         grid.dataSource.filter({
             logic: "and",
             filters: filter
@@ -167,9 +146,8 @@
      {
          var fr = $("#dateFrom" + "@Model").val();
          var to = $("#dateTo" + "@Model").val();
-         var org = $("#expertOrganizations" + "@Model").val();
 
-         if(fr != '' || to != '' || org != ''){
+         if(fr != '' || to != ''){
              initZBKReportFilters();
          } else
          {

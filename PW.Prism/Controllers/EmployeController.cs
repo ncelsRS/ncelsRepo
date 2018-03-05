@@ -19,6 +19,7 @@ using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
+using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
@@ -619,8 +620,11 @@ namespace PW.Prism.Controllers
 	                RegionId = o.Dic.Id,
 	                RegionName = o.Dic.Name,
 	                AddressNameRu = o.UAddress.AddressNameRu,
-	                AddressNameKz = o.UAddress.AddressNameKz
-	            });
+	                AddressNameKz = o.UAddress.AddressNameKz,
+                    PostalCode = o.UAddress.PostalCode,
+                    ShortCityNameRu = o.UAddress.ShortCityNameRu,
+                    ShortCityNameKz = o.UAddress.ShortCityNameKz
+                });
 	        return Json(data.ToDataSourceResult(request, ModelState));
 	    }
 
@@ -645,7 +649,10 @@ namespace PW.Prism.Controllers
 	            dbUnitsAddress.AddressNameRu = unitsAddress.AddressNameRu;
 	            dbUnitsAddress.AddressNameKz = unitsAddress.AddressNameKz;
 	            dbUnitsAddress.RegionId = unitsAddress.RegionId;
-	            db.UnitsAddresses.Add(dbUnitsAddress);
+                dbUnitsAddress.PostalCode = unitsAddress.PostalCode;
+                dbUnitsAddress.ShortCityNameRu = unitsAddress.ShortCityNameRu;
+                dbUnitsAddress.ShortCityNameKz = unitsAddress.ShortCityNameKz;
+                db.UnitsAddresses.Add(dbUnitsAddress);
 	            db.SaveChanges();
 	        }
 	        return Json(new[] { unitsAddress }.ToDataSourceResult(request, ModelState));
@@ -663,7 +670,10 @@ namespace PW.Prism.Controllers
 	                dbUnitsAddress.AddressNameRu = unitsAddress.AddressNameRu;
 	                dbUnitsAddress.AddressNameKz = unitsAddress.AddressNameKz;
 	                dbUnitsAddress.RegionId = unitsAddress.RegionId;
-	                db.SaveChanges();
+                    dbUnitsAddress.PostalCode = unitsAddress.PostalCode;
+                    dbUnitsAddress.ShortCityNameRu = unitsAddress.ShortCityNameRu;
+                    dbUnitsAddress.ShortCityNameKz = unitsAddress.ShortCityNameKz;
+                    db.SaveChanges();
 	            }
 
 	        }
@@ -1316,7 +1326,9 @@ namespace PW.Prism.Controllers
 				baseEmployee.ShortName = BuildShortName(baseEmployee);
 				baseEmployee.FullName = BuildFullName(baseEmployee);
 				baseEmployee.DisplayName = BuildDisplayName(baseEmployee);
-				if (string.IsNullOrEmpty(baseEmployee.FirstName))
+			    Unit u = db.Units.Find(employee.PositionId);
+                baseEmployee.OrganizationId = OrgId(u);
+                if (string.IsNullOrEmpty(baseEmployee.FirstName))
 					errorMessage.AppendLine("Имя не может быть пустым.<br/>");
 				if (string.IsNullOrEmpty(baseEmployee.LastName))
 					errorMessage.AppendLine("Фамилия не может быть пустой.<br/>");
@@ -1340,7 +1352,7 @@ namespace PW.Prism.Controllers
 
 	    public Guid OrgId(Unit unit)
 	    {
-		    if (!unit.ParentId.HasValue)
+		    if (!unit.ParentId.HasValue || OrganizationConsts.Filials.Contains(unit.Code))
 		    {
 			    return unit.Id;
 		    }

@@ -5,6 +5,7 @@ String.prototype.replaceAll = function (search, replacement) {
 };
 
 function startSign(url, id, customDoSign) {
+    debugger;
     _doSignCustom = customDoSign;
     $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет формирование отчета для подписи...</h1>', css: { opacity: 1 } });
     $.ajax({

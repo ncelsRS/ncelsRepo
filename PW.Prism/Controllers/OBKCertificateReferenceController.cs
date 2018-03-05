@@ -41,20 +41,10 @@ namespace PW.Prism.Controllers
 
         public ActionResult AllList([DataSourceRequest] DataSourceRequest request, string status)
         {
-            var list = db.OBK_CertificateReference.Include(o => o.OBK_CertificateValidityType).ToList();
-            foreach (var obj in list)
-            {
-                if (obj.EndDate < DateTime.Now && !"Recalled".Equals(obj.OBK_CertificateValidityType.Code))
-                {
-                    OBK_CertificateReference d = db.OBK_CertificateReference.First(o => o.Id == obj.Id);
-                    d.OBK_CertificateValidityType = db.OBK_CertificateValidityType.First(o => o.Code == "Passive");
-                    db.SaveChanges();
-                }
-
-            }
 
             var data = from certRef in db.OBK_CertificateReference
                        join dic in db.Dictionaries on certRef.CertificateCountryId equals dic.Id
+                       into co from country in co.DefaultIfEmpty()
                        join certType in db.OBK_Ref_CertificateType on certRef.CertificateTypeId equals certType.Id
                        join validityType in db.OBK_CertificateValidityType on certRef.CertificateValidityTypeId equals validityType.Id
                        select new
@@ -64,33 +54,20 @@ namespace PW.Prism.Controllers
                            CertificateNumber = certRef.CertificateNumber,
                            StartDate = certRef.StartDate,
                            EndDate = certRef.EndDate,
-                           country = dic.NameKz,
+                           country = country.NameKz,
                            CertificateOrganization = certRef.CertificateOrganization,
                            CertificateProducer = certRef.CertificateProducer,
                            CertificateType = certType.NameRu,
                            CertificateTypeId = certRef.CertificateTypeId,
                            CertificateCountryId = certRef.CertificateCountryId,
-                           CertificateCountry = dic.Name,
+                           CertificateCountry = country.Name,
                            LastInspection = certRef.LastInspection,
                            AttachPath = certRef.AttachPath,
                            CertificateValidityType = validityType.Name,
                            CertificateValidityCode = validityType.Code
                        };
 
-            if (status.Equals("Active"))
-            {
-                return Json(data.ToList().Where(d => d.CertificateValidityCode == "Active").ToDataSourceResult(request));
-            }
-            else if (status.Equals("Passive"))
-            {
-                return Json(data.ToList().Where(d => d.CertificateValidityCode == "Passive").ToDataSourceResult(request));
-            }
-            else if (status.Equals("Recalled"))
-            {
-                return Json(data.ToList().Where(d => d.CertificateValidityCode == "Recalled").ToDataSourceResult(request));
-            }
-
-            return Json(data.ToDataSourceResult(request));
+            return Json(data.AsQueryable().ToDataSourceResult(request));
         }
 
 
@@ -100,7 +77,6 @@ namespace PW.Prism.Controllers
 
             if (dictionary != null && ModelState.IsValid)
             {
-
                 OBK_CertificateReference d = new OBK_CertificateReference()
                 {
                     Id = (Guid)dictionary.Id,
@@ -114,6 +90,8 @@ namespace PW.Prism.Controllers
                     CertificateTypeId = dictionary.CertificateTypeId,
                     LastInspection = dictionary.LastInspection,
                     AttachPath = dictionary.AttachPath,
+                    CreateDate = DateTime.Now,
+                    ExpertOrganization = UserHelper.GetCurrentEmployee().OrganizationId
                 };
                 if (dictionary.EndDate >= DateTime.Now)
                 {

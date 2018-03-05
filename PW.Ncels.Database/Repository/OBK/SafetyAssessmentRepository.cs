@@ -483,7 +483,7 @@ namespace PW.Ncels.Database.Repository.OBK
             return subUpdateField;
         }
 
-        private SubUpdateField UpdateAct(OBK_AssessmentDeclaration model, string fieldName, Guid? recordId,
+        public SubUpdateField UpdateAct(OBK_AssessmentDeclaration model, string fieldName, Guid? recordId,
            string fieldValue, string userId, string fieldDisplay)
         {
             var entity = AppContext.OBK_ActReception.First(o => o.Id == recordId);
