@@ -1000,25 +1000,61 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             AppContext.OBK_StageExpDocument.AddOrUpdate(expDocument);
             AppContext.SaveChanges();
-            if(!expDocument.ExpResult) return;
-            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id);
+            if (!expDocument.ExpResult) return;
+            var blankZBK = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankZBK.Id);
+
             if (blank == null)
             {
-                var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
                 blank = new OBK_BlankNumber()
                 {
                     Id = Guid.NewGuid(),
                     Object_Id = expDocument.Id,
                     CreateDate = DateTime.Now,
-                    BlankTypeId = blankType.Id,
+                    BlankTypeId = blankZBK.Id,
                     Corrupted = false
                 };
             }
 
-            blank.Number = int.Parse(expDocument.ExpBlankNumber);
+            var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+            var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+            if (applicationBlank == null)
+            {
+                var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+                applicationBlank = new OBK_BlankNumber()
+                {
+                    Id = Guid.NewGuid(),
+                    Object_Id = expDocument.Id,
+                    CreateDate = DateTime.Now,
+                    BlankTypeId = blankApplicationType.Id,
+                    Corrupted = false,
+                };
+            }
+
+            try
+            {
+                blank.Number = int.Parse(expDocument.ExpBlankNumber);
+            }
+            catch(Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            try
+            {
+                applicationBlank.Number = int.Parse(expDocument.ExpApplicationNumber);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
             blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+            applicationBlank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
 
             AppContext.OBK_BlankNumber.AddOrUpdate(blank);
+            AppContext.OBK_BlankNumber.AddOrUpdate(applicationBlank);
+
             AppContext.SaveChanges();
         }
 
@@ -1136,7 +1172,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             //Удаляем
             var forUpdateAct = AppContext.OBK_RS_Products.Where(o => o.ActReceptionId == actReceptionId).ToList();
-            foreach(var temp in forUpdateAct)
+            foreach (var temp in forUpdateAct)
             {
                 temp.UsedInSerie = null;
                 temp.ActReceptionId = null;

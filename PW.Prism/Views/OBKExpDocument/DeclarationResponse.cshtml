@@ -141,8 +141,8 @@
                                     <div class="form-group">
                                         <div class="col-lg-6">
                                             <label class="control-label">Тип заключения</label><br />
-                                            <input type="radio" name="radiobutton" checked="checked" id="expNotApplication" value="hide"> без приложения
-                                            <input type="radio" name="radiobutton" id="expApplication" value="show"> с приложением
+                                            <input type="radio" name="radiobutton" checked="checked" id="expNotApplication" onclick="hideExpApplicationNumber()" value="hide"> без приложения
+                                            <input type="radio" name="radiobutton" onclick="showExpApplicationNumber()" id="expApplication" value="show"> с приложением
                                         </div>
                                         <div class="col-lg-6" id="expApplicationNumber" style="display: none">
                                             <label class="control-label">№ бланка приложения</label>
@@ -329,7 +329,17 @@
     }
 
     function saveExpDoc() {
-        debugger;
+
+        var expRadio = null;        
+        if ($("#expApplication").is(":checked") == true){
+            expRadio = true;
+        }
+        
+        if ($("#expNotApplication").is(":checked") == true)
+        {
+            expRadio = false;
+        }
+
         var expData = {
             AssessmentDeclarationId: '@Model.Id',
             ProductSeriesId: productSeriesId,
@@ -348,7 +358,8 @@
             ExpConclusionNumber: $("#expConclusionNumber").val(),
             ExpBlankNumber: $("#expBlankNumber").val(),
             ExpApplicationNumber: $("#expApplicationNumber1").val(),
-            RefReasonId: $("#RefReasonId").val()
+            RefReasonId: $("#RefReasonId").val(),
+            ExpApplication: expRadio 
         };
         $.ajax({
             type: 'POST',
@@ -388,6 +399,15 @@
         window.open('/OBKExpDocument/ExpDocumentMotivRefusExportFilePdf?id=' + '@Model.Id');
     });
 
+    function showExpApplicationNumber()
+    {
+        $("#expApplicationNumber").show();
+    }
+
+    function hideExpApplicationNumber()
+    {
+        $("#expApplicationNumber").hide();
+    }
 
     $("#signBtn").click(function () {
         var modelId = '@Model.Id';
@@ -415,6 +435,8 @@
                 });
         }
     });
+
+    
 
     function validForm() {
 

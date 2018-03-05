@@ -196,7 +196,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     series.ExpApplicationNumber = expData.ExpApplicationNumber;
                     series.ExecutorId = UserHelper.GetCurrentEmployee().Id;
                     series.RefReasonId = expData.RefReasonId;
-                    series.ExpApplication = true;
+                    series.ExpApplication = expData.ExpApplication;
                     new SafetyAssessmentRepository().SaveExpDocument(series);
                 }
                 else
@@ -222,7 +222,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         ExpApplicationNumber = expData.ExpApplicationNumber,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id,
                         RefReasonId = expData.RefReasonId,
-                        ExpApplication = true
+                        ExpApplication = expData.ExpApplication
                     };
                     new SafetyAssessmentRepository().SaveExpDocument(expDoc);
                 }

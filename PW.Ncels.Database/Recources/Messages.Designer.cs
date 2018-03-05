@@ -5282,6 +5282,15 @@ namespace PW.Ncels.Database.Recources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Данные об аккредитации.
+        /// </summary>
+        public static string Данныеобаккредитации {
+            get {
+                return ResourceManager.GetString("Данныеобаккредитации", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to = сотрудника.
         /// </summary>
         public static string Перевестисотрудника {
@@ -5305,6 +5314,15 @@ namespace PW.Ncels.Database.Recources {
         public static string ПослужнойСписок {
             get {
                 return ResourceManager.GetString("ПослужнойСписок", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Срок аккредитации.
+        /// </summary>
+        public static string Срокаккредитации {
+            get {
+                return ResourceManager.GetString("Срокаккредитации", resourceCulture);
             }
         }
     }

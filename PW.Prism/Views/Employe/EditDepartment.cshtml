@@ -1,6 +1,7 @@
 ﻿@using Aspose.Words.Lists
 @using PW.Ncels.Database.DataModel
 @using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
 @model Guid[]
 
 <script>
@@ -15,6 +16,13 @@
         }
 
     });
+
+    function DepartmentUnit()
+    {
+        return {
+            modelId: nameData
+        };
+    }
 
     function Save() {
         var json = JSON.stringify(viewModel.get('item'));
@@ -55,6 +63,8 @@
             //  alert('Success! User Loaded!');
         }
     });
+
+    $("#AccreditationTerm" + nameData).kendoDatePicker();
 
     $("#BossId" + nameData).kendoMultiSelect({
         dataTextField: "Name",
@@ -144,6 +154,10 @@
                 <td><input type="text" data-bind="value: item.Name" class="k-textbox pwWidth100" /></td>
             </tr>
             <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Property_Наименование_201__00</td>
+                <td><input type="text" data-bind="value: item.NameKz" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
                 <td>@PW.Ncels.Database.Recources.Messages.Property_Сокращенноенаименование_28__00</td>
                 <td><input type="text" data-bind="value: item.ShortName" class="k-textbox pwWidth100" /></td>
             </tr>
@@ -167,8 +181,54 @@
                 <td>@PW.Ncels.Database.Recources.Messages.Property_Ранг_379__00</td>
                 <td><input id="@("rank" + Model[0])" type="number" min="0" max="9999" step="1" data-bind="value: item.Rank" class="pwWidth100" /></td>
             </tr>
-     
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Данныеобаккредитации</td>
+                <td><input id="@("AccreditationData" + Model[0])" data-bind="value: item.AccreditationData" class="k-textbox pwWidth100" /></td>
+            </tr>
+            <tr>
+                <td>@PW.Ncels.Database.Recources.Messages.Срокаккредитации</td>
+                <td><input id="@("AccreditationTerm" + Model[0])" data-bind="value: item.AccreditationTerm" class="pwWidth100" /></td>
+            </tr>
+
         </table>
+        @if (EmployePermissionHelper.CanChangeAddressUnits)
+        {
+            @( Html.Kendo().Grid<UnitAddress>().Name("GridUnitsAddressOrganization" + Model[0]).Columns(columns =>
+                         {
+                             columns.Bound(p => p.RegionName).Title("Область");
+                             columns.Bound(p => p.AddressNameRu).Title("Юридический адрес");
+                             columns.Bound(p => p.PostalCode).Title("Почтовый индекс");
+                             columns.Bound(p => p.ShortCityNameRu).Title("Наименование <br> города на русском");
+                             columns.Bound(p => p.ShortCityNameKz).Title("Наименование <br> города на казахском");
+                             columns.Command(command =>
+                             {
+                                 command.Edit();
+                                 command.Destroy();
+                             }).Width(200);
+                         }).ToolBar(toolbar => toolbar.Create()
+                               )
+                               .HtmlAttributes(new { @class = "pwGrid" })
+                               .Reorderable(reorderable => reorderable.Columns(true))
+                               .Resizable(resizable => resizable.Columns(true))
+                               .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                               .Scrollable()
+                               .DataSource(dataSource => dataSource
+                                   .Ajax()
+                                   .Model(model =>
+                                   {
+                                       model.Id(p => p.UnitAddressId);
+                                       model.Field(p => p.RegionId);
+                                       model.Field(f => f.RegionName);
+                                   })
+                                   .Read(read => read.Action("UnitsAddressRead", "Employe").Data("DepartmentUnit"))
+                                   .Create(update => update.Action("UnitsAddressCreate", "Employe").Data("DepartmentUnit"))
+                                   .Update(update => update.Action("UnitsAddressUpdate", "Employe").Data("DepartmentUnit"))
+                                   .Destroy(update => update.Action("UnitsAddressDestroy", "Employe").Data("DepartmentUnit"))
+                                   .Events(events => events.Error("error_handlerPP"))
+                               )
+                    //.Events(e => e.DataBound("dataBoundPermission"))
+            )
+        }
         <div hidden="@(!EmployeePermissionHelper.IsEditOs)" class="pwUnitsFooter k-block">
             <button type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
         </div>
