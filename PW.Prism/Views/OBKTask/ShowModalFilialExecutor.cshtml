@@ -38,6 +38,30 @@
     function sendFilialToCoz() {
         if (validModal()) {
             $("#errorMessage").hide();
+            var managerLaboratories = new Array();
+            $("table#tableManager tbody tr").each(function () {
+                debugger;
+                var unitId = $(this).attr('rowId');
+                var executorId = $(this).find('select#ManagerLabId option:selected').val();
+                managerLaboratories.push({ UnitLaboratoryId: unitId, ExecutorId: executorId });
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '/OBKTask/SendToCoz',
+                data: JSON.stringify(managerLaboratories),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    debugger;
+                    if (data.isSuccess) {
+                        $("#modalDialog_@ViewBag.AssessmentDeclarationId").modal('toggle');
+                        $('#sendToCoz').attr("disabled", true);
+                        alert("Задание успешно передано");
+                    }
+                }
+            });
         } else {
             $("#errorMessage").show();
         }

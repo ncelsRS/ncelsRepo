@@ -30,7 +30,7 @@ function registerLogFile(message) {
 }
 
 function crypt_object_init(callbackM) {
-
+    debugger;
     if (webSocket === null || webSocket.readyState === 3 || webSocket.readyState === 2) {
         webSocket = new WebSocket('wss://127.0.0.1:13579/');
         webSocket.onopen = function (event) {

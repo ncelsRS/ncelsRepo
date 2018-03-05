@@ -20,7 +20,6 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models.OBK;
 using PW.Prism.Helpers;
 using Stimulsoft.Report;
-using Symbology = Aspose.Pdf.InteractiveFeatures.Forms.Symbology;
 
 namespace PW.Prism.Controllers.OBKTask
 {
@@ -166,7 +165,14 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult ShowModalFilialExecutor(Guid adId)
         {
             var results = repo.GetFilialExecutors(adId);
+            ViewBag.AssessmentDeclarationId = adId;
             return PartialView(results);
+        }
+
+        [HttpPost]
+        public ActionResult SendToCoz(List<ManagerLaboratories> filialExecutors)
+        {
+            return null;
         }
 
         #region ЦОЗ список созданных заданий
@@ -434,6 +440,7 @@ namespace PW.Prism.Controllers.OBKTask
             report.Load(path);
             report.Compile();
             report.RegBusinessObject("tmp", repo.GetTaskProtocolData(psId));
+            report.RegBusinessObject("tmpExecutors", repo.GetTaskProtocolExecutorListData(psId));
             report.Render(false);
             Stream stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Word2007, stream);

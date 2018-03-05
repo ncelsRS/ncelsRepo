@@ -5,6 +5,7 @@ String.prototype.replaceAll = function (search, replacement) {
 };
 
 function startSign(url, id, customDoSign) {
+    debugger;
     _doSignCustom = customDoSign;
     $.blockUI({ message: '<h1><img src="../../Content/css/plugins/slick/ajax-loader.gif"/> Идет формирование отчета для подписи...</h1>', css: { opacity: 1 } });
     $.ajax({
@@ -364,6 +365,7 @@ function fillKeys() {
 var _doSign = null;
 var _doSignCustom = null;
 function fillKeySign(doSign) {
+    debugger;
     _doSign = doSign;
     var storageAlias = _storageAlias;
     var storagePath = $("#hfStoragePath").val();
@@ -386,7 +388,6 @@ function fillKeySign(doSign) {
 }
 
 function fillKeysSignBack(result) {
-
     if (result['errorCode'] === "NONE") {
         var list = result['result'];
         var slotListArr = list.split("\n");
@@ -397,20 +398,19 @@ function fillKeysSignBack(result) {
             var str = slotListArr[i];
             var alias = str.split("|")[3];
             $("#hfKeyAlias").val(alias);
-            debugger;
-            //if (_doSignCustom) {
-            //    _doSignCustom();
-            //}
-            //else if (_doSign)
-            //    _doSign();
 
-
+            var type = str.split("|")[0];
+            if (type === "ГОСТ" || type === "GOST") {
+                if (_doSignCustom) {
+                    _doSignCustom();
+                }
+                else if (_doSign)
+                    _doSign();
+                break;
+            }
             console.log("before check iin");
-
             checkIin();
-
             console.log("after check iin");
-
             break;
         }
     }
@@ -427,6 +427,7 @@ function fillKeysSignBack(result) {
 }
 
 function checkIin() {
+    debugger;
     var storageAlias = _storageAlias;
     var storagePath = $("#hfStoragePath").val();
     var password = $('#passwordCert').val();

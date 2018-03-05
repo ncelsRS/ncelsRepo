@@ -26,7 +26,7 @@ namespace PW.Prism.Controllers.OBK_OP
             ViewBag.IsExecutor = repo.OBK_AssessmentStageExecutors
                 .Any(x => x.OBK_AssessmentStage.DeclarationId == id
                           && x.OBK_AssessmentStage.OBK_Ref_Stage.Code == "15"
-                          && x.ExecutorId == userId);
+                          && x.ExecutorId == userId && x.OBK_AssessmentStage.OBK_Ref_StageStatus.Code != "OPReportOnEC");
             return PartialView(id);
         }
 

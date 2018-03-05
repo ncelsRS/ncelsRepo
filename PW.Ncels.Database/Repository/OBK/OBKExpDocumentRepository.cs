@@ -567,6 +567,7 @@ namespace PW.Ncels.Database.Repository.OBK
             {
                 var ec = new ExpertiseConclusion
                 {
+                    ProductId = ps.OBK_RS_Products.Id,
                     ProductSeriesId = ps.Id,
                     ProductNameRu = ps.OBK_RS_Products.NameRu,
                     ProductNameKz = ps.OBK_RS_Products.NameKz,
@@ -804,10 +805,12 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBKExpertiseConclusionNegative ExpertiseConclusionNegative(int productSeriesId, Guid adId)
         {
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == adId);
+            var productSeries = AppContext.OBK_Procunts_Series.FirstOrDefault(e => e.Id == productSeriesId);
             if (ad == null) return null;
             var ecn = new OBKExpertiseConclusionNegative();
             ecn.AssessmentDeclarationId = adId;
             ecn.ProductSeriesId = productSeriesId;
+            ecn.ProductId = productSeries?.OBK_RS_Products.Id;
             ecn.Reasons = new SelectList(new SafetyAssessmentRepository().GetRefReasons("Party", false), "Id", "Name");
             return ecn;
         }
@@ -825,7 +828,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpResult = false;
                     model.ExpApplication = false;
                     model.ExpReasonNameRu = ecn.ExpReasonNameRu;
-                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;                    
+                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;
+                    model.ProductId = ecn.ProductId;                   
                     model.ProductSeriesId = ecn.ProductSeriesId;
                     model.RefReasonId = ecn.RefReasonId;
                     model.AssessmentDeclarationId = ecn.AssessmentDeclarationId;
@@ -833,31 +837,22 @@ namespace PW.Ncels.Database.Repository.OBK
                     AppContext.SaveChanges();
                     return true;
                 }
-                else
+                OBK_StageExpDocument sed = new OBK_StageExpDocument
                 {
-                    //OBK_StageExpDocumentResult sedr = new OBK_StageExpDocumentResult
-                    //{
-                    //    Id = Guid.NewGuid(),
-                    //    ExpResult = false,
-                    //    AssessmetDeclarationId = ecn.AssessmentDeclarationId
-                    //};
-                    OBK_StageExpDocument sed = new OBK_StageExpDocument
-                    {
-                        Id = Guid.NewGuid(),
-                        ExpResult = false,
-                        ExpApplication = false,
-                        ExpReasonNameRu = ecn.ExpReasonNameRu,
-                        ExpReasonNameKz = ecn.ExpReasonNameKz,
-                        ProductSeriesId = ecn.ProductSeriesId,
-                        RefReasonId = ecn.RefReasonId,
-                        AssessmentDeclarationId = ecn.AssessmentDeclarationId,
-                        ExecutorId = UserHelper.GetCurrentEmployee().Id
-                    };
-                    //AppContext.OBK_StageExpDocumentResult.Add(sedr);
-                    AppContext.OBK_StageExpDocument.Add(sed);
-                    AppContext.SaveChanges();
-                    return true;
-                }
+                    Id = Guid.NewGuid(),
+                    ExpResult = false,
+                    ExpApplication = false,
+                    ExpReasonNameRu = ecn.ExpReasonNameRu,
+                    ExpReasonNameKz = ecn.ExpReasonNameKz,
+                    ProductId = ecn.ProductId,
+                    ProductSeriesId = ecn.ProductSeriesId,
+                    RefReasonId = ecn.RefReasonId,
+                    AssessmentDeclarationId = ecn.AssessmentDeclarationId,
+                    ExecutorId = UserHelper.GetCurrentEmployee().Id
+                };
+                AppContext.OBK_StageExpDocument.Add(sed);
+                AppContext.SaveChanges();
+                return true;
             }
             catch (Exception)
             {
@@ -1020,6 +1015,51 @@ namespace PW.Ncels.Database.Repository.OBK
                 }
             }
             return true;
+        }
+
+        public object GetExpRejectFormData(Guid id, int productSeriesId, int pid)
+        {
+            var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
+            if (ad == null) return null;
+            var product = AppContext.OBK_RS_Products.FirstOrDefault(e => e.Id == pid);
+            var psIds = AppContext.OBK_Procunts_Series.Where(e => e.OBK_RS_Products.Id == pid).Select(x=>x.Id).ToList();
+            var rcrs = AppContext.OBK_ResearchCenterResult.Where(e => psIds.Contains(e.OBK_TaskMaterial.ProductSeriesId) && (bool)!e.ExpertiseResult).ToList();
+            var uad = AppContext.UnitsAddresses.OrderByDescending(e=>e.CreatedDate).FirstOrDefault(e => e.UnitsId == ad.OBK_Contract.Unit.Id && (bool)!e.IsDeleted);
+            var obj = new
+            {
+                UnitNameRu = ad.OBK_Contract.Unit.Name,
+                UnitNameKz = ad.OBK_Contract.Unit.NameKz,
+                UnitAddressRu = uad?.AddressNameRu,
+                UnitAddressKz = uad?.AddressNameKz,
+                DeclarantNameRu = ad.OBK_Contract.OBK_Declarant.NameRu,
+                DeclarantNameKz = ad.OBK_Contract.OBK_Declarant.NameKz,
+                BossFio = ad.OBK_Contract.OBK_DeclarantContact.BossLastName + " " +
+                          ad.OBK_Contract.OBK_DeclarantContact.BossFirstName + " " +
+                          ad.OBK_Contract.OBK_DeclarantContact.BossMiddleName,
+                DeclarantAddressRu = ad.OBK_Contract.OBK_DeclarantContact.AddressLegalRu,
+                DeclarantAddressKz = ad.OBK_Contract.OBK_DeclarantContact.AddressLegalKz,
+                //ResultDate = ad.OBK_StageExpDocument.FirstOrDefault(e => e.AssessmentDeclarationId == id && !e.ExpResult)?.ExpStartDate,
+                UniqueNumber = ad.Number,
+                StartDate = ad.SendDate,
+                LabIndex = product?.RegTypeId == 1 ? product.NdName + " " + product.NdNumber + " от " + product.RegDate.ToShortDateString() : "СП Фирмы по показателям токсичность",
+                Products = AppContext.OBK_StageExpDocument.Where(e => psIds.Contains((int)e.ProductSeriesId) && !e.ExpResult).Select(sed => new
+                {
+                    sed.OBK_Procunts_Series.OBK_RS_Products.NameRu,
+                    sed.OBK_Procunts_Series.OBK_RS_Products.NameKz,
+                    sed.OBK_Procunts_Series.OBK_RS_Products.ProducerNameRu,
+                    sed.OBK_Procunts_Series.OBK_RS_Products.ProducerNameKz,
+                    sed.OBK_Procunts_Series.OBK_RS_Products.CountryNameRu,
+                    sed.OBK_Procunts_Series.OBK_RS_Products.CountryNameKZ,
+                    sed.OBK_Procunts_Series.Series,
+                    sed.OBK_Procunts_Series.SeriesEndDate,
+                    sed.OBK_Procunts_Series.SeriesParty,
+                    sed.OBK_Procunts_Series.sr_measures.name,
+                    sed.OBK_Procunts_Series.sr_measures.name_kz
+                }).ToList(),
+                ProtocolNumbers = string.Join(", ", rcrs.Select(e=>e.OBK_TaskMaterial.SubTaskNumber)),
+                ProtocolDate = $"{rcrs?.FirstOrDefault()?.OBK_TaskMaterial.CreatedDate:dd.MM.yyyy}"
+            };
+            return obj;
         }
 
         #endregion

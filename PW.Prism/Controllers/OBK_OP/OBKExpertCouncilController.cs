@@ -53,7 +53,8 @@ namespace PW.Prism.Controllers.OBK_OP
         {
             var model = repo.OBK_ExpertCouncil
                 .Where(c => c.Date.Year == DateTime.Now.Year)
-                .Take(12).ToList();
+                .OrderBy(c => c.Date)
+                .ToList();
             return PartialView(model);
         }
 
