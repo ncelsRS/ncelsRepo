@@ -23,13 +23,20 @@ function startSign(xmlData, docId, saveSignCallback) {
         $("#hfStoragePath" + docId).val(window.data("kendoWindow").certStoragePath);
         $("#signDoc" + docId).bind("click",
             function () {
+                debugger;
                 var keyListEl = document.getElementById('keysList' + docId);
-                if (keyListEl.options.length == 0) {
-                    alert("Выберите сертификат!");
-                }
-                else {
-                    checkIin(saveSignCallback, docId);
+                var type = keyListEl.textContent.split("|")[0].replace(/\s{2,}/g, '');;
+                if (type === 'ГОСТ' | type === 'GOST') {
+                    signXmlCall(saveSignCallback, docId);
                     $("#DigSignWindow").data("kendoWindow").close();
+                } else {
+                    if (keyListEl.options.length == 0) {
+                        alert("Выберите сертификат!");
+                    }
+                    else {
+                        checkIin(saveSignCallback, docId);
+                        $("#DigSignWindow").data("kendoWindow").close();
+                    }
                 }
             });
         $("#cancelSign" + docId).bind("click",
@@ -436,6 +443,7 @@ function fillKeysSignBack(result, uiId) {
 }
 
 function checkIin(submitCallback, uiId) {
+    debugger;
     _submitCallback = submitCallback;
     var storageAlias = _storageAlias;
     var storageAlias = _storageAlias;
