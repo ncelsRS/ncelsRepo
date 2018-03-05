@@ -40,11 +40,9 @@ function chooseStoragePathBack(rw) {
     var storagePath = $("#hfStoragePath").val();
 
     if (rw.getErrorCode() === "NONE" && rw.result) {
-        debugger;
         $('#dlgPasswordModal').appendTo("body").modal();
         //$("#dlgPasswordModal").modal();
         storagePath = rw.getResult();
-        debugger;
         if (storagePath) {
             $("#hfStoragePath").val(storagePath);
         }
@@ -340,7 +338,6 @@ function fillKeysBack(result) {
 }
 
 function fillKeys() {
-
     var storageAlias = _storageAlias;
     var storagePath = $("#hfStoragePath").val();
     var password = $('#passwordCert').val();
@@ -396,7 +393,6 @@ function fillKeysSignBack(result) {
             var str = slotListArr[i];
             var alias = str.split("|")[3];
             $("#hfKeyAlias").val(alias);
-            debugger;
             if (_doSignCustom) {
                 _doSignCustom();
             }
