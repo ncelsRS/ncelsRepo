@@ -19,6 +19,7 @@ using Stimulsoft.Report.Dictionary;
 using Newtonsoft.Json;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Models.OBK;
+using System.Text;
 
 namespace PW.Prism.Controllers.OBKExpDocument
 {
@@ -291,7 +292,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocument.mrt"));
+                report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentWord.mrt"));
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -306,6 +307,58 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
                 report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
 
+                var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                StringBuilder addInfo = new StringBuilder();
+             
+                if (declaration.InvoiceContractRu != null )
+                {
+                    addInfo.Append("договор поставки №" + declaration.InvoiceContractRu);
+                }
+                if (declaration.InvoiceContractRu != null)
+                {
+                    addInfo.Append("от " + ((DateTime)declaration.InvoiceContractDate).ToString("{0:dd.MM.yyyy}"));
+                }
+                if (declaration.InvoiceRu != null)
+                {
+                    addInfo.Append("инвойс №" + declaration.InvoiceRu);
+                }
+                if (declaration.InvoiceDate != null)
+                {
+                    addInfo.Append("от " + ((DateTime)declaration.InvoiceDate).ToString("{0:dd.MM.yyyy}"));
+                }
+                if (declaration.InvoiceContractRu != null && declaration.InvoiceContractRu != null 
+                    && declaration.InvoiceRu != null && declaration.InvoiceDate != null)
+                {
+                    addInfo.Append("декларация безопасности и качества");
+                }
+
+                StringBuilder addInfoKz = new StringBuilder();
+
+                if (declaration.InvoiceContractKz != null)
+                {
+                    addInfoKz.Append("жеткізу туралы шарт №" + declaration.InvoiceContractKz);
+                }
+                if (declaration.InvoiceContractDate != null)
+                {
+                    addInfoKz.Append(((DateTime)declaration.InvoiceContractDate).ToString("{0:dd.MM.yyyy}"));
+                }
+                if (declaration.InvoiceKz != null)
+                {
+                    addInfoKz.Append("инвойс №" + declaration.InvoiceKz);
+                }
+                if (declaration.InvoiceDate != null)
+                {
+                    addInfoKz.Append(((DateTime)declaration.InvoiceDate).ToString("{0:dd.MM.yyyy}"));
+                }
+                if (declaration.InvoiceContractKz != null && declaration.InvoiceContractKz != null
+                    && declaration.InvoiceKz != null && declaration.InvoiceDate != null)
+                {
+                    addInfoKz.Append("декларация декларация безопасности и качества");
+                }
+
+                report.Dictionary.Variables["addInfo"].ValueObject = addInfo.ToString();
+                report.Dictionary.Variables["addInfoKz"].ValueObject = addInfoKz.ToString();
+
                 report.Render(false);
             }
             catch (Exception ex)
@@ -315,8 +368,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
             var stream = new MemoryStream();
             report.ExportDocument(StiExportFormat.Word2007, stream);
             stream.Position = 0;
-            return File(stream, "application/msword", name);
-        }
+            return File(stream, "application/word", name);
+        
+}
 
         public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
         {

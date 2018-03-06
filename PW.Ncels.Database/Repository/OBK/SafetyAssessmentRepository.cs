@@ -1016,20 +1016,20 @@ namespace PW.Ncels.Database.Repository.OBK
                 };
             }
 
-            var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
-            var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
-            if (applicationBlank == null)
-            {
-                var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
-                applicationBlank = new OBK_BlankNumber()
-                {
-                    Id = Guid.NewGuid(),
-                    Object_Id = expDocument.Id,
-                    CreateDate = DateTime.Now,
-                    BlankTypeId = blankApplicationType.Id,
-                    Corrupted = false,
-                };
-            }
+            //var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+            //var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+            //if (applicationBlank == null)
+            //{
+            //    var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+            //    applicationBlank = new OBK_BlankNumber()
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        Object_Id = expDocument.Id,
+            //        CreateDate = DateTime.Now,
+            //        BlankTypeId = blankApplicationType.Id,
+            //        Corrupted = false,
+            //    };
+            //}
 
             try
             {
@@ -1040,20 +1040,20 @@ namespace PW.Ncels.Database.Repository.OBK
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
 
-            try
-            {
-                applicationBlank.Number = int.Parse(expDocument.ExpApplicationNumber);
-            }
-            catch (Exception ex)
-            {
-                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
-            }
+            //try
+            //{
+            //    applicationBlank.Number = int.Parse(expDocument.ExpApplicationNumber);
+            //}
+            //catch (Exception ex)
+            //{
+            //    LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            //}
 
             blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
-            applicationBlank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+            //applicationBlank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
 
             AppContext.OBK_BlankNumber.AddOrUpdate(blank);
-            AppContext.OBK_BlankNumber.AddOrUpdate(applicationBlank);
+            //AppContext.OBK_BlankNumber.AddOrUpdate(applicationBlank);
 
             AppContext.SaveChanges();
         }
