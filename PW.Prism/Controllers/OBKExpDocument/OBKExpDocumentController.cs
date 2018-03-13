@@ -26,6 +26,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
     public class OBKExpDocumentController : Controller
     {
         OBKExpDocumentRepository expRepo = new OBKExpDocumentRepository();
+        private readonly SafetyAssessmentRepository assessmentRepo = new SafetyAssessmentRepository();
         private ncelsEntities db = UserHelper.GetCn();
 
         public ActionResult ExpDocumentView(Guid id)
@@ -194,7 +195,13 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     series.ExpAddInfoKz = expData.ExpAddInfoKz;
                     series.ExpConclusionNumber = expData.ExpConclusionNumber;
                     series.ExpBlankNumber = expData.ExpBlankNumber;
-                    series.ExpApplicationNumber = expData.ExpApplicationNumber;
+                    if (expData.ExpApplication != true)
+                    {
+                        series.ExpApplicationNumber = expData.ExpApplicationNumber;
+                    }else
+                    {
+                        series.ExpApplicationNumber = null;
+                    }
                     series.ExecutorId = UserHelper.GetCurrentEmployee().Id;
                     series.RefReasonId = expData.RefReasonId;
                     series.ExpApplication = expData.ExpApplication;
@@ -220,7 +227,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         ExpAddInfoKz = expData.ExpAddInfoKz,
                         ExpConclusionNumber = expData.ExpConclusionNumber,
                         ExpBlankNumber = expData.ExpBlankNumber,
-                        ExpApplicationNumber = expData.ExpApplicationNumber,
+                        ExpApplicationNumber = expData.ExpApplication == false ? expData.ExpApplicationNumber : null,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id,
                         RefReasonId = expData.RefReasonId,
                         ExpApplication = expData.ExpApplication
@@ -288,11 +295,34 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         public ActionResult ExpDocumentExportFilePdf(string productSeriesId, Guid id)
         {
-            string name = $"Заключение о безопасности и качества.docx";
+            string name = $"Заключение о безопасности и качества.pdf";
+            var serieId = Convert.ToInt32(productSeriesId);
+            var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.ProductSeriesId == serieId);
             StiReport report = new StiReport();
             try
             {
-                report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentWord.mrt"));
+                var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+                if (CodeConstManager.OBK_SA_SERIAL.Equals(declaration.TypeId.ToString()))
+                {
+                    if (expDocument.ExpApplication == false)
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentApplicationSerialPdf.mrt"));
+                    }else
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentSerialPdf.mrt"));
+                    }
+                }else
+                {
+                    if (expDocument.ExpApplication == false)
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentApplicationPdf.mrt"));
+                    }
+                    else
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentPdf.mrt"));
+                    }
+                }
+                
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -300,64 +330,26 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
                 report.Dictionary.Variables["StageExpDocumentId"].ValueObject = Convert.ToInt32(productSeriesId);
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
-                var serieId = Convert.ToInt32(productSeriesId);
-                var expDocument = db.OBK_StageExpDocument.FirstOrDefault(o => o.ProductSeriesId == serieId);
                 report.Dictionary.Variables["StartMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpStartDate);
                 report.Dictionary.Variables["StartMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpStartDate);
                 report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
                 report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
 
-                var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
-                StringBuilder addInfo = new StringBuilder();
-             
-                if (declaration.InvoiceContractRu != null )
+                if (CodeConstManager.OBK_SA_SERIAL.Equals(declaration.TypeId.ToString()))
                 {
-                    addInfo.Append("договор поставки №" + declaration.InvoiceContractRu);
-                }
-                if (declaration.InvoiceContractRu != null)
-                {
-                    addInfo.Append("от " + ((DateTime)declaration.InvoiceContractDate).ToString("{0:dd.MM.yyyy}"));
-                }
-                if (declaration.InvoiceRu != null)
-                {
-                    addInfo.Append("инвойс №" + declaration.InvoiceRu);
-                }
-                if (declaration.InvoiceDate != null)
-                {
-                    addInfo.Append("от " + ((DateTime)declaration.InvoiceDate).ToString("{0:dd.MM.yyyy}"));
-                }
-                if (declaration.InvoiceContractRu != null && declaration.InvoiceContractRu != null 
-                    && declaration.InvoiceRu != null && declaration.InvoiceDate != null)
-                {
-                    addInfo.Append("декларация безопасности и качества");
+                    var reportOp = db.OBK_AssessmentReportOP.FirstOrDefault(o => o.DeclarationId == id);
+                    if (reportOp != null)
+                    {
+                        var opExecutor = db.OBK_AssessmentReportOPExecutors.OrderByDescending(o => o.Date).FirstOrDefault(o => o.ReportId == reportOp.Id);
+                        if (opExecutor != null && opExecutor.Date != null)
+                        {
+                            report.Dictionary.Variables["OpExecutorDate"].ValueObject = ((DateTime)opExecutor.Date).ToString("{0:dd.MM.yyyy}");
+                        }
+                    }
                 }
 
-                StringBuilder addInfoKz = new StringBuilder();
-
-                if (declaration.InvoiceContractKz != null)
-                {
-                    addInfoKz.Append("жеткізу туралы шарт №" + declaration.InvoiceContractKz);
-                }
-                if (declaration.InvoiceContractDate != null)
-                {
-                    addInfoKz.Append(((DateTime)declaration.InvoiceContractDate).ToString("{0:dd.MM.yyyy}"));
-                }
-                if (declaration.InvoiceKz != null)
-                {
-                    addInfoKz.Append("инвойс №" + declaration.InvoiceKz);
-                }
-                if (declaration.InvoiceDate != null)
-                {
-                    addInfoKz.Append(((DateTime)declaration.InvoiceDate).ToString("{0:dd.MM.yyyy}"));
-                }
-                if (declaration.InvoiceContractKz != null && declaration.InvoiceContractKz != null
-                    && declaration.InvoiceKz != null && declaration.InvoiceDate != null)
-                {
-                    addInfoKz.Append("декларация декларация безопасности и качества");
-                }
-
-                report.Dictionary.Variables["addInfo"].ValueObject = addInfo.ToString();
-                report.Dictionary.Variables["addInfoKz"].ValueObject = addInfoKz.ToString();
+                report.Dictionary.Variables["addInfo"].ValueObject = assessmentRepo.FormExpAdditionalInfo(declaration);
+                report.Dictionary.Variables["addInfoKz"].ValueObject = assessmentRepo.FormExpAdditionalInfo(declaration, true);
 
                 report.Render(false);
             }
@@ -366,9 +358,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
             var stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Word2007, stream);
+            report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
-            return File(stream, "application/word", name);
+            return File(stream, "application/pdf", name);
         
 }
 
@@ -640,8 +632,8 @@ namespace PW.Prism.Controllers.OBKExpDocument
                                 series.ExpProductNameKz = obkStageExpDocumentSeries.ExpProductNameKz;
                                 series.ExpNomenclatureRu = obkStageExpDocumentSeries.ExpNomenclatureRu;
                                 series.ExpNomenclatureKz = obkStageExpDocumentSeries.ExpNomenclatureKz;
-                                series.ExpAddInfoRu = obkStageExpDocumentSeries.ExpAddInfoRu;
-                                series.ExpAddInfoKz = obkStageExpDocumentSeries.ExpAddInfoKz;
+                                series.ExpAddInfoRu = assessmentRepo.FormExpAdditionalInfo(declarant);
+                                series.ExpAddInfoKz = assessmentRepo.FormExpAdditionalInfo(declarant, true);
                                 series.ExpConclusionNumber = obkStageExpDocumentSeries.ExpConclusionNumber;
                                 series.ExpBlankNumber = obkStageExpDocumentSeries.ExpBlankNumber;
                                 series.ExpApplication = obkStageExpDocumentSeries.ExpApplication;
