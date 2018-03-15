@@ -926,7 +926,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     RefReasonId = ecn.RefReasonId,
                     AssessmentDeclarationId = ecn.AssessmentDeclarationId,
                     ExecutorId = UserHelper.GetCurrentEmployee().Id,
-                    DecisionRefuseDate = DateTime.Now
+                    DecisionRefuseDate = DateTime.Now,
                     DecisionRefuse = true
                 };
                 AppContext.OBK_StageExpDocument.Add(sed);
