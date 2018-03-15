@@ -469,9 +469,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
             report.RegBusinessObject("rm", expRepo.GetExpRejectFormData(id, productSeriesId, pid));
             report.Render(false);
             var stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Pdf, stream);
+            report.ExportDocument(StiExportFormat.Word2007, stream);
             stream.Position = 0;
-            return File(stream, "application/pdf", $"Уведомление об отказе.Pdf");
+            return File(stream, "application/msword", $"Уведомление об отказе.docx");
         }
 
         [HttpGet]
@@ -735,8 +735,16 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
         public ActionResult ExpertiseConclusion(Guid declarationId)
         {
-            var model = expRepo.ExpertiseConclusion(declarationId);
-            return PartialView(model);
+            try
+            {
+                var model = expRepo.ExpertiseConclusion(declarationId);
+                return PartialView(model);
+            }
+            catch (Exception e)
+            {
+                LogHelper.Log.Error("Заклчюение для серии и партии: ExpertiseConclusion " + e.Message);
+                throw;
+            }
         }
 
         public ActionResult ShowModalTaskDetails(Guid assessmentDeclarationId, int productSeriesId)

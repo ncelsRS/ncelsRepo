@@ -34,6 +34,7 @@ function crypt_object_init(callbackM) {
     if (webSocket === null || webSocket.readyState === 3 || webSocket.readyState === 2) {
         webSocket = new WebSocket('wss://127.0.0.1:13579/');
         webSocket.onopen = function (event) {
+            debugger;
             if (heartbeat_interval === null) {
                 missed_heartbeats = 0;
                 heartbeat_interval = setInterval(pingLayer, 2000);

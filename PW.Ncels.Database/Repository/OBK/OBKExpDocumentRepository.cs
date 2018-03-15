@@ -556,13 +556,10 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBKExpertiseConclusion ExpertiseConclusion(Guid declarationId)
         {
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == declarationId);
-            if (ad == null)
-                return null;
+            if (ad == null) return null;
             var taskMaterails = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == declarationId).GroupBy(d => d.ProductSeriesId);
             var productSeries = AppContext.OBK_Procunts_Series.Where(e => taskMaterails.Any(s => s.Key == e.Id));
-            if (!productSeries.Any()) return null;
-
-            var okbConclusion = new OBKExpertiseConclusion();
+                        var okbConclusion = new OBKExpertiseConclusion();
             var eConclusions = new List<ExpertiseConclusion>();
             foreach (var ps in productSeries)
             {
@@ -645,7 +642,7 @@ namespace PW.Ncels.Database.Repository.OBK
                                 LaboratoryRegulationNameKz = e.OBK_Ref_LaboratoryRegulation.NameKz,
                                 ExpertiseResultName = e.ExpertiseResult == null
                                     ? "Испытания не завершены"
-                                    : (bool)e.ExpertiseResult
+                                    : (bool) e.ExpertiseResult
                                         ? "Соотвествует требованиям"
                                         : "Не соотвествует требованиям",
                                 TaskComment = e.OBK_ResearchCenterResultCom.Count > 0
@@ -683,7 +680,7 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (ad.OBK_Ref_Type.Code)
             {
                 case CodeConstManager.OBK_SA_PARTY:
-                case CodeConstManager.OBK_SA_SERIAL:
+                case CodeConstManager.OBK_SA_SERIAL:              
                     return PartyExpertiseConclusionPositive(productSeriesId, ad);
                 case CodeConstManager.OBK_SA_DECLARATION:
                     break;
@@ -751,6 +748,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpAddInfoRu = ecp.ecAdditionalInfoRu;
                     model.ExpAddInfoKz = ecp.ecAdditionalInfoKz;
                     model.ExpConclusionNumber = ecp.ecNumber;
+                    //model.ExpApplication = false;
                     model.ExpApplication = ecp.ecExpApplication;
                     model.ExpApplicationNumber = ecp.ecApplicationNumber;
                     model.ExpBlankNumber = ecp.ecBlankNumber;
@@ -784,6 +782,7 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExpAddInfoKz = ecp.ecAdditionalInfoKz,
                         ExpConclusionNumber = ecp.ecNumber,
                         ExpBlankNumber = ecp.ecBlankNumber,
+                        //ExpApplication = false,
                         ExpApplicationNumber = ecp.ecApplicationNumber,
                         ExpApplication = ecp.ecExpApplication,
                         AssessmentDeclarationId = ecp.AssessmentDeclarationId,
@@ -905,16 +904,17 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpResult = false;
                     model.ExpApplication = false;
                     model.ExpReasonNameRu = ecn.ExpReasonNameRu;
-                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;
+                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;              
                     model.ProductId = ecn.ProductId;
                     model.ProductSeriesId = ecn.ProductSeriesId;
                     model.RefReasonId = ecn.RefReasonId;
                     model.AssessmentDeclarationId = ecn.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+                    model.DecisionRefuse = true;
                     AppContext.SaveChanges();
                     return true;
                 }
-                OBK_StageExpDocument sed = new OBK_StageExpDocument
+                var sed = new OBK_StageExpDocument
                 {
                     Id = Guid.NewGuid(),
                     ExpResult = false,
@@ -927,6 +927,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     AssessmentDeclarationId = ecn.AssessmentDeclarationId,
                     ExecutorId = UserHelper.GetCurrentEmployee().Id,
                     DecisionRefuseDate = DateTime.Now
+                    DecisionRefuse = true
                 };
                 AppContext.OBK_StageExpDocument.Add(sed);
                 AppContext.SaveChanges();

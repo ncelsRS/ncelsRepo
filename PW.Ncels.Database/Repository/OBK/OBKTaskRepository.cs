@@ -67,9 +67,12 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_TaskMaterial.Where(e => e.TaskId == taskId);
         }
 
-        public IQueryable<Unit> GetUnits(string[] code)
+        public IQueryable<Unit> GetUnits(List<string> code, Guid unitId)
         {
-            return AppContext.Units.Where(e => code.Contains(e.Code));
+            var units = AppContext.Units.Where(e => code.Contains(e.Code) && e.ParentId == unitId);
+            if (!units.Any())
+                units = AppContext.Units.Where(e => code.Contains(e.Code) && e.Parent.ParentId == unitId);
+            return units;
         }
 
         public IQueryable<Unit> GetUnits(List<string> code)
@@ -87,9 +90,9 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_Ref_LaboratoryType.Where(e => !e.IsDeleted);
         }
 
-        public IQueryable<OBKTaskListRegisterView> GetTaskList(Guid organizationId, Guid userId)
+        public IQueryable<OBKTaskListRegisterView> GetTaskList(Guid userId) //Guid organizationId, 
         {
-            return AppContext.OBKTaskListRegisterViews.Where(e => e.UnitId == organizationId && e.ExecutorId == userId).OrderByDescending(e=>e.RegisterDate);
+            return AppContext.OBKTaskListRegisterViews.Where(e => e.ExecutorId == userId).OrderByDescending(e=>e.RegDate); // e.UnitId == organizationId &&
         }
 
         public IQueryable<OBK_Ref_MaterialCondition> GetMaterialCondition(string code)
@@ -127,6 +130,22 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var userOrgId = UserHelper.GetCurrentEmployee().OrganizationId;
             var unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.ParentId == userOrgId) ?? AppContext.Units.FirstOrDefault(e => e.Code == code && e.Parent.ParentId == userOrgId);
+            var units = AppContext.Units.Where(e => e.ParentId == unit.Id);
+            var employee = AppContext.Employees.Where(e => units.Any(x => x.EmployeeId == e.Id)).ToList();
+            if (employee.Any()) return employee;
+            if (unit?.BossId != null)
+            {
+                employee = AppContext.Employees.Where(e => unit.BossId == e.Id.ToString()).ToList();
+            }
+            return employee;
+        }
+
+        public List<Employee> GetExecutors(string code, Guid id)
+        {
+            //var userOrgId = UserHelper.GetCurrentEmployee().OrganizationId;
+            var task = AppContext.OBK_Tasks.FirstOrDefault(e => e.Id == id);
+            //var unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.ParentId == userOrgId) ?? AppContext.Units.FirstOrDefault(e => e.Code == code && e.Parent.ParentId == userOrgId);
+            var unit = AppContext.Units.FirstOrDefault(e => e.Code == code && e.ParentId == task.UnitId) ?? AppContext.Units.FirstOrDefault(e => e.Code == code && e.Parent.ParentId == task.UnitId);
             var units = AppContext.Units.Where(e => e.ParentId == unit.Id);
             var employee = AppContext.Employees.Where(e => units.Any(x => x.EmployeeId == e.Id)).ToList();
             if (employee.Any()) return employee;
@@ -286,6 +305,36 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
         }
 
+        public void SendToCoz(OBKManagerResearchCenter filialExecutors)
+        {
+            var taskExecutors = new List<OBK_TaskExecutor>();
+            var tasks = AppContext.OBK_Tasks.Where(e => e.AssessmentDeclarationId == filialExecutors.AssessmentDeclarationId);
+            foreach (var task in tasks)
+            {
+                foreach (var filialExecutor in filialExecutors.ManagerLaboratory)
+                {
+                    if (task.OBK_TaskExecutor.FirstOrDefault(e => e.TaskId == task.Id && e.ExecutorId == filialExecutor.ExecutorId && e.StageId == CodeConstManager.STAGE_OBK_COZ && e.OBK_Tasks.UnitId == filialExecutor.UnitLaboratoryId) != null) continue;
+                    if (task.UnitId != filialExecutor.UnitLaboratoryId) continue;
+                    var taskExecutor = new OBK_TaskExecutor
+                    {
+                        Id = Guid.NewGuid(),
+                        ExecutorId = filialExecutor.ExecutorId,
+                        TaskId = task.Id,
+                        StageId = CodeConstManager.STAGE_OBK_COZ
+                    };
+                    taskExecutors.Add(taskExecutor);
+                    task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskNew).Id;
+                }
+            }
+            var userId = UserHelper.GetCurrentEmployee().Id;
+            var stage = AppContext.OBK_AssessmentStage.FirstOrDefault(
+                e => e.DeclarationId == filialExecutors.AssessmentDeclarationId && e.StageId == CodeConstManager.STAGE_OBK_EXPERTISE_DOC &&
+                     e.OBK_AssessmentStageExecutors.Any(x => x.ExecutorId == userId));
+            stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.RequiresConclusion).Id;
+            AppContext.OBK_TaskExecutor.AddRange(taskExecutors);
+            AppContext.SaveChanges();
+        }
+
         public OBKTaskListViewModel EditTask(Guid taskId)
         {
             var task = AppContext.OBK_Tasks.FirstOrDefault(e => e.Id == taskId);
@@ -336,7 +385,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var taskMaterials = AppContext.OBK_TaskMaterial.Where(e => e.TaskId == taskId);
             var productSerieses = AppContext.OBK_Procunts_Series.Where(e => taskMaterials.GroupBy(q => q.ProductSeriesId).Select(s => s.Key).Contains(e.Id));
-            string[] codeResearchCenter = { "researchcenter3", "researchcenter4", "researchcenter5", "researchcenter6", "researchcenter7" };
+            //string[] codeResearchCenter = { "researchcenter3", "researchcenter4", "researchcenter5", "researchcenter6", "researchcenter7" };
 
             if (task.TaskStatusId == GetStageStatusByCode(OBK_Ref_StageStatus.TaskSendLab).Id)
             {
@@ -402,7 +451,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     TaskStatusId = task.TaskStatusId,
                     StorageConditions = new SelectList(GetMaterialCondition("storage"), "Id", "NameRu"),
                     ExternalConditions = new SelectList(GetMaterialCondition("external"), "Id", "NameRu"),
-                    Researchcenters = new SelectList(GetUnits(codeResearchCenter), "Id", "Name"),
+                    Researchcenters = new SelectList(GetUnits(OrganizationConsts.Researchcenters, task.UnitId), "Id", "Name"),
                     IsShow = false
                 };
 
@@ -521,7 +570,7 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             manager.TaskId = taskId;
             manager.UnitLaboratory = unitLaboratorieses;
-            manager.BossSelectList = new SelectList(GetExecutors("researchcenter-01"), "Id", "DisplayName");
+            manager.BossSelectList = new SelectList(GetExecutors("researchcenter-01", taskId), "Id", "DisplayName");
             return manager;
         }
 
@@ -1296,17 +1345,38 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public object GetTaskProtocolExecutorListData(int psId)
         {
-            var t = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.ProductSeriesId == psId);
-            if (t == null) return null;
-            var ceoInfo = AppContext.OBK_TaskExecutor.FirstOrDefault(e => e.TaskId == t.OBK_Tasks.Id && e.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER && e.ExecutorType == 3);
+            //var t = AppContext.OBK_TaskMaterial.FirstOrDefault(e => e.ProductSeriesId == psId);
+            //if (t == null) return null;
+            //var ceoInfo = AppContext.OBK_TaskExecutor.FirstOrDefault(e => e.TaskId == t.OBK_Tasks.Id && e.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER && e.ExecutorType == 3);
+            //var obj = new
+            //{
+            //    ExecutorList = t.OBK_TaskMaterailExecutor.Where(x => x.OBK_TaskExecutor.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER).Select(el => new
+            //    {
+            //        ExeutorType = el.OBK_TaskExecutor.ExecutorType,
+            //        FullName = el.OBK_TaskExecutor.Employee.LastName + " " + el.OBK_TaskExecutor.Employee.FirstName[0] + ". " + el.OBK_TaskExecutor.Employee.MiddleName[0] + ".",
+            //        Position = el.OBK_TaskExecutor.Employee.Position.ShortName
+            //    }).ToList().OrderByDescending(e=>e.ExeutorType),
+            //    CeoName = ceoInfo?.Employee.LastName + " " + ceoInfo?.Employee.FirstName[0] + ". " + ceoInfo?.Employee.MiddleName[0] + ".",
+            //    Ceo = ceoInfo?.Employee.Position.ShortName
+            //};
+
+            var t = AppContext.OBK_TaskMaterial.Where(e => e.ProductSeriesId == psId);
+            if (!t.Any()) return null;
+            var ceoInfo = AppContext.OBK_TaskExecutor.FirstOrDefault(e => e.TaskId == t.FirstOrDefault().OBK_Tasks.Id && e.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER && e.ExecutorType == 3);
+
+            var tme = AppContext.OBK_TaskMaterailExecutor.Where(e => t.Any(x => x.Id == e.TaskMaterialId)).ToList();
+
             var obj = new
             {
-                ExecutorList = t.OBK_TaskMaterailExecutor.Where(x => x.OBK_TaskExecutor.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER).Select(el => new
+
+                ExecutorList = tme.Where(x => x.OBK_TaskExecutor.StageId == CodeConstManager.STAGE_OBK_RESEARCH_CENTER).Select(el => new
                 {
                     ExeutorType = el.OBK_TaskExecutor.ExecutorType,
                     FullName = el.OBK_TaskExecutor.Employee.LastName + " " + el.OBK_TaskExecutor.Employee.FirstName[0] + ". " + el.OBK_TaskExecutor.Employee.MiddleName[0] + ".",
                     Position = el.OBK_TaskExecutor.Employee.Position.ShortName
-                }).ToList().OrderByDescending(e=>e.ExeutorType),
+                }).ToList().OrderByDescending(e => e.ExeutorType),
+
+
                 CeoName = ceoInfo?.Employee.LastName + " " + ceoInfo?.Employee.FirstName[0] + ". " + ceoInfo?.Employee.MiddleName[0] + ".",
                 Ceo = ceoInfo?.Employee.Position.ShortName
             };
