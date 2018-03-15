@@ -1000,26 +1000,80 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             AppContext.OBK_StageExpDocument.AddOrUpdate(expDocument);
             AppContext.SaveChanges();
-            if(!expDocument.ExpResult) return;
-            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id);
+            if (!expDocument.ExpResult) return;
+
+            SaveZBKBlanks(expDocument);
+            AppContext.SaveChanges();
+        }
+        
+        public void SaveZBKBlanks(OBK_StageExpDocument expDocument)
+        {
+            var blankZBK = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankZBK.Id);
+
             if (blank == null)
             {
-                var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
                 blank = new OBK_BlankNumber()
                 {
                     Id = Guid.NewGuid(),
                     Object_Id = expDocument.Id,
                     CreateDate = DateTime.Now,
-                    BlankTypeId = blankType.Id,
+                    BlankTypeId = blankZBK.Id,
                     Corrupted = false
                 };
             }
 
-            blank.Number = int.Parse(expDocument.ExpBlankNumber);
-            blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+            try
+            {
+                blank.Number = int.Parse(expDocument.ExpBlankNumber);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
 
+            blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
             AppContext.OBK_BlankNumber.AddOrUpdate(blank);
-            AppContext.SaveChanges();
+
+            if (expDocument.ExpApplication == false)
+            {
+                //с приложением
+                var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+                var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+                if (applicationBlank == null)
+                {
+                    applicationBlank = new OBK_BlankNumber()
+                    {
+                        Id = Guid.NewGuid(),
+                        Object_Id = expDocument.Id,
+                        CreateDate = DateTime.Now,
+                        BlankTypeId = blankApplicationType.Id,
+                        Corrupted = false,
+                    };
+                }
+
+                applicationBlank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+
+                try
+                {
+                    applicationBlank.Number = int.Parse(expDocument.ExpApplicationNumber);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+                }
+
+                AppContext.OBK_BlankNumber.AddOrUpdate(applicationBlank);
+            }
+            else
+            {
+                var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+                var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+                if (applicationBlank != null)
+                {
+                    AppContext.OBK_BlankNumber.Remove(applicationBlank);
+                }
+            }
         }
 
         public OBK_StageExpDocument GetStageExpDocument(int? prodSerId)
@@ -1075,6 +1129,62 @@ namespace PW.Ncels.Database.Repository.OBK
             declarant.ReceivedDate = receivedDate;
 
             AppContext.SaveChanges();
+        }
+
+        public string FormExpAdditionalInfo(OBK_AssessmentDeclaration declaration, bool kz = false)
+        {
+            StringBuilder addInfo = new StringBuilder();
+
+            if (kz == true)
+            {
+                if (declaration.InvoiceContractKz != null)
+                {
+                    addInfo.Append("жеткізу туралы шарт №" + declaration.InvoiceContractKz);
+                }
+                if (declaration.InvoiceContractDate != null)
+                {
+                    addInfo.Append(" " + ((DateTime)declaration.InvoiceContractDate).ToString("dd.MM.yyyy"));
+                }
+                if (declaration.InvoiceKz != null)
+                {
+                    addInfo.Append(" инвойс №" + declaration.InvoiceKz);
+                }
+                if (declaration.InvoiceDate != null)
+                {
+                    addInfo.Append(" " + ((DateTime)declaration.InvoiceDate).ToString("dd.MM.yyyy"));
+                }
+                if (declaration.InvoiceContractKz != null && declaration.InvoiceContractKz != null
+                    && declaration.InvoiceKz != null && declaration.InvoiceDate != null)
+                {
+                    addInfo.Append(" декларация декларация безопасности и качества");
+                }
+
+                return addInfo.ToString();
+            }
+
+            if (declaration.InvoiceContractRu != null)
+            {
+                addInfo.Append("договор поставки №" + declaration.InvoiceContractRu);
+            }
+            if (declaration.InvoiceContractRu != null)
+            {
+                addInfo.Append(" от " + ((DateTime)declaration.InvoiceContractDate).ToString("dd.MM.yyyy"));
+            }
+            if (declaration.InvoiceRu != null)
+            {
+                addInfo.Append(" инвойс №" + declaration.InvoiceRu);
+            }
+            if (declaration.InvoiceDate != null)
+            {
+                addInfo.Append(" от " + ((DateTime)declaration.InvoiceDate).ToString("dd.MM.yyyy"));
+            }
+            if (declaration.InvoiceContractRu != null && declaration.InvoiceContractRu != null
+                && declaration.InvoiceRu != null && declaration.InvoiceDate != null)
+            {
+                addInfo.Append(" декларация безопасности и качества");
+            }
+
+            return addInfo.ToString();
         }
 
         #endregion
@@ -1136,7 +1246,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             //Удаляем
             var forUpdateAct = AppContext.OBK_RS_Products.Where(o => o.ActReceptionId == actReceptionId).ToList();
-            foreach(var temp in forUpdateAct)
+            foreach (var temp in forUpdateAct)
             {
                 temp.UsedInSerie = null;
                 temp.ActReceptionId = null;

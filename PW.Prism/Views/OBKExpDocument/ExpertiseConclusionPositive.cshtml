@@ -69,6 +69,26 @@
                             }
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label">Тип заключения</label><br />
+                            <input type="radio" name="radiobutton" onclick="hideExpApplicationNumber()" checked="checked" id="expNotApplication" value="hide"> без приложения
+                            @*<input type="radio" name="radiobutton" > с приложением*@
+                            <input type="radio" name="radiobutton" onclick="showExpApplicationNumber()" id="expApplication" value="show"> с приложением
+                        </div>
+                        <div class="col-lg-6" id="expApplicationNumber" style="display: none">
+                            <label class="control-label">№ бланка приложения</label>
+                            @if (Model.ToShow)
+                            {
+                                  <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
+                            }
+                            else
+                            {
+                                  <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
+                      
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,6 +112,11 @@
 
     setDateFormat(".date-control");
 
+    if ("@Model.ecApplicationNumber" != "" && "@Model.ecApplicationNumber" != null)
+    {
+        $("#expApplication").click();
+    }
+
     function saveExpConclusion() {
         if (validForm()) {
             saveEcPositive();
@@ -100,7 +125,20 @@
         }
     }
 
-    function saveEcPositive() {
+    function saveEcPositive()
+    {
+        var expRadio = null;
+
+        if ($("#expApplication").is(":checked") == true)
+        {
+            expRadio = false;
+        }
+
+        if ($("#expNotApplication").is(":checked") == true)
+        {
+            expRadio = true;
+        }
+
         var model = {
             AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
             ProductSeriesId: '@Model.ProductSeriesId',
@@ -113,7 +151,9 @@
             ecAdditionalInfoRu: '@Model.ecAdditionalInfoRu',
             ecAdditionalInfoKz: '@Model.ecAdditionalInfoKz',
             ecBlankNumber: $("#expBlankNumber").val(),
-            ecNumber: '@Model.ecNumber'
+            ecApplicationNumber: $("#expApplicationNumber1").val(),
+            ecNumber: '@Model.ecNumber',
+            ecExpApplication : expRadio
         }
 
         $.ajax({

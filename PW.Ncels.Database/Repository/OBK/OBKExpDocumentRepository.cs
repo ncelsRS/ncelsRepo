@@ -15,6 +15,7 @@ using Aspose.Cells;
 using Aspose.Cells.Rendering;
 using Aspose.Pdf;
 using Kendo.Mvc.Extensions;
+using Ncels.Helpers;
 using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
@@ -121,7 +122,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var current = UserHelper.GetCurrentEmployee().Id;
 
-            var stageSignData =  AppContext.OBK_AssessmentStageSignData.FirstOrDefault(
+            var stageSignData = AppContext.OBK_AssessmentStageSignData.FirstOrDefault(
                 o => o.SignerId == current && o.AssessmentStageId == stageId);
             if (stageSignData != null)
             {
@@ -555,12 +556,10 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBKExpertiseConclusion ExpertiseConclusion(Guid declarationId)
         {
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == declarationId);
-            if (ad == null) throw new Exception("Заявка не найдена");
+            if (ad == null) return null;
             var taskMaterails = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == declarationId).GroupBy(d => d.ProductSeriesId);
             var productSeries = AppContext.OBK_Procunts_Series.Where(e => taskMaterails.Any(s => s.Key == e.Id));
-            if (!productSeries.Any()) throw new Exception("Продукция не найдена");
-
-            var okbConclusion = new OBKExpertiseConclusion();
+                        var okbConclusion = new OBKExpertiseConclusion();
             var eConclusions = new List<ExpertiseConclusion>();
             foreach (var ps in productSeries)
             {
@@ -574,7 +573,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     SeriesParty = ps.SeriesParty + " " + ps.sr_measures.name,
                     ResearchCenterResultName = ResearchCenterResultName(ps.OBK_TaskMaterial.AsQueryable()),
                     ResearchCenterResult = ps.OBK_TaskMaterial.All(x => x.OBK_ResearchCenterResult.All(e => e.ExpertiseResult == true)) ? 1 : 0,//ps.OBK_StageExpDocument.Count(e=>e.ProductSeriesId == ps.Id) > 0 ? 2 : ps.OBK_TaskMaterial.All(x=>x.OBK_ResearchCenterResult.All(e=>e.ExpertiseResult == true)) ? 1 : 0
-                    BtnResult = ps.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0 ? 2:3
+                    BtnResult = ps.OBK_StageExpDocument.Count(e => e.ProductSeriesId == ps.Id) > 0 ? 2 : 3
                 };
                 eConclusions.Add(ec);
             }
@@ -586,7 +585,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         private static string ResearchCenterResultName(IQueryable<OBK_TaskMaterial> tms)
         {
-            var result = tms.Where(e=>e.StatusId != new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.Completed).Id);
+            var result = tms.Where(e => e.StatusId != new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.Completed).Id);
             if (result.Any()) return "Испытания не завершены";
 
             var tm = tms.FirstOrDefault(e => e.OBK_ResearchCenterResult.Any(x => x.ExpertiseResult == null));
@@ -681,8 +680,8 @@ namespace PW.Ncels.Database.Repository.OBK
             switch (ad.OBK_Ref_Type.Code)
             {
                 case CodeConstManager.OBK_SA_PARTY:
-                case CodeConstManager.OBK_SA_SERIAL:
-                    return PartyExpertiseConclusionPositive(productSeriesId, ad);               
+                case CodeConstManager.OBK_SA_SERIAL:              
+                    return PartyExpertiseConclusionPositive(productSeriesId, ad);
                 case CodeConstManager.OBK_SA_DECLARATION:
                     break;
             }
@@ -741,9 +740,11 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpAddInfoRu = ecp.ecAdditionalInfoRu;
                     model.ExpAddInfoKz = ecp.ecAdditionalInfoKz;
                     model.ExpConclusionNumber = ecp.ecNumber;
-                    model.ExpApplication = false;
+                    //model.ExpApplication = false;
+                    model.ExpApplication = ecp.ecExpApplication;
                     model.ExpApplicationNumber = ecp.ecApplicationNumber;
                     model.ExpBlankNumber = ecp.ecBlankNumber;
+                    model.ExpApplicationNumber = ecp.ecApplicationNumber;
                     model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
 
@@ -771,33 +772,97 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExpAddInfoKz = ecp.ecAdditionalInfoKz,
                         ExpConclusionNumber = ecp.ecNumber,
                         ExpBlankNumber = ecp.ecBlankNumber,
-                        ExpApplication = false,
+                        //ExpApplication = false,
+                        ExpApplicationNumber = ecp.ecApplicationNumber,
+                        ExpApplication = ecp.ecExpApplication,
                         AssessmentDeclarationId = ecp.AssessmentDeclarationId,
-                        ExecutorId = UserHelper.GetCurrentEmployee().Id
+                        ExecutorId = UserHelper.GetCurrentEmployee().Id,
+                        DecisionRefuse = false
                     };
                     //AppContext.OBK_StageExpDocumentResult.Add(sedr);
                     AppContext.OBK_StageExpDocument.Add(sed);
                     AppContext.SaveChanges();
 
-                    var blankType = AppContext.OBK_BlankType.FirstOrDefault(o => BlankTypes.ZBK.Equals(o.Code));
-
-                    var blankNumber = new OBK_BlankNumber();
-                    blankNumber.Id = Guid.NewGuid();
-                    blankNumber.Number = int.Parse(ecp.ecBlankNumber);
-                    blankNumber.CreateDate = DateTime.Now;
-                    blankNumber.Object_Id = sed.Id;
-                    blankNumber.BlankTypeId = blankType.Id;
-                    blankNumber.EmployeeId = UserHelper.GetCurrentEmployee().Id;
-                    blankNumber.Corrupted = false;
-                    AppContext.OBK_BlankNumber.Add(blankNumber);
+                    SaveZBKBlanks(sed);
                     AppContext.SaveChanges();
 
                     return true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
                 return false;
+            }
+        }
+
+        public void SaveZBKBlanks(OBK_StageExpDocument expDocument)
+        {
+            var blankZBK = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
+            var blank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankZBK.Id);
+
+            if (blank == null)
+            {
+                blank = new OBK_BlankNumber()
+                {
+                    Id = Guid.NewGuid(),
+                    Object_Id = expDocument.Id,
+                    CreateDate = DateTime.Now,
+                    BlankTypeId = blankZBK.Id,
+                    Corrupted = false
+                };
+            }
+
+            try
+            {
+                blank.Number = int.Parse(expDocument.ExpBlankNumber);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+            }
+
+            blank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+            AppContext.OBK_BlankNumber.AddOrUpdate(blank);
+
+            if (expDocument.ExpApplication == false)
+            {
+                //с приложением
+                var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+                var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+                if (applicationBlank == null)
+                {
+                    applicationBlank = new OBK_BlankNumber()
+                    {
+                        Id = Guid.NewGuid(),
+                        Object_Id = expDocument.Id,
+                        CreateDate = DateTime.Now,
+                        BlankTypeId = blankApplicationType.Id,
+                        Corrupted = false,
+                    };
+                }
+
+                applicationBlank.EmployeeId = UserHelper.GetCurrentEmployee().Id;
+
+                try
+                {
+                    applicationBlank.Number = int.Parse(expDocument.ExpApplicationNumber);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
+                }
+
+                AppContext.OBK_BlankNumber.AddOrUpdate(applicationBlank);
+            }
+            else
+            {
+                var blankApplicationType = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.Application.Equals(o.Code));
+                var applicationBlank = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == expDocument.Id && o.BlankTypeId == blankApplicationType.Id);
+                if (applicationBlank != null)
+                {
+                    AppContext.OBK_BlankNumber.Remove(applicationBlank);
+                }
             }
         }
 
@@ -827,8 +892,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpResult = false;
                     model.ExpApplication = false;
                     model.ExpReasonNameRu = ecn.ExpReasonNameRu;
-                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;
-                    model.ProductId = ecn.ProductId;                   
+                    model.ExpReasonNameKz = ecn.ExpReasonNameKz;              
+                    model.ProductId = ecn.ProductId;
                     model.ProductSeriesId = ecn.ProductSeriesId;
                     model.RefReasonId = ecn.RefReasonId;
                     model.AssessmentDeclarationId = ecn.AssessmentDeclarationId;
@@ -986,7 +1051,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 }
                 foreach (var teb in tebs)
                 {
-                    if ((teb.ExecutorType != OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING || teb.OBK_TaskMaterailExecutor.Any(x=>x.OBK_TaskMaterial.LaboratoryTypeId != labTypeId)) && teb.ExecutorType != OBK_CONTRACT_STAGE_EXECUTOR_TYPE_SIGNER) continue;
+                    if ((teb.ExecutorType != OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING || teb.OBK_TaskMaterailExecutor.Any(x => x.OBK_TaskMaterial.LaboratoryTypeId != labTypeId)) && teb.ExecutorType != OBK_CONTRACT_STAGE_EXECUTOR_TYPE_SIGNER) continue;
                     teb.IsCompleted = false;
                     teb.SignedData = null;
                 }
@@ -998,7 +1063,7 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var employe = AppContext.Employees.FirstOrDefault(e => e.Id == userId);
             var unit = AppContext.Units.FirstOrDefault(e => e.Id == employe.PositionId);
-            if(unit==null)return Guid.Empty;
+            if (unit == null) return Guid.Empty;
             return unit.Parent.Id;
         }
 
@@ -1023,9 +1088,9 @@ namespace PW.Ncels.Database.Repository.OBK
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == id);
             if (ad == null) return null;
             var product = AppContext.OBK_RS_Products.FirstOrDefault(e => e.Id == pid);
-            var psIds = AppContext.OBK_Procunts_Series.Where(e => e.OBK_RS_Products.Id == pid).Select(x=>x.Id).ToList();
+            var psIds = AppContext.OBK_Procunts_Series.Where(e => e.OBK_RS_Products.Id == pid).Select(x => x.Id).ToList();
             var rcrs = AppContext.OBK_ResearchCenterResult.Where(e => psIds.Contains(e.OBK_TaskMaterial.ProductSeriesId) && (bool)!e.ExpertiseResult).ToList();
-            var uad = AppContext.UnitsAddresses.OrderByDescending(e=>e.CreatedDate).FirstOrDefault(e => e.UnitsId == ad.OBK_Contract.Unit.Id && (bool)!e.IsDeleted);
+            var uad = AppContext.UnitsAddresses.OrderByDescending(e => e.CreatedDate).FirstOrDefault(e => e.UnitsId == ad.OBK_Contract.Unit.Id && (bool)!e.IsDeleted);
             var obj = new
             {
                 UnitNameRu = ad.OBK_Contract.Unit.Name,
@@ -1057,7 +1122,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     sed.OBK_Procunts_Series.sr_measures.name,
                     sed.OBK_Procunts_Series.sr_measures.name_kz
                 }).ToList(),
-                ProtocolNumbers = string.Join(", ", rcrs.Select(e=>e.OBK_TaskMaterial.SubTaskNumber)),
+                ProtocolNumbers = string.Join(", ", rcrs.Select(e => e.OBK_TaskMaterial.SubTaskNumber)),
                 ProtocolDate = $"{rcrs?.FirstOrDefault()?.OBK_TaskMaterial.CreatedDate:dd.MM.yyyy}"
             };
             return obj;

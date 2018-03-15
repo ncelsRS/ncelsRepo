@@ -35,7 +35,9 @@ namespace PW.Ncels.Database.Models
 			Category = unit.UnitTypeDictionaryId;
 			PositionType = unit.PositionType;
 			PositionStaff = unit.PositionStaff;
-		}
+            AccreditationData = unit.AccreditationData;
+            AccreditationTerm = unit.AccreditationtTerm;
+        }
 
 		public Unit GetUnit(Unit unit)
 		{
@@ -66,7 +68,10 @@ namespace PW.Ncels.Database.Models
 			unit.CuratorValue = DictionaryHelper.GetItemsName(CuratorId);
 			unit.PositionType = PositionType;
 			unit.PositionStaff = PositionStaff;
-			return unit;
+            unit.AccreditationData = AccreditationData;
+            unit.AccreditationtTerm = AccreditationTerm;
+
+            return unit;
 		}
 		public string Category { get; set; }
 		public Guid Id { get; set; }
@@ -94,6 +99,7 @@ namespace PW.Ncels.Database.Models
 		public int PositionType { get; set; }
 
 		public int PositionStaff { get; set; }
-
-	}
+        public string AccreditationData { get; set; }
+        public DateTime? AccreditationTerm { get; set; }
+    }
 }

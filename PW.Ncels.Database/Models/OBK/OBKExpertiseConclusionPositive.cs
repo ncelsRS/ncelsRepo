@@ -50,5 +50,7 @@ namespace PW.Ncels.Database.Models.OBK
 
         public string ecApplicationNumber { get; set; }
         public string ecBlankNumber { get; set; }
+
+        public bool ecExpApplication { get; set; }
     }
 }
