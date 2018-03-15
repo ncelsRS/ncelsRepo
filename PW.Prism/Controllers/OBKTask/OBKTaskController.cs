@@ -153,7 +153,7 @@ namespace PW.Prism.Controllers.OBKTask
         [HttpGet]
         public ActionResult ShowModalExecutor(string code, Guid id)
         {
-            ViewData["Executors"] = new SelectList(repo.GetExecutors(code), "Id", "DisplayName");
+            ViewData["Executors"] = new SelectList(repo.GetExecutors(code, id), "Id", "DisplayName");
             var model = new OBKShowModalExecutor
             {
                 Id = id,
@@ -170,9 +170,10 @@ namespace PW.Prism.Controllers.OBKTask
         }
 
         [HttpPost]
-        public ActionResult SendToCoz(List<ManagerLaboratories> filialExecutors)
+        public ActionResult SendToCoz(OBKManagerResearchCenter filialExecutors)//(Guid adId,List<ManagerLaboratories> filialExecutors)
         {
-            return null;
+            repo.SendToCoz(filialExecutors);
+            return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
         }
 
         #region ЦОЗ список созданных заданий
@@ -188,9 +189,9 @@ namespace PW.Prism.Controllers.OBKTask
 
         public ActionResult GetTaskList([DataSourceRequest] DataSourceRequest request)
         {
-            var organizationId = UserHelper.GetCurrentEmployee().OrganizationId;
+            //var organizationId = UserHelper.GetCurrentEmployee().OrganizationId;
             var userId = UserHelper.GetCurrentEmployee().Id;
-            var list = repo.GetTaskList(organizationId, userId);
+            var list = repo.GetTaskList(userId); //organizationId
             var result = list.ToDataSourceResult(request);
             return Json(result);
         }

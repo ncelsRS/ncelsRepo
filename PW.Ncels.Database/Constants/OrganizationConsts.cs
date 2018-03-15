@@ -63,6 +63,39 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const string PpisDepartament = "PPIS-DEPARTMENT";
 
+        #region Испытательные лаборатории в ИЦ
+        /// <summary>
+        /// Лаборатория биологических испытаний
+        /// </summary>
+        public const string Researchcenter3 = "researchcenter3";
+        /// <summary>
+        /// Отдел по обслуживанию лабораторного оборудования
+        /// </summary>
+        public const string Researchcenter4 = "researchcenter4";
+        /// <summary>
+        /// Физико-химическая лаборатория
+        /// </summary>
+        public const string Researchcenter5 = "researchcenter5";
+        /// <summary>
+        /// Лаборатория фармакологических испытаний
+        /// </summary>
+        public const string Researchcenter6 = "researchcenter6";
+        /// <summary>
+        /// Лаборатория  испытаний медицинских изделий
+        /// </summary>
+        public const string Researchcenter7 = "researchcenter7";
+
+        public static readonly List<string> Researchcenters = new List<string>()
+        {
+            Researchcenter3,
+            Researchcenter4,
+            Researchcenter5,
+            Researchcenter6,
+            Researchcenter7
+        };
+
+        #endregion
+
         #region Территориальные филиалы 
         /// <summary>
         /// NCELS

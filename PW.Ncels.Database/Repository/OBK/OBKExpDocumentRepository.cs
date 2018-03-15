@@ -555,12 +555,11 @@ namespace PW.Ncels.Database.Repository.OBK
         public OBKExpertiseConclusion ExpertiseConclusion(Guid declarationId)
         {
             var ad = AppContext.OBK_AssessmentDeclaration.FirstOrDefault(e => e.Id == declarationId);
-            if (ad == null)
-                return null;
+            if (ad == null) throw new Exception("Заявка не найдена");
             var taskMaterails = AppContext.OBK_TaskMaterial.Where(e => e.OBK_Tasks.AssessmentDeclarationId == declarationId).GroupBy(d => d.ProductSeriesId);
             var productSeries = AppContext.OBK_Procunts_Series.Where(e => taskMaterails.Any(s => s.Key == e.Id));
-            if (!productSeries.Any()) return null;
-            
+            if (!productSeries.Any()) throw new Exception("Продукция не найдена");
+
             var okbConclusion = new OBKExpertiseConclusion();
             var eConclusions = new List<ExpertiseConclusion>();
             foreach (var ps in productSeries)
@@ -834,10 +833,11 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.RefReasonId = ecn.RefReasonId;
                     model.AssessmentDeclarationId = ecn.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+                    model.DecisionRefuse = true;
                     AppContext.SaveChanges();
                     return true;
                 }
-                OBK_StageExpDocument sed = new OBK_StageExpDocument
+                var sed = new OBK_StageExpDocument
                 {
                     Id = Guid.NewGuid(),
                     ExpResult = false,
@@ -848,7 +848,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     ProductSeriesId = ecn.ProductSeriesId,
                     RefReasonId = ecn.RefReasonId,
                     AssessmentDeclarationId = ecn.AssessmentDeclarationId,
-                    ExecutorId = UserHelper.GetCurrentEmployee().Id
+                    ExecutorId = UserHelper.GetCurrentEmployee().Id,
+                    DecisionRefuse = true
                 };
                 AppContext.OBK_StageExpDocument.Add(sed);
                 AppContext.SaveChanges();
