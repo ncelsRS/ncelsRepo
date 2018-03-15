@@ -58,5 +58,10 @@ namespace PW.Ncels.Database.Constants
         /// </summary>
         public const int SPECIALISTS_REPORT = 10;
 
+        /// <summary>
+        /// Журнал учета бланков приложений заключений о безопасности и качестве
+        /// </summary>
+        public const int ZBK_APPLICATION_REPORT = 11;
+
     }
 }

@@ -55,6 +55,10 @@ namespace PW.Prism.Controllers.OBK
                 case OBKReportCodes.LABORATORY_TESTS_REPORT:
                     ViewData["reportType"] = OBKReportCodes.LABORATORY_TESTS_REPORT;
                     return PartialView("LaboratoryTestReport", model);
+                case OBKReportCodes.ZBK_APPLICATION_REPORT:
+                    ViewData["reportType"] = OBKReportCodes.ZBK_APPLICATION_REPORT;
+                    return PartialView("ZBKApplicationReport", model);
+                    
             }
             return PartialView();
         }
@@ -85,6 +89,9 @@ namespace PW.Prism.Controllers.OBK
                     return Json(data.ToDataSourceResult(request));
                 case OBKReportCodes.GMP_REPORT:
                     data = repository.OBK_GMPReportView();
+                    return Json(data.ToDataSourceResult(request));
+                case OBKReportCodes.ZBK_APPLICATION_REPORT:
+                    data = repository.ZBKApplicationReportView();
                     return Json(data.ToDataSourceResult(request));
             }
 
@@ -221,7 +228,12 @@ namespace PW.Prism.Controllers.OBK
                     data = repository.OBK_SpecialistsReport().ToDataSourceResult(request);
                     report.RegBusinessObject("List", data.Data);
                     break;
-
+                case OBKReportCodes.ZBK_APPLICATION_REPORT:
+                    report.Load(Server.MapPath("../Reports/Mrts/OBK/ZBKApplicationReport.mrt"));
+                    report.Compile();
+                    data = repository.ZBKApplicationReportView().ToDataSourceResult(request);
+                    report.RegBusinessObject("List", data.Data);
+                    break;
             }
 
             report.Render(false);

@@ -1084,6 +1084,10 @@ namespace PW.Ncels.Database.Helpers
         /// </summary>
         public static bool ZBKCopyReport { get { return IsVisibility("ZBKCopyReport"); } }
         /// <summary>
+        /// Журнал учета бланков приложений заключений о безопасности и качестве
+        /// </summary>
+        public static bool ZBKApplicationReport { get { return IsVisibility("ZBKApplicationReport"); } }
+        /// <summary>
         /// Журнал учета бланков копий заключений о безопасности и качестве
         /// </summary>
         public static bool DirectionPaymentsReport { get { return IsVisibility("DirectionPaymentsReport"); } }
