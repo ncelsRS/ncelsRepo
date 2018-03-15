@@ -138,6 +138,16 @@
                                             <input id="expBlankNumber" name="expBlankNumber" type="text" class="form-control">
                                         </div>
                                     </div>
+                                    <div class="form-group" id="displayShortNames" style="display: none">
+                                        <div class="col-lg-6">
+                                            <label class="control-label">Короткое наименование на русском языке*(200 Символов)</label>
+                                            <textarea maxlength="150" rows="3" id="expProShortNameRu" name="expProShortNameRu" type="text" class="form-control"></textarea>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="control-label">Короткое наименование на казахском языке*(200 Символов)</label>
+                                            <textarea maxlength="150" rows="3" id="expProShortNameKz" name="expProShortNameKz" type="text" class="form-control"></textarea>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <div class="col-lg-6">
                                             <label class="control-label">Тип заключения</label><br />
@@ -150,6 +160,7 @@
                                             <input id="expApplicationNumber1" name="expApplicationNumber" type="text" class="form-control">
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -168,7 +179,7 @@
                                     <div class="col-lg-12">
                                         <label class="control-label">Результат</label>
                                         @Html.DropDownList("RefReasonId", (IEnumerable<SelectListItem>)ViewData["UObkReasons"],
-                                                      String.Empty, new { @class = "form-control" })
+                                                                String.Empty, new { @class = "form-control" })
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -271,8 +282,10 @@
     function rowBack(row) {
         $('td', row).unbind('click');
         $('td', row).bind('click',
-            function () {
-                debugger;
+            function ()
+            {
+                $("#expNotApplication").show();
+                $("#expNotApplication").click();
                 var tab = $(this.parentNode.parentNode.parentNode).DataTable();
                 tab.$('tr.pw-row-selected').removeClass('pw-row-selected');
                 $(this.parentNode).addClass('pw-row-selected');
@@ -296,9 +309,15 @@
                     $("#expConclusionNumber").val(mass.ExpConclusionNumber);
                     $("#expBlankNumber").val(mass.ExpBlankNumber);
                     $("#expApplicationNumber1").val(mass.ExpApplicationNumber);
+
+                    if (mass.ExpProductShortNameRu != null && mass.ExpProductShortNameRu != ""){
+
+                    }
+
                     if (mass.ExpApplicationNumber != null && mass.ExpApplicationNumber != ""){
                         $("#expApplication").click();
                     }
+
                 } else {
                     productSeriesId = mass.Id;
                     $("#expertiseEndDate").val(mass.SeriesEndDate);
@@ -312,6 +331,22 @@
 
                     $("#expConclusionNumber").val(mass.ExpConclusionNumber);
                 }
+
+                if ($("#expProNameRu").val().length > 360 || $("#expProNameKz").val().length > 330)
+                {
+                    if (mass.ExpProductShortNameRu == null || mass.ExpProductShortNameRu == "")
+                    {
+                        alert("Наименование продукции слишком длинное! Пожалуйста введите короткое наименование!");
+                        $("#expApplication").click();
+                    } else
+                    {
+                        $("#expProShortNameRu").val(mass.ExpProductShortNameRu);
+                        $("#expProShortNameKz").val(mass.ExpProductShortNameKz);
+                    }
+                    $("#displayShortNames").show();
+                    $("#expNotApplication").hide();
+                }
+
             });
         return row;
     }
@@ -333,14 +368,23 @@
             : "");
     }
 
-    function saveExpDoc() {
+    function saveExpDoc()
+    {
+        if ($("#expProNameRu").val().length > 360 || $("#expProNameKz").val().length > 330)
+        {
+            if ($("#expProShortNameRu").val() == "" || $("#expProShortNameKz").val() == "")
+            {
+                alert("Наименование продукции слишком длинное! Пожалуйста введите короткое наименование!");
+                return;
+            }
+        }
 
         var expRadio = null;
 
         if ($("#expApplication").is(":checked") == true){
             expRadio = false;
         }
-        
+
         if ($("#expNotApplication").is(":checked") == true)
         {
             expRadio = true;
@@ -365,7 +409,9 @@
             ExpBlankNumber: $("#expBlankNumber").val(),
             ExpApplicationNumber: $("#expApplicationNumber1").val(),
             RefReasonId: $("#RefReasonId").val(),
-            ExpApplication: expRadio 
+            ExpApplication: expRadio,
+            ExpProductShortNameRu: $("#expProShortNameRu").val(),
+            ExpProductShortNameKz: $("#expProShortNameKz").val()
         };
         $.ajax({
             type: 'POST',

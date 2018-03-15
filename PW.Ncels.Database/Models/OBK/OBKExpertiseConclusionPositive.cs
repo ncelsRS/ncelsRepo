@@ -52,5 +52,13 @@ namespace PW.Ncels.Database.Models.OBK
         public string ecBlankNumber { get; set; }
 
         public bool ecExpApplication { get; set; }
+        /// <summary>
+        /// Короткое наименование на русском языке
+        /// </summary>
+        public string ecProductShortNameRu { get; set; }
+        /// <summary>
+        /// Короткое наименование на казахском языке
+        /// </summary>
+        public string ecProductShortNameKz { get; set; }
     }
 }
