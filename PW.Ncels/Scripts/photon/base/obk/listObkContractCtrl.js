@@ -404,7 +404,6 @@
         { name: 'Id', displayName: 'Id', visible: false },
         { name: 'ProductId', displayName: 'ProductId', visible: false },
         { name: 'NameRu', displayName: 'Наименование' },
-        { name: 'Dimension', displayName: 'Размер ность', visible: $scope.object.Type == 1, maxWidth: 60 },
         { name: 'ProducerNameRu', displayName: 'Производитель' },
         { name: 'CountryNameRu', displayName: 'Страна-производитель' },
         {
@@ -635,7 +634,6 @@
             var selectedObj = $scope.addedProducts[$scope.selectedProductIndex];
 
             $scope.product.expertisePlace = selectedObj.ExpertisePlace + '';
-            $scope.product.Dimension = selectedObj.Dimension;
             $scope.product.Id = selectedObj.Id;
             $scope.product.ProductId = selectedObj.ProductId;
             $scope.product.RegTypeId = selectedObj.RegTypeId;
@@ -788,8 +786,6 @@
     $scope.saveProduct = function saveProduct() {
         if (!$scope.product.expertisePlace && $scope.object.Type == 1)
             return alert('Выберите место проведения аналитической экспертизы');
-        if (!$scope.product.Dimension && $scope.object.Type == 1 && $scope.product.RegTypeId == 2)
-            return alert('Внесите размерность');
         var conf = confirm("Необходимо проверить поля \"Наименование продукции\" и \"Наименование продукции на казахском\", содержание которых отображается в ЗБК продукции. Наименование продукции в ЗБК должно содержать торговое название продукции, дозировку, фасовку, форму выпуска (для лекарственных средств), размерность и комплектность (для изделий мед. назначения)\"");
         if (!conf) return null;
         if ($scope.mode == 1) {
@@ -826,7 +822,6 @@
                                     MtParts: [],
                                     ServiceName: $scope.product.ServiceName,
                                     ExpertisePlace: $scope.product.expertisePlace,
-                                    Dimension: $scope.product.Dimension
                                 }
                                 product.Series = $scope.productSeries.slice();
                                 product.MtParts = $scope.selectedMtParts.slice();
@@ -886,7 +881,6 @@
                     selectedObj.NdNumber = $scope.product.NdNumber;
                     selectedObj.ServiceName = $scope.product.ServiceName;
                     selectedObj.ExpertisePlace = $scope.product.expertisePlace;
-                    selectedObj.Dimension = $scope.product.Dimension;
                     selectedObj.Series.length = 0;
                     selectedObj.Series.push.apply(selectedObj.Series, $scope.productSeries);
 
@@ -984,7 +978,6 @@
         $scope.object.drugTradeName = null;
 
         $scope.product.expertisePlace = null;
-        $scope.product.Dimension = null;
 
         $scope.gridOptions.data.length = 0;
         //

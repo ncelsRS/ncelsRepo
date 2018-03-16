@@ -98,6 +98,11 @@ namespace PW.Ncels.Database.Constants
 
         #region Территориальные филиалы 
         /// <summary>
+        /// Код Парента всех филиалов
+        /// </summary>
+        public const string FilialsParent = "filials";
+
+        /// <summary>
         /// NCELS
         /// </summary>
         public const string NCELS = "00";
