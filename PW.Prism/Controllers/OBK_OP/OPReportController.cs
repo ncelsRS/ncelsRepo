@@ -217,7 +217,7 @@ namespace PW.Prism.Controllers.OBK_OP
         public ActionResult ListOrganization()
         {
             var orgs = repo.Units
-                .Where(x => x.Code == OrganizationConsts.NCELS) // Только НЦЭЛС
+                .Where(x => x.Code == OrganizationConsts.NCELS || x.Code == OrganizationConsts.FilialsParent) // Только НЦЭЛС
                 .Select(x => new { x.Id, x.Name }).ToList();
             return Json(orgs, JsonRequestBehavior.AllowGet);
         }
