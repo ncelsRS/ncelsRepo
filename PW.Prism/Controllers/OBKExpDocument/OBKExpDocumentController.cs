@@ -340,6 +340,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     report.Dictionary.Variables["ProductNameKz1"].ValueObject = dictionaryKaz.ContainsKey(1) ? dictionaryKaz[1] : "";
                     report.Dictionary.Variables["ProductNameKz2"].ValueObject = dictionaryKaz.ContainsKey(2) ? dictionaryKaz[2] : "";
                     report.Dictionary.Variables["ProductNameKz3"].ValueObject = dictionaryKaz.ContainsKey(3) ? dictionaryKaz[3] : "";
+                    report.Dictionary.Variables["productSeriesId"].ValueObject = serieId;
 
                     var reportOp = db.OBK_AssessmentReportOP.FirstOrDefault(o => o.DeclarationId == id);
                     if (reportOp != null)
@@ -350,6 +351,30 @@ namespace PW.Prism.Controllers.OBKExpDocument
                             report.Dictionary.Variables["OpExecutorDate"].ValueObject = ((DateTime)opExecutor.Date).ToString("dd.MM.yyyy");
                         }
                     }
+                }
+                else if (CodeConstManager.OBK_SA_PARTY.Equals(declaration.TypeId.ToString()))
+                {
+                    if (expDocument.ExpApplication == false)
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentApplicationPartyPdf.mrt"));
+                    }
+                    else
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentPartyPdf.mrt"));
+                    }
+
+                    var tail = " согласно приложения КЗП № {" + applicationBlankNumber + "}";
+                    var dictionary = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameRu, 90, 120, 170, expDocument.ExpProductShortNameRu, tail);
+                    report.Dictionary.Variables["ProductNameRu1"].ValueObject = dictionary.ContainsKey(1) ? dictionary[1] : "";
+                    report.Dictionary.Variables["ProductNameRu2"].ValueObject = dictionary.ContainsKey(2) ? dictionary[2] : "";
+                    report.Dictionary.Variables["ProductNameRu3"].ValueObject = dictionary.ContainsKey(3) ? dictionary[3] : "";
+
+                    var tailKaz = " ҚҚҚ № {" + applicationBlankNumber + "} қосымшаға сәйкес";
+                    var dictionaryKaz = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameKz, 60, 120, 160, expDocument.ExpProductShortNameKz, tailKaz);
+                    report.Dictionary.Variables["ProductNameKz1"].ValueObject = dictionaryKaz.ContainsKey(1) ? dictionaryKaz[1] : "";
+                    report.Dictionary.Variables["ProductNameKz2"].ValueObject = dictionaryKaz.ContainsKey(2) ? dictionaryKaz[2] : "";
+                    report.Dictionary.Variables["ProductNameKz3"].ValueObject = dictionaryKaz.ContainsKey(3) ? dictionaryKaz[3] : "";
+                    report.Dictionary.Variables["productSeriesId"].ValueObject = serieId;
                 }
                 else
                 {
