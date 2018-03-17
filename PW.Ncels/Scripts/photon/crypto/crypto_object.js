@@ -61,7 +61,6 @@ webSocket.onclose = function (event) {
 };
 
 webSocket.onmessage = function (event) {
-    debugger;
     if (event.data === heartbeat_msg) {
         missed_heartbeats = 0;
         return;

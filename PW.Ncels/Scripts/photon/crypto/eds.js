@@ -219,7 +219,7 @@ function SignUser(type, bin, orgName, cn, surename, obl, g, email) {
 }
 
 function getSubDNCallBack(result) {
-
+    debugger;
     if (result.errorCode === 'NONE') {
         var subjectAttrs = result.result.split(',');
         var bin = findSubjectAttr(subjectAttrs, 'OU');
@@ -311,7 +311,6 @@ function signXmlCall(submitCallback) {
 }
 
 function fillKeysBack(result) {
-
     if (result['errorCode'] === "NONE") {
         var list = result['result'];
         var slotListArr = list.split("\n");
