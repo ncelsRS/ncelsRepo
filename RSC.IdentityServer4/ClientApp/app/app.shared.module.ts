@@ -5,7 +5,7 @@ import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './components/app/app.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './components/app/login/login.component';
 
 @NgModule({
     declarations: [
