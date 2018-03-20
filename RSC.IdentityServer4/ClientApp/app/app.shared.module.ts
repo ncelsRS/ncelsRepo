@@ -6,11 +6,13 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './components/app/app.component';
 import { LoginComponent } from './components/app/login/login.component';
+import { RegisterComponent } from './components/app/register/register.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        LoginComponent
+        LoginComponent,
+        RegisterComponent
     ],
     imports: [
         CommonModule,
@@ -19,6 +21,7 @@ import { LoginComponent } from './components/app/login/login.component';
         RouterModule.forRoot([
             { path: '', redirectTo: 'login', pathMatch: 'full' },
             { path: 'login', component: LoginComponent },
+            { path: 'register', component: RegisterComponent },
             { path: '**', redirectTo: 'login' }
         ])
     ]
