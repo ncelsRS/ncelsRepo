@@ -379,7 +379,7 @@ function initExecutorsTable() {
         searching: false,
         bLengthChange: false,
         columns: [
-            { title: "Список согласующих" },
+            { title: "Список подписывающих/согласующих" },
             { title: "Результат согласования" },
             { title: "Комментарий" },
             { title: "Дата согласования" },
