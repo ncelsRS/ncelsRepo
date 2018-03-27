@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Teme.Logic.Identity
+namespace Teme.Identity.Logic
 {
     public class Class1
     {

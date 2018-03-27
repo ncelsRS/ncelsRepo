@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Teme.Data.Identity
+namespace Teme.Identity.Data
 {
     public class Class1
     {

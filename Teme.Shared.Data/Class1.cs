@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Teme.Data.Base
+namespace Teme.Shared.Data
 {
     public class Class1
     {
