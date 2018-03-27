@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './components/app/app.component';
 import { LoginComponent } from './components/app/login/login.component';
+import { LoginSvc } from './components/app/login/login.svc';
+import { WindowSvc } from './windowSvc';
 
 @NgModule({
     declarations: [
@@ -21,6 +23,10 @@ import { LoginComponent } from './components/app/login/login.component';
             { path: 'login', component: LoginComponent },
             { path: '**', redirectTo: 'login' }
         ])
+    ],
+    providers: [
+        WindowSvc,
+        LoginSvc
     ]
 })
 export class AppModuleShared {
