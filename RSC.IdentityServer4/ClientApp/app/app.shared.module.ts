@@ -7,8 +7,10 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './components/app/app.component';
 import { LoginComponent } from './components/app/login/login.component';
 import { LoginSvc } from './components/app/login/login.svc';
+import { RegisterSvc } from './components/app/register/register.svc';
 import { WindowSvc } from './windowSvc';
 import { RegisterComponent } from './components/app/register/register.component';
+import { ReactiveFormsModule } from '@angular/forms'; 
 
 @NgModule({
     declarations: [
@@ -20,6 +22,7 @@ import { RegisterComponent } from './components/app/register/register.component'
         CommonModule,
         HttpModule,
         FormsModule,
+        ReactiveFormsModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'login', pathMatch: 'full' },
             { path: 'login', component: LoginComponent },
@@ -29,7 +32,8 @@ import { RegisterComponent } from './components/app/register/register.component'
     ],
     providers: [
         WindowSvc,
-        LoginSvc
+        LoginSvc,
+        RegisterSvc
     ]
 })
 export class AppModuleShared {

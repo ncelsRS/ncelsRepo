@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RSC.IdentityServer4.Model;
+using Teme.Identity.Logic.Models;
 
 namespace RSC.IdentityServer4.Controllers
 {
@@ -11,17 +11,17 @@ namespace RSC.IdentityServer4.Controllers
     {
 
         [HttpPost]
-        [Route("api/Auth/Register")]
-        public int Register([FromBody] User user)
+        [Route("/Auth/Register")]
+        public ActionResult Register([FromBody] Register register)
         {
-            return 1;
-        }
-
-        [HttpPost]
-        [Route("api/Auth/Login")]
-        public int Login([FromBody] User user)
-        {
-            return 1;
+            if (ModelState.IsValid)
+            {
+                return Ok(register);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
     }
