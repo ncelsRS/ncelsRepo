@@ -33,10 +33,9 @@ namespace RSC.IdentityServer4
 
             var builder = services.AddIdentityServer()
                 .AddSigningCredential(cert)
-                .AddInMemoryIdentityResources(MyIdentityResources.Get())
-                .AddInMemoryApiResources(ApiCfg.Get())
-                .AddInMemoryClients(ClientCfg.Get())
-                .AddTestUsers(UserCfg.Get());
+                .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
+                .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
+                .AddInMemoryClients(IdSrvConfig.GetClients());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
