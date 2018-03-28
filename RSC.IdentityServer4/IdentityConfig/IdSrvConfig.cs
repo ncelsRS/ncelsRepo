@@ -1,12 +1,19 @@
 ﻿using IdentityServer4.Models;
 using System.Collections.Generic;
-using static IdentityServer4.IdentityServerConstants;
 
 namespace RSC.IdentityServer4.IdentityConfig
 {
-    public class ClientCfg
+    public class IdSrvConfig
     {
-        public static List<Client> Get()
+        public static List<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("obk", "ОБК")
+            };
+        }
+
+        public static List<Client> GetClients()
         {
             return new List<Client>
             {
@@ -64,6 +71,15 @@ namespace RSC.IdentityServer4.IdentityConfig
                         "*"
                     }
                 }
+            };
+        }
+
+        public static List<IdentityResource> GetIdentityResources()
+        {
+            return new List<IdentityResource>
+            {
+                new IdentityResources.OpenId(),
+                new IdentityResources.Profile() // <-- usefull
             };
         }
     }
