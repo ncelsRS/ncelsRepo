@@ -28,7 +28,7 @@ export class LoginSvc {
     post(login: Login, returnUrl: URL) {
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        return this.http.post('/connect/token', this.objToForm(login), { headers: headers })
+        return this.http.post('/con/Login', this.objToForm(login), { headers: headers })
             .toPromise()
             .then(res => {
                 var authData = JSON.stringify(res.json());
