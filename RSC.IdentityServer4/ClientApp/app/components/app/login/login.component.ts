@@ -1,6 +1,8 @@
 ﻿import { Component } from '@angular/core';
+import { ParamMap, Router, ActivatedRoute } from '@angular/router';
 
 import { Login } from './Login';
+import { LoginSvc } from './login.svc';
 
 @Component({
     selector: 'app-login',
@@ -10,12 +12,25 @@ import { Login } from './Login';
 export class LoginComponent {
 
     login: Login = new Login();
-    teststring: string = 'test string';
 
-    counter: number = 0;
+    returnUrl: string;
+
+    res: any;
+
+    constructor(
+        private route: ActivatedRoute,
+        private loginSvc: LoginSvc) {
+
+        this.returnUrl = this.route.snapshot.queryParams.returnUrl;
+        let clientId = this.route.snapshot.queryParams.clientId;
+        let clientSecret = this.route.snapshot.queryParams.clientSecret;
+
+        this.login.client_id = clientId || this.login.client_id;
+        this.login.client_secret = clientSecret || this.login.client_secret;
+    }
 
     onSubmit() {
-        this.teststring = (++this.counter).toString();
+        this.res = this.loginSvc.post(this.login, new URL(this.returnUrl));
     }
 
 }

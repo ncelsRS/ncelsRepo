@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './components/app/app.component';
 import { LoginComponent } from './components/app/login/login.component';
+import { LoginSvc } from './components/app/login/login.svc';
+import { WindowSvc } from './windowSvc';
 import { RegisterComponent } from './components/app/register/register.component';
 
 @NgModule({
@@ -24,6 +26,10 @@ import { RegisterComponent } from './components/app/register/register.component'
             { path: 'register', component: RegisterComponent },
             { path: '**', redirectTo: 'login' }
         ])
+    ],
+    providers: [
+        WindowSvc,
+        LoginSvc
     ]
 })
 export class AppModuleShared {
