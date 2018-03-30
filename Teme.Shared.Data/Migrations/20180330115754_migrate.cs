@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 namespace Teme.Shared.Data.Migrations
 {
-    public partial class migrate01 : Migration
+    public partial class migrate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "AuthUsers",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -23,14 +23,14 @@ namespace Teme.Shared.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_AuthUsers", x => x.Id);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "AuthUsers");
         }
     }
 }

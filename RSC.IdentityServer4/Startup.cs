@@ -10,9 +10,15 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Teme.Shared.Data.Context;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using System;
 
 namespace RSC.IdentityServer4
 {
+    using Startups;
+    
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -27,7 +33,7 @@ namespace RSC.IdentityServer4
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // получаем строку подключения из файла конфигурации
             string connection = Configuration.GetConnectionString("DefaultConnection");
@@ -42,6 +48,13 @@ namespace RSC.IdentityServer4
                 .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
                 .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
                 .AddInMemoryClients(IdSrvConfig.GetClients());
+
+            // Add Autofac
+            var containerBuilder = new Autofac.ContainerBuilder();
+            containerBuilder.RegisterModule<AutofacModule>();
+            containerBuilder.Populate(services);
+            var container = containerBuilder.Build();
+            return new AutofacServiceProvider(container);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
