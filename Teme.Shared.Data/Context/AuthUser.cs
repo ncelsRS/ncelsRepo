@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Teme.Shared.Data.Context
 {
-    public class User: BaseEntity
+    public class AuthUser: BaseEntity
     {
         public string Name { get; set; }
         public string UserName { get; set; }

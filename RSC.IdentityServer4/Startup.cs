@@ -8,6 +8,8 @@ using RSC.IdentityServer4.IdentityConfig;
 using Serilog;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Teme.Shared.Data.Context;
 
 namespace RSC.IdentityServer4
 {
@@ -27,6 +29,10 @@ namespace RSC.IdentityServer4
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // получаем строку подключения из файла конфигурации
+            string connection = Configuration.GetConnectionString("DefaultConnection");
+            // добавляем контекст TemeContext в качестве сервиса в приложение
+            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
             services.AddMvc();
 
             var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
@@ -43,6 +49,8 @@ namespace RSC.IdentityServer4
         {
             if (env.IsDevelopment())
             {
+                app.UseBrowserLink();
+
                 app.UseDeveloperExceptionPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
