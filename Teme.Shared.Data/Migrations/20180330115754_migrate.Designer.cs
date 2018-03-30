@@ -11,8 +11,8 @@ using Teme.Shared.Data.Context;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    [Migration("20180329101851_migrate-01")]
-    partial class migrate01
+    [Migration("20180330115754_migrate")]
+    partial class migrate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,7 +38,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("AuthUsers");
                 });
 #pragma warning restore 612, 618
         }

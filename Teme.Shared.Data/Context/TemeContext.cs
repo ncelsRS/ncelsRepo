@@ -11,6 +11,6 @@ namespace Teme.Shared.Data.Context
             : base(options)
         {
         }
-        public DbSet<AuthUser> Users { get; set; }
+        public DbSet<AuthUser> AuthUsers { get; set; }
     }
 }
