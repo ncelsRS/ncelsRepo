@@ -20,6 +20,8 @@ namespace PW.Ncels.Database.DataModel
         public string ExpReasonNameKz { get; set; }
         public string ExpProductNameRu { get; set; }
         public string ExpProductNameKz { get; set; }
+        public string ExpProductShortNameRu { get; set; }
+        public string ExpProductShortNameKz { get; set; }
         public string ExpNomenclatureRu { get; set; }
         public string ExpNomenclatureKz { get; set; }
         public string ExpAddInfoRu { get; set; }

@@ -60,6 +60,11 @@ namespace PW.Ncels.Database.Repository.OBK
             return AppContext.OBK_GMPReportView;
         }
 
+        public IQueryable<OBK_ZBKApplicationReportView> ZBKApplicationReportView()
+        {
+            return AppContext.OBK_ZBKApplicationReportView;
+        }
+
         public IQueryable<SummaryReportTF_Result> OBK_SummaryReportTF(Nullable<System.DateTime> dateFrom, Nullable<System.DateTime> dateTo)
         {
             return AppContext.SummaryReportTF(dateFrom, dateTo);

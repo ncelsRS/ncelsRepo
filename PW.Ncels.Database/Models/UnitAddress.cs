@@ -12,5 +12,8 @@ namespace PW.Ncels.Database.Models
         public string PostalCode { get; set; }
         public string ShortCityNameRu { get; set; }
         public string ShortCityNameKz { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Fax { get; set; }
+
     }
 }

@@ -69,6 +69,16 @@
                             }
                         </div>
                     </div>
+                    <div class="form-group" id="displayShortNames" style="display: none">
+                        <div class="col-lg-6">
+                            <label class="control-label">Короткое наименование на русском языке*(200 Символов)</label>
+                            <textarea maxlength="150" rows="3" id="expProShortNameRu" name="expProShortNameRu" type="text" class="form-control"></textarea>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="control-label">Короткое наименование на казахском языке*(200 Символов)</label>
+                            <textarea maxlength="150" rows="3" id="expProShortNameKz" name="expProShortNameKz" type="text" class="form-control"></textarea>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="col-lg-6">
                             <label class="control-label">Тип заключения</label><br />
@@ -80,12 +90,12 @@
                             <label class="control-label">№ бланка приложения</label>
                             @if (Model.ToShow)
                             {
-                                  <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
+                                <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
                             }
                             else
                             {
-                                  <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
-                      
+                                <input id="expApplicationNumber1" name="expApplicationNumber" type="text" value="@Model.ecApplicationNumber" class="form-control form-disabled">
+
                             }
                         </div>
                     </div>
@@ -117,8 +127,42 @@
         $("#expApplication").click();
     }
 
+    if ("@Model.ecProductNameRu".length > 360 || "@Model.ecProductNameKz".length > 330)
+    {
+        if ("@Model.ecProductShortNameRu" == "" || "@Model.ecProductShortNameKz" == "")
+        {
+            alert("Наименование продукции слишком длинное! Пожалуйста введите короткое наименование!");
+        } else
+        {
+            $("#expProShortNameRu").val("@Model.ecProductShortNameRu");
+            $("#expProShortNameKz").val("@Model.ecProductShortNameKz");
+        }
+        $("#expNotApplication").hide();
+        $("#expApplication").click();
+        $("#displayShortNames").show();
+    }
+
+    function showExpApplicationNumber()
+    {
+        $("#expApplicationNumber").show();
+    }
+
+    function hideExpApplicationNumber()
+    {
+        $("#expApplicationNumber").hide();
+    }
+
     function saveExpConclusion() {
-        if (validForm()) {
+        if (validForm())
+        {
+                if ("@Model.ecProductNameRu".length > 360 || "@Model.ecProductNameKz".length > 330)
+                    {
+                        if ( $("#expProShortNameRu").val() == "" ||  $("#expProShortNameKz").val() == ""){
+                            alert("Наименование продукции слишком длинное! Пожалуйста введите короткое наименование!");
+                            return;
+                         }
+                  }
+
             saveEcPositive();
         } else {
             alert('Заполните обязательные поля');
@@ -153,7 +197,9 @@
             ecBlankNumber: $("#expBlankNumber").val(),
             ecApplicationNumber: $("#expApplicationNumber1").val(),
             ecNumber: '@Model.ecNumber',
-            ecExpApplication : expRadio
+            ecExpApplication: expRadio,
+            ecProductShortNameRu: $("#expProShortNameRu").val(),
+            ecProductShortNameKz: $("#expProShortNameKz").val()
         }
 
         $.ajax({

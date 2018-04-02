@@ -704,6 +704,14 @@ namespace PW.Ncels.Database.Repository.OBK
             ecp.ecAdditionalInfoRu = "Договора поставки " + ad.InvoiceContractRu + " инвойс " + ad.InvoiceRu + " дата инвойса " + ad.InvoiceDate;
             ecp.ecAdditionalInfoKz = "Жеткізу шарты " + ad.InvoiceContractKz + " инвойс " + ad.InvoiceKz + " инвойс күні " + ad.InvoiceDate;
             ecp.ecNumber = GenerateNumber(ad.Id, productSeriesId);
+
+            var expDocument = AppContext.OBK_StageExpDocument.FirstOrDefault(o => o.ProductSeriesId == productSeriesId);
+            if (expDocument != null)
+            {
+                ecp.ecProductShortNameRu = expDocument.ExpProductShortNameRu;
+                ecp.ecProductShortNameKz = expDocument.ExpProductShortNameKz;
+            }
+
             return ecp;
         }
 
@@ -747,6 +755,8 @@ namespace PW.Ncels.Database.Repository.OBK
                     model.ExpApplicationNumber = ecp.ecApplicationNumber;
                     model.AssessmentDeclarationId = ecp.AssessmentDeclarationId;
                     model.ExecutorId = UserHelper.GetCurrentEmployee().Id;
+                    model.ExpProductShortNameRu = ecp.ecProductShortNameRu;
+                    model.ExpProductShortNameKz = ecp.ecProductShortNameRu;
 
                     var blankNumber = AppContext.OBK_BlankNumber.FirstOrDefault(o => o.Object_Id == model.Id);
                     blankNumber.Number = int.Parse(ecp.ecBlankNumber);
@@ -777,8 +787,10 @@ namespace PW.Ncels.Database.Repository.OBK
                         ExpApplication = ecp.ecExpApplication,
                         AssessmentDeclarationId = ecp.AssessmentDeclarationId,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id,
-                        DecisionRefuse = false
-                    };
+                        DecisionRefuse = false,
+                        ExpProductShortNameRu = ecp.ecProductShortNameRu,
+                        ExpProductShortNameKz = ecp.ecProductShortNameKz
+                };
                     //AppContext.OBK_StageExpDocumentResult.Add(sedr);
                     AppContext.OBK_StageExpDocument.Add(sed);
                     AppContext.SaveChanges();
@@ -914,6 +926,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     RefReasonId = ecn.RefReasonId,
                     AssessmentDeclarationId = ecn.AssessmentDeclarationId,
                     ExecutorId = UserHelper.GetCurrentEmployee().Id,
+                    DecisionRefuseDate = DateTime.Now,
                     DecisionRefuse = true
                 };
                 AppContext.OBK_StageExpDocument.Add(sed);
@@ -948,6 +961,8 @@ namespace PW.Ncels.Database.Repository.OBK
             ecp.ecNumber = ps.ExpConclusionNumber;
             ecp.ecApplicationNumber = ps.ExpApplicationNumber;
             ecp.ecBlankNumber = ps.ExpBlankNumber;
+            ecp.ecProductShortNameRu = ps.ExpProductShortNameRu;
+            ecp.ecProductShortNameKz = ps.ExpProductShortNameKz;
             return ecp;
         }
 

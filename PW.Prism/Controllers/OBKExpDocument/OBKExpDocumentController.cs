@@ -198,13 +198,16 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     if (expData.ExpApplication != true)
                     {
                         series.ExpApplicationNumber = expData.ExpApplicationNumber;
-                    }else
+                    }
+                    else
                     {
                         series.ExpApplicationNumber = null;
                     }
                     series.ExecutorId = UserHelper.GetCurrentEmployee().Id;
                     series.RefReasonId = expData.RefReasonId;
                     series.ExpApplication = expData.ExpApplication;
+                    series.ExpProductShortNameRu = expData.ExpProductShortNameRu;
+                    series.ExpProductShortNameKz = expData.ExpProductShortNameKz;
                     new SafetyAssessmentRepository().SaveExpDocument(series);
                 }
                 else
@@ -230,7 +233,9 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         ExpApplicationNumber = expData.ExpApplication == false ? expData.ExpApplicationNumber : null,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id,
                         RefReasonId = expData.RefReasonId,
-                        ExpApplication = expData.ExpApplication
+                        ExpApplication = expData.ExpApplication,
+                        ExpProductShortNameRu = expData.ExpProductShortNameRu,
+                        ExpProductShortNameKz = expData.ExpProductShortNameKz
                     };
                     new SafetyAssessmentRepository().SaveExpDocument(expDoc);
                 }
@@ -284,7 +289,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                         ExpApplicationNumber = expData.ExpApplicationNumber,
                         ExecutorId = UserHelper.GetCurrentEmployee().Id,
                         RefReasonId = expData.RefReasonId,
-                        ExpApplication = true
+                        ExpApplication = true,
                     };
                     new SafetyAssessmentRepository().SaveExpDocument(expDoc);
                 }
@@ -302,16 +307,76 @@ namespace PW.Prism.Controllers.OBKExpDocument
             try
             {
                 var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == id);
+
+                var applicationBlankNumber = expDocument.ExpApplicationNumber != null ? expDocument.ExpApplicationNumber : "";
+
+                if (applicationBlankNumber.Length < 6)
+                {
+                    for (int c = applicationBlankNumber.Length; c < 6; c++)
+                    {
+                        applicationBlankNumber = "0" + applicationBlankNumber;
+                    }
+                }
+
                 if (CodeConstManager.OBK_SA_SERIAL.Equals(declaration.TypeId.ToString()))
                 {
                     if (expDocument.ExpApplication == false)
                     {
                         report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentApplicationSerialPdf.mrt"));
-                    }else
+                    }
+                    else
                     {
                         report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentSerialPdf.mrt"));
                     }
-                }else
+
+                    var tail = " согласно приложения КЗП № {" + applicationBlankNumber + "}, серийная";
+                    var dictionary = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameRu + " серийный выпуск", 90, 120, 150, expDocument.ExpProductShortNameRu, tail);
+                    report.Dictionary.Variables["ProductNameRu1"].ValueObject = dictionary.ContainsKey(1) ? dictionary[1] : "";
+                    report.Dictionary.Variables["ProductNameRu2"].ValueObject = dictionary.ContainsKey(2) ? dictionary[2] : "";
+                    report.Dictionary.Variables["ProductNameRu3"].ValueObject = dictionary.ContainsKey(3) ? dictionary[3] : "";
+
+                    var tailKaz = " ҚҚҚ № {" + applicationBlankNumber + "} қосымшаға сәйкес, сериялы шыгарылым";
+                    var dictionaryKaz = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameKz + " сериялық", 60, 120, 150, expDocument.ExpProductShortNameKz, tailKaz);
+                    report.Dictionary.Variables["ProductNameKz1"].ValueObject = dictionaryKaz.ContainsKey(1) ? dictionaryKaz[1] : "";
+                    report.Dictionary.Variables["ProductNameKz2"].ValueObject = dictionaryKaz.ContainsKey(2) ? dictionaryKaz[2] : "";
+                    report.Dictionary.Variables["ProductNameKz3"].ValueObject = dictionaryKaz.ContainsKey(3) ? dictionaryKaz[3] : "";
+                    report.Dictionary.Variables["productSeriesId"].ValueObject = serieId;
+
+                    var reportOp = db.OBK_AssessmentReportOP.FirstOrDefault(o => o.DeclarationId == id);
+                    if (reportOp != null)
+                    {
+                        var opExecutor = db.OBK_AssessmentReportOPExecutors.OrderByDescending(o => o.Date).FirstOrDefault(o => o.ReportId == reportOp.Id);
+                        if (opExecutor != null && opExecutor.Date != null)
+                        {
+                            report.Dictionary.Variables["OpExecutorDate"].ValueObject = ((DateTime)opExecutor.Date).ToString("dd.MM.yyyy");
+                        }
+                    }
+                }
+                else if (CodeConstManager.OBK_SA_PARTY.Equals(declaration.TypeId.ToString()))
+                {
+                    if (expDocument.ExpApplication == false)
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentApplicationPartyPdf.mrt"));
+                    }
+                    else
+                    {
+                        report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentPartyPdf.mrt"));
+                    }
+
+                    var tail = " согласно приложения КЗП № {" + applicationBlankNumber + "}";
+                    var dictionary = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameRu, 90, 120, 170, expDocument.ExpProductShortNameRu, tail);
+                    report.Dictionary.Variables["ProductNameRu1"].ValueObject = dictionary.ContainsKey(1) ? dictionary[1] : "";
+                    report.Dictionary.Variables["ProductNameRu2"].ValueObject = dictionary.ContainsKey(2) ? dictionary[2] : "";
+                    report.Dictionary.Variables["ProductNameRu3"].ValueObject = dictionary.ContainsKey(3) ? dictionary[3] : "";
+
+                    var tailKaz = " ҚҚҚ № {" + applicationBlankNumber + "} қосымшаға сәйкес";
+                    var dictionaryKaz = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameKz, 60, 120, 160, expDocument.ExpProductShortNameKz, tailKaz);
+                    report.Dictionary.Variables["ProductNameKz1"].ValueObject = dictionaryKaz.ContainsKey(1) ? dictionaryKaz[1] : "";
+                    report.Dictionary.Variables["ProductNameKz2"].ValueObject = dictionaryKaz.ContainsKey(2) ? dictionaryKaz[2] : "";
+                    report.Dictionary.Variables["ProductNameKz3"].ValueObject = dictionaryKaz.ContainsKey(3) ? dictionaryKaz[3] : "";
+                    report.Dictionary.Variables["productSeriesId"].ValueObject = serieId;
+                }
+                else
                 {
                     if (expDocument.ExpApplication == false)
                     {
@@ -321,8 +386,20 @@ namespace PW.Prism.Controllers.OBKExpDocument
                     {
                         report.Load(Server.MapPath("~/Reports/Mrts/OBKExpDocumentPdf.mrt"));
                     }
+
+                    var tail = " согласно приложения КЗП № {" + applicationBlankNumber + "}";
+                    var dictionary = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameRu, 90, 120, 170, expDocument.ExpProductShortNameRu, tail);
+                    report.Dictionary.Variables["ProductNameRu1"].ValueObject = dictionary.ContainsKey(1) ? dictionary[1] : "";
+                    report.Dictionary.Variables["ProductNameRu2"].ValueObject = dictionary.ContainsKey(2) ? dictionary[2] : "";
+                    report.Dictionary.Variables["ProductNameRu3"].ValueObject = dictionary.ContainsKey(3) ? dictionary[3] : "";
+
+                    var tailKaz = " ҚҚҚ № {" + applicationBlankNumber + "} қосымшаға сәйкес";
+                    var dictionaryKaz = ZBKSpaceHelper.BuildName(expDocument.ExpProductNameKz, 60, 120, 160, expDocument.ExpProductShortNameKz, tailKaz);
+                    report.Dictionary.Variables["ProductNameKz1"].ValueObject = dictionaryKaz.ContainsKey(1) ? dictionaryKaz[1] : "";
+                    report.Dictionary.Variables["ProductNameKz2"].ValueObject = dictionaryKaz.ContainsKey(2) ? dictionaryKaz[2] : "";
+                    report.Dictionary.Variables["ProductNameKz3"].ValueObject = dictionaryKaz.ContainsKey(3) ? dictionaryKaz[3] : "";
                 }
-                
+
                 foreach (var data in report.Dictionary.Databases.Items.OfType<StiSqlDatabase>())
                 {
                     data.ConnectionString = UserHelper.GetCnString();
@@ -332,21 +409,14 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
                 report.Dictionary.Variables["StartMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpStartDate);
                 report.Dictionary.Variables["StartMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpStartDate);
+
+                if (expDocument.ExpEndDate != null)
+                {
+                    expDocument.ExpEndDate = ((DateTime)expDocument.ExpEndDate).AddMonths(1);
+                }
+
                 report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
                 report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
-
-                if (CodeConstManager.OBK_SA_SERIAL.Equals(declaration.TypeId.ToString()))
-                {
-                    var reportOp = db.OBK_AssessmentReportOP.FirstOrDefault(o => o.DeclarationId == id);
-                    if (reportOp != null)
-                    {
-                        var opExecutor = db.OBK_AssessmentReportOPExecutors.OrderByDescending(o => o.Date).FirstOrDefault(o => o.ReportId == reportOp.Id);
-                        if (opExecutor != null && opExecutor.Date != null)
-                        {
-                            report.Dictionary.Variables["OpExecutorDate"].ValueObject = ((DateTime)opExecutor.Date).ToString("{0:dd.MM.yyyy}");
-                        }
-                    }
-                }
 
                 report.Dictionary.Variables["addInfo"].ValueObject = assessmentRepo.FormExpAdditionalInfo(declaration);
                 report.Dictionary.Variables["addInfoKz"].ValueObject = assessmentRepo.FormExpAdditionalInfo(declaration, true);
@@ -361,8 +431,8 @@ namespace PW.Prism.Controllers.OBKExpDocument
             report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
             return File(stream, "application/pdf", name);
-        
-}
+
+        }
 
         public ActionResult ExpDocumentExportFileStream(string productSeriesId, Guid id)
         {
@@ -551,7 +621,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
 
             return PartialView(model);
         }
-        
+
         public ActionResult SelectCommissionOP(Guid id)
         {
             return PartialView(id);
@@ -598,10 +668,18 @@ namespace PW.Prism.Controllers.OBKExpDocument
                             series.Id = productSeries.Id;
                             series.Series = productSeries.Series;
                             series.SeriesStartdate = productSeries.SeriesStartdate;
-                            series.SeriesEndDate = productSeries.SeriesEndDate;
+                            DateTime endDate = new DateTime();
+                            var validDate = DateTime.TryParse(productSeries.SeriesEndDate, out endDate);
+                            var endDateString = productSeries.SeriesEndDate;
+                            if (validDate == true)
+                            {
+                                endDate = endDate.AddMonths(1);
+                                endDateString = endDate.ToString("dd.MM.yyyy");
+                            }
+                            series.SeriesEndDate = endDateString;
                             series.SeriesParty = productSeries.SeriesParty;
                             series.SeriesShortNameRu = productSeries.sr_measures.short_name;
-                            series.SeriesNameRu = productSeries.Series + ", годен до " + productSeries.SeriesEndDate +
+                            series.SeriesNameRu = productSeries.Series + ", годен до " + endDateString +
                                                   ", партия " + productSeries.SeriesParty + " " +
                                                   productSeries.SeriesShortNameRu;
 
@@ -624,12 +702,13 @@ namespace PW.Prism.Controllers.OBKExpDocument
                                     : "Не соответствует требованиям";
                                 series.ExpStartDate =
                                     string.Format("{0:dd.MM.yyyy}", obkStageExpDocumentSeries.ExpStartDate);
-                                series.ExpEndDate =
-                                    string.Format("{0:dd.MM.yyyy}", obkStageExpDocumentSeries.ExpEndDate);
+                                series.ExpEndDate = endDateString;
                                 series.ExpReasonNameRu = obkStageExpDocumentSeries.ExpReasonNameRu;
                                 series.ExpReasonNameKz = obkStageExpDocumentSeries.ExpReasonNameKz;
                                 series.ExpProductNameRu = obkStageExpDocumentSeries.ExpProductNameRu;
                                 series.ExpProductNameKz = obkStageExpDocumentSeries.ExpProductNameKz;
+                                series.ExpProductShortNameRu = obkStageExpDocumentSeries.ExpProductShortNameRu;
+                                series.ExpProductShortNameKz = obkStageExpDocumentSeries.ExpProductShortNameKz;
                                 series.ExpNomenclatureRu = obkStageExpDocumentSeries.ExpNomenclatureRu;
                                 series.ExpNomenclatureKz = obkStageExpDocumentSeries.ExpNomenclatureKz;
                                 series.ExpAddInfoRu = assessmentRepo.FormExpAdditionalInfo(declarant);
@@ -775,7 +854,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
         public ActionResult ShowSignBtn(Guid adId)
         {
             var result = expRepo.GetValidShowSignBtn(adId);
-            return Json(new {isSuccess = result }, JsonRequestBehavior.AllowGet);
+            return Json(new { isSuccess = result }, JsonRequestBehavior.AllowGet);
         }
 
         #endregion
