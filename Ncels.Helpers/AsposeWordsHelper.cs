@@ -25,7 +25,7 @@ namespace Ncels.Helpers
         public static void InserQrCodes(this Document document, string placeHolder, string barCodeData)
         {
             Regex regex = new Regex(string.Format("{{{{{0}}}}}", placeHolder), RegexOptions.IgnoreCase);
-            int maxStrLength = 800;
+            int maxStrLength = 100;
             FindMatchedNodes searchResult = new FindMatchedNodes();
             document.Range.Replace(regex, searchResult, false);
             foreach (Node node in searchResult.nodes)
