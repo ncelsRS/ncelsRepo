@@ -7,7 +7,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Aspose.BarCode;
 using Aspose.Words;
-using Aspose.Words.Drawing;
+using Aspose.Words.Drawing;    
+using MessagingToolkit.QRCode.Codec;
+using MessagingToolkit.QRCode.Codec.Data;
 
 namespace Ncels.Helpers
 {
@@ -45,6 +47,12 @@ namespace Ncels.Helpers
                         barCodeBuilder.CodeLocation = CodeLocation.None;
                         barCodeBuilder.GraphicsUnit = GraphicsUnit.Pixel;
                         barCodeBuilder.Margins.Set(0);
+                        
+                        //QRCodeEncoder encoder = new QRCodeEncoder();
+                        //Bitmap qrcode = new Bitmap(encoder.Encode(qrCodeText), 150, 150);
+                        //MemoryStream im = new MemoryStream();
+                        //qrcode.Save(im, ImageFormat.Png);
+                        
                         // Allows to set size for whole picture with barcode inside and Save image on local disk
                         Bitmap bitmap = barCodeBuilder.GetCustomSizeBarCodeImage(new Size(150, 150), false);
                         MemoryStream img = new MemoryStream();
