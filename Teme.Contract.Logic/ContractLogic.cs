@@ -20,5 +20,11 @@ namespace Teme.Contract.Logic
             var instance = await _host.PersistenceStore.GetWorkflowInstance(id);
             return await Task.FromResult(instance.Status.ToString());
         }
+
+        public async Task<string> PublishEvent(string name, string key)
+        {
+            await _host.PublishEvent(name, key, new { id = "id" });
+            return "Event published";
+        }
     }
 }

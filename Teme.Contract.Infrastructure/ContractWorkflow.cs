@@ -6,6 +6,7 @@ namespace Teme.Contract.Infrastructure
 
     public class Data
     {
+        public object Value { get; set; }
         public int Counter { get; set; }
     }
 
@@ -18,7 +19,6 @@ namespace Teme.Contract.Infrastructure
         public void Build(IWorkflowBuilder<Data> builder)
         {
             builder.StartWith<A1Step>()
-                    .Output(data => data.Counter, step => step.Counter)
                 .While(data => data.Counter < 15)
                     .Do(x => x
                         .StartWith<CounterIncrement>()
@@ -27,7 +27,10 @@ namespace Teme.Contract.Infrastructure
                         .Then<CounterPrint>()
                             .Input(step => step.Counter, data => data.Counter)
                             .Output(data => data.Counter, step => step.Counter))
-                .Then<Finish>();
+                .WaitFor("event", data => "key")
+                    .Output(data => data.Value, step => step.EventData)
+                .Then<Finish>()
+                    .Input(step => step.Value, data => data.Value);
         }
     }
 }

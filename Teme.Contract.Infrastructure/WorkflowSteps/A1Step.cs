@@ -7,12 +7,9 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 {
     public class A1Step : StepBody
     {
-        public int Counter { get; set; }
-
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             Log.Information("A1Step");
-            Counter = 0;
             return ExecutionResult.Next();
         }
     }
@@ -50,12 +47,15 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
     public class Finish : StepBodyAsync
     {
+        public object Value { get; set; }
+
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Log.Information("Finish");
             await Task.Run(() =>
             {
-                Log.Information("Job finisht");
+                var id = Value.GetType().GetProperty("id").GetValue(Value).ToString();
+                Log.Information("Job finisht with id: " + id);
             });
             return ExecutionResult.Next();
         }
