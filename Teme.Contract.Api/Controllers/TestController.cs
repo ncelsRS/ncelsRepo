@@ -15,10 +15,16 @@ namespace Teme.Contract.Api.Controllers
             _logic = logic;
         }
 
-        [Route("test")]
+        [Route("start")]
         public async Task<string> Test()
         {
             return await _logic.Test();
+        }
+
+        [Route("publishEvent")]
+        public async Task<string> PublishEvent([FromQuery]string name, [FromQuery] string key)
+        {
+            return await _logic.PublishEvent(name, key);
         }
     }
 }

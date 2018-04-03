@@ -16,20 +16,14 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
     public class CounterIncrement : StepBodyAsync
     {
-        public int InputCounter { get; set; }
-        public int OutputCounter { get; set; }
-
-        public CounterIncrement(int? InputCounter)
-        {
-            this.InputCounter = InputCounter ?? 0;
-        }
+        public int Counter { get; set; }
 
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Log.Information("CounterIncrement");
             await Task.Run(() =>
             {
-                OutputCounter = ++InputCounter;
+                Counter++;
             });
             return ExecutionResult.Next();
         }
@@ -37,21 +31,15 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
     public class CounterPrint : StepBodyAsync
     {
-        public int InputCounter { get; set; }
-        public int OutputCounter { get; set; }
-
-        public CounterPrint(int? InputCounter)
-        {
-            this.InputCounter = InputCounter ?? 0;
-        }
+        public int Counter { get; set; }
 
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Log.Information("CounterPrint");
             await Task.Run(() =>
             {
-                Log.Information($"Counter value is: {InputCounter}");
-                OutputCounter = InputCounter;
+                Log.Information($"Counter value is: {Counter}");
+                Counter = Counter;
             });
             return ExecutionResult.Next();
         }
@@ -59,12 +47,15 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
     public class Finish : StepBodyAsync
     {
+        public object Value { get; set; }
+
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Log.Information("Finish");
             await Task.Run(() =>
             {
-                Log.Information("Job finisht");
+                var id = Value.GetType().GetProperty("id").GetValue(Value).ToString();
+                Log.Information("Job finisht with id: " + id);
             });
             return ExecutionResult.Next();
         }
