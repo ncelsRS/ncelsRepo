@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,11 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Serilog;
+using System;
 using Teme.Contract.Api.Startups;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.WorkflowSteps;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
 
@@ -68,7 +63,7 @@ namespace Teme.Contract.Api
 
             // Start the Workflow instance
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            host.RegisterWorkflow<ContractWorkflow, int>();
+            host.RegisterWorkflow<ContractWorkflow, Infrastructure.Data>();
             host.Start();
 
             app.UseMvc();
