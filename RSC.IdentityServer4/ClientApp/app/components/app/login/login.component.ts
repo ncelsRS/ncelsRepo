@@ -13,7 +13,9 @@ export class LoginComponent {
 
     login: Login = new Login();
 
-    returnUrl: string;
+    //returnUrl: string;
+
+    returnUrl = "./bekbol/test";
 
     res: any;
 
