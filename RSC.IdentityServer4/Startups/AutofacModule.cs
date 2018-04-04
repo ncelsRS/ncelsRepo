@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using RSC.Core.EmailServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace RSC.IdentityServer4.Startups
             builder.RegisterAssemblyTypes(assembly)
                    .Where(t => t.Name.EndsWith("Repo"))
                    .AsImplementedInterfaces();
+
+            builder.RegisterType<EmailSender>().AsSelf().InstancePerDependency();
         }
     }
 }
