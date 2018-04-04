@@ -54,8 +54,7 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
             Log.Information("Finish");
             await Task.Run(() =>
             {
-                var id = Value.GetType().GetProperty("id").GetValue(Value).ToString();
-                Log.Information("Job finisht with id: " + id);
+                Log.Information("Job finisht");
             });
             return ExecutionResult.Next();
         }
