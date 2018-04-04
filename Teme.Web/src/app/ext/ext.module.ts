@@ -5,17 +5,20 @@ import {routing} from './ext.routing';
 import { TestComponent } from './ext-layout/test/test.component';
 import { ExtUpHeaderComponent } from './ext-layout/ext-up-header/ext-up-header.component';
 import { ExpMenuComponent } from './ext-layout/exp-menu/exp-menu.component';
+import { ExtLayoutBodyComponent } from './ext-layout/ext-layout-body/ext-layout-body.component';
+import { ExtLayoutFooterComponent} from './ext-layout/ext-layout-footer/ext-layout-footer.component';
 
 @NgModule({
   imports: [
     CommonModule,
     routing
   ],
-  declarations: [ExtLayoutComponent, TestComponent, ExtUpHeaderComponent, ExpMenuComponent],
-  exports: [
-    ExtLayoutComponent, ExtUpHeaderComponent
+  declarations: [ExtLayoutComponent, TestComponent, ExtUpHeaderComponent, ExpMenuComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent
   ],
-  bootstrap: [ExtLayoutComponent, ExtUpHeaderComponent]
+  exports: [
+    ExtLayoutComponent, ExtUpHeaderComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent
+  ],
+  bootstrap: [ExtLayoutComponent, ExtUpHeaderComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent]
 })
 export class ExtModule {
 }

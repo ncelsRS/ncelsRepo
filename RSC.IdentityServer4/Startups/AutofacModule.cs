@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace RSC.IdentityServer4.Startups
 {
@@ -15,6 +14,15 @@ namespace RSC.IdentityServer4.Startups
             var assembly = Assembly.Load(new AssemblyName("Teme.Shared.Data"));
             builder.RegisterAssemblyTypes(assembly)
                    .Where(t => t.Name.EndsWith("Repo"))
+                   .AsImplementedInterfaces();
+            assembly = Assembly.Load(new AssemblyName("Teme.Identity.Data"));
+            builder.RegisterAssemblyTypes(assembly)
+                   .Where(t => t.Name.EndsWith("Repo"))
+                   .AsImplementedInterfaces();
+
+            assembly = Assembly.Load(new AssemblyName("Teme.Identity.Logic"));
+            builder.RegisterAssemblyTypes(assembly)
+                   .Where(t => t.Name.EndsWith("Logic"))
                    .AsImplementedInterfaces();
 
             builder.RegisterType<EmailSender>().AsSelf().InstancePerDependency();

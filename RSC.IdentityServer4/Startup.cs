@@ -76,6 +76,7 @@ namespace RSC.IdentityServer4
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            // the interceptor example
             app.Use((http, next) =>
                     {
                         return next();
