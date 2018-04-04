@@ -53,6 +53,7 @@ namespace RSC.IdentityServer4
             var containerBuilder = new Autofac.ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.Populate(services);
+            containerBuilder.RegisterInstance(Configuration);
             var container = containerBuilder.Build();
             return new AutofacServiceProvider(container);
         }
