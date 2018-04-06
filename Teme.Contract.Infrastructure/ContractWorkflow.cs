@@ -1,4 +1,5 @@
-﻿using Teme.Contract.Infrastructure.WorkflowSteps;
+﻿using Serilog;
+using Teme.Contract.Infrastructure.WorkflowSteps;
 using WorkflowCore.Interface;
 
 namespace Teme.Contract.Infrastructure
@@ -28,9 +29,14 @@ namespace Teme.Contract.Infrastructure
                             .Input(step => step.Counter, data => data.Counter)
                             .Output(data => data.Counter, step => step.Counter))
                 .WaitFor("event", data => "key")
-                    .Output(data => data.Value, step => step.EventData)
-                .Then<Finish>()
-                    .Input(step => step.Value, data => data.Value);
+                .UserTask("Do you apptove", data => "user")
+                    .WithOption("yes", "I approve").Do(then => then
+                        .StartWith(context => Log.Information("You approved"))
+                    )
+                    .WithOption("no", "I do not approve").Do(then => then
+                        .StartWith(context => Log.Information("You did not approve"))
+                    )
+                .Then<Finish>();
         }
     }
 }
