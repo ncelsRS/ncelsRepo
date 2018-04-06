@@ -63,7 +63,7 @@ namespace Teme.Contract.Api
 
             // Start the Workflow instance
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            host.RegisterWorkflow<ContractWorkflow, Infrastructure.Data>();
+            host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
             host.Start();
 
             app.UseMvc();

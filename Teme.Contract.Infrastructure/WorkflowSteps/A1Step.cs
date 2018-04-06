@@ -5,58 +5,48 @@ using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure.WorkflowSteps
 {
-    public class A1Step : StepBody
+    public abstract class BaseContractStep : StepBody
+    {
+        public string AwaiterKey { get; set; }
+    }
+
+    public abstract class BaseContractStepAsync : StepBodyAsync
+    {
+        public string AwaiterKey { get; set; }
+    }
+
+    public class SetWorkflowId : BaseContractStep
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Information("A1Step");
+            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
-    public class CounterIncrement : StepBodyAsync
+    public class SendWithoutSign : BaseContractStep
     {
-        public int Counter { get; set; }
+        public bool IsSignedByDeclarant { get; set; }
 
-        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+        public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Information("CounterIncrement");
-            await Task.Run(() =>
-            {
-                Counter++;
-            });
+            IsSignedByDeclarant = false;
+            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
-    public class CounterPrint : StepBodyAsync
+    public class SendWithSign : BaseContractStep
     {
-        public int Counter { get; set; }
+        public bool IsSignedByDeclarant { get; set; }
 
-        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+        public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Information("CounterPrint");
-            await Task.Run(() =>
-            {
-                Log.Information($"Counter value is: {Counter}");
-                Counter = Counter;
-            });
+            IsSignedByDeclarant = true;
+            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
-    public class Finish : StepBodyAsync
-    {
-        public object Value { get; set; }
-
-        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
-        {
-            Log.Information("Finish");
-            await Task.Run(() =>
-            {
-                Log.Information("Job finisht");
-            });
-            return ExecutionResult.Next();
-        }
-    }
+    
 }

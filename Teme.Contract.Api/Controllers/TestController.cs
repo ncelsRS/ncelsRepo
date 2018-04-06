@@ -19,9 +19,9 @@ namespace Teme.Contract.Api.Controllers
         }
 
         [Route("start")]
-        public async Task<string> Test()
+        public async Task<string> Start()
         {
-            return await _logic.Test();
+            return await _logic.StartWorkflow();
         }
 
         [Route("publishEvent")]
