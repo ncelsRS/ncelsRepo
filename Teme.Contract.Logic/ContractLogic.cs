@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Teme.Contract.Infrastructure;
 using WorkflowCore.Interface;
 
 namespace Teme.Contract.Logic
