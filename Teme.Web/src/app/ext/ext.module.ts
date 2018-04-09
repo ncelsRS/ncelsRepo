@@ -7,13 +7,14 @@ import { ExtUpHeaderComponent } from './ext-layout/ext-up-header/ext-up-header.c
 import { ExpMenuComponent } from './ext-layout/exp-menu/exp-menu.component';
 import { ExtLayoutBodyComponent } from './ext-layout/ext-layout-body/ext-layout-body.component';
 import { ExtLayoutFooterComponent} from './ext-layout/ext-layout-footer/ext-layout-footer.component';
+import { ContExpImnMtRkComponent } from './ext-layout/cont-exp-imn-mt-rk/cont-exp-imn-mt-rk.component';
 
 @NgModule({
   imports: [
     CommonModule,
     routing
   ],
-  declarations: [ExtLayoutComponent, TestComponent, ExtUpHeaderComponent, ExpMenuComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent
+  declarations: [ExtLayoutComponent, TestComponent, ExtUpHeaderComponent, ExpMenuComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent, ContExpImnMtRkComponent
   ],
   exports: [
     ExtLayoutComponent, ExtUpHeaderComponent, ExtLayoutBodyComponent, ExtLayoutFooterComponent
