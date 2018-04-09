@@ -17,7 +17,7 @@ namespace Teme.Contract.Infrastructure
             return tcs.Task;
         }
 
-        public static void ReleaseTask(string key, string result)
+        public static void ReleaseTask(string key, string result = null)
         {
             if (!_source.TryRemove(key, out TaskCompletionSource<string> tcs))
                 throw new Exception($"TaskCompletionService: key {key} not exists");
