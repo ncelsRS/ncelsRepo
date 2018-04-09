@@ -19,6 +19,7 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information($"SetWorkflowId: {context.Workflow.Id}");
             TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
@@ -30,8 +31,8 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information($"SendWithoutSign");
             IsSignedByDeclarant = false;
-            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
@@ -42,6 +43,7 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information($"SendWithSign");
             IsSignedByDeclarant = true;
             TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();

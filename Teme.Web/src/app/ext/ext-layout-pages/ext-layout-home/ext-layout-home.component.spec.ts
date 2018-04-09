@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExtLayoutBodyComponent } from './ext-layout-body.component';
+import { ExtLayoutHomeComponent } from './ext-layout-home.component';
 
 describe('ExtLayoutBodyComponent', () => {
-  let component: ExtLayoutBodyComponent;
-  let fixture: ComponentFixture<ExtLayoutBodyComponent>;
+  let component: ExtLayoutHomeComponent;
+  let fixture: ComponentFixture<ExtLayoutHomeComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ExtLayoutBodyComponent ]
+      declarations: [ ExtLayoutHomeComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ExtLayoutBodyComponent);
+    fixture = TestBed.createComponent(ExtLayoutHomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
