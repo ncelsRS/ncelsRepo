@@ -13,7 +13,9 @@ export class LoginComponent {
 
     login: Login = new Login();
 
-    returnUrl: string;
+    //returnUrl: string;
+
+    returnUrl = "./bekbol/test";
 
     res: any;
 
@@ -29,8 +31,8 @@ export class LoginComponent {
         this.login.client_secret = clientSecret || this.login.client_secret;
     }
 
-    onSubmit() {
-        this.res = this.loginSvc.post(this.login, new URL(this.returnUrl));
+    onSubmit(loginForm: any) {
+        //this.res = this.loginSvc.post(this.login, new URL(this.returnUrl));
     }
 
 }

@@ -53,6 +53,7 @@ namespace RSC.IdentityServer4
             var containerBuilder = new Autofac.ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.Populate(services);
+            containerBuilder.RegisterInstance(Configuration);
             var container = containerBuilder.Build();
             return new AutofacServiceProvider(container);
         }
@@ -75,6 +76,7 @@ namespace RSC.IdentityServer4
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            // the interceptor example
             app.Use((http, next) =>
                     {
                         return next();
