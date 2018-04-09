@@ -14,6 +14,11 @@ export const routes: Routes = [
       {
         path: '',
         component: ExtLayoutHomeComponent
+      },
+      {
+        path: 'contracts',
+        data: {title: 'contracts'},
+        loadChildren: './ext-contract/ext-contract.module#ExtContractModule'
       }
     ]
   }

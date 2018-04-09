@@ -10,7 +10,7 @@ import {ExtLayoutHomeComponent} from './ext-layout-pages/ext-layout-home/ext-lay
 @NgModule({
   imports: [
     CommonModule,
-    routing
+    routing,
   ],
   declarations: [
     ExtLayoutComponent,
