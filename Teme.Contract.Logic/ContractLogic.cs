@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
 using WorkflowCore.Interface;
@@ -17,10 +17,16 @@ namespace Teme.Contract.Logic
             _host = host;
         }
 
-        public async Task<string> Test()
+        public async Task<string> StartWorkflow()
         {
-            var id = await _host.StartWorkflow("Contract");
-            return await Task.FromResult(id);
+            var key = Guid.NewGuid().ToString();
+            var awaiter = TaskCompletionService.AddTask(key);
+            await _host.StartWorkflow("Contract", new ContractWorkflowTransitionData {
+                AwaiterKey = key,
+                ExecutorId = "declarantId",
+                ContractType = 0
+            });
+            return await awaiter;
         }
 
         public async Task<string> PublishEvent(string name, string key, object data = null)
@@ -31,7 +37,8 @@ namespace Teme.Contract.Logic
 
         public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId)
         {
-            return await Task.Run(() => _host.GetOpenUserActions(workflowId));
+            var workflow = await _host.PersistenceStore.GetWorkflowInstance(workflowId);
+            return _host.GetOpenUserActions(workflowId);
         }
 
         public async Task<string> PublishUserAction(string key, string username, string chosenValue)
