@@ -15,11 +15,18 @@ namespace Teme.Shared.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Bin = table.Column<string>(nullable: true),
+                    CompanyName = table.Column<string>(nullable: true),
                     DateCreate = table.Column<DateTime>(nullable: false),
                     DateUpdate = table.Column<DateTime>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    UserName = table.Column<string>(nullable: true)
+                    Email = table.Column<string>(nullable: false),
+                    FirstName = table.Column<string>(nullable: false),
+                    HasIin = table.Column<bool>(nullable: true),
+                    Iin = table.Column<string>(nullable: false),
+                    LastName = table.Column<string>(nullable: false),
+                    MiddleName = table.Column<string>(nullable: true),
+                    Pwdhash = table.Column<string>(nullable: false),
+                    UserType = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

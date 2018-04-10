@@ -11,7 +11,7 @@ using Teme.Shared.Data.Context;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    [Migration("20180330115754_migrate")]
+    [Migration("20180405102223_migrate")]
     partial class migrate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,15 +26,34 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Bin");
+
+                    b.Property<string>("CompanyName");
+
                     b.Property<DateTime>("DateCreate");
 
                     b.Property<DateTime>("DateUpdate");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Email")
+                        .IsRequired();
 
-                    b.Property<string>("PasswordHash");
+                    b.Property<string>("FirstName")
+                        .IsRequired();
 
-                    b.Property<string>("UserName");
+                    b.Property<bool?>("HasIin");
+
+                    b.Property<string>("Iin")
+                        .IsRequired();
+
+                    b.Property<string>("LastName")
+                        .IsRequired();
+
+                    b.Property<string>("MiddleName");
+
+                    b.Property<string>("Pwdhash")
+                        .IsRequired();
+
+                    b.Property<string>("UserType");
 
                     b.HasKey("Id");
 
