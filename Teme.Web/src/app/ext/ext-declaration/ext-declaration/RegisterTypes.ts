@@ -1,7 +1,4 @@
-export class RegisterType {
-    name: string;
-    code: string;
-}
+import { RegisterType } from './RegisterType';
 
 export const REGISTER_TYPES: RegisterType[] = [
     { name: 'Регистрация', code: 'Registration' },

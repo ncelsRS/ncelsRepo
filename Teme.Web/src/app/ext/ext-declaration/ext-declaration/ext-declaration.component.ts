@@ -1,21 +1,29 @@
 import { Component, OnInit } from '@angular/core';
+import { REGISTER_TYPES } from './RegisterTypes';
+import { RegisterType } from './RegisterType';
+
 
 @Component({
-  selector: 'app-ext-declaration',
-  templateUrl: './ext-declaration.component.html',
-  styleUrls: ['./ext-declaration.component.css']
+    selector: 'app-ext-declaration',
+    templateUrl: './ext-declaration.component.html',
+    styleUrls: ['./ext-declaration.component.css']
 })
+
 export class ExtDeclarationComponent implements OnInit {
-  type: string;
-  constructor() {
-    this.type = 'general';
-  }
+    RegisterTypes: RegisterType[];
+    type: string;
+    heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
 
-  setDeclarationTab(name: string) {
-    this.type = name;
-  }
+    constructor() {
+        this.type = 'general';
+        this.RegisterTypes = REGISTER_TYPES;
+    }
 
-  ngOnInit() {
-  }
+    setDeclarationTab(name: string) {
+        this.type = name;
+    }
+
+    ngOnInit() {
+    }
 
 }
