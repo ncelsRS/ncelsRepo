@@ -1,0 +1,133 @@
+<div class="row pl-3 pr-3 mail-container">  
+    <div class="col-md-4 bg-white p-1">
+        <div class="form-group mb-0 pt-1 pb-1">
+            <div class="input-group">
+                <span class="input-group-prepend">
+                    <span class="input-group-text bg-transparent border-0"><i class="fa fa-search ml-2 mr-1"></i></span>
+                </span>
+                <input class="form-control border-0" type="text" [(ngModel)]="searchText" placeholder="Search mail...">
+                <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle no-caret bg-transparent border-0 box-shadow-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right box-shadow rounded-0">
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="type = 'all';getMails();">All</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="type = 'starred';getMails();">Starred</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="type = 'sent';getMails();">Sent</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="type = 'drafts';getMails();">Drafts</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="type = 'trash';getMails();">Trash</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mail-list" perfectScrollbar>          
+            <div *ngFor="let mail of mails | MailSearch : searchText" class="mail-list-item pb-2 pt-2 pl-1 pr-2 transititon" (click)="viewDetail(mail)" [ngClass]="{'unread': mail.unread, 'selected': mail.selected}">
+                  <div class="media">
+                      <img *ngIf="mail.senderPhoto" class="d-flex mr-3 w-50p" src="{{ mail.senderPhoto }}">
+                      <img *ngIf="!mail.senderPhoto"class="d-flex mr-3 w-50p" src="assets/img/users/default-user.jpg">
+                      <div class="media-body overflow-hidden">
+                          <div class="d-flex justify-content-between">
+                            <h6 class="text-truncate mail-sender">{{mail.sender}}</h6>                  
+                            <small class="mail-date">{{mail.date}}</small>  
+                          </div>
+                           <p class="mail-subject mb-0 text-truncate">{{mail.subject}}</p>
+                      </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 bg-white mail-view-container">        
+        <div class="d-flex">
+            <div class="mail-view-icons pt-2 pb-2">              
+                <button class="btn btn-secondary rounded-0" (click)="compose()"><i class="fa fa-plus"></i></button>
+                <button *ngIf="mail && type !='trash'" class="btn btn-secondary rounded-0"><i class="fa fa-reply" aria-hidden="true"></i></button>
+                <button *ngIf="newMail" class="btn btn-secondary rounded-0" (click)="newMail = false;"><i class="fa fa-arrow-left"></i></button>
+                <button *ngIf="mail && type !='trash'" class="btn btn-secondary rounded-0" (click)="changeStarStatus()"><i class="fa" [ngClass]="{'fa-star': mail.starred, 'fa-star-o': !mail.starred}"></i></button>
+                <button *ngIf="mail && type=='trash'" class="btn btn-secondary rounded-0" (click)="restore()"><i class="fa fa-undo"></i></button>
+                <button *ngIf="mail" class="btn btn-secondary rounded-0"><i class="fa fa-exclamation-circle"></i></button>
+                <button *ngIf="mail && type !='trash'" class="btn btn-secondary rounded-0" (click)="delete()"><i class="fa fa-trash"></i></button>
+                <button class="btn btn-secondary rounded-0"><i class="fa fa-refresh"></i></button>
+                <div *ngIf="mail" class="btn-group d-inline-block">
+                    <button class="btn btn-secondary dropdown-toggle rounded-0" id="dropdownMenuLink" data-toggle="dropdown" type="button" aria-expanded="false" aria-haspopup="true" >
+                            More
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right box-shadow rounded-0" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="setAsRead()">Mark as read</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="setAsUnRead()">Mark as unread</a>
+                        <a class="dropdown-item" href="javascript:void(0);" (click)="delete()">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mail-view pr-2" perfectScrollbar>
+
+            <div *ngIf="mail" class="mail-content">
+                <div class="d-flex justify-content-between pt-3">
+                    <h4 class="pull-left">{{mail.subject}}</h4>
+                    <a href="javascript:void(0);" class="pull-right"><i class="fa fa-print text-gray"></i></a>
+                </div>
+                <hr/>
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <img *ngIf="mail.senderPhoto" class="d-flex mr-3 w-50p" src="{{ mail.senderPhoto }}">
+                        <img *ngIf="!mail.senderPhoto"class="d-flex mr-3 w-50p" src="assets/img/users/default-user.jpg">
+                        <div>
+                            <strong>{{mail.sender}}</strong>
+                            <span *ngIf="mail.senderMail" class="email">&lt;{{mail.senderMail}}&gt;</span><br>
+                            <span class="receiver">to me</span>
+                        </div>
+                    </div>
+                    <span class="mail-date">{{mail.date}} </span>
+                </div>
+                <div [innerHTML]="mail.body"></div>
+                <div class="mail-attachments" *ngIf="mail.attachments.length > 0">
+                    <hr/>
+                    <p>
+                        <strong>{{mail.attachments.length}} attachments</strong> &nbsp;-&nbsp; 
+                        <a href="javascript:void(0);">Download all attachments</a>&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:void(0);">View all Images</a>
+                    </p>
+                    <section *ngFor="let attachment of mail.attachments; let i = index" class="attachment">
+                        <img src="{{attachment}}" alt="">
+                        <h5 class="title">image-{{i + 1}}.jpg</h5>
+                        <p>
+                            457K  &nbsp;&nbsp;
+                            <a href="javascript:void(0);">View</a> &nbsp;&nbsp;
+                            <a href="javascript:void(0);">Download</a>
+                        </p>
+                    </section>
+                </div>             
+
+            </div>
+
+            <div *ngIf="!mail && !newMail" class="d-flex flex-column align-items-center justify-content-center h-100 empty">
+                <i class="fa fa-envelope-o" aria-hidden="true"></i>             
+                <p class="text-gray">Select an item to read</p>
+            </div> 
+             
+            <form *ngIf="newMail" method="get" action="#" class="pt-4">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="To">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Cc / Bcc">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Subject">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" placeholder="Message" rows="10"></textarea>
+                </div>
+                <div class="form-group pull-right">
+                    <a (click)="newMail = false;" href="javascript:void(0)" class="btn btn-secondary">Cancel</a>
+                    <button class="btn btn-main" type="submit">Send</button>            
+                </div>
+            </form>              
+        
+        </div>
+    </div>
+</div>
+

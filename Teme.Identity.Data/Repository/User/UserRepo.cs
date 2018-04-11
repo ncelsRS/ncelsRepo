@@ -13,19 +13,17 @@ namespace Teme.Identity.Data.Repository.User
         {
             this._context = new TemeContext();
         }
-        public async void AddUser(long id)
+        public async void AddUser(AuthUser authUser)
         {
-            throw new NotImplementedException();
+            _context.AuthUsers.Add(authUser);
+            await _context.SaveChangesAsync();
         }
 
-        //public void Dispose()
-        //{
-        //    if (_context != null)
-        //        _context.Dispose();
-        //}
+
+
+
 
         private bool disposed = false;
-
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Teme.Shared.Data.Context
@@ -11,10 +12,10 @@ namespace Teme.Shared.Data.Context
         [Key]
         public int Id { get; set; }
         //Дата создания записи
-        [Required]
+        [Column(Order = 101)]
         public DateTime DateCreate { get; set; } = DateTime.Now;
         //Дата изменеия заиписи
-        [Required]
+        [Column(Order = 102)]
         public DateTime DateUpdate { get; set; } = DateTime.Now;
     }
 }
