@@ -1,0 +1,54 @@
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-md-8 col-10">
+        <div class="card border-0 box-shadow rounded-0">          
+            <div class="card-body pt-0">
+                <form [formGroup]="form" (ngSubmit)="onSubmit(form.value)" class="text-left mt-4">
+                    <div class="form-group">
+                        <label>Menu title</label>
+                        <input formControlName="title" class="form-control validation-field" type="text">                      
+                        <small class="text-danger" *ngIf="form.get('title').touched && form.get('title').hasError('required')">Menu title is required</small>                              
+                        <small class="text-danger" *ngIf="form.get('title').touched && form.get('title').hasError('minlength')">Menu title isn't long enough, minimum of 3 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <select class="form-control fa-select" formControlName="icon">
+                          <option [selected]="form.controls.icon.value == null" value="">-- Select Icon --</option>
+                          <option *ngFor="let icon of icons" [selected]="icon.name == icon" [value]="icon.name"><span [innerHTML]="icon.unicode"></span> {{icon.name}}</option>
+                        </select>
+                    </div> 
+                    <div class="form-group">
+                        <label>RouterLink</label>
+                        <input formControlName="routerLink" class="form-control validation-field" type="text" placement="right" [ngbTooltip]="'e.g. /pages/dashboard'">                       
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input formControlName="hasSubMenu" type="checkbox" class="custom-control-input checkbox-dark-gray" id="checkboxHasSubMenu">
+                            <label class="custom-control-label" for="checkboxHasSubMenu">Has sub menu</label>
+                        </div>                      
+                    </div>
+                    <div class="form-group">
+                        <label>Href</label>
+                        <input formControlName="href" class="form-control validation-field" type="text" placement="right" [ngbTooltip]="'e.g. http://themeseason.com'">                       
+                    </div>                     
+                    <div class="form-group">
+                        <label>Target:</label>
+                        <label *ngFor="let target of targets; let i = index;" class="custom-control custom-radio custom-control-inline">
+                            <input [attr.id]="'target-'+i" formControlName="target" type="radio" name="targets" class="custom-control-input radio-dark-gray" [value]="target">
+                            <label [attr.for]="'target-'+i" class="custom-control-label">{{target}}</label>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Parent menu</label>
+                        <select class="form-control" formControlName="parentId">
+                          <option [selected]="form.controls.parentId.value == 0" value="0">-- Select Parent Menu --</option>
+                          <option *ngFor="let item of menuItems" [selected]="item.id == parentId" [value]="item.id">{{item.title}}</option>
+                        </select>
+                    </div> 
+                    <div class="form-group text-center mb-0">
+                        <button [disabled]="!form.valid" class="btn btn-success" type="submit"><i class="fa fa-plus mr-2"></i>Add New Menu</button>
+                    </div>
+                </form>
+            </div>        
+        </div>
+    </div>
+</div>

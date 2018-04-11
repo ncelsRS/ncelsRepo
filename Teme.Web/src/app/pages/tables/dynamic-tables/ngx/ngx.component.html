@@ -1,0 +1,71 @@
+<h2>Ngx datatable</h2>
+<p class="text-muted">Editable, filterable and sortable table made with <a href="https://github.com/swimlane/ngx-datatable" target="_blank" class="font-weight-bold transition">ngx-datatable</a>.</p>
+
+<div class="input-group mb-2">
+    <span class="input-group-prepend"><span class="input-group-text"><i class="fa fa-search"></i></span></span>
+    <input class="form-control" type="text" placeholder="Type to filter the name column..." (keyup)="updateFilter($event)"/>
+</div>
+
+<ngx-datatable
+    #table
+    class="material"
+    [headerHeight]="40"
+    [limit]="10"
+    [columnMode]="'force'"
+    [footerHeight]="50"
+    [rowHeight]="'auto'"
+    [rows]="rows"
+    [loadingIndicator]="loadingIndicator"
+    [selected]="selected"
+    [selectionType]="'checkbox'"
+    (activate)="onActivate($event)"
+    (select)='onSelect($event)'>
+    <ngx-datatable-column
+        [width]="30"
+        [sortable]="false"
+        [canAutoResize]="false"
+        [draggable]="true"
+        [resizeable]="false"
+        [headerCheckboxable]="true"
+        [checkboxable]="true">
+      </ngx-datatable-column>
+    <ngx-datatable-column name="Name">
+      <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+        <span
+          title="Double click to edit"
+          (dblclick)="editing[row.$$index + '-name'] = true"
+          *ngIf="!editing[row.$$index + '-name']">
+          {{value}}
+        </span>
+        <input
+          autofocus
+          (blur)="updateValue($event, 'name', value, row)"
+          *ngIf="editing[row.$$index + '-name']"
+          type="text"
+          [value]="value"
+        />
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Gender">
+      <ng-template ngx-datatable-cell-template let-row="row" let-value="value">
+        <span
+          title="Double click to edit"
+          (dblclick)="editing[row.$$index + '-gender'] = true"
+          *ngIf="!editing[row.$$index + '-gender']">
+          {{value}}
+        </span>
+        <select
+          *ngIf="editing[row.$$index + '-gender']"
+          (change)="updateValue($event, 'gender', value, row)"
+          [value]="value">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Company">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{value}}
+      </ng-template>
+    </ngx-datatable-column>
+</ngx-datatable>   
