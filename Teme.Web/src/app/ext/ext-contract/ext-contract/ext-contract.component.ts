@@ -7,12 +7,15 @@ import {ActivatedRoute} from '@angular/router';
   styleUrls: ['./ext-contract.component.css']
 })
 export class ExtContractComponent implements OnInit {
-
+  type: string;
   public id: string;
 
   constructor(private route: ActivatedRoute) {
   }
 
+  setDeclarationTab(name: string) {
+    this.type = name;
+  }
   ngOnInit() {
     this.route.params
       .subscribe(params => {
