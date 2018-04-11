@@ -14,6 +14,7 @@ import { ExtImnSetComponent } from './ext-declaration/ext-imn-set/ext-imn-set.co
 import { FormsModule } from '@angular/forms';
 import { ExtProducerComponent } from './ext-declaration/ext-producer/ext-producer.component';
 import { ExtAgreementComponent } from './ext-declaration/ext-agreement/ext-agreement.component';
+import { TestComponent } from './ext-declaration/test/test.component';
 var ExtDeclarationModule = (function () {
     function ExtDeclarationModule() {
     }
@@ -30,7 +31,8 @@ var ExtDeclarationModule = (function () {
                 ExtGeneralInformationComponent,
                 ExtImnSetComponent,
                 ExtProducerComponent,
-                ExtAgreementComponent
+                ExtAgreementComponent,
+                TestComponent
             ]
         })
     ], ExtDeclarationModule);

@@ -5,11 +5,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { AgmCoreModule } from '@agm/core';
+import { CalendarModule } from 'angular-calendar';
+import { routing } from './app.routing';
+import { AppSettings } from './app.settings';
 import { AppComponent } from './app.component';
-import { routing } from './app-routing.module';
-import { HomeComponent } from './home/home.component';
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 var AppModule = (function () {
     function AppModule() {
     }
@@ -17,14 +19,18 @@ var AppModule = (function () {
         NgModule({
             declarations: [
                 AppComponent,
-                HomeComponent
+                NotFoundComponent
             ],
             imports: [
                 BrowserModule,
                 BrowserAnimationsModule,
+                AgmCoreModule.forRoot({
+                    apiKey: 'AIzaSyDe_oVpi9eRSN99G4o6TwVjJbFBNr58NxE'
+                }),
+                CalendarModule.forRoot(),
                 routing
             ],
-            providers: [],
+            providers: [AppSettings],
             bootstrap: [AppComponent]
         })
     ], AppModule);

@@ -13,6 +13,9 @@ var ExtContractComponent = (function () {
     function ExtContractComponent(route) {
         this.route = route;
     }
+    ExtContractComponent.prototype.setDeclarationTab = function (name) {
+        this.type = name;
+    };
     ExtContractComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.route.params
