@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Teme.Contract.Infrastructure.WorkflowSteps;
@@ -11,7 +12,18 @@ namespace Teme.Contract.Infrastructure.ContractCoz.Steps
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            throw new NotImplementedException();
+            Log.Information("BossCoz " + ContractType);
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class SendContractToCozExecutor : BaseContractStep
+    {
+        public string ExecutorId { get; set; }
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("BossCoz");
+            return ExecutionResult.Next();
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
     public abstract class BaseContractStep : StepBody
     {
         public string AwaiterKey { get; set; }
+        public int ContractType { get; set; }
     }
 
     public abstract class BaseContractStepAsync : StepBodyAsync
@@ -19,6 +20,7 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information("SetWorkflowId");
             TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
@@ -30,8 +32,12 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information("SendWithoutSign");
+            Log.Information("AwaiterKey " + AwaiterKey);
+            Log.Information("ContractType " + ContractType);
+
             IsSignedByDeclarant = false;
-            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
+            //TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
@@ -42,8 +48,9 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Log.Information("SendWithSign");
             IsSignedByDeclarant = true;
-            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
+            //TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }

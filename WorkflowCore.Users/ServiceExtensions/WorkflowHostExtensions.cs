@@ -20,7 +20,6 @@ namespace WorkflowCore.Interface
                 User = user,
                 OutcomeValue = value
             };
-
             await host.PublishEvent(UserTask.EventName, actionKey, data);
         }
 

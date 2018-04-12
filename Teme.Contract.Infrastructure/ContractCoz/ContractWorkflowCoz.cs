@@ -1,4 +1,6 @@
-﻿using WorkflowCore.Interface;
+﻿using Teme.Contract.Infrastructure.ContractCoz.Steps;
+using WorkflowCore.Interface;
+using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure.ContractCoz
 {
@@ -6,7 +8,25 @@ namespace Teme.Contract.Infrastructure.ContractCoz
     {
         public static IWorkflowBuilder<ContractWorkflowTransitionData> ContractCoz(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
-            return null;
+            builder
+                .StartWith<BossCoz>()
+                    .Input(step => step.AwaiterKey, data => data.AwaiterKey)
+                    .Input(step => step.ContractType, data => data.ContractType)
+                // Назначение Юристконсульта
+                .UserTask("SendContractToLegalAdviser", data => data.ExecutorId)
+                    .WithOption("sendToCozExecutor", "").Do(then => then
+                        .StartWith<SendContractToCozExecutor>()
+                            .Input(step => step.ExecutorId, data => data.ExecutorId)
+                    )
+                // Дествия юристконсульта
+                .UserTask("LegalAdviserEvents", data => data.ExecutorId)
+                    .WithOption("", "").Do(x => x
+                        .StartWith<SendContractToCozExecutor>()
+                        )
+                    .WithOption("", "").Do(x => x
+                        .StartWith<SendContractToCozExecutor>()
+                        );
+            return builder;
         }
     }
 }
