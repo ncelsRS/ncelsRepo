@@ -10,29 +10,25 @@ namespace Teme.Contract.Logic
 {
     public class ContractLogic
     {
-        private readonly IWorkflowHost _host;
+        private readonly ContractWorkflowLogic _wflogic;
 
-        public ContractLogic(IWorkflowHost host)
+        public ContractLogic(ContractWorkflowLogic wflogic)
         {
-            _host = host;
+            _wflogic = wflogic;
         }
 
         public async Task<string> StartWorkflow()
         {
-            var key = Guid.NewGuid().ToString();
-            var awaiter = TaskCompletionService.AddTask(key);
-            await _host.StartWorkflow("Contract", new ContractWorkflowTransitionData {
-                AwaiterKey = key,
+            var id = await _wflogic.Start(new ContractWorkflowTransitionData {
                 ExecutorId = "declarantId",
                 ContractType = 0
             });
-            return await awaiter;
+            return id;
         }
 
-        public async Task<string> PublishEvent(string name, string key, object data = null)
+        public async Task<string> PublishUserAction(string key, string username, string chosenValue, object data)
         {
-            await _host.PublishEvent(name, key, data);
-            return "Event published";
+            return await _wflogic.PublishUserAction(key, username, chosenValue, data);
         }
 
     }

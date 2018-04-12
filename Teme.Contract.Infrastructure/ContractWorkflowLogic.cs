@@ -41,9 +41,13 @@ namespace Teme.Contract.Infrastructure
             return actions.Where(x => x.AssignedPrincipal == userId);
         }
 
-        public async Task<string> PublishUserAction(string key, string username, string chosenValue, ContractWorkflowEventData data)
+        public async Task<string> PublishUserAction(string key, string username, string chosenValue, object value)
         {
-            data.AwaiterKey = Guid.NewGuid().ToString();
+            var data = new ContractWorkflowEventData
+            {
+                AwaiterKey = Guid.NewGuid().ToString(),
+                Value = value
+            };
             var awaiter = TaskCompletionService.AddTask(data.AwaiterKey);
             await _host.PublishUserAction(key, username, chosenValue, data);
             return await awaiter;
