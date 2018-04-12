@@ -8,6 +8,7 @@ namespace WorkflowCore.Users.Models
     public class UserAction
     {
         public string User { get; set; }
-        public object OutcomeValue { get; set; }
+        public string OutcomeValue { get; set; }
+        public object Value { get; set; }
     }
 }

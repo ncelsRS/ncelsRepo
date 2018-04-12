@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.WorkflowSteps;
 using WorkflowCore.Interface;
 using WorkflowCore.Users.Models;
 
@@ -22,10 +21,9 @@ namespace Teme.Contract.Logic
         {
             var key = Guid.NewGuid().ToString();
             var awaiter = TaskCompletionService.AddTask(key);
-            await _host.StartWorkflow("Contract", new ContractWorkflowTransitionData()
-            {
+            await _host.StartWorkflow("Contract", new ContractWorkflowTransitionData {
                 AwaiterKey = key,
-                ExecutorId = "ExecutorId",
+                ExecutorId = "declarantId",
                 ContractType = 0
             });
             return await awaiter;
@@ -40,13 +38,12 @@ namespace Teme.Contract.Logic
         public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId)
         {
             var workflow = await _host.PersistenceStore.GetWorkflowInstance(workflowId);
-            await _host.PersistenceStore.GetWorkflowInstances(WorkflowCore.Models.WorkflowStatus.Runnable, "", null, null, 0, 10);
-            return await Task.Run(() => _host.GetOpenUserActions(workflowId));
+            return _host.GetOpenUserActions(workflowId);
         }
 
         public async Task<string> PublishUserAction(string key, string username, string chosenValue)
         {
-            await _host.PublishUserAction(key, username, chosenValue);
+            await _host.PublishUserAction(key, username, chosenValue, new ContractWorkflowEventData { AwaiterKey = "Congratulations!!!" });
             return "published";
         }
     }

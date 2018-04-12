@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Teme.Shared.Data.Context;
 
 namespace Teme.Identity.Data.Repository.User
 {
     public interface IUserRepo
     {
-        void AddUser(long id);
+        void AddUser(AuthUser authUser);
     }
 }

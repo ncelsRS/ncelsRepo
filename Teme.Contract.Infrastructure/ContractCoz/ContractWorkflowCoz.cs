@@ -11,7 +11,6 @@ namespace Teme.Contract.Infrastructure.ContractCoz
             builder
                 .StartWith<BossCoz>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                    .Input(step => step.ContractType, data => data.ContractType)
                 // Назначение Юристконсульта
                 .UserTask("SendContractToLegalAdviser", data => data.ExecutorId)
                     .WithOption("sendToCozExecutor", "").Do(then => then

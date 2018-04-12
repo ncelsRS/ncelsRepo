@@ -1,12 +1,13 @@
-﻿using System;
-using Teme.Contract.Infrastructure.ContractCoz;
+﻿using Serilog;
+using System.Threading.Tasks;
+using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.WorkflowSteps;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
-using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure
 {
+
     public class ContractWorkflow : IWorkflow<ContractWorkflowTransitionData>
     {
         public string Id => "Contract";
@@ -18,25 +19,20 @@ namespace Teme.Contract.Infrastructure
             builder
                 .StartWith<SetWorkflowId>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                // Отправка в ЦОЗ
-                .UserTask("Filling contract", data => "ExecutorId")
-                    .WithOption("0", "SendWithoutSign").Do(then => then
+                .UserTask("Filling contract", data => data.ExecutorId)
+                    .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
                         .StartWith<SendWithoutSign>()
-                            .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                            .Output(step => step.ContractType, data => 1)
                     )
-                    .WithOption("1", "SendWithSign").Do(then => then
+                    .WithOption("sendWithSign", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
-                            .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                     )
-                // "ContractType == 0" Мультизаявка
-                .If(data => data.ContractType == 0).Do(x => x
-                    .ContractCoz()
-                )
-                .If(data => data.ContractType == 1).Do(x => x
-                    .ContractCoz()
-                )
-                .Then(context => ExecutionResult.Next());
+                //.If(d => d.ContractType == 0).Do(then => then.ContractGv())
+                .Then(context =>
+                {
+                    Log.Information("Workflow finished");
+                    return ExecutionResult.Next();
+                }); // TODO for disable errors
         }
     }
+
 }

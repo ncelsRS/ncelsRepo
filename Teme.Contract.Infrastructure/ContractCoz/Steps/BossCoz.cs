@@ -12,7 +12,6 @@ namespace Teme.Contract.Infrastructure.ContractCoz.Steps
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Information("BossCoz " + ContractType);
             return ExecutionResult.Next();
         }
     }

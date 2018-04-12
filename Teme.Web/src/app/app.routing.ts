@@ -1,11 +1,18 @@
-import {Routes, RouterModule} from '@angular/router';
+import {Routes, RouterModule, PreloadAllModules} from '@angular/router';
 import {ModuleWithProviders} from '@angular/core';
-import {HomeComponent} from './home/home.component';
+
+import {NotFoundComponent} from './pages/errors/not-found/not-found.component';
 
 export const routes: Routes = [
-  {path: '', pathMatch: 'full', redirectTo: 'home'},
-  {path: 'home', component: HomeComponent},
-  {path: 'ext', loadChildren: './ext/ext.module#ExtModule'}
+    {path: '', redirectTo: 'pages', pathMatch: 'full'},
+    {path: 'pages', loadChildren: 'app/pages/pages.module#PagesModule'},
+    {path: 'ext', loadChildren: 'app/ext/ext.module#ExtModule'},
+    {path: 'login', loadChildren: 'app/pages/login/login.module#LoginModule'},
+    {path: 'register', loadChildren: 'app/pages/register/register.module#RegisterModule'},
+    {path: '**', component: NotFoundComponent}
 ];
 
-export const routing: ModuleWithProviders = RouterModule.forRoot(routes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules,
+    // useHash: true
+});
