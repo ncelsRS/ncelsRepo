@@ -30,16 +30,5 @@ namespace Teme.Contract.Api.Controllers
             return await _logic.PublishEvent(name, key);
         }
 
-        [Route("getUserActions")]
-        public async Task<IEnumerable<OpenUserAction>> GetUserActions([FromQuery] string workflowId)
-        {
-            return await _logic.GetUserActions(workflowId);
-        }
-
-        [Route("publishUserAction")]
-        public async Task<string> PublishuserAction([FromQuery] string key, [FromQuery] string username, [FromQuery]string value)
-        {
-            return await _logic.PublishUserAction(key, username, value);
-        }
     }
 }

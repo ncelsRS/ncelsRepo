@@ -35,16 +35,5 @@ namespace Teme.Contract.Logic
             return "Event published";
         }
 
-        public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId)
-        {
-            var workflow = await _host.PersistenceStore.GetWorkflowInstance(workflowId);
-            return _host.GetOpenUserActions(workflowId);
-        }
-
-        public async Task<string> PublishUserAction(string key, string username, string chosenValue)
-        {
-            await _host.PublishUserAction(key, username, chosenValue, new ContractWorkflowEventData { AwaiterKey = "Congratulations!!!" });
-            return "published";
-        }
     }
 }

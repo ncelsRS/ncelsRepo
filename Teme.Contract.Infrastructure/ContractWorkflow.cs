@@ -26,7 +26,7 @@ namespace Teme.Contract.Infrastructure
                     .WithOption("sendWithSign", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
                     )
-                //.If(d => d.ContractType == 0).Do(then => then.ContractGv())
+                .If(d => d.ContractType == 0).Do(then => then.ContractGv())
                 .Then(context =>
                 {
                     Log.Information("Workflow finished");
