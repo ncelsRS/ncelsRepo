@@ -19,15 +19,19 @@ namespace Teme.Contract.Infrastructure
             builder
                 .StartWith<SetWorkflowId>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                .UserTask("Filling contract", data => data.ExecutorId) // TODO emplement check for executorId
+                .UserTask("Filling contract", data => data.ExecutorId)
                     .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
                         .StartWith<SendWithoutSign>()
                     )
                     .WithOption("sendWithSign", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
                     )
-                .If(d => d.ContractType == 0).Do(then => then.ContractGv())
-                    .Then(context => ExecutionResult.Next()); // TODO for disable errors
+                //.If(d => d.ContractType == 0).Do(then => then.ContractGv())
+                .Then(context =>
+                {
+                    Log.Information("Workflow finished");
+                    return ExecutionResult.Next();
+                }); // TODO for disable errors
         }
     }
 
