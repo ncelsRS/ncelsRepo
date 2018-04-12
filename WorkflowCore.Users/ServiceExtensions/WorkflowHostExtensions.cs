@@ -17,7 +17,6 @@ namespace WorkflowCore.Interface
                 OutcomeValue = selectedOption,
                 Value = value
             };
-
             await host.PublishEvent(UserTask.EventName, actionKey, data);
         }
 
