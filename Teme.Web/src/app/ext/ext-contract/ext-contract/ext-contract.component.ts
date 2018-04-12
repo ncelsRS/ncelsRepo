@@ -11,6 +11,7 @@ export class ExtContractComponent implements OnInit {
   public id: string;
 
   constructor(private route: ActivatedRoute) {
+    this.type = 'manufacturer';
   }
 
   setDeclarationTab(name: string) {
