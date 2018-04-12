@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FileUploadModule } from 'ng2-file-upload';
+import { FormsModule } from '@angular/forms';
 import {ExtContractRoutingModule} from './ext-contract-routing.module';
 import { ExtContractsComponent } from './ext-contracts/ext-contracts.component';
 import { ExtContractComponent } from './ext-contract/ext-contract.component';
@@ -12,7 +14,9 @@ import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant
 @NgModule({
   imports: [
     CommonModule,
-    ExtContractRoutingModule
+    ExtContractRoutingModule,
+    FileUploadModule,
+      FormsModule
   ],
   declarations: [
     ExtContractsComponent,
