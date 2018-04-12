@@ -43,7 +43,7 @@ namespace Teme.Contract.Logic
 
         public async Task<string> PublishUserAction(string key, string username, string chosenValue)
         {
-            await _host.PublishUserAction(key, username, chosenValue);
+            await _host.PublishUserAction(key, username, chosenValue, new ContractWorkflowEventData { AwaiterKey = "Congratulations!!!" });
             return "published";
         }
     }

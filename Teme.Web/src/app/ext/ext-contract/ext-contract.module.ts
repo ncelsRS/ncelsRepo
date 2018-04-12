@@ -10,6 +10,7 @@ import { ExtAttachmentComponent } from './ext-contract/ext-attachment/ext-attach
 import { ExtCostComponent} from './ext-contract/ext-cost/ext-cost.component';
 import { ExtPayerComponent} from './ext-contract/ext-payer/ext-payer.component';
 import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant.component';
+import { ExtPaymentComponent } from './ext-contract/ext-payment/ext-payment.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant
     ExtPayerComponent,
     ExtCostComponent,
     ExtAttachmentComponent,
-    ExtDeclarantComponent
+    ExtDeclarantComponent,
+    ExtPaymentComponent
   ]
 })
 export class ExtContractModule { }

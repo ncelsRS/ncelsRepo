@@ -15,4 +15,10 @@ namespace Teme.Contract.Infrastructure
         public bool IsSignedByDeclarant { get; set; }
         
     }
+
+    public class ContractWorkflowEventData
+    {
+        public string AwaiterKey { get; set; }
+        public object Value { get; set; }
+    }
 }
