@@ -12,4 +12,8 @@ export class ExtLayoutComponent implements OnInit {
     ngOnInit() {
     }
 
+    ngAfterViewInit(){
+        document.getElementById('preloader').classList.add('hide');
+    }
+
 }
