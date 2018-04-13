@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Teme.Contract.Infrastructure;
 using Teme.Contract.Logic;
 using WorkflowCore.Users.Models;
 
@@ -24,22 +25,18 @@ namespace Teme.Contract.Api.Controllers
             return await _logic.StartWorkflow();
         }
 
-        [Route("publishEvent")]
-        public async Task<string> PublishEvent([FromQuery]string name, [FromQuery] string key)
+        [Route("useractions")]
+        [HttpGet]
+        public async Task<IEnumerable<OpenUserAction>> UserActions([FromQuery]string workflowId)
         {
-            return await _logic.PublishEvent(name, key);
+            return await _logic.OpenUserActions(workflowId);
         }
 
-        [Route("getUserActions")]
-        public async Task<IEnumerable<OpenUserAction>> GetUserActions([FromQuery] string workflowId)
+        [Route("publish/useraction")]
+        public async Task<string> PublishUserAction([FromQuery] string key, [FromQuery] string username, [FromQuery] string chosenValue, [FromQuery]object value)
         {
-            return await _logic.GetUserActions(workflowId);
+            return await _logic.PublishUserAction(key, username, chosenValue, value);
         }
 
-        [Route("publishUserAction")]
-        public async Task<string> PublishuserAction([FromQuery] string key, [FromQuery] string username, [FromQuery]string value)
-        {
-            return await _logic.PublishUserAction(key, username, value);
-        }
     }
 }

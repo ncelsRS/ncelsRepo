@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.WorkflowSteps;
+using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -26,7 +27,7 @@ namespace Teme.Contract.Infrastructure
                     .WithOption("sendWithSign", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
                     )
-                //.If(d => d.ContractType == 0).Do(then => then.ContractGv())
+                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then => then.ContractGv())
                 .Then(context =>
                 {
                     Log.Information("Workflow finished");

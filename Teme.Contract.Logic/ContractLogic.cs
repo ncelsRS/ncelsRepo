@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
+using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Users.Models;
 
@@ -10,41 +11,32 @@ namespace Teme.Contract.Logic
 {
     public class ContractLogic
     {
-        private readonly IWorkflowHost _host;
+        private readonly ContractWorkflowLogic _wflogic;
 
-        public ContractLogic(IWorkflowHost host)
+        public ContractLogic(ContractWorkflowLogic wflogic)
         {
-            _host = host;
+            _wflogic = wflogic;
         }
 
         public async Task<string> StartWorkflow()
         {
-            var key = Guid.NewGuid().ToString();
-            var awaiter = TaskCompletionService.AddTask(key);
-            await _host.StartWorkflow("Contract", new ContractWorkflowTransitionData {
-                AwaiterKey = key,
+            var id = await _wflogic.Start(new ContractWorkflowTransitionData
+            {
                 ExecutorId = "declarantId",
-                ContractType = 0
+                ContractType = ContractTypeEnum.OneToOne
             });
-            return await awaiter;
+            return id;
         }
 
-        public async Task<string> PublishEvent(string name, string key, object data = null)
+        public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)
         {
-            await _host.PublishEvent(name, key, data);
-            return "Event published";
+            return await _wflogic.GetUserActions(workflowId);
         }
 
-        public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId)
+        public async Task<string> PublishUserAction(string key, string username, string chosenValue, object data)
         {
-            var workflow = await _host.PersistenceStore.GetWorkflowInstance(workflowId);
-            return _host.GetOpenUserActions(workflowId);
+            return await _wflogic.PublishUserAction(key, username, chosenValue, data);
         }
 
-        public async Task<string> PublishUserAction(string key, string username, string chosenValue)
-        {
-            await _host.PublishUserAction(key, username, chosenValue, new ContractWorkflowEventData { AwaiterKey = "Congratulations!!!" });
-            return "published";
-        }
     }
 }
