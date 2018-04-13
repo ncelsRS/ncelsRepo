@@ -14,7 +14,7 @@ export class ExtContractComponent implements OnInit {
     this.type = 'manufacturer';
   }
 
-  setDeclarationTab(name: string) {
+   setDeclarationTab(name: string) {
     this.type = name;
   }
   ngOnInit() {
