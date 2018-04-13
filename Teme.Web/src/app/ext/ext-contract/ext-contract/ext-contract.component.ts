@@ -14,11 +14,7 @@ export class ExtContractComponent implements OnInit {
     this.type = 'manufacturer';
   }
 
-  childChanged(event) {
-    event = null;
-  }
-
-  setDeclarationTab(name: string) {
+   setDeclarationTab(name: string) {
     this.type = name;
   }
   ngOnInit() {
