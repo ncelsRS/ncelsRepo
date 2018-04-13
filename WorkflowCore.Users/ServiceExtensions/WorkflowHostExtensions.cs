@@ -17,13 +17,12 @@ namespace WorkflowCore.Interface
                 OutcomeValue = selectedOption,
                 Value = value
             };
-
             await host.PublishEvent(UserTask.EventName, actionKey, data);
         }
 
-        public static IEnumerable<OpenUserAction> GetOpenUserActions(this IWorkflowHost host, string workflowId)
+        public static async Task<IEnumerable<OpenUserAction>> GetOpenUserActions(this IWorkflowHost host, string workflowId)
         {
-            var workflow = host.PersistenceStore.GetWorkflowInstance(workflowId).Result;
+            var workflow = await host.PersistenceStore.GetWorkflowInstance(workflowId);
             return workflow.GetOpenUserActions();
         }
     }
