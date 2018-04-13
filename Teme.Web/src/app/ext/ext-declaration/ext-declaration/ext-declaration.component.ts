@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { REGISTER_TYPES } from './RegisterTypes';
 import { RegisterType } from './RegisterType';
 
 
@@ -12,11 +11,8 @@ import { RegisterType } from './RegisterType';
 export class ExtDeclarationComponent implements OnInit {
     RegisterTypes: RegisterType[];
     type: string;
-    heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
-
     constructor() {
         this.type = 'general';
-        this.RegisterTypes = REGISTER_TYPES;
     }
 
     setDeclarationTab(name: string) {

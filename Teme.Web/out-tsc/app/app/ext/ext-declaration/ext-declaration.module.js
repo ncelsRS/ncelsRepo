@@ -1,9 +1,3 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExtDeclarationRoutingModule } from './ext-declaration-routing.module';
@@ -14,7 +8,6 @@ import { ExtImnSetComponent } from './ext-declaration/ext-imn-set/ext-imn-set.co
 import { FormsModule } from '@angular/forms';
 import { ExtProducerComponent } from './ext-declaration/ext-producer/ext-producer.component';
 import { ExtAgreementComponent } from './ext-declaration/ext-agreement/ext-agreement.component';
-import { TestComponent } from './ext-declaration/test/test.component';
 var ExtDeclarationModule = (function () {
     function ExtDeclarationModule() {
     }
@@ -31,8 +24,7 @@ var ExtDeclarationModule = (function () {
                 ExtGeneralInformationComponent,
                 ExtImnSetComponent,
                 ExtProducerComponent,
-                ExtAgreementComponent,
-                TestComponent
+                ExtAgreementComponent
             ]
         })
     ], ExtDeclarationModule);
