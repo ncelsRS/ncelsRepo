@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Teme.Contract.Infrastructure.ContractCoz;
 using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.WorkflowSteps;
+using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -21,19 +22,19 @@ namespace Teme.Contract.Infrastructure
                 .StartWith<SetWorkflowId>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                 .UserTask("Filling contract", data => data.ExecutorId)
-                    .WithOption("0", "sendWithoutSign").Do(then => then
+                    .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
                         .StartWith<SendWithoutSign>()
-                            .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                     )
-                    .WithOption("1", "sendWithSign").Do(then => then
+                    .WithOption("sendWithSign", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
                     )
-                .If(d => d.ContractType == 0).Do(then => then.ContractCoz())
+                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then => then.ContractGv())
+                .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(then => then.ContractCoz())
                 .Then(context =>
                 {
                     Log.Information("Workflow finished");
                     return ExecutionResult.Next();
-                });
+                }); // TODO for disable errors
         }
     }
 

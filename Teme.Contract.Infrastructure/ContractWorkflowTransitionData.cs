@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Contract.Infrastructure
 {
@@ -9,7 +10,7 @@ namespace Teme.Contract.Infrastructure
         public object Value { get; set; }
         //public string ExecutorType { get; set; }
         [Required]
-        public int ContractType { get; set; }
+        public ContractTypeEnum ContractType { get; set; }
         [Required]
         public string ExecutorId { get; set; }
         public bool IsSignedByDeclarant { get; set; }

@@ -10,8 +10,12 @@ namespace Teme.Contract.Infrastructure.ContractCoz.Steps
 {
     public class BossCoz : BaseContractStep
     {
+        public string ExecutorId { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            var awaiterKey = GetEventData(context).AwaiterKey;
+            Log.Information($"BossCoz: {awaiterKey}");
+            Log.Information($"BossCoz ExecutorId : {ExecutorId}");
             return ExecutionResult.Next();
         }
     }
@@ -21,7 +25,9 @@ namespace Teme.Contract.Infrastructure.ContractCoz.Steps
         public string ExecutorId { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Information("BossCoz");
+            var awaiterKey = GetEventData(context).AwaiterKey;
+            Log.Information($"SendContractToCozExecutor: {awaiterKey}");
+            Log.Information($"SendContractToCozExecutor ExecutorId : {ExecutorId}");
             return ExecutionResult.Next();
         }
     }
