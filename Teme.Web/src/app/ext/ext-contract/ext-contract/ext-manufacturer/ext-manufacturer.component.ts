@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./ext-manufacturer.component.css']
 })
 export class ExtManufacturerComponent implements OnInit {
-
+  @Output() change: EventEmitter<any> = new EventEmitter();
   constructor() { }
 
   ngOnInit() {
