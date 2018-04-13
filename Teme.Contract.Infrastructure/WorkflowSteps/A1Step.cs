@@ -55,7 +55,6 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
         {
             Log.Information($"SendWithSign");
             IsSignedByDeclarant = true;
-            //TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }

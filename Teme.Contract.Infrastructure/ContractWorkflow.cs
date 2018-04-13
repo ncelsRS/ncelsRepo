@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using System.Threading.Tasks;
+using Teme.Contract.Infrastructure.ContractCoz;
 using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.WorkflowSteps;
 using WorkflowCore.Interface;
@@ -20,18 +21,19 @@ namespace Teme.Contract.Infrastructure
                 .StartWith<SetWorkflowId>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                 .UserTask("Filling contract", data => data.ExecutorId)
-                    .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
+                    .WithOption("0", "sendWithoutSign").Do(then => then
                         .StartWith<SendWithoutSign>()
+                            .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                     )
-                    .WithOption("sendWithSign", "sendWithSign").Do(then => then
+                    .WithOption("1", "sendWithSign").Do(then => then
                         .StartWith<SendWithSign>()
                     )
-                //.If(d => d.ContractType == 0).Do(then => then.ContractGv())
+                .If(d => d.ContractType == 0).Do(then => then.ContractCoz())
                 .Then(context =>
                 {
                     Log.Information("Workflow finished");
                     return ExecutionResult.Next();
-                }); // TODO for disable errors
+                });
         }
     }
 
