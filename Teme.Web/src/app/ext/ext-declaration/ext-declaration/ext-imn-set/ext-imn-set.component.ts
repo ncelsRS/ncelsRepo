@@ -6,7 +6,7 @@ import {Component, OnInit} from '@angular/core';
     styleUrls: ['./ext-imn-set.component.css']
 })
 export class ExtImnSetComponent implements OnInit {
-
+    public imnTable: boolean
     public data = [];
     public table1Settings = {
         selectMode: 'single',  //single|multi
@@ -155,12 +155,17 @@ export class ExtImnSetComponent implements OnInit {
     };
 
     constructor() {
+      this.imnTable = true;
         // this.getData((data) => {
         //     this.data = data;
         // });
     }
 
     ngOnInit() {
+    }
+
+    public showImnTable(show: boolean) {
+      this.imnTable = show;
     }
 
     public getData(data) {
