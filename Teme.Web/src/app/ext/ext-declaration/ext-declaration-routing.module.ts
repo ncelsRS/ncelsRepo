@@ -1,32 +1,37 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ExtDeclarationsComponent } from './ext-declarations/ext-declarations.component';
-import { ExtDeclarationComponent } from './ext-declaration/ext-declaration.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {ExtDeclarationsComponent} from './ext-declarations/ext-declarations.component';
+import {ExtDeclarationComponent} from './ext-declaration/ext-declaration.component';
 
 const routes: Routes = [
-    {
+  {
+    path: '',
+    data: {
+      title: 'Заявления'
+    },
+    children: [
+      {
         path: '',
-        data: {
-            title: 'Заявления'
-        },
-        children: [
-            {
-                path: '',
-                component: ExtDeclarationsComponent,
-                data: { title: 'Заявления' }
-            },
-            {
-                path: ':id',
-                data: { title: 'Заявление' },
-                component: ExtDeclarationComponent
-            }
-        ]
-    }
+        component: ExtDeclarationsComponent,
+        data: {title: 'Заявления'}
+      },
+      {
+        path: ':id',
+        data: {title: 'Заявление'},
+        component: ExtDeclarationComponent
+      },
+      {
+        path: 'create',
+        data: {title: 'Заявление'},
+        component: ExtDeclarationComponent
+      }
+    ]
+  }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
 
 export class ExtDeclarationRoutingModule {
