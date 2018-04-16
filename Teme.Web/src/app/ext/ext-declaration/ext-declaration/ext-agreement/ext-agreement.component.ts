@@ -6,8 +6,7 @@ import { Component, OnInit } from '@angular/core';
     styleUrls: ['./ext-agreement.component.css']
 })
 export class ExtAgreementComponent implements OnInit {
-
-    constructor() { }
+    constructor() {}
 
     ngOnInit() {
     }
