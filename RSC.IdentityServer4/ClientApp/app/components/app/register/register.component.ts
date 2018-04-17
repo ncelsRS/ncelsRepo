@@ -35,4 +35,9 @@ export class RegisterComponent
 
     }
 
+    triggerClick() {
+        let element: HTMLElement = document.getElementById('register') as HTMLElement;
+        element.click();
+    }
+
 }
