@@ -23,7 +23,7 @@ namespace Teme.Contract.Infrastructure
         {
             var key = Guid.NewGuid().ToString();
             var awaiter = TaskCompletionService.AddTask(key);
-            data.AwaiterKey = key;
+            data.Value = key;
             await _host.StartWorkflow(_workflowId, data);
             return await awaiter;
         }
