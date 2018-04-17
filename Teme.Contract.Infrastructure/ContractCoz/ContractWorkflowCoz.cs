@@ -1,4 +1,4 @@
-﻿using Teme.Contract.Infrastructure.ContractCoz.Steps;
+﻿using Teme.Contract.Infrastructure.ContractCoz;
 using WorkflowCore.Interface;
 using WorkflowCore.Users.Models;
 
@@ -10,15 +10,11 @@ namespace Teme.Contract.Infrastructure.ContractCoz
         {
             builder
                 .StartWith<BossCoz>()
-                    .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                    .Output(data => data.ExecutorId, step => step.ExecutorId)
-                // Назначение Юристконсульта
                 .UserTask("SendContractToLegalAdviser", data => data.ExecutorId)
                     .WithOption("", "sendToCozExecutor").Do(then => then
                         .StartWith<SendContractToCozExecutor>()
                             .Input(step => step.ExecutorId, data => data.ExecutorId)
                     )
-                // Дествия юристконсульта
                 .UserTask("LegalAdviserEvents", data => data.ExecutorId)
                     .WithOption("", "").Do(x => x
                         .StartWith<SendContractToCozExecutor>()

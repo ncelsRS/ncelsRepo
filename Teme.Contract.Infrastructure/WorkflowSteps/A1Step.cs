@@ -39,8 +39,6 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var awaiterKey = GetEventData(context).AwaiterKey;
-            Log.Information($"SendWithoutSign: {awaiterKey}");
             IsSignedByDeclarant = false;
             return ExecutionResult.Next();
         }
@@ -58,5 +56,14 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
         }
     }
 
-    
+    public class StartParallelContract : BaseContractStep
+    {
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information($"ExecutionResult");
+            return ExecutionResult.Next();
+        }
+    }
+
+
 }

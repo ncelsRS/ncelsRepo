@@ -22,14 +22,24 @@ namespace Teme.Contract.Infrastructure
                 .StartWith<SetWorkflowId>()
                     .Input(step => step.AwaiterKey, data => data.AwaiterKey)
                 .UserTask("Filling contract", data => data.ExecutorId)
-                    .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
-                        .StartWith<SendWithoutSign>()
+                    .WithOption("sendWithoutSign", "sendWithoutSign")
+                        .Do(then => then
+                            .StartWith<SendWithoutSign>()
                     )
-                    .WithOption("sendWithSign", "sendWithSign").Do(then => then
-                        .StartWith<SendWithSign>()
+                    .WithOption("sendWithSign", "sendWithSign")
+                        .Do(then => then
+                            .StartWith<SendWithSign>()
                     )
-                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then => then.ContractGv())
-                .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(then => then.ContractCoz())
+                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then => then
+                    .StartWith<SendWithoutSign>()
+                        .Parallel()
+                            .Do(t => t.ContractCoz())
+                            .Do(t => t.ContractGv())
+                            )
+                .If(d => d.ContractType == ContractTypeEnum.OneToMore)
+                    .Do(then => then
+                        .ContractCoz()
+                        )
                 .Then(context =>
                 {
                     Log.Information("Workflow finished");

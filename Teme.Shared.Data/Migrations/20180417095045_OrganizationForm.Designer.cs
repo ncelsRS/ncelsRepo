@@ -11,9 +11,10 @@ using Teme.Shared.Data.Context;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180417095045_OrganizationForm")]
+    partial class OrganizationForm
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,32 +60,6 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("AuthUsers");
                 });
 
-            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Bank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Code");
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<bool>("IsConfirmed");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("NameKz")
-                        .IsRequired();
-
-                    b.Property<string>("NameRu")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Ref_Banks");
-                });
-
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ClassifierMedicalArea", b =>
                 {
                     b.Property<int>("Id")
@@ -107,54 +82,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ref_ClassifierMedicalAreas");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Country", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Code");
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("NameKz")
-                        .IsRequired();
-
-                    b.Property<string>("NameRu")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Ref_Countries");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Currency", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Code");
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("NameKz")
-                        .IsRequired();
-
-                    b.Property<string>("NameRu")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Ref_Currencies");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_DegreeRiskClass", b =>
