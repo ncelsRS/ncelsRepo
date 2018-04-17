@@ -19,6 +19,11 @@ const routes: Routes = [
                 path: ':id',
                 data: { title: 'Договор' },
                 component: ExtContractComponent
+            },
+            {
+              path: 'create',
+              data: {title: 'Заявление'},
+              component: ExtContractComponent
             }
         ]
     }

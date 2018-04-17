@@ -11,13 +11,15 @@ import { ExtCostComponent} from './ext-contract/ext-cost/ext-cost.component';
 import { ExtPayerComponent} from './ext-contract/ext-payer/ext-payer.component';
 import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant.component';
 import { ExtPaymentComponent } from './ext-contract/ext-payment/ext-payment.component';
+import {Ng2SmartTableModule} from 'ng2-smart-table';
 
 @NgModule({
   imports: [
     CommonModule,
     ExtContractRoutingModule,
     FileUploadModule,
-      FormsModule
+      FormsModule,
+    Ng2SmartTableModule
   ],
   declarations: [
     ExtContractsComponent,
