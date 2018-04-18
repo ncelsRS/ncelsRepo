@@ -2,19 +2,36 @@
     <div class="panel-body">
       <div class="row">
         <div class="col-lg-6 b-r">
+          <div *ngIf="prnRegisterType === 'Reregistration'" class="form-group">
+            <h4>Поиск в реестре МИ</h4>
+            <div class="row">
+              <div  class="col-lg-6 b-r form-group">
+                <label>Регистрационный номер</label>
+                <input  id="regNum"  class="form-control edit-control" type="text" name="regNum" >
+              </div>
+              <div  class="col-lg-6 b-l form-group">
+                <label>Торговое название</label>
+                <input  id="tradName"  class="form-control edit-control" type="text" name="tradName" >
+              </div>
+            </div>
+            <div>
+              <button type="button" class="btn btn-sm" >Поиск</button>
+              <button type="button" class="btn btn-sm" >Очистить критерий поиска</button>
+            </div>
+          </div>
 
-          <div class="form-group" >
+          <div class="form-group">
             <div class="custom-control custom-radio radio-inline" >
-              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturResident" checked [(ngModel)]="m_manufacturIsResident"  #manufacturResident="ngModel" >
+              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturResident"  [(ngModel)]="isRes" value="res" >
               <label class="custom-control-label" for="manufacturResident">Резидент РК</label>
             </div>
             <div class="custom-control custom-radio radio-inline">
-              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturNoResident" [(ngModel)]="m_manufacturNoResident"  #manufacturNoResident="ngModel">
+              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturNoResident" [(ngModel)]="isRes" value="unres">
               <label class="custom-control-label" for="manufacturNoResident">Нерезидент РК</label>
             </div>
           </div>
 
-          <div [hidden]="(manufacturResident.checked)" class="form-group ng-hide" >
+          <div *ngIf="isRes === 'res'" >
             <label>ИИН/БИН *</label>
             <div>
                 <input maxlength="24" id="bin"  class="form-control edit-control" type="text" name="bin"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________">
@@ -22,17 +39,20 @@
             <button type="button" class="btn btn-sm btn-success" disabled="disabled">Найти</button>
             <button type="button" class="btn btn-sm btn-success" disabled="disabled">Отмена</button>
           </div>
-
-          <div class="form-group">
-            <label>Страна</label>
-            <select class="form-control" >
-            </select>
-          </div>
-          <div class="form-group">
-              <label>Наименование на русском языке *</label>
+          <div *ngIf="isRes === 'unres'" >
+            <div class="form-group">
+              <label>Страна</label>
               <select class="form-control" >
               </select>
             </div>
+          </div>
+          <div *ngIf="isRes === 'unres'" >
+            <div class="form-group">
+                <label>Наименование на русском языке *</label>
+                <select class="form-control" >
+                </select>
+            </div>
+          </div>
           <div class="form-group ng-hide" >
             По Вашему запросу ничего не найдено!
           </div>
@@ -40,13 +60,14 @@
             <button type="button" class="btn btn-sm btn-success" >Добавить</button>
           </div>
 
-
-          <div class="form-group">
-            <h4>Производитель</h4>
-            <label>Организационная форма</label>
-            <select class="form-control" >
-            </select>
+          <div >
+            <div class="form-group">
+              <label>Организационная форма</label>
+              <select class="form-control" >
+              </select>
+            </div>
           </div>
+
           <div class="form-group">
             <label>Наименование на государственном языке *</label>
             <div>
@@ -183,12 +204,14 @@
             <select class="form-control" >
             </select>
           </div>
-          <div class="form-group ng-scope" >
-          <label>SWIFT *</label>
-          <div>
-            <input id="bankBik" class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+          <div *ngIf="isRes === 'unres'" >
+            <div class="form-group ng-scope" >
+              <label>SWIFT *</label>
+              <div>
+                <input id="bankBik" class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              </div>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

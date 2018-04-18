@@ -3,21 +3,22 @@
     <div class="row">
       <div class="col-lg-6 b-r">
         <div class="form-group">
-          <div class="checkbox">
             <label><input type="checkbox"  value="">Является производителем</label>
+
+        </div>
+
+        <div class="form-group" >
+          <div class="custom-control custom-radio radio-inline" >
+            <input type="radio" class="custom-control-input" name="DeclarantIsResident" id="DeclarantResident"  [(ngModel)]="isRes" value="res" >
+            <label class="custom-control-label" for="DeclarantResident">Резидент РК</label>
+          </div>
+          <div class="custom-control custom-radio radio-inline">
+            <input type="radio" class="custom-control-input" name="DeclarantIsResident" id="DeclarantNoResident" [(ngModel)]="isRes" value="unres">
+            <label class="custom-control-label" for="DeclarantNoResident">Нерезидент РК</label>
           </div>
         </div>
 
-        <div class="form-group">
-          <div class="radio-inline">
-            <label><input type="radio" name="declarantisresident" ng-value="true"  checked >Резидент РК</label>
-          </div>
-          <div class="radio-inline">
-            <label><input type="radio" name="declarantisresident"  ng-value="false" >Нерезидент РК</label>
-          </div>
-        </div>
-
-        <div class="form-group ng-hide">
+        <div *ngIf="isRes === 'res'" >
           <label>ИИН/БИН *</label>
           <div>
             <input maxlength="24" id="binDeclarant"   class="form-control"  type="text"  name="bin"  ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________">
@@ -26,16 +27,19 @@
           <button type="button" class="btn btn-sm btn-success" ng-click="cancelFind('Declarant');" ng-disabled="!iinSearchActiveDeclarant" disabled="disabled">Отмена</button>
         </div>
 
-        <div class="form-group">
-          <label>Страна</label>
-          <select class="form-control" >
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Наименование на русском языке *</label>
+        <div *ngIf="isRes === 'unres'" >
+          <div class="form-group">
+            <label>Страна</label>
             <select class="form-control" >
             </select>
+          </div>
+        </div>
+        <div *ngIf="isRes === 'unres'" >
+          <div class="form-group">
+            <label>Наименование на русском языке *</label>
+              <select class="form-control" >
+              </select>
+          </div>
         </div>
         <div class="form-group ng-hide">
           По Вашему запросу ничего не найдено!
@@ -65,7 +69,7 @@
         <div class="form-group">
           <label>Наименование на английском языке</label>
           <div>
-            <input id="declarantNameEn" placeholder="Введите значение"  type="text"  name="declarantNameEn" disabled="disabled">
+            <input id="declarantNameEn" class="form-control" placeholder="Введите значение"  type="text"  name="declarantNameEn" disabled="disabled">
           </div>
         </div>
         <div class="form-group">
@@ -170,16 +174,27 @@
         <div class="form-group">
           <label>Валюта *</label>
           <select class="form-control" >
+            <option>Выберите значения</option>
+            <option>Тенге</option>
+            <option>Доллар</option>
           </select>
+        </div>
+        <div *ngIf="isRes === 'unres'" >
+          <div class="form-group ng-scope" >
+            <label>SWIFT *</label>
+            <div>
+              <input id="bankBik" class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+            </div>
+          </div>
         </div>
 
         <h4>Действующее на основании</h4>
-        <div class="form-group">
-          <label>Тип документа</label>
-          <select class="form-control" >
-          </select>
-        </div>
-        <div>
+        <select class="form-control" type="number" [(ngModel)]="selectedDeclarantDocType">
+          <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeDocLevel(level)">
+            {{level.name}}
+          </option>
+        </select>
+        <div [hidden]="(selectedDeclarantDocType !== 'Procuration' )">
           <div class="col-lg-2">
             <div class="form-group">
               <div class="checkbox">
