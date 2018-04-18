@@ -31,8 +31,8 @@ namespace Teme.Contract.Infrastructure
             .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                 then.StartWith(c => { })
                     .Parallel()
-                        .Do(t => t.ContractGv())
                         .Do(t => t.StartWith(c => ExecutionResult.Next()))
+                        .Do(t => t.ContractGv())
                     .Join()
             )
             .Then<RealiseAwaiter>()
