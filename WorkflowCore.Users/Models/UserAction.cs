@@ -7,8 +7,9 @@ namespace WorkflowCore.Users.Models
 {
     public class UserAction
     {
-        public string User { get; set; }
-        public string OutcomeValue { get; set; }
-        public object Value { get; set; }
+        public object OutcomeValue { get; set; }
+        public string AwaiterKey { get; set; }
+        public IEnumerable<string> ExecutorsIds { get; set; }
+        public object Data { get; set; }
     }
 }

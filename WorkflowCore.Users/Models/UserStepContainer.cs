@@ -57,7 +57,7 @@ namespace WorkflowCore.Users.Models
                 if ((body is UserStep) && (executionPointer.EventData is UserAction))
                 {
                     (body as UserStep).UserAction = (executionPointer.EventData as UserAction);
-                    executionPointer.ExtensionAttributes["ActionUser"] = (executionPointer.EventData as UserAction).User;
+                    executionPointer.ExtensionAttributes["ActionUser"] = "actionUser"; //(executionPointer.EventData as UserAction).User;
                 }
             }
             return ExecutionPipelineDirective.Next;

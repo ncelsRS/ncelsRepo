@@ -22,8 +22,8 @@ namespace Teme.Contract.Logic
         {
             var id = await _wflogic.Start(new ContractWorkflowTransitionData
             {
-                ExecutorId = "declarantId",
-                ContractType = ContractTypeEnum.OneToOne
+                ContractId = 0,
+                ContractType = ContractTypeEnum.OneToOne,
             });
             return id;
         }
@@ -33,9 +33,9 @@ namespace Teme.Contract.Logic
             return await _wflogic.GetUserActions(workflowId);
         }
 
-        public async Task<string> PublishUserAction(string key, string username, string chosenValue, object data)
+        public async Task<string> PublishUserAction(string key, string chosenValue, IEnumerable<string> executorsIds, object data)
         {
-            return await _wflogic.PublishUserAction(key, username, chosenValue, data);
+            return await _wflogic.PublishUserAction(key, chosenValue, executorsIds, data);
         }
 
     }

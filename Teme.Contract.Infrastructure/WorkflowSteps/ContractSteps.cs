@@ -23,8 +23,8 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
         {
             var prePoint = context.Workflow.ExecutionPointers.FirstOrDefault(x => x.Id == context.ExecutionPointer.PredecessorId);
             var eventData = prePoint.EventData as UserAction;
-            var data = eventData.Value
-            AwaiterKey = data.
+            //var data = eventData.Value;
+            return ExecutionResult.Next();
         }
     }
 
