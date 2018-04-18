@@ -23,7 +23,7 @@ namespace Teme.Contract.Infrastructure
         {
             var key = Guid.NewGuid().ToString();
             var awaiter = TaskCompletionService.AddTask(key);
-            data.AwaiterKey = key;
+            data.Value = key;
             await _host.StartWorkflow(_workflowId, data);
             return await awaiter;
         }
@@ -36,20 +36,16 @@ namespace Teme.Contract.Infrastructure
 
         public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId, string userId = null)
         {
-            var actions = await _host.GetOpenUserActions(workflowId);
+            var actions = await Task.Run(() => _host.GetOpenUserActions(workflowId));
             if (userId == null) return actions;
             return actions.Where(x => x.AssignedPrincipal == userId);
         }
 
-        public async Task<string> PublishUserAction(string key, string username, string chosenValue, object value)
+        public async Task<string> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null)
         {
-            var data = new ContractWorkflowEventData
-            {
-                AwaiterKey = Guid.NewGuid().ToString(),
-                Value = value
-            };
-            var awaiter = TaskCompletionService.AddTask(data.AwaiterKey);
-            await _host.PublishUserAction(key, username, chosenValue, data);
+            var awaiterKey = Guid.NewGuid().ToString();
+            var awaiter = TaskCompletionService.AddTask(awaiterKey);
+            await _host.PublishUserAction(key, chosenValue, awaiterKey, executorsIds, value);
             return await awaiter;
         }
     }

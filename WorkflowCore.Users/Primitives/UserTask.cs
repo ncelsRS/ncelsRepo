@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 using WorkflowCore.Primitives;
@@ -44,10 +45,14 @@ namespace WorkflowCore.Users.Primitives
 
             if (!(context.ExecutionPointer.EventData is UserAction))
                 throw new ArgumentException();
-            
-            var action = ((UserAction) context.ExecutionPointer.EventData);
-            context.ExecutionPointer.ExtensionAttributes["ActionUser"] = action.User;
-            
+
+            var action = ((UserAction)context.ExecutionPointer.EventData);
+            context.ExecutionPointer.ExtensionAttributes["AwaiterKey"] = action.AwaiterKey;
+            if (action.ExecutorsIds != null)
+                context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
+            if (action.Data != null)
+                context.ExecutionPointer.ExtensionAttributes["Data"] = action.Data;
+
             if (context.PersistenceData == null)
             {
                 var result = ExecutionResult.Branch(new List<object>() { null }, new ControlPersistenceData() { ChildrenActive = true });

@@ -5,30 +5,34 @@ import {ExtContractComponent} from './ext-contract/ext-contract.component';
 import { ExtCostInfoComponent } from './ext-contract/ext-payment-tab/ext-cost-info/ext-cost-info.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    data: {
-      title: 'Договора'
-    },
-    children: [
-      {
+    {
         path: '',
-        component: ExtContractsComponent,
-        data: {title: 'Договора'}
-      },
-      {
-        path: 'payment',
-        component: ExtCostInfoComponent,
-        data: {title: 'Заявка на платеж'}
-      },
-      {
-        path: ':id',
-        data: {title: 'Договор'},
-        component: ExtContractComponent
-      },
-
-    ]
-  }
+        data: {
+            title: 'Договора'
+        },
+        children: [
+            {
+                path: '',
+                component: ExtContractsComponent,
+                data: { title: 'Договора' }
+            },
+            {
+                path: ':id',
+                data: { title: 'Договор' },
+                component: ExtContractComponent
+            },
+            {
+              path: 'create',
+              data: {title: 'Заявление'},
+              component: ExtContractComponent
+            },
+            {
+                path: 'payment',
+                component: ExtCostInfoComponent,
+                data: { title: 'Заявка на платеж' }
+            }
+        ]
+    }
 ];
 
 @NgModule({

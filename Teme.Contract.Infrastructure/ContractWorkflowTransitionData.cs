@@ -1,20 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Contract.Infrastructure
 {
     public class ContractWorkflowTransitionData
     {
-        [Required]
-        public string AwaiterKey { get; set; }
-        public object Value { get; set; }
-        //public string ExecutorType { get; set; }
-        [Required]
-        public ContractTypeEnum ContractType { get; set; }
-        [Required]
-        public string ExecutorId { get; set; }
+        public int ContractId { get; set; }
         public bool IsSignedByDeclarant { get; set; }
-        
+        public ContractTypeEnum ContractType { get; set; }
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public object Value { get; set; }
     }
 
     public class ContractWorkflowEventData

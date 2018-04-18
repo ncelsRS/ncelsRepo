@@ -10,21 +10,22 @@ import { ExtAttachmentComponent } from './ext-contract/ext-attachment/ext-attach
 import { ExtCostComponent} from './ext-contract/ext-cost/ext-cost.component';
 import { ExtPayerComponent} from './ext-contract/ext-payer/ext-payer.component';
 import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant.component';
-import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payment-tab.component';
+import { ExtPaymentTabComponent } from './ext-contract/ext-payment/ext-payment.component';
 import { ExtCostInfoComponent } from './ext-contract/ext-payment-tab/ext-cost-info/ext-cost-info.component';
+import {Ng2SmartTableModule} from 'ng2-smart-table';
 
 @NgModule({
   imports: [
     CommonModule,
     ExtContractRoutingModule,
     FileUploadModule,
-    FormsModule
+    FormsModule,
+    Ng2SmartTableModule
   ],
   declarations: [
     ExtContractsComponent,
     ExtContractComponent,
     ExtManufacturerComponent,
-    ExtPayerComponent,
     ExtCostComponent,
     ExtAttachmentComponent,
     ExtDeclarantComponent,

@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure.ContractGv;
+using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.WorkflowSteps;
 using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
@@ -18,21 +19,27 @@ namespace Teme.Contract.Infrastructure
         public void Build(IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder
-                .StartWith<SetWorkflowId>()
-                    .Input(step => step.AwaiterKey, data => data.AwaiterKey)
-                .UserTask("Filling contract", data => data.ExecutorId)
-                    .WithOption("sendWithoutSign", "sendWithoutSign").Do(then => then
-                        .StartWith<SendWithoutSign>()
-                    )
-                    .WithOption("sendWithSign", "sendWithSign").Do(then => then
-                        .StartWith<SendWithSign>()
-                    )
-                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then => then.ContractGv())
-                .Then(context =>
-                {
-                    Log.Information("Workflow finished");
-                    return ExecutionResult.Next();
-                }); // TODO for disable errors
+            .StartWith<SetWorkflowId>()
+                .Input(step => step.AwaiterKey, data => data.Value)
+            .UserTask("SendContract", (d, c) => "declarant")
+                .WithOption(UserOptions.SendWithSign, "o1").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => true)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                )
+                .WithOption(UserOptions.SendWithoutSign, "o2").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => false)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                )
+            .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
+                then.StartWith(c => { })
+                    .Parallel()
+                        .Do(t => t.StartWith(c => Log.Information("StartEndCoz")))
+                        .Do(t => t.ContractGv())
+                    .Join()
+            )
+            .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(t => t.StartWith(c => { }));
         }
     }
 

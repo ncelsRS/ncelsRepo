@@ -32,10 +32,19 @@ namespace Teme.Contract.Api.Controllers
             return await _logic.OpenUserActions(workflowId);
         }
 
-        [Route("publish/useraction")]
-        public async Task<string> PublishUserAction([FromQuery] string key, [FromQuery] string username, [FromQuery] string chosenValue, [FromQuery]object value)
+        public class PublishUserEventDto
         {
-            return await _logic.PublishUserAction(key, username, chosenValue, value);
+            public string Key { get; set; }
+            public string ChosenValue { get; set; }
+            public Dictionary<string, IEnumerable<string>> ExecutersIds { get; set; }
+            public object Value { get; set; }
+        }
+
+        [Route("publish/useraction")]
+        [HttpPost]
+        public async Task<string> PublishUserAction([FromBody] PublishUserEventDto dto)
+        {
+            return await _logic.PublishUserAction(dto.Key, dto.ChosenValue, dto.ExecutersIds, dto.Value);
         }
 
     }

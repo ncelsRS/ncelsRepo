@@ -19,6 +19,11 @@ export const routes: Routes = [
                 path: 'contracts',
                 data: { title: 'contracts' },
                 loadChildren: './ext-contract/ext-contract.module#ExtContractModule'
+            },
+            {
+                path: 'declarations',
+                data: { title: 'declarations' },
+                loadChildren: './ext-declaration/ext-declaration.module#ExtDeclarationModule'
             }
         ]
     },

@@ -18,11 +18,6 @@ import { ExtLayoutHomeComponent } from './ext-layout-pages/ext-layout-home/ext-l
         ExpMenuComponent,
         ExtLayoutFooterComponent,
         ExtLayoutHomeComponent
-    ],
-    exports: [
-        ExtLayoutComponent,
-        ExtUpHeaderComponent,
-        ExtLayoutFooterComponent
     ]
 })
 export class ExtModule {
