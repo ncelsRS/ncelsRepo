@@ -10,17 +10,6 @@ using WorkflowCore.Models;
 namespace Teme.Contract.Infrastructure
 {
 
-    public class TestStep : StepBody
-    {
-        public string Option { get; set; }
-
-        public override ExecutionResult Run(IStepExecutionContext context)
-        {
-            Log.Information($"Is: {Option}");
-            return ExecutionResult.Next();
-        }
-    }
-
     public class ContractWorkflow : IWorkflow<ContractWorkflowTransitionData>
     {
         public string Id => "Contract";
@@ -30,26 +19,27 @@ namespace Teme.Contract.Infrastructure
         public void Build(IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder
-                .StartWith<SetWorkflowId>()
-                    .Input(step => step.AwaiterKey, data => data.Value)
-                .UserTask("SendContract", data => "declarant")
-                    .WithOption(UserOptions.SendWithSign, UserOptions.SendWithSign).Do(then =>
-                        then.StartWith(c => ExecutionResult.Next()).Output(d => d.IsSignedByDeclarant, s => true)
-                    )
-                    .WithOption(UserOptions.SendWithoutSign, UserOptions.SendWithoutSign).Do(then =>
-                        then.StartWith(c => ExecutionResult.Next()).Output(d => d.IsSignedByDeclarant, s => false)
-                    )
-                .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
-                    then.StartWith(c =>
-                    {
-                        var a = c.Workflow.ExecutionPointers.Count;
-                    }).Parallel()
+            .StartWith<SetWorkflowId>()
+                .Input(step => step.AwaiterKey, data => data.Value)
+            .UserTask("SendContract", (d, c) => "declarant")
+                .WithOption(UserOptions.SendWithSign, "o1").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => true)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                )
+                .WithOption(UserOptions.SendWithoutSign, "o2").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => false)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                )
+            .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
+                then.StartWith(c => { })
+                    .Parallel()
+                        .Do(t => t.StartWith(c => Log.Information("StartEndCoz")))
                         .Do(t => t.ContractGv())
-                        .Do(t => t.StartWith(c => ExecutionResult.Next()))
                     .Join()
-                );
-            //.Then<RealiseAwaiter>()
-            //    .Input(s => s.Value, d => d.Value);
+            )
+            .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(t => t.StartWith(c => { }));
         }
     }
 

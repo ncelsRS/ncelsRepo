@@ -1,4 +1,5 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
+import {RegisterType} from '../RegisterType';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -7,7 +8,9 @@ import { Component, OnInit} from '@angular/core';
 })
 export class ExtManufacturerComponent implements OnInit {
 
-  constructor() { }
+  @Input() prnRegisterType: string;
+
+
 
   ngOnInit() {
   }
