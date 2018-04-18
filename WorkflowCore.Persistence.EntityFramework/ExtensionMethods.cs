@@ -131,7 +131,7 @@ namespace WorkflowCore.Persistence.EntityFramework
             result.WorkflowDefinitionId = instance.WorkflowDefinitionId;
             result.Status = instance.Status;
             result.CreateTime = DateTime.SpecifyKind(instance.CreateTime, DateTimeKind.Utc);
-            if (instance.CompleteTime.HasValue)
+            if (result.CompleteTime.HasValue)
                 result.CompleteTime = DateTime.SpecifyKind(instance.CompleteTime.Value, DateTimeKind.Utc);
 
             foreach (var ep in instance.ExecutionPointers)
