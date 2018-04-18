@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,20 +24,20 @@ namespace Teme.Admin.Data.Repository
         /// Условия хранения(справочник)
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_StorageCondition> StorageCondition() => _context.Ref_StorageConditions.Where(e => !e.IsDeleted);
+        public async Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync() => await _context.Ref_StorageConditions.Where(e => !e.IsDeleted).ToListAsync();
         
         /// <summary>
         /// Классификатор областей медицинского применения медицинских изделий(справочник)
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_ClassifierMedicalArea> ClassifierMedicalArea() => _context.Ref_ClassifierMedicalAreas.Where(e => !e.IsDeleted);
+        public async Task<IEnumerable<Ref_ClassifierMedicalArea>> ClassifierMedicalAreaAsync() => await _context.Ref_ClassifierMedicalAreas.Where(e => !e.IsDeleted).ToListAsync();
 
         /// <summary>
         /// Код Номенклатуры медицинских изделий Республики Казахстан 
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public IQueryable<Ref_NomenclatureCodeMedProduct> NomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IQueryable<Ref_NomenclatureCodeMedProduct>> NomenclatureCodeMedProductAsync(string name, string culture)
         {
             Expression<Func<Ref_NomenclatureCodeMedProduct, bool>> nomeclature;
             if(name != null)
@@ -58,26 +59,26 @@ namespace Teme.Admin.Data.Repository
             {
                 nomeclature = x => !x.IsDeleted;
             }
-            return _context.Ref_NomenclatureCodeMedProducts.AsQueryable().Where(nomeclature).Take(10);
+            return await Task.Run(() => _context.Ref_NomenclatureCodeMedProducts.AsQueryable().Where(nomeclature).Take(10));
         }
 
         /// <summary>
         /// Класс в зависимости от степени потенциального риска применения(справочник)
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_DegreeRiskClass> DegreeRiskClass() => _context.Ref_DegreeRiskClasses.Where(e => !e.IsDeleted);
+        public async Task<IEnumerable<Ref_DegreeRiskClass>> DegreeRiskClassAsync() => await _context.Ref_DegreeRiskClasses.Where(e => !e.IsDeleted).ToArrayAsync();
 
         /// <summary>
         /// Организационная форма(справочник)
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_OrganizationForm> OrganizationForm() => _context.Ref_OrganizationForms.Where(e => !e.IsDeleted && e.IsConfirmed);
+        public async Task<IEnumerable<Ref_OrganizationForm>> OrganizationFormAsync() => await _context.Ref_OrganizationForms.Where(e => !e.IsDeleted && e.IsConfirmed).ToArrayAsync();
 
         /// <summary>
         /// Добавить новую Организационную форума(справочник)
         /// </summary>
         /// <returns></returns>
-        public int SaveOrganizationForm(string nameRu, string nameKz, bool isConfirmed)
+        public async Task<int> SaveOrganizationFormAsync(string nameRu, string nameKz, bool isConfirmed)
         {
             var orgForm = new Ref_OrganizationForm()
             {
@@ -86,7 +87,7 @@ namespace Teme.Admin.Data.Repository
                 IsConfirmed = isConfirmed
             };
             _context.Ref_OrganizationForms.Add(orgForm);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return orgForm.Id;
         }
 
@@ -94,7 +95,7 @@ namespace Teme.Admin.Data.Repository
         /// Банки(справочник)
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_Bank> Banks() => _context.Ref_Banks.Where(e => !e.IsDeleted && e.IsConfirmed);
+        public async Task<IEnumerable<Ref_Bank>> BanksAsync() => await _context.Ref_Banks.Where(e => !e.IsDeleted && e.IsConfirmed).ToArrayAsync();
 
         /// <summary>
         /// Добавить новый Банк(справочник)
@@ -103,7 +104,7 @@ namespace Teme.Admin.Data.Repository
         /// <param name="nameKz"></param>
         /// <param name="isConfirmed"></param>
         /// <returns></returns>
-        public int SaveBank(string nameRu, string nameKz, bool isConfirmed)
+        public async Task<int> SaveBankAsync(string nameRu, string nameKz, bool isConfirmed)
         {
             var bank = new Ref_Bank()
             {
@@ -112,7 +113,7 @@ namespace Teme.Admin.Data.Repository
                 IsConfirmed = isConfirmed
             };
             _context.Ref_Banks.Add(bank);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return bank.Id;
         }
 
@@ -120,12 +121,12 @@ namespace Teme.Admin.Data.Repository
         /// Валюта
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_Currency> Currency() => _context.Ref_Currencies.Where(e => !e.IsDeleted);
+        public async Task<IEnumerable<Ref_Currency>> CurrencyAsync() => await _context.Ref_Currencies.Where(e => !e.IsDeleted).ToListAsync();
 
         /// <summary>
         /// Страны
         /// </summary>
         /// <returns></returns>
-        public IQueryable<Ref_Country> Country() => _context.Ref_Countries.Where(e => !e.IsDeleted);
+        public async Task<IEnumerable<Ref_Country>> CountryAsync() => await _context.Ref_Countries.Where(e => !e.IsDeleted).ToListAsync();
     }
 }

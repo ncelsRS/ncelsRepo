@@ -31,9 +31,9 @@ namespace Teme.Admin.Api.Controllers
         /// Классификатор областей медицинского применения медицинских изделий(справочник)
         /// </summary>
         [Route("ClassifierMedicalArea")]
-        public IEnumerable<ReferenceModel> ClassifierMedicalArea()
+        public async Task<IEnumerable<ReferenceModel>> ClassifierMedicalArea()
         {
-            return _refLogic.GetClassifierMedicalArea();
+            return await _refLogic.GetClassifierMedicalArea();
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("NomenclatureCodeMedProduct")]
-        public IEnumerable<NomenclatureCodeMedProductModel> NomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IEnumerable<NomenclatureCodeMedProductModel>> NomenclatureCodeMedProduct(string name, string culture)
         {
-            return _refLogic.GetNomenclatureCodeMedProduct(name, culture);
+            return await _refLogic.GetNomenclatureCodeMedProduct(name, culture);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("DegreeRiskClass")]
-        public IEnumerable<object> DegreeRiskClass()
+        public async Task<IEnumerable<object>> DegreeRiskClass()
         {
-            return _refLogic.GetDegreeRiskClass();
+            return await _refLogic.GetDegreeRiskClass();
         }
 
         /// <summary>
@@ -71,9 +71,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("OrganizationForm")]
-        public IEnumerable<object> OrganizationForm()
+        public async Task<IEnumerable<object>> OrganizationForm()
         {
-            return _refLogic.GetOrganizationForm();
+            return await _refLogic.GetOrganizationForm();
         }
 
         /// <summary>
@@ -83,9 +83,9 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameKz"></param>
         /// <returns></returns>
         [Route("SaveOrganizationForm")]
-        public int SaveOrganizationForm(string nameRu, string nameKz)
+        public async Task<int> SaveOrganizationForm(string nameRu, string nameKz)
         {
-            return _refLogic.SaveOrganizationForm(nameRu, nameKz);
+            return await _refLogic.SaveOrganizationForm(nameRu, nameKz);
         }
 
         /// <summary>
@@ -93,9 +93,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Bank")]
-        public IEnumerable<object> Bank()
+        public async Task<IEnumerable<object>> Bank()
         {
-            return _refLogic.GetBank();
+            return await _refLogic.GetBank();
         }
 
         /// <summary>
@@ -105,9 +105,9 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameKz"></param>
         /// <returns></returns>
         [Route("SaveOrganizationForm")]
-        public int SaveBank(string nameRu, string nameKz)
+        public async Task<int> SaveBank(string nameRu, string nameKz)
         {
-            return _refLogic.SaveBank(nameRu, nameKz);
+            return await _refLogic.SaveBank(nameRu, nameKz);
         }
 
         /// <summary>
@@ -115,9 +115,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Currency")]
-        public IEnumerable<object> Currency()
+        public async Task<IEnumerable<object>> Currency()
         {
-            return _refLogic.GetCurrency();
+            return await _refLogic.GetCurrency();
         }
 
         /// <summary>
@@ -125,9 +125,9 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Currency")]
-        public IEnumerable<object> Country()
+        public async Task<IEnumerable<object>> Country()
         {
-            return _refLogic.GetCountry();
+            return await _refLogic.GetCountry();
         }
 
         /// <summary>

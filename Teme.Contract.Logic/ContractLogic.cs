@@ -22,7 +22,7 @@ namespace Teme.Contract.Logic
         {
             var id = await _wflogic.Start(new ContractWorkflowTransitionData
             {
-                ExecutorId = "declarantId",
+                //ExecutorId = "declarantId",
                 ContractType = ContractTypeEnum.OneToOne
             });
             return id;

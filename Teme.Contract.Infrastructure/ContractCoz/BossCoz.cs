@@ -21,10 +21,10 @@ namespace Teme.Contract.Infrastructure.ContractCoz
         public string ExecutorId { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var data = GetEventData(context);
-            TaskCompletionService.ReleaseTask(data.AwaiterKey);
-            var id = data.Value as string;
-            Log.Information($"Setted executor: {id}");
+            //var data = GetEventData(context);
+            //TaskCompletionService.ReleaseTask(data.AwaiterKey);
+            //var id = data.Value as string;
+            //Log.Information($"Setted executor: {id}");
             return ExecutionResult.Next();
         }
     }

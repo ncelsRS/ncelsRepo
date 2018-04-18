@@ -22,7 +22,7 @@ namespace Teme.Admin.Logic
 
         public async Task<IEnumerable<ReferenceModel>> GetStorageCondition()
         {
-            var scs = await Task.Run(()=> _refRepo.StorageCondition());
+            var scs = await _refRepo.StorageConditionAsync();
             return scs.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -32,9 +32,9 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public IEnumerable<ReferenceModel> GetClassifierMedicalArea()
+        public async Task<IEnumerable<ReferenceModel>> GetClassifierMedicalArea()
         {
-            var cmas = _refRepo.ClassifierMedicalArea();
+            var cmas = await _refRepo.ClassifierMedicalAreaAsync();
             return cmas.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -44,9 +44,9 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public IEnumerable<NomenclatureCodeMedProductModel> GetNomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IEnumerable<NomenclatureCodeMedProductModel>> GetNomenclatureCodeMedProduct(string name, string culture)
         {
-            var ncmps = _refRepo.NomenclatureCodeMedProduct(name, culture);
+            var ncmps = await _refRepo.NomenclatureCodeMedProductAsync(name, culture);
             return ncmps.Select(x => new NomenclatureCodeMedProductModel
             {
                 Id = x.Id,
@@ -71,9 +71,9 @@ namespace Teme.Admin.Logic
             return enumVals;
         }
 
-        public IEnumerable<object> GetDegreeRiskClass()
+        public async Task<IEnumerable<object>> GetDegreeRiskClass()
         {
-            var drcs = _refRepo.DegreeRiskClass();
+            var drcs = await _refRepo.DegreeRiskClassAsync();
             return drcs.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -83,9 +83,9 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public IEnumerable<object> GetOrganizationForm()
+        public async Task<IEnumerable<object>> GetOrganizationForm()
         {
-            var ofs = _refRepo.OrganizationForm();
+            var ofs = await _refRepo.OrganizationFormAsync();
             return ofs.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -95,14 +95,14 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public int SaveOrganizationForm(string nameRu, string nameKz)
+        public async Task<int> SaveOrganizationForm(string nameRu, string nameKz)
         {
-            return _refRepo.SaveOrganizationForm(nameRu, nameKz, false);
+            return await _refRepo.SaveOrganizationFormAsync(nameRu, nameKz, false);
         }
 
-        public IEnumerable<object> GetBank()
+        public async Task<IEnumerable<object>> GetBank()
         {
-            var banks = _refRepo.Banks();
+            var banks = await _refRepo.BanksAsync();
             return banks.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -112,14 +112,14 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public int SaveBank(string nameRu, string nameKz)
+        public async Task<int> SaveBank(string nameRu, string nameKz)
         {
-            return _refRepo.SaveBank(nameRu, nameKz, false);
+            return await _refRepo.SaveBankAsync(nameRu, nameKz, false);
         }
 
-        public IEnumerable<object> GetCurrency()
+        public async Task<IEnumerable<object>> GetCurrency()
         {
-            var currencies = _refRepo.Currency();
+            var currencies = await _refRepo.CurrencyAsync();
             return currencies.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -129,9 +129,9 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public IEnumerable<object> GetCountry()
+        public async Task<IEnumerable<object>> GetCountry()
         {
-            var countries = _refRepo.Country();
+            var countries = await _refRepo.CountryAsync();
             return countries.Select(x => new ReferenceModel
             {
                 Id = x.Id,

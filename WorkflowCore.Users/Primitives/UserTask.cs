@@ -13,6 +13,8 @@ namespace WorkflowCore.Users.Primitives
 
         public string Prompt { get; set; }
 
+        public object Value { get; set; }
+
         public const string EventName = "UserAction";
         public const string ExtAssignPrincipal = "AssignedPrincipal";
         public const string ExtPrompt = "Prompt";
@@ -46,6 +48,7 @@ namespace WorkflowCore.Users.Primitives
                 throw new ArgumentException();
             
             var action = ((UserAction) context.ExecutionPointer.EventData);
+            Value = action.Value;
             context.ExecutionPointer.ExtensionAttributes["ActionUser"] = action.User;
             
             if (context.PersistenceData == null)
