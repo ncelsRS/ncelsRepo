@@ -33,7 +33,7 @@ namespace Teme.Contract.Logic
             return await _wflogic.GetUserActions(workflowId);
         }
 
-        public async Task<string> PublishUserAction(string key, string chosenValue, IEnumerable<string> executorsIds, object data)
+        public async Task<string> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds, object data)
         {
             return await _wflogic.PublishUserAction(key, chosenValue, executorsIds, data);
         }

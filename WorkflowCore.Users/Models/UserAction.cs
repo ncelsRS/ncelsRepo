@@ -9,7 +9,7 @@ namespace WorkflowCore.Users.Models
     {
         public object OutcomeValue { get; set; }
         public string AwaiterKey { get; set; }
-        public IEnumerable<string> ExecutorsIds { get; set; }
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public object Data { get; set; }
     }
 }
