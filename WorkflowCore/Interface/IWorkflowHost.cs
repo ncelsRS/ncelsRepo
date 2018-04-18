@@ -24,11 +24,11 @@ namespace WorkflowCore.Interface
         //public dependencies to allow for extension method access
         IPersistenceProvider PersistenceStore { get; }
         IDistributedLockProvider LockProvider { get; }
-
         IWorkflowRegistry Registry { get; }
         WorkflowOptions Options { get; }
         IQueueProvider QueueProvider { get; }
         ILogger Logger { get; }
+
     }
 
     public delegate void StepErrorEventHandler(WorkflowInstance workflow, WorkflowStep step, Exception exception);

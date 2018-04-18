@@ -33,9 +33,9 @@ namespace Teme.Contract.Api.Controllers
         }
 
         [Route("publish/useraction")]
-        public async Task<string> PublishUserAction([FromQuery] string key, [FromQuery] string username, [FromQuery] string chosenValue, [FromQuery]object value)
+        public async Task<string> PublishUserAction([FromQuery] string key, [FromQuery] string chosenValue, [FromQuery] IEnumerable<string> executorsIds = null, [FromQuery]object value = null)
         {
-            return await _logic.PublishUserAction(key, username, chosenValue, value);
+            return await _logic.PublishUserAction(key, chosenValue, executorsIds, value);
         }
 
     }

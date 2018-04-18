@@ -13,8 +13,6 @@ namespace WorkflowCore.Users.Primitives
 
         public string Prompt { get; set; }
 
-        public object Value { get; set; }
-
         public const string EventName = "UserAction";
         public const string ExtAssignPrincipal = "AssignedPrincipal";
         public const string ExtPrompt = "Prompt";
@@ -46,11 +44,14 @@ namespace WorkflowCore.Users.Primitives
 
             if (!(context.ExecutionPointer.EventData is UserAction))
                 throw new ArgumentException();
-            
-            var action = ((UserAction) context.ExecutionPointer.EventData);
-            Value = action.Value;
-            context.ExecutionPointer.ExtensionAttributes["ActionUser"] = action.User;
-            
+
+            var action = ((UserAction)context.ExecutionPointer.EventData);
+            context.ExecutionPointer.ExtensionAttributes["AwaiterKey"] = action.AwaiterKey;
+            if (action.ExecutorsIds != null)
+                context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
+            if (action.Data != null)
+                context.ExecutionPointer.ExtensionAttributes["Data"] = action.Data;
+
             if (context.PersistenceData == null)
             {
                 var result = ExecutionResult.Branch(new List<object>() { null }, new ControlPersistenceData() { ChildrenActive = true });
