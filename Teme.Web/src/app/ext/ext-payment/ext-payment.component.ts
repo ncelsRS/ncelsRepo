@@ -6,11 +6,11 @@ import { Settings } from 'app/app.settings.model';
 
 @Component({
   selector: 'app-pages',
-  templateUrl: './bek.component.html',
-  styleUrls: ['./bek.component.scss'],
+  templateUrl: './ext-payment.component.html',
+  styleUrls: ['./ext-payment.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class BekComponent implements OnInit {
+export class ExtPaymentComponent implements OnInit {
     public showMenu:boolean = false;
     public showSetting:boolean = false;
     public menus = ['vertical', 'horizontal'];

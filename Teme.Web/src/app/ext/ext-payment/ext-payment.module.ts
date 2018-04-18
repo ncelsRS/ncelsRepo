@@ -11,8 +11,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { MultiselectDropdownModule } from 'angular-2-dropdown-multiselect';
 
-import { routing } from './bek.routing';
-import { BekComponent } from './bek.component';
+import { routing } from './ext-payment.routing';
+import { ExtPaymentComponent } from './ext-payment.component';
 
 
 import { SideChatComponent } from './components/side-chat/side-chat.component';
@@ -62,7 +62,7 @@ import { SigningComponent } from './signing/signing.component';
     ReactiveFormsModule
   ],
   declarations: [
-    BekComponent,
+    ExtPaymentComponent,
     VerticalMenuComponent,
     SideChatComponent,
     BreadcrumbComponent,
@@ -96,4 +96,4 @@ import { SigningComponent } from './signing/signing.component';
     }
   ]
 })
-export class BekModule { }
+export class ExtPaymentModule { }

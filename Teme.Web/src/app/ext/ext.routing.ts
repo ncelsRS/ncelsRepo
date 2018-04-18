@@ -21,7 +21,8 @@ export const routes: Routes = [
                 loadChildren: './ext-contract/ext-contract.module#ExtContractModule'
             }
         ]
-    }
+    },
+  {path: 'payment', loadChildren: 'app/ext/ext-payment/ext-payment.module#ExtPaymentModule'},
 ];
 
 export const routing: ModuleWithProviders = RouterModule.forChild(routes);
