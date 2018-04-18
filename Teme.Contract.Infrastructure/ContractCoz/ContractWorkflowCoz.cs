@@ -9,12 +9,12 @@ namespace Teme.Contract.Infrastructure.ContractCoz
         {
             builder
                 .StartWith<BossCoz>()
-                    .Input(step => step.AwaiterKey, data => data.Value)
+                    .Input(step => step.AwaiterKey, data => data.Value);
                 // Назначение Юристконсульта
-                .UserTask("SendContractToLegalAdviser", data => "legalAdviser")
-                    .WithOption("sendToCozExecutor", "sendToCozExecutor").Do(then =>
-                        then.StartWith(c => ExecutionResult.Next())
-                    );
+                //.UserTask("SendContractToLegalAdviser", data => "legalAdviser")
+                //    .WithOption("sendToCozExecutor", "sendToCozExecutor").Do(then =>
+                //        then.StartWith(c => ExecutionResult.Next())
+                //    );
                     //.WithOption(UserOptions.SendWithSign, UserOptions.SendWithSign).Do(then =>
                     //    then.StartWith(c => ExecutionResult.Next()).Output(d => d.IsSignedByDeclarant, s => true)
                     //)

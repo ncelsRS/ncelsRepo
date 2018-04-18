@@ -41,7 +41,7 @@ namespace Teme.Contract.Infrastructure
             return actions.Where(x => x.AssignedPrincipal == userId);
         }
 
-        public async Task<string> PublishUserAction(string key, string chosenValue, IEnumerable<string> executorsIds = null, object value = null)
+        public async Task<string> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null)
         {
             var awaiterKey = Guid.NewGuid().ToString();
             var awaiter = TaskCompletionService.AddTask(awaiterKey);

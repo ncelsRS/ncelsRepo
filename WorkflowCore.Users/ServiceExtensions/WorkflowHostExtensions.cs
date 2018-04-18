@@ -13,7 +13,7 @@ namespace WorkflowCore.Interface
 {
     public static class WorkflowHostExtensions
     {
-        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, string awaiterKey, IEnumerable<string> ExecutorsIds = null, object data = null)
+        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, string awaiterKey, Dictionary<string, IEnumerable<string>> ExecutorsIds = null, object data = null)
         {
             UserAction eventData = new UserAction()
             {

@@ -1,6 +1,5 @@
 ﻿using Serilog;
 using System.Threading.Tasks;
-using Teme.Contract.Infrastructure.ContractCoz;
 using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.WorkflowSteps;
@@ -22,22 +21,25 @@ namespace Teme.Contract.Infrastructure
             builder
             .StartWith<SetWorkflowId>()
                 .Input(step => step.AwaiterKey, data => data.Value)
-            .UserTask("SendContract", data => "declarant")
-                .WithOption(UserOptions.SendWithSign, UserOptions.SendWithSign).Do(then =>
-                    then.StartWith(c => ExecutionResult.Next()).Output(d => d.IsSignedByDeclarant, s => true)
+            .UserTask("SendContract", (d, c) => "declarant")
+                .WithOption(UserOptions.SendWithSign, "o1").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => true)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                 )
-                .WithOption(UserOptions.SendWithoutSign, UserOptions.SendWithoutSign).Do(then =>
-                    then.StartWith(c => ExecutionResult.Next()).Output(d => d.IsSignedByDeclarant, s => false)
+                .WithOption(UserOptions.SendWithoutSign, "o2").Do(then =>
+                    then.StartWith<SendToNcels>()
+                        .Output(d => d.IsSignedByDeclarant, s => false)
+                        .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                 )
             .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                 then.StartWith(c => { })
                     .Parallel()
-                        .Do(t => t.ContractCoz())
-                        .Do(t => t.StartWith(x => ExecutionResult.Next()))
+                        .Do(t => t.StartWith(c => Log.Information("StartEndCoz")))
+                        .Do(t => t.ContractGv())
                     .Join()
             )
-            .Then<RealiseAwaiter>()
-                .Input(s => s.Value, d => d.Value);
+            .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(t => t.StartWith(c => { }));
         }
     }
 
