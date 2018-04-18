@@ -10,12 +10,18 @@ import {ExtGeneralInformationComponent} from './ext-general-information/ext-gene
 })
 
 export class ExtDeclarationComponent implements OnInit {
+  public showAllErr = false;
   RegisterTypes: RegisterType[];
   type: string;
-  public showErrors = false;
-  public contract: any = {manufacturer: {val: null, val2: null, val3: null}};
+
+  public declaration: any = {
+    general: {val: null, val2: null, val3: null, val4: null, val6: null},
+    producer: {val6: null}
+  };
+
+
   @ViewChild(ExtGeneralInformationComponent)
-  private  ExtGeneral: ExtGeneralInformationComponent;
+  private ExtGeneral: ExtGeneralInformationComponent;
 
   constructor() {
     this.type = 'general';
@@ -25,23 +31,19 @@ export class ExtDeclarationComponent implements OnInit {
     this.type = name;
   }
 
-  onSubmit (form: FormsModule) {
+  onSubmit(form: FormsModule) {
     // element.all(by.tagName('app-hero-parent'))
   }
 
-  public onTriggerClick() {
-    this.ExtGeneral.triggerClick();
+  ngOnInit() {
   }
 
-  ngOnInit() {}
-
   sendToNcels(valid) {
-    alert(valid.toString());
+    this.showAllErr = true;
   }
 
   diagnostic() {
-    return JSON.stringify(this.contract);
+    return JSON.stringify(this.declaration);
   }
-
 
 }

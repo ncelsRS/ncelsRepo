@@ -1,5 +1,12 @@
 import {Component, forwardRef, Input, ViewChild} from '@angular/core';
-import {AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator} from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator
+} from '@angular/forms';
 import {RegisterType} from '../RegisterType';
 
 @Component({
@@ -17,18 +24,17 @@ import {RegisterType} from '../RegisterType';
   }]
 })
 export class ExtGeneralInformationComponent implements ControlValueAccessor, Validator {
+  @Input() showErrors = false;
+  @ViewChild('registerForm') form;
   selectedLevel: string;
-  namesa: string;
-  @Input('sub') sub;
+  public data = [];
+  private _model: any = {};
   levels: Array<RegisterType> = [
     {code: 'Registration', name: 'Регистрация'},
     {code: 'Reregistration', name: 'Перерегистрация'},
     {code: 'Edit', name: 'Внесение изменений'},
 
   ];
-  public data = [];
-  private _model: any = {};
-  @ViewChild('registerForm') form;
   public changeTypeSettings = {
     selectMode: 'single',
     hideHeader: false,
@@ -202,7 +208,6 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
     this.selectedLevel = lev.name;
   }
 
-
   get model() {
     return this._model;
   }
@@ -233,9 +238,6 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
     this.change(obj);
   }
 
-  public testMethod() {
-  }
-
   registerOnValidatorChange(fn: () => void): void {
   }
 
@@ -244,14 +246,7 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
     return {error: true};
   }
 
-
-  onSubmit() {
-  }
-
-  triggerClick() {
-    const element: HTMLElement = document.getElementById('register') as HTMLElement;
-    element.click();
-  }
+  onSubmit() {}
 
   constructor() {
     this.selectedLevel = 'Registration';
@@ -274,16 +269,10 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
     }
   }
 
-  public onRowSelect(event) {
-    // console.log(event);
-  }
+  public onRowSelect(event) {}
 
-  public onUserRowSelect(event) {
+  public onUserRowSelect(event) {}
 
-  }
-
-  public onRowHover(event) {
-  }
-
+  public onRowHover(event) {}
 
 }
