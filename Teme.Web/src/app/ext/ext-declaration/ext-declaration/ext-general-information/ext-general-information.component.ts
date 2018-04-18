@@ -29,6 +29,7 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
   selectedLevel: string;
   public data = [];
   private _model: any = {};
+  public date: {year: number, month: number};
   levels: Array<RegisterType> = [
     {code: 'Registration', name: 'Регистрация'},
     {code: 'Reregistration', name: 'Перерегистрация'},

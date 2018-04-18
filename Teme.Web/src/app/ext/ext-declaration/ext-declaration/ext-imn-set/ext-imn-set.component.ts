@@ -78,7 +78,6 @@ export class ExtImnSetComponent implements OnInit {
             perPage: 10
         }
     };
-
     public table2Settings = {
         selectMode: 'single',  //single|multi
         hideHeader: false,
@@ -153,7 +152,6 @@ export class ExtImnSetComponent implements OnInit {
             perPage: 10
         }
     };
-
     constructor() {
       this.imnTable = true;
         // this.getData((data) => {
