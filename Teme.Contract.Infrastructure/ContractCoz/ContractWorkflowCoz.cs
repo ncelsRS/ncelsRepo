@@ -1,5 +1,4 @@
-﻿using Teme.Contract.Infrastructure.ContractCoz.Steps;
-using WorkflowCore.Interface;
+﻿using WorkflowCore.Interface;
 using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure.ContractCoz
