@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using System.Threading.Tasks;
+using Teme.Contract.Infrastructure.ContractCoz;
 using Teme.Contract.Infrastructure.ContractGv;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.WorkflowSteps;
@@ -31,8 +32,8 @@ namespace Teme.Contract.Infrastructure
             .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                 then.StartWith(c => { })
                     .Parallel()
-                        .Do(t => t.StartWith(c => ExecutionResult.Next()))
-                        .Do(t => t.ContractGv())
+                        .Do(t => t.ContractCoz())
+                        .Do(t => t.StartWith(x => ExecutionResult.Next()))
                     .Join()
             )
             .Then<RealiseAwaiter>()
