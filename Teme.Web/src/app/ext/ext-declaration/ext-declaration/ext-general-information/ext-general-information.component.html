@@ -1,5 +1,5 @@
-<form #registerForm="ngForm" (change)="model=model">
-<div class="form-group row">
+<form #templateForm="ngForm" (change)="model=model">
+  <div class="form-group row">
     <label class="col-4 col-form-label">Вид регистрации</label>
     <div class="col-5">
       <div class="input-group">
@@ -14,17 +14,22 @@
       </div>
     </div>
   </div>
-
   <div [hidden]="(selectedLevel !== 'Edit' && selectedLevel !== 'Reregistration' )">
     <p class="text-center">Данные с государственного реестра Республики Казахстан</p>
     <br>
     <div class="row">
       <div class="col-md-6">
         <div class="form-group row">
-          <label class="col-4 col-form-label">№ регистрационного удостоверения</label>
+          <label class="col-4 col-form-label"
+                 [ngClass]="{'has-error-text':showErrors === true && numberRegistrationDocument.invalid}">
+            № регистрационного удостоверения</label>
           <div class="col-8">
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" [required]="(selectedLevel !== 'Registration')"
+                     #numberRegistrationDocument="ngModel"
+                     name="numberRegistrationDocument"
+                     [ngClass]="{'has-error':showErrors === true && numberRegistrationDocument.invalid}"
+                     [(ngModel)]="model.numberRegistrationDocument">
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
               </div>
@@ -34,26 +39,40 @@
       </div>
       <div class="col-md-6">
         <div class="form-group row">
-          <label class="col-4 col-form-label">Дата регистрации</label>
-          <div class="col-8">
+          <label class="col-4 col-form-label"
+                 [ngClass]="{'has-error-text':showErrors === true && registrationDate.invalid}">
+            Дата регистрации</label>
+          <div class="col-8" ngbDatepicker>
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" [required]="(selectedLevel !== 'Registration')"
+                     [ngClass]="{'has-error':showErrors === true && registrationDate.invalid}"
+                     name="registrationDate" [(ngModel)]="model.registrationDate" ngbDatepicker
+                     #registrationDate="ngModel" #registrationDateBtn="ngbDatepicker">
               <div class="input-group-append">
-                <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="registrationDateBtn.toggle()"
+                        type="button">
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <br>
     <div class="row">
       <div class="col-md-6">
         <div class="form-group row">
-          <label class="col-4 col-form-label">№ НД (Нормативная документация)</label>
+          <label class="col-4 col-form-label"
+                 [ngClass]="{'has-error-text':showErrors === true && normativeDocNumber.invalid}">
+            № НД (Нормативная документация)</label>
           <div class="col-8">
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" [required]="(selectedLevel !== 'Registration')"
+                     #normativeDocNumber="ngModel"
+                     name="normativeDocNumber"
+                     [ngClass]="{'has-error':showErrors === true && normativeDocNumber.invalid}"
+                     [(ngModel)]="model.normativeDocNumber">
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
               </div>
@@ -63,12 +82,17 @@
       </div>
       <div class="col-md-6">
         <div class="form-group row">
-          <label class="col-4 col-form-label">Срок действия</label>
+          <label class="col-4 col-form-label" [ngClass]="{'has-error-text':showErrors === true && term.invalid}">Срок
+            действия</label>
           <div class="col-8">
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" [required]="(selectedLevel !== 'Registration')"
+                     [ngClass]="{'has-error':showErrors === true && term.invalid}"
+                     name="term" [(ngModel)]="model.term" ngbDatepicker
+                     #term="ngModel" #termBtn="ngbDatepicker">
               <div class="input-group-append">
-                <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="termBtn.toggle()" type="button">
+                </button>
               </div>
             </div>
           </div>
@@ -94,7 +118,6 @@
                        (rowHover)="onRowHover($event)"></ng2-smart-table>
     </div>
   </div>
-
   <br>
   <div class="row">
     <div class="col-md-12">
@@ -102,7 +125,7 @@
         <label class="col-4 col-form-label" [ngClass]="{'has-error-text':showErrors === true && contract.invalid}">Договор</label>
         <div class="col-8">
           <div class="input-group">
-            <input class="form-control"  #contract="ngModel"
+            <input class="form-control" #contract="ngModel"
                    name="contract"
                    [ngClass]="{'has-error':showErrors === true && contract.invalid}"
                    [(ngModel)]="model.val4"
@@ -115,7 +138,6 @@
       </div>
     </div>
   </div>
-
   <br>
   <div class="row">
     <div class="col-md-12">
@@ -126,7 +148,7 @@
                    [ngClass]="{'has-error-text':showErrors === true && registerType.invalid}">Тип регистрации</label>
             <div class="col-8">
               <div class="input-group">
-                <input class="form-control"  #registerType="ngModel"
+                <input class="form-control" #registerType="ngModel"
                        name="registerType"
                        [ngClass]="{'has-error':showErrors === true && registerType.invalid}"
                        [(ngModel)]="model.val"
@@ -162,42 +184,22 @@
                    [ngClass]="{'has-error-text':showErrors === true && letterDate.invalid}">Дата письма</label>
             <div class="col-8">
               <div class="input-group">
-                <input class="form-control" #letterDate="ngModel"
-                       name="letterDate"
-                       [ngClass]="{'has-error': showErrors === true && letterDate.invalid}"
-                       [(ngModel)]="model.val3"
-                       required>
+                <input class="form-control" required
+                       [ngClass]="{'has-error':showErrors === true && letterDate.invalid}"
+                       name="letterDate" [(ngModel)]="model.letterDate" ngbDatepicker
+                       #letterDate="ngModel" #letterDateBtn="ngbDatepicker">
                 <div class="input-group-append">
-                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                  <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="letterDateBtn.toggle()"
+                          type="button">
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   </div>
-
-  <!--<div class="row">-->
-  <!--<div class="col-lg-4 mb-4">-->
-  <!--<h6>Datepicker in a popup</h6>-->
-  <!--<form class="form-inline">-->
-  <!--<div class="form-group">-->
-  <!--<div class="input-group">-->
-  <!--<input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="modelPopup" ngbDatepicker #p="ngbDatepicker">-->
-  <!--<div class="input-group-append" (click)="p.toggle()">-->
-  <!--<span class="input-group-text"><i class="fa fa-calendar"></i></span>-->
-  <!--</div>-->
-  <!--</div>-->
-  <!--</div>-->
-  <!--</form>-->
-  <!--<hr/>-->
-  <!--<pre>Model: {{ modelPopup | json }}</pre>-->
-  <!--</div>-->
-  <!--</div>-->
-
   <br>
   <div class="row" [hidden]="selectedLevel !== 'Edit'">
     <div class="col-md-12">
@@ -228,17 +230,14 @@
   <div class="row">
     <div class="col-md-6">
       <p>Торговое наименование ИМН\МТ</p>
-
       <div class="form-group">
-        <label>На государственном языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && imnGosLanguage.invalid}">На государственном
+          языке</label>
         <div class="input-group">
-          <select class="form-control">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-          </select>
+          <input class="form-control" required
+                 #imnGosLanguage="ngModel" name="imnGosLanguage"
+                 [ngClass]="{'has-error':showErrors === true && imnGosLanguage.invalid}"
+                 [(ngModel)]="model.imnGosLanguage">
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
           </div>
@@ -251,13 +250,10 @@
       <br>
       <div class="form-group">
         <div class="input-group">
-          <select class="form-control">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-          </select>
+          <input class="form-control" [required]="(selectedLevel !== 'Registration')"
+                 #GMDN="ngModel" name="GMDN" required
+                 [ngClass]="{'has-error':showErrors === true && GMDN.invalid}"
+                 [(ngModel)]="model.GMDN">
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
           </div>
@@ -268,18 +264,12 @@
   <br>
   <div class="row">
     <div class="col-md-6">
-      <p>Торговое наименование ИМН\МТ</p>
-
       <div class="form-group">
-        <label>На русском языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && imnRussianLanguage.invalid}">На русском языке</label>
         <div class="input-group">
-          <select class="form-control">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-          </select>
+          <input class="form-control" #imnRussianLanguage="ngModel" name="imnRussianLanguage"
+                 [ngClass]="{'has-error':showErrors === true && imnRussianLanguage.invalid}"
+                 [(ngModel)]="model.imnRussianLanguage" required>
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
           </div>
@@ -289,13 +279,15 @@
   </div>
   <br>
   <p class="text-center">Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)</p>
-
   <p>Наименование</p>
-  <p>На государственном языке</p>
+  <p [ngClass]="{'has-error-text':showErrors === true && codeNomenclatureOfficial.invalid}">На государственном языке</p>
   <div class="form-group row">
     <div class="col-12">
       <div class="input-group">
-        <input class="form-control">
+        <input class="form-control"
+               #codeNomenclatureOfficial="ngModel" name="codeNomenclatureOfficial"
+               [ngClass]="{'has-error':showErrors === true && codeNomenclatureOfficial.invalid}"
+               [(ngModel)]="model.codeNomenclatureOfficial" required>
         <div class="input-group-append">
           <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
         </div>
@@ -303,11 +295,14 @@
     </div>
   </div>
   <br>
-  <p>На русском языке</p>
+  <p [ngClass]="{'has-error-text':showErrors === true && codeNomenclatureRussian.invalid}">На русском языке</p>
   <div class="form-group row">
     <div class="col-12">
       <div class="input-group">
-        <input class="form-control">
+        <input class="form-control"
+               #codeNomenclatureRussian="ngModel" name="codeNomenclatureRussian"
+               [ngClass]="{'has-error':showErrors === true && codeNomenclatureRussian.invalid}"
+               [(ngModel)]="model.codeNomenclatureRussian" required>
         <div class="input-group-append">
           <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
         </div>
@@ -317,11 +312,15 @@
 
   <p>Описание</p>
   <br>
-  <p>На государственном языке</p>
+  <p [ngClass]="{'has-error-text':showErrors === true && descrNomenclatureOfficial.invalid}">На государственном
+    языке</p>
   <div class="form-group row">
     <div class="col-12">
       <div class="input-group">
-        <input class="form-control">
+        <input class="form-control" required
+               #descrNomenclatureOfficial="ngModel" name="descrNomenclatureOfficial"
+               [ngClass]="{'has-error':showErrors === true && descrNomenclatureOfficial.invalid}"
+               [(ngModel)]="model.descrNomenclatureOfficial">
         <div class="input-group-append">
           <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
         </div>
@@ -329,11 +328,14 @@
     </div>
   </div>
   <br>
-  <p>На русском языке</p>
+  <p [ngClass]="{'has-error-text':showErrors === true && descrNomenclatureRussian.invalid}">На русском языке</p>
   <div class="form-group row">
     <div class="col-12">
       <div class="input-group">
-        <input class="form-control">
+        <input class="form-control" required
+               #descrNomenclatureRussian="ngModel" name="descrNomenclatureRussian"
+               [ngClass]="{'has-error':showErrors === true && descrNomenclatureRussian.invalid}"
+               [(ngModel)]="model.descrNomenclatureRussian">
         <div class="input-group-append">
           <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
         </div>
@@ -345,9 +347,13 @@
     <div class="col-md-6">
       <p>Область применения</p>
       <div class="form-group">
-        <label>На государственном языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && useAreOfficial.invalid}">На государственном
+          языке</label>
         <div class="input-group">
-          <select class="form-control">
+          <select class="form-control" required
+                  #useAreOfficial="ngModel" name="useAreOfficial"
+                  [ngClass]="{'has-error':showErrors === true && useAreOfficial.invalid}"
+                  [(ngModel)]="model.useAreOfficial">
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -361,9 +367,12 @@
       </div>
 
       <div class="form-group">
-        <label>На русском языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && useAreRussian.invalid}">На русском языке</label>
         <div class="input-group">
-          <select class="form-control">
+          <select class="form-control" required
+                  #useAreRussian="ngModel" name="useAreRussian"
+                  [ngClass]="{'has-error':showErrors === true && useAreRussian.invalid}"
+                  [(ngModel)]="model.useAreRussian">
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -381,9 +390,13 @@
     <div class="col-md-6">
       <p>Назначение</p>
       <div class="form-group">
-        <label>На государственном языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && purposeAreOfficial.invalid}">На государственном
+          языке</label>
         <div class="input-group">
-          <select class="form-control">
+          <select class="form-control" required
+                  #purposeAreOfficial="ngModel" name="purposeAreOfficial"
+                  [ngClass]="{'has-error':showErrors === true && purposeAreOfficial.invalid}"
+                  [(ngModel)]="model.purposeAreOfficial">
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -397,9 +410,12 @@
       </div>
 
       <div class="form-group">
-        <label>На русском языке</label>
+        <label [ngClass]="{'has-error-text':showErrors === true && purposeAreRussian.invalid}">На русском языке</label>
         <div class="input-group">
-          <select class="form-control">
+          <select class="form-control" required
+                  #purposeAreRussian="ngModel" name="purposeAreRussian"
+                  [ngClass]="{'has-error':showErrors === true && purposeAreRussian.invalid}"
+                  [(ngModel)]="model.purposeAreRussian">
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -422,13 +438,13 @@
 
       <div class="row">
         <div class="col-md-4">
-          <p>Закрытая система</p>
+          <p [ngClass]="{'has-error-text':showErrors === true && systemType.invalid}">Закрытая система</p>
         </div>
-
         <div class="col-md-4">
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-            <label class="form-check-label">
+            <input class="form-check-input" type="radio" [(ngModel)]="model.systemType" name="open" value="open"
+                   #systemType="ngModel" checked required>
+            <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && systemType.invalid}">
               Да
             </label>
           </div>
@@ -436,15 +452,16 @@
 
         <div class="col-md-4">
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-            <label class="form-check-label">
+            <input class="form-check-input" type="radio" [(ngModel)]="model.systemType" name="closed" value="closed"
+                   #systemType="ngModel" checked required>
+            <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && systemType.invalid}">
               Нет
             </label>
           </div>
         </div>
       </div>
 
-      <div class="input-group">
+      <div class="input-group" [hidden]="model.systemType !== 'open'">
         <input class="form-control">
         <div class="input-group-append">
           <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
@@ -462,9 +479,13 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>На государственном языке</label>
+            <label [ngClass]="{'has-error-text':showErrors === true && techDescriptionOfficial.invalid}">На
+              государственном языке</label>
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" required
+                     #techDescriptionOfficial="ngModel" name="techDescriptionOfficial"
+                     [ngClass]="{'has-error':showErrors === true && techDescriptionOfficial.invalid}"
+                     [(ngModel)]="model.techDescriptionOfficial">
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
               </div>
@@ -473,9 +494,13 @@
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <label>На русском языке</label>
+            <label [ngClass]="{'has-error-text':showErrors === true && techDescriptionRussian.invalid}">На русском
+              языке</label>
             <div class="input-group">
-              <input class="form-control">
+              <input class="form-control" required
+                     #techDescriptionRussian="ngModel" name="techDescriptionRussian"
+                     [ngClass]="{'has-error':showErrors === true && techDescriptionRussian.invalid}"
+                     [(ngModel)]="model.techDescriptionRussian">
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
               </div>
@@ -489,12 +514,16 @@
   <div class="row">
     <div class="col-md-12">
 
-      <p>Класс в зависимости от степени потенциального риска применения</p>
+      <p [ngClass]="{'has-error-text':showErrors === true && dependencyClass.invalid}">Класс в зависимости от степени
+        потенциального риска применения</p>
 
       <div class="row">
         <div class="col-md-6">
           <div class="input-group">
-            <select class="form-control">
+            <select class="form-control" required
+                    #dependencyClass="ngModel" name="dependencyClass"
+                    [ngClass]="{'has-error':showErrors === true && dependencyClass.invalid}"
+                    [(ngModel)]="model.dependencyClass">
               <option>1</option>
               <option>2</option>
               <option>3</option>
@@ -512,17 +541,17 @@
   <br>
   <div class="row">
     <div class="col-md-12">
-
       <p>Признаки</p>
-
       <div class="row">
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">Тип</label>
+            <label class="col-7 col-form-label" [ngClass]="{'has-error-text':showErrors === true && signType.invalid}">Тип</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.signType" name="signTypeTrue"
+                       value="true"
+                       #signType="ngModel" checked required>
+                <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && signType.invalid}">
                   Да
                 </label>
               </div>
@@ -531,9 +560,11 @@
             <div class="col-3">
               <div class="form-check">
                 <div class="input-group">
-                  <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                         checked>
-                  <label class="form-check-label">
+                  <input class="form-check-input" type="radio" [(ngModel)]="model.signType" name="signTypeFalse"
+                         value="false"
+                         #signType="ngModel" checked required>
+                  <label class="form-check-label"
+                         [ngClass]="{'has-error-text':showErrors === true && signType.invalid}">
                     Нет
                   </label>
                   <div class="input-group-append">
@@ -547,11 +578,12 @@
         </div>
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">Стерильное</label>
+            <label class="col-7 col-form-label" [ngClass]="{'has-error-text':showErrors === true && sterile.invalid}">Стерильное</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.sterile" name="sterileTrue" value="true"
+                       #sterile="ngModel" checked required>
+                <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && sterile.invalid}">
                   Да
                 </label>
               </div>
@@ -560,9 +592,10 @@
             <div class="col-3">
               <div class="form-check">
                 <div class="input-group">
-                  <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                         checked>
-                  <label class="form-check-label">
+                  <input class="form-check-input" type="radio" [(ngModel)]="model.sterile" name="sterileFalse"
+                         value="false"
+                         #sterile="ngModel" checked required>
+                  <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && sterile.invalid}">
                     Нет
                   </label>
                   <div class="input-group-append">
@@ -578,11 +611,16 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">Средство измерения</label>
+            <label class="col-7 col-form-label"
+                   [ngClass]="{'has-error-text':showErrors === true && measureDevice.invalid}">Средство
+              измерения</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.measureDevice" name="measureDeviceTrue"
+                       value="true"
+                       #measureDevice="ngModel" checked required>
+                <label class="form-check-label"
+                       [ngClass]="{'has-error-text':showErrors === true && measureDevice.invalid}">
                   Да
                 </label>
               </div>
@@ -591,9 +629,11 @@
             <div class="col-3">
               <div class="form-check">
                 <div class="input-group">
-                  <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                         checked>
-                  <label class="form-check-label">
+                  <input class="form-check-input" type="radio" [(ngModel)]="model.measureDevice"
+                         name="measureDeviceFalse" value="false"
+                         #measureDevice="ngModel" checked required>
+                  <label class="form-check-label"
+                         [ngClass]="{'has-error-text':showErrors === true && measureDevice.invalid}">
                     Нет
                   </label>
                   <div class="input-group-append">
@@ -607,11 +647,16 @@
         </div>
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">Наличие в составе лекарственного средства</label>
+            <label class="col-7 col-form-label"
+                   [ngClass]="{'has-error-text':showErrors === true && medicineExistence.invalid}">
+              Наличие в составе лекарственного средства</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.medicineExistence"
+                       name="medicineExistenceTrue" value="true"
+                       #medicineExistence="ngModel" checked required>
+                <label class="form-check-label"
+                       [ngClass]="{'has-error-text':showErrors === true && medicineExistence.invalid}">
                   Да
                 </label>
               </div>
@@ -620,9 +665,11 @@
             <div class="col-3">
               <div class="form-check">
                 <div class="input-group">
-                  <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                         checked>
-                  <label class="form-check-label">
+                  <input class="form-check-input" type="radio" [(ngModel)]="model.medicineExistence"
+                         name="medicineExistenceFalse" value="false"
+                         #medicineExistence="ngModel" checked required>
+                  <label class="form-check-label"
+                         [ngClass]="{'has-error-text':showErrors === true && medicineExistence.invalid}">
                     Нет
                   </label>
                   <div class="input-group-append">
@@ -638,11 +685,16 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">ИМН или МТ для ин витро диагностики</label>
+            <label class="col-7 col-form-label"
+                   [ngClass]="{'has-error-text':showErrors === true && vitroDiagnostic.invalid}">ИМН или МТ для ин витро
+              диагностики</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1" checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.vitroDiagnostic"
+                       name="vitroDiagnosticTrue" value="true"
+                       #vitroDiagnostic="ngModel" checked required>
+                <label class="form-check-label"
+                       [ngClass]="{'has-error-text':showErrors === true && vitroDiagnostic.invalid}">
                   Да
                 </label>
               </div>
@@ -652,9 +704,11 @@
               <div class="form-check">
                 <div class="input-group">
                   <div class="input-group">
-                    <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                           checked>
-                    <label class="form-check-label">
+                    <input class="form-check-input" type="radio" [(ngModel)]="model.vitroDiagnostic"
+                           name="vitroDiagnosticFalse" value="false"
+                           #vitroDiagnostic="ngModel" checked required>
+                    <label class="form-check-label"
+                           [ngClass]="{'has-error-text':showErrors === true && vitroDiagnostic.invalid}">
                       Нет
                     </label>
                     <div class="input-group-append">
@@ -669,12 +723,14 @@
         </div>
         <div class="col-md-6">
           <div class="form-group row">
-            <label class="col-7 col-form-label">Без АЭ</label>
+            <label class="col-7 col-form-label" [ngClass]="{'has-error-text':showErrors === true && withoutAE.invalid}">
+              Без АЭ</label>
             <div class="col-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                       checked>
-                <label class="form-check-label">
+                <input class="form-check-input" type="radio" [(ngModel)]="model.withoutAE"
+                       name="withoutAETrue" value="true"
+                       #withoutAE="ngModel" checked required>
+                <label class="form-check-label" [ngClass]="{'has-error-text':showErrors === true && withoutAE.invalid}">
                   Да
                 </label>
               </div>
@@ -683,9 +739,11 @@
             <div class="col-3">
               <div class="form-check">
                 <div class="input-group">
-                  <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
-                         checked>
-                  <label class="form-check-label">
+                  <input class="form-check-input" type="radio" [(ngModel)]="model.withoutAE"
+                         name="withoutAEFalse" value="true"
+                         #withoutAE="ngModel" checked required>
+                  <label class="form-check-label"
+                         [ngClass]="{'has-error-text':showErrors === true && withoutAE.invalid}">
                     Нет
                   </label>
                   <div class="input-group-append">
@@ -700,8 +758,6 @@
       </div>
     </div>
   </div>
-  <br>
-  <p>Срок хранения</p>
   <br>
   <div [hidden]="selectedLevel !== 'Edit'" class="card-body pt-0 widget-body pd0">
     <div class="table-responsive">
@@ -724,19 +780,15 @@
     <div class="col-md-6">
       <div class="row">
         <div class="col-md-12">
-          <p>Условия транспортирования</p>
+          <p [ngClass]="{'has-error-text':showErrors === true && transportationCondition.invalid}">Условия транспортирования</p>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <div class="input-group">
-            <select class="form-control">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </select>
+            <input class="form-control" type="text" [(ngModel)]="model.transportationCondition"
+                   [ngClass]="{'has-error':showErrors === true && transportationCondition.invalid}"
+                   name="transportationCondition" #transportationCondition="ngModel" required>
             <div class="input-group-append">
               <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
             </div>
@@ -747,13 +799,15 @@
     <div class="col-md-6">
       <div class="row">
         <div class="col-md-12">
-          <p>Условия хранения</p>
+          <p [ngClass]="{'has-error-text':showErrors === true && storageCondition.invalid}">Условия хранения</p>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <div class="input-group">
-            <select class="form-control">
+            <select class="form-control" [(ngModel)]="model.storageCondition"
+                    [ngClass]="{'has-error':showErrors === true && storageCondition.invalid}"
+                    name="storageCondition" #storageCondition="ngModel" required>>
               <option>1</option>
               <option>2</option>
               <option>3</option>

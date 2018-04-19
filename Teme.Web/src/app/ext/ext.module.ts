@@ -6,11 +6,13 @@ import { ExtUpHeaderComponent } from './ext-layout/ext-up-header/ext-up-header.c
 import { ExpMenuComponent } from './ext-layout/exp-menu/exp-menu.component';
 import { ExtLayoutFooterComponent } from './ext-layout/ext-layout-footer/ext-layout-footer.component';
 import { ExtLayoutHomeComponent } from './ext-layout-pages/ext-layout-home/ext-layout-home.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [
         CommonModule,
         routing,
+      NgbModule.forRoot()
     ],
     declarations: [
         ExtLayoutComponent,

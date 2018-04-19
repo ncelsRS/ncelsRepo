@@ -15,8 +15,68 @@ export class ExtDeclarationComponent implements OnInit {
   type: string;
 
   public declaration: any = {
-    general: {val: null, val2: null, val3: null, val4: null, val6: null},
-    producer: {val6: null}
+    general: {
+      val: null,
+      val2: null,
+      val3: null,
+      val4: null,
+      val6: null,
+      numberRegistrationDocument: null,
+      registrationDate: null,
+      term: null,
+      normativeDocNumber: null,
+      letterDate: null,
+      imnOfficialLanguage: null,
+      GMDN: null,
+      imnRussianLanguage: null,
+      codeNomenclatureOfficial: null,
+      codeNomenclatureRussian: null,
+      descrNomenclatureRussian: null,
+      descrNomenclatureOfficial: null,
+      useAreOfficial: null,
+      useAreRussian: null,
+      purposeAreOfficial: null,
+      purposeAreRussian: null,
+      systemType: null,
+      techDescriptionOfficial: null,
+      techDescriptionRussian: null,
+      dependencyClass: null,
+      signType: null,
+      sterile: null,
+      measureDevice: null,
+      medicineExistence: null,
+      vitroDiagnostic: null,
+      withoutAE: null,
+      transportationCondition: null,
+      storageCondition: null
+    },
+    producer: {
+      producer: null,
+      organizationForm: null,
+      displayRu: null,
+      displayOfficial: null,
+      displayRussian: null,
+      displayEnglish: null,
+      permittedDocument: null,
+      extraditionDate: null,
+      termDate: null,
+      leaderLastname: null,
+      leaderFirstname: null,
+      leaderMiddlename: null,
+      leaderPosition: null,
+      leaderPhone: null
+    },
+    journal: {
+      additional: null,
+      storage: null,
+      materialName: null,
+      storageCondition: null,
+      materialQuantity: null,
+      manufactureDate: null,
+      measure: null,
+      expirationDate: null,
+      serieParty: null
+    }
   };
 
 

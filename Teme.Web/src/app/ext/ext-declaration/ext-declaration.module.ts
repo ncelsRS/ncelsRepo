@@ -13,6 +13,8 @@ import {ExtJournalComponent} from './ext-declaration/ext-journal/ext-journal.com
 import {ExtAttachmentsComponent} from './ext-declaration/ext-attachments/ext-attachments.component';
 import {FileUploadModule} from 'ng2-file-upload';
 import { ExtDeclarationsActionsComponent } from './ext-declarations/ext-declarations-actions/ext-declarations-actions.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ExtJournalListComponent } from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
 
 @NgModule({
   imports: [
@@ -20,7 +22,8 @@ import { ExtDeclarationsActionsComponent } from './ext-declarations/ext-declarat
     ExtDeclarationRoutingModule,
     FormsModule,
     Ng2SmartTableModule,
-    FileUploadModule
+    FileUploadModule,
+    NgbModule.forRoot()
   ],
   declarations: [
     ExtDeclarationsComponent,
@@ -31,9 +34,11 @@ import { ExtDeclarationsActionsComponent } from './ext-declarations/ext-declarat
     ExtAgreementComponent,
     ExtJournalComponent,
     ExtAttachmentsComponent,
-    ExtDeclarationsActionsComponent],
+    ExtDeclarationsActionsComponent,
+    ExtJournalListComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
+    ExtJournalListComponent
   ],
   exports: [ ExtDeclarationsActionsComponent ]
 })
