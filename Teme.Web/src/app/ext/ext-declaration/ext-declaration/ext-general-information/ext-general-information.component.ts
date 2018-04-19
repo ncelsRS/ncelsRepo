@@ -8,6 +8,7 @@ import {
   Validator
 } from '@angular/forms';
 import {RegisterType} from '../RegisterType';
+import {TemplateValidation} from "../../../../shared/TemplateValidation";
 
 @Component({
   selector: 'app-ext-general-information',
@@ -23,12 +24,10 @@ import {RegisterType} from '../RegisterType';
     multi: true
   }]
 })
-export class ExtGeneralInformationComponent implements ControlValueAccessor, Validator {
+export class ExtGeneralInformationComponent extends TemplateValidation  {
   @Input() showErrors = false;
-  @ViewChild('registerForm') form;
   selectedLevel: string;
   public data = [];
-  private _model: any = {};
   public date: {year: number, month: number};
   levels: Array<RegisterType> = [
     {code: 'Registration', name: 'Регистрация'},
@@ -209,47 +208,10 @@ export class ExtGeneralInformationComponent implements ControlValueAccessor, Val
     this.selectedLevel = lev.name;
   }
 
-  get model() {
-    return this._model;
-  }
-
-  set model(v) {
-    this._model = v;
-    this.change(v);
-  }
-
-  private change = _ => {
-  };
-  private touch = () => {
-  };
-
-  registerOnChange(fn: any): void {
-    this.change = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.touch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-  }
-
-  writeValue(obj: any): void {
-    this.model = obj;
-    this.change(obj);
-  }
-
-  registerOnValidatorChange(fn: () => void): void {
-  }
-
-  validate(c: AbstractControl): ValidationErrors | null {
-    if (this.form.valid) return null;
-    return {error: true};
-  }
-
   onSubmit() {}
 
   constructor() {
+    super();
     this.selectedLevel = 'Registration';
   }
 
