@@ -1,3 +1,4 @@
+<form novalidate #contractForm="ngForm">
 <div class="contract-main">
   <div class="breadcrumbs">
     <div class="row">
@@ -15,52 +16,7 @@
       </div>
     </div>
   </div>
-  <div class="controls">
-    <div class="btn-group" role="group" >
-      <button type="button" routerLink="/ext/contracts" class="btn btn-info btn-sm"><i class="fa fa-arrow-left"></i>Вернуться в список</button>
-      <!--<button type="button" class="btn btn-default btn-sm"><i class="fa fa-map-o"></i>Скрыть примечание</button>-->
-      <!--<button type="button" class="btn btn-success btn-sm btn"><i class="fa fa-check"></i>Проверить </button>-->
-      <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i>Просмотр </button>
-    </div>
-    <div class="btn-group  pull-right" role="group" >
-      <button type="button" class="btn btn-success btn-sm"><i class="fa fa-send-o"></i>Подписать и отправить </button>
-      <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Подписать ЭЦП и отправить в ЦОЗ</button>
-      <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Отправить в ЦОЗ (в случае отсутствия ЭЦП)</button>
-      <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-save"></i>Сохранить</button>
-    </div>
-  </div>
-  <h3>Договор</h3>
-  <div class="row">
-    <div class="col-md-6">
-      <div class="row">
-        <div class="col-md-6">
-          <p class="height-mid">Договор состовляется с*</p>
-        </div>
-        <div class="col-md-6">
-          <select class="custom-select input-drop-down" >
 
-          </select>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="col-md-6">
-      <div class="row">
-        <div class="col-md-6">
-          <p class="height-mid">Тип договора</p>
-        </div>
-        <div class="col-md-6">
-          <select class="form-control" type="number" [(ngModel)]="selectedType" (ngModelChange)="onNameChange($event)" >
-            <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeDocLevel(level)">
-              {{level.name}}
-            </option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-<br>
 <!--<ul class="nav nav-tabs contract-nav-text">-->
   <!--<li class="nav-item">-->
     <!--<a class="nav-link active" >Производитель</a>-->
@@ -81,14 +37,60 @@
 
   <div class="dec-out">
     <div class="dec-in">
+      <div class="controls">
+        <div class="btn-group" role="group" >
+          <button type="button" routerLink="/ext/contracts" class="btn btn-info btn-sm"><i class="fa fa-arrow-left"></i>Вернуться в список</button>
+          <!--<button type="button" class="btn btn-default btn-sm"><i class="fa fa-map-o"></i>Скрыть примечание</button>-->
+          <!--<button type="button" class="btn btn-success btn-sm btn"><i class="fa fa-check"></i>Проверить </button>-->
+          <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i>Просмотр </button>
+        </div>
+        <div class="btn-group  pull-right" role="group" >
+          <button type="button" class="btn btn-success btn-sm"><i class="fa fa-send-o"></i>Подписать и отправить </button>
+          <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Подписать ЭЦП и отправить в ЦОЗ</button>
+          <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Отправить в ЦОЗ (в случае отсутствия ЭЦП)</button>
+          <button type="button" class="btn btn-warning btn-sm"(click)="sendToNcels(contractForm.valid)"><i class=" fa fa-save"></i>Сохранить</button>
+        </div>
+      </div>
+      <h3>Договор</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="height-mid">Договор состовляется с*</p>
+            </div>
+            <div class="col-md-6">
+              <select class="custom-select input-drop-down" >
+
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="height-mid">Тип договора</p>
+            </div>
+            <div class="col-md-6">
+              <select class="form-control" type="number" name="registerList" [(ngModel)]="selectedLevel" (ngModelChange)="onNameChange($event)" >
+                <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeLevel(level)">
+                  {{level.name}}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
       <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist" value="fl" >
           <a class="nav-item nav-link active" data-toggle="tab" role="tab"
-             aria-controls="nav-home" aria-selected="true"  (click)="setDeclarationTab('manufacturer')" >Производитель</a>
+             aria-controls="nav-home" aria-selected="true" [ngClass]="{'text-danger': showAllErr && manufacturForm.invalid }" (click)="setDeclarationTab('manufacturer')" >Производитель</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
-             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('declarant')" >Заявитель</a>
+             aria-controls="nav-profile" aria-selected="false" [ngClass]="{'text-danger': showAllErr && declarantForm.invalid }" (click)="setDeclarationTab('declarant')" >Заявитель</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
-             aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('payer')" >Плательщик</a>
+             aria-controls="nav-contact" aria-selected="false" [ngClass]="{'text-danger': showAllErr && payerForm.invalid }" (click)="setDeclarationTab('payer')" >Плательщик</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('cost')" >Стоимость работ</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
@@ -97,13 +99,26 @@
              aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('payment')" >Заявка на платеж</a>
         </div>
       </nav>
-      <div [hidden]="type !== 'manufacturer'"><app-ext-manufacturer [prnRegisterType]="selectedLevel"></app-ext-manufacturer></div>
-      <div [hidden]="type !== 'declarant'"><app-ext-declarant></app-ext-declarant></div>
-      <div [hidden]="type !== 'payer'"><app-ext-payer></app-ext-payer></div>
-      <div [hidden]="type !== 'cost'"><app-ext-cost></app-ext-cost></div>
-      <div [hidden]="type !== 'attachment'"><app-ext-attachment></app-ext-attachment></div>
-      <div [hidden]="type !== 'payment'"><app-ext-payment></app-ext-payment></div>
+      <div class="pd-20">
+        <div [hidden]="type !== 'manufacturer'"><app-ext-manufacturer  [prnRegisterType]="selectedLevel"
+                                                                       [showErrors]="showAllErr"
+                                                                       name="manufacturForms"
+                                                                       [(ngModel)]="contract.manufactur"
+                                                                       required #manufacturForm="ngModel"></app-ext-manufacturer></div>
+        <div [hidden]="type !== 'declarant'"><app-ext-declarant  [showErrors]="showAllErr"
+                                                                 name="declarantForms"
+                                                                 [(ngModel)]="contract.declarant"
+                                                                 required #declarantForm="ngModel"></app-ext-declarant></div>
+        <div [hidden]="type !== 'payer'"><app-ext-payer [showErrors]="showAllErr"
+                                                        name="payerForms"
+                                                        [(ngModel)]="contract.payer"
+                                                        required #payerForm="ngModel"></app-ext-payer></div>
+        <div [hidden]="type !== 'cost'"><app-ext-cost></app-ext-cost></div>
+        <div [hidden]="type !== 'attachment'"><app-ext-attachment></app-ext-attachment></div>
+        <div [hidden]="type !== 'payment'"><app-ext-payment></app-ext-payment></div>
+      </div>
     </div>
   </div>
 
 </div>
+</form>
