@@ -4,12 +4,7 @@ import { ExtLayoutHomeComponent } from './ext-layout-pages/ext-layout-home/ext-l
 import { ExtLayoutComponent } from './ext-layout/ext-layout.component';
 
 export const routes: Routes = [
-    {
-        path: '',
-        data: {
-            title: 'home'
-        },
-        component: ExtLayoutComponent,
+    {path: '', data: {title: 'home'}, component: ExtLayoutComponent,
         children: [
             {
                 path: '',
