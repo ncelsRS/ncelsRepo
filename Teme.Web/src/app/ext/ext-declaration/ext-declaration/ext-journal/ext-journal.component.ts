@@ -1,15 +1,33 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, forwardRef, Input, ViewChild} from '@angular/core';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator
+} from '@angular/forms';
 
 @Component({
   selector: 'app-ext-journal',
   templateUrl: './ext-journal.component.html',
   styleUrls: ['./ext-journal.component.css'],
-  encapsulation: ViewEncapsulation.None
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => ExtJournalComponent),
+    multi: true
+  }, {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(() => ExtJournalComponent),
+    multi: true
+  }]
 })
-export class ExtJournalComponent implements OnInit {
+export class ExtJournalComponent implements ControlValueAccessor, Validator {
+  @Input() showErrors = false;
+  @ViewChild('journalForm') form;
+  private _model: any = {};
   public data = [];
   showAgree: boolean;
-
   public registerSettings = {
     selectMode: 'single',  //single|multi
     hideHeader: false,
@@ -80,7 +98,6 @@ export class ExtJournalComponent implements OnInit {
       perPage: 10
     }
   };
-
   constructor() {
     this.showAgree = false;
   }
@@ -100,6 +117,44 @@ export class ExtJournalComponent implements OnInit {
     } else {
       event.confirm.reject();
     }
+  }
+
+  get model() {
+    return this._model;
+  }
+
+  set model(v) {
+    this._model = v;
+    this.change(v);
+  }
+
+  private change = _ => {
+  };
+  private touch = () => {
+  };
+
+  registerOnChange(fn: any): void {
+    this.change = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.touch = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+  }
+
+  writeValue(obj: any): void {
+    this.model = obj;
+    this.change(obj);
+  }
+
+  registerOnValidatorChange(fn: () => void): void {
+  }
+
+  validate(c: AbstractControl): ValidationErrors | null {
+    if (this.form.valid) return null;
+    return {error: true};
   }
 
   showAgreement(show: boolean) {

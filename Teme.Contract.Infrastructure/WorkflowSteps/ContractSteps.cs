@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using System.Collections.Generic;
 using System.Linq;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -19,12 +20,19 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
     public class SendToNcels : BaseContractStep
     {
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var prePoint = context.Workflow.ExecutionPointers.FirstOrDefault(x => x.Id == context.ExecutionPointer.PredecessorId);
-            var eventData = prePoint.EventData as UserAction;
-            var data = eventData.Value
-            AwaiterKey = data.
+            var scope = context.ExecutionPointer.Scope.ToArray();
+            var pointerId = scope[scope.Length - 2];
+            var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
+
+            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+
+            Log.Information("SendToNcels");
+            return ExecutionResult.Next();
         }
     }
 

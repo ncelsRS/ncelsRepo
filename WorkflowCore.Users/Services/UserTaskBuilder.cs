@@ -15,8 +15,8 @@ namespace WorkflowCore.Users.Services
     {
         private readonly UserTaskStep _wrapper;
 
-        public UserTaskBuilder(IWorkflowBuilder<TData> workflowBuilder, UserTaskStep step) 
-            : base (workflowBuilder, step)
+        public UserTaskBuilder(IWorkflowBuilder<TData> workflowBuilder, UserTaskStep step)
+            : base(workflowBuilder, step)
         {
             _wrapper = step;
         }
@@ -48,7 +48,8 @@ namespace WorkflowCore.Users.Services
             WorkflowBuilder.AddStep(newStep);
             var stepBuilder = new StepBuilder<TData, Escalate>(WorkflowBuilder, newStep);
             stepBuilder.Input(step => step.TimeOut, after);
-            stepBuilder.Input(step => step.NewUser, newUser);
+            if (newUser != null)
+                stepBuilder.Input(step => step.NewUser, newUser);
 
             _wrapper.Escalations.Add(newStep);
 

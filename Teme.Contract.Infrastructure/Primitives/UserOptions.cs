@@ -14,6 +14,10 @@ namespace Teme.Contract.Infrastructure.Primitives
         /// Отпарвить без подписи
         /// </summary>
         public const string SendWithoutSign = "sendWithoutSign";
+        /// <summary>
+        /// Выбрать исполнителя или исполнителей
+        /// </summary>
+        public const string SelectExecutors = "selectExecutors";
 
     }
 }
