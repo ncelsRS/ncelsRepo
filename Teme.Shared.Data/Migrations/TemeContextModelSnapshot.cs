@@ -58,6 +58,206 @@ namespace Teme.Shared.Data.Migrations
 
                     b.ToTable("AuthUsers");
                 });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Bank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsConfirmed");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_Banks");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ClassifierMedicalArea", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_ClassifierMedicalAreas");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_Countries");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Currency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_Currencies");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_DegreeRiskClass", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_DegreeRiskClasses");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_NomenclatureCodeMedProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("DefenitionNameKz");
+
+                    b.Property<string>("DefenitionNameRu");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_NomenclatureCodeMedProducts");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_OrganizationForm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsConfirmed");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_OrganizationForms");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_StorageCondition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_StorageConditions");
+                });
 #pragma warning restore 612, 618
         }
     }

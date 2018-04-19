@@ -18,7 +18,7 @@ namespace WorkflowCore.Users.Primitives
             {
                 var taskStep = context.Workflow.ExecutionPointers.Find(x => x.Id == context.ExecutionPointer.PredecessorId);
 
-                if (!taskStep.EventPublished)
+                if (!taskStep.EventPublished && NewUser != null)
                 {
                     taskStep.ExtensionAttributes[UserTask.ExtAssignPrincipal] = NewUser;
                 }

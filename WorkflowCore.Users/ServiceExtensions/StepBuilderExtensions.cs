@@ -51,7 +51,7 @@ namespace WorkflowCore.Interface
             return stepBuilder;
         }
 
-        public static IUserTaskBuilder<TData> UserTask<TData, TStepBody>(this IStepBuilder<TData, TStepBody> builder, string userPrompt, Expression<Func<TData, string>> assigner, Action<IStepBuilder<TData, UserTask>> stepSetup = null)
+        public static IUserTaskBuilder<TData> UserTask<TData, TStepBody>(this IStepBuilder<TData, TStepBody> builder, string userPrompt, Expression<Func<TData, IStepExecutionContext, string>> assigner, Action<IStepBuilder<TData, UserTask>> stepSetup = null)
             where TStepBody : IStepBody
         {
             var newStep = new UserTaskStep();

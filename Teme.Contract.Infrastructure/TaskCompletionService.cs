@@ -23,5 +23,13 @@ namespace Teme.Contract.Infrastructure
                 throw new Exception($"TaskCompletionService: key {key} not exists");
             tcs.SetResult(result);
         }
+
+        public static bool TryReleaseTask(string key, string result = null)
+        {
+            if (!_source.TryRemove(key, out TaskCompletionSource<string> tcs))
+                return false;
+            tcs.SetResult(result);
+            return true;
+        }
     }
 }
