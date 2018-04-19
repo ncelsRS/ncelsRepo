@@ -7,6 +7,7 @@ import {
   ValidationErrors,
   Validator
 } from "@angular/forms";
+import {TemplateValidation} from '../../../../shared/TemplateValidation';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -22,52 +23,15 @@ import {
     multi: true
   }]
 })
-export class ExtManufacturerComponent implements  ControlValueAccessor, Validator{
+export class ExtManufacturerComponent extends TemplateValidation{
 
    isAddOrgForm = false;
    isAddBankName = false;
-  private _model: any = {};
+
   @Input() prnRegisterType: string;
-   @ViewChild('ManufacturerForm') form;
    @Input() showErrors = false;
 
-  get model() {
-    return this._model;
-  }
 
-  set model(v) {
-    this._model = v;
-    this.change(v);
-  }
-
-  private change = _ => {
-  };
-  private touch = () => {
-  };
-
-  registerOnChange(fn: any): void {
-    this.change = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.touch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-  }
-
-  writeValue(obj: any): void {
-    this.model = obj;
-    this.change(obj);
-  }
-
-  registerOnValidatorChange(fn: () => void): void {
-  }
-
-  validate(c: AbstractControl): ValidationErrors | null {
-    if (this.form.valid) return null;
-    return {error: true};
-  }
 
   addOrgForm()
   {
