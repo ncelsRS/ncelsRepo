@@ -249,7 +249,7 @@ namespace PW.Prism.Controllers
             OBK_CertificateReference reference = db.OBK_CertificateReference.Find(id);
             OBKCertificateFileModel fileModel = new OBKCertificateFileModel();
 
-            if (reference != null)
+            if (reference != null && reference.AttachPath != null)
             {
                 fileModel.AttachPath = reference.AttachPath;
                 fileModel.AttachFiles = UploadHelper.GetFilesInfo(fileModel.AttachPath.ToString(), false);
