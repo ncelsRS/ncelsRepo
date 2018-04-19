@@ -5,6 +5,7 @@ import {RegisterType} from './RegisterType'
 import {ExtManufacturerComponent} from './ext-manufacturer/ext-manufacturer.component';
 import {ExtDeclarantComponent} from './ext-declarant/ext-declarant.component';
 import {ExtPayerComponent} from './ext-payer/ext-payer.component';
+import {ExtCostComponent} from './ext-cost/ext-cost.component';
 
 @Component({
   selector: 'app-ext-contract',
@@ -72,7 +73,7 @@ export class ExtContractComponent implements OnInit {
       payerBankIik:null, payerBankSwift:null,payerBankCurr:null,
     },
 
-    cost: {val6: null},
+    cost: {applicationType: null, serviceType:null,NameIMNRu:null,NameIMNKz:null,},
   };
 
 
@@ -84,6 +85,9 @@ export class ExtContractComponent implements OnInit {
 
   @ViewChild(ExtPayerComponent)
   private ExtPayer: ExtPayerComponent;
+
+  @ViewChild(ExtCostComponent)
+  private ExtCost: ExtCostComponent;
 
   sendToNcels(valid) {
     this.showAllErr = true;

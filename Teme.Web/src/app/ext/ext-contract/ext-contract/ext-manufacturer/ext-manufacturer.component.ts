@@ -23,7 +23,10 @@ import {
   }]
 })
 export class ExtManufacturerComponent implements  ControlValueAccessor, Validator{
-   private _model: any = {};
+
+   isAddOrgForm = false;
+   isAddBankName = false;
+  private _model: any = {};
   @Input() prnRegisterType: string;
    @ViewChild('ManufacturerForm') form;
    @Input() showErrors = false;
@@ -64,6 +67,26 @@ export class ExtManufacturerComponent implements  ControlValueAccessor, Validato
   validate(c: AbstractControl): ValidationErrors | null {
     if (this.form.valid) return null;
     return {error: true};
+  }
+
+  addOrgForm()
+  {
+    this.isAddOrgForm = true;
+  }
+
+  saveOrgForm()
+  {
+    this.isAddOrgForm = false;
+  }
+
+  addBankName()
+  {
+    this.isAddBankName = true;
+  }
+
+  saveBankName()
+  {
+    this.isAddBankName = false;
   }
 
 

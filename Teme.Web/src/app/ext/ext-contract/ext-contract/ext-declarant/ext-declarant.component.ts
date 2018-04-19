@@ -25,6 +25,8 @@ import {
     }]
 })
 export class ExtDeclarantComponent implements ControlValueAccessor, Validator {
+  isAddOrgForm = false;
+  isAddBankName = false;
   selectedDeclarantDocType: string;
   levels: Array<DeclarantDocType> = [
     {code: 'Procuration', name: 'Доверенность'},
@@ -83,6 +85,26 @@ export class ExtDeclarantComponent implements ControlValueAccessor, Validator {
   validate(c: AbstractControl): ValidationErrors | null {
     if (this.form.valid) return null;
     return {error: true};
+  }
+
+  addOrgForm()
+  {
+    this.isAddOrgForm = true;
+  }
+
+  saveOrgForm()
+  {
+    this.isAddOrgForm = false;
+  }
+
+  addBankName()
+  {
+    this.isAddBankName = true;
+  }
+
+  saveBankName()
+  {
+    this.isAddBankName = false;
   }
 
 }
