@@ -1,31 +1,35 @@
 ﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
+using WorkflowCore.Users;
 using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure.WorkflowSteps
 {
-    public class SetWorkflowId : BaseContractStep
+    public class SetWorkflowId : StepBody
     {
+        public string AwaiterKey { get; set; }
+
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             Log.Information($"SetWorkflowId: {context.Workflow.Id}");
-            TaskCompletionService.ReleaseTask(AwaiterKey, context.Workflow.Id);
+            TaskCompletionService.TryReleaseTask(AwaiterKey, context.Workflow.Id);
             return ExecutionResult.Next();
         }
 
     }
 
-    public class SendToNcels : BaseContractStep
+    public class SendToNcels : StepBody
     {
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             var scope = context.ExecutionPointer.Scope.ToArray();
-            var pointerId = scope[scope.Length - 2];
+            var pointerId = scope[1];
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
             if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))

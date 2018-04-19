@@ -20,11 +20,11 @@ namespace Teme.Contract.Logic
 
         public async Task<string> StartWorkflow()
         {
-            var id = await _wflogic.Start(new ContractWorkflowTransitionData
+            return await _wflogic.Start(new ContractWorkflowTransitionData
             {
                 ContractId = 0,
-                ContractType = ContractTypeEnum.OneToOne            });
-            return id;
+                ContractType = ContractTypeEnum.OneToOne
+            });
         }
 
         public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)
@@ -32,9 +32,11 @@ namespace Teme.Contract.Logic
             return await _wflogic.GetUserActions(workflowId);
         }
 
-        public async Task<string> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds, object data)
+        public async Task<IEnumerable<OpenUserAction>> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds, object data)
         {
-            return await _wflogic.PublishUserAction(key, chosenValue, executorsIds, data);
+            await _wflogic.PublishUserAction(key, chosenValue, executorsIds, data);
+            var workflowId = key.Split('.')[0];
+            return await _wflogic.GetUserActions(workflowId);
         }
 
     }

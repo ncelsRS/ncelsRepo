@@ -20,9 +20,9 @@ namespace Teme.Contract.Api.Controllers
         }
 
         [Route("start")]
-        public async Task<string> Start()
+        public async Task<IActionResult> Start()
         {
-            return await _logic.StartWorkflow();
+            return Json(await _logic.StartWorkflow());
         }
 
         [Route("useractions")]
@@ -42,9 +42,10 @@ namespace Teme.Contract.Api.Controllers
 
         [Route("publish/useraction")]
         [HttpPost]
-        public async Task<string> PublishUserAction([FromBody] PublishUserEventDto dto)
+        public async Task<IActionResult> PublishUserAction([FromBody] PublishUserEventDto dto)
         {
-            return await _logic.PublishUserAction(dto.Key, dto.ChosenValue, dto.ExecutersIds, dto.Value);
+            var res = await _logic.PublishUserAction(dto.Key, dto.ChosenValue, dto.ExecutersIds, dto.Value);
+            return Json(res);
         }
 
     }
