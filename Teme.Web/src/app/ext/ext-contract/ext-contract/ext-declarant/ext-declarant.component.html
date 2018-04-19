@@ -1,3 +1,4 @@
+<form novalidate #DeclarantForm="ngForm" (change)="model=model">
 <div id="tab-2" class="tab-pane">
   <div class="panel-body">
     <div class="row">
@@ -9,35 +10,48 @@
 
         <div class="form-group" >
           <div class="custom-control custom-radio radio-inline" >
-            <input type="radio" class="custom-control-input" name="DeclarantIsResident" id="DeclarantResident"  [(ngModel)]="isRes" value="res" >
+            <input type="radio" class="custom-control-input radio-primary " name="DeclarantIsResident" id="DeclarantResident"  [(ngModel)]="isDecRes" value="res" >
             <label class="custom-control-label" for="DeclarantResident">Резидент РК</label>
           </div>
-          <div class="custom-control custom-radio radio-inline">
-            <input type="radio" class="custom-control-input" name="DeclarantIsResident" id="DeclarantNoResident" [(ngModel)]="isRes" value="unres">
+          <div class="custom-control custom-radio radio-inline ">
+            <input type="radio" class="custom-control-input  radio-primary" name="DeclarantIsResident" id="DeclarantNoResident" [(ngModel)]="isDecRes" value="unres">
             <label class="custom-control-label" for="DeclarantNoResident">Нерезидент РК</label>
           </div>
         </div>
 
-        <div *ngIf="isRes === 'res'" >
+        <div *ngIf="isDecRes !== 'unres'" class="form-group">
           <label>ИИН/БИН *</label>
           <div>
-            <input maxlength="24" id="binDeclarant"   class="form-control"  type="text"  name="bin"  ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________">
+            <input maxlength="24" name="declarantBin"   class="form-control"  type="text"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
+                   #declarantBin = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBin.invalid && isDecRes !== 'unres'}"
+                   [(ngModel)]="model.declarantBin"
+                   required>
           </div>
-          <button type="button" class="btn btn-sm btn-success"  disabled="disabled">Найти</button>
-          <button type="button" class="btn btn-sm btn-success" ng-click="cancelFind('Declarant');" ng-disabled="!iinSearchActiveDeclarant" disabled="disabled">Отмена</button>
+          <br>
+          <button type="button" class="btn btn-sm btn-primary"  >Найти</button>
+          <button type="button" class="btn btn-sm btn-primary" ng-click="cancelFind('Declarant');" ng-disabled="!iinSearchActiveDeclarant" >Отмена</button>
         </div>
 
-        <div *ngIf="isRes === 'unres'" >
+        <div [hidden]="isDecRes !== 'unres'" >
           <div class="form-group">
             <label>Страна</label>
-            <select class="form-control" >
+            <select class="form-control"   name="declarantNoResCounty"
+                    #declarantNoResCounty = "ngModel"
+                    [ngClass]="{'has-error':showErrors === true && declarantNoResCounty.invalid && isDecRes === 'unres'}"
+                    [(ngModel)]="model.declarantNoResCounty"
+                    required>
             </select>
           </div>
         </div>
-        <div *ngIf="isRes === 'unres'" >
+        <div [hidden]="isDecRes !== 'unres'" >
           <div class="form-group">
             <label>Наименование на русском языке *</label>
-              <select class="form-control" >
+              <select class="form-control" name="declarantRuName"
+                      #declarantRuName = "ngModel"
+                      [ngClass]="{'has-error':showErrors === true && declarantRuName.invalid && isDecRes === 'unres'}"
+                      [(ngModel)]="model.declarantRuName"
+                      required>
               </select>
           </div>
         </div>
@@ -45,67 +59,107 @@
           По Вашему запросу ничего не найдено!
         </div>
         <div>
-          <button type="button" class="btn btn-sm btn-success" ng-click="addManufactur('Declarant');" >Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary" ng-click="addManufactur('Declarant');" >Добавить</button>
         </div>
 
         <h4>Заявитель</h4>
         <div class="form-group">
-          <label>Организационная форма</label>
-          <select class="form-control" >
+          <label>Организационная форма*</label>
+          <select class="form-control" name="declarantOrgForm"
+                  #declarantOrgForm = "ngModel"
+                  [ngClass]="{'has-error':showErrors === true && declarantOrgForm.invalid}"
+                  [(ngModel)]="model.declarantOrgForm"
+                  required>
           </select>
         </div>
         <div class="form-group">
           <label>Наименование на государственном языке *</label>
           <div>
-            <input id="declarantNameKz"  class="form-control"  placeholder="Введите значение"  type="text" required=""  name="declarantNameKz" disabled="disabled">
+            <input name="declarantNameKz"  class="form-control"  placeholder="Введите значение"  type="text" required=""
+                   #declarantNameKz = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantNameKz.invalid}"
+                   [(ngModel)]="model.declarantNameKz"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Наименование на русском языке *</label>
           <div>
-            <input id="declarantNameRu"  class="form-control"  placeholder="Введите значение"  type="text" required=""  name="declarantNameRu" disabled="disabled">
+            <input name="declarantNameRu"  class="form-control"  placeholder="Введите значение"  type="text" required=""
+                   #declarantNameRu = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantNameRu.invalid}"
+                   [(ngModel)]="model.declarantNameRu"
+                   required>
           </div>
         </div>
         <div class="form-group">
-          <label>Наименование на английском языке</label>
+          <label>Наименование на английском языке*</label>
           <div>
-            <input id="declarantNameEn" class="form-control" placeholder="Введите значение"  type="text"  name="declarantNameEn" disabled="disabled">
+            <input id="declarantNameEn" class="form-control" placeholder="Введите значение"  type="text"  name="declarantNameEn"
+                   #declarantNameEn = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantNameRu.invalid}"
+                   [(ngModel)]="model.declarantNameEn"
+                   required>
           </div>
         </div>
         <div class="form-group">
-          <label>Страна</label>
-          <select class="form-control" >
+          <label>Страна*</label>
+          <select class="form-control" name="declarantCountry"
+                  #declarantCountry = "ngModel"
+                  [ngClass]="{'has-error':showErrors === true && declarantCountry.invalid}"
+                  [(ngModel)]="model.declarantCountry"
+                  required>
           </select>
         </div>
         <div class="form-group">
           <h4>Адрес</h4>
           <label>Юридический адрес * </label>
           <div>
-            <input id="DeclarantAddressLegalRu"  class="form-control"  placeholder="Введите значение" type="text" required="" name="AddressLegalRu"  disabled="disabled">
+            <input name="declarantAddressLegalRu"  class="form-control"  placeholder="Введите значение" type="text"
+                   #declarantAddressLegalRu = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantAddressLegalRu.invalid}"
+                   [(ngModel)]="model.declarantAddressLegalRu"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Фактический адрес * </label>
           <div>
-            <input id="AddressFact"  class="form-control"  placeholder="Введите значение"  type="text" required=""  name="AddressFact" disabled="disabled">
+            <input name="declarantAddressFact"  class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantAddressLegalRu = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantAddressLegalRu.invalid}"
+                   [(ngModel)]="model.declarantAddressLegalRu"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Номер телефона * </label>
           <div>
-            <input id="Phone"  class="form-control"  ui-mask="+7 (999) 999-99-99"  type="text" required=""  name="Phone"  placeholder="+7 (___) ___-__-__" disabled="disabled">
+            <input name="declarantPhone"  class="form-control"  ui-mask="+7 (999) 999-99-99"  type="text" placeholder="+7 (___) ___-__-__"
+                   #declarantPhone = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantPhone.invalid}"
+                   [(ngModel)]="model.declarantPhone"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Номер телефона</label>
           <div>
-            <input id="Phone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"  name="manufacturPhone" ng-model-options="{ allowInvalid: true}" placeholder="+7 (___) ___-__-__" disabled="disabled">
+            <input name="declarantPhone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"   placeholder="+7 (___) ___-__-__"
+                   #declarantPhone2 = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantPhone2.invalid}"
+                   [(ngModel)]="model.declarantPhone2"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Адрес электронной почты * </label>
           <div>
-            <input id="Email" class="form-control"  placeholder="example@mail.ru"  type="text" required=""  name="Email" ng-pattern=".+@.+\..+" disabled="disabled">
+            <input name="declarantEmail" class="form-control"  placeholder="example@mail.ru"  type="text"    ng-pattern=".+@.+\..+"
+                   #declarantEmail = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantEmail.invalid}"
+                   [(ngModel)]="model.declarantEmail"
+                   required>
           </div>
         </div>
       </div>
@@ -114,31 +168,47 @@
           <h4>Подписывающее лицо</h4>
           <label>Фамилия первого руководителя *</label>
           <div>
-            <input id="BossLastName" class="form-control"  placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+            <input name="declarantBossLastName" class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantBossLastName = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBossLastName.invalid}"
+                   [(ngModel)]="model.declarantBossLastName"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Имя первого руководителя *</label>
           <div>
-            <input id="BossFirstName" class="form-control"  placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+            <input name="declarantBossFirstName" class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantBossFirstName = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBossFirstName.invalid}"
+                   [(ngModel)]="model.declarantBossFirstName"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Отчество первого руководителя</label>
           <div >
-            <input id="BossMiddleName"  class="form-control"  placeholder="Введите значение"  type="text"   disabled="disabled">
+            <input id="declarantBossMiddleName"  class="form-control"  placeholder="Введите значение"  type="text">
           </div>
         </div>
         <div class="form-group">
           <label>Должность первого руководителя на русском языке *</label>
           <div>
-            <input id="BossPosition" class="form-control"  placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+            <input name="declarantBossPosition" class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantBossPosition = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBossPosition.invalid}"
+                   [(ngModel)]="model.declarantBossPosition"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Должность первого руководителя на государственном языке *</label>
           <div>
-            <input id="BossPositionKz"  class="form-control"  placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+            <input name="declarantBossPositionKz"  class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantBossPositionKz = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBossPositionKz.invalid}"
+                   [(ngModel)]="model.declarantBossPositionKz"
+                   required>
           </div>
         </div>
 
@@ -147,49 +217,65 @@
 
         <div class="form-group">
           <label>Название банка</label>
-          <select class="form-control" >
+          <select class="form-control" name="declarantBank"
+                  #declarantBank = "ngModel"
+                  [ngClass]="{'has-error':showErrors === true && declarantBank.invalid}"
+                  [(ngModel)]="model.declarantBank"
+                  required>
           </select>
         </div>
-        <div class="form-group ng-hide">
-          <label>Наименование банка на русском</label>
-          <div>
-            <input id="declarantBankNameRu" class="form-control"  placeholder="Введите значение"  type="text">
-          </div>
-        </div>
-        <div >
-          <label>Наименование банка на казахском</label>
-          <div>
-            <input id="declarantBankNameKz"  class="form-control"  placeholder="Введите значение"  type="text">
-          </div>
-        </div>
-        <div class="form-group ng-hide">
-          <button type="button" class="btn btn-sm btn-success">Сохранить</button>
+        <!--<div class="form-group">-->
+          <!--<label>Наименование банка на русском</label>-->
+          <!--<div>-->
+            <!--<input id="declarantBankNameRu" class="form-control"  placeholder="Введите значение"  type="text">-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+          <!--<label>Наименование банка на казахском</label>-->
+          <!--<div>-->
+            <!--<input id="declarantBankNameKz"  class="form-control"  placeholder="Введите значение"  type="text">-->
+          <!--</div>-->
+        <!--</div>-->
+        <div class="form-group">
+          <button type="button" class="btn btn-sm btn-primary">Добавить</button>
         </div>
         <div class="form-group">
           <label>Расчетный счет *</label>
           <div>
-            <input id="BankIik"  class="form-control"  placeholder="Введите значение" type="text"  required="" >
+            <input name="declarantBankIik"  class="form-control"  placeholder="Введите значение" type="text"
+                   #declarantBankIik = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantBankIik.invalid}"
+                   [(ngModel)]="model.declarantBankIik"
+                   required>
           </div>
         </div>
         <div class="form-group">
           <label>Валюта *</label>
-          <select class="form-control" >
+          <select class="form-control" name="declarantBankCurr"
+                  #declarantBankCurr= "ngModel"
+                  [ngClass]="{'has-error':showErrors === true && declarantBankCurr.invalid}"
+                  [(ngModel)]="model.declarantBankCurr"
+                  required>
             <option>Выберите значения</option>
             <option>Тенге</option>
             <option>Доллар</option>
           </select>
         </div>
-        <div *ngIf="isRes === 'unres'" >
+        <div [hidden]="isDecRes !== 'unres'" >
           <div class="form-group ng-scope" >
             <label>SWIFT *</label>
             <div>
-              <input id="bankBik" class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              <input name="declarantBankSwift" class="form-control" placeholder="Введите значение"  type="text"
+                     #declarantBankSwift= "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && declarantBankSwift.invalid && isDecRes === 'unres'}"
+                     [(ngModel)]="model.declarantBankSwift"
+                     required>
             </div>
           </div>
         </div>
 
         <h4>Действующее на основании</h4>
-        <select class="form-control" type="number" [(ngModel)]="selectedDeclarantDocType">
+        <select class="form-control" type="number" name="declarantSelectDocType" [(ngModel)]="selectedDeclarantDocType">
           <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeDocLevel(level)">
             {{level.name}}
           </option>
@@ -213,13 +299,13 @@
           <div class="form-group">
               <label>Дата начала действия *</label>
               <div>
-                <input id="BossDocCreatedDate"  class="form-control"   placeholder="ДД.ММ.ГГГГ"  required="" date-time="" auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                <input id="BossDocCreatedDate"  type="date"  class="form-control" >
               </div>
             </div>
            <div class="form-group">
               <label>Дата окончания действия *</label>
               <div>
-                <input id="BossDocEndDate"  class="form-control"  placeholder="ДД.ММ.ГГГГ"  date-time="" auto-close="true" view="date" min-view="date" format="DD.MM.YYYY">
+                <input id="BossDocEndDate" type="date"  class="form-control"   >
               </div>
           </div>
           <div class="col-lg-3">
@@ -234,3 +320,4 @@
       </div>
   </div>
 </div>
+</form>

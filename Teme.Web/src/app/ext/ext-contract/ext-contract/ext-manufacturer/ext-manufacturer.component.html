@@ -1,3 +1,4 @@
+<form novalidate #ManufacturerForm="ngForm" (change)="model=model">
   <div id="tab-1" class="tab-pane active">
     <div class="panel-body">
       <div class="row">
@@ -15,127 +16,174 @@
               </div>
             </div>
             <div>
-              <button type="button" class="btn btn-sm" >Поиск</button>
-              <button type="button" class="btn btn-sm" >Очистить критерий поиска</button>
+              <button type="button" class="btn btn-primary" >Поиск</button>
+              <button type="button" class="btn btn-primary" >Очистить критерий поиска</button>
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" >
             <div class="custom-control custom-radio radio-inline" >
-              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturResident"  [(ngModel)]="isRes" value="res" >
-              <label class="custom-control-label" for="manufacturResident">Резидент РК</label>
+              <input type="radio" class="custom-control-input radio-primary " name="ManafacturIsResident" id="ManafacturResident"  [(ngModel)]="isRes" value="res">
+              <label class="custom-control-label" for="ManafacturResident">Резидент РК</label>
             </div>
-            <div class="custom-control custom-radio radio-inline">
-              <input type="radio" class="custom-control-input" name="manufacturIsResident" id="manufacturNoResident" [(ngModel)]="isRes" value="unres">
-              <label class="custom-control-label" for="manufacturNoResident">Нерезидент РК</label>
+            <div class="custom-control custom-radio radio-inline ">
+              <input type="radio" class="custom-control-input  radio-primary" name="ManafacturIsResident" id="ManafacturNoResident" [(ngModel)]="isRes" value="unres">
+              <label class="custom-control-label" for="ManafacturNoResident">Нерезидент РК</label>
             </div>
           </div>
 
-          <div *ngIf="isRes === 'res'" >
+          <div *ngIf="isRes !== 'unres'" >
             <label>ИИН/БИН *</label>
             <div>
-                <input maxlength="24" id="bin"  class="form-control edit-control" type="text" name="bin"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________">
-            </div>
-            <button type="button" class="btn btn-sm btn-success" disabled="disabled">Найти</button>
-            <button type="button" class="btn btn-sm btn-success" disabled="disabled">Отмена</button>
+                <input maxlength="24" class="form-control edit-control" type="text" name="bin"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
+                       #bin = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && bin.invalid && isRes !== 'unres'}"
+                       [(ngModel)]="model.bin"
+                       required>
+            </div><br>
+            <button type="button" class="btn btn-sm btn-primary" >Найти</button>
+            <button type="button" class="btn btn-sm btn-primary" >Отмена</button>
           </div>
           <div *ngIf="isRes === 'unres'" >
             <div class="form-group">
               <label>Страна</label>
-              <select class="form-control" >
+              <select class="form-control" name="manufacturNoResCountry"
+                      #manufacturNoResCountry = "ngModel"
+                      [ngClass]="{'has-error':showErrors === true && manufacturNoResCountry.invalid && isRes === 'unres'}"
+                      [(ngModel)]="model.manufacturNoResCountry"
+                      required>
               </select>
             </div>
           </div>
           <div *ngIf="isRes === 'unres'" >
             <div class="form-group">
                 <label>Наименование на русском языке *</label>
-                <select class="form-control" >
-                </select>
+                <input id="manufacturNoResName" class="form-control" placeholder="Введите значение"  type="text"   name="manufacturNoResName"
+                       #manufacturNoResName = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && manufacturNoResName.invalid && isRes === 'unres'}"
+                       [(ngModel)]="model.manufacturNoResName"
+                       required>
             </div>
           </div>
           <div class="form-group ng-hide" >
             По Вашему запросу ничего не найдено!
           </div>
           <div class="form-group ng-hide">
-            <button type="button" class="btn btn-sm btn-success" >Добавить</button>
+            <button type="button" class="btn btn-sm btn-primary" >Добавить</button>
           </div>
 
           <div >
             <div class="form-group">
               <label>Организационная форма</label>
-              <select class="form-control" >
+              <select class="form-control" name="manufacturOrgForm"
+                      #manufacturOrgForm = "ngModel"
+                      [ngClass]="{'has-error':showErrors === true && manufacturOrgForm.invalid}"
+                      [(ngModel)]="model.manufacturOrgForm"
+                      required>
               </select>
             </div>
           </div>
 
           <div class="form-group">
-            <label>Наименование на государственном языке *</label>
+            <label>Наименование на государственном языке *{{manufacturNameKz.invalid}}</label>
             <div>
-              <input id="manufacturNameKz" class="form-control" placeholder="Введите значение"  type="text" required=""  name="manufacturNameKz" disabled="disabled">
+              <input class="form-control" placeholder="Введите значение"  type="text"  name="manufacturNameKz"
+                     #manufacturNameKz = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturNameKz.invalid}"
+                     [(ngModel)]="model.manufacturNameKz"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Наименование на русском языке *</label>
             <div>
-              <input id="manufacturNameRu" class="form-control" placeholder="Введите значение"  type="text" required="" name="manufacturNameRu" disabled="disabled">
+              <input class="form-control" placeholder="Введите значение"  type="text"  name="manufacturNameRu"
+                     #manufacturNameRu = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturNameRu.invalid}"
+                     [(ngModel)]="model.manufacturNameRu"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Наименование на английском языке</label>
             <div>
-              <input id="manufacturNameEn"  class="form-control" placeholder="Введите значение" type="text" name="manufacturNameEn" disabled="disabled">
+              <input class="form-control" placeholder="Введите значение" type="text" name="manufacturNameEn"
+                     #manufacturNameEn = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturNameEn.invalid}"
+                     [(ngModel)]="model.manufacturNameEn"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Страна</label>
-            <select class="form-control" >
+            <select class="form-control" name="manufacturCountry"
+                    #manufacturCountry = "ngModel"
+                    [ngClass]="{'has-error':showErrors === true && manufacturCountry.invalid}"
+                    [(ngModel)]="model.manufacturCountry"
+                    required>
             </select>
           </div>
 
-          <div>
-            <h4>Гос. реестр</h4>
-            <h4 class="ng-hide">Реестр МИ</h4>
-            <label>Наименование производителя</label>
-            <div >
-              <input  placeholder="Введите значение" class="form-control"  type="text"  name="registerManufacturName"  disabled="disabled">
-            </div>
-          </div>
-          <div class="form-group ng-hide" >
-            <label>Страна</label>
-            <div>
-              <input placeholder="Введите значение"  class="form-control" type="text"  name="registerManufacturCountry"  disabled="disabled">
-            </div>
-          </div>
+          <!--<div>-->
+            <!--<h4>Гос. реестр</h4>-->
+            <!--<h4 class="ng-hide">Реестр МИ</h4>-->
+            <!--<label>Наименование производителя</label>-->
+            <!--<div >-->
+              <!--<input  placeholder="Введите значение" class="form-control"  type="text"  name="registerManufacturName"  >-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="form-group ng-hide" >-->
+            <!--<label>Страна</label>-->
+            <!--<div>-->
+              <!--<input placeholder="Введите значение"  class="form-control" type="text"  name="registerManufacturCountry"  >-->
+            <!--</div>-->
+          <!--</div>-->
 
           <div class="form-group">
             <h4>Адрес</h4>
             <label>Юридический адрес * </label>
             <div>
-              <input id="manufacturAddressLegalRu"  class="form-control" placeholder="Введите значение"  type="text" required=""  name="manufacturAddressLegalRu"  disabled="disabled">
+              <input class="form-control" placeholder="Введите значение"  type="text"   name="manufacturAddressLegalRu"
+                     #manufacturAddressLegalRu = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturAddressLegalRu.invalid}"
+                     [(ngModel)]="model.manufacturAddressLegalRu"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Фактический адрес * </label>
             <div>
-              <input id="manufacturAddressFact" placeholder="Введите значение" class="form-control"  type="text" required=""  name="manufacturAddressFact"  disabled="disabled">
+              <input  placeholder="Введите значение" class="form-control"  type="text"   name="manufacturAddressFact"
+                     #manufacturAddressFact = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturAddressFact.invalid}"
+                     [(ngModel)]="model.manufacturAddressFact"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Номер телефона * </label>
             <div>
-              <input id="manufacturPhone"  type="text"   class="form-control" ui-mask="+7 (999) 999-99-99"  name="manufacturPhone" required="" ng-model-options="{ allowInvalid: true}" placeholder="+7 (___) ___-__-__" disabled="disabled">
+              <input type="text"   class="form-control" name="manufacturPhone"  placeholder="+7 (___) ___-__-__" require
+                     #manufacturPhone = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturPhone.invalid}"
+                     [(ngModel)]="model.manufacturPhone"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Номер телефона</label>
             <div>
-              <input id="manufacturPhone2"  type="text"   class="form-control" ui-mask="+7 (999) 999-99-99"  name="manufacturPhone" ng-model-options="{ allowInvalid: true}" placeholder="+7 (___) ___-__-__" disabled="disabled">
+              <input type="text" class="input-medium bfh-phone"  id="manufacturPhone2"  type="text"   class="form-control" placeholder="+7 (___) ___-__-__" require >
             </div>
           </div>
           <div class="form-group">
             <label>Адрес электронной почты * </label>
             <div ng-class="{'input-group': showComments}">
-              <input id="manufacturEmail"  class="form-control" placeholder="example@mail.ru"  type="text"  required=""  name="manufacturEmail" ng-pattern=".+@.+\..+" disabled="disabled">
+              <input id="manufacturEmail"  class="form-control" placeholder="example@mail.ru"  type="text"    name="manufacturEmail" ng-pattern=".+@.+\..+"
+                     #manufacturEmail = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturEmail.invalid}"
+                     [(ngModel)]="model.manufacturEmail"
+                     required>
             </div>
           </div>
         </div>
@@ -144,71 +192,105 @@
             <h4>Подписывающее лицо</h4>
             <label>Фамилия первого руководителя *</label>
             <div>
-              <input id="manufacturBossLastName"   class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              <input  class="form-control" placeholder="Введите значение"  type="text" name = "manufacturBossLastName"
+                     #manufacturBossLastName = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturBossLastName.invalid}"
+                     [(ngModel)]="model.manufacturBossLastName"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Имя первого руководителя *</label>
             <div>
-              <input id="manufacturBossFirstName"    class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              <input class="form-control" placeholder="Введите значение"  type="text" name="manufacturBossFirstName"
+                     #manufacturBossFirstName = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturBossFirstName.invalid}"
+                     [(ngModel)]="model.manufacturBossFirstName"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Отчество первого руководителя</label>
             <div>
-              <input id="manufacturBossMiddleName"  class="form-control" placeholder="Введите значение"  type="text"   disabled="disabled">
+              <input class="form-control" placeholder="Введите значение"  type="text" name="manufacturBossMiddleName"
+                    >
             </div>
           </div>
           <div class="form-group">
             <label>Должность первого руководителя на русском языке *</label>
             <div>
-              <input id="manufacturBossPosition"  class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              <input name="manufacturBossPosition"  class="form-control" placeholder="Введите значение"  type="text"
+                     #manufacturBossPosition = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturBossPosition.invalid}"
+                     [(ngModel)]="model.manufacturBossPosition"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Должность первого руководителя на государственном языке *</label>
             <div>
-              <input id="manufacturBossPositionKz"  class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+              <input name="manufacturBossPositionKz"  class="form-control" placeholder="Введите значение"  type="text"
+                     #manufacturBossPositionKz = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturBossPositionKz.invalid}"
+                     [(ngModel)]="model.manufacturBossPositionKz"
+                     required>
             </div>
           </div>
 
           <div class="form-group">
             <h4>Банковские реквизиты</h4>
-            <label>Наименования банка</label>
-            <select class="form-control" >
+            <label>Наименования банка*</label>
+            <select class="form-control" name="manufacturBankName"
+                    #manufacturBankName = "ngModel"
+                    [ngClass]="{'has-error':showErrors === true && manufacturBankName.invalid}"
+                    [(ngModel)]="model.manufacturBankName"
+                    required>
+
             </select>
           </div>
-          <div>
-            <label>Наименование банка на русском</label>
-            <div>
-              <input id="manufacturBankNameRu"  class="form-control" placeholder="Введите значение"  type="text">
-            </div>
-          </div>
-          <div>
-            <label>Наименование банка на казахском</label>
-            <div>
-              <input id="manufacturBankNameKz"  class="form-control" placeholder="Введите значение"  type="text">
-            </div>
-          </div>
-          <div class="form-group ng-hide" >
-            <button type="button" class="btn btn-sm btn-success" >Сохранить</button>
+          <!--<div class="form-group">-->
+            <!--<label>Наименование банка на русском</label>-->
+            <!--<div>-->
+              <!--<input id="manufacturBankNameRu"  class="form-control" placeholder="Введите значение"  type="text">-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="form-group">-->
+            <!--<label>Наименование банка на казахском</label>-->
+            <!--<div>-->
+              <!--<input id="manufacturBankNameKz"  class="form-control" placeholder="Введите значение"  type="text">-->
+            <!--</div>-->
+          <!--</div>-->
+          <div class="form-group">
+            <button type="button" class="btn btn-sm btn-primary" >Добавить</button>
           </div>
           <div class="form-group">
             <label>Расчетный счет *</label>
             <div>
-              <input id="BankIikManufactur"  class="form-control" placeholder="Введите значение" type="text"  required=""  disabled="disabled">
+              <input name="manufacturBankIik"  class="form-control" placeholder="Введите значение" type="text"
+                     #manufacturBankIik = "ngModel"
+                     [ngClass]="{'has-error':showErrors === true && manufacturBankIik.invalid}"
+                     [(ngModel)]="model.manufacturBankIik"
+                     required>
             </div>
           </div>
           <div class="form-group">
             <label>Валюта *</label>
-            <select class="form-control" >
+            <select class="form-control" name="manufacturCurr"
+                    #manufacturCurr = "ngModel"
+                    [ngClass]="{'has-error':showErrors === true && manufacturCurr.invalid}"
+                    [(ngModel)]="model.manufacturCurr"
+                    required>
             </select>
           </div>
-          <div *ngIf="isRes === 'unres'" >
+          <div [hidden]="isRes !== 'unres'" >
             <div class="form-group ng-scope" >
               <label>SWIFT *</label>
               <div>
-                <input id="bankBik" class="form-control" placeholder="Введите значение"  type="text"  required=""  disabled="disabled">
+                <input name="bankBik" class="form-control" placeholder="Введите значение"  type="text"
+                       #bankBik = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && bankBik.invalid && isRes === 'unres'}"
+                       [(ngModel)]="model.bankBik"
+                       required>
               </div>
             </div>
           </div>
@@ -217,3 +299,4 @@
     </div>
   </div>
 
+</form>
