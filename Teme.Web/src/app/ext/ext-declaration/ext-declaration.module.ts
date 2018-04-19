@@ -14,6 +14,7 @@ import {ExtAttachmentsComponent} from './ext-declaration/ext-attachments/ext-att
 import {FileUploadModule} from 'ng2-file-upload';
 import { ExtDeclarationsActionsComponent } from './ext-declarations/ext-declarations-actions/ext-declarations-actions.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ExtJournalListComponent } from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
 
 @NgModule({
   imports: [
@@ -33,9 +34,11 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ExtAgreementComponent,
     ExtJournalComponent,
     ExtAttachmentsComponent,
-    ExtDeclarationsActionsComponent],
+    ExtDeclarationsActionsComponent,
+    ExtJournalListComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
+    ExtJournalListComponent
   ],
   exports: [ ExtDeclarationsActionsComponent ]
 })

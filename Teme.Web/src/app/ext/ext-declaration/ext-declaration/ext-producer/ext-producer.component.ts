@@ -1,13 +1,9 @@
-import {Component, forwardRef, Input, ViewChild} from '@angular/core';
+import {Component, forwardRef, Input} from '@angular/core';
 import {
-  AbstractControl,
-  ControlValueAccessor,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator
 } from "@angular/forms";
-import {ExtGeneralInformationComponent} from "../ext-general-information/ext-general-information.component";
+import {TemplateValidation} from "../../../../shared/TemplateValidation";
 
 @Component({
   selector: 'app-ext-producer',
@@ -23,55 +19,15 @@ import {ExtGeneralInformationComponent} from "../ext-general-information/ext-gen
     multi: true
   }]
 })
-export class ExtProducerComponent implements ControlValueAccessor, Validator {
-  private _model: any = {};
-  @ViewChild('producerForm') form;
+
+export class ExtProducerComponent extends TemplateValidation {
   @Input() showErrors = false;
 
   constructor() {
+    super();
   }
 
   ngOnInit() {
   }
-
-
-  get model() {
-    return this._model;
-  }
-
-  set model(v) {
-    this._model = v;
-    this.change(v);
-  }
-
-  private change = _ => {
-  };
-  private touch = () => {
-  };
-
-  registerOnChange(fn: any): void {
-    this.change = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.touch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-  }
-
-  writeValue(obj: any): void {
-    this.model = obj;
-    this.change(obj);
-  }
-
-  registerOnValidatorChange(fn: () => void): void {
-  }
-
-  validate(c: AbstractControl): ValidationErrors | null {
-    if (this.form.valid) return null;
-    return {error: true};
-  }
-
 
 }
