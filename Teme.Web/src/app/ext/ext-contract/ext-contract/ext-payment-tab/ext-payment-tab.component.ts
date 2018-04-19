@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'app-ext-payment',
+  selector: 'app-ext-payment-tab',
   templateUrl: './ext-payment-tab.component.html',
   styleUrls: ['./ext-payment-tab.component.scss'],
   encapsulation: ViewEncapsulation.None
