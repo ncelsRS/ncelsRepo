@@ -28,7 +28,8 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
             var pointerId = scope[scope.Length - 2];
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
-            ExecutorsIds = pointer.ExtensionAttributes.ToList().Where(x => x.Key == "ExecutorsIds") as Dictionary<string, IEnumerable<string>>;
+            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
 
             Log.Information("SendToNcels");
             return ExecutionResult.Next();

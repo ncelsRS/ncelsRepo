@@ -27,7 +27,10 @@ namespace Teme.Admin.Api
             string connection = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
-
+            services.Configure<IISOptions>(options =>
+            {
+                options.ForwardClientCertificate = false;
+            });
             services.AddMvc();
 
             // Add Autofac
