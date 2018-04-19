@@ -921,7 +921,7 @@ namespace PW.Ncels.Controllers
 
         public ActionResult GetCertificate(string number, int type)
         {
-            var certificate = db.OBK_CertificateReference.FirstOrDefault(o => o.CertificateNumber.Equals(number) && o.CertificateTypeId == type);
+            var certificate = db.OBK_CertificateReference.FirstOrDefault(o => o.CertificateNumber.Equals(number) /*&& o.CertificateTypeId == type*/);
 
             if (certificate == null)
             {
