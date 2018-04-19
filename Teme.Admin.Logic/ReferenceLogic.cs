@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Teme.Admin.Data.Model;
 using Teme.Admin.Data.Repository;
-using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives;
 using Teme.Shared.Data.Primitives.Contract;
 

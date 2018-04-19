@@ -41,9 +41,11 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("NomenclatureCodeMedProduct")]
-        public async Task<IEnumerable<NomenclatureCodeMedProductModel>> NomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IActionResult> NomenclatureCodeMedProduct(string name, string culture)
         {
-            return await _refLogic.GetNomenclatureCodeMedProduct(name, culture);
+            if (name == null || culture == null)
+                return BadRequest();
+            return Ok(await _refLogic.GetNomenclatureCodeMedProduct(name, culture));
         }
 
         /// <summary>
@@ -83,9 +85,11 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameKz"></param>
         /// <returns></returns>
         [Route("SaveOrganizationForm")]
-        public async Task<int> SaveOrganizationForm(string nameRu, string nameKz)
+        public async Task<IActionResult> SaveOrganizationForm(string nameRu, string nameKz)
         {
-            return await _refLogic.SaveOrganizationForm(nameRu, nameKz);
+            if (nameRu == null || nameKz == null)
+                return BadRequest();
+            return Ok(await _refLogic.SaveOrganizationForm(nameRu, nameKz));
         }
 
         /// <summary>
@@ -104,10 +108,12 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameRu"></param>
         /// <param name="nameKz"></param>
         /// <returns></returns>
-        [Route("SaveOrganizationForm")]
-        public async Task<int> SaveBank(string nameRu, string nameKz)
+        [Route("SaveBank")]
+        public async Task<IActionResult> SaveBank(string nameRu, string nameKz)
         {
-            return await _refLogic.SaveBank(nameRu, nameKz);
+            if (nameRu == null || nameKz == null)
+                return BadRequest();
+            return Ok(await _refLogic.SaveBank(nameRu, nameKz));
         }
 
         /// <summary>
@@ -124,7 +130,7 @@ namespace Teme.Admin.Api.Controllers
         /// Страны(справочник)
         /// </summary>
         /// <returns></returns>
-        [Route("Currency")]
+        [Route("Country")]
         public async Task<IEnumerable<object>> Country()
         {
             return await _refLogic.GetCountry();

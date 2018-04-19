@@ -1,0 +1,54 @@
+<div class="side-chat h-100 transition" [class.hoverable]="settings.theme.sideChatIsHoverable" [class.show]="settings.theme.showSideChat" [class.show-chat-item]="showHoverableChatItem" [class.show-chat-window]="showChatWindow">
+    <div [hidden]="showChatWindow" class="media p-1 rounded-left transition person-search-media align-items-center" (mouseenter)="showHoverableChatItem = true" (mouseleave)="showHoverableChatItem = false">
+        <i class="fa fa-search mr-1" aria-hidden="true"></i>
+        <div class="media-body">
+            <input type="text" [(ngModel)]="searchText" class="form-control form-control-sm person-search" placeholder="Search person...">      
+        </div>
+    </div>      
+       
+    <div class="chat-list h-100" [hidden]="showChatWindow" perfectScrollbar>
+        <div *ngFor="let chat of chats | ChatPersonSearchPipe : searchText" class="media p-1 rounded-left transition" (mouseenter)="showHoverableChatItem = true" (mouseleave)="showHoverableChatItem = false" (click)="getChat(chat)">
+            <img class="d-flex mr-3 rounded" [src]="chat.image">
+            <div class="media-body">
+                <h6 class="mb-1 mt-1 text-white">{{chat.author}}</h6>
+                <span [ngSwitch]="chat.authorStatus">
+                    <i *ngSwitchCase="'Online'" class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                    <i *ngSwitchCase="'Offline'" class="fa fa-times-circle text-danger" aria-hidden="true"></i> 
+                    <i *ngSwitchCase="'Away'" class="fa fa-clock-o text-info" aria-hidden="true"></i> 
+                    <i *ngSwitchCase="'Do not disturb'" class="fa fa-minus-circle text-warning" aria-hidden="true"></i>   
+                </span>              
+                <span class="status">{{chat.authorStatus}}</span>
+            </div>
+        </div>
+    </div>      
+
+    <div class="chat-window" [hidden]="!showChatWindow">
+        <div class="d-flex justify-content-between align-items-center header"> 
+                <span class="pl-2 pr-2 back" (click)="back()"> 
+                <i class="fa fa-angle-left" aria-hidden="true"></i> 
+            </span>               
+            <h6 class="text-white mb-0 mr-2">{{interlocutor}}</h6>                
+        </div>
+
+        <div class="chat-talk-list pt-2" perfectScrollbar>
+            <div *ngFor="let talk of talks" class="media p-1 mb-1 border-0"> 
+                <img *ngIf="talk.side=='left'" class="d-flex mr-3 rounded" src="{{ talk.image }}">        
+                <div class="media-body rounded pl-2 pr-2 {{talk.side}}">
+                    <span class="d-block talk-text">{{talk.text}}</span>
+                    <small class="mt-2 mb-1 pull-right">{{talk.date | date:"dd MMMM, yyyy 'at' HH:mm"}}</small>  
+                </div>
+                <img *ngIf="talk.side=='right'" class="d-flex ml-3 rounded" src="{{ talk.image }}">
+            </div>
+        </div>        
+        
+        <div class="d-flex align-items-center pl-1 pr-1 footer">
+            <div class="input-group">                    
+                <input type="text" value="" class="form-control" placeholder="Enter your text..."
+                (keyup)="addChatItem($event)" [(ngModel)]="newChatText">
+                <div class="input-group-append" (click)="addChatItem($event)">
+                    <span class="input-group-text"><i class="fa fa-paper-plane"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>     
+</div>

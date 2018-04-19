@@ -2,11 +2,11 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-ext-payment',
-  templateUrl: './ext-payment.component.html',
-  styleUrls: ['./ext-payment.component.scss'],
+  templateUrl: './ext-payment-tab.component.html',
+  styleUrls: ['./ext-payment-tab.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class ExtPaymentComponent implements OnInit {
+export class ExtPaymentTabComponent implements OnInit {
 
   constructor() { }
 
