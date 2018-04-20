@@ -1,8 +1,8 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {IntContractComponent} from "./int-content/int-contract/int-contract.component";
-import {IntDeclarationComponent} from "./int-content/int-declaration/int-declaration.component";
+import {IntContractComponent} from "./int-contract/int-contract.component";
+import {IntDeclarationComponent} from "./int-declaration/int-declaration.component";
 import {RouterModule, Routes} from "@angular/router";
 
 const routes: Routes = [

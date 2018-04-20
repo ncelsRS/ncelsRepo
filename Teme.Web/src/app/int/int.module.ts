@@ -5,7 +5,6 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {IntHomeComponent} from './int-home/int-home.component';
 import {IntLayoutComponent } from './int-layout/int-layout.component';
 import {IntMenuComponent} from "./int-menu/int-menu.component";
-import { IntContentComponent } from './int-layout/int-content/int-content.component';
 
 @NgModule({
   imports: [
@@ -16,8 +15,7 @@ import { IntContentComponent } from './int-layout/int-content/int-content.compon
   declarations: [
     IntHomeComponent,
     IntLayoutComponent,
-    IntMenuComponent,
-    IntContentComponent
+    IntMenuComponent
   ]
 })
 export class IntModule {
