@@ -1,4 +1,4 @@
-import {Component,   Input,  forwardRef, ViewChild} from '@angular/core';
+import {Component, Input, forwardRef, ViewChild, Injectable} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -8,6 +8,7 @@ import {
   Validator
 } from "@angular/forms";
 import {TemplateValidation} from '../../../../shared/TemplateValidation';
+import {RefService} from '../ext-ref-sevice';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -21,16 +22,23 @@ import {TemplateValidation} from '../../../../shared/TemplateValidation';
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ExtManufacturerComponent),
     multi: true
-  }]
+  }, RefService]
 })
+@Injectable()
 export class ExtManufacturerComponent extends TemplateValidation{
 
    isAddOrgForm = false;
    isAddBankName = false;
+  //private http: HttpClient;
+
 
   @Input() prnRegisterType: string;
    @Input() showErrors = false;
+  constructor(private refService: RefService){
+    super();
+   // this.getOrgForm();
 
+  }
 
 
   addOrgForm()
@@ -51,6 +59,13 @@ export class ExtManufacturerComponent extends TemplateValidation{
   saveBankName()
   {
     this.isAddBankName = false;
+  }
+
+  private url = "http://10.20.44.57:81/api/Reference/SaveOrganizationForm";
+  //constructor(private http: HttpClient){ }
+
+  getOrgForm(){
+    this.refService.saveOrgForm();
   }
 
 
