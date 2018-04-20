@@ -36,8 +36,9 @@ namespace Teme.Admin.Api
             {
                 options.ForwardClientCertificate = false;
             });
+            services.AddCors();
             services.AddMvc();
-
+            
             // Add Autofac
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
@@ -55,6 +56,7 @@ namespace Teme.Admin.Api
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();
         }
     }
