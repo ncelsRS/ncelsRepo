@@ -19,5 +19,12 @@ namespace WorkflowCore.Users.Primitives
         {
             return new UserTask(Options, Escalations);
         }
+
+        public override void AfterExecute(WorkflowExecutorResult executorResult, IStepExecutionContext context, ExecutionResult stepResult, ExecutionPointer executionPointer)
+        {
+            base.AfterExecute(executorResult, context, stepResult, executionPointer);
+            if (executorResult.Subscriptions.Count > 0) // TODO Сделать более красиво
+                TaskCompletionService.TryReleaseTask(context.Workflow.Id);
+        }
     }
 }

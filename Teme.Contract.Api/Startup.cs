@@ -37,7 +37,8 @@ namespace Teme.Contract.Api
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
 
             // Add Workflow with the persistence provider
-            services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
+            //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
+            services.AddWorkflow();
 
             // Default vm template
             services.AddMvc();

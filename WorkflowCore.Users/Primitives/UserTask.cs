@@ -47,7 +47,6 @@ namespace WorkflowCore.Users.Primitives
                 throw new ArgumentException();
 
             var action = ((UserAction)context.ExecutionPointer.EventData);
-            context.ExecutionPointer.ExtensionAttributes["AwaiterKey"] = action.AwaiterKey;
             if (action.ExecutorsIds != null)
                 context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
             if (action.Data != null)

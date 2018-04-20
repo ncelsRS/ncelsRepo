@@ -5,7 +5,7 @@ using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure.ContractGv
 {
-    public class GvSetExecuter : BaseContractStep
+    public class GvSetExecuter : StepBody
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {

@@ -8,7 +8,7 @@ using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure.ContractCoz
 {
-    public class BossCoz : BaseContractStep
+    public class BossCoz : StepBody
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
@@ -16,7 +16,7 @@ namespace Teme.Contract.Infrastructure.ContractCoz
         }
     }
 
-    public class SendContractToCozExecutor : BaseContractStep
+    public class SendContractToCozExecutor : StepBody
     {
         public string ExecutorId { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
