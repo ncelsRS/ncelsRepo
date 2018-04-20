@@ -39,6 +39,8 @@ namespace Teme.Admin.Api.Controllers
         /// <summary>
         /// Код Номенклатуры медицинских изделий Республики Казахстан(справочник)
         /// </summary>
+        /// <param name="name">название издения</param>
+        /// <param name="culture">култура(ru, kz)</param>
         /// <returns></returns>
         [Route("NomenclatureCodeMedProduct")]
         public async Task<IActionResult> NomenclatureCodeMedProduct(string name, string culture)
@@ -81,8 +83,8 @@ namespace Teme.Admin.Api.Controllers
         /// <summary>
         /// Добавить новую Организационную форума(справочник)
         /// </summary>
-        /// <param name="nameRu"></param>
-        /// <param name="nameKz"></param>
+        /// <param name="nameRu">наименование на русском</param>
+        /// <param name="nameKz">наимемнование на казахском</param>
         /// <returns></returns>
         [Route("SaveOrganizationForm")]
         public async Task<IActionResult> SaveOrganizationForm(string nameRu, string nameKz)
@@ -105,8 +107,8 @@ namespace Teme.Admin.Api.Controllers
         /// <summary>
         /// Добавить новый Банк(справочник)
         /// </summary>
-        /// <param name="nameRu"></param>
-        /// <param name="nameKz"></param>
+        /// <param name="nameRu">наименование на русском</param>
+        /// <param name="nameKz">наимемнование на казахском</param>
         /// <returns></returns>
         [Route("SaveBank")]
         public async Task<IActionResult> SaveBank(string nameRu, string nameKz)
