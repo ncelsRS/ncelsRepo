@@ -8,6 +8,7 @@ export const routes: Routes = [
   // {path: 'payment', loadChildren: 'app/ext/ext-payment/ext-payment.module#ExtPaymentModule'},
   {path: 'pages', loadChildren: 'app/pages/pages.module#PagesModule'},
   {path: 'ext', loadChildren: 'app/ext/ext.module#ExtModule'},
+  {path: 'int', loadChildren: 'app/int/int.module#IntModule'},
   {path: 'login', loadChildren: 'app/pages/login/login.module#LoginModule'},
   {path: 'register', loadChildren: 'app/pages/register/register.module#RegisterModule'},
   {path: '**', component: NotFoundComponent}
