@@ -11,71 +11,91 @@ import { Settings } from 'app/app.settings.model';
   encapsulation: ViewEncapsulation.None
 })
 export class ExtPaymentComponent implements OnInit {
-    public showMenu:boolean = false;
-    public showSetting:boolean = false;
-    public menus = ['vertical', 'horizontal'];
-    public menuOption:string;
-    public menuTypes = ['default', 'compact', 'mini'];
-    public menuTypeOption:string;
 
-    public settings: Settings;
-    constructor(public appSettings:AppSettings, public router:Router){
-        this.settings = this.appSettings.settings;
-        if(sessionStorage["skin"]) {
-            this.settings.theme.skin = sessionStorage["skin"];
-        }
-    }
+  type: string;
+  constructor() {
+    this.type = 'cost-info';
+  }
 
-    ngOnInit() {
-        if(window.innerWidth <= 768){
-            this.settings.theme.showMenu = false;
-            this.settings.theme.sideChatIsHoverable = false;
-        }
-        this.showMenu = this.settings.theme.showMenu;
-        this.menuOption = this.settings.theme.menu;
-        this.menuTypeOption = this.settings.theme.menuType;
-    }
-
-    public chooseMenu(menu){
-        this.settings.theme.menu = menu;
-        this.router.navigate(['/']);
-    }
-
-    public chooseMenuType(menuType){
-        this.settings.theme.menuType = menuType;
-        if(menuType=='mini'){
-            jQuery('.menu-item-link').tooltip('enable');
-        }else{
-            jQuery('.menu-item-link').tooltip('disable');
-        }
-    }
-
-    public changeTheme(theme){
-        this.settings.theme.skin = theme;
-        sessionStorage["skin"] = theme;
-    }
-
-    ngAfterViewInit(){
-        document.getElementById('preloader').classList.add('hide');
-    }
+  ngOnInit() {
+  }
+  setDeclarationTab(name: string) {
+    this.type = name;
+  }
 
 
-    @HostListener('window:resize')
-    public onWindowResize():void {
-        let showMenu= !this._showMenu();
+  ngAfterViewInit(){
+    document.getElementById('preloader').classList.add('hide');
+  }
 
-        if (this.showMenu !== showMenu) {
-            this.showMenuStateChange(showMenu);
-        }
-        this.showMenu = showMenu;
-    }
 
-    public showMenuStateChange(showMenu:boolean):void {
-        this.settings.theme.showMenu = showMenu;
-    }
 
-    private _showMenu():boolean {
-        return window.innerWidth <= 768;
-    }
+
+    // public showMenu:boolean = false;
+    // public showSetting:boolean = false;
+    // public menus = ['vertical', 'horizontal'];
+    // public menuOption:string;
+    // public menuTypes = ['default', 'compact', 'mini'];
+    // public menuTypeOption:string;
+    //
+    // public settings: Settings;
+    // constructor(public appSettings:AppSettings, public router:Router){
+    //     this.settings = this.appSettings.settings;
+    //     if(sessionStorage["skin"]) {
+    //         this.settings.theme.skin = sessionStorage["skin"];
+    //     }
+    // }
+    //
+    // ngOnInit() {
+    //     if(window.innerWidth <= 768){
+    //         this.settings.theme.showMenu = false;
+    //         this.settings.theme.sideChatIsHoverable = false;
+    //     }
+    //     this.showMenu = this.settings.theme.showMenu;
+    //     this.menuOption = this.settings.theme.menu;
+    //     this.menuTypeOption = this.settings.theme.menuType;
+    // }
+    //
+    // public chooseMenu(menu){
+    //     this.settings.theme.menu = menu;
+    //     this.router.navigate(['/']);
+    // }
+    //
+    // public chooseMenuType(menuType){
+    //     this.settings.theme.menuType = menuType;
+    //     if(menuType=='mini'){
+    //         jQuery('.menu-item-link').tooltip('enable');
+    //     }else{
+    //         jQuery('.menu-item-link').tooltip('disable');
+    //     }
+    // }
+    //
+    // public changeTheme(theme){
+    //     this.settings.theme.skin = theme;
+    //     sessionStorage["skin"] = theme;
+    // }
+    //
+    // ngAfterViewInit(){
+    //     document.getElementById('preloader').classList.add('hide');
+    // }
+    //
+    //
+    // @HostListener('window:resize')
+    // public onWindowResize():void {
+    //     let showMenu= !this._showMenu();
+    //
+    //     if (this.showMenu !== showMenu) {
+    //         this.showMenuStateChange(showMenu);
+    //     }
+    //     this.showMenu = showMenu;
+    // }
+    //
+    // public showMenuStateChange(showMenu:boolean):void {
+    //     this.settings.theme.showMenu = showMenu;
+    // }
+    //
+    // private _showMenu():boolean {
+    //     return window.innerWidth <= 768;
+    // }
 
 }

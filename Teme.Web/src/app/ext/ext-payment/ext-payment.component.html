@@ -1,79 +1,124 @@
+<form novalidate #paymentForm="ngForm">
 
-<div class="wrapper-inner" [ngClass]="{ 'vertical-menu-tooltip-place': (settings.theme.menuType == 'mini' && settings.theme.menu == 'vertical'),
-                                        'horizontal-menu-tooltip-place': (settings.theme.menuType == 'mini' && settings.theme.menu == 'horizontal') }">
-
-    <!--<app-header></app-header>-->
-
-    <div class="d-flex h-100" [ngClass]="{'flex-row': settings.theme.menu == 'vertical', 'flex-column': settings.theme.menu != 'vertical'}">
-        <app-sidebar *ngIf="settings.theme.menu == 'vertical'"></app-sidebar>
-        <div class="main-content">
-            <app-side-chat></app-side-chat>
-            <app-breadcrumb></app-breadcrumb>
-            <router-outlet></router-outlet>
+  <div class="dec-out">
+    <div class="dec-in">
+      <nav class="nav flex-column">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist" value="fl">
+          <a class="nav-item nav-link active" data-toggle="tab" role="tab"
+             aria-controls="nav-home" aria-selected="true" (click)="setDeclarationTab('cost-info')">Сведение о
+            стоимости</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('data')">Данные ИМН/МТ</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('equipment')">Комплектация ИМН
+            и МТ</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('manufacturer')">Производитель
+            ИМН и МТ <br>и участок производства</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('subject')">Субъект,
+            осуществляющий оплату <br> за проведение экспертизы</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('attachments')">Вложения</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('signing')">Подписание</a>
         </div>
+      </nav>
+      <div [hidden]="type !== 'cost-info'">
+        <app-cost-info></app-cost-info>
+      </div>
+      <div [hidden]="type !== 'data'">
+        <app-data></app-data>
+      </div>
+      <div [hidden]="type !== 'equipment'">
+        <app-equipment></app-equipment>
+      </div>
+      <div [hidden]="type !== 'manufacturer'">
+        <app-manufacturer></app-manufacturer>
+      </div>
+      <div [hidden]="type !== 'subject'">
+        <app-subject></app-subject>
+      </div>
+      <div [hidden]="type !== 'attachments'">
+        <app-attachments></app-attachments>
+      </div>
+      <div [hidden]="type !== 'signing'">
+        <app-signing></app-signing>
+      </div>
     </div>
-
-</div>
-<!--<app-footer></app-footer>-->
-<!--<app-back-top position="200"></app-back-top>-->
+  </div>
+</form>
 
 
-<!--
-<div class="settings" [ngClass]="{'show': showSetting}">
-    <button class="btn btn-default toggle" (click)="showSetting=!showSetting"><i class="fa fa-spin fa-gear"></i></button>
-    <div class="card">
-        <div class="card-header text-center">
-            Settings
-        </div>
-        <div class="card-body mt-2">
-            <h6>Choose menu</h6>
-            <div class="form-group">
-                <div *ngFor="let menu of menus; let i = index;" class="custom-control custom-radio">
-                    <input [attr.id]="'radio-'+i" type="radio" name="menus" class="custom-control-input radio-dark-gray"
-                        (change)="chooseMenu(menu)" [checked]="menu === menuOption" [value]="menu">
-                    <label [attr.for]="'radio-'+i" class="custom-control-label text-capitalize">{{menu}}</label>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-            <h6>Choose menu type</h6>
-            <div class="form-group">
-                <div *ngFor="let menuType of menuTypes; let i = index;" class="custom-control custom-radio">
-                    <input [attr.id]="'menuType-'+i" type="radio" name="menuTypes" class="custom-control-input radio-dark-gray"
-                        (change)="chooseMenuType(menuType)" [checked]="menuType === menuTypeOption" [value]="menuType">
-                    <label [attr.for]="'menuType-'+i" class="custom-control-label text-capitalize">{{menuType}}</label>
-                </div>
-            </div>
-        </div>
-        <div class="card-body mb-3">
-            <h6>Choose theme skin</h6>
-            <div class="theme light" (click)="changeTheme('light')"></div>
-            <div class="theme dark" (click)="changeTheme('dark')"></div>
-            <div class="theme blue" (click)="changeTheme('blue')"></div>
-            <div class="theme green" (click)="changeTheme('green')"></div>
-            <div class="theme combined" (click)="changeTheme('combined')"></div>
-            <div class="theme purple" (click)="changeTheme('purple')"></div>
-            <div class="theme orange" (click)="changeTheme('orange')"></div>
-            <div class="theme brown" (click)="changeTheme('brown')"></div>
-            <div class="theme grey" (click)="changeTheme('grey')"></div>
-            <div class="theme pink" (click)="changeTheme('pink')"></div>
-        </div>
-        <div class="card-body mb-2">
-            <h6>Other theme options</h6>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input checkbox-dark-gray" id="navbarIsFixed" [checked]="settings.theme.navbarIsFixed" (change)="settings.theme.navbarIsFixed = !settings.theme.navbarIsFixed">
-                <label class="custom-control-label" for="navbarIsFixed">Fixed header</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input checkbox-dark-gray" id="sidebarIsFixed" [checked]="settings.theme.sidebarIsFixed" (change)="settings.theme.sidebarIsFixed = !settings.theme.sidebarIsFixed">
-                <label class="custom-control-label" for="sidebarIsFixed">Fixed sidebar</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input checkbox-dark-gray" id="footerIsFixed" [checked]="settings.theme.footerIsFixed" (change)="settings.theme.footerIsFixed = !settings.theme.footerIsFixed">
-                <label class="custom-control-label" for="footerIsFixed">Fixed footer</label>
-            </div>
-        </div>
-    </div>
-</div>
+<!--<div class="d-flex flex-row mt-2">-->
+<!--<ul class="nav nav-tabs nav-tabs&#45;&#45;vertical nav-tabs&#45;&#45;left" role="navigation">-->
+<!--<li class="nav-item">-->
+<!--<a href="#cost-info" class="nav-link active" data-toggle="tab" role="tab" aria-controls="cost-info">Сведения о стоимости</a>-->
+<!--</li>-->
+<!--<li class="nav-item">-->
+<!--<a href="#data" class="nav-link" data-toggle="tab" role="tab" aria-controls="data">Данные ИМН/МТ</a>-->
+<!--</li>-->
+<!--<li class="nav-item">-->
+<!--<a href="#lorem" class="nav-link" data-toggle="tab" role="tab" aria-controls="lorem">Lorem</a>-->
+<!--</li>-->
+<!--<li class="nav-item">-->
+<!--<a href="#ipsum" class="nav-link" data-toggle="tab" role="tab" aria-controls="ipsum">Ipsum</a>-->
+<!--</li>-->
+<!--<li class="nav-item">-->
+<!--<a href="#dolor" class="nav-link" data-toggle="tab" role="tab" aria-controls="dolor">Dolor</a>-->
+<!--</li>-->
+<!--<li class="nav-item">-->
+<!--<a href="#sit-amet" class="nav-link" data-toggle="tab" role="tab" aria-controls="sit-amet">Sit Amet</a>-->
+<!--</li>-->
+<!--</ul>-->
+<!--<div class="tab-content">-->
+<!--<div class="tab-pane fade show active" id="cost-info" role="tabpanel">-->
+<!--<app-cost-info></app-cost-info>-->
+<!--</div>-->
+<!--<div class="tab-pane fade show active" id="data" role="tabpanel">-->
+<!--<app-data></app-data>-->
+<!--</div>-->
+<!--&lt;!&ndash;<div [hidden]="type !== 'cost-info'"><app-cost-info></app-cost-info></div>&ndash;&gt;-->
+<!--<div class="tab-pane fade" id="lorem" role="tabpanel">-->
+<!--<h1>Lorem</h1>-->
 
--->
+<!--<p>Aenean sed lacus id mi scelerisque tristique. Nunc sed ex sed turpis fringilla aliquet in in neque. Praesent posuere, neque rhoncus sollicitudin fermentum, erat ligula volutpat dui, nec dapibus ligula lorem ac mauris. Etiam et leo venenatis purus pharetra dictum.</p>-->
+
+<!--<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin tempor mi ut risus laoreet molestie. Duis augue risus, fringilla et nibh ac, convallis cursus purus. Suspendisse potenti. Praesent pretium eros eleifend posuere facilisis. Proin ut magna vitae nulla suscipit eleifend. Ut bibendum pulvinar sapien, vel tristique felis scelerisque et. Sed elementum sapien magna, placerat interdum lacus placerat ut. Integer varius, ligula bibendum laoreet sollicitudin, eros metus fringilla lectus, quis consequat nisl nibh ut nisi. Aenean dignissim, nibh ac fermentum condimentum, ante nisl rutrum sapien, at commodo eros sapien vulputate arcu. Fusce neque leo, blandit nec lectus eu, vestibulum commodo tellus. Aliquam sem libero, tristique at condimentum ac, luctus nec nulla.</p>-->
+<!--</div>-->
+<!--<div class="tab-pane fade" id="ipsum" role="tabpanel">-->
+<!--<h1>Ipsum</h1>-->
+
+<!--<p>Aenean pharetra risus quis placerat euismod. Praesent mattis lorem eget massa euismod sollicitudin. Donec porta nulla ut blandit vehicula. Mauris sagittis lorem nec mauris placerat, et molestie elit vehicula. Donec libero ex, condimentum et mi dapibus, euismod ornare ligula.</p>-->
+
+<!--<p>In faucibus tempus ante, et tempor magna luctus id. Ut a maximus ipsum. Duis eu velit nec libero pretium pellentesque. Maecenas auctor hendrerit pulvinar. Donec sed tortor interdum, sodales elit vel, tempor turpis. In tristique vestibulum eros vel congue. Vivamus maximus posuere fringilla. Nullam in est commodo, tristique ligula eu, tincidunt enim. Duis iaculis sodales lectus vitae cursus.</p>-->
+<!--</div>-->
+<!--<div class="tab-pane fade" id="dolor" role="tabpanel">-->
+<!--<h1>Dolor</h1>-->
+
+<!--<p>Ut eget lectus tristique, tempus purus sit amet, porta augue. Mauris lobortis sem nec augue ultricies blandit. Nullam sed sem venenatis, pretium urna eget, scelerisque dolor. Morbi nec volutpat leo, quis faucibus tortor. Aenean vel rutrum mauris. Pellentesque lectus massa, tincidunt quis leo non, sodales sagittis nulla. Proin interdum est at nulla laoreet, pulvinar pretium nisl rutrum. In vel elit a risus rhoncus accumsan vulputate non sapien. Sed et rhoncus velit. Nunc commodo augue fermentum, hendrerit neque at, ullamcorper arcu. Nulla tincidunt orci a lectus efficitur elementum. Donec molestie urna vestibulum augue placerat faucibus. In vitae orci vel mauris cursus viverra ac sit amet nisl. Phasellus odio tortor, ullamcorper eget ullamcorper eget, molestie eget justo. Integer elementum purus eget arcu fermentum tincidunt. Nullam erat tellus, dictum sit amet nisi eu, rutrum fermentum odio.</p>-->
+<!--</div>-->
+<!--<div class="tab-pane fade" id="sit-amet" role="tabpanel">-->
+<!--<h1>Sit Amet</h1>-->
+
+<!--<p>Aliquam hendrerit nunc vitae nisi efficitur, eu porta sem aliquam. Aenean tincidunt mi sed mi sodales bibendum. Proin dolor ipsum, mollis venenatis velit eu, iaculis laoreet mi. Mauris eget egestas felis, sit amet finibus nunc. Aliquam non dui sit amet erat auctor mollis ac eget ante. Quisque at quam augue. Nulla dignissim, augue nec cursus consequat, mi nulla efficitur augue, vel fringilla turpis quam eu nunc. Quisque rutrum vehicula lacus sodales molestie. Mauris vel felis sit amet erat maximus cursus ut a velit. In hac habitasse platea dictumst. Vestibulum vel neque sit amet nisl finibus fermentum.</p>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+
+
+<!--<div class="wrapper-inner" [ngClass]="{ 'vertical-menu-tooltip-place': (settings.theme.menuType == 'mini' && settings.theme.menu == 'vertical'),-->
+<!--'horizontal-menu-tooltip-place': (settings.theme.menuType == 'mini' && settings.theme.menu == 'horizontal') }">-->
+
+<!--<div class="d-flex h-100" [ngClass]="{'flex-row': settings.theme.menu == 'vertical', 'flex-column': settings.theme.menu != 'vertical'}">-->
+<!--<app-sidebar *ngIf="settings.theme.menu == 'vertical'"></app-sidebar>-->
+<!--<div class="main-content">-->
+<!--<app-side-chat></app-side-chat>-->
+<!--<app-breadcrumb></app-breadcrumb>-->
+<!--<router-outlet></router-outlet>-->
+<!--</div>-->
+<!--</div>-->
+
+<!--</div>-->
+
+

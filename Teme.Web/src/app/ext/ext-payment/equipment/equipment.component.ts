@@ -38,7 +38,7 @@ export class EquipmentComponent {
     noDataMessage: 'No data found',
     columns: {
       id: {
-        title: '№ п\\п',
+        title: '№',
         editable: false,
         width: '60px',
         type: 'html',
@@ -68,7 +68,7 @@ export class EquipmentComponent {
     },
     pager: {
       display: true,
-      perPage: 10
+      perPage: 5
     }
   };
 

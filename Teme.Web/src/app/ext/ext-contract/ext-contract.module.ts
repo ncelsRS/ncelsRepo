@@ -13,6 +13,7 @@ import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant
 import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payment-tab.component';
 import { ExtCostInfoComponent } from './ext-contract/ext-payment-tab/ext-cost-info/ext-cost-info.component';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import {Ng2SmartTableModule} from 'ng2-smart-table';
     ExtContractRoutingModule,
     FileUploadModule,
     FormsModule,
-    Ng2SmartTableModule
+    Ng2SmartTableModule,
+    NgbModule.forRoot()
   ],
   declarations: [
     ExtContractsComponent,
@@ -32,7 +34,6 @@ import {Ng2SmartTableModule} from 'ng2-smart-table';
     ExtPaymentTabComponent,
     ExtCostInfoComponent,
     ExtPayerComponent
-
   ]
 })
 export class ExtContractModule { }

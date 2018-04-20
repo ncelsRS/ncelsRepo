@@ -1,13 +1,11 @@
 import {Component, forwardRef, Input, OnInit, ViewChild} from '@angular/core';
 import {DeclarantDocType} from './DeclarantDocType';
+import {TemplateValidation} from '../../../../shared/TemplateValidation';
 import {
-  AbstractControl,
-  ControlValueAccessor,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator
 } from "@angular/forms";
+
 
 
 @Component({
@@ -24,7 +22,9 @@ import {
       multi: true
     }]
 })
-export class ExtDeclarantComponent implements ControlValueAccessor, Validator {
+export class ExtDeclarantComponent  extends TemplateValidation{
+  isAddOrgForm = false;
+  isAddBankName = false;
   selectedDeclarantDocType: string;
   levels: Array<DeclarantDocType> = [
     {code: 'Procuration', name: 'Доверенность'},
@@ -37,52 +37,34 @@ export class ExtDeclarantComponent implements ControlValueAccessor, Validator {
   }
 
   constructor() {
+    super();
     this.selectedDeclarantDocType = 'Procuration';
   }
 
 
     ngOnInit() {
   }
-  private _model: any = {};
-  @ViewChild('DeclarantForm') form;
+
   @Input() showErrors = false;
 
-  get model() {
-    return this._model;
+  addOrgForm()
+  {
+    this.isAddOrgForm = true;
   }
 
-  set model(v) {
-    this._model = v;
-    this.change(v);
+  saveOrgForm()
+  {
+    this.isAddOrgForm = false;
   }
 
-  private change = _ => {
-  };
-  private touch = () => {
-  };
-
-  registerOnChange(fn: any): void {
-    this.change = fn;
+  addBankName()
+  {
+    this.isAddBankName = true;
   }
 
-  registerOnTouched(fn: any): void {
-    this.touch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-  }
-
-  writeValue(obj: any): void {
-    this.model = obj;
-    this.change(obj);
-  }
-
-  registerOnValidatorChange(fn: () => void): void {
-  }
-
-  validate(c: AbstractControl): ValidationErrors | null {
-    if (this.form.valid) return null;
-    return {error: true};
+  saveBankName()
+  {
+    this.isAddBankName = false;
   }
 
 }
