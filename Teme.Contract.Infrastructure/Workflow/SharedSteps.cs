@@ -8,7 +8,7 @@ namespace Teme.Contract.Infrastructure.Workflow
 {
     public class CancelParallelUserTasks : StepBody
     {
-        private IWorkflowHost _host { get; }
+        private readonly IWorkflowHost _host;
 
         public CancelParallelUserTasks(IWorkflowHost host)
         {
@@ -21,7 +21,8 @@ namespace Teme.Contract.Infrastructure.Workflow
             var forEachStep = pointers.Find(x => x.Id == context.ExecutionPointer.Scope.ToArray()[3]);
             forEachStep.Children.ForEach(child =>
             {
-
+                
+                _host.GetOpenUserActions(context.Workflow.Id);
             });
 
             return ExecutionResult.Next();

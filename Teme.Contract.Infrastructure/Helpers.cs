@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using WorkflowCore.Interface;
+using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure
 {
-    public class Helpers
+    public static class Helpers
     {
-        public static string GetUserTaskPointer(IStepExecutionContext context)
+        public static ExecutionPointer GetParentScope(this IStepExecutionContext context, int level = 0)
         {
-            var scope = context.ExecutionPointer.Scope.ToArray();
-            return scope[1];
+            if (context.ExecutionPointer.Scope.Count <= level) return null;
+            return context.Workflow.ExecutionPointers.Find(x =>
+                x.Id == context.ExecutionPointer.Scope.Skip(level).Take(1).First());
         }
     }
 }

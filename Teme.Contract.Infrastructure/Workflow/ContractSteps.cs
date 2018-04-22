@@ -31,7 +31,7 @@ namespace Teme.Contract.Infrastructure.Workflow
             var pointerId = Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
-            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
+            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out var executorsValue))
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
 
             Log.Information("SendToNcels");
