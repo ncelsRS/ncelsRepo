@@ -11,7 +11,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var pointerId = Helpers.GetUserTaskPointer(context);
+            var pointerId = ""; // Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
             if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
@@ -39,7 +39,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var pointerId = Helpers.GetUserTaskPointer(context);
+            var pointerId = ""; // Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
             if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
