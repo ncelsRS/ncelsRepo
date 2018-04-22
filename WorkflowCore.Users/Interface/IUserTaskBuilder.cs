@@ -17,7 +17,7 @@ namespace WorkflowCore.Users.Interface
         /// <param name="value">The key value for this option</param>
         /// <param name="label">The user facing label for this option</param>
         /// <returns></returns>
-        IUserTaskReturnBuilder<TData> WithOption(string value, string label);
+        IUserTaskReturnBuilder<TData> WithOption(string value, string label = null);
 
         /// <summary>
         /// Escalate this task to another user after a given period

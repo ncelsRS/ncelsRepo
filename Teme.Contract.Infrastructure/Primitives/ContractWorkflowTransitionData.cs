@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Teme.Shared.Data.Primitives.Contract;
 
-namespace Teme.Contract.Infrastructure
+namespace Teme.Contract.Infrastructure.Primitives
 {
     public class ContractWorkflowTransitionData
     {
