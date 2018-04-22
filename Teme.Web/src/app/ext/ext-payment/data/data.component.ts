@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewEncapsulation} from '@angular/core';
+import {IconModal} from '../../../shared/IconModal';
 
 @Component({
   selector: 'app-data',
@@ -6,11 +7,12 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
   styleUrls: ['./data.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DataComponent implements OnInit {
+export class DataComponent extends IconModal {
 
-  constructor() { }
-
-  ngOnInit() {
+  constructor(private elementRef: ElementRef) {
+    super(elementRef);
   }
+
+
 
 }

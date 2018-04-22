@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {ExtContractsComponent} from './ext-contracts/ext-contracts.component';
 import {ExtContractComponent} from './ext-contract/ext-contract.component';
-import { ExtCostInfoComponent } from './ext-contract/ext-payment-tab/ext-cost-info/ext-cost-info.component';
+import {ExtPaymentTabComponent} from './ext-contract/ext-payment-tab/ext-payment-tab.component';
 
 const routes: Routes = [
     {
@@ -28,7 +28,7 @@ const routes: Routes = [
             },
             {
                 path: 'payment',
-                component: ExtCostInfoComponent,
+                component: ExtPaymentTabComponent,
                 data: { title: 'Заявка на платеж' }
             }
         ]
