@@ -1,4 +1,4 @@
-import {Component,   Input,  forwardRef, ViewChild} from '@angular/core';
+import {Component, Input, forwardRef, ViewChild, Injectable} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -7,6 +7,8 @@ import {
   ValidationErrors,
   Validator
 } from "@angular/forms";
+import {TemplateValidation} from '../../../../shared/TemplateValidation';
+import {RefService} from '../ext-ref-sevice';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -20,54 +22,24 @@ import {
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ExtManufacturerComponent),
     multi: true
-  }]
+  }, RefService]
 })
-export class ExtManufacturerComponent implements  ControlValueAccessor, Validator{
+@Injectable()
+export class ExtManufacturerComponent extends TemplateValidation{
 
    isAddOrgForm = false;
    isAddBankName = false;
-  private _model: any = {};
+  //private http: HttpClient;
+
+
   @Input() prnRegisterType: string;
-   @ViewChild('ManufacturerForm') form;
    @Input() showErrors = false;
+  constructor(private refService: RefService){
+    super();
+   // this.getOrgForm();
 
-  get model() {
-    return this._model;
   }
 
-  set model(v) {
-    this._model = v;
-    this.change(v);
-  }
-
-  private change = _ => {
-  };
-  private touch = () => {
-  };
-
-  registerOnChange(fn: any): void {
-    this.change = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.touch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-  }
-
-  writeValue(obj: any): void {
-    this.model = obj;
-    this.change(obj);
-  }
-
-  registerOnValidatorChange(fn: () => void): void {
-  }
-
-  validate(c: AbstractControl): ValidationErrors | null {
-    if (this.form.valid) return null;
-    return {error: true};
-  }
 
   addOrgForm()
   {
@@ -87,6 +59,13 @@ export class ExtManufacturerComponent implements  ControlValueAccessor, Validato
   saveBankName()
   {
     this.isAddBankName = false;
+  }
+
+  private url = "http://10.20.44.57:81/api/Reference/SaveOrganizationForm";
+  //constructor(private http: HttpClient){ }
+
+  getOrgForm(){
+    this.refService.saveOrgForm();
   }
 
 
