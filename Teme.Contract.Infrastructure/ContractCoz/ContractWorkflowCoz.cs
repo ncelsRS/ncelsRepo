@@ -7,9 +7,9 @@ namespace Teme.Contract.Infrastructure.ContractCoz
     {
         public static IWorkflowBuilder<ContractWorkflowTransitionData> ContractCoz(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
-            builder
-                .StartWith<BossCoz>()
-                    .Input(step => step.AwaiterKey, data => data.Value);
+            //builder
+            //    .StartWith<BossCoz>()
+            //        .Input(step => step.AwaiterKey, data => data.Value);
                 // Назначение Юристконсульта
                 //.UserTask("SendContractToLegalAdviser", data => "legalAdviser")
                 //    .WithOption("sendToCozExecutor", "sendToCozExecutor").Do(then =>
