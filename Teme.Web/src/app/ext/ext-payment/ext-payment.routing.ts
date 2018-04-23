@@ -18,7 +18,7 @@ export const routes: Routes = [
     path: '',
     component: ExtPaymentComponent,
     children: [
-      {path: '', redirectTo: 'cost-info', pathMatch: 'full'},
+      //{path: '', redirectTo: 'cost-info', pathMatch: 'full'},
       {path: 'cost-info', component: CostInfoComponent, data: {breadcrumb: 'Сведение о стоимости'}},
       {path: 'data', component: DataComponent, data: {breadcrumb: 'Данные ИМН/МТ'}},
       {path: 'equipment', component: EquipmentComponent, data: {breadcrumb: 'Комплектация ИМН и МТ'}},

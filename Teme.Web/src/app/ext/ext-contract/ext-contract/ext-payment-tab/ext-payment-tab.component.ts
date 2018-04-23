@@ -11,13 +11,19 @@ export class ExtPaymentTabComponent implements OnInit {
   constructor() { }
 
 
-    public menuItems = [
-        { id: 1, name: 'Регистрация', unicode: '&#xf2bc'},
-        { id: 2, name: 'Перерегистрация', unicode: '&#xf0c9'},
-        { id: 3, name: 'Внесение изменения', unicode: '&#xf0a2'}
-    ]
+    // public menuItems = [
+    //     { id: 1, name: 'Регистрация', unicode: '&#xf2bc'},
+    //     { id: 2, name: 'Перерегистрация', unicode: '&#xf0c9'},
+    //     { id: 3, name: 'Внесение изменения', unicode: '&#xf0a2'}
+    // ]
 
   ngOnInit() {
   }
+  closeModal(){
 
+  }
+  showPaymentModal(){
+    //jQuery('#add-modal').modal('hide');
+    jQuery('#frameModal').modal('show');
+  }
 }

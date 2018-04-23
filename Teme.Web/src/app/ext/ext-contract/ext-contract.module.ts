@@ -11,9 +11,9 @@ import { ExtCostComponent} from './ext-contract/ext-cost/ext-cost.component';
 import { ExtPayerComponent} from './ext-contract/ext-payer/ext-payer.component';
 import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant.component';
 import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payment-tab.component';
-import { ExtCostInfoComponent } from './ext-contract/ext-payment-tab/ext-cost-info/ext-cost-info.component';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 @NgModule({
   imports: [
@@ -22,7 +22,9 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FileUploadModule,
     FormsModule,
     Ng2SmartTableModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    HttpClientModule,
+
   ],
   declarations: [
     ExtContractsComponent,
@@ -32,7 +34,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ExtAttachmentComponent,
     ExtDeclarantComponent,
     ExtPaymentTabComponent,
-    ExtCostInfoComponent,
     ExtPayerComponent
   ]
 })

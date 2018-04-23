@@ -45,8 +45,7 @@ import { ManufacturerComponent } from './manufacturer/manufacturer.component';
 import { SubjectComponent } from './subject/subject.component';
 import { AttachmentsComponent } from './attachments/attachments.component';
 import { SigningComponent } from './signing/signing.component';
-
-
+import { TestPaymentComponent } from './test-payment/test-payment.component';
 
 @NgModule({
   imports: [
@@ -87,8 +86,10 @@ import { SigningComponent } from './signing/signing.component';
     ManufacturerComponent,
     SubjectComponent,
     AttachmentsComponent,
-    SigningComponent
+    SigningComponent,
+    TestPaymentComponent
   ],
+  //exports: [ExtPaymentComponent],
   providers:[
     {
       provide: PERFECT_SCROLLBAR_CONFIG,
