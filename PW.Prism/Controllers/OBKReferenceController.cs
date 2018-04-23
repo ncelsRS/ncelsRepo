@@ -20,9 +20,6 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
 using PW.Ncels.Database.DataModel;
-using PW.Ncels.Database.Repository.Common;
-using PW.Ncels.Database.Repository.Expertise;
-using Document = PW.Ncels.Database.DataModel.Document;
 
 namespace PW.Prism.Controllers
 {
@@ -41,6 +38,13 @@ namespace PW.Prism.Controllers
         {
             Guid guid = Guid.NewGuid();
             ViewBag.DictionaryList = DictionaryHelper.GetOBKList();
+            return PartialView(guid);
+        }
+
+        public ActionResult IclDictionary()
+        {
+            Guid guid = Guid.NewGuid();
+            ViewBag.DictionaryList = DictionaryHelper.GetOBKIclList();
             return PartialView(guid);
         }
     }

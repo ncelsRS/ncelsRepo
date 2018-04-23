@@ -3251,5 +3251,63 @@ namespace PW.Ncels.Database.Repository.OBK
                 return 0;
             }
         }
+
+        public List<vm> GetContractApplicantData(Guid id)
+        {
+            var signData = AppContext.OBK_ContractSignedDatas.FirstOrDefault(x => x.ContractId == id);
+            int maxStrLength = 1600;
+            int counter = 0;
+            List<vm> vm = new List<vm>();
+            for (int index = 0; index < signData?.ApplicantSign.Length; index += maxStrLength)
+            {
+                var v = new vm();
+                var text1600 =
+                    signData.ApplicantSign.Substring(index, Math.Min(maxStrLength, signData.ApplicantSign.Length - index));
+                int c = 0;
+                for (int i = 0; i < text1600.Length; i+=800)
+                {
+                    if (c % 2 == 0)
+                        v.qrCode1 = text1600.Substring(i, Math.Min(800, text1600.Length - i));
+                    else
+                        v.qrCode2 = text1600.Substring(i, Math.Min(800, text1600.Length - i));
+                    c++;
+                }
+                vm.Add(v);
+                counter++;
+            }
+            return vm;
+        }
+
+        public List<vm> GetContractCeoData(Guid id)
+        {
+            var signData = AppContext.OBK_ContractSignedDatas.FirstOrDefault(x => x.ContractId == id);
+            int maxStrLength = 1600;
+            int counter = 0;
+            List<vm> vm = new List<vm>();
+            for (int index = 0; index < signData?.ApplicantSign.Length; index += maxStrLength)
+            {
+                var v = new vm();
+                var text1600 =
+                    signData.ApplicantSign.Substring(index, Math.Min(maxStrLength, signData.ApplicantSign.Length - index));
+                int c = 0;
+                for (int i = 0; i < text1600.Length; i += 800)
+                {
+                    if (c % 2 == 0)
+                        v.qrCode1 = text1600.Substring(i, Math.Min(800, text1600.Length - i));
+                    else
+                        v.qrCode2 = text1600.Substring(i, Math.Min(800, text1600.Length - i));
+                    c++;
+                }
+                vm.Add(v);
+                counter++;
+            }
+            return vm;
+        }
+
+        public class vm
+        {
+            public string qrCode1 { get; set; }
+            public string qrCode2 { get; set; }
+        }
     }
 }
