@@ -23,22 +23,22 @@
 
           <div class="form-group" >
             <div class="custom-control custom-radio radio-inline" >
-              <input type="radio" class="custom-control-input radio-primary " name="ManafacturIsResident" id="ManafacturResident"  [(ngModel)]="isRes" value="res">
-              <label class="custom-control-label" for="ManafacturResident">Резидент РК</label>
+              <input type="radio" class="custom-control-input radio-primary " name="ManufacturIsResident" id="ManufacturResident"  [(ngModel)]="isRes" value="res">
+              <label class="custom-control-label" for="ManufacturResident">Резидент РК</label>
             </div>
             <div class="custom-control custom-radio radio-inline ">
-              <input type="radio" class="custom-control-input  radio-primary" name="ManafacturIsResident" id="ManafacturNoResident" [(ngModel)]="isRes" value="unres">
-              <label class="custom-control-label" for="ManafacturNoResident">Нерезидент РК</label>
+              <input type="radio" class="custom-control-input  radio-primary" name="ManufacturIsResident" id="ManufacturNoResident" [(ngModel)]="isRes" value="unres">
+              <label class="custom-control-label" for="ManufacturNoResident">Нерезидент РК</label>
             </div>
           </div>
 
           <div *ngIf="isRes !== 'unres'" >
             <label>ИИН/БИН *</label>
             <div>
-                <input maxlength="24" class="form-control edit-control" type="text" name="bin"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
-                       #bin = "ngModel"
-                       [ngClass]="{'has-error':showErrors === true && bin.invalid && isRes !== 'unres'}"
-                       [(ngModel)]="model.bin"
+                <input maxlength="24" class="form-control edit-control" type="text" name="manufacturBin"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
+                       #manufacturBin = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && manufacturBin.invalid && isRes !== 'unres'}"
+                       [(ngModel)]="model.manufacturBin"
                        required>
             </div><br>
             <button type="button" class="btn btn-sm btn-primary" >Найти</button>
@@ -58,10 +58,10 @@
           <div *ngIf="isRes === 'unres'" >
             <div class="form-group">
                 <label>Наименование на русском языке *</label>
-                <input id="manufacturNoResName" class="form-control" placeholder="Введите значение"  type="text"   name="manufacturNoResName"
-                       #manufacturNoResName = "ngModel"
-                       [ngClass]="{'has-error':showErrors === true && manufacturNoResName.invalid && isRes === 'unres'}"
-                       [(ngModel)]="model.manufacturNoResName"
+                <input id="manufacturNoResNameSearch" class="form-control" placeholder="Введите значение"  type="text"   name="manufacturNoResNameSearch"
+                       #manufacturNoResNameSearch = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && manufacturNoResNameSearch.invalid && isRes === 'unres'}"
+                       [(ngModel)]="model.manufacturNoResNameSearch"
                        required>
             </div>
           </div>
@@ -69,7 +69,7 @@
             По Вашему запросу ничего не найдено!
           </div>
           <div class="form-group ng-hide">
-            <button type="button" class="btn btn-sm btn-primary">Добавить</button>
+            <button type="button" class="btn btn-sm btn-primary" (click)="getOrgForm()">Добавить</button>
           </div>
 
           <div >
@@ -80,6 +80,8 @@
                       [ngClass]="{'has-error':showErrors === true && manufacturOrgForm.invalid}"
                       [(ngModel)]="model.manufacturOrgForm"
                       required>
+                <option *ngFor="let item of orgFormData">{{item.nameRu}}</option>
+
               </select>
             </div>
           </div>
@@ -96,15 +98,21 @@
                   <div >
                     <div class="form-group">
                       <label>Наименование организационной формы</label>
-                      <input name="manufacturOrgFormAddText"  class="form-control" placeholder="Введите значение"  type="text" >
+                      <input name="manufacturOrgFormNameKz" #manufacturOrgFormNameKz   class="form-control" placeholder="Введите значение"  type="text" >
+                    </div>
+                  </div>
+                  <div >
+                    <div class="form-group">
+                      <label>Наименование организационной формы</label>
+                      <input name="manufacturOrgFormNameRu"  #manufacturOrgFormNameRu   class="form-control" placeholder="Введите значение"  type="text" >
                     </div>
                   </div>
 
                 </div>
                 <div class="card-footer">
                   <div>
-                    <button type="button" class="btn btn-sm btn-primary" (click)="getOrgForm()">Сохранить</button>
-                    <button type="button" class="btn btn-sm btn-primary" (click)="saveOrgForm()">Оменить</button>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="saveOrgForm(manufacturOrgFormNameKz.value ,manufacturOrgFormNameRu.value)">Сохранить</button>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="saveOrgForm(manufacturOrgFormNameKz.value ,manufacturOrgFormNameRu.value)">Оменить</button>
                   </div>
                 </div>
               </div>
@@ -171,7 +179,7 @@
             <h4>Адрес</h4>
             <label>Юридический адрес * </label>
             <div>
-              <input class="form-control" placeholder="Введите значение"  type="text"   name="manufacturAddressLegalRu"
+              <input class="form-control" placeholder="Введите значение"  type="text"   name="manufacturAddressLegal"
                      #manufacturAddressLegalRu = "ngModel"
                      [ngClass]="{'has-error':showErrors === true && manufacturAddressLegalRu.invalid}"
                      [(ngModel)]="model.manufacturAddressLegalRu"
@@ -333,10 +341,10 @@
             <div class="form-group ng-scope" >
               <label>SWIFT *</label>
               <div>
-                <input name="bankBik" class="form-control" placeholder="Введите значение"  type="text"
-                       #bankBik = "ngModel"
-                       [ngClass]="{'has-error':showErrors === true && bankBik.invalid && isRes === 'unres'}"
-                       [(ngModel)]="model.bankBik"
+                <input name="manufacturBankSwift" class="form-control" placeholder="Введите значение"  type="text"
+                       #manufacturBankSwift = "ngModel"
+                       [ngClass]="{'has-error':showErrors === true && manufacturBankSwift.invalid && isRes === 'unres'}"
+                       [(ngModel)]="model.manufacturBankSwift"
                        required>
               </div>
             </div>
