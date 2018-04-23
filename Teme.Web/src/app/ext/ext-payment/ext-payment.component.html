@@ -1,20 +1,20 @@
 <form novalidate #paymentForm="ngForm">
-
   <div class="dec-out">
     <div class="dec-in">
       <nav class="nav flex-column">
         <div class="nav nav-tabs" id="nav-tab" role="tablist" value="fl">
           <a class="nav-item nav-link active" data-toggle="tab" role="tab"
-             aria-controls="nav-home" aria-selected="true" (click)="setDeclarationTab('cost-info')">Сведение о
-            стоимости</a>
+             aria-controls="nav-home" aria-selected="true" (click)="setDeclarationTab('cost-info')"
+             [ngClass]="{'text-danger': showAllErr && costinfoForm.invalid }"
+          >Сведение о стоимости</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('data')">Данные ИМН/МТ</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('equipment')">Комплектация ИМН
             и МТ</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
-             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('manufacturer')">Производитель
-            ИМН и МТ <br>и участок производства</a>
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('manufacturer')"
+          >Производитель ИМН и МТ <br>и участок производства</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('subject')">Субъект,
             осуществляющий оплату <br> за проведение экспертизы</a>
@@ -22,10 +22,14 @@
              aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('attachments')">Вложения</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('signing')">Подписание</a>
+          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-profile" aria-selected="false" (click)="setDeclarationTab('test-payment')">Тест</a>
+
         </div>
       </nav>
       <div [hidden]="type !== 'cost-info'">
-        <app-cost-info></app-cost-info>
+        <app-cost-info [showErrors]="showAllErr" name="costinfoForm" [(ngModel)]="declaration.CostInfo"
+                       required #costinfoForm="ngModel"></app-cost-info>
       </div>
       <div [hidden]="type !== 'data'">
         <app-data></app-data>
@@ -43,7 +47,10 @@
         <app-attachments></app-attachments>
       </div>
       <div [hidden]="type !== 'signing'">
-        <app-signing></app-signing>
+        <app-signing (sendPaymentRequestSign)="sendPaymentRequest($event)"></app-signing>
+      </div>
+      <div [hidden]="type !== 'test-payment'">
+        <app-test-payment></app-test-payment>
       </div>
     </div>
   </div>
