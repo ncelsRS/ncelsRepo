@@ -10,6 +10,8 @@ using Serilog;
 using System;
 using Teme.Contract.Api.Startups;
 using Teme.Contract.Infrastructure;
+using Teme.Contract.Infrastructure.Primitives;
+using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
 
@@ -55,6 +57,8 @@ namespace Teme.Contract.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseCors(b => b.AllowAnyOrigin());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -68,6 +72,7 @@ namespace Teme.Contract.Api
             host.Start();
 
             app.UseMvc();
+
         }
     }
 }

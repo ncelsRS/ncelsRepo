@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Teme.Contract.Infrastructure.Primitives;
 using WorkflowCore.Interface;
+using WorkflowCore.Models;
 using WorkflowCore.Users;
 using WorkflowCore.Users.Models;
 
-namespace Teme.Contract.Infrastructure
+namespace Teme.Contract.Infrastructure.Workflow
 {
     public class ContractWorkflowLogic
     {

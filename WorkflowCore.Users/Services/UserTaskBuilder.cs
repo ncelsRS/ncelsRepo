@@ -21,8 +21,9 @@ namespace WorkflowCore.Users.Services
             _wrapper = step;
         }
 
-        public IUserTaskReturnBuilder<TData> WithOption(string value, string label)
+        public IUserTaskReturnBuilder<TData> WithOption(string value, string label = null)
         {
+            if (label == null) label = value;
             var newStep = new WorkflowStep<When>();
             Expression<Func<When, object>> inputExpr = (x => x.ExpectedOutcome);
             Expression<Func<TData, string>> valueExpr = (x => value);

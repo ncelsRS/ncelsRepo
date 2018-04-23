@@ -7,7 +7,7 @@ using WorkflowCore.Models;
 using WorkflowCore.Users;
 using WorkflowCore.Users.Models;
 
-namespace Teme.Contract.Infrastructure.WorkflowSteps
+namespace Teme.Contract.Infrastructure.Workflow
 {
     public class SetWorkflowId : StepBody
     {
@@ -28,11 +28,10 @@ namespace Teme.Contract.Infrastructure.WorkflowSteps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var scope = context.ExecutionPointer.Scope.ToArray();
-            var pointerId = scope[1];
+            var pointerId = ""; // Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
-            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
+            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out var executorsValue))
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
 
             Log.Information("SendToNcels");
