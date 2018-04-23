@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Teme.Contract.Infrastructure.Primitives;
+using Teme.Contract.Infrastructure.Workflow;
 using WorkflowCore.Interface;
-using WorkflowCore.Models;
 using WorkflowCore.Users;
 using WorkflowCore.Users.Models;
 
-namespace Teme.Contract.Infrastructure.Workflow
+namespace Teme.Contract.Infrastructure
 {
-    public class ContractWorkflowLogic
+    public class ContractWorkflowLogic : IContractWorkflowLogic
     {
-        private const string _workflowId = "Contract";
+        private const string WorkflowShemeId = "Contract";
 
         private readonly IWorkflowHost _host;
 
@@ -22,13 +20,9 @@ namespace Teme.Contract.Infrastructure.Workflow
             _host = host;
         }
 
-        public async Task<string> Start(ContractWorkflowTransitionData data)
+        public async Task<string> Create()
         {
-            var key = Guid.NewGuid().ToString();
-            var awaiter = TaskCompletionService.AddTask(key);
-            data.Value = key;
-            await _host.StartWorkflow(_workflowId, data);
-            var workflowId = await awaiter;
+            var workflowId = await _host.StartWorkflow(WorkflowShemeId);
             await TaskCompletionService.AddTask(workflowId);
             return workflowId;
         }

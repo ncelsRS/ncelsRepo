@@ -7,7 +7,7 @@ using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure
 {
-    public static class Helpers
+    public static class WorkflowExtensions
     {
         public static ExecutionPointer GetParentScope(this IStepExecutionContext context, int level = 0)
         {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 using WorkflowCore.Users;
@@ -9,34 +10,22 @@ using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure.Workflow
 {
-    public class SetWorkflowId : StepBody
-    {
-        public string AwaiterKey { get; set; }
-
-        public override ExecutionResult Run(IStepExecutionContext context)
-        {
-            Log.Information($"SetWorkflowId: {context.Workflow.Id}");
-            TaskCompletionService.TryReleaseTask(AwaiterKey, context.Workflow.Id);
-            return ExecutionResult.Next();
-        }
-
-    }
-
     public class SendToNcels : StepBody
     {
+        public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var pointerId = ""; // Helpers.GetUserTaskPointer(context);
-            var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
+            var attrs = context.GetParentScope(2).ExtensionAttributes;
 
-            if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out var executorsValue))
+            if (attrs.TryGetValue("Data", out var contractType))
+                ContractType = (ContractTypeEnum) contractType;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
 
-            Log.Information("SendToNcels");
+            Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
             return ExecutionResult.Next();
         }
     }
-
 }

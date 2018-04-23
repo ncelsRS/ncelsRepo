@@ -20,18 +20,19 @@ namespace Teme.Contract.Infrastructure.Workflow
         public void Build(IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder
-            .StartWith<SetWorkflowId>()
-                .Input(step => step.AwaiterKey, data => data.Value)
+            .StartWith(c => Log.Verbose($"New contract, workflowId: {c.Workflow.Id}"))
             .UserTask(UserPromts.Declarant.SendToNcels, (d, c) => "declarant")
                 .WithOption(UserOptions.SendWithSign, "o1").Do(then =>
                     then.StartWith<SendToNcels>()
                         .Output(d => d.IsSignedByDeclarant, s => true)
                         .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                        .Output(d => d.ContractType, s => s.ContractType)
                 )
                 .WithOption(UserOptions.SendWithoutSign, "o2").Do(then =>
                     then.StartWith<SendToNcels>()
                         .Output(d => d.IsSignedByDeclarant, s => false)
                         .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                        .Output(d => d.ContractType, s => s.ContractType)
                 )
             .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                 then.StartWith(c => Log.Verbose("Start Coz and Gv"))

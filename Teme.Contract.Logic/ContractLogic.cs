@@ -22,11 +22,7 @@ namespace Teme.Contract.Logic
 
         public async Task<string> StartWorkflow()
         {
-            return await _wflogic.Start(new ContractWorkflowTransitionData
-            {
-                ContractId = 0,
-                ContractType = ContractTypeEnum.OneToOne
-            });
+            return await _wflogic.Create();
         }
 
         public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)

@@ -28,15 +28,15 @@ namespace Teme.Contract.Api
                 .CreateLogger();
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // получаем строку подключения из файла конфигурации
-            string connection = Configuration.GetConnectionString("DefaultConnection");
+            var connectionStr = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
-            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
 
             // Add Workflow with the persistence provider
             //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
