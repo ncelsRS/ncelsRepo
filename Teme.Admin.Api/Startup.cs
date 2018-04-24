@@ -46,7 +46,7 @@ namespace Teme.Admin.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseMvc();
         }
     }
