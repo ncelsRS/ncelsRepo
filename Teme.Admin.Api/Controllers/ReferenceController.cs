@@ -158,5 +158,38 @@ namespace Teme.Admin.Api.Controllers
         {
             return _refLogic.GetContractForm();
         }
+
+        /// <summary>
+        /// Тип заявки для калькулятора
+        /// </summary>
+        /// <param name="contractScope">Нац или ЕАЭС</param>
+        /// <param name="contractForm">Регистрация, перерегистрация или внесение изменений</param>
+        /// <returns></returns>
+        [Route("CalculatorApplicationType")]
+        public async Task<IActionResult> CalculatorApplicationType(string contractScope, int contractForm)
+        {
+            if (contractScope == null)
+                return BadRequest();
+            return Ok(await _refLogic.GetCalculatorApplicationType(contractScope, contractForm));
+        }
+
+        /// <summary>
+        /// Тип услуги для калькулятора
+        /// </summary>
+        [Route("CalculatorServiceType")]
+        public async Task<IActionResult> CalculatorServiceType(int applicationTypeId)
+        {
+            return Ok(await _refLogic.GetCalculatorServiceType(applicationTypeId));
+        }
+
+        /// <summary>
+        /// Калькулятор результат
+        /// </summary>
+        /// <returns></returns>
+        [Route("ShowPriceList")]
+        public async Task<IActionResult> ShowPriceList(bool isImport, int serviceTypeId, int? serviceTypeModifId)
+        {
+            return Ok(await _refLogic.GetShowPrice(isImport, serviceTypeId, serviceTypeModifId));
+        }
     }
 }

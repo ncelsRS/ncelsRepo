@@ -11,9 +11,10 @@ using Teme.Shared.Data.Context;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180424062539_calculator")]
+    partial class calculator
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

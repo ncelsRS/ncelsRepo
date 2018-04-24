@@ -17,5 +17,9 @@ namespace Teme.Admin.Data.Repository
         Task<int> SaveBankAsync(string nameRu, string nameKz, bool isConfirmed);
         Task<int> SaveOrganizationFormAsync(string nameRu, string nameKz, bool isConfirmed);
         Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync();
+        Task<IQueryable<Ref_ApplicationType>> CalculatorApplicationType(string contractScope, string contractForm);
+        Task<IQueryable<Ref_ServiceType>> CalculatorServiceType(int applicationTypeId);
+        Task<Ref_ValueAddedTax> GetValueAddedTax(int year);
+        Task<Ref_PriceList> GetPriceList(int id, bool isImport);
     }
 }
