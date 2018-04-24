@@ -19,6 +19,8 @@ namespace Teme.Shared.Data.Context
         public DbSet<StatePolicy> StatePolicies { get; set; }
         public DbSet<UserForAction> UserForActions { get; set; }
 
+        public DbSet<Contract> Contracts { get; set; }
+
         public DbSet<Ref_StorageCondition> Ref_StorageConditions { get; set; }
         public DbSet<Ref_ClassifierMedicalArea> Ref_ClassifierMedicalAreas { get; set; }
         public DbSet<Ref_NomenclatureCodeMedProduct> Ref_NomenclatureCodeMedProducts { get; set; }
