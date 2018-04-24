@@ -1,12 +1,20 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {IconModal} from 'app/shared/IconModal';
+
 
 @Component({
   selector: 'app-equipment',
   templateUrl: './equipment.component.html',
   styleUrls: ['./equipment.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    IconModal
+  ]
 })
 export class EquipmentComponent {
+
+
+
 
   public data = [];
   public settings = {
@@ -46,12 +54,24 @@ export class EquipmentComponent {
       },
       firstName: {
         title: 'Тип',
-        type: 'string',
-        filter: true
+        type: 'list',
+        config: {
+          list: [{title: 'Lion King', value: '1'}, {title: 'The Matrix', value: '2'}]
+        }
+        //filter: true
       },
       lastName: {
         title: 'Наименование',
-        type: 'string'
+        type: 'html',
+        editor: {
+          type: 'list',
+          config: {
+            list: [{ value: 'Antonette', title: 'Antonette' }, { value: 'Bret', title: 'Bret' }, {
+              value: '<b>Samantha</b>',
+              title: 'Samantha'
+            }]
+          }
+        }
       },
       username: {
         title: 'ID',
@@ -72,7 +92,7 @@ export class EquipmentComponent {
     }
   };
 
-  constructor() {
+  constructor(public iconModal:  IconModal) {
     this.getData((data) => {
       this.data = data;
     });

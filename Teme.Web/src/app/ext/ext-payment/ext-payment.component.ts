@@ -12,20 +12,8 @@ export class ExtPaymentComponent implements OnInit {
   public showAllErr = false;
   type: string;
 
-  public declaration: any = {
-    CostInfo: {
-      contractNumber: null,
-    },
-    producer: {
-      producer: null,
-    },
-    journal: {
-      additional: null,
-    }
-  };
-
   constructor() {
-    this.type = 'cost-info';
+    this.type = 'subject';
   }
 
   ngOnInit() {
@@ -33,16 +21,8 @@ export class ExtPaymentComponent implements OnInit {
   setDeclarationTab(name: string) {
     this.type = name;
   }
-
-  //@ViewChild('paymentForm') form;
   sendPaymentRequest(validate) {
-    console.log("sendPaymentRequest");
     this.showAllErr = true;
-  }
-
-  //отключение заставки
-  ngAfterViewInit(){
-    document.getElementById('preloader').classList.add('hide');
   }
 
   onSubmit(form: FormsModule) {
@@ -51,5 +31,43 @@ export class ExtPaymentComponent implements OnInit {
 
 
 
+  public declaration: any = {
+    costInfo: {
+      contractNumber: null,
+      conclusionBeginDate: null,
+      conclusionEndDate: null,
+      registrationNumber: null,
+    },
+    data: {
+      nameKz: null,
+    },
+    equipment: {
+      additional: null,
+    },
+    manufacturer: {
+      additional: null,
+    },
+    subject: {
+      additional: null,
+    },
+    attacments: {
+      additional: null,
+    },
+    signing: {
+      additional: null,
+    },
+    testPayment: {
+      testSelect: "",
+    }
+  };
+  //отключение заставки
+  ngAfterViewInit(){
+    document.getElementById('preloader').classList.add('hide');
+  }
 
+  public dropdownValues: any = [{
+    value: "v1", label: "f1"
+  },{
+    value: "v2", label: "f2"
+  }]
 }

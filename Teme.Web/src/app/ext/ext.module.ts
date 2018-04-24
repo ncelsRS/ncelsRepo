@@ -7,6 +7,7 @@ import { ExpMenuComponent } from './ext-layout/exp-menu/exp-menu.component';
 import { ExtLayoutFooterComponent } from './ext-layout/ext-layout-footer/ext-layout-footer.component';
 import { ExtLayoutHomeComponent } from './ext-layout-pages/ext-layout-home/ext-layout-home.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {IconModal} from 'app/shared/IconModal';
 
 @NgModule({
     imports: [
@@ -20,7 +21,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         ExpMenuComponent,
         ExtLayoutFooterComponent,
         ExtLayoutHomeComponent
-    ]
+    ],
+
 })
 export class ExtModule {
 }
