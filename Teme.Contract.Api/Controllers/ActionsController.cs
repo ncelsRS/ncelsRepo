@@ -9,11 +9,11 @@ namespace Teme.Contract.Api.Controllers
 {
     public class ActionsController : BaseController<IActionsLogic>
     {
-        protected ActionsController(IActionsLogic logic) : base(logic)
+        public ActionsController(IActionsLogic logic) : base(logic)
         {
         }
 
-        [Route("contract/:contractId")]
+        [Route("contract/{contractId}")]
         [HttpGet]
         public async Task<IActionResult> List([FromRoute] [Required] string contractId)
         {
