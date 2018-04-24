@@ -7,13 +7,10 @@ using Teme.Contract.Logic.DeclarantActions;
 
 namespace Teme.Contract.Api.Controllers
 {
-    public class DeclarantActionsController : BaseController
+    public class DeclarantActionsController : BaseController<IDeclarantActionsLogic>
     {
-        private readonly IDeclarantActionsLogic _logic;
-
-        public DeclarantActionsController(IDeclarantActionsLogic logic)
+        protected DeclarantActionsController(IDeclarantActionsLogic logic) : base(logic)
         {
-            _logic = logic;
         }
 
         [HttpPost]
@@ -24,7 +21,7 @@ namespace Teme.Contract.Api.Controllers
         {
             try
             {
-                var r = await _logic.PublishUserAction(userPromt, userOption, contractId);
+                var r = await Logic.PublishUserAction(userPromt, userOption, contractId);
                 return Json(r);
             }
             catch (Exception ex)
