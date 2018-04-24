@@ -11,10 +11,14 @@ namespace Teme.Shared.Data.Context
     {
         [Key]
         public int Id { get; set; }
-        //Дата создания записи
+        /// <summary>
+        /// Дата создания сущности
+        /// </summary>
         [Column(Order = 101)]
         public DateTime DateCreate { get; set; } = DateTime.Now;
-        //Дата изменеия заиписи
+        /// <summary>
+        /// Дата изменения сущности
+        /// </summary>
         [Column(Order = 102)]
         public DateTime DateUpdate { get; set; } = DateTime.Now;
     }

@@ -13,12 +13,11 @@ namespace WorkflowCore.Interface
 {
     public static class WorkflowHostExtensions
     {
-        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, string awaiterKey, Dictionary<string, IEnumerable<string>> ExecutorsIds = null, object data = null)
+        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, Dictionary<string, IEnumerable<string>> ExecutorsIds = null, object data = null)
         {
             UserAction eventData = new UserAction()
             {
                 OutcomeValue = chosenValue,
-                AwaiterKey = awaiterKey,
                 ExecutorsIds = ExecutorsIds,
                 Data = data
             };
@@ -26,9 +25,9 @@ namespace WorkflowCore.Interface
             await host.PublishEvent(UserTask.EventName, actionKey, eventData);
         }
 
-        public static IEnumerable<OpenUserAction> GetOpenUserActions(this IWorkflowHost host, string workflowId)
+        public static async Task<IEnumerable<OpenUserAction>> GetOpenUserActions(this IWorkflowHost host, string workflowId)
         {
-            var workflow = host.PersistenceStore.GetWorkflowInstance(workflowId).Result;
+            var workflow = await host.PersistenceStore.GetWorkflowInstance(workflowId);
             return workflow.GetOpenUserActions();
         }
     }
