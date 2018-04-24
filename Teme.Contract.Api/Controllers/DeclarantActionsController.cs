@@ -14,7 +14,7 @@ namespace Teme.Contract.Api.Controllers
         }
 
         [HttpPost]
-        [Route(":userPromt/:userOption/:contractId")]
+        [Route("{userPromt}/{userOption}/{contractId}")]
         public async Task<IActionResult> SendOrRemove(
             [FromRoute] string userPromt, [FromRoute] string userOption,
             [FromBody] string contractId)
