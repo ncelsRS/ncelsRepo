@@ -23,7 +23,7 @@ namespace Teme.Contract.Logic
             _wflogic = wflogic;
         }
 
-        public async Task<string> Create()
+        public async Task<object> Create()
         {
             return await _wflogic.Create();
         }

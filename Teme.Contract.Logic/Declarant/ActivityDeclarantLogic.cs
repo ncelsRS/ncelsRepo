@@ -14,11 +14,11 @@ namespace Teme.Contract.Logic.Declarant
             _wflogic = wflogic;
         }
 
-        public async Task<string> Create()
+        public async Task<object> Create()
         {
             // TODO Save contract and return needed fields
-            var workflowId = await _wflogic.Create();
-            return workflowId;
+            var r = await _wflogic.Create();
+            return r;
         }
 
         public Task<object> SendToNcels(string contractId)

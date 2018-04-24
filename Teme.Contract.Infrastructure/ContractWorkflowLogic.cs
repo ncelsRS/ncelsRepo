@@ -21,11 +21,11 @@ namespace Teme.Contract.Infrastructure
             _host = host;
         }
 
-        public async Task<string> Create()
+        public async Task<object> Create()
         {
             var workflowId = await _host.StartWorkflow(WorkflowShemeId, new ContractWorkflowTransitionData());
             await TaskCompletionService.AddTask(workflowId);
-            return workflowId;
+            return new {workflowId};
         }
 
         [Obsolete("Используем UserExtension")]

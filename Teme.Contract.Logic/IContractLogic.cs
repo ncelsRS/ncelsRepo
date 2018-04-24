@@ -5,6 +5,6 @@ namespace Teme.Contract.Logic
 {
     public interface IContractLogic : IBaseContractLogic
     {
-        Task<string> Create();
+        Task<object> Create();
     }
 }

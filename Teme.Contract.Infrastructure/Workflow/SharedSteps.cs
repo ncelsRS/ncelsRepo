@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure.Workflow
 {
-    public class CancelParallelUserTasks : StepBody
+    public class CancelParallelUserTasks : StepBodyAsync
     {
         private readonly IWorkflowHost _host;
 
@@ -15,14 +16,13 @@ namespace Teme.Contract.Infrastructure.Workflow
             _host = host;
         }
 
-        public override ExecutionResult Run(IStepExecutionContext context)
+        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             var pointers = context.Workflow.ExecutionPointers;
             var forEachStep = pointers.Find(x => x.Id == context.ExecutionPointer.Scope.ToArray()[3]);
-            forEachStep.Children.ForEach(child =>
+            forEachStep.Children.ForEach(async child =>
             {
-                
-                _host.GetOpenUserActions(context.Workflow.Id);
+                await _host.GetOpenUserActions(context.Workflow.Id);
             });
 
             return ExecutionResult.Next();

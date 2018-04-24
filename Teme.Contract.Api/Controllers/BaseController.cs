@@ -14,7 +14,7 @@ namespace Teme.Contract.Api.Controllers
     {
         protected TILogic Logic { get; set; }
 
-        protected BaseController(TILogic logic)
+        public BaseController(TILogic logic)
         {
             Logic = logic;
         }

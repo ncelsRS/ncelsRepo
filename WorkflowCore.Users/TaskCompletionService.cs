@@ -35,12 +35,12 @@ namespace WorkflowCore.Users
                     _source.Add(key, awaiter);
                     return awaiter.Task;
                 }
-
             }
         }
 
         public static void TryReleaseTask(string key, string result = null)
         {
+            if (result == null) result = key;
             lock (_source)
             {
                 var hasKey = _source.ContainsKey(key);
@@ -48,6 +48,20 @@ namespace WorkflowCore.Users
                 var awaiter = _source[key];
                 awaiter.Count--;
                 if (awaiter.Count > 0) return;
+                _source.Remove(key);
+                awaiter.SetResult(result);
+            }
+        }
+
+        public static void ReleaseAll(string key, string result = null)
+        {
+            if (result == null) result = key;
+            lock (_source)
+            {
+                var hasKey = _source.ContainsKey(key);
+                if (!hasKey) return;
+                var awaiter = _source[key];
+                awaiter.Count--;
                 _source.Remove(key);
                 awaiter.SetResult(result);
             }

@@ -24,13 +24,11 @@ namespace Teme.Contract.Logic.DeclarantActions
             var action = actions.FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
             if (action == null) throw new ArgumentException("Action not found");
 
-            var executorsIds = new Dictionary<string, IEnumerable<string>>();
+            var executorsIds = new Dictionary<string, IEnumerable<string>> {{ScopeEnum.Coz, new[] {"BossCoz"}}};
 
-            executorsIds.Add(ScopeEnum.Coz, new[] {"BossCoz"});
+            var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds);
 
-
-            await _wflogic.PublishUserAction(action.Key, userOption, executorsIds);
-            return null;
+            return new {r};
         }
     }
 }

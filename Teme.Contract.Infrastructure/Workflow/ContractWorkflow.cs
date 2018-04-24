@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using System.Linq;
+using MongoDB.Bson;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Infrastructure.Workflow.ContractCoz;
@@ -34,7 +35,12 @@ namespace Teme.Contract.Infrastructure.Workflow
                         .Output(d => d.ContractType, s => s.ContractType)
                 )
                 .WithOption(UserOptions.Delete).Do(then =>
-                    then.StartWith<Delete>()
+                    then.StartWith(c =>
+                        {
+                            TaskCompletionService.ReleaseAll(c.Workflow.Id);
+                            Log.Verbose($"Delete contract, workflowId: {c.Workflow.Id}");
+                        })
+                        .EndWorkflow()
                 )
                 .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                     then.StartWith(c => Log.Verbose("Start Coz and Gv"))
@@ -54,8 +60,7 @@ namespace Teme.Contract.Infrastructure.Workflow
                 )
                 .Then(c =>
                 {
-                    for (var i = 0; i < 10; i++)
-                        TaskCompletionService.TryReleaseTask(c.Workflow.Id);
+                    TaskCompletionService.ReleaseAll(c.Workflow.Id);
                     Log.Verbose($"End workflow: {c.Workflow.Id}");
                 })
                 ;
