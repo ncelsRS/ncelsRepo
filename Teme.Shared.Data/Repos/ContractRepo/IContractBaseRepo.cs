@@ -1,6 +1,6 @@
 ﻿namespace Teme.Shared.Data.Repos.ContractRepo
 {
-    public interface IContractBaseRepo
+    public interface IContractBaseRepo : IBaseRepo
     {
     }
 }

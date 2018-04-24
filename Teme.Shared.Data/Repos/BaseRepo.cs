@@ -5,12 +5,12 @@ using Teme.Shared.Data.Context;
 
 namespace Teme.Shared.Data.Repos
 {
-    public class BaseRepo<TEntity> where TEntity : BaseEntity
+    public class BaseRepo<TEntity> : IBaseRepo where TEntity : BaseEntity
     {
-        protected TemeContext Context { get; }
-        protected DbSet<TEntity> Repo { get; }
+        public TemeContext Context { get; }
+        public DbSet<TEntity> Repo { get; }
 
-        public BaseRepo(TemeContext context)
+        protected BaseRepo(TemeContext context)
         {
             Context = context;
             Repo = Context.Set<TEntity>();

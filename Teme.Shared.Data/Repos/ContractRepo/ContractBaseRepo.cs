@@ -2,9 +2,9 @@
 
 namespace Teme.Shared.Data.Repos.ContractRepo
 {
-    public class ContractBaseRepo : BaseRepo<Contract>, IContractBaseRepo
+    public abstract class ContractBaseRepo : BaseRepo<Contract>, IContractBaseRepo
     {
-        public ContractBaseRepo(TemeContext context) : base(context)
+        protected ContractBaseRepo(TemeContext context) : base(context)
         {
         }
     }

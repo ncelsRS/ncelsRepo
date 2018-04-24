@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using WorkflowCore.Users.Models;
+﻿using System.Threading.Tasks;
+using Teme.Shared.Logic.ContractLogic;
 
 namespace Teme.Contract.Logic
 {
-    public interface IContractLogic
+    public interface IContractLogic : IBaseContractLogic
     {
-        /// <summary>
-        /// Создать договор
-        /// </summary>
-        /// <returns>Id договора</returns>
         Task<string> Create();
     }
 }
