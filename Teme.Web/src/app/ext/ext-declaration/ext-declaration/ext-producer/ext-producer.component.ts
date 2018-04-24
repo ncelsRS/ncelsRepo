@@ -4,6 +4,7 @@ import {
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
 import {TemplateValidation} from "../../../../shared/TemplateValidation";
+import {DeclarationReferenceService} from "../../declaration-reference-service";
 
 @Component({
   selector: 'app-ext-producer',
@@ -17,17 +18,31 @@ import {TemplateValidation} from "../../../../shared/TemplateValidation";
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ExtProducerComponent),
     multi: true
-  }]
+  },DeclarationReferenceService]
 })
 
 export class ExtProducerComponent extends TemplateValidation {
   @Input() showErrors = false;
-
-  constructor() {
+  organizationForms;
+  countries;
+  constructor(private referenceService: DeclarationReferenceService) {
     super();
   }
 
   ngOnInit() {
+    this.referenceService.getOrganizationForm().then(
+      res => { // Success
+        this.organizationForms = res;
+        return res;
+      }
+    ).catch((err) => console.error(err));
+
+    this.referenceService.getCountry().then(
+      res => { // Success
+        this.countries = res;
+        return res;
+      }
+    ).catch((err) => console.error(err));
   }
 
 }

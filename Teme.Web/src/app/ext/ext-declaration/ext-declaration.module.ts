@@ -12,9 +12,10 @@ import {Ng2SmartTableModule} from 'ng2-smart-table';
 import {ExtJournalComponent} from './ext-declaration/ext-journal/ext-journal.component';
 import {ExtAttachmentsComponent} from './ext-declaration/ext-attachments/ext-attachments.component';
 import {FileUploadModule} from 'ng2-file-upload';
-import { ExtDeclarationsActionsComponent } from './ext-declarations/ext-declarations-actions/ext-declarations-actions.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ExtJournalListComponent } from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
+import {ExtDeclarationsActionsComponent} from './ext-declarations/ext-declarations-actions/ext-declarations-actions.component';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {ExtJournalListComponent} from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   imports: [
@@ -23,6 +24,7 @@ import { ExtJournalListComponent } from './ext-declaration/ext-journal/ext-journ
     FormsModule,
     Ng2SmartTableModule,
     FileUploadModule,
+    HttpClientModule,
     NgbModule.forRoot()
   ],
   declarations: [
@@ -40,7 +42,7 @@ import { ExtJournalListComponent } from './ext-declaration/ext-journal/ext-journ
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent
   ],
-  exports: [ ExtDeclarationsActionsComponent ]
+  exports: [ExtDeclarationsActionsComponent],
 })
 export class ExtDeclarationModule {
 }
