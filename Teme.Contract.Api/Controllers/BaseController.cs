@@ -8,7 +8,7 @@ using Serilog;
 
 namespace Teme.Contract.Api.Controllers
 {
-    [Route("")]
+    [Route("[controller]")]
     public class BaseController : Controller
     {
         protected IActionResult ExceptionResult(Exception ex, object args = null)

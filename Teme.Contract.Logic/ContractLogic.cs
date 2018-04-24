@@ -11,7 +11,7 @@ using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Logic
 {
-    public class ContractLogic
+    public class ContractLogic : IContractLogic
     {
         private readonly ContractWorkflowLogic _wflogic;
 
@@ -20,21 +20,9 @@ namespace Teme.Contract.Logic
             _wflogic = wflogic;
         }
 
-        public async Task<string> StartWorkflow()
+        public async Task<string> Create()
         {
             return await _wflogic.Create();
-        }
-
-        public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)
-        {
-            return await _wflogic.GetUserActions(workflowId);
-        }
-
-        public async Task<IEnumerable<OpenUserAction>> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds, object data)
-        {
-            await _wflogic.PublishUserAction(key, chosenValue, executorsIds, data);
-            var workflowId = key.Split('.')[0];
-            return await _wflogic.GetUserActions(workflowId);
         }
 
     }

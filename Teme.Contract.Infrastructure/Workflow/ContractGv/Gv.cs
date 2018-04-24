@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using Teme.Contract.Infrastructure.Primitives;
+using Teme.Contract.Infrastructure.Primitives.Enums;
 using WorkflowCore.Interface;
 
 namespace Teme.Contract.Infrastructure.Workflow.ContractGv

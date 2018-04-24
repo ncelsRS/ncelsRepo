@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Logic;
+using Teme.Contract.Logic.Actions;
 
 namespace Teme.Contract.Api.Controllers
 {
-    [Route("[controller]")]
     public class ActionsController : BaseController
     {
         private readonly IActionsLogic _logic;
@@ -32,36 +32,5 @@ namespace Teme.Contract.Api.Controllers
             }
         }
 
-        [Route("")]
-        [HttpPost]
-        public async Task<IActionResult> Create()
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-//                var result = await _logic.Create();
-                return Json(null);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionResult(ex);
-            }
-        }
-
-        [Route("sendToNcels/:contractId")]
-        [HttpPut]
-        public async Task<IActionResult> SendToNcels([FromRoute] [Required] string contractId)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-//                var res = await _logic.SendToNcels(contractId);
-                return Json(null);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionResult(ex, contractId);
-            }
-        }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -10,6 +11,30 @@ using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure.Workflow
 {
+    /// <summary>
+    /// Удаление договора
+    /// </summary>
+    public class Delete : StepBodyAsync
+    {
+        private readonly IWorkflowHost _host;
+
+        public Delete(IWorkflowHost host)
+        {
+            _host = host;
+        }
+        
+        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+        {
+            await _host.TerminateWorkflow(context.Workflow.Id);
+            
+            Log.Verbose($"Delete contract, workflowId: {context.Workflow.Id}");
+            return ExecutionResult.Next();
+        }
+    }
+
+    /// <summary>
+    /// Отправка договора в НЦЭЛС
+    /// </summary>
     public class SendToNcels : StepBody
     {
         public ContractTypeEnum ContractType { get; set; }

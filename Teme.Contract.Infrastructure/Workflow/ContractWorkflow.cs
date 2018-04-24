@@ -21,18 +21,21 @@ namespace Teme.Contract.Infrastructure.Workflow
         {
             builder
             .StartWith(c => Log.Verbose($"New contract, workflowId: {c.Workflow.Id}"))
-            .UserTask(UserPromts.Declarant.SendToNcels, (d, c) => "declarant")
-                .WithOption(UserOptions.SendWithSign, "o1").Do(then =>
+            .UserTask(UserPromts.Declarant.SendOrRemove, (d, c) => "declarant")
+                .WithOption(UserOptions.SendWithSign).Do(then =>
                     then.StartWith<SendToNcels>()
                         .Output(d => d.IsSignedByDeclarant, s => true)
                         .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                         .Output(d => d.ContractType, s => s.ContractType)
                 )
-                .WithOption(UserOptions.SendWithoutSign, "o2").Do(then =>
+                .WithOption(UserOptions.SendWithoutSign).Do(then =>
                     then.StartWith<SendToNcels>()
                         .Output(d => d.IsSignedByDeclarant, s => false)
                         .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                         .Output(d => d.ContractType, s => s.ContractType)
+                )
+                .WithOption(UserOptions.Delete).Do(then =>
+                    then.StartWith<Delete>()
                 )
             .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                 then.StartWith(c => Log.Verbose("Start Coz and Gv"))

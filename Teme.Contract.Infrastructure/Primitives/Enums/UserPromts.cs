@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Teme.Contract.Infrastructure.Primitives
+﻿namespace Teme.Contract.Infrastructure.Primitives.Enums
 {
     public class UserPromts
     {
@@ -14,7 +10,7 @@ namespace Teme.Contract.Infrastructure.Primitives
             /// <summary>
             /// Отправить в НЦЭЛС
             /// </summary>
-            public const string SendToNcels = "SendToNcels";
+            public const string SendOrRemove = "SendOrRemove";
         }
          /// <summary>
          /// Выбрать исполнителей
