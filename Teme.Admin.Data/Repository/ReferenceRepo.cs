@@ -128,5 +128,35 @@ namespace Teme.Admin.Data.Repository
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<Ref_Country>> CountryAsync() => await _context.Ref_Countries.Where(e => !e.IsDeleted).ToListAsync();
+
+        /// <summary>
+        /// Тип заявки для калькулятора
+        /// </summary>
+        /// <param name="contractScope">scope договора</param>
+        /// <returns></returns>
+        public async Task<IQueryable<Ref_ApplicationType>> CalculatorApplicationType(string contractScope, string contractForm)
+            => await Task.Run(() => _context.Ref_ApplicationTypes.AsQueryable().Where(e => !e.IsDeleted && e.ContractForm.Contains(contractForm) && e.Code.Contains(contractScope)));
+
+        /// <summary>
+        /// Тип услуги для калькулятора
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IQueryable<Ref_ServiceType>> CalculatorServiceType(int applicationTypeId) 
+            => await Task.Run(() => _context.Ref_ServiceTypes.Include(e => e.Children).AsQueryable().Where(x => !x.IsDeleted && x.ApplicationTypeId == applicationTypeId));
+
+        /// <summary>
+        /// Налог на добавленную стоимость 
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<Ref_ValueAddedTax> GetValueAddedTax(int year) => await _context.Ref_ValueAddedTaxes.FirstOrDefaultAsync(e => !e.IsDeleted && e.Year == year);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="isImport"></param>
+        /// <returns></returns>
+        public async Task<Ref_PriceList> GetPriceList(int id, bool isImport) => await _context.Ref_PriceLists.FirstOrDefaultAsync(e => !e.IsDeleted && e.ServiceTypeId == id && e.IsImport == isImport);
     }
 }
