@@ -1,16 +1,12 @@
-import {Component, Input, forwardRef, ViewChild, Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Rx';
+import {Component, Input, forwardRef, Injectable} from '@angular/core';
+
+
 import {
-  AbstractControl,
-  ControlValueAccessor,
   NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator
-} from "@angular/forms";
+  NG_VALUE_ACCESSOR
+ } from "@angular/forms";
 import {TemplateValidation} from '../../../../shared/TemplateValidation';
 import {RefService} from '../ext-ref-sevice';
-import {DeclarantDocType} from '../ext-declarant/DeclarantDocType';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -27,69 +23,176 @@ import {DeclarantDocType} from '../ext-declarant/DeclarantDocType';
   }, RefService]
 })
 @Injectable()
-export class ExtManufacturerComponent extends TemplateValidation {
+export class ExtManufacturerComponent extends TemplateValidation  {
 
    isAddOrgForm = false;
    isAddBankName = false;
 
-  selectedOrgForm: string;
-  public orgFormData ;
-  public orgFormData2=[] ;
+  public orgFormVar;
+  resOrgFormId:any;
 
-  //private http: HttpClient;
+  public bankVar;
+  bankId:any;
+
+  public countryVarNoRes;
+  public countryVarRes;
+
+  public  currencyVar;
 
 
   @Input() prnRegisterType: string;
    @Input() showErrors = false;
+
   constructor(private refService: RefService){
     super();
+    this.getOrgForm();
+    this.getBanks();
+    this.getCountryNoRes();
+    this.getCountry();
+    this.getCurrency();
   }
 
+  OnInit()
+  {
+
+  }
 
   addOrgForm()
-  {
-    this.isAddOrgForm = true;
-  }
-
-  // saveOrgForm()
-  // {
-  //
-  // }
+    {
+      this.isAddOrgForm = true;
+    }
 
   addBankName()
   {
     this.isAddBankName = true;
   }
 
-  saveBankName()
+   saveOrgForm(nameKz:string,nameRu:string){
+     this.refService.saveOrgForm(nameKz,nameRu)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.resOrgFormId =response;
+        return this.resOrgFormId;
+      })
+      .then (response => {
+          this.orgFormVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.isAddOrgForm = false;
+        }
+      )
+      .catch (err=>
+      {
+          console.error(err);
+        }
+      )
+      ;
+    console.log("step 1");
+
+
+  }
+
+  declineOrgForm()
+  {
+    this.isAddOrgForm = false;
+  }
+
+
+  getOrgForm() {
+     this.refService.getOrgForm()
+       .subscribe(
+      data=> {
+        this.orgFormVar = data;},
+      (err) =>
+        console.error(err),
+      () =>
+        console.log('done loading orgForm')
+    );
+
+    }
+
+  saveBank(nameKz:string,nameRu:string){
+    var res =  this.refService.saveBank(nameKz,nameRu)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.bankId =response;
+        return this.bankId;
+      })
+      .then (response => {
+          this.bankVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          console.log(res);
+          this.isAddBankName = false;
+        }
+      )
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+    console.log("step 1");
+
+
+  }
+
+  declineBank()
   {
     this.isAddBankName = false;
   }
 
-  private url = "http://10.20.44.57:81/api/Reference/SaveOrganizationForm";
-  //constructor(private http: HttpClient){ }
 
-  saveOrgForm(nameKz:string,nameRu:string){
-    this.refService.saveManufacturOrgForm(nameKz,nameRu);
-    this.isAddOrgForm = false;
-  }
-
-  // getOrgForm(){
-  //   // this.OrgFormlevels =
-  //   console.log( this.refService.getManufacturOrgForm());
-  // }
-
-  getOrgForm() {
-       this.refService.getManufacturOrgForm().subscribe(
-            data=> { this.orgFormData = data; console.log(data)},
-          err => console.error(err),
-            () => console.log('done loading orgForm')
-        );
-       //this.orgFormData2 = JSON..parse(this.orgFormData);
-       //this.orgFormData2.push("id: 1, code: null, nameRu: 'Best', nameKz: 'Best'");
-       //console.log(this.orgFormData2);
+  getBanks() {
+    this.refService.getBank()
+      .subscribe(
+        data=> {
+          this.bankVar = data;      },
+        (err) =>
+          console.error(err),
+        () =>
+          console.log('done loading Bank')
+      );
 
   }
 
 
-}
+  getCountryNoRes() {
+    this.refService.getCountry()
+      .subscribe(
+        data=> {
+          this.countryVarNoRes = data;      },
+        (err) =>
+          console.error(err),
+        () =>
+          console.log('done loading Country')
+      );
+
+  }
+
+  getCountry() {
+    this.refService.getCountry()
+      .subscribe(
+        data=> {
+          this.countryVarRes = data;      },
+        (err) =>
+          console.error(err),
+        () =>
+          console.log('done loading Country')
+      );
+
+  }
+
+
+  getCurrency() {
+    this.refService.getCurrency()
+      .subscribe(
+        data=> {
+          this.currencyVar = data;      },
+        (err) =>
+          console.error(err),
+        () =>
+          console.log('done loading Currency')
+      );
+
+  }
+
+  }

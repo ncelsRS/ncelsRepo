@@ -13,6 +13,7 @@ import {ExtCostComponent} from './ext-cost/ext-cost.component';
   styleUrls: ['./ext-contract.component.css']
 })
 export class ExtContractComponent implements OnInit {
+  private contractView: string;
   selectedLevel: string;
   public showAllErr = false;
   @Output() selectedLevelChange = new EventEmitter<string>();
@@ -29,6 +30,7 @@ export class ExtContractComponent implements OnInit {
   constructor(private route: ActivatedRoute) {
     this.type = 'manufacturer';
     this.selectedLevel = 'Registration';
+    console.log(this.contractView);
   }
 
    setDeclarationTab(name: string) {
@@ -50,6 +52,7 @@ export class ExtContractComponent implements OnInit {
       .subscribe(params => {
         this.id = params.id;
       });
+    console.log(this.id);
   }
 
   public contract: any = {
