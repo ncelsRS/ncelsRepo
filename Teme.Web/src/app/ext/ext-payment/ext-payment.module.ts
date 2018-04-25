@@ -15,28 +15,14 @@ import { routing } from './ext-payment.routing';
 import { ExtPaymentComponent } from './ext-payment.component';
 
 
-import { SideChatComponent } from './components/side-chat/side-chat.component';
-import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-import { VerticalMenuComponent } from './components/menu/vertical-menu/vertical-menu.component';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
+
 import { PipesModule } from 'app/theme/pipes/pipes.module';
 
 
-//import { HeaderComponent } from './test/components/header/header.component';
-//import { FooterComponent } from './test/components/footer/footer.component';
-//import { HorizontalMenuComponent } from './test/components/menu/horizontal-menu/horizontal-menu.component';
-//import { BackTopComponent } from './test/components/back-top/back-top.component';
-//import { FullScreenComponent } from './test/components/fullscreen/fullscreen.component';
-//import { ApplicationsComponent } from './test/components/applications/applications.component';
-//import { MessagesComponent } from './test/components/messages/messages.component';
-//import { UserMenuComponent } from './test/components/user-menu/user-menu.component';
-//import { FlagsMenuComponent } from './test/components/flags-menu/flags-menu.component';
-//import { FavoritesComponent } from './test/components/favorites/favorites.component';
 
-// import { BlankComponent } from './test/blank/blank.component';
-// import { SearchComponent } from './test/search/search.component';
 
 import { Ng2SmartTableModule } from 'ng2-smart-table';
+import {FileUploadModule} from 'ng2-file-upload';
 
 import { CostInfoComponent } from './cost-info/cost-info.component';
 import { DataComponent } from './data/data.component';
@@ -58,14 +44,12 @@ import { TestPaymentComponent } from './test-payment/test-payment.component';
     PipesModule,
     routing,
     Ng2SmartTableModule,
+    FileUploadModule,
     ReactiveFormsModule
   ],
   declarations: [
     ExtPaymentComponent,
-    VerticalMenuComponent,
-    SideChatComponent,
-    BreadcrumbComponent,
-    SidebarComponent,
+
 
     //HeaderComponent,
     // FooterComponent,

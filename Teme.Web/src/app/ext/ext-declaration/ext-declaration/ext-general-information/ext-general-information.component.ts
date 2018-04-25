@@ -1,14 +1,12 @@
-import {Component, forwardRef, Input, ViewChild} from '@angular/core';
+import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {
-  AbstractControl,
-  ControlValueAccessor,
   NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator
+  NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import {RegisterType} from '../RegisterType';
 import {TemplateValidation} from "../../../../shared/TemplateValidation";
+import {DeclarationReferenceService} from "../../declaration-reference-service";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-ext-general-information',
@@ -22,17 +20,20 @@ import {TemplateValidation} from "../../../../shared/TemplateValidation";
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ExtGeneralInformationComponent),
     multi: true
-  }]
+  }, DeclarationReferenceService]
 })
-export class ExtGeneralInformationComponent extends TemplateValidation  {
+export class ExtGeneralInformationComponent extends TemplateValidation implements OnInit {
   @Input() showErrors = false;
   selectedLevel: string;
   public data = [];
-  public date: {year: number, month: number};
+  public classifierMedicalArea;
+  public degreeRiskClass;
+  public storageConditions;
+  public date: { year: number, month: number };
   levels: Array<RegisterType> = [
-    {code: 'Registration', name: 'Регистрация'},
-    {code: 'Reregistration', name: 'Перерегистрация'},
-    {code: 'Edit', name: 'Внесение изменений'},
+    {code: 'Registration', name: 'Регистрация', key: 1},
+    {code: 'Reregistration', name: 'Перерегистрация', key: 2},
+    {code: 'Modification', name: 'Внесение изменений', key: 3},
 
   ];
   public changeTypeSettings = {
@@ -208,34 +209,41 @@ export class ExtGeneralInformationComponent extends TemplateValidation  {
     this.selectedLevel = lev.name;
   }
 
-  onSubmit() {}
-
-  constructor() {
+  constructor(private referenceService: DeclarationReferenceService) {
     super();
-    this.selectedLevel = 'Registration';
   }
 
-  public getData(data) {
-    const req = new XMLHttpRequest();
-    req.open('GET', 'assets/data/users.json');
-    req.onload = () => {
-      data(JSON.parse(req.response));
-    };
-    req.send();
+  ngOnInit() {
+    this.referenceService.getClassifierMedicalArea().then(
+      res => { // Success
+        this.classifierMedicalArea = res;
+        return res;
+      }
+    ).catch((err) => console.error(err));
+
+    this.referenceService.getDegreeRiskClass().then(
+      res => { // Success
+        this.degreeRiskClass = res;
+        return res;
+      }
+    ).catch((err) => console.error(err));
+
+    this.referenceService.getStorageCondition().then(
+      res => { // Success
+        this.storageConditions = res;
+        return res;
+      }
+    ).catch((err) => console.error(err));
+
   }
 
-  public onDeleteConfirm(event): void {
-    if (window.confirm('Are you sure you want to delete?')) {
-      event.confirm.resolve();
-    } else {
-      event.confirm.reject();
-    }
+  public onRowSelect(event) {
   }
 
-  public onRowSelect(event) {}
+  public onUserRowSelect(event) {
+  }
 
-  public onUserRowSelect(event) {}
-
-  public onRowHover(event) {}
+  public onRowHover(event) {
+  }
 
 }

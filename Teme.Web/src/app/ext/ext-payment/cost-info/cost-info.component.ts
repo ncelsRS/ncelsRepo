@@ -1,7 +1,7 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {TemplateValidation} from 'app/shared/TemplateValidation';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {IconModal} from 'app/shared/IconModal';
+import {TemplateValidation} from 'app/shared/TemplateValidation';
 
 
 @Component({
@@ -16,15 +16,17 @@ import {IconModal} from 'app/shared/IconModal';
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => CostInfoComponent),
     multi: true
-  }]
+  },
+    IconModal
+  ]
   //encapsulation: ViewEncapsulation.None
 })
-export class CostInfoComponent extends IconModal  {
+export class CostInfoComponent extends TemplateValidation {
 
   @Input() showErrors = false;
 
-  constructor(private elementRef: ElementRef) {
-    super(elementRef);
+  constructor(public iconModal:  IconModal) {
+    super();
   }
 
   ngOnInit() {
