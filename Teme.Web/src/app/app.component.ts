@@ -2,8 +2,7 @@ import {Component, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, ChildrenOutletContexts, Router} from '@angular/router';
 import {AppSettings} from './app.settings';
 import {Settings} from './app.settings.model';
-import {IdentityProviderSvc} from "./shared/identity/IdentityProviderSvc";
-import {log} from "util";
+import {IdentityProviderSvc} from './shared/identity/IdentityProviderSvc';
 
 @Component({
   selector: 'app-root',
@@ -23,8 +22,9 @@ export class AppComponent {
     this.settings = this.appSettings.settings;
     this.route.queryParams
       .subscribe(params => {
-        if (params.auth)
+        if (params.auth) {
           this.identitySvc.setAuth(params.auth);
+        }
       });
     // this.route.url.subscribe(url => console.log(JSON.stringify(url)));
   }

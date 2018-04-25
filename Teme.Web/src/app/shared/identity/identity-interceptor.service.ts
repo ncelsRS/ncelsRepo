@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {IdentityProviderSvc} from "./IdentityProviderSvc";
-import {Observable} from "rxjs/Observable";
-import {Router} from "@angular/router";
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {IdentityProviderSvc} from './IdentityProviderSvc';
+import {Observable} from 'rxjs/Observable';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class IdentityInterceptorService implements HttpInterceptor {
@@ -13,12 +13,12 @@ export class IdentityInterceptorService implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let auth = this.identity.getAuth();
+    const auth = this.identity.getAuth();
     if (!auth) {
       this.router.navigate(['login']);
       return next.handle(req);
     }
-    let _req = req.clone({
+    const _req = req.clone({
       setHeaders: {
         Authorization: `${auth.token_type} ${auth.access_token}`
       }
