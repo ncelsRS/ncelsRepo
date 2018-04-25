@@ -154,9 +154,6 @@ export class ExtImnSetComponent implements OnInit {
     };
     constructor() {
       this.imnTable = true;
-        // this.getData((data) => {
-        //     this.data = data;
-        // });
     }
 
     ngOnInit() {
