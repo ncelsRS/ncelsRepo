@@ -11,6 +11,7 @@ import { IntContractBtnComponent } from './int-contract/int-contract-btn/int-con
 import { IntContractDetailComponent } from './int-contract/int-contract-detail/int-contract-detail.component';
 import {ModuleWithProviders} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { IntPaymentComponent } from './int-payment/int-payment.component';
 
 const routes: Routes = [
   {
@@ -25,6 +26,10 @@ const routes: Routes = [
   {
     path: 'declarations',
     component:IntDeclarationComponent
+  },
+  {
+    path: 'payment',
+    component:IntPaymentComponent
   }
 ];
 
@@ -44,6 +49,7 @@ const routes: Routes = [
     SidebarComponent,
     IntContractBtnComponent,
     IntContractDetailComponent,
+    IntPaymentComponent,
   ],
   exports: [RouterModule],
   entryComponents: [
