@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import {Menu} from "../../../ext/ext-payment/components/menu/menu.model";
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Menu} from '../../../shared/menu/menu.model'
 import {IntDeclarationBtnComponent} from "./int-declaration-btn/int-declaration-btn.component";
 
 @Component({
@@ -84,7 +84,8 @@ export class IntDeclarationComponent implements OnInit {
     }
   };
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
     this.menuItems = this.getMenuItems();
@@ -101,15 +102,15 @@ export class IntDeclarationComponent implements OnInit {
   getMenuItems() {
     return [
       new Menu(712312, 'Не распределенные', null, null, 'tachometer', null, false, 0),
-      new Menu(412312, 'В работе', null, null,'keyboard-o', null, false, 0),
+      new Menu(412312, 'В работе', null, null, 'keyboard-o', null, false, 0),
       new Menu(634343, 'Требуют согласования', null, null, 'creative-commons', null, false, 0),
 
       new Menu(7123, 'На корректировке', null, null, 'tachometer', null, false, 0),
-      new Menu(4123, 'Согласованные', null, null,'keyboard-o', null, false, 0),
+      new Menu(4123, 'Согласованные', null, null, 'keyboard-o', null, false, 0),
       new Menu(6343, 'Не согласованные', null, null, 'creative-commons', null, false, 0),
 
       new Menu(7312, 'На формировании счета на оплату', null, null, 'tachometer', null, false, 0),
-      new Menu(4112, 'Активные', null, null,'keyboard-o', null, false, 0),
+      new Menu(4112, 'Активные', null, null, 'keyboard-o', null, false, 0),
       new Menu(6343, 'Все', null, null, 'creative-commons', null, false, 0),
 
     ]

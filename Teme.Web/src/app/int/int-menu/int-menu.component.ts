@@ -2,7 +2,8 @@ import {Component, OnInit, ViewEncapsulation, HostListener} from '@angular/core'
 import {trigger, state, style, transition, animate} from '@angular/animations';
 import {AppSettings} from '../../app.settings';
 import {Settings} from '../../app.settings.model';
-import {MenuService} from './menu.service';
+import {MenuService} from '../../shared/menu/menu.service';
+import {Menu} from "../../shared/menu/menu.model";
 
 @Component({
   selector: 'app-int-menu',
@@ -27,7 +28,7 @@ export class IntMenuComponent implements OnInit {
 
   constructor(public appSettings: AppSettings, public menuService: MenuService) {
     this.settings = this.appSettings.settings;
-    this.menuItems = this.menuService.getHorizontalMenuItems();
+    this.menuItems = this.getMenuItems();
   }
 
   ngOnInit() {
@@ -48,6 +49,18 @@ export class IntMenuComponent implements OnInit {
         }
       }
     }
+  }
+
+  getMenuItems() {
+    return [
+      new Menu (2, 'Отчеты', '/pages/membership', null, 'users', null, false, 0),
+      new Menu (3, 'Договоры', null, null, 'laptop', null, true, 0),
+      new Menu (4, 'Договоры', '/int/spa/contracts', null, 'keyboard-o', null, false, 3),
+      new Menu (5, 'Договоры', '/int/spa/contracts', null, 'address-card-o', null, false, 3),
+      new Menu (20, 'Заявки', null, null, 'pencil-square-o', null, true, 0),
+      new Menu (21, 'Заявки', '/int/spa/declarations', null, 'check-square-o', null, false, 20),
+      new Menu (22, 'Заявки', '/int/spa/declarations', null, 'th-large', null, false, 20),
+    ]
   }
 
   @HostListener('window:resize')
