@@ -1,32 +1,19 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Observable} from "rxjs/Observable";
+import {HttpClient} from '@angular/common/http';
+import 'rxjs/add/operator/map';
+import 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
 @Injectable()
-export class RefService {
+export class RefService  {
 
-  res:any=[];
-
-  private headers = new Headers({
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': true
-  });
-
-  //let headers = new Headers();
-  //headers.append('Content-Type', 'application/json');
+  url="http://localhost:5121/api/Reference/";
 
   constructor(private http: HttpClient){ }
-  //let params = new HttpParams().set("paramName","q").set("paramName2", "q");
 
-  private url = "http://localhost:5121/api/Reference/";
-  //constructor(private http: HttpClient){ }
+  saveOrgForm(nameKz:string,nameRu:string){
 
-  saveManufacturOrgForm(nameKz:string,nameRu:string){
-    this.url=this.url+"SaveOrganizationForm";
-    this.http.get(this.url, {
+    return  this.http.get(this.url+"SaveOrganizationForm", {
       params: {
         nameRu: nameKz,
         nameKz: nameRu
@@ -39,23 +26,40 @@ export class RefService {
       },
       observe: 'response'
     })
-      .toPromise()
-      .then(response => {
-        console.log(response);
-      })
-      .catch(console.log);
-  }
-
-
-    getManufacturOrgForm() {
-    this.url = "http://localhost:5121/api/Reference/OrganizationForm";
-    this.res = this.http.get(this.url);
-    return this.res;
 
   }
 
+  getOrgForm(){
+    return  this.http.get(this.url+"OrganizationForm");
+  }
 
+  saveBank(nameKz:string,nameRu:string){
 
+    return  this.http.get(this.url+"SaveBank", {
+      params: {
+        nameRu: nameKz,
+        nameKz: nameRu
+      },
+      headers:   { "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+        "Content-Type": "application/json; charset=utf-8",
+        "Accept": "application/json",
+        "Access-Control-Allow-Credentials": "true",
+      },
+      observe: 'response'
+    })
 
+  }
 
+  getBank(){
+    return  this.http.get(this.url+"Bank");
+  }
+
+  getCountry(){
+    return  this.http.get(this.url+"Country");
+  }
+
+  getCurrency(){
+    return  this.http.get(this.url+"Currency");
+  }
 }
