@@ -56,9 +56,9 @@ export class ExtContractComponent implements OnInit {
     manufactur: {manufacturNameKz: null, manufacturNameRu: null,
       manufacturAddressLegalRu: null, manufacturAddressFact: null,
       manufacturPhone: null, manufacturEmail: null, manufacturNameEn: null,
-      manufacturCountry:null, manufacturOrgForm: null, bin: null, manufacturBossLastName: null,
+      manufacturCountry:null, manufacturOrgForm: null, manufacturBin: null, manufacturBossLastName: null,
       manufacturBossFirstName: null, manufacturBossPosition: null, manufacturBossPositionKz: null, manufacturBankName: null,
-      manufacturBankIik: null, manufacturCurr: null, bankBik: null, manufacturNoResCountry:null, manufacturNoResName:null,
+      manufacturBankIik: null, manufacturCurr: null, manufacturBankSwift: null, manufacturNoResCountry:null, manufacturNoResNameSearch:null,
 
     },
 
