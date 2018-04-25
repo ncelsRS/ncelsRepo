@@ -1,8 +1,8 @@
-﻿import { Component } from '@angular/core';
-import { ParamMap, Router, ActivatedRoute } from '@angular/router';
+﻿import {Component} from '@angular/core';
+import {ParamMap, Router, ActivatedRoute, Params} from '@angular/router';
 
-import { Login } from './Login';
-import { LoginSvc } from './login.svc';
+import {Login} from './Login';
+import {LoginSvc} from './login.svc';
 
 @Component({
     selector: 'app-login',
@@ -21,12 +21,13 @@ export class LoginComponent {
         private route: ActivatedRoute,
         private loginSvc: LoginSvc) {
 
-        this.returnUrl = this.route.snapshot.queryParams.returnUrl;
-        let clientId = this.route.snapshot.queryParams.clientId;
-        let clientSecret = this.route.snapshot.queryParams.clientSecret;
+        this.route.queryParams
+            .subscribe(params => {
+                this.returnUrl = params.returnUrl;
+                this.login.client_id = params.client_id || this.login.client_id;
+                this.login.client_secret = params.client_secret || this.login.client_secret;
+            });
 
-        this.login.client_id = clientId || this.login.client_id;
-        this.login.client_secret = clientSecret || this.login.client_secret;
     }
 
     onSubmit(loginForm: any) {
