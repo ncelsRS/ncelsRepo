@@ -32,6 +32,7 @@ import { SubjectComponent } from './subject/subject.component';
 import { AttachmentsComponent } from './attachments/attachments.component';
 import { SigningComponent } from './signing/signing.component';
 import { TestPaymentComponent } from './test-payment/test-payment.component';
+import {ContractFormValidation} from '../../shared/Reference/ContractFormValidation';
 
 @NgModule({
   imports: [
@@ -71,7 +72,8 @@ import { TestPaymentComponent } from './test-payment/test-payment.component';
     SubjectComponent,
     AttachmentsComponent,
     SigningComponent,
-    TestPaymentComponent
+    TestPaymentComponent,
+    ContractFormValidation
   ],
   //exports: [ExtPaymentComponent],
   providers:[

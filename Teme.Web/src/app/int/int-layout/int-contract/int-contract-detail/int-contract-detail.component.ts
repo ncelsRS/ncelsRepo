@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {Menu} from "../../../../ext/ext-payment/components/menu/menu.model";
+import {Menu} from "app/theme/components/menu/menu.model";
 import {RegisterType} from "../../../../ext/ext-contract/ext-contract/RegisterType";
 
 @Component({
