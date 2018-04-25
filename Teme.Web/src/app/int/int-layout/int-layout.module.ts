@@ -61,7 +61,8 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
   entryComponents: [
-    IntContractBtnComponent
+    IntContractBtnComponent,
+    IntDeclarationBtnComponent
   ],
 })
 
