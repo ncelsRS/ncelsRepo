@@ -59,6 +59,33 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("AuthUsers");
                 });
 
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ApplicationType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<string>("ContractForm")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_ApplicationTypes");
+                });
+
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Bank", b =>
                 {
                     b.Property<int>("Id")
@@ -235,6 +262,90 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("Ref_OrganizationForms");
                 });
 
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PriceList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<bool>("IsImport");
+
+                    b.Property<decimal>("Price");
+
+                    b.Property<int>("PriceTypeId");
+
+                    b.Property<int>("ServiceTypeId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PriceTypeId");
+
+                    b.HasIndex("ServiceTypeId");
+
+                    b.ToTable("Ref_PriceLists");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PriceType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_PriceTypes");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ServiceType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ApplicationTypeId");
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.Property<int?>("ParentId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationTypeId");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Ref_ServiceTypes");
+                });
+
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_StorageCondition", b =>
                 {
                     b.Property<int>("Id")
@@ -257,6 +368,51 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ref_StorageConditions");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ValueAddedTax", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<decimal>("Value");
+
+                    b.Property<int>("Year");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_ValueAddedTaxes");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PriceList", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_PriceType", "Ref_PriceType")
+                        .WithMany("Ref_PriceList")
+                        .HasForeignKey("PriceTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_ServiceType", "Ref_ServiceType")
+                        .WithMany("Ref_PriceList")
+                        .HasForeignKey("ServiceTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ServiceType", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_ApplicationType", "Ref_ApplicationType")
+                        .WithMany("Ref_ServiceTypes")
+                        .HasForeignKey("ApplicationTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_ServiceType", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
                 });
 #pragma warning restore 612, 618
         }

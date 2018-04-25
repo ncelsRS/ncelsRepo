@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using Teme.Admin.Api.Startups;
 using Teme.Shared.Data.Context;
@@ -16,6 +18,9 @@ namespace Teme.Admin.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -31,8 +36,9 @@ namespace Teme.Admin.Api
             {
                 options.ForwardClientCertificate = false;
             });
+            services.AddCors();
             services.AddMvc();
-
+            
             // Add Autofac
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
@@ -43,15 +49,14 @@ namespace Teme.Admin.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
+            loggerFactory.AddSerilog();
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();
         }
     }

@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.Reflection;
+using NSwag.AspNetCore;
 using Teme.Contract.Api.Startups;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
@@ -28,15 +30,15 @@ namespace Teme.Contract.Api
                 .CreateLogger();
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // получаем строку подключения из файла конфигурации
-            string connection = Configuration.GetConnectionString("DefaultConnection");
+            var connectionStr = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
-            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
 
             // Add Workflow with the persistence provider
             //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
@@ -66,13 +68,14 @@ namespace Teme.Contract.Api
 
             loggerFactory.AddSerilog();
 
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
+
             // Start the Workflow instance
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
             host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
             host.Start();
 
             app.UseMvc();
-
         }
     }
 }

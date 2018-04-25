@@ -166,5 +166,76 @@ namespace Teme.Admin.Logic
             }
             return enumVals;
         }
+
+        public async Task<IQueryable<object>> GetCalculatorApplicationType(string contractScope, int contractForm)
+        {
+            var cats = await _refRepo.CalculatorApplicationType(contractScope, contractForm.ToString());
+            return cats.Select(x => new ReferenceModel
+            {
+                Id = x.Id,
+                Code = x.Code,
+                NameKz = x.NameRu,
+                NameRu = x.NameRu
+            });
+        }
+
+        public async Task<IEnumerable<object>> GetCalculatorServiceType(int applicationTypeId)
+        {
+            var csts = await _refRepo.CalculatorServiceType(applicationTypeId);
+
+            List<CalculatorServiceTypeModel> list = new List<CalculatorServiceTypeModel>();
+            foreach (var cst in csts)
+            {
+                var result = new CalculatorServiceTypeModel
+                {
+                    Id = cst.Id,
+                    NameRu = cst.NameRu,
+                    NameKz = cst.NameKz,
+                    Children = cst.Children?.Count > 0,
+                    CalculatorServiceTypeModificationModels = cst.Children?.Count > 0 ? cst.Children?.Select(x => new CalculatorServiceTypeModificationModel
+                    {
+                        Id = x.Id,
+                        NameKz = x.NameKz,
+                        NameRu = x.NameRu
+                    }) : null
+                };
+                list.Add(result);
+            }
+            return list;
+        }
+
+        public async Task<object> GetShowPrice(bool isImport, int serviceTypeId, int? serviceTypeModifId)
+        {
+            var valueAddedTax = await _refRepo.GetValueAddedTax(DateTime.Now.Year);
+            if (valueAddedTax == null)
+                return null;
+            var priceList = await _refRepo.GetPriceList(serviceTypeId, isImport);
+            if (priceList == null)
+                return null;
+            if (serviceTypeModifId != null) {
+                var priceListModif = await _refRepo.GetPriceList((int)serviceTypeModifId, isImport);
+                return new PriceListModel
+                {
+                    Id = priceList.Id,
+                    Price = priceList.Price,
+                    ValueAddedTax = valueAddedTax.Value,
+                    IsImport = priceList.IsImport,
+                    priceListModificationModels = new PriceListModificationModel
+                    {
+                        Id = priceListModif.Id,
+                        Price = priceListModif.Price,
+                        ValueAddedTax = valueAddedTax.Value,
+                        IsImport = priceListModif.IsImport
+                    }
+                };
+            }
+            return new PriceListModel
+            {
+                Id = priceList.Id,
+                Price = priceList.Price,
+                ValueAddedTax = valueAddedTax.Value,
+                IsImport = priceList.IsImport
+            };
+        }
     }
 }
