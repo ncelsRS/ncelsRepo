@@ -12,7 +12,21 @@ using WorkflowCore.Users.Models;
 namespace Teme.Contract.Infrastructure.Workflow
 {
     /// <summary>
-    /// Отправка договора в НЦЭЛС
+    /// Удаление договора
+    /// </summary>
+    public class Delete : StepBody
+    {
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            TaskCompletionService.ReleaseAll(context.Workflow.Id);
+            Log.Verbose($"Delete contract, workflowId: {context.Workflow.Id}");
+            
+            return ExecutionResult.Next();
+        }
+    }
+
+    /// <summary>
+    /// Отправка договора в НЦЭЛС с подписью или без
     /// </summary>
     public class SendToNcels : StepBody
     {
@@ -21,7 +35,7 @@ namespace Teme.Contract.Infrastructure.Workflow
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var attrs = context.GetParentScope(2).ExtensionAttributes;
+            var attrs = context.GetParentScope(1).ExtensionAttributes;
 
             if (attrs.TryGetValue("Data", out var contractType))
                 ContractType = (ContractTypeEnum) contractType;

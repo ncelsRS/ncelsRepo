@@ -37,8 +37,10 @@ namespace Teme.Contract.Infrastructure
         public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId, string userId = null)
         {
             var actions = await _host.GetOpenUserActions(workflowId);
-            if (userId == null) return actions;
-            return actions.Where(x => x.AssignedPrincipal == userId);
+            return userId == null
+                ? actions
+                : actions
+                    .Where(x => x.AssignedPrincipal == userId);
         }
 
         public async Task<string> PublishUserAction(string key, string chosenValue,
