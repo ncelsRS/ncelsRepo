@@ -17,15 +17,28 @@ namespace Teme.Contract.Logic
     public class ContractLogic : BaseContractLogic<IContractRepo>, IContractLogic
     {
         private readonly IContractWorkflowLogic _wflogic;
+        private readonly IContractRepo _repo;
 
         protected ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
+            _repo = repo;
         }
 
         public async Task<string> Create()
         {
             return await _wflogic.Create();
+        }
+
+        public async Task<object> SaveModel(int contractId, string code, string fieldName, string fieldValue)
+        {
+            //return await _wflogic.SaveModel(contractId, code, fieldName, fieldValue);
+
+            var model = await _repo.GetContract(contractId);
+            if(model == null)
+            {
+
+            }
         }
     }
 }

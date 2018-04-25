@@ -20,5 +20,10 @@ namespace Teme.Contract.Data
                 .Select(x => x.ContractType)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<Shared.Data.Context.Contract> GetContract(int id)
+        {
+            return await Context.Contracts.FirstOrDefaultAsync(e => e.Id == id);
+        }
     }
 }

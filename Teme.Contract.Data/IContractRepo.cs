@@ -7,5 +7,6 @@ namespace Teme.Contract.Data
     public interface IContractRepo : IContractBaseRepo
     {
         Task<ContractTypeEnum> GetContractType(int contractId);
+        Task<Shared.Data.Context.Contract> GetContract(int id);
     }
 }

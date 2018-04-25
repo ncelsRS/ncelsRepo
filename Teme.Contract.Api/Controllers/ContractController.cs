@@ -27,5 +27,20 @@ namespace Teme.Contract.Api.Controllers
                 return ExceptionResult(ex);
             }
         }
+
+        [HttpGet]
+        [Route(":save")]
+        public async Task<IActionResult> SaveModel(int contractId, string workflowId, string code, string fieldName, string fieldValue)
+        {
+            try
+            {
+                var result = await Logic.SaveModel(contractId, workflowId, code, fieldName, fieldValue);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
     }
 }
