@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, HostListener } from '@angular/core';
 import { AppSettings } from 'app/app.settings';
 import { Settings } from 'app/app.settings.model';
-import { MenuService } from '../../shared/menu/menu.service';
+import { MenuService } from '../../../shared/menu/menu.service';
 
 @Component({
   selector: 'app-sidebar',
