@@ -7,13 +7,10 @@ using Teme.Contract.Logic.Actions;
 
 namespace Teme.Contract.Api.Controllers
 {
-    public class ActionsController : BaseController
+    public class ActionsController : BaseController<IActionsLogic>
     {
-        private readonly IActionsLogic _logic;
-
-        public ActionsController(IActionsLogic logic)
+        protected ActionsController(IActionsLogic logic) : base(logic)
         {
-            _logic = logic;
         }
 
         [Route("contract/:contractId")]
@@ -23,7 +20,7 @@ namespace Teme.Contract.Api.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
-                var r = await _logic.OpenUserActions(contractId);
+                var r = await Logic.OpenUserActions(contractId);
                 return Json(r);
             }
             catch (Exception ex)
@@ -31,6 +28,5 @@ namespace Teme.Contract.Api.Controllers
                 return ExceptionResult(ex, contractId);
             }
         }
-
     }
 }

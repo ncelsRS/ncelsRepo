@@ -7,13 +7,10 @@ using Teme.Contract.Logic;
 
 namespace Teme.Contract.Api.Controllers
 {
-    public class ContractController : BaseController
+    public class ContractController : BaseController<IContractLogic>
     {
-        private readonly IContractLogic _logic;
-
-        public ContractController(IContractLogic logic)
+        protected ContractController(IContractLogic logic) : base(logic)
         {
-            _logic = logic;
         }
 
         [HttpGet]
@@ -22,7 +19,7 @@ namespace Teme.Contract.Api.Controllers
         {
             try
             {
-                var r = await _logic.Create();
+                var r = await Logic.Create();
                 return Json(r);
             }
             catch (Exception ex)

@@ -5,12 +5,20 @@ using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.KeyVault.Models;
 using Serilog;
+using Teme.Shared.Logic;
 
 namespace Teme.Contract.Api.Controllers
 {
     [Route("[controller]")]
-    public class BaseController : Controller
+    public class BaseController<TILogic> : Controller where TILogic : IBaseLogic
     {
+        protected TILogic Logic { get; set; }
+
+        protected BaseController(TILogic logic)
+        {
+            Logic = logic;
+        }
+
         protected IActionResult ExceptionResult(Exception ex, object args = null)
         {
             var controllerName = ControllerContext.ActionDescriptor.ControllerName;
