@@ -7,7 +7,7 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
   template: `
     <select class="form-control" #templateForm="ngModel" name="templateForm"
             [ngClass]="{'has-error':showErrors === true && templateForm.invalid}"
-            [(ngModel)]="model.contractForm" required>
+            [(ngModel)]="model" required>
       <option value="" disabled selected>-- Выберите значение1 --</option>
       <option *ngFor="let item of items" [value]="item.key">{{item.nameRu}}</option>
     </select>
