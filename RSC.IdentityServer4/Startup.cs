@@ -41,13 +41,16 @@ namespace RSC.IdentityServer4
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
             services.AddMvc();
 
-            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
+//            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
 
             var builder = services.AddIdentityServer()
-                .AddSigningCredential(cert)
-                .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
-                .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
-                .AddInMemoryClients(IdSrvConfig.GetClients());
+//                .AddSigningCredential(cert)
+                    .AddDeveloperSigningCredential()
+                    .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
+                    .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
+                    .AddInMemoryClients(IdSrvConfig.GetClients())
+                    .AddTestUsers(UserCfg.Get())
+                ;
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();
