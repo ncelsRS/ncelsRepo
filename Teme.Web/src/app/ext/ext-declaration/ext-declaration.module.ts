@@ -16,6 +16,7 @@ import {ExtDeclarationsActionsComponent} from './ext-declarations/ext-declaratio
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {ExtJournalListComponent} from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
 import {HttpClientModule} from "@angular/common/http";
+import { ExtSubjectComponent } from './ext-declaration/ext-subject/ext-subject.component';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import {HttpClientModule} from "@angular/common/http";
     ExtJournalComponent,
     ExtAttachmentsComponent,
     ExtDeclarationsActionsComponent,
-    ExtJournalListComponent],
+    ExtJournalListComponent,
+    ExtSubjectComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent

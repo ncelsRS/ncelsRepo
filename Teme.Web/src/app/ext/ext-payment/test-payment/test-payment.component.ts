@@ -1,6 +1,6 @@
 import {Component, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {FormGroup, FormControl, Validators, FormBuilder, NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms'
-import {TemplateValidation} from '../../../shared/TemplateValidation';
+import {TemplateValidation} from 'app/shared/TemplateValidation';
 
 
 @Component({
@@ -21,7 +21,7 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
 export class TestPaymentComponent extends TemplateValidation{
   @Input() showErrors = false;
   //public form:FormGroup;
-  selectedCountries:string = "";
+  //selectedCountries:string = "";
   public icons = [];
   //myGroup;
   constructor(//public fb:FormBuilder
@@ -38,15 +38,13 @@ export class TestPaymentComponent extends TemplateValidation{
 
   public getData(icons) {
     const req = new XMLHttpRequest();
-    req.open('GET', 'assets/data/bekbolTest.json');
+    req.open('GET', 'http://localhost:5121/api/Reference/ClassifierMedicalArea');
     req.onload = () => {
       icons(JSON.parse(req.response));
     };
     req.send();
 
   }
-  test1(){
-    console.log(this.selectedCountries);
-  }
+
 
 }

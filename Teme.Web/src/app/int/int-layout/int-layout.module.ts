@@ -4,13 +4,16 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {IntContractComponent} from "./int-contract/int-contract.component";
 import {IntDeclarationComponent} from "./int-declaration/int-declaration.component";
 import {RouterModule, Routes} from "@angular/router";
-import {SidebarComponent} from "../sidebar/sidebar.component";
+import {SidebarComponent} from "../components/sidebar/sidebar.component";
 import {VerticalMenuComponent} from "../../shared/menu/vertical-menu/vertical-menu.component";
 import {Ng2SmartTableModule} from "ng2-smart-table";
 import { IntContractBtnComponent } from './int-contract/int-contract-btn/int-contract-btn.component';
 import { IntContractDetailComponent } from './int-contract/int-contract-detail/int-contract-detail.component';
 import {ModuleWithProviders} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { IntDeclarationBtnComponent } from './int-declaration/int-declaration-btn/int-declaration-btn.component';
+import { IntDeclarationDetailComponent } from './int-declaration/int-declaration-detail/int-declaration-detail.component';
+import { IntPaymentComponent } from './int-payment/int-payment.component';
 
 const routes: Routes = [
   {
@@ -25,6 +28,14 @@ const routes: Routes = [
   {
     path: 'declarations',
     component:IntDeclarationComponent
+  },
+  {
+    path: 'declarations/:id',
+    component:IntDeclarationDetailComponent
+  },
+  {
+    path: 'payment',
+    component:IntPaymentComponent
   }
 ];
 
@@ -44,10 +55,14 @@ const routes: Routes = [
     SidebarComponent,
     IntContractBtnComponent,
     IntContractDetailComponent,
+    IntDeclarationBtnComponent,
+    IntDeclarationDetailComponent,
+    IntPaymentComponent,
   ],
   exports: [RouterModule],
   entryComponents: [
-    IntContractBtnComponent
+    IntContractBtnComponent,
+    IntDeclarationBtnComponent
   ],
 })
 

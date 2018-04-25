@@ -13,7 +13,7 @@ export class ExtPaymentComponent implements OnInit {
   type: string;
 
   constructor() {
-    this.type = 'subject';
+    this.type = 'cost-info';
   }
 
   ngOnInit() {
@@ -33,10 +33,11 @@ export class ExtPaymentComponent implements OnInit {
 
   public declaration: any = {
     costInfo: {
+      contractForm: "",
       contractNumber: null,
       conclusionBeginDate: null,
       conclusionEndDate: null,
-      registrationNumber: null,
+      registrationNumber: null
     },
     data: {
       nameKz: null,
@@ -57,7 +58,8 @@ export class ExtPaymentComponent implements OnInit {
       additional: null,
     },
     testPayment: {
-      testSelect: "",
+      testSelect: null,
+      contractForm: "1"
     }
   };
   //отключение заставки
