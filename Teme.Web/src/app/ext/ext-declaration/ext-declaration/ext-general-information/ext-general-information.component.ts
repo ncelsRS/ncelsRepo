@@ -6,7 +6,6 @@ import {
 import {RegisterType} from '../RegisterType';
 import {TemplateValidation} from "../../../../shared/TemplateValidation";
 import {DeclarationReferenceService} from "../../declaration-reference-service";
-import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-ext-general-information',

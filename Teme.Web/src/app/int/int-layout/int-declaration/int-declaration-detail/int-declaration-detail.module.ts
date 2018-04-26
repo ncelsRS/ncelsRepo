@@ -14,20 +14,22 @@ import {IntJournalComponent} from './int-journal/int-journal.component';
 import {IntJournalListComponent} from './int-journal/int-journal-list/int-journal-list.component';
 import {IntProducerComponent} from './int-producer/int-producer.component';
 import {IntAgreementComponent} from './int-agreement/int-agreement.component';
+import {IntHistoryComponent} from './int-history/int-history.component';
+import { IntSubjectComponent } from './int-subject/int-subject.component';
 
 const routes: Routes = [
   {
     path: 'card',
     component: IntCardComponent,
   },
-  // {
-  //   path: 'attachments',
-  //   component:IntAttachmentsComponent,
-  // },
-  // {
-  //   path: 'history',
-  //   component:IntHistoryComponent,
-  // }
+  {
+    path: 'attachments',
+    component: IntAttachmentsComponent,
+  },
+  {
+    path: 'history',
+    component:IntHistoryComponent,
+  }
 ];
 
 @NgModule({
@@ -47,9 +49,13 @@ const routes: Routes = [
     IntJournalComponent,
     IntJournalListComponent,
     IntProducerComponent,
-    IntAgreementComponent],
+    IntAgreementComponent,
+    IntHistoryComponent,
+    IntSubjectComponent],
   exports: [RouterModule],
-  entryComponents: [],
+  entryComponents: [
+    IntJournalListComponent
+  ],
 })
 
 export class IntDeclarationDetailModule {
