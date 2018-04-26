@@ -173,6 +173,17 @@ namespace Teme.Admin.Api.Controllers
         }
 
         /// <summary>
+        /// Плательщик
+        /// </summary>
+        /// <returns></returns>
+        [Route("ChosenPayer")]
+        [HttpGet]
+        public IEnumerable<object> ChosenPayer()
+        {
+            return _refLogic.GetChosenPayer();
+        }
+
+        /// <summary>
         /// Тип заявки для калькулятора
         /// </summary>
         /// <param name="contractScope">Нац или ЕАЭС</param>

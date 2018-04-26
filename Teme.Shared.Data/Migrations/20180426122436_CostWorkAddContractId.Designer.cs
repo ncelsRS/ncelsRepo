@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180426122436_CostWorkAddContractId")]
+    partial class CostWorkAddContractId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

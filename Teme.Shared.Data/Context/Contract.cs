@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Teme.Shared.Data.Primitives.Contract;
@@ -93,6 +94,8 @@ namespace Teme.Shared.Data.Context
         public int? PayerDetailId { get; set; }
         [ForeignKey("PayerDetailId")]
         public virtual DeclarantDetail PayerDetail { get; set; }
+
+        public virtual ICollection<CostWork> CostWorks { get; set; }
 
     }
 }

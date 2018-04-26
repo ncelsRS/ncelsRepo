@@ -168,6 +168,20 @@ namespace Teme.Admin.Logic
             return enumVals;
         }
 
+        public IEnumerable<object> GetChosenPayer()
+        {
+            var enumVals = new List<object>();
+            foreach (var i in Enum.GetValues(typeof(ChosenPayerEnum)))
+            {
+                enumVals.Add(new
+                {
+                    key = i.GetHashCode(),
+                    value = i.ToString()
+                });
+            }
+            return enumVals;
+        }
+
         public async Task<IQueryable<object>> GetCalculatorApplicationType(string contractScope, int contractForm)
         {
             var cats = await _refRepo.CalculatorApplicationType(contractScope, contractForm.ToString());

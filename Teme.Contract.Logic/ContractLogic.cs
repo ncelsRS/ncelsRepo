@@ -26,6 +26,10 @@ namespace Teme.Contract.Logic
             _repo = repo;
         }
 
+        /// <summary>
+        /// Создание договора
+        /// </summary>
+        /// <returns></returns>
         public async Task<object> Create()
         {
             var workflowId = await _wflogic.Create();
@@ -47,6 +51,11 @@ namespace Teme.Contract.Logic
             };
         }
 
+        /// <summary>
+        /// Поиск Заявителя резидента
+        /// </summary>
+        /// <param name="iin">ИИН или БИН заявиетля</param>
+        /// <returns></returns>
         public async Task<object> SearchDeclarantResident(string iin)
         {
             var declarant = await _repo.SearchDeclarantResident(iin);
@@ -93,6 +102,11 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Поиск заявителя не резидента
+        /// </summary>
+        /// <param name="countryId">Id страны</param>
+        /// <returns></returns>
         public async Task<object> SearchDeclarantNonResident(int countryId)
         {
             var declarant = await _repo.SearchDeclarantNonResident(countryId);
@@ -101,6 +115,11 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Получение заявителя по Id
+        /// </summary>
+        /// <param name="id">Id заявителя</param>
+        /// <returns></returns>
         public async Task<object> GetDeclarantById(int id)
         {
             var declarant = await _repo.GetDeclarant(id);
@@ -148,6 +167,12 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Добавления заявтеля по типам
+        /// </summary>
+        /// <param name="contractId">Id договра</param>
+        /// <param name="code">Коды: Declarant, Manufactur, Payer</param>
+        /// <returns></returns>
         public async Task<object> AddDeclarant(int contractId, string code)
         {
             var declarant = new Shared.Data.Context.Declarant();
@@ -177,6 +202,11 @@ namespace Teme.Contract.Logic
             return new { declarant.Id, DetailId = declarantDetail.Id };
         }
 
+        /// <summary>
+        /// Автосохранение договора
+        /// </summary>
+        /// <param name="contract">модель</param>
+        /// <returns></returns>
         public async Task<object> ChangeModel(ContractUpdateModel contract)
         {         
             var data = Type.GetType(contract.ClassName + ", Teme.Shared.Data");

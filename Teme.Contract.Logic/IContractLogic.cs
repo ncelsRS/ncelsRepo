@@ -8,10 +8,8 @@ namespace Teme.Contract.Logic
     {
         Task<object> Create();
         Task<object> ChangeModel(ContractUpdateModel value);
-
         Task<object> SearchDeclarantResident(string iin);
         Task<object> SearchDeclarantNonResident(int countryId);
-
         Task<object> AddDeclarant(int contractId, string code);
         Task<object> GetDeclarantById(int id);
     }
