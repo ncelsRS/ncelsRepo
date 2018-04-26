@@ -1,85 +1,64 @@
-﻿using IdentityServer4.Models;
+﻿using System;
+using IdentityServer4.Models;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
+using IdentityModel;
+using Teme.Shared.Data.Primitives.IUser;
 
 namespace RSC.IdentityServer4.IdentityConfig
 {
     public class IdSrvConfig
     {
-        public static List<ApiResource> GetApiResources()
+        public static IEnumerable<ApiResource> GetApiResources()
         {
-            return new List<ApiResource>
+            var list = new List<ApiResource>();
+
+            var props = typeof(IdentityScopeEnum).GetFields();
+            props.ToList().ForEach(field =>
             {
-                new ApiResource("obk", "ОБК")
-            };
+                var attribute = field.GetCustomAttribute(typeof(DescriptionAttribute));
+                var a = attribute as DescriptionAttribute;
+                var v = field.GetValue(field).ToString();
+                var res = new ApiResource(v, a?.Description ?? field.Name)
+                {
+                    UserClaims = {JwtClaimTypes.Scope},
+                    Scopes = {new Scope("all")}
+                };
+                list.Add(res);
+            });
+            return list;
         }
 
-        public static List<Client> GetClients()
+        public static IEnumerable<Client> GetClients()
         {
+            var temeExtSecret = "770b892d2fff179291cbb2d879d5dd81fcd96768f64c2a96b609a5d3607f75c6".Sha512();
             return new List<Client>
             {
                 new Client
                 {
-                    ClientName = "Обк внешний портал",
-                    ClientId = "obkExt",
-                    ClientSecrets = {
-                        new Secret("770b892d2fff179291cbb2d879d5dd81fcd96768f64c2a96b609a5d3607f75c6".Sha256())
-                    },
-
-                    Enabled = true,
+                    ClientId = "temeAngular",
+                    ClientName = "Веб приложение ТЭМИ",
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    ClientSecrets = new List<Secret> {new Secret(temeExtSecret)},
 
                     AccessTokenType = AccessTokenType.Jwt,
-                    AccessTokenLifetime = 60,
                     AllowAccessTokensViaBrowser = true,
+                    UpdateAccessTokenClaimsOnRefresh = true,
 
-                    RefreshTokenUsage = TokenUsage.ReUse,
-
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = new [] { "obk" },
-
+                    AccessTokenLifetime = (int) TimeSpan.FromHours(8).TotalSeconds,
                     AllowOfflineAccess = true,
-                    AllowedCorsOrigins = new [] { "*" },
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    AbsoluteRefreshTokenLifetime = (int) TimeSpan.FromDays(30).TotalSeconds,
 
-                    RedirectUris = new []
-                    {
-                        "*"
-                    }
-                },
-                new Client
-                {
-                    ClientName = "IdentityServer",
-                    ClientId = "identity",
-                    ClientSecrets = {
-                        new Secret("5aff96a2179fec9ec2b30441b15a59b8995649eee4cc4b4a957efbd33545951f".Sha256())
-                    },
+                    AllowedCorsOrigins = {"*"},
+                    AllowedScopes = {"all"},
 
-                    Enabled = true,
-
-                    AccessTokenType = AccessTokenType.Jwt,
-                    AccessTokenLifetime = 60,
-                    AllowAccessTokensViaBrowser = true,
-
-                    RefreshTokenUsage = TokenUsage.ReUse,
-
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = new [] { "identity" },
-
-                    AllowOfflineAccess = true,
-                    AllowedCorsOrigins = new [] { "*" },
-
-                    RedirectUris = new []
-                    {
-                        "*"
-                    }
+                    RequireClientSecret = true
                 }
-            };
-        }
-
-        public static List<IdentityResource> GetIdentityResources()
-        {
-            return new List<IdentityResource>
-            {
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile() // <-- usefull
             };
         }
     }

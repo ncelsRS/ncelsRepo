@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using Teme.Shared.Data.Context;
 
-namespace Teme.Identity.Data.Repository.User
+namespace Teme.Identity.Data.Repository.IUser
 {
     public class UserRepo : IUserRepo, IDisposable
     {

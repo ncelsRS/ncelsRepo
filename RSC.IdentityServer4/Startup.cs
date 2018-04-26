@@ -13,11 +13,13 @@ using Teme.Shared.Data.Context;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using IdentityServer4.Models;
+using Microsoft.Data.Edm.Csdl;
 
 namespace RSC.IdentityServer4
 {
     using Startups;
-    
 
     public class Startup
     {
@@ -36,20 +38,19 @@ namespace RSC.IdentityServer4
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // получаем строку подключения из файла конфигурации
-            string connection = Configuration.GetConnectionString("DefaultConnection");
+            var connectionStr = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
-            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
             services.AddMvc();
 
-//            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
+            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
 
             var builder = services.AddIdentityServer()
-//                .AddSigningCredential(cert)
-                    .AddDeveloperSigningCredential()
-                    .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
+                    .AddSigningCredential(cert)
                     .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
                     .AddInMemoryClients(IdSrvConfig.GetClients())
-                    .AddTestUsers(UserCfg.Get())
+//                    .AddTestUsers(UserCfg.Get())
+                    .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>()
                 ;
 
             // Add Autofac
@@ -80,10 +81,7 @@ namespace RSC.IdentityServer4
             }
 
             // the interceptor example
-            app.Use((http, next) =>
-                    {
-                        return next();
-                    });
+            app.Use((http, next) => { return next(); });
 
             loggerFactory.AddSerilog();
 
@@ -99,7 +97,7 @@ namespace RSC.IdentityServer4
 
                 routes.MapSpaFallbackRoute(
                     name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
+                    defaults: new {controller = "Home", action = "Index"});
             });
         }
     }

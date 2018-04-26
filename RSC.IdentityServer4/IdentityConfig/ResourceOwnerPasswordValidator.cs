@@ -1,40 +1,49 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using IdentityModel;
+using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.IUser;
 
 namespace RSC.IdentityServer4.IdentityConfig
 {
-    public class ResourceOwnerPasswordValidator //: IResourceOwnerPasswordValidator
+    public class ResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
-        //public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
-        //{
-        //    try
-        //    {
-        //        //get your user model from db (by username - in my case its email)
-        //        var user = await _userRepository.FindAsync(context.UserName);
-        //        if (user != null)
-        //        {
-        //            //check if password match - remember to hash password if stored as hash in db
-        //            if (user.Password == context.Password)
-        //            {
-        //                //set the result
-        //                context.Result = new GrantValidationResult(
-        //                    subject: user.UserId.ToString(),
-        //                    authenticationMethod: "custom",
-        //                    claims: GetUserClaims(user));
+        public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
+        {
+            var user = new AuthUser // TODO delete as soon as possible and implement norm process
+            {
+                Id = 123456,
+                UserName = "user",
+                Scopes = new[] {IdentityScopeEnum.TemeExt},
+                CompanyName = "companyName",
+                DateCreate = DateTime.Now,
+                DateUpdate = DateTime.Now,
+                Email = "email",
+                FirstName = "firstName",
+                HasIin = false,
+                LastName = "lastName",
+                UserType = "userType",
+                MiddleName = "middleName",
+                Pwdhash = "123456"
+            };
 
-        //                return;
-        //            }
+            if (context.UserName != user.UserName || context.Password != user.Pwdhash)
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
 
-        //            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Incorrect password");
-        //            return;
-        //        }
-        //        context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exist.");
-        //        return;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Invalid username or password");
-        //    }
-        //}
+            var claims = new List<Claim>
+            {
+                new Claim(JwtClaimTypes.Name, user.UserName),
+                new Claim(JwtClaimTypes.Scope, user.Scopes.First())
+            };
+
+            context.Result =
+                new GrantValidationResult(user.Id.ToString(), OidcConstants.AuthenticationMethods.Password, claims);
+        }
     }
 }
