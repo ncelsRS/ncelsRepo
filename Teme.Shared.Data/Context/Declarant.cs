@@ -17,6 +17,7 @@ namespace Teme.Shared.Data.Context
             DeclarantContract = new HashSet<Contract>();
             ManufacturContract = new HashSet<Contract>();
             PayerContract = new HashSet<Contract>();
+            DeclarantDetails = new HashSet<DeclarantDetail>();
         }
         /// <summary>
         /// ИИН и БИН
@@ -56,5 +57,6 @@ namespace Teme.Shared.Data.Context
         public virtual ICollection<Contract> DeclarantContract { get; set; }
         public virtual ICollection<Contract> ManufacturContract { get; set; }
         public virtual ICollection<Contract> PayerContract { get; set; }
+        public virtual ICollection<DeclarantDetail> DeclarantDetails { get; set; }
     }
 }

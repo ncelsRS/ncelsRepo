@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180426064241_Declarant")]
+    partial class Declarant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,8 +65,6 @@ namespace Teme.Shared.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int>("ChoosePayer");
 
                     b.Property<int>("ContractForm");
 
@@ -233,7 +232,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<int>("DeclarantId");
 
-                    b.Property<bool>("DeclarantPerpetualDoc");
+                    b.Property<string>("DeclarantPerpetualDoc");
 
                     b.Property<string>("Email")
                         .HasMaxLength(255);

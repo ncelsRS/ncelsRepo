@@ -14,26 +14,19 @@ namespace Teme.Contract.Infrastructure.Workflow
     /// <summary>
     /// Удаление договора
     /// </summary>
-    public class Delete : StepBodyAsync
+    public class Delete : StepBody
     {
-        private readonly IWorkflowHost _host;
-
-        public Delete(IWorkflowHost host)
+        public override ExecutionResult Run(IStepExecutionContext context)
         {
-            _host = host;
-        }
-        
-        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
-        {
-            await _host.TerminateWorkflow(context.Workflow.Id);
-            
+            TaskCompletionService.ReleaseAll(context.Workflow.Id);
             Log.Verbose($"Delete contract, workflowId: {context.Workflow.Id}");
+            
             return ExecutionResult.Next();
         }
     }
 
     /// <summary>
-    /// Отправка договора в НЦЭЛС
+    /// Отправка договора в НЦЭЛС с подписью или без
     /// </summary>
     public class SendToNcels : StepBody
     {
@@ -42,7 +35,7 @@ namespace Teme.Contract.Infrastructure.Workflow
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var attrs = context.GetParentScope(2).ExtensionAttributes;
+            var attrs = context.GetParentScope(1).ExtensionAttributes;
 
             if (attrs.TryGetValue("Data", out var contractType))
                 ContractType = (ContractTypeEnum) contractType;

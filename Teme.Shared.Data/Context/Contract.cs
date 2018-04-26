@@ -25,6 +25,11 @@ namespace Teme.Shared.Data.Context
         public HolderTypeEnum HolderType { get; set; }
 
         /// <summary>
+        /// Плательщик
+        /// </summary>
+        public ChosenPayerEnum ChoosePayer { get; set; }
+
+        /// <summary>
         /// Номер договора
         /// </summary>
         [MaxLength(255)]

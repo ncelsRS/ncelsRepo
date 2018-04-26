@@ -1,20 +1,23 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Teme.Contract.Data.Model;
 using Teme.Contract.Logic;
 
 namespace Teme.Contract.Api.Controllers
 {
     public class ContractController : BaseController<IContractLogic>
     {
-        protected ContractController(IContractLogic logic) : base(logic)
+        public ContractController(IContractLogic logic) : base(logic)
         {
         }
 
-        [HttpGet]
-        [Route(":contractId")]
+        /// <summary>
+        /// Созадение договора
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Create")]
         public async Task<IActionResult> Create()
         {
             try
@@ -28,13 +31,98 @@ namespace Teme.Contract.Api.Controllers
             }
         }
 
-        [HttpGet]
-        [Route(":save")]
-        public async Task<IActionResult> SaveModel(int contractId, string workflowId, string code, string fieldName, string fieldValue)
+        /// <summary>
+        /// Сохранение договора
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("ChangeModel")]
+        public async Task<IActionResult> ChangeModel([FromBody] ContractUpdateModel value)
         {
             try
             {
-                var result = await Logic.SaveModel(contractId, workflowId, code, fieldName, fieldValue);
+                var result = await Logic.ChangeModel(value);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Поиск договора по ИИН
+        /// </summary>
+        /// <param name="iin">ИИН</param>
+        /// <param name="className">Наименованиеи класса</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("SearchDeclarantResident")]
+        public async Task<IActionResult> SearchDeclarantResident(string iin)
+        {
+            try
+            {
+                var result = await Logic.SearchDeclarantResident(iin);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Поиск договора по Странам
+        /// </summary>
+        /// <param name="countryId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("SearchDeclarantNonResident")]
+        public async Task<IActionResult> SearchDeclarantNonResident(int countryId)
+        {
+            try
+            {
+                var result = await Logic.SearchDeclarantNonResident(countryId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Добавить нового заявителя
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("AddDeclarant")]
+        public async Task<IActionResult> AddDeclarant(int contractId, string code)
+        {
+            try
+            {
+                var result = await Logic.AddDeclarant(contractId, code);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Заявитель, Производитель или Плательщик по ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetDeclarantById")]
+        public async Task<IActionResult> GetDeclarantById(int id)
+        {
+            try
+            {
+                var result = await Logic.GetDeclarantById(id);
                 return Json(result);
             }
             catch (Exception ex)
