@@ -12,5 +12,7 @@ namespace Teme.Contract.Logic
         Task<object> SearchDeclarantNonResident(int countryId);
         Task<object> AddDeclarant(int contractId, string code);
         Task<object> GetDeclarantById(int id);
+        Task<object> SaveCostWork(CostWorkModel[] costWorkModel);
+        Task DeleteCostWork(int contractId);
     }
 }

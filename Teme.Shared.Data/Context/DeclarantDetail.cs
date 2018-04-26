@@ -13,6 +13,7 @@ namespace Teme.Shared.Data.Context
         /// Заявитель
         /// </summary>
         public int DeclarantId { get; set; }
+
         [ForeignKey("DeclarantId")]
         public Declarant Declarant { get; set; }
 

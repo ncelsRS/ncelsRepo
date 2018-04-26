@@ -19,5 +19,7 @@ namespace Teme.Contract.Data
         Task UpdateContract(Shared.Data.Context.Contract contract);
         Task<Shared.Data.Context.Declarant> SearchDeclarantResident(string iin);
         Task<IEnumerable<Shared.Data.Context.Declarant>> SearchDeclarantNonResident(int countryId);
+        Task SaveCostWork(Shared.Data.Context.CostWork costWork);
+        Task DeleteCostWork(int contractId);
     }
 }

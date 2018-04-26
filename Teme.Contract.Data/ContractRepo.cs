@@ -90,5 +90,23 @@ namespace Teme.Contract.Data
             Context.Contracts.Update(contract);
             await Context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Добавление прайса к договору
+        /// </summary>
+        /// <param name="costWork"></param>
+        /// <returns></returns>
+        public async Task SaveCostWork(Context.CostWork costWork)
+        {
+            Context.CostWorks.Add(costWork);
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCostWork(int contractId)
+        {
+            var cws = await Context.CostWorks.Where(e => e.ContractId == contractId).ToListAsync();
+            Context.CostWorks.RemoveRange(cws);
+            await Context.SaveChangesAsync();
+        }
     }
 }

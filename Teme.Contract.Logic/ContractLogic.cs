@@ -219,5 +219,34 @@ namespace Teme.Contract.Logic
             Task.WaitAll(tasks.ToArray());
             return new { contractId = contract.Id };
         }
+
+        /// <summary>
+        /// Сохранение данных калькулятора
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> SaveCostWork(CostWorkModel[] costWorkModel)
+        {
+            List<Task> tasks = new List<Task>();
+            foreach(var cw in costWorkModel)
+            {
+                var costwork = new Shared.Data.Context.CostWork()
+                {
+                    PriceListId = cw.PriceListId,
+                    ContractId = cw.ContractId,
+                    Count = cw.Count,
+                    IsImport = cw.IsImport,
+                    PriceWithValueAddedTax = cw.PriceWithValueAddedTax,
+                    TotalPriceWithValueAddedTax = cw.TotalPriceWithValueAddedTax
+                };
+                tasks.Add(_repo.SaveCostWork(costwork));
+            }
+            Task.WaitAll(tasks.ToArray());
+            return new { contractId = costWorkModel.First().ContractId };
+        }
+
+        public async Task DeleteCostWork(int contractId)
+        {
+            await _repo.DeleteCostWork(contractId);
+        }
     }
 }

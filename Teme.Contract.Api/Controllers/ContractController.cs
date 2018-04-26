@@ -130,5 +130,45 @@ namespace Teme.Contract.Api.Controllers
                 return ExceptionResult(ex);
             }
         }
+
+        /// <summary>
+        /// Сохранение прайс листа по договору
+        /// </summary>
+        /// <param name="costWorkModel"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("SaveCostWork")]
+        public async Task<IActionResult> SaveCostWork([FromBody] CostWorkModel[] costWorkModel)
+        {
+            try
+            {
+                var result = await Logic.SaveCostWork(costWorkModel);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Удаление данных по прайслисту с договора
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("DeleteCostWork")]
+        public async Task<IActionResult> DeleteCostWork([FromQuery] int contractId)
+        {
+            try
+            {
+                await Logic.DeleteCostWork(contractId);
+                return Json(Ok());
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
     }
 }
