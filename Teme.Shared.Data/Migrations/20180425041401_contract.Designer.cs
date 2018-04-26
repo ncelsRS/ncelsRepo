@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180425041401_contract")]
+    partial class contract
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,8 +65,6 @@ namespace Teme.Shared.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int>("ChoosePayer");
 
                     b.Property<int>("ContractForm");
 
@@ -231,9 +230,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool>("DeclarantDocWithoutNumber");
 
-                    b.Property<int>("DeclarantId");
-
-                    b.Property<bool>("DeclarantPerpetualDoc");
+                    b.Property<string>("DeclarantPerpetualDoc");
 
                     b.Property<string>("Email")
                         .HasMaxLength(255);
@@ -253,8 +250,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrencyId");
-
-                    b.HasIndex("DeclarantId");
 
                     b.ToTable("DeclarantDetails");
                 });
@@ -692,11 +687,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasOne("Teme.Shared.Data.Context.References.Ref_Currency", "Ref_Currency")
                         .WithMany()
                         .HasForeignKey("CurrencyId");
-
-                    b.HasOne("Teme.Shared.Data.Context.Declarant", "Declarant")
-                        .WithMany("DeclarantDetails")
-                        .HasForeignKey("DeclarantId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PriceList", b =>

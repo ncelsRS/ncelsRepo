@@ -21,5 +21,7 @@ namespace Teme.Shared.Data.Context
         /// </summary>
         [Column(Order = 102)]
         public DateTime DateUpdate { get; set; } = DateTime.Now;
+
+        public virtual string ClassName => this.GetType().FullName;
     }
 }
