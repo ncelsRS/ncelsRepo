@@ -18,12 +18,12 @@ namespace Teme.Contract.Logic
     {
         private readonly IContractWorkflowLogic _wflogic;
 
-        protected ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic) : base(repo)
+        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
         }
 
-        public async Task<string> Create()
+        public async Task<object> Create()
         {
             return await _wflogic.Create();
         }

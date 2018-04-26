@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
 using WorkflowCore.Interface;
 using WorkflowCore.Users;
@@ -20,11 +21,11 @@ namespace Teme.Contract.Infrastructure
             _host = host;
         }
 
-        public async Task<string> Create()
+        public async Task<object> Create()
         {
-            var workflowId = await _host.StartWorkflow(WorkflowShemeId);
+            var workflowId = await _host.StartWorkflow(WorkflowShemeId, new ContractWorkflowTransitionData());
             await TaskCompletionService.AddTask(workflowId);
-            return workflowId;
+            return new {workflowId};
         }
 
         [Obsolete("Используем UserExtension")]
@@ -35,12 +36,15 @@ namespace Teme.Contract.Infrastructure
 
         public async Task<IEnumerable<OpenUserAction>> GetUserActions(string workflowId, string userId = null)
         {
-            var actions = await Task.Run(() => _host.GetOpenUserActions(workflowId));
-            if (userId == null) return actions;
-            return actions.Where(x => x.AssignedPrincipal == userId);
+            var actions = await _host.GetOpenUserActions(workflowId);
+            return userId == null
+                ? actions
+                : actions
+                    .Where(x => x.AssignedPrincipal == userId);
         }
 
-        public async Task<string> PublishUserAction(string key, string chosenValue, Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null)
+        public async Task<string> PublishUserAction(string key, string chosenValue,
+            Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null)
         {
             var workflowId = key.Split('.')[0];
             var awaiter = TaskCompletionService.AddTask(workflowId);

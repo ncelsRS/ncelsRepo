@@ -4,7 +4,7 @@ namespace Teme.Contract.Logic.Declarant
 {
     public interface IActivityDeclarantLogic
     {
-        Task<string> Create();
+        Task<object> Create();
         Task<object> SendToNcels(string contractId); 
     }
 }
