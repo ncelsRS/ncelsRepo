@@ -24,5 +24,7 @@ namespace Teme.Shared.Data.Context.References
         public int PriceTypeId { get; set; }
         [ForeignKey("PriceTypeId")]
         public virtual Ref_PriceType Ref_PriceType { get; set; }
+
+        public virtual ICollection<CostWork> CostWorks { get; set; }
     }
 }

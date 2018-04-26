@@ -23,18 +23,20 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("StorageCondition")]
-        public async Task<IEnumerable<ReferenceModel>> StorageCondition()
+        [HttpGet]
+        public async Task<IActionResult> StorageCondition()
         {
-            return await _refLogic.GetStorageCondition();
+            return Ok(await _refLogic.GetStorageCondition());
         }
 
         /// <summary>
         /// Классификатор областей медицинского применения медицинских изделий(справочник)
         /// </summary>
         [Route("ClassifierMedicalArea")]
-        public async Task<IEnumerable<ReferenceModel>> ClassifierMedicalArea()
+        [HttpGet]
+        public async Task<IActionResult> ClassifierMedicalArea()
         {
-            return await _refLogic.GetClassifierMedicalArea();
+            return Ok(await _refLogic.GetClassifierMedicalArea());
         }
 
         /// <summary>
@@ -44,6 +46,7 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="culture">култура(ru, kz)</param>
         /// <returns></returns>
         [Route("NomenclatureCodeMedProduct")]
+        [HttpGet]
         public async Task<IActionResult> NomenclatureCodeMedProduct(string name, string culture)
         {
             if (name == null || culture == null)
@@ -56,9 +59,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("RegistrationType")]
-        public IEnumerable<object> RegistrationType()
+        [HttpGet]
+        public IActionResult RegistrationType()
         {
-            return _refLogic.GetRegistrationType();
+            return Ok(_refLogic.GetRegistrationType());
         }
 
         /// <summary>
@@ -66,9 +70,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("DegreeRiskClass")]
-        public async Task<IEnumerable<object>> DegreeRiskClass()
+        [HttpGet]
+        public async Task<IActionResult> DegreeRiskClass()
         {
-            return await _refLogic.GetDegreeRiskClass();
+            return Ok(await _refLogic.GetDegreeRiskClass());
         }
 
         /// <summary>
@@ -76,9 +81,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("OrganizationForm")]
-        public async Task<IEnumerable<object>> OrganizationForm()
+        [HttpGet]
+        public async Task<IActionResult> OrganizationForm()
         {
-            return await _refLogic.GetOrganizationForm();
+            return Ok(await _refLogic.GetOrganizationForm());
         }
 
         /// <summary>
@@ -88,6 +94,7 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameKz">наимемнование на казахском</param>
         /// <returns></returns>
         [Route("SaveOrganizationForm")]
+        [HttpPut]
         public async Task<IActionResult> SaveOrganizationForm(string nameRu, string nameKz)
         {
             if (nameRu == null || nameKz == null)
@@ -100,9 +107,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Bank")]
-        public async Task<IEnumerable<object>> Bank()
+        [HttpGet]
+        public async Task<IActionResult> Bank()
         {
-            return await _refLogic.GetBank();
+            return Ok(await _refLogic.GetBank());
         }
 
         /// <summary>
@@ -112,6 +120,7 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="nameKz">наимемнование на казахском</param>
         /// <returns></returns>
         [Route("SaveBank")]
+        [HttpPut]
         public async Task<IActionResult> SaveBank(string nameRu, string nameKz)
         {
             if (nameRu == null || nameKz == null)
@@ -124,9 +133,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Currency")]
-        public async Task<IEnumerable<object>> Currency()
+        [HttpGet]
+        public async Task<IActionResult> Currency()
         {
-            return await _refLogic.GetCurrency();
+            return Ok(await _refLogic.GetCurrency());
         }
 
         /// <summary>
@@ -134,9 +144,10 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("Country")]
-        public async Task<IEnumerable<object>> Country()
+        [HttpGet]
+        public async Task<IActionResult> Country()
         {
-            return await _refLogic.GetCountry();
+            return Ok(await _refLogic.GetCountry());
         }
 
         /// <summary>
@@ -144,6 +155,7 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("HolderType")]
+        [HttpGet]
         public IEnumerable<object> HolderType()
         {
             return _refLogic.GetHolderType();
@@ -154,6 +166,7 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("ContractForm")]
+        [HttpGet]
         public IEnumerable<object> ContractForm()
         {
             return _refLogic.GetContractForm();
@@ -166,6 +179,7 @@ namespace Teme.Admin.Api.Controllers
         /// <param name="contractForm">Регистрация, перерегистрация или внесение изменений</param>
         /// <returns></returns>
         [Route("CalculatorApplicationType")]
+        [HttpGet]
         public async Task<IActionResult> CalculatorApplicationType(string contractScope, int contractForm)
         {
             if (contractScope == null)
@@ -177,6 +191,7 @@ namespace Teme.Admin.Api.Controllers
         /// Тип услуги для калькулятора
         /// </summary>
         [Route("CalculatorServiceType")]
+        [HttpGet]
         public async Task<IActionResult> CalculatorServiceType(int applicationTypeId)
         {
             return Ok(await _refLogic.GetCalculatorServiceType(applicationTypeId));
@@ -187,6 +202,7 @@ namespace Teme.Admin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("ShowPriceList")]
+        [HttpGet]
         public async Task<IActionResult> ShowPriceList(bool isImport, int serviceTypeId, int? serviceTypeModifId)
         {
             return Ok(await _refLogic.GetShowPrice(isImport, serviceTypeId, serviceTypeModifId));
