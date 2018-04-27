@@ -42,16 +42,42 @@ namespace RSC.IdentityServer4
             // добавляем контекст TemeContext в качестве сервиса в приложение
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
             services.AddMvc();
+            
+            
 
             var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
 
             var builder = services.AddIdentityServer()
                     .AddSigningCredential(cert)
                     .AddInMemoryApiResources(IdSrvConfig.GetApiResources())
-                    .AddInMemoryClients(IdSrvConfig.GetClients())
-//                    .AddTestUsers(UserCfg.Get())
+                    .AddInMemoryClients(IdSrvConfig.GetClients(Configuration))
+                    .AddInMemoryIdentityResources(IdSrvConfig.GetIdentityResources())
+//                    .AddExtensionGrantValidator<ExtensionGrantValidator>()
                     .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>()
                 ;
+//            services.AddAuthentication(options =>
+//            {
+//                options.DefaultScheme = "Cookies";
+//                options.DefaultChallengeScheme = "oidc";
+//            })
+//            .AddCookie("Cookies")
+//                .AddOpenIdConnect("oidc", options =>
+//            {
+//                options.SignInScheme = "Cookies";
+//
+//                options.Authority = "http://localhost:5000";
+//                options.RequireHttpsMetadata = false;
+//
+//                options.ClientId = "mvc";
+//                options.ClientSecret = "secret";
+//                options.ResponseType = "code id_token";
+//
+//                options.SaveTokens = true;
+//                options.GetClaimsFromUserInfoEndpoint = true;
+//
+//                options.Scope.Add("api1");
+//                options.Scope.Add("offline_access");
+//            });
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();
