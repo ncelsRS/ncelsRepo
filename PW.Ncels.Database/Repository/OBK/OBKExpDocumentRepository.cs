@@ -83,6 +83,8 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             var expDocResult =
                 AppContext.OBK_StageExpDocumentResult.FirstOrDefault(e => e.AssessmetDeclarationId == modelId);
+
+
             if (expDocResult == null)
             {
                 var result = new OBK_StageExpDocumentResult
@@ -103,6 +105,11 @@ namespace PW.Ncels.Database.Repository.OBK
                     ExpResult = expResult
                 };
                 AppContext.OBK_StageExpDocumentResult.AddOrUpdate(result);
+
+             //   var assessmentStage = AppContext.OBK_StageExpDocument.Where(e => e.AssessmentDeclarationId == result.AssessmetDeclarationId).FirstOrDefault();
+              //  var employee = AppContext.Employees.Where(e => e.Id == assessmentStage.ExecutorId).FirstOrDefault();
+
+              //  new SafetyAssessmentRepository().AddHistory(expDocResult.AssessmetDeclarationId, OBK_Ref_StageStatus.DocumentReviewCompleted, employee.Id);
                 AppContext.SaveChanges();
             }
         }
@@ -145,7 +152,10 @@ namespace PW.Ncels.Database.Repository.OBK
                 Id = reslutStage.Id,
                 DeclarationId = reslutStage.DeclarationId
             };
+
             var xmlData = SerializeHelper.SerializeDataContract(ad);
+
+
             return xmlData.Replace("utf-16", "utf-8");
         }
 
@@ -355,6 +365,7 @@ namespace PW.Ncels.Database.Repository.OBK
             var stage = AppContext.OBK_AssessmentStage.FirstOrDefault(e =>
                 e.OBK_Ref_Stage.Code == CodeConstManager.STAGE_OBK_EXPERTISE_DOC.ToString()
                 && e.OBK_AssessmentDeclaration.Id == id);
+            
             var stageCoz = AppContext.OBK_AssessmentStage.FirstOrDefault(e =>
                 e.OBK_Ref_Stage.Code == CodeConstManager.STAGE_OBK_COZ.ToString()
                 && e.OBK_AssessmentDeclaration.Id == id);
@@ -407,6 +418,10 @@ namespace PW.Ncels.Database.Repository.OBK
                         //отправка акта выполненных работ в 1с
                         new OBKPaymentRepository().SaveCertificateOfCompletion(id);
                         msg = "Документ успешно подписан";
+
+                        var qw = stage.OBK_AssessmentStageExecutors.FirstOrDefault(e => e.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR);
+                        new SafetyAssessmentRepository().AddHistory(stage.DeclarationId, OBK_Ref_StageStatus.RequiresConclusion, qw.ExecutorId);
+
                     }
                     // исполнитель
                     else if (executor.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_EXECUTOR)
@@ -443,6 +458,11 @@ namespace PW.Ncels.Database.Repository.OBK
                                         .ExecutorId;
 
                         SendNotificationToBoss(stage.OBK_AssessmentDeclaration.Number, stage.Id, chiefId);
+
+
+                        var qw = stage.OBK_AssessmentStageExecutors.FirstOrDefault(e => e.ExecutorType == CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING);
+                        new SafetyAssessmentRepository().AddHistory(stage.DeclarationId, OBK_Ref_StageStatus.RequiresSigning, qw.ExecutorId);
+
                         msg = "Документ успешно подписан";
                     }
                 }

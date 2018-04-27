@@ -1,0 +1,31 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+
+@model Guid?
+
+    <div class="row" id="OBK_AssessmentHistoryView_" style="height: 554px;">
+        @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.OBK_AssessmentHistoryView>()
+                    .Name("OBK_AssessmentHistoryView" + (string)ViewBag.UiId)
+                    .HtmlAttributes(new { style = "width:auto;"})
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.StatusNameRu).Title("Статус").Width(100);
+                        columns.Bound(p => p.EmployeeShortName).Title("Исполнитель").Width(150);
+                        columns.Bound(p => p.UnitName).Title("Структурное подразделение").Width(150);
+                        columns.Bound(p => p.Created).Format("{0:dd.MM.yyyy HH:mm}").Title("Дата действия").Width(100);
+                    })
+                    .Reorderable(reorderable => reorderable.Columns(true))
+                    .Resizable(resizable => resizable.Columns(true))
+                    .Sortable(sortable => sortable.AllowUnsort(false))
+                    .Scrollable(scrollable => scrollable.Virtual(true))
+                    .Filterable()
+                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                    .HtmlAttributes(new { @class = "pwGrid" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Sort(sort => { sort.Add("Created").Ascending(); })
+                    .PageSize(1000)
+                    .Read(read => read.Action("AssessmentDeclarationListHistory", "SafetyAssessment", new { assessmentId = @ViewData["AssessmentDeclarationId"] }))
+                ))
+    </div>
+

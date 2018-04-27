@@ -1719,7 +1719,8 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
 
             SendNotificationToExecutorWork(executorId, contract);
-        }
+
+       }
 
         public string GetContractTemplatePath(Guid contractId)
         {

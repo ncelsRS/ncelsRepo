@@ -59,6 +59,9 @@
     $scope.rusLangPattern = "[а-яА-ЯёЁ]+";
     // Patterns end
 
+
+    //a-zA-Z0-9
+
     $scope.ExpertOrganizations = [];
     $scope.HolderType = [];
 

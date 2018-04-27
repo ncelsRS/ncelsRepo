@@ -92,7 +92,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
         public IQueryable<OBKTaskListRegisterView> GetTaskList(Guid userId) //Guid organizationId, 
         {
-            return AppContext.OBKTaskListRegisterViews.Where(e => e.ExecutorId == userId).OrderByDescending(e=>e.RegDate); // e.UnitId == organizationId &&
+            return AppContext.OBKTaskListRegisterViews.Where(e => e.ExecutorId == userId && e.StatusNameRu!= "Передано в лабораторию" && e.StatusNameRu != "Образцы приняты ЦОЗ").OrderByDescending(e=>e.RegDate); // e.UnitId == organizationId &&
         }
 
         public IQueryable<OBK_Ref_MaterialCondition> GetMaterialCondition(string code)
@@ -205,6 +205,8 @@ namespace PW.Ncels.Database.Repository.OBK
             };
             AppContext.OBK_Tasks.Add(obkTasks);
 
+
+
             var taskExecutor = new OBK_TaskExecutor
             {
                 Id = Guid.NewGuid(),
@@ -226,6 +228,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 }));
             }
             AppContext.OBK_TaskMaterial.AddRange(taskLists);
+
             AppContext.SaveChanges();
         }
 
@@ -282,6 +285,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     //отдел снажения ИЦл
                 case "supplyDivision":
                     var tasks1 = AppContext.OBK_Tasks.Where(e => e.Id == id);
+
                     foreach (var task in tasks1)
                     {
                         if (task.OBK_TaskExecutor.FirstOrDefault(
@@ -295,11 +299,23 @@ namespace PW.Ncels.Database.Repository.OBK
                                 TaskId = task.Id,
                                 StageId = CodeConstManager.STAGE_OBK_ICL
                             };
+
+                            task.ISLExecutorId = taskExecutor.ExecutorId;
+
                             taskExecutors.Add(taskExecutor);
                             task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskSendRC).Id;
                         }
+                        else
+                        {
+                            var ex = AppContext.OBK_TaskExecutor.Where(e => e.TaskId == task.Id && e.ExecutorId == executorId && e.StageId == CodeConstManager.STAGE_OBK_ICL).FirstOrDefault();
+                            var emp = AppContext.Employees.Where(r => r.Id == ex.ExecutorId).FirstOrDefault();
+
+                            task.ISLExecutorId = emp.Id;
+                            
+                        }
                     }
                     break;
+
             }
             AppContext.OBK_TaskExecutor.AddRange(taskExecutors);
             AppContext.SaveChanges();
@@ -324,6 +340,7 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
                     taskExecutors.Add(taskExecutor);
                     task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskNew).Id;
+                    new SafetyAssessmentRepository().AddHistory(filialExecutors.AssessmentDeclarationId, OBK_Ref_StageStatus.InWork, taskExecutor.ExecutorId);
                 }
             }
             var userId = UserHelper.GetCurrentEmployee().Id;
@@ -332,6 +349,7 @@ namespace PW.Ncels.Database.Repository.OBK
                      e.OBK_AssessmentStageExecutors.Any(x => x.ExecutorId == userId));
             stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.RequiresConclusion).Id;
             AppContext.OBK_TaskExecutor.AddRange(taskExecutors);
+
             AppContext.SaveChanges();
         }
 
@@ -490,6 +508,11 @@ namespace PW.Ncels.Database.Repository.OBK
             task.CozExecutorId = UserHelper.GetCurrentEmployee().Id;
             task.SendToIC = DateTime.Now;
             task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskAcceptCoz).Id;
+
+            var executor = AppContext.Employees.FirstOrDefault(r=>r.Id==task.CozExecutorId);
+
+            new SafetyAssessmentRepository().AddHistory(task.AssessmentDeclarationId, OBK_Ref_StageStatus.TaskAcceptCoz, executor.Id);
+
             AppContext.SaveChanges();
         }
 
@@ -526,6 +549,8 @@ namespace PW.Ncels.Database.Repository.OBK
                         }
                     }
                 }
+               // new SafetyAssessmentRepository().AddHistory(task.AssessmentDeclarationId, OBK_Ref_StageStatus.TaskSendLab, );
+
                 AppContext.SaveChanges();
             }
             catch (Exception e)
@@ -577,8 +602,12 @@ namespace PW.Ncels.Database.Repository.OBK
         public void AcceptTaskReseachCenter(Guid taskId)
         {
             var task = AppContext.OBK_Tasks.FirstOrDefault(e => e.Id == taskId);
+
             if(task != null)
                 task.TaskStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.TaskAcceptRC).Id;
+
+            new SafetyAssessmentRepository().AddHistory(task.AssessmentDeclarationId, OBK_Ref_StageStatus.TaskAcceptRC, UserHelper.GetCurrentEmployee().Id);
+            
             AppContext.SaveChanges();
         }
 
@@ -616,7 +645,10 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
                     tems.Add(tem);
                 }
+
+                new SafetyAssessmentRepository().AddHistory(task.AssessmentDeclarationId, OBK_Ref_StageStatus.TaskSendLab, manager.ExecutorId);
             }
+
 
             var boss = new OBK_TaskExecutor {
                 Id = Guid.NewGuid(),
@@ -1109,7 +1141,19 @@ namespace PW.Ncels.Database.Repository.OBK
                     {
                         tm.StatusId = statusId;
                     }
+
                     AppContext.SaveChanges();
+
+                    if (eType == 3)
+                    {
+                        var task = AppContext.OBK_Tasks.Where(r => r.Id == taskId).FirstOrDefault();
+                        var declaration = AppContext.OBK_AssessmentDeclaration.Where(r => r.Id == task.AssessmentDeclarationId).FirstOrDefault();
+                        var stage = AppContext.OBK_AssessmentStage.Where(r => r.DeclarationId == declaration.Id).FirstOrDefault();
+                        var stageExecutor = AppContext.OBK_AssessmentStageExecutors.Where(r => r.AssessmentStageId == stage.Id && r.ExecutorType == 2).FirstOrDefault();
+                        var executor = AppContext.Employees.Where(r => r.Id == stageExecutor.ExecutorId).FirstOrDefault();
+                        new SafetyAssessmentRepository().AddHistory(declaration.Id, OBK_Ref_StageStatus.InWork, executor.Id);
+                    }
+
                     break;
             }
         }

@@ -1,0 +1,96 @@
+﻿@using PW.Ncels.Database.Models
+
+@model Guid
+
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<script>
+    InitFilterOutgoingGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+                    .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                    .Name(("splitter" + Model))
+                    .Panes(panes =>
+                    {
+                        panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                        @<div class="pwPanelBar">
+                            @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                                                               .Name("panelbar" + Model)
+                                                               .ExpandMode(PanelBarExpandMode.Multiple)
+                                                               .ExpandAll(true)
+                                                               .HtmlAttributes(new { style = "width:auto;" })
+                                                               .Events(e => e.Select("panelOutgoingSelect"))
+                                                               .Items(panelbar =>
+                                                                       {
+                                                                           panelbar.Add().Expanded(true);
+                                                                           panelbar.Add().Text("Способы ОБК")
+                                                                               .Items(projects =>
+                                                                               {
+                                                                                   projects.Add().Text("Серийная оценка").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                                                   projects.Add().Text("ОБК каждой серии (партии) продукции").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                                                   projects.Add().Text("ОБК путем декларирования").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                                               });
+                                                                       })
+                            )
+                        </div>
+                                );
+                                panes.Add().Scrollable(false).Size("100%").Content(
+                                        @<div class="pwPanelBar">
+                                            <div id="pwSix">
+                                                @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                                                                            .Content("")
+                                                                                       .ImageUrl("/Content/images/reload.png"))
+
+                                            </div>
+                                            @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Document>()
+                                                                    .Name("gridOutgoingListDoc" + Model)
+                                                                    .Columns(columns =>
+                                                                    {
+
+                                                                        columns.Bound(p => p.NomenclatureDictionaryValue).Width(50).Title("Этапы оценки безопасности и качества");
+
+                                                                        columns.Bound(p => p.NomenclatureDictionaryValue).Width(70).Title("Сроки исполнения")
+                                                                        .ClientTemplate("<input type='textbox' class='styled'/>")
+                                                                        .Width(70);
+
+                                                                        columns.Bound(p => p.NomenclatureDictionaryValue).Width(70).Title("Ед. изм")
+                                                                        .ClientTemplate("<input type='combobox' class='styled'/>")
+                                                                        .Width(70);
+
+                                                                        columns.Bound(p => p.NomenclatureDictionaryValue).Width(70).Title("Счетчик уведомления об истечении срока исполнения")
+                                                                        .ClientTemplate("<input type='textbox' class='styled'/>")
+                                                                        .Width(70);
+
+                                                                        columns.Bound(p => p.NomenclatureDictionaryValue).Width(70).Title("Ед. изм")
+                                                                        .ClientTemplate("<input type='combobox' class='styled'/>")
+                                                                        .Width(70);                                                                        // columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                                                                    })
+                                                                       .Resizable(resizable => resizable.Columns(true))
+                                                                       .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                          .Sortable(sortable => sortable.AllowUnsort(false))
+                                                                       .Groupable()
+                                                                          .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                          .Filterable()
+                                                                        .HtmlAttributes(new { @class = "pwGrid" })
+                                                                         .DataSource(dataSource => dataSource
+                                                                         .Ajax()
+                                                                       .Aggregates(aggregates => { aggregates.Add(p => p.Number).Count(); })
+                                                                        .Sort(sort => { sort.Add("SortNumber").Descending(); sort.Add("CreatedDate").Descending(); })
+                                                                        .PageSize(50)
+                                                                        .Read(read => read.Action("ListDocument", "OutgoingDoc"))
+                                       ))
+                                        </div>
+);
+                                    }))
+
+<script>
+    resizeGrid('@("#gridOutgoingListDoc" + Model)');
+</script>

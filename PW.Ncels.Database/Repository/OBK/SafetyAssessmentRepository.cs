@@ -16,6 +16,7 @@ using PW.Ncels.Database.Models;
 using PW.Ncels.Database.Models.Expertise;
 using PW.Ncels.Database.Models.OBK;
 using PW.Ncels.Database.Repository.Expertise;
+using PW.Ncels.Database.DataModel;
 
 namespace PW.Ncels.Database.Repository.OBK
 {
@@ -39,6 +40,9 @@ namespace PW.Ncels.Database.Repository.OBK
         {
         }
 
+        private ncelsEntities db = UserHelper.GetCn();
+
+
         /// <summary>
         /// Получение списка контрактов
         /// </summary>
@@ -46,8 +50,14 @@ namespace PW.Ncels.Database.Repository.OBK
         /// <returns></returns>
         public IQueryable<OBK_Contract> GetContractsByStatuses(Guid employeeId, int type)
         {
-            //todo надо добавить фильтр для договоро и отображать только подписанные и активные
-            return AppContext.OBK_Contract.Where(e => e.EmployeeId == employeeId && e.Type == type);
+            //todo надо добавить фильтр для договоро и отображать только подписанные и активные и договор не зарегистрировался в заявке
+
+            var contract = AppContext.OBK_Contract.Where(e => AppContext.OBK_AssessmentDeclaration.Where(r => r.StatusId != 14 && r.StatusId != 15 && r.StatusId != 17).ToList().Any(x => x.ContractId == e.Id) 
+            && e.EmployeeId == employeeId && e.Type == type &&
+            e.Status == 13);
+
+            return contract;
+
         }
 
         /// <summary>
@@ -374,6 +384,8 @@ namespace PW.Ncels.Database.Repository.OBK
                         recordsTotal = recordsTotal,
                         Data = await expertiseViews.ToListAsync()
                     };
+
+
             }
 
             catch (Exception e)
@@ -822,8 +834,9 @@ namespace PW.Ncels.Database.Repository.OBK
         public void SendToWork(Guid[] stageIds, Guid[] executorIds)
         {
             var stages = AppContext.OBK_AssessmentStage.Where(e => stageIds.Contains(e.Id)).ToList();
+            
             var executors = AppContext.Employees.Where(e => executorIds.Contains(e.Id)).ToList();
-
+            // AssessmentStage ------ DeclarationId
             foreach (var stage in stages)
             {
                 foreach (var executor in executors)
@@ -836,10 +849,17 @@ namespace PW.Ncels.Database.Repository.OBK
                     };
                     stage.StageStatusId = GetStageStatusByCode(OBK_Ref_StageStatus.InWork).Id;
                     AppContext.OBK_AssessmentStageExecutors.Add(stageExecutor);
+
+                    var assessment = AppContext.OBK_AssessmentDeclaration.Where(x => x.Id == stage.DeclarationId).FirstOrDefault();
+
+                    AddHistory(assessment.Id, OBK_Ref_StageStatus.InWork, executor.Id);
+
                     AppContext.SaveChanges();
                 }
             }
         }
+
+
         public OBK_Ref_StageStatus GetStageStatusByCode(string code)
         {
             return AppContext.OBK_Ref_StageStatus.AsNoTracking().FirstOrDefault(e => e.Code == code);
@@ -913,6 +933,14 @@ namespace PW.Ncels.Database.Repository.OBK
             var attachedEntity = AppContext.Set<OBK_AssessmentDeclaration>().Find(entity.Id);
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(entity);
             AppContext.Commit(true);
+
+           // var contractEx = AppContext.OBK_Contract.Where(t => t.Id == entity.ContractId).FirstOrDefault();
+
+          //  var declarant = AppContext.OBK_Declarant.Where(y => y.Id == contractEx.DeclarantId).FirstOrDefault();
+
+         //   new SafetyAssessmentRepository().AddHistoryDeclarant(entity.Id, OBK_Ref_StageStatus.RequiresRegistration, declarant.Id);
+
+
             //Отправка заявления на этап ЦОЗ
             if (entity.StatusId != CodeConstManager.STATUS_DRAFT_ID)
             {
@@ -1004,6 +1032,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             SaveZBKBlanks(expDocument);
             AppContext.SaveChanges();
+
         }
         
         public void SaveZBKBlanks(OBK_StageExpDocument expDocument)
@@ -1333,5 +1362,72 @@ namespace PW.Ncels.Database.Repository.OBK
             return data;
         }
         #endregion
+
+        public IQueryable<OBK_AssessmentHistoryView> GetHistory(Guid assessmentId)
+        {
+            return AppContext.OBK_AssessmentHistoryView.Where(x => x.AssessmentId == assessmentId);
+        }
+
+        public void AddHistory(Guid AssessmentId, string historyStatusCode, Guid EmployeeId)
+        {
+            var currentEmployee = AppContext.Employees.Where(r => r.Id == EmployeeId).FirstOrDefault();
+
+            var status = GetContractHistoryStatusByCode(historyStatusCode);
+
+            var unitName = GetParentUnitName(currentEmployee);
+
+            var history = new OBK_AssessmentHistory()
+            {
+                Id = Guid.NewGuid(),
+                Created = DateTime.Now,
+                EmployeeId = currentEmployee.Id,
+                UnitName = unitName,
+                StatusId = status.Id,
+                AssessmentId = AssessmentId,
+            };
+            AppContext.OBK_AssessmentHistory.Add(history);
+            AppContext.SaveChanges();
+        }
+
+        public void AddHistoryDeclarant(Guid AssessmentId, string historyStatusCode, Guid DeclarantId)
+        {
+            var currentDeclarant = UserHelper.GetCurrentEmployee();
+
+            var status = GetContractHistoryStatusByCode(historyStatusCode);
+
+            var history = new OBK_AssessmentHistory()
+            {
+                Id = Guid.NewGuid(),
+                Created = DateTime.Now,
+                EmployeeId = currentDeclarant.Id,
+                StatusId = status.Id,
+                AssessmentId = AssessmentId,
+            };
+            AppContext.OBK_AssessmentHistory.Add(history);
+            AppContext.SaveChanges();
+        }
+
+        public OBK_Ref_StageStatus GetContractHistoryStatusByCode(string code)
+        {
+            return AppContext.OBK_Ref_StageStatus.Where(x => x.Code == code).FirstOrDefault();
+        }
+
+        private string GetParentUnitName(Employee employee)
+        {
+            string unitName = null;
+            if (employee.Units != null && employee.Units.Count > 0)
+            {
+                foreach (var unit in employee.Units)
+                {
+                    if (unit.Parent != null)
+                    {
+                        unitName = unit.Parent.ShortName;
+                    }
+                    break;
+                }
+            }
+            return unitName;
+        }
+
     }
 }

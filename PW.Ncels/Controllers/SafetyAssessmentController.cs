@@ -472,6 +472,7 @@ namespace PW.Ncels.Controllers
         {
             var contract = new SafetyAssessmentRepository().GetContractById(id);
 
+
             if (contract == null)
             {
                 return Json(new { isSuccess = false });
@@ -655,6 +656,9 @@ namespace PW.Ncels.Controllers
             }
             repository.SaveOrUpdate(model, UserHelper.GetCurrentEmployee().Id);
             repository.SaveHisotry(history, UserHelper.GetCurrentEmployee().Id);
+
+        //    new SafetyAssessmentRepository().AddHistory(model.Id, OBK_Ref_StageStatus.New, UserHelper.GetCurrentEmployee().Id);
+
             return Json(new { success }, JsonRequestBehavior.AllowGet);
         }
 
@@ -675,11 +679,15 @@ namespace PW.Ncels.Controllers
             }
 
             var modelStage = new AssessmentStageRepository().GetByDeclarationId(modelId, CodeConstManager.STAGE_OBK_COZ);
-            if (modelStage != null && modelStage.StageStatusId ==
-                new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.InReWork).Id)
+
+            if (modelStage != null && modelStage.StageStatusId == new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.InReWork).Id)
             {
+                var ex = db.OBK_AssessmentStageExecutors.Where(r => r.AssessmentStageId == modelStage.Id && r.ExecutorType==2).FirstOrDefault();
+
                 modelStage.StageStatusId = new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.InWork).Id;
                 new SafetyAssessmentRepository().SaveStage(modelStage);
+
+                new SafetyAssessmentRepository().AddHistory(model.Id, OBK_Ref_StageStatus.InWork, ex.ExecutorId);
             }
 
             model.StatusId = CodeConstManager.STATUS_SEND_ID;

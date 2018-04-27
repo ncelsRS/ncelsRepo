@@ -514,8 +514,8 @@
 
     // Patterns start
     $scope.emailPattern = ".+@.+\\..+";
-    $scope.iikPattern = "[a-z0-9]+";
-    $scope.bankBikPattern = "[a-z0-9]+";
+    $scope.iikPattern = "[a-zA-Z0-9]+";
+    $scope.bankBikPattern = "[a-zA-Z0-9]+";
     $scope.bankBikMinLength = 8;
     $scope.bankBikMaxLength = 11;
     $scope.phonePattern = "[0-9 ()+,]+";

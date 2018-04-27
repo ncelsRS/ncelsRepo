@@ -208,6 +208,7 @@ namespace PW.Prism.Controllers.OBKTask
                     ViewBag.SendToIC = taskViewModel.SentToIC == null;
                     ViewBag.CozAccept = taskViewModel.CozExecutorName != null;
                     return PartialView(taskViewModel);
+
                 case CodeConstManager.STAGE_OBK_ICL:
                     var taskReseachCenter = repo.EditTaskResearchCenter(taskId);
                     return PartialView("TaskResearchCenter", taskReseachCenter);
@@ -291,14 +292,17 @@ namespace PW.Prism.Controllers.OBKTask
             var list = repo.GetResearchCenterListView(departamentId, userId, filterStatus);
             var result = list.ToDataSourceResult(request);
             return Json(result);
+
         }
 
+        
         private string ModifyFilters(IEnumerable<IFilterDescriptor> filters)
         {
             if (!filters.Any()) return null;
-            foreach (var filter in filters)
+            foreach (var filter in filters.SelectMemberDescriptors())
             {
                 var descriptor = filter as FilterDescriptor;
+
                 if (descriptor != null && descriptor.Member == "StageStatusCode")
                 {
                     return descriptor.Value.ToString();

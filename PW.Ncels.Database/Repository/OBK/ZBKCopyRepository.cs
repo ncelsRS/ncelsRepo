@@ -212,6 +212,8 @@ namespace PW.Ncels.Database.Repository.OBK
 
             AppContext.SaveChanges();
 
+            //new SafetyAssessmentRepository().AddHistory(assessmentStage.DeclarationId, OBK_Ref_StageStatus.InReWork);
+
             return true;
         }
 

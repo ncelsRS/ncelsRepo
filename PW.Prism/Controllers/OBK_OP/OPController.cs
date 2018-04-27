@@ -3,6 +3,7 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Repository.Common;
+using PW.Ncels.Database.Repository.OBK;
 using Stimulsoft.Report;
 using Stimulsoft.Report.Dictionary;
 using System;
@@ -89,6 +90,10 @@ namespace PW.Prism.Controllers.OBK_OP
             reportOP.StageStatusId = repo.OBK_Ref_StageStatus.Where(x => x.Code == "OPReportCompleted").Select(x => x.Id).FirstOrDefault();
 
             repo.SaveChanges();
+
+
+          //  new SafetyAssessmentRepository().AddHistory(declarationId, OBK_Ref_StageStatus.OPCompleted);
+
             return Json(new { isSuccess = true });
         }
 
@@ -118,6 +123,7 @@ namespace PW.Prism.Controllers.OBK_OP
                     .FirstOrDefault();
 
                 repo.SaveChanges();
+               // new SafetyAssessmentRepository().AddHistory(stage.DeclarationId, OBK_Ref_StageStatus.InReWork);
 
                 return Json(new { isSuccess = true }, JsonRequestBehavior.AllowGet);
             }

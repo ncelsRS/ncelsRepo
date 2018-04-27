@@ -29,6 +29,7 @@ namespace PW.Prism.Controllers.OBK
         SafetyAssessmentRepository repository;
         AssessmentStageRepository stageRepository;
 
+
         public SafetyAssessmentController()
         {
             repository = new SafetyAssessmentRepository();
@@ -62,12 +63,17 @@ namespace PW.Prism.Controllers.OBK
         public ActionResult SaveTakenZBK(Guid declarationId)
         {
             var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == declarationId);
+
             if (declaration == null)
             {
                 return Json(new { success = false, message = "Заключение не существует!" });
             }
             declaration.ZBKTaken = true;
             declaration.ExtraditeDate = DateTime.Now;
+
+
+            //new SafetyAssessmentRepository().AddHistory(assessmentStage.DeclarationId, OBK_Ref_StageStatus.requiresConclusion);
+
             db.SaveChanges();
             return Json(new { success = true, message = "Успешно сохранено!" });
         }
@@ -100,6 +106,9 @@ namespace PW.Prism.Controllers.OBK
             FillDeclarationControl(model.OBK_AssessmentDeclaration);
             var stageName = GetName(model.StageId);
             ActionLogger.WriteInt(stageName + ": Получение заявления №" + model.OBK_AssessmentDeclaration.Number);
+
+          //  new SafetyAssessmentRepository().AddHistory(model.DeclarationId, OBK_Ref_StageStatus.Completed, model.OBK_AssessmentDeclaration.EmployeeId);
+
             return PartialView(model);
         }
 
@@ -436,7 +445,10 @@ namespace PW.Prism.Controllers.OBK
                         string.Format("По Вашей заявке №{0} поступили замечания", model.Number),
                         ObjectType.ObkDeclaration, model.Id.ToString(), model.EmployeeId);
                 }
+                new SafetyAssessmentRepository().AddHistory(assessmentStage.DeclarationId, OBK_Ref_StageStatus.InReWork, model.EmployeeId);
+
             }
+
             return Json("Ok!", JsonRequestBehavior.AllowGet);
         }
 
@@ -486,6 +498,7 @@ namespace PW.Prism.Controllers.OBK
             expertise.StageStatusId = new SafetyAssessmentRepository().GetStageStatusByCode(OBK_Ref_StageStatus.OnExpDocument).Id;
             expertise.FactEndDate = DateTime.Now;
             new SafetyAssessmentRepository().SaveStage(expertise);
+
             var model = expertise.OBK_AssessmentDeclaration;
             if (model == null) return Json("Ok!", JsonRequestBehavior.AllowGet);
             model.StatusId = CodeConstManager.STATUS_OBK_EXP_SEND_ID;
@@ -564,6 +577,13 @@ namespace PW.Prism.Controllers.OBK
 
             return Json(data.ToDataSourceResult(request));
         }
+
+        public ActionResult AssessmentDeclarationListHistory([DataSourceRequest] DataSourceRequest request, Guid assessmentId)
+        {
+             var query = repository.GetHistory(assessmentId);
+             return Json(query.ToDataSourceResult(request));
+        }
+
 
         public ActionResult ExpertActData(Guid assessmentId)
         {
@@ -721,6 +741,22 @@ namespace PW.Prism.Controllers.OBK
             ViewData["StageStatus"] = stageObj.Code;
 
             return PartialView("SerialActReception", Guid.NewGuid());
+        }
+
+        public ActionResult GetAllAssessmentDeclaration(Guid id)
+        {
+            var stage = db.OBK_AssessmentStage.FirstOrDefault(o => o.Id == id);
+            var declaration = db.OBK_AssessmentDeclaration.FirstOrDefault(o => o.Id == stage.DeclarationId);
+          
+            ViewData["AssessmentDeclarationId"] = declaration.Id;
+            ViewData["ContractId"] = declaration.ContractId;
+
+            var stageStatus = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+
+            var stageObj = db.OBK_Ref_StageStatus.FirstOrDefault(o => o.Id == stage.StageStatusId);
+            ViewData["StageStatus"] = stageObj.Code;
+
+            return PartialView("GetAllAssessmentDeclaration", Guid.NewGuid());
         }
 
         public ActionResult EditSerialActData(Guid actReceptionId, Guid contractid)

@@ -215,6 +215,8 @@ namespace PW.Prism.Controllers
                 || e.SignerId == currentEmployee.Id);
             return Json(query.ToDataSourceResult(request));
         }
+
+
         public ActionResult ListContractAddition([DataSourceRequest] DataSourceRequest request)
         {
             IQueryable<ContractAdditionJournal> query = db.ContractAdditionJournals.AsNoTracking().Where(e => e.ContractId != null && e.StatusCode != Ncels.Database.DataModel.Contract.StatusNew);

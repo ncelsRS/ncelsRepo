@@ -74,6 +74,7 @@ namespace PW.Ncels.Database.Repository.OBK
                 currentStage.FactEndDate = DateTime.Now;
             }
             var isAnalitic = false;
+
             foreach (var nextStageId in nextStageIds)
             {
                 //if (!CanSendToStep(declarationId, fromStageId, nextStageId, out resultDescription)) return false;
@@ -102,7 +103,13 @@ namespace PW.Ncels.Database.Repository.OBK
                     ExecutorType = CodeConstManager.OBK_CONTRACT_STAGE_EXECUTOR_TYPE_ASSIGNING
                 };
 
+
                 newStage.OBK_AssessmentStageExecutors.Add(newStageExecutor);
+
+                var ex = AppContext.OBK_AssessmentDeclaration.Where(r => r.ContractId == newStage.DeclarationId).FirstOrDefault();
+
+                new SafetyAssessmentRepository().AddHistory(declaration.Id, OBK_Ref_StageStatus.New, newStageExecutor.ExecutorId);
+
                 AppContext.OBK_AssessmentStage.Add(newStage);
             }
             AppContext.SaveChanges();
