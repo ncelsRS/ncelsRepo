@@ -48,6 +48,11 @@ namespace Teme.Shared.Data.Context
         public bool IsResident { get; set; }
 
         /// <summary>
+        /// true юридическое лицо, false физическое лицо
+        /// </summary>
+        public bool IsJuridical { get; set; } = false;
+
+        /// <summary>
         /// подтверждени
         /// </summary>
         public bool IsConfirmed { get; set; } = false;
