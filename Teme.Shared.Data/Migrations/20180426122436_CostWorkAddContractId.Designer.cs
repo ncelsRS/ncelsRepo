@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180426122436_CostWorkAddContractId")]
+    partial class CostWorkAddContractId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,12 +54,6 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("Pwdhash")
                         .IsRequired();
 
-                    b.Property<string>("Scopes")
-                        .IsRequired();
-
-                    b.Property<string>("UserName")
-                        .IsRequired();
-
                     b.Property<string>("UserType");
 
                     b.HasKey("Id");
@@ -74,8 +69,6 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<int>("ChoosePayer");
 
                     b.Property<int>("ContractForm");
-
-                    b.Property<string>("ContractScope");
 
                     b.Property<int>("ContractType");
 
@@ -110,8 +103,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("WorkflowId")
                         .HasMaxLength(50);
-
-                    b.Property<bool>("isDeleted");
 
                     b.HasKey("Id");
 
@@ -178,8 +169,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<bool>("IsJuridical");
-
                     b.Property<bool>("IsResident");
 
                     b.Property<string>("NameEn");
@@ -205,8 +194,6 @@ namespace Teme.Shared.Data.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("BankBin");
-
-                    b.Property<int?>("BankId");
 
                     b.Property<string>("BankIik")
                         .HasMaxLength(255);
@@ -269,8 +256,6 @@ namespace Teme.Shared.Data.Migrations
                         .HasMaxLength(20);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BankId");
 
                     b.HasIndex("CurrencyId");
 
@@ -714,12 +699,8 @@ namespace Teme.Shared.Data.Migrations
 
             modelBuilder.Entity("Teme.Shared.Data.Context.DeclarantDetail", b =>
                 {
-                    b.HasOne("Teme.Shared.Data.Context.References.Ref_Bank", "Ref_Bank")
-                        .WithMany("DeclarantDetails")
-                        .HasForeignKey("BankId");
-
                     b.HasOne("Teme.Shared.Data.Context.References.Ref_Currency", "Ref_Currency")
-                        .WithMany("DeclarantDetails")
+                        .WithMany()
                         .HasForeignKey("CurrencyId");
 
                     b.HasOne("Teme.Shared.Data.Context.Declarant", "Declarant")

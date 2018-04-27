@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Teme.Shared.Data.Primitives.Contract;
@@ -28,6 +29,11 @@ namespace Teme.Shared.Data.Context
         /// Плательщик
         /// </summary>
         public ChosenPayerEnum ChoosePayer { get; set; }
+
+        /// <summary>
+        /// scope ЕАЭС или Нац
+        /// </summary>
+        public string ContractScope { get; set; }
 
         /// <summary>
         /// Номер договора
@@ -94,5 +100,11 @@ namespace Teme.Shared.Data.Context
         [ForeignKey("PayerDetailId")]
         public virtual DeclarantDetail PayerDetail { get; set; }
 
+        public virtual ICollection<CostWork> CostWorks { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

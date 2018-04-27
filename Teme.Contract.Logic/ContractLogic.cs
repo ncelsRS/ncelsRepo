@@ -26,13 +26,18 @@ namespace Teme.Contract.Logic
             _repo = repo;
         }
 
-        public async Task<object> Create()
+        /// <summary>
+        /// Создание договора
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> Create(int contractType, string contractScope)
         {
             var workflowId = await _wflogic.Create();
-            var qwe = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString();
             Shared.Data.Context.Contract contract = new Shared.Data.Context.Contract()
             {
-                WorkflowId = qwe
+                WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
+                ContractType = (ContractTypeEnum)contractType,
+                ContractScope = contractScope
             };
             await _repo.CreateContract(contract);            
             return new {
@@ -47,6 +52,11 @@ namespace Teme.Contract.Logic
             };
         }
 
+        /// <summary>
+        /// Поиск Заявителя резидента
+        /// </summary>
+        /// <param name="iin">ИИН или БИН заявиетля</param>
+        /// <returns></returns>
         public async Task<object> SearchDeclarantResident(string iin)
         {
             var declarant = await _repo.SearchDeclarantResident(iin);
@@ -93,6 +103,11 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Поиск заявителя не резидента
+        /// </summary>
+        /// <param name="countryId">Id страны</param>
+        /// <returns></returns>
         public async Task<object> SearchDeclarantNonResident(int countryId)
         {
             var declarant = await _repo.SearchDeclarantNonResident(countryId);
@@ -101,6 +116,11 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Получение заявителя по Id
+        /// </summary>
+        /// <param name="id">Id заявителя</param>
+        /// <returns></returns>
         public async Task<object> GetDeclarantById(int id)
         {
             var declarant = await _repo.GetDeclarant(id);
@@ -148,6 +168,12 @@ namespace Teme.Contract.Logic
             return null;
         }
 
+        /// <summary>
+        /// Добавления заявтеля по типам
+        /// </summary>
+        /// <param name="contractId">Id договра</param>
+        /// <param name="code">Коды: Declarant, Manufactur, Payer</param>
+        /// <returns></returns>
         public async Task<object> AddDeclarant(int contractId, string code)
         {
             var declarant = new Shared.Data.Context.Declarant();
@@ -177,6 +203,11 @@ namespace Teme.Contract.Logic
             return new { declarant.Id, DetailId = declarantDetail.Id };
         }
 
+        /// <summary>
+        /// Автосохранение договора
+        /// </summary>
+        /// <param name="contract">модель</param>
+        /// <returns></returns>
         public async Task<object> ChangeModel(ContractUpdateModel contract)
         {         
             var data = Type.GetType(contract.ClassName + ", Teme.Shared.Data");
@@ -188,6 +219,35 @@ namespace Teme.Contract.Logic
             }
             Task.WaitAll(tasks.ToArray());
             return new { contractId = contract.Id };
+        }
+
+        /// <summary>
+        /// Сохранение данных калькулятора
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> SaveCostWork(CostWorkModel[] costWorkModel)
+        {
+            List<Task> tasks = new List<Task>();
+            foreach(var cw in costWorkModel)
+            {
+                var costwork = new Shared.Data.Context.CostWork()
+                {
+                    PriceListId = cw.PriceListId,
+                    ContractId = cw.ContractId,
+                    Count = cw.Count,
+                    IsImport = cw.IsImport,
+                    PriceWithValueAddedTax = cw.PriceWithValueAddedTax,
+                    TotalPriceWithValueAddedTax = cw.TotalPriceWithValueAddedTax
+                };
+                tasks.Add(_repo.SaveCostWork(costwork));
+            }
+            Task.WaitAll(tasks.ToArray());
+            return new { contractId = costWorkModel.First().ContractId };
+        }
+
+        public async Task DeleteCostWork(int contractId)
+        {
+            await _repo.DeleteCostWork(contractId);
         }
     }
 }

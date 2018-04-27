@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,7 +14,8 @@ namespace Teme.Shared.Data.Context
         public bool? HasIin { get; set; }
         [Required] public string Iin { get; set; }
         [Required] public string Pwdhash { get; set; }
-        [Required] public IEnumerable<string> Scopes { get; set; }
+    [NotMapped]
+        [Required] public virtual IEnumerable<string> Scopes { get; set; }
         public string CompanyName { get; set; }
         [Required] public string LastName { get; set; }
         [Required] public string FirstName { get; set; }

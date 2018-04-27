@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Logic;
+using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Contract.Api.Controllers
 {
@@ -18,11 +20,12 @@ namespace Teme.Contract.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create([FromQuery] int contractType, [FromQuery] string contractScope)
         {
             try
             {
-                var r = await Logic.Create();
+                if (!ModelState.IsValid) return BadRequest();
+                var r = await Logic.Create(contractType, contractScope);
                 return Json(r);
             }
             catch (Exception ex)
@@ -124,6 +127,46 @@ namespace Teme.Contract.Api.Controllers
             {
                 var result = await Logic.GetDeclarantById(id);
                 return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Сохранение прайс листа по договору
+        /// </summary>
+        /// <param name="costWorkModel"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("SaveCostWork")]
+        public async Task<IActionResult> SaveCostWork([FromBody] CostWorkModel[] costWorkModel)
+        {
+            try
+            {
+                var result = await Logic.SaveCostWork(costWorkModel);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Удаление данных по прайслисту с договора
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("DeleteCostWork")]
+        public async Task<IActionResult> DeleteCostWork([FromQuery] int contractId)
+        {
+            try
+            {
+                await Logic.DeleteCostWork(contractId);
+                return Json(Ok());
             }
             catch (Exception ex)
             {

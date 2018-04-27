@@ -13,6 +13,7 @@ namespace Teme.Shared.Data.Context
         /// Заявитель
         /// </summary>
         public int DeclarantId { get; set; }
+
         [ForeignKey("DeclarantId")]
         public Declarant Declarant { get; set; }
 
@@ -57,6 +58,13 @@ namespace Teme.Shared.Data.Context
         /// </summary>
         [MaxLength(255)]
         public string BossPositionKz { get; set; }
+
+        /// <summary>
+        /// Id Банка
+        /// </summary>
+        public int? BankId { get; set; }
+        [ForeignKey("BankId")]
+        public Ref_Bank Ref_Bank { get; set; }
 
         /// <summary>
         /// Наименования банка
