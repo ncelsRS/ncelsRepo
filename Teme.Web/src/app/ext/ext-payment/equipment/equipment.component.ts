@@ -13,9 +13,6 @@ import {IconModal} from 'app/shared/IconModal';
 })
 export class EquipmentComponent {
 
-
-
-
   public data = [];
   public settings = {
     selectMode: 'single',  //single|multi

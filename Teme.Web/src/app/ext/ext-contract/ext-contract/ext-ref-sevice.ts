@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class RefService  {
 
-  url="http://localhost:5121/api/Reference/";
+  url="http://localhost:5121/api/reference/";
 
   constructor(private http: HttpClient){ }
 

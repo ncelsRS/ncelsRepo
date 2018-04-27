@@ -38,7 +38,7 @@ export class TestPaymentComponent extends TemplateValidation{
 
   public getData(icons) {
     const req = new XMLHttpRequest();
-    req.open('GET', 'http://localhost:5121/api/Reference/ClassifierMedicalArea');
+    req.open('GET', 'http://localhost:5121/api/reference/ClassifierMedicalArea');
     req.onload = () => {
       icons(JSON.parse(req.response));
     };

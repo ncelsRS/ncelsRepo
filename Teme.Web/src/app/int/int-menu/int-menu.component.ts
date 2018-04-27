@@ -60,6 +60,7 @@ export class IntMenuComponent implements OnInit {
       new Menu (20, 'Заявки', null, null, 'pencil-square-o', null, true, 0),
       new Menu (21, 'Заявки', '/int/spa/declarations', null, 'check-square-o', null, false, 20),
       new Menu (22, 'Заявки', '/int/spa/declarations', null, 'th-large', null, false, 20),
+      new Menu (30, 'Платеж', '/int/spa/payments', null, 'money', null, true, 0),
     ]
   }
 
