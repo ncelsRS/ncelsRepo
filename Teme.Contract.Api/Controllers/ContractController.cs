@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Logic;
+using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Contract.Api.Controllers
 {
@@ -18,11 +20,12 @@ namespace Teme.Contract.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create([FromQuery] ContractTypeEnum contractType)
         {
             try
             {
-                var r = await Logic.Create();
+                if (!ModelState.IsValid) return BadRequest();
+                var r = await Logic.Create(contractType);
                 return Json(r);
             }
             catch (Exception ex)

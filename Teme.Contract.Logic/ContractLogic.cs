@@ -30,13 +30,13 @@ namespace Teme.Contract.Logic
         /// Создание договора
         /// </summary>
         /// <returns></returns>
-        public async Task<object> Create()
+        public async Task<object> Create(ContractTypeEnum contractType)
         {
             var workflowId = await _wflogic.Create();
-            var qwe = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString();
             Shared.Data.Context.Contract contract = new Shared.Data.Context.Contract()
             {
-                WorkflowId = qwe
+                WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
+                ContractType = contractType
             };
             await _repo.CreateContract(contract);            
             return new {
