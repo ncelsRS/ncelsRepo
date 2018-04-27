@@ -9,5 +9,7 @@ namespace Teme.Shared.Data.Context.References
     /// </summary>
     public class Ref_Currency : Reference
     {
+
+        public virtual ICollection<DeclarantDetail> DeclarantDetails { get; set; }
     }
 }

@@ -60,6 +60,13 @@ namespace Teme.Shared.Data.Context
         public string BossPositionKz { get; set; }
 
         /// <summary>
+        /// Id Банка
+        /// </summary>
+        public int? BankId { get; set; }
+        [ForeignKey("BankId")]
+        public Ref_Bank Ref_Bank { get; set; }
+
+        /// <summary>
         /// Наименования банка
         /// </summary>
         [MaxLength(255)]

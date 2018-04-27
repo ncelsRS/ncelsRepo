@@ -31,6 +31,11 @@ namespace Teme.Shared.Data.Context
         public ChosenPayerEnum ChoosePayer { get; set; }
 
         /// <summary>
+        /// scope ЕАЭС или Нац
+        /// </summary>
+        public string ContractScope { get; set; }
+
+        /// <summary>
         /// Номер договора
         /// </summary>
         [MaxLength(255)]
@@ -97,5 +102,9 @@ namespace Teme.Shared.Data.Context
 
         public virtual ICollection<CostWork> CostWorks { get; set; }
 
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

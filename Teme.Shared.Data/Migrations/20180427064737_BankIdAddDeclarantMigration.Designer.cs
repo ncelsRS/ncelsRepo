@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180427064737_BankIdAddDeclarantMigration")]
+    partial class BankIdAddDeclarantMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,9 +54,6 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("Pwdhash")
                         .IsRequired();
 
-                    b.Property<string>("Scopes")
-                        .IsRequired();
-
                     b.Property<string>("UserName")
                         .IsRequired();
 
@@ -74,8 +72,6 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<int>("ChoosePayer");
 
                     b.Property<int>("ContractForm");
-
-                    b.Property<string>("ContractScope");
 
                     b.Property<int>("ContractType");
 
@@ -110,8 +106,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("WorkflowId")
                         .HasMaxLength(50);
-
-                    b.Property<bool>("isDeleted");
 
                     b.HasKey("Id");
 

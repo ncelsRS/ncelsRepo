@@ -7,11 +7,14 @@ namespace Teme.Shared.Data.Context.References
     /// <summary>
     /// Банки(справочник)
     /// </summary>
-    public class Ref_Bank :Reference
+    public class Ref_Bank : Reference
     {
+
         /// <summary>
         /// Признак подвержедения ЦОЗ
         /// </summary>
         public bool IsConfirmed { get; set; } = false;
+
+        public virtual ICollection<DeclarantDetail> DeclarantDetails { get; set; }
     }
 }
