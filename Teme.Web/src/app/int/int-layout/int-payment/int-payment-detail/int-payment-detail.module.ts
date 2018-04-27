@@ -14,6 +14,7 @@ import { IntCostInfoComponent } from './int-cost-info/int-cost-info.component';
 import { IntDataComponent } from './int-data/int-data.component';
 import { IntEquipmentComponent } from './int-equipment/int-equipment.component';
 import { IntSubjectComponent } from './int-subject/int-subject.component';
+import {ContractForm} from 'app/shared/reference/ContractForm';
 
 
 const routes: Routes = [
@@ -48,7 +49,8 @@ const routes: Routes = [
     IntCostInfoComponent,
     IntDataComponent,
     IntEquipmentComponent,
-    IntSubjectComponent
+    IntSubjectComponent,
+    ContractForm
   ],
   exports: [RouterModule],
   entryComponents: [],

@@ -41,7 +41,8 @@ import { PackageUploadBtnComponent } from './ext-declaration/ext-imn-set/package
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent,
     ExtSubjectComponent,
-    PackageUploadBtnComponent],
+    PackageUploadBtnComponent
+  ],
   entryComponents: [
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent

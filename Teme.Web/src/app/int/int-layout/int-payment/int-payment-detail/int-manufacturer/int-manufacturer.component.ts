@@ -1,40 +1,19 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {IconModal} from 'app/shared/IconModal';
 
 @Component({
   selector: 'app-int-manufacturer',
   templateUrl: './int-manufacturer.component.html',
   styleUrls: ['./int-manufacturer.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers:[IconModal]
 })
 export class IntManufacturerComponent implements OnInit {
-  isAddOrgForm = false;
-  isAddBankName = false;
-  public isRes : string;
-  @Input() prnRegisterType: string;
 
-  constructor() { }
+
+  constructor(public iconModal:  IconModal) { }
 
   ngOnInit() {
-  }
-
-  addOrgForm()
-  {
-    this.isAddOrgForm = true;
-  }
-
-  saveOrgForm()
-  {
-    this.isAddOrgForm = false;
-  }
-
-  addBankName()
-  {
-    this.isAddBankName = true;
-  }
-
-  saveBankName()
-  {
-    this.isAddBankName = false;
   }
 
 }

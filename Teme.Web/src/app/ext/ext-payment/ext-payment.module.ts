@@ -13,17 +13,9 @@ import { MultiselectDropdownModule } from 'angular-2-dropdown-multiselect';
 
 import { routing } from './ext-payment.routing';
 import { ExtPaymentComponent } from './ext-payment.component';
-
-
-
 import { PipesModule } from 'app/theme/pipes/pipes.module';
-
-
-
-
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import {FileUploadModule} from 'ng2-file-upload';
-
 import { CostInfoComponent } from './cost-info/cost-info.component';
 import { DataComponent } from './data/data.component';
 import { EquipmentComponent } from './equipment/equipment.component';
@@ -50,21 +42,6 @@ import {ContractForm} from '../../shared/reference/ContractForm';
   ],
   declarations: [
     ExtPaymentComponent,
-
-
-    //HeaderComponent,
-    // FooterComponent,
-    // HorizontalMenuComponent,
-    // BackTopComponent,
-    // FullScreenComponent,
-    // ApplicationsComponent,
-    // MessagesComponent,
-    // UserMenuComponent,
-    // FlagsMenuComponent,
-    // FavoritesComponent,
-    // BlankComponent,
-    // SearchComponent,
-
     CostInfoComponent,
     DataComponent,
     EquipmentComponent,

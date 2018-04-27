@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {FileUploader} from "ng2-file-upload";
+import {IconModal} from 'app/shared/IconModal';
 
 const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
 
@@ -7,14 +8,17 @@ const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
   selector: 'app-int-attachments',
   templateUrl: './int-attachments.component.html',
   styleUrls: ['./int-attachments.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    IconModal
+  ]
 })
 export class IntAttachmentsComponent implements OnInit {
   uploader: FileUploader;
   hasBaseDropZoneOver: boolean;
   hasAnotherDropZoneOver: boolean;
   response: string;
-  constructor() {
+  constructor(public iconModal:  IconModal) {
     this.uploader = new FileUploader({
       url: URL,
       disableMultipart: true, // 'DisableMultipart' must be 'true' for formatDataFunction to be called.

@@ -1,6 +1,9 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {Component, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {FileUploader} from 'ng2-file-upload';
 import {IconModal} from 'app/shared/IconModal';
+import {TemplateValidation} from '../../../shared/TemplateValidation';
+import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {DataComponent} from '../data/data.component';
 
 const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
 
@@ -9,11 +12,20 @@ const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
   templateUrl: './attachments.component.html',
   styleUrls: ['./attachments.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  providers: [
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => AttachmentsComponent),
+    multi: true
+  }, {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(() => AttachmentsComponent),
+    multi: true
+  },
     IconModal
   ]
 })
-export class AttachmentsComponent {
+export class AttachmentsComponent extends TemplateValidation {
+  @Input() showErrors = false;
 
   uploader: FileUploader;
   hasBaseDropZoneOver: boolean;
@@ -21,6 +33,7 @@ export class AttachmentsComponent {
   response: string;
 
   constructor(public iconModal:  IconModal) {
+    super();
     this.uploader = new FileUploader({
       url: URL,
       disableMultipart: true, // 'DisableMultipart' must be 'true' for formatDataFunction to be called.

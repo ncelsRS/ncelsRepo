@@ -13,8 +13,8 @@ import {reference} from './reference';
       <option value="" disabled selected>-- Выберите значение --</option>
       <option *ngFor="let item of items" [value]="item.id">{{item.nameRu}}</option>
     </select>
-    {{model}}
-    <button type="button" (click)="getTest()" class="btn btn-warning btn-sm">Test</button>
+    <!--{{model}}-->
+    <!--<button type="button" (click)="getTest()" class="btn btn-warning btn-sm">Test</button>-->
   `,
   styles: [],
   providers: [{
