@@ -7,7 +7,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Aspose.BarCode;
 using Aspose.Words;
-using Aspose.Words.Drawing;
+using Aspose.Words.Drawing;    
+using MessagingToolkit.QRCode.Codec;
+using MessagingToolkit.QRCode.Codec.Data;
 
 namespace Ncels.Helpers
 {
@@ -25,7 +27,7 @@ namespace Ncels.Helpers
         public static void InserQrCodes(this Document document, string placeHolder, string barCodeData)
         {
             Regex regex = new Regex(string.Format("{{{{{0}}}}}", placeHolder), RegexOptions.IgnoreCase);
-            int maxStrLength = 800;
+            int maxStrLength = 100;
             FindMatchedNodes searchResult = new FindMatchedNodes();
             document.Range.Replace(regex, searchResult, false);
             foreach (Node node in searchResult.nodes)
@@ -45,6 +47,12 @@ namespace Ncels.Helpers
                         barCodeBuilder.CodeLocation = CodeLocation.None;
                         barCodeBuilder.GraphicsUnit = GraphicsUnit.Pixel;
                         barCodeBuilder.Margins.Set(0);
+                        
+                        //QRCodeEncoder encoder = new QRCodeEncoder();
+                        //Bitmap qrcode = new Bitmap(encoder.Encode(qrCodeText), 150, 150);
+                        //MemoryStream im = new MemoryStream();
+                        //qrcode.Save(im, ImageFormat.Png);
+                        
                         // Allows to set size for whole picture with barcode inside and Save image on local disk
                         Bitmap bitmap = barCodeBuilder.GetCustomSizeBarCodeImage(new Size(150, 150), false);
                         MemoryStream img = new MemoryStream();

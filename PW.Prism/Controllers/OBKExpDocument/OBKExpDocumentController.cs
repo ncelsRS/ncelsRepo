@@ -409,6 +409,12 @@ namespace PW.Prism.Controllers.OBKExpDocument
                 report.Dictionary.Variables["AssessmentDeclarationId"].ValueObject = id;
                 report.Dictionary.Variables["StartMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpStartDate);
                 report.Dictionary.Variables["StartMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpStartDate);
+
+                if (expDocument.ExpEndDate != null)
+                {
+                    expDocument.ExpEndDate = ((DateTime)expDocument.ExpEndDate).AddMonths(1);
+                }
+
                 report.Dictionary.Variables["EndMonthRu"].ValueObject = MonthHelper.getMonthRu(expDocument.ExpEndDate);
                 report.Dictionary.Variables["EndMonthKz"].ValueObject = MonthHelper.getMonthKz(expDocument.ExpEndDate);
 
@@ -662,10 +668,18 @@ namespace PW.Prism.Controllers.OBKExpDocument
                             series.Id = productSeries.Id;
                             series.Series = productSeries.Series;
                             series.SeriesStartdate = productSeries.SeriesStartdate;
-                            series.SeriesEndDate = productSeries.SeriesEndDate;
+                            DateTime endDate = new DateTime();
+                            var validDate = DateTime.TryParse(productSeries.SeriesEndDate, out endDate);
+                            var endDateString = productSeries.SeriesEndDate;
+                            if (validDate == true)
+                            {
+                                endDate = endDate.AddMonths(1);
+                                endDateString = endDate.ToString("dd.MM.yyyy");
+                            }
+                            series.SeriesEndDate = endDateString;
                             series.SeriesParty = productSeries.SeriesParty;
                             series.SeriesShortNameRu = productSeries.sr_measures.short_name;
-                            series.SeriesNameRu = productSeries.Series + ", годен до " + productSeries.SeriesEndDate +
+                            series.SeriesNameRu = productSeries.Series + ", годен до " + endDateString +
                                                   ", партия " + productSeries.SeriesParty + " " +
                                                   productSeries.SeriesShortNameRu;
 
@@ -688,8 +702,7 @@ namespace PW.Prism.Controllers.OBKExpDocument
                                     : "Не соответствует требованиям";
                                 series.ExpStartDate =
                                     string.Format("{0:dd.MM.yyyy}", obkStageExpDocumentSeries.ExpStartDate);
-                                series.ExpEndDate =
-                                    string.Format("{0:dd.MM.yyyy}", obkStageExpDocumentSeries.ExpEndDate);
+                                series.ExpEndDate = endDateString;
                                 series.ExpReasonNameRu = obkStageExpDocumentSeries.ExpReasonNameRu;
                                 series.ExpReasonNameKz = obkStageExpDocumentSeries.ExpReasonNameKz;
                                 series.ExpProductNameRu = obkStageExpDocumentSeries.ExpProductNameRu;

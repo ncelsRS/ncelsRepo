@@ -392,6 +392,8 @@ namespace PW.Ncels.Controllers
             try
             {
                 var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
+                if(signData != null && signData.ApplicantSign != null)
+                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
                 if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
                 {
                     doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
