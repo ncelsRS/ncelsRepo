@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+п»їusing Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
@@ -35,9 +35,9 @@ namespace RSC.IdentityServer4
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            // получаем строку подключения из файла конфигурации
+            // РїРѕР»СѓС‡Р°РµРј СЃС‚СЂРѕРєСѓ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РёР· С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            // добавляем контекст TemeContext в качестве сервиса в приложение
+            // РґРѕР±Р°РІР»СЏРµРј РєРѕРЅС‚РµРєСЃС‚ TemeContext РІ РєР°С‡РµСЃС‚РІРµ СЃРµСЂРІРёСЃР° РІ РїСЂРёР»РѕР¶РµРЅРёРµ
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
             services.AddMvc();
 

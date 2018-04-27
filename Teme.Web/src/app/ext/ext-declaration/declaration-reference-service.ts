@@ -7,7 +7,7 @@ const httpOptions = {
 
 @Injectable()
 export class DeclarationReferenceService {
-  url = 'http://localhost:5121/api/Reference/';
+  url = 'http://localhost:5121/api/reference/';
 
   constructor(private http: HttpClient) {
   }

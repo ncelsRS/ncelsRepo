@@ -1,26 +1,20 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import {FileUploader} from 'ng2-file-upload';
-import {IconModal} from 'app/shared/IconModal';
+import {FileUploader} from "ng2-file-upload";
 
 const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
 
 @Component({
-  selector: 'app-attachments',
-  templateUrl: './attachments.component.html',
-  styleUrls: ['./attachments.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  providers: [
-    IconModal
-  ]
+  selector: 'app-int-attachments',
+  templateUrl: './int-attachments.component.html',
+  styleUrls: ['./int-attachments.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
-export class AttachmentsComponent {
-
+export class IntAttachmentsComponent implements OnInit {
   uploader: FileUploader;
   hasBaseDropZoneOver: boolean;
   hasAnotherDropZoneOver: boolean;
   response: string;
-
-  constructor(public iconModal:  IconModal) {
+  constructor() {
     this.uploader = new FileUploader({
       url: URL,
       disableMultipart: true, // 'DisableMultipart' must be 'true' for formatDataFunction to be called.
@@ -42,8 +36,8 @@ export class AttachmentsComponent {
     this.response = '';
 
     this.uploader.response.subscribe(res => this.response = res);
-  }
 
+  }
   public fileOverBase(e: any): void {
     this.hasBaseDropZoneOver = e;
   }
@@ -51,4 +45,8 @@ export class AttachmentsComponent {
   public fileOverAnother(e: any): void {
     this.hasAnotherDropZoneOver = e;
   }
+  ngOnInit() {
+  }
+
 }
+

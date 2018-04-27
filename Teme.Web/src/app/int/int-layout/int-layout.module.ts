@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { IntDeclarationBtnComponent } from './int-declaration/int-declaration-btn/int-declaration-btn.component';
 import { IntDeclarationDetailComponent } from './int-declaration/int-declaration-detail/int-declaration-detail.component';
 import { IntPaymentComponent } from './int-payment/int-payment.component';
+import { IntPaymentBtnComponent } from './int-payment/int-payment-btn/int-payment-btn.component';
+import { IntPaymentDetailComponent } from './int-payment/int-payment-detail/int-payment-detail.component';
 
 const routes: Routes = [
   {
@@ -34,9 +36,15 @@ const routes: Routes = [
     component:IntDeclarationDetailComponent
   },
   {
-    path: 'payment',
+    path: 'payments',
     component:IntPaymentComponent
-  }
+  },
+  {
+    path: 'payments/:id',
+    component:IntPaymentDetailComponent,
+    loadChildren:'./int-payment/int-payment-detail/int-payment-detail.module#IntPaymentDetailModule'
+  },
+
 ];
 
 
@@ -58,11 +66,14 @@ const routes: Routes = [
     IntDeclarationBtnComponent,
     IntDeclarationDetailComponent,
     IntPaymentComponent,
+    IntPaymentBtnComponent,
+    IntPaymentDetailComponent,
   ],
   exports: [RouterModule],
   entryComponents: [
     IntContractBtnComponent,
-    IntDeclarationBtnComponent
+    IntDeclarationBtnComponent,
+    IntPaymentBtnComponent,
   ],
 })
 

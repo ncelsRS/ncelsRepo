@@ -1,27 +1,32 @@
 <form #templateForm="ngForm" (change)="model=model">
-  <div class="row">
-    <div class="col-sm-4">
-      <label >Вид регистранции</label>
-    </div>
-    
-    <div class="col-sm-4">
-      <div class="input-group">
-        <app-reference-contract-form-validation
-          style="width: calc(100% - 40px);" [showErrors]="showAllErr" name="ContractForm"
-          [(ngModel)]="model.contractForm" required #ContractForm="ngModel"
-        ></app-reference-contract-form-validation>
-        <div class="input-group-append" (click)="iconModal.showIconModal()">
-          <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+
+  <div class="container">
+    <br>
+    <h2>Данные по договору на проведение экспертизы</h2>
+    <br>
+    <div class="row">
+      <div class="col-sm-2">
+        <h6>Вид регистранции</h6>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="input-group">
+          <app-reference-contract-form-validation [showItemErrors]="showErrors"
+                                                  style="width: calc(100% - 40px);" name="ContractForm2"
+                                                  [(ngModel)]="model.contractForm" required #ContractForm1="ngModel"
+          ></app-reference-contract-form-validation>{{model.contractForm}}
+          <div class="input-group-append" (click)="iconModal.showIconModal()">
+            <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
+    <button type="button" (click)="getTest()" class="btn btn-warning btn-sm">Тест сведение</button>
+    <br>
 
-  <div class="container">
-    <h2>Данные по договору на проведение экспертизы</h2>
     <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-6">
         <div class="form-group">
           <label [ngClass]="{'has-error-text':showErrors === true && contractNumber.invalid}">Номер договора</label>
           <div class="input-group">
@@ -69,13 +74,14 @@
       </div>
     </div>
 
+
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-md-6">
         <div class="row">
-          <div class="col-md-6 text-right px-2">
+          <div class="col-md-3">
             <label for="typeRegistration">Вид регистрации</label>
           </div>
-          <div class="col-md-6 px-2">
+          <div class="col-md-9">
             <div class="input-group">
               <input type="text" class="form-control" id="typeRegistration" placeholder="0">
               <div class="input-group-append" (click)="iconModal.showIconModal()">
@@ -84,14 +90,18 @@
             </div>
           </div>
         </div>
+
       </div>
-      <div class="col-sm-4">
-        <div class="input-group">
+
+      <div class="col-md-3">
+        <div class="input-group ">
           <div class="input-group-append" (click)="iconModal.showIconModal()">
             <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
           </div>
-          <label>Тип</label>
+          <label class="text-right">Тип</label>
         </div>
+      </div>
+      <div class="col-md-3">
         <div class="form-group">
           <div class="form-check form-check-inline">
             <label class="form-check-label">
@@ -107,112 +117,177 @@
       </div>
     </div>
 
-    <h2>Поиск в реестре МИ</h2>
-    <div class="row">
-      <div class="col-sm-3">
-        <div class="form-group">
-          <label for="registrationNumber">Регистрационный номер</label>
-          <div class="input-group">
-            <input type="text" class="form-control" id="registrationNumber" placeholder="Торговое название">
-            <div class="input-group-append" (click)="iconModal.showIconModal()">
-              <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+    <br>
+
+    <div *ngIf="childData.contractForm!='1'">
+      <div class="card card-outline-primary text-center">
+        <div class="card-body">
+          <br>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label>№ регистрационного удостоверения*</label>
+                <div class="input-group">
+                  <input class="form-control" placeholder="Номер договора" required>
+                  <div class="input-group-append" (click)="iconModal.showIconModal()">
+                    <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Дата регистрации</label>
+              <div class="input-group">
+
+                <input class="form-control" placeholder="дд.мм.гггг"
+                       name="dp" [(ngModel)]="modelCustom" ngbDatepicker [dayTemplate]="customDay"
+                       [markDisabled]="isDisabled"
+                       #dc="ngbDatepicker">
+                <div class="input-group-append" (click)="dc.toggle()">
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                </div>
+                <div class="input-group-append" (click)="iconModal.showIconModal()">
+                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Срок действия</label>
+              <div class="input-group">
+
+                <input class="form-control" placeholder="дд.мм.гггг"
+                       name="dp" [(ngModel)]="modelCustom2" ngbDatepicker [dayTemplate]="customDay"
+                       [markDisabled]="isDisabled"
+                       #dc2="ngbDatepicker">
+                <div class="input-group-append" (click)="dc2.toggle()">
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                </div>
+                <div class="input-group-append" (click)="iconModal.showIconModal()">
+                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="col-sm-3">
-        <div class="form-group">
-          <label for="tradename">Торговое название</label>
-          <div class="input-group">
-            <input type="text" class="form-control" id="tradeName" placeholder="Торговое название">
-            <div class="input-group-append" (click)="iconModal.showIconModal()">
-              <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+
+
+          <h2>Поиск в реестре МИ</h2>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="registrationNumber">Регистрационный номер</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="registrationNumber" placeholder="Торговое название">
+                  <div class="input-group-append" (click)="iconModal.showIconModal()">
+                    <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="form-group">
-          <label>Тип услуги</label>
-
-          <div class="input-group">
-            <select class="form-control fa-select">
-              <option value="" disabled selected>Select something...</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-            </select>
-            <div class="input-group-append" (click)="iconModal.showIconModal()">
-              <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
-            </div>
-          </div>
-
-        </div>
-        <fieldset class="form-group">
-          <div class="input-group">
-            <div class="input-group-append" (click)="iconModal.showIconModal()">
-              <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
-            </div>
-            <div>
-              <legend>Выбор производителя</legend>
-            </div>
-          </div>
-          <div class="form-check">
-            <label class="form-check-label">
-              <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1">
-              Стоимость зарубежного производителя
-            </label>
-          </div>
-          <div class="form-check">
-            <label class="form-check-label">
-              <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2">
-              Стоимость отечественного производителя
-            </label>
-          </div>
-        </fieldset>
-      </div>
-
-      <div class="col-sm-4">
-        <div class="form-group">
-          <label>Дополнительные услуги</label>
-          <div class="input-group">
-            <select class="form-control fa-select">
-              <option value="" disabled selected>Select something...</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-            </select>
-            <div class="input-group-append" (click)="iconModal.showIconModal()">
-              <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 text-right px-2">
-            <label for="number">Количесво:</label>
-          </div>
-          <div class="col-md-6 px-2">
-            <div class="input-group">
-              <input type="text" class="form-control" id="number" placeholder="0">
-              <div class="input-group-append" (click)="iconModal.showIconModal()">
-                <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="tradename">Торговое название</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="tradeName" placeholder="Торговое название">
+                  <div class="input-group-append" (click)="iconModal.showIconModal()">
+                    <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <br>
 
-    <div class="row justify-content-center">
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-info w-100p mb-1">Узнать цену</button>
+    <div class="card card-outline-primary">
+      <div class="card-header bg-gray">Калькулятор по услуге Экспертные работы ИМН/МТ</div>
+      <div class="card-body">
+
+
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label>Тип услуги</label>
+
+              <div class="input-group">
+                <select class="form-control fa-select">
+                  <option value="" disabled selected>Select something...</option>
+                  <option value="1">One</option>
+                  <option value="2">Two</option>
+                </select>
+                <div class="input-group-append" (click)="iconModal.showIconModal()">
+                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                </div>
+              </div>
+
+            </div>
+            <fieldset class="form-group">
+              <div class="input-group">
+                <div class="input-group-append" (click)="iconModal.showIconModal()">
+                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                </div>
+                <div>
+                  <legend>Выбор производителя</legend>
+                </div>
+              </div>
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1">
+                  Стоимость зарубежного производителя
+                </label>
+              </div>
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2">
+                  Стоимость отечественного производителя
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label>Дополнительные услуги</label>
+              <div class="input-group">
+                <select class="form-control fa-select">
+                  <option value="" disabled selected>Select something...</option>
+                  <option value="1">One</option>
+                  <option value="2">Two</option>
+                </select>
+                <div class="input-group-append" (click)="iconModal.showIconModal()">
+                  <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 text-right px-2">
+                <label for="number">Количесво:</label>
+              </div>
+              <div class="col-md-6 px-2">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="number" placeholder="0">
+                  <div class="input-group-append" (click)="iconModal.showIconModal()">
+                    <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-info w-100p mb-1">Узнать цену</button>
+          </div>
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-gray w-100p mb-1">Очистить</button>
+          </div>
+        </div>
       </div>
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-gray w-100p mb-1">Очистить</button>
-      </div>
+
     </div>
 
   </div>

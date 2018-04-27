@@ -33,7 +33,7 @@ export class ExtPaymentComponent implements OnInit {
 
   public declaration: any = {
     costInfo: {
-      contractForm: "",
+      contractForm: "1",
       contractNumber: null,
       conclusionBeginDate: null,
       conclusionEndDate: null,
@@ -59,7 +59,7 @@ export class ExtPaymentComponent implements OnInit {
     },
     testPayment: {
       testSelect: null,
-      contractForm: "1"
+      contractForm: null
     }
   };
   //отключение заставки
@@ -72,4 +72,8 @@ export class ExtPaymentComponent implements OnInit {
   },{
     value: "v2", label: "f2"
   }]
+
+  getTestVar(){
+    console.log(this.declaration);
+  }
 }
