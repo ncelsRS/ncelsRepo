@@ -37,5 +37,9 @@ export class DeclarationReferenceService {
     return promise;
   }
 
+  public getCurrency(){
+    let promise = this.http.get(this.url + 'Currency').toPromise();
+    return promise;
+  }
 
 }

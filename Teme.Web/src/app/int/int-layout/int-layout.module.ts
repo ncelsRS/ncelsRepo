@@ -33,7 +33,8 @@ const routes: Routes = [
   },
   {
     path: 'declarations/:id',
-    component:IntDeclarationDetailComponent
+    component:IntDeclarationDetailComponent,
+    loadChildren:'./int-declaration/int-declaration-detail/int-declaration-detail.module#IntDeclarationDetailModule'
   },
   {
     path: 'payments',

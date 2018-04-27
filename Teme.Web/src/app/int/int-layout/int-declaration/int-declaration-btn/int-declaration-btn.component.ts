@@ -21,7 +21,7 @@ export class IntDeclarationBtnComponent implements OnInit {
   }
 
   onClick() {
-    window.open("/int/spa/declaration/1")
+    window.open("/int/spa/declarations/1")
   }
 
 }
