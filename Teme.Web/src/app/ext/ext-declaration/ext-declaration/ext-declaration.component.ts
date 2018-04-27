@@ -48,7 +48,8 @@ export class ExtDeclarationComponent implements OnInit {
       vitroDiagnostic: null,
       withoutAE: null,
       transportationCondition: null,
-      storageCondition: null
+      storageCondition: null,
+      closedSystem: null,
     },
     producer: {
       producer: null,

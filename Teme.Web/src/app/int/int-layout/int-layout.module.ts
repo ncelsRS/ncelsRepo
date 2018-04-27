@@ -33,10 +33,10 @@ const routes: Routes = [
     component:IntDeclarationDetailComponent,
     loadChildren:'./int-declaration/int-declaration-detail/int-declaration-detail.module#IntDeclarationDetailModule'
   },
-  {
-    path: 'payment',
-    component:IntPaymentComponent
-  }
+  // {
+  //   path: 'payment',
+  //   component:IntPaymentComponent
+  // }
 ];
 
 
