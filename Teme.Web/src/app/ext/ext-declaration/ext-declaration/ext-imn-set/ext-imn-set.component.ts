@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {PackageUploadBtnComponent} from "./package-upload-btn/package-upload-btn.component";
+import {IntDeclarationBtnComponent} from "../../../../int/int-layout/int-declaration/int-declaration-btn/int-declaration-btn.component";
 
 @Component({
   selector: 'app-ext-imn-set',
@@ -148,8 +149,14 @@ export class ExtImnSetComponent implements OnInit {
         type: 'string'
       },
       choose: {
-        title: 'Выберите',
-        type: 'string'
+        title: 'Файл',
+        type: 'custom',
+        renderComponent: PackageUploadBtnComponent,
+        onComponentInitFunction(instance) {
+          instance.save.subscribe(row => {
+            alert(`${row.name} saved!`)
+          });
+        }
       }
     },
     pager: {
