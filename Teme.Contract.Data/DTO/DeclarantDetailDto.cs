@@ -1,90 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using Teme.Shared.Data.Context.References;
 
-namespace Teme.Shared.Data.Context
+namespace Teme.Contract.Data.DTO
 {
-    /// <summary>
-    /// Детали заявителя
-    /// </summary>
-    public class DeclarantDetail : BaseEntity
+    public class DeclarantDetailDto
     {
+        public int Id { get; set; }
         /// <summary>
         /// Заявитель
         /// </summary>
         public int DeclarantId { get; set; }
 
-        [ForeignKey("DeclarantId")]
-        public Declarant Declarant { get; set; }
-
         /// <summary>
         /// Юридический адрес
         /// </summary>
-        [MaxLength(255)]
         public string LegalAddress { get; set; }
 
         /// <summary>
         /// Фактический адрес
         /// </summary>
-        [MaxLength(255)]
         public string FactAddress { get; set; }
 
         /// <summary>
         /// Фамилия первого руководителя
         /// </summary>
-        [MaxLength(255)]
         public string BossLastName { get; set; }
 
         /// <summary>
         /// Имя первого руководителя
         /// </summary>
-        [MaxLength(255)]
         public string BossFirstName { get; set; }
 
         /// <summary>
         /// Отчество первого руководителя
         /// </summary>
-        [MaxLength(255)]
         public string BossMiddleName { get; set; }
 
         /// <summary>
         /// Должность первого руководителя на русском языке
         /// </summary>
-        [MaxLength(255)]
         public string BossPositionRu { get; set; }
 
         /// <summary>
         /// Должность первого руководителя на государственном языке
         /// </summary>
-        [MaxLength(255)]
         public string BossPositionKz { get; set; }
-
-        /// <summary>
-        /// Id Банка
-        /// </summary>
-        public int? BankId { get; set; }
-        [ForeignKey("BankId")]
-        public Ref_Bank Ref_Bank { get; set; }
 
         /// <summary>
         /// Наименования банка
         /// </summary>
-        [MaxLength(255)]
         public string BankName { get; set; }
 
         /// <summary>
         /// Расчетный счет и ИИК
         /// </summary>
-        [MaxLength(255)]
         public string BankIik { get; set; }
 
         /// <summary>
         /// Бик и SWIFT
         /// </summary>
-        [MaxLength(255)]
         public string BankSwift { get; set; }
 
         /// <summary>
@@ -96,22 +69,17 @@ namespace Teme.Shared.Data.Context
         /// Валюта
         /// </summary>
         public int? CurrencyId { get; set; }
-        [ForeignKey("CurrencyId")]
-        public Ref_Currency Ref_Currency { get; set; }
 
         /// <summary>
         /// Номер телефона
         /// </summary>
-        [MaxLength(20)]
         public string Phone { get; set; }
 
-        [MaxLength(20)]
         public string Phone2 { get; set; }
 
         /// <summary>
         /// email
         /// </summary>
-        [MaxLength(255)]
         public string Email { get; set; }
 
         /// <summary>
@@ -127,7 +95,6 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// № документа *
         /// </summary>
-        [MaxLength(255)]
         public string DeclarantDocNumber { get; set; }
 
         /// <summary>
@@ -144,9 +111,5 @@ namespace Teme.Shared.Data.Context
         /// Бессрочный
         /// </summary>
         public bool DeclarantPerpetualDoc { get; set; }
-
-        public virtual ICollection<Contract> DeclarantDetailContract { get; set; }
-        public virtual ICollection<Contract> ManufacturDetailContract { get; set; }
-        public virtual ICollection<Contract> PayerDetailContract { get; set; }
     }
 }

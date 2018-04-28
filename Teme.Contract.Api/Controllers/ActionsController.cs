@@ -13,19 +13,19 @@ namespace Teme.Contract.Api.Controllers
         {
         }
 
-        [Route("contract/{contractId}")]
+        [Route("contract/{workflowId}")]
         [HttpGet]
-        public async Task<IActionResult> List([FromRoute] [Required] string contractId)
+        public async Task<IActionResult> List([FromRoute] [Required] string workflowId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
-                var r = await Logic.OpenUserActions(contractId);
+                var r = await Logic.OpenUserActions(workflowId);
                 return Json(r);
             }
             catch (Exception ex)
             {
-                return ExceptionResult(ex, contractId);
+                return ExceptionResult(ex, workflowId);
             }
         }
     }

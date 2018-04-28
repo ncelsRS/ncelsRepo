@@ -15,6 +15,17 @@
             /// </summary>
             public const string IsDeclarant = "IsDeclarant";
         }
+
+        /// <summary>
+        /// Разрешения дл внутреннего портала
+        /// </summary>
+        public class IntPortal
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public const string IsChief = "IsChief";
+        }
         
     }
 }

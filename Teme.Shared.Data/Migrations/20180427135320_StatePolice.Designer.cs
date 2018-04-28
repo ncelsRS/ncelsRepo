@@ -12,9 +12,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180427135320_StatePolice")]
+    partial class StatePolice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,6 +54,9 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("Pwdhash")
                         .IsRequired();
 
+                    b.Property<string>("Scopes")
+                        .IsRequired();
+
                     b.Property<string>("UserName")
                         .IsRequired();
 
@@ -61,28 +65,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuthUsers");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("AuthUserId");
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<string>("Scope");
-
-                    b.Property<int>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthUserId");
-
-                    b.ToTable("AuthUserScopes");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.Contract", b =>
@@ -689,13 +671,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasIndex("ContractId");
 
                     b.ToTable("UserForActions");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>
-                {
-                    b.HasOne("Teme.Shared.Data.Context.AuthUser")
-                        .WithMany("Scopes")
-                        .HasForeignKey("AuthUserId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.Contract", b =>

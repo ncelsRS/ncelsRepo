@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Data;
+using Teme.Contract.Data.DTO;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Data.Repos.ContractRepo;
 using Teme.Shared.Logic.ContractLogic;
@@ -19,27 +21,32 @@ namespace Teme.Contract.Logic
     {
         private readonly IContractWorkflowLogic _wflogic;
         private readonly IContractRepo _repo;
+        private readonly IContractStatePolicyLogic _contractSp;
+        private readonly IConvertDtoRepo _dtoRepo;
 
-        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic) : base(repo)
+        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic, IContractStatePolicyLogic contractSp, IConvertDtoRepo dtoRepo) : base(repo)
         {
             _wflogic = wflogic;
+            _contractSp = contractSp;
             _repo = repo;
+            _dtoRepo = dtoRepo;
         }
 
         /// <summary>
         /// Создание договора
         /// </summary>
         /// <returns></returns>
-        public async Task<object> Create(int contractType, string contractScope)
+        public async Task<object> Create(ContractTypeEnum contractType, string contractScope)
         {
             var workflowId = await _wflogic.Create();
             Shared.Data.Context.Contract contract = new Shared.Data.Context.Contract()
             {
                 WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
-                ContractType = (ContractTypeEnum)contractType,
+                ContractType = contractType,
                 ContractScope = contractScope
             };
-            await _repo.CreateContract(contract);            
+            await _repo.CreateContract(contract);
+            await _repo.SaveStatePolice(_contractSp.GetStatePolicy("DeclarantCreateContract", contract.Id), contract.Id);
             return new {
                 contract.Id,
                 contract.WorkflowId,
@@ -61,45 +68,7 @@ namespace Teme.Contract.Logic
         {
             var declarant = await _repo.SearchDeclarantResident(iin);
             if(declarant != null)
-            {
-                var detail = declarant.DeclarantDetails.OrderByDescending(e => e.DateCreate).FirstOrDefault();
-                return new DeclarantModel {
-                    Id = declarant.Id,
-                    IdNumber = declarant.IdNumber,
-                    NameRu = declarant.NameRu,
-                    NameKz = declarant.NameKz,
-                    NameEn = declarant.NameEn,
-                    CountryId = declarant.CountryId,
-                    OrganizationFormId = declarant.OrganizationFormId,
-                    IsResident = declarant.IsResident,
-                    DeclarantDetailModel = new DeclarantDetailModel
-                    {
-                        Id = detail.Id,
-                        DeclarantId = detail.DeclarantId,
-                        LegalAddress = detail.LegalAddress,
-                        FactAddress = detail.FactAddress,
-                        BossLastName = detail.BossLastName,
-                        BossFirstName = detail.BossFirstName,
-                        BossMiddleName = detail.BossMiddleName,
-                        BossPositionRu = detail.BossPositionRu,
-                        BossPositionKz = detail.BossPositionKz,
-                        BankName = detail.BankName,
-                        BankIik = detail.BankIik,
-                        BankSwift = detail.BankSwift,
-                        BankBin =detail.BankBin,
-                        CurrencyId = detail.CurrencyId,
-                        Phone = detail.Phone,
-                        Phone2 = detail.Phone2,
-                        Email = detail.Email,
-                        DeclarantDocType = detail.DeclarantDocType,
-                        DeclarantDocWithoutNumber =detail.DeclarantDocWithoutNumber,
-                        DeclarantDocNumber = detail.DeclarantDocNumber,
-                        DeclarantDocStartDate = detail.DeclarantDocStartDate,
-                        DeclarantDocEndDate = detail.DeclarantDocEndDate,
-                        DeclarantPerpetualDoc = detail.DeclarantPerpetualDoc
-                    }
-                };
-            }
+                return _dtoRepo.ConvertEntityToDeclarant(declarant);
             return null;
         }
 
@@ -125,46 +94,7 @@ namespace Teme.Contract.Logic
         {
             var declarant = await _repo.GetDeclarant(id);
             if (declarant != null)
-            {
-                var detail = declarant.DeclarantDetails.OrderByDescending(e => e.DateCreate).FirstOrDefault();
-                return new DeclarantModel
-                {
-                    Id = declarant.Id,
-                    IdNumber = declarant.IdNumber,
-                    NameRu = declarant.NameRu,
-                    NameKz = declarant.NameKz,
-                    NameEn = declarant.NameEn,
-                    CountryId = declarant.CountryId,
-                    OrganizationFormId = declarant.OrganizationFormId,
-                    IsResident = declarant.IsResident,
-                    DeclarantDetailModel = new DeclarantDetailModel
-                    {
-                        Id = detail.Id,
-                        DeclarantId = detail.DeclarantId,
-                        LegalAddress = detail.LegalAddress,
-                        FactAddress = detail.FactAddress,
-                        BossLastName = detail.BossLastName,
-                        BossFirstName = detail.BossFirstName,
-                        BossMiddleName = detail.BossMiddleName,
-                        BossPositionRu = detail.BossPositionRu,
-                        BossPositionKz = detail.BossPositionKz,
-                        BankName = detail.BankName,
-                        BankIik = detail.BankIik,
-                        BankSwift = detail.BankSwift,
-                        BankBin = detail.BankBin,
-                        CurrencyId = detail.CurrencyId,
-                        Phone = detail.Phone,
-                        Phone2 = detail.Phone2,
-                        Email = detail.Email,
-                        DeclarantDocType = detail.DeclarantDocType,
-                        DeclarantDocWithoutNumber = detail.DeclarantDocWithoutNumber,
-                        DeclarantDocNumber = detail.DeclarantDocNumber,
-                        DeclarantDocStartDate = detail.DeclarantDocStartDate,
-                        DeclarantDocEndDate = detail.DeclarantDocEndDate,
-                        DeclarantPerpetualDoc = detail.DeclarantPerpetualDoc
-                    }
-                };
-            }
+                return _dtoRepo.ConvertEntityToDeclarant(declarant);
             return null;
         }
 
@@ -245,9 +175,19 @@ namespace Teme.Contract.Logic
             return new { contractId = costWorkModel.First().ContractId };
         }
 
+        /// <summary>
+        /// Удаление сохраненных данных калькулятора
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         public async Task DeleteCostWork(int contractId)
         {
             await _repo.DeleteCostWork(contractId);
         }
+
+        //public async Task GetListContracts() //int userId
+        //{
+        //    await _repo.GetListContracts();
+        //}
     }
 }

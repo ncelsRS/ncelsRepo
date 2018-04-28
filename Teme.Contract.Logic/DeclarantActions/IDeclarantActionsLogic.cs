@@ -7,6 +7,6 @@ namespace Teme.Contract.Logic.DeclarantActions
 {
     public interface IDeclarantActionsLogic : IBaseLogic
     {
-        Task<object> PublishUserAction(string userPromt, string userOption, string contractId);
+        Task<object> PublishUserAction(string userPromt, string userOption, string workflowId);
     }
 }

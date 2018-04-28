@@ -1,4 +1,6 @@
-﻿namespace Teme.Shared.Data.Context
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Teme.Shared.Data.Context
 {
     /// <summary>
     /// Видимости и разрешения
@@ -9,10 +11,16 @@
         /// Ид договора
         /// </summary>
         public int ContractId { get; set; }
+        [ForeignKey("ContractId")]
+        public Contract Contract { get; set; }
         /// <summary>
-        /// Ид скоупа из воркфлоу или Ид разрешения
+        /// Ид разрешения
         /// </summary>
-        public int PermissionScopeId { get; set; }
+        public string Permission { get; set; }
+        /// <summary>
+        /// Ид скоупа из воркфлоу
+        /// </summary>
+        public string Scope { get; set; }
         /// <summary>
         /// Статус для текущего правила
         /// </summary>

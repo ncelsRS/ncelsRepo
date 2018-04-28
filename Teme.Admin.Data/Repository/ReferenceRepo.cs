@@ -142,7 +142,7 @@ namespace Teme.Admin.Data.Repository
         /// </summary>
         /// <returns></returns>
         public async Task<IQueryable<Ref_ServiceType>> CalculatorServiceType(int applicationTypeId) 
-            => await Task.Run(() => _context.Ref_ServiceTypes.Include(e => e.Children).AsQueryable().Where(x => !x.IsDeleted && x.ApplicationTypeId == applicationTypeId));
+            => await Task.Run(() => _context.Ref_ServiceTypes.Include(e => e.Children).AsQueryable().Where(x => !x.IsDeleted && x.ApplicationTypeId == applicationTypeId && x.ParentId == null));
 
         /// <summary>
         /// Налог на добавленную стоимость 
