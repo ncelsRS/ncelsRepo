@@ -108,5 +108,12 @@ namespace Teme.Contract.Data
             Context.CostWorks.RemoveRange(cws);
             await Context.SaveChangesAsync();
         }
+
+        public async Task SaveStatePolice(List<Context.StatePolicy> statePolicies, int contractId)
+        {
+            Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync());
+            Context.StatePolicies.AddRange(statePolicies);
+            await Context.SaveChangesAsync();
+        }
     }
 }

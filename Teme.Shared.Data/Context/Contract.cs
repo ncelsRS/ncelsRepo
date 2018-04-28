@@ -100,11 +100,13 @@ namespace Teme.Shared.Data.Context
         [ForeignKey("PayerDetailId")]
         public virtual DeclarantDetail PayerDetail { get; set; }
 
-        public virtual ICollection<CostWork> CostWorks { get; set; }
-
         /// <summary>
         /// Признак удаления
         /// </summary>
         public bool isDeleted { get; set; } = false;
+
+        public virtual ICollection<CostWork> CostWorks { get; set; }
+        public virtual ICollection<UserForAction> UserForActions { get; set; }
+        public virtual ICollection<StatePolicy> StatePolicies { get; set; }
     }
 }
