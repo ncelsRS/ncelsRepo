@@ -34,7 +34,7 @@ namespace Teme.Identity.Logic
             var extTime = _config[$"IdentityConfig:ExpirationSeconds:{tokenType.ToString()}"];
 
             var claims = new List<Claim> { new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()) };
-            var scopeClaims = user.Scopes.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x));
+            var scopeClaims = user.Scopes.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x.Scope));
             claims.AddRange(scopeClaims);
 
             var cert = new X509Certificate2(certPath, certPass);

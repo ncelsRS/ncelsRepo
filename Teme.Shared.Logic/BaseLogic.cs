@@ -3,7 +3,12 @@ using Teme.Shared.Data.Repos;
 
 namespace Teme.Shared.Logic
 {
-    public class BaseLogic<TIRepo> : IBaseLogic where TIRepo : IBaseRepo
+    public class BaseLogic : IBaseLogic
+    {
+
+    }
+
+    public class BaseLogic<TIRepo> : BaseLogic where TIRepo : IBaseRepo
     {
         protected TIRepo Repo { get; }
 
@@ -12,4 +17,5 @@ namespace Teme.Shared.Logic
             Repo = repo;
         }
     }
+
 }

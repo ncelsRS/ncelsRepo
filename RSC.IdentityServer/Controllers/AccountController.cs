@@ -1,21 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using RSC.IdentityServer.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Teme.Identity.Logic.Dtos;
 using Teme.Identity.Logic.IUser;
-using Teme.Shared.Data.Context;
-using Teme.Shared.Data.Repos;
-using Teme.Shared.Data.Repos.IUser;
-using Teme.Shared.Logic;
-using Teme.Shared.Logic.IUser;
 using Teme.SharedApi.Controllers;
 
 namespace RSC.IdentityServer.Controllers
@@ -33,13 +20,12 @@ namespace RSC.IdentityServer.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
-                return await Logic.Login(dto);
+                return Json(await Logic.Login(dto));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
             }
         }
-
     }
 }

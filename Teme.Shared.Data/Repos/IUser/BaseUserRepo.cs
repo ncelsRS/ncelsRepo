@@ -4,7 +4,7 @@ namespace Teme.Shared.Data.Repos.IUser
 {
     public class BaseUserRepo:BaseRepo<AuthUser>, IBaseUserRepo
     {
-        protected BaseUserRepo(TemeContext context) : base(context)
+        public BaseUserRepo(TemeContext context) : base(context)
         {
         }
     }
