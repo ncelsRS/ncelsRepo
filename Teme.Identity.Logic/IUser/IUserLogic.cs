@@ -1,6 +1,8 @@
-﻿namespace Teme.Identity.Logic.IUser
+﻿using Teme.Shared.Logic.IUser;
+
+namespace Teme.Identity.Logic.IUser
 {
-    public interface IUserLogic
+    public interface IUserLogic : IBaseUserLogic
     {
     }
 }
