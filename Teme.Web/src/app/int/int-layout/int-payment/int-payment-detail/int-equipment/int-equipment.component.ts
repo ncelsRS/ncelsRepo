@@ -8,7 +8,7 @@ import {IconModal} from 'app/shared/IconModal';
   encapsulation: ViewEncapsulation.None,
   providers:[IconModal]
 })
-export class IntEquipmentComponent implements OnInit {
+export class IntEquipmentComponent{
 
   @Input() showErrors = false;
   public equipmentData = [{

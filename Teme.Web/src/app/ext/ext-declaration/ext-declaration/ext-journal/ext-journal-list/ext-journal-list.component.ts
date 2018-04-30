@@ -44,7 +44,13 @@ export class ExtJournalListComponent implements OnInit {
       },
       materialType: {
         title: 'Тип материала',
-        type: 'string'
+        type: 'html',
+        editor: {
+          type: 'list',
+          config: {
+            list: [{value: 'Образцы', title: 'Образцы'}, {value: 'Стандартные образцы', title: 'Стандартные образцы'}]
+          }
+        }
       },
       productName: {
         title: 'Наименование изделия\\материала\n',
@@ -55,13 +61,11 @@ export class ExtJournalListComponent implements OnInit {
         type: 'string'
       },
       measure: {
-        title: 'Ед.изм.' +
-        '\n',
+        title: 'Ед.изм.',
         type: 'string'
       },
       series: {
-        title: 'Серия' +
-        '\n',
+        title: 'Серия',
         type: 'string'
       },
       issueDate: {

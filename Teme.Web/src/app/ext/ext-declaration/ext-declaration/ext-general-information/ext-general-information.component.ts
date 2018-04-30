@@ -1,4 +1,4 @@
-import {Component, forwardRef, Input, OnInit} from '@angular/core';
+import {Component, forwardRef, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR
@@ -6,6 +6,10 @@ import {
 import {RegisterType} from '../RegisterType';
 import {TemplateValidation} from "../../../../shared/TemplateValidation";
 import {DeclarationReferenceService} from "../../declaration-reference-service";
+import { HttpClient } from '@angular/common/http';
+import {DataService} from './data.service'
+import { distinctUntilChanged, debounceTime, switchMap, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs/Subject';
 
 @Component({
   selector: 'app-ext-general-information',
@@ -19,7 +23,7 @@ import {DeclarationReferenceService} from "../../declaration-reference-service";
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ExtGeneralInformationComponent),
     multi: true
-  }, DeclarationReferenceService]
+  }, DeclarationReferenceService, DataService ]
 })
 export class ExtGeneralInformationComponent extends TemplateValidation implements OnInit {
   @Input() showErrors = false;
@@ -208,11 +212,29 @@ export class ExtGeneralInformationComponent extends TemplateValidation implement
     this.selectedLevel = lev.name;
   }
 
-  constructor(private referenceService: DeclarationReferenceService) {
+  public onRowSelect(event) {
+  }
+
+  public onUserRowSelect(event) {
+  }
+
+  public onRowHover(event) {
+  }
+
+  constructor(private referenceService: DeclarationReferenceService, private http: HttpClient, private dataService: DataService, private cd: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
+    let items = this.http.get('http://localhost:5121/api/Reference/NomenclatureCodeMedProduct/');
+
+    this.loadPeople3();
+
+    this.http.get<any[]>('https://jsonplaceholder.typicode.com/photos').subscribe(photos => {
+      this.photos = photos;
+      this.photosBuffer = this.photos.slice(0, this.bufferSize);
+    });
+
     this.referenceService.getClassifierMedicalArea().then(
       res => { // Success
         this.classifierMedicalArea = res;
@@ -236,13 +258,50 @@ export class ExtGeneralInformationComponent extends TemplateValidation implement
 
   }
 
-  public onRowSelect(event) {
+  photos = [];
+  photosBuffer = [];
+  bufferSize = 50;
+  loading = false;
+  people3Typeahead = new Subject<string>();
+  people3Loading = false;
+  people3: any[] = [];
+
+  fetchMore() {
+    const len = this.photosBuffer.length;
+    const more = this.photos.slice(len, this.bufferSize + len);
+    this.loading = true;
+    // using timeout here to simulate backend API delay
+    setTimeout(() => {
+      this.loading = false;
+      this.photosBuffer = this.photosBuffer.concat(more);
+    }, 200)
   }
 
-  public onUserRowSelect(event) {
+  fetchScroll($event) {
+    let abc = this.dataService.fetchScrollService(this.people3.length);
+    this.people3 = this.people3.concat(abc);
+
+    console.log($event);
   }
 
-  public onRowHover(event) {
+  onChange($event) {
+    console.log($event);
   }
+
+  private loadPeople3() {
+    this.people3Typeahead.pipe(
+      tap(() => this.people3Loading = true),
+      distinctUntilChanged(),
+      debounceTime(200),
+      switchMap(term => this.dataService.getPeople(term)),
+    ).subscribe(x => {
+      this.people3 = x;
+      this.people3Loading = false;
+      this.cd.markForCheck();
+    }, () => {
+      this.people3 = [];
+    });
+  }
+
 
 }
