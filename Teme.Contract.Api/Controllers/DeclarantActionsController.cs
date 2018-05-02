@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Logic.DeclarantActions;
+using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Contract.Api.Controllers
 {
@@ -14,14 +15,21 @@ namespace Teme.Contract.Api.Controllers
         {
         }
 
+        /// <summary>
+        /// Удаление договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="contractType"></param>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{workflowId}")]
-        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string workflowId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{contractType}/{workflowId}/{contractId}")]
+        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete,
-                    workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete, contractType,
+                    workflowId, contractId);
                 return Json(r);
             }
             catch (Exception ex)
@@ -30,14 +38,21 @@ namespace Teme.Contract.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Отпрвка договора с подписью в ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="contractType"></param>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{workflowId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string workflowId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{contractType}/{workflowId}/{contractId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithSign,
-                    workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove,  UserOptions.SendWithSign, contractType,
+                    workflowId, contractId);
                 return Json(r);
             }
             catch (Exception ex)
@@ -46,14 +61,21 @@ namespace Teme.Contract.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Отправка договора без подписи в ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="contractType"></param>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{workflowId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string workflowId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{contractType}/{workflowId}/{contractId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign,
-                    workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign, contractType,
+                    workflowId, contractId);
                 return Json(r);
             }
             catch (Exception ex)
