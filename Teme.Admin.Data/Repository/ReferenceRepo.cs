@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -158,5 +158,24 @@ namespace Teme.Admin.Data.Repository
         /// <param name="isImport"></param>
         /// <returns></returns>
         public async Task<Ref_PriceList> GetPriceList(int id, bool isImport) => await _context.Ref_PriceLists.FirstOrDefaultAsync(e => !e.IsDeleted && e.ServiceTypeId == id && e.IsImport == isImport);
+
+        /// <summary>
+        /// Тип комплектации ИМН и МТ
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Ref_EquipmentType>> EquipmentTypeAsync() => await _context.Ref_EquipmentTypes.Where(e => !e.IsDeleted).ToListAsync();
+
+        /// <summary>
+        /// Тип упаковки
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Ref_PackagingType>> PackagingTypeAsync() => await _context.Ref_PackagingTypes.Where(e => !e.IsDeleted).ToListAsync();
+
+        /// <summary>
+        /// Единица измерения
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Ref_Measure>> MeasureAsync() => await _context.Ref_Measures.Where(e => !e.IsDeleted).ToListAsync();
+
     }
 }

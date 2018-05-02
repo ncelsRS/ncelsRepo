@@ -16,10 +16,8 @@ namespace Teme.Shared.Data.Context
 
         public bool? HasIin { get; set; }
 
-        [Required]
         public string Iin { get; set; }
 
-        [Required]
         public string Pwdhash { get; set; }
 
         public string CompanyName { get; set; }
@@ -43,7 +41,6 @@ namespace Teme.Shared.Data.Context
 
     public class AuthUserScopes : BaseEntity
     {
-        public int UserId { get; set; }
         public string Scope { get; set; }
     }
 }

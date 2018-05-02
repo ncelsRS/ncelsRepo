@@ -24,7 +24,22 @@ namespace RSC.IdentityServer.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return ExceptionResult(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("refresh/{refreshToken}")]
+        public async Task<IActionResult> Refresh([FromRoute] string refreshToken)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                return Json(await Logic.UpdateToken(refreshToken));
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, refreshToken);
             }
         }
     }

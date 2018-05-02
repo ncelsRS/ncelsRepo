@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -251,6 +251,42 @@ namespace Teme.Admin.Logic
                 ValueAddedTax = valueAddedTax.Value,
                 IsImport = priceList.IsImport
             };
+        }
+
+        public async Task<IEnumerable<object>> GetEquipmentType()
+        {
+          var EquipmentType = await _refRepo.EquipmentTypeAsync();
+          return EquipmentType.Select(x => new ReferenceModel
+          {
+            Id = x.Id,
+            Code = x.Code,
+            NameKz = x.NameRu,
+            NameRu = x.NameRu
+          });
+        }
+
+        public async Task<IEnumerable<object>> GetPackagingType()
+        {
+          var PackagingType = await _refRepo.PackagingTypeAsync();
+          return PackagingType.Select(x => new ReferenceModel
+          {
+            Id = x.Id,
+            Code = x.Code,
+            NameKz = x.NameRu,
+            NameRu = x.NameRu
+          });
+        }
+
+        public async Task<IEnumerable<object>> GetMeasure()
+        {
+          var Measure = await _refRepo.MeasureAsync();
+          return Measure.Select(x => new ReferenceModel
+          {
+            Id = x.Id,
+            Code = x.Code,
+            NameKz = x.NameRu,
+            NameRu = x.NameRu
+          });
         }
 
     }

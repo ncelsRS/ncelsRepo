@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +15,13 @@ namespace Teme.Identity.Data.Repos.IUser
         {
         }
 
-        public async Task<AuthUser> GetByUsername(string username)
+        public async Task<AuthUser> GetLogin(Expression<Func<AuthUser, bool>> expression)
         {
-            return await Repo.FirstOrDefaultAsync(x => x.UserName == username);
+            return await Repo
+                .Where(expression)
+                .Include(x => x.Scopes)
+                .FirstOrDefaultAsync();
         }
+
     }
 }
