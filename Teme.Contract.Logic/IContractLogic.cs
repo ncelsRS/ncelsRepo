@@ -7,7 +7,7 @@ namespace Teme.Contract.Logic
 {
     public interface IContractLogic : IBaseContractLogic
     {
-        Task<object> Create(int contractType, string contractScope);
+        Task<object> Create(ContractTypeEnum contractType, string contractScope);
         Task<object> ChangeModel(ContractUpdateModel value);
         Task<object> SearchDeclarantResident(string iin);
         Task<object> SearchDeclarantNonResident(int countryId);
@@ -15,5 +15,6 @@ namespace Teme.Contract.Logic
         Task<object> GetDeclarantById(int id);
         Task<object> SaveCostWork(CostWorkModel[] costWorkModel);
         Task DeleteCostWork(int contractId);
+        //Task<object> GetListContracts(); //int userId
     }
 }

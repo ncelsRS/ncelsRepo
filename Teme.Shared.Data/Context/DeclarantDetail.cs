@@ -7,6 +7,9 @@ using Teme.Shared.Data.Context.References;
 
 namespace Teme.Shared.Data.Context
 {
+    /// <summary>
+    /// Детали заявителя
+    /// </summary>
     public class DeclarantDetail : BaseEntity
     {
         /// <summary>

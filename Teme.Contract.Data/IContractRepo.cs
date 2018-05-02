@@ -21,5 +21,6 @@ namespace Teme.Contract.Data
         Task<IEnumerable<Shared.Data.Context.Declarant>> SearchDeclarantNonResident(int countryId);
         Task SaveCostWork(Shared.Data.Context.CostWork costWork);
         Task DeleteCostWork(int contractId);
+        Task SaveStatePolice(List<Shared.Data.Context.StatePolicy> statePolicies, int contractId);
     }
 }

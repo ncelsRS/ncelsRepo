@@ -42,8 +42,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool?>("HasIin");
 
-                    b.Property<string>("Iin")
-                        .IsRequired();
+                    b.Property<string>("Iin");
 
                     b.Property<string>("LastName")
                         .IsRequired();
@@ -51,6 +50,9 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("MiddleName");
 
                     b.Property<string>("Pwdhash")
+                        .IsRequired();
+
+                    b.Property<string>("Scopes")
                         .IsRequired();
 
                     b.Property<string>("UserName")
@@ -61,6 +63,26 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuthUsers");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("AuthUserId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("Scope");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthUserId");
+
+                    b.ToTable("AuthUserScopes");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.Contract", b =>
@@ -851,22 +873,6 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("Ref_ValueAddedTaxes");
                 });
 
-            modelBuilder.Entity("Teme.Shared.Data.Context.References.UserForAction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<int>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserForActions");
-                });
-
             modelBuilder.Entity("Teme.Shared.Data.Context.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -894,13 +900,46 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<DateTime>("DateUpdate");
 
-                    b.Property<int>("PermissionScopeId");
+                    b.Property<string>("Permission");
+
+                    b.Property<string>("Scope");
 
                     b.Property<string>("Status");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContractId");
+
                     b.ToTable("StatePolicies");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.UserForAction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("ContractId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<int>("ExecutorId");
+
+                    b.Property<int>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("UserForActions");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.AuthUser")
+                        .WithMany("Scopes")
+                        .HasForeignKey("AuthUserId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.Contract", b =>
@@ -1049,6 +1088,22 @@ namespace Teme.Shared.Data.Migrations
                     b.HasOne("Teme.Shared.Data.Context.References.Ref_ServiceType", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.StatePolicy", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.Contract", "Contract")
+                        .WithMany("StatePolicies")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.UserForAction", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.Contract", "Contract")
+                        .WithMany("UserForActions")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

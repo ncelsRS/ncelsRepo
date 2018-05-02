@@ -20,7 +20,7 @@ namespace Teme.Contract.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromQuery] int contractType, [FromQuery] string contractScope)
+        public async Task<IActionResult> Create([FromQuery] ContractTypeEnum contractType, [FromQuery] string contractScope)
         {
             try
             {
@@ -166,6 +166,25 @@ namespace Teme.Contract.Api.Controllers
             try
             {
                 await Logic.DeleteCostWork(contractId);
+                return Json(Ok());
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Получение списка договоров
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetListContracts")]
+        public async Task<IActionResult> GetListContracts([FromQuery] [Required] int userId)
+        {
+            try
+            {
+                //await Logic.GetListContracts();//userId
                 return Json(Ok());
             }
             catch (Exception ex)

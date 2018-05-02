@@ -15,50 +15,50 @@ namespace Teme.Contract.Api.Controllers
         }
 
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string workflowId)
         {
             try
             {
                 var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete,
-                    contractId);
+                    workflowId);
                 return Json(r);
             }
             catch (Exception ex)
             {
-                return ExceptionResult(ex, contractId);
+                return ExceptionResult(ex, workflowId);
             }
         }
 
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string workflowId)
         {
             try
             {
                 var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithSign,
-                    contractId);
+                    workflowId);
                 return Json(r);
             }
             catch (Exception ex)
             {
-                return ExceptionResult(ex, contractId);
+                return ExceptionResult(ex, workflowId);
             }
         }
 
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string workflowId)
         {
             try
             {
                 var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign,
-                    contractId);
+                    workflowId);
                 return Json(r);
             }
             catch (Exception ex)
             {
-                return ExceptionResult(ex, contractId);
+                return ExceptionResult(ex, workflowId);
             }
         }
     }
