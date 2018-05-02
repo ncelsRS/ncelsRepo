@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Teme.Identity.Data.Repos.IUser;
 using Teme.Identity.Logic.Dtos;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Logic.IUser;
 
 namespace Teme.Identity.Logic.IUser
@@ -19,17 +20,30 @@ namespace Teme.Identity.Logic.IUser
 
         public async Task<OutLoginDto> Login(InLoginDto dto)
         {
-            var user = await Repo.GetByUsername(dto.UserName);
+            var user = await Repo.GetLogin(x => x.UserName == dto.UserName);
+            if (user == null) throw new ArgumentException("Login not found");
 
             var alg = SHA512.Create();
             alg.ComputeHash(Encoding.UTF8.GetBytes(dto.Password));
             var pwdhash = Convert.ToBase64String(alg.Hash);
-            if (user.Pwdhash != pwdhash) throw new ArgumentException("Wrong login");
+            if (user.Pwdhash != pwdhash) throw new ArgumentException("Wrong password");
 
             return new OutLoginDto
             {
                 AccessToken = _identityLogic.GenerateToken(user),
-                RefreshToken = _identityLogic.GenerateToken(user, IdentityLogic.TokenType.Refresh)
+                RefreshToken = _identityLogic.GenerateUpdateToken(user.Id)
+            };
+        }
+
+        public async Task<OutLoginDto> UpdateToken(string refreshToken)
+        {
+            var userId = _identityLogic.RealiseUpdateToken(refreshToken);
+            var user = await Repo.GetLogin(x => x.Id == userId);
+            if (user == null) throw new ArgumentException("Refresh not found");
+            return new OutLoginDto
+            {
+                AccessToken = _identityLogic.GenerateToken(user),
+                RefreshToken = _identityLogic.GenerateUpdateToken(user.Id)
             };
         }
     }

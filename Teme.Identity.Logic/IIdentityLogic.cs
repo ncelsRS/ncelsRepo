@@ -5,6 +5,8 @@ namespace Teme.Identity.Logic
 {
     public interface IIdentityLogic : IBaseLogic
     {
-        string GenerateToken(AuthUser user, IdentityLogic.TokenType tokenType = IdentityLogic.TokenType.Access);
+        string GenerateToken(AuthUser user);
+        string GenerateUpdateToken(int id);
+        int RealiseUpdateToken(string token);
     }
 }

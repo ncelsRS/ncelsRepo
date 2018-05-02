@@ -9,29 +9,25 @@ using System.Text;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Logic;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace Teme.Identity.Logic
 {
     public class IdentityLogic : BaseLogic, IIdentityLogic
     {
         private readonly IConfiguration _config;
+        private static readonly ConcurrentDictionary<string, int> _updateTokens = new ConcurrentDictionary<string, int>();
         public IdentityLogic(IConfiguration config)
         {
             _config = config;
         }
 
-        public enum TokenType
-        {
-            Access,
-            Refresh
-        }
-
-        public string GenerateToken(AuthUser user, TokenType tokenType = TokenType.Access)
+        public string GenerateToken(AuthUser user)
         {
             var issuer = _config["IdentityConfig:Issuer"];
             var certPath = _config["IdentityConfig:CertPath"];
             var certPass = _config["IdentityConfig:CertPass"];
-            var extTime = _config[$"IdentityConfig:ExpirationSeconds:{tokenType.ToString()}"];
+            var extTime = _config[$"IdentityConfig:ExpirationSeconds"];
 
             var claims = new List<Claim> { new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()) };
             var scopeClaims = user.Scopes.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x.Scope));
@@ -50,6 +46,20 @@ namespace Teme.Identity.Logic
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateUpdateToken(int id)
+        {
+            var newRefreshToken = Guid.NewGuid().ToString("N");
+            _updateTokens.TryAdd(newRefreshToken, id);
+            return newRefreshToken;
+        }
+
+        public int RealiseUpdateToken(string token)
+        {
+            if (!_updateTokens.TryRemove(token, out var id))
+                return 0;
+            return id;
         }
     }
 }
