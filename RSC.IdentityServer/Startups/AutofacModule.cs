@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Autofac;
 using RSC.Core.EmailServer;
+using Teme.Identity.Logic;
 
 namespace RSC.IdentityServer.Startups
 {
@@ -27,6 +28,7 @@ namespace RSC.IdentityServer.Startups
                 .AsImplementedInterfaces();
 
             builder.RegisterType<EmailSender>().AsSelf().InstancePerDependency();
+
         }
     }
 }

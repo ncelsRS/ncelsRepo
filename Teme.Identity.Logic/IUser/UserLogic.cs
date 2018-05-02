@@ -35,9 +35,9 @@ namespace Teme.Identity.Logic.IUser
             };
         }
 
-        public async Task<OutLoginDto> UpdateToken(string refreshToken)
+        public async Task<OutLoginDto> UpdateToken(OutLoginDto dto)
         {
-            var userId = _identityLogic.RealiseUpdateToken(refreshToken);
+            var userId = _identityLogic.RealiseUpdateToken(dto.RefreshToken);
             var user = await Repo.GetLogin(x => x.Id == userId);
             if (user == null) throw new ArgumentException("Refresh not found");
             return new OutLoginDto

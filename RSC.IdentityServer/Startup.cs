@@ -21,6 +21,8 @@ using NSwag.AspNetCore;
 using RSC.IdentityServer.Startups;
 using Serilog;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace RSC.IdentityServer
 {
@@ -48,27 +50,10 @@ namespace RSC.IdentityServer
                 options.UseSqlServer(connectionStr);
             });
 
-            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
-            services.AddIdentity<AuthUser, Role>()
-                .AddDefaultTokenProviders();
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidIssuer = Configuration["Urls:Identity"],
-                        ValidAudience = Configuration["Urls:Identity"],
-                        IssuerSigningKey = new X509SecurityKey(cert)
-                    };
-                });
+            services.AddRscAuth(Configuration, new string[]
+            {
+                OrganizationScopeEnum.Ext
+            });
 
             services.AddMvc();
 
@@ -98,7 +83,23 @@ namespace RSC.IdentityServer
 
             loggerFactory.AddSerilog();
 
-            app.UseCors(cfg => cfg.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+#if !DEBUG
+            var urls = Configuration
+                .GetChildren()
+                .FirstOrDefault(x => x.Key == "Urls")
+                .GetChildren()
+                .Select(x => x.Value)
+                .ToArray();
+#endif
+            app.UseCors(cfg => cfg
+#if DEBUG
+                .AllowAnyOrigin()
+#else
+                .WithOrigins(urls)
+#endif
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+            );
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 

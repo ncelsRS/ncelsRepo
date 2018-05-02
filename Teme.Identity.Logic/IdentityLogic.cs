@@ -10,14 +10,19 @@ using Teme.Shared.Data.Context;
 using Teme.Shared.Logic;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Teme.Identity.Logic.IUser;
+using Microsoft.EntityFrameworkCore;
+using Teme.Identity.Data.Repos.IUser;
 
 namespace Teme.Identity.Logic
 {
-    public class IdentityLogic : BaseLogic, IIdentityLogic
+    public class IdentityLogic : BaseLogic<IUserRepo, AuthUser>, IIdentityLogic
     {
         private readonly IConfiguration _config;
         private static readonly ConcurrentDictionary<string, int> _updateTokens = new ConcurrentDictionary<string, int>();
-        public IdentityLogic(IConfiguration config)
+
+        public IdentityLogic(IUserRepo repo, IConfiguration config) : base(repo)
         {
             _config = config;
         }
@@ -61,5 +66,13 @@ namespace Teme.Identity.Logic
                 return 0;
             return id;
         }
+
+        public async Task<object> Test(int userId)
+        {
+            return await GetUser(userId)
+                .Include(x => x.Scopes)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }
