@@ -22,5 +22,6 @@ namespace Teme.Contract.Data
         Task SaveCostWork(Shared.Data.Context.CostWork costWork);
         Task DeleteCostWork(int contractId);
         Task SaveStatePolice(List<Shared.Data.Context.StatePolicy> statePolicies, int contractId);
+        Task<IQueryable<Shared.Data.Context.Contract>> GetListContracts(string contractScope);
     }
 }
