@@ -6,6 +6,6 @@ namespace Teme.Shared.Logic
 {
     public interface IBaseLogic
     {
-        IQueryable<AuthUser> GetUser(int userId);
+        //IQueryable<AuthUser> GetUser(int userId);
     }
 }

@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
-using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
-using WorkflowCore.Users.Models;
+using Teme.Shared.Logic.ContractLogic;
 
 namespace Teme.Contract.Logic.DeclarantActions
 {
@@ -17,12 +15,12 @@ namespace Teme.Contract.Logic.DeclarantActions
     {
         private readonly IContractWorkflowLogic _wflogic;
         private readonly IContractRepo _repo;
-        private readonly IContractStatePolicyLogic _contractSp;
+        //private readonly IContractStatePolicyLogic _contractSp;
 
-        public DeclarantActionsLogic(IContractRepo repo, IContractWorkflowLogic wflogic, IContractStatePolicyLogic contractSp)
+        public DeclarantActionsLogic(IContractRepo repo, IContractWorkflowLogic wflogic) //, IContractStatePolicyLogic contractSp
         {
             _wflogic = wflogic;
-            _contractSp = contractSp;
+            //_contractSp = contractSp;
             _repo = repo;
         }
 
@@ -38,13 +36,16 @@ namespace Teme.Contract.Logic.DeclarantActions
             switch (userOption)
             {
                 case UserOptions.Delete:
+                    var contract = await _repo.GetContract(contractId);
+                    contract.isDeleted = true;
+                    await _repo.UpdateContract(contract);
                     break;
                 case UserOptions.SendWithSign:
                 case UserOptions.SendWithoutSign:
                     switch (contractType)
                     {
                         case ContractTypeEnum.OneToMore:
-                            await _repo.SaveStatePolice(_contractSp.GetStatePolicy("DeclarantSendContractOneToMore", contractId), contractId);
+                            //await _repo.SaveStatePolice(_contractSp.GetStatePolicy("DeclarantSendContractOneToMore", contractId), contractId);
                             break;
                         case ContractTypeEnum.OneToOne:
                             throw new ArgumentException("This OnToOne type");

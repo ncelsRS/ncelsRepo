@@ -44,6 +44,11 @@ namespace Teme.Contract.Data
             return await Context.Contracts.FirstOrDefaultAsync(e => e.Id == id);
         }
 
+        public async Task<Context.Contract> GetContractByWorkflowId(string workflowId)
+        {
+            return await Context.Contracts.FirstOrDefaultAsync(e => e.WorkflowId == workflowId);
+        }
+
         public async Task CreateContract(Context.Contract contract)
         {
             Context.Contracts.Add(contract);
@@ -72,7 +77,7 @@ namespace Teme.Contract.Data
         /// </summary>
         /// <param name="iin"></param>
         /// <returns></returns>
-        public async Task<Context.Declarant> SearchDeclarantResident(string iin) => await Context.Declarants.FirstOrDefaultAsync(e => e.IdNumber == iin);
+        public async Task<Context.Declarant> SearchDeclarantResident(string iin) => await Context.Declarants.Include(x => x.DeclarantDetails).FirstOrDefaultAsync(e => e.IdNumber == iin);
 
         /// <summary>
         /// Поиск заявителя по странам
@@ -107,13 +112,6 @@ namespace Teme.Contract.Data
         {
             var cws = await Context.CostWorks.Where(e => e.ContractId == contractId).ToListAsync();
             Context.CostWorks.RemoveRange(cws);
-            await Context.SaveChangesAsync();
-        }
-
-        public async Task SaveStatePolice(List<Context.StatePolicy> statePolicies, int contractId)
-        {
-            Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync());
-            Context.StatePolicies.AddRange(statePolicies);
             await Context.SaveChangesAsync();
         }
 

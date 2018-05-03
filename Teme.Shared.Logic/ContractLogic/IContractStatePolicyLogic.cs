@@ -4,7 +4,7 @@ using Teme.Shared.Data.Context;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.ContractLogic;
 
-namespace Teme.Contract.Logic
+namespace Teme.Shared.Logic.ContractLogic
 {
     public interface IContractStatePolicyLogic : IBaseLogic
     {
