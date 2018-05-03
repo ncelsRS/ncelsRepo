@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+﻿using System;
+using System.Linq.Expressions;
 using System.Net;
+using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.KeyVault.Models;
+using Serilog;
 using Teme.Shared.Logic;
 
-namespace Teme.SharedApi.Controllers
+namespace Teme.ContractCoz.Api.Controllers
 {
-    //[Authorize]
     [Route("[controller]")]
     public class BaseController<TILogic> : Controller where TILogic : IBaseLogic
     {
@@ -18,20 +17,6 @@ namespace Teme.SharedApi.Controllers
         public BaseController(TILogic logic)
         {
             Logic = logic;
-        }
-
-        private int _userId = 0;
-        protected int CurrentUserId
-        {
-            get
-            {
-                if (_userId > 0) return _userId;
-                var claimValue = User
-                    .Claims
-                    .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)
-                    .Value;
-                return int.Parse(claimValue);
-            }
         }
 
         protected IActionResult ExceptionResult(Exception ex, object args = null)
@@ -51,7 +36,7 @@ namespace Teme.SharedApi.Controllers
             }
 
             Log.Error(ex, msg, args);
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            Response.StatusCode = (int) HttpStatusCode.InternalServerError;
 #if DEBUG
             return Json(ex);
 #else

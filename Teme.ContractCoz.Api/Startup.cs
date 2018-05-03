@@ -1,3 +1,8 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -6,18 +11,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NSwag.AspNetCore;
 using Serilog;
-using System;
-using Teme.Admin.Api.Startups;
+using Teme.ContractCoz.Api.Startups;
 using Teme.Shared.Data.Context;
+using WorkflowCore.Interface;
 
-namespace Teme.Admin.Api
+namespace Teme.ContractCoz.Api
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
                 .CreateLogger();
@@ -38,7 +46,8 @@ namespace Teme.Admin.Api
             });
             services.AddCors();
             services.AddMvc();
-           
+
+            // Add Autofac
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -57,7 +66,6 @@ namespace Teme.Admin.Api
             loggerFactory.AddSerilog();
             app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
     }
 }

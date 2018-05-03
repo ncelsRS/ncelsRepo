@@ -46,6 +46,7 @@ namespace Teme.Contract.Api
             services.AddCors();
             // Default vm template
             services.AddMvc();
+            services.AddWorkFlowInfrastructure();
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();

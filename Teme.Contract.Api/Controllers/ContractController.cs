@@ -20,12 +20,12 @@ namespace Teme.Contract.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromQuery] ContractTypeEnum contractType, [FromQuery] string contractScope)
+        public async Task<IActionResult> Create([FromBody][Required]CreateModel createModel)
         {
             try
             {
-                if (!ModelState.IsValid) return BadRequest();
-                var r = await Logic.Create(contractType, contractScope);
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var r = await Logic.Create(createModel);
                 return Json(r);
             }
             catch (Exception ex)
