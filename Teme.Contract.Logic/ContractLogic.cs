@@ -22,13 +22,11 @@ namespace Teme.Contract.Logic
     {
         private readonly IContractWorkflowLogic _wflogic;
         private readonly IContractRepo _repo;
-        //private readonly IContractStatePolicyLogic _contractSp;
         private readonly IConvertDtoRepo _dtoRepo;
 
-        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic, IConvertDtoRepo dtoRepo) : base(repo) //IContractStatePolicyLogic contractSp,
+        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic, IConvertDtoRepo dtoRepo) : base(repo)
         {
             _wflogic = wflogic;
-            //_contractSp = contractSp;
             _repo = repo;
             _dtoRepo = dtoRepo;
         }
@@ -40,14 +38,13 @@ namespace Teme.Contract.Logic
         public async Task<object> Create(CreateModel createModel)
         {
             var workflowId = await _wflogic.Create();
-            Shared.Data.Context.Contract contract = new Shared.Data.Context.Contract()
+            var contract = new Shared.Data.Context.Contract()
             {
                 WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
                 ContractType = createModel.ContractType,
                 ContractScope = createModel.ContractScope
             };
             await _repo.CreateContract(contract);
-            //await _repo.SaveStatePolice(_contractSp.GetStatePolicy("DeclarantCreateContract", contract.Id), contract.Id);
             return new {
                 contract.Id,
                 contract.WorkflowId,

@@ -49,11 +49,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("MiddleName");
 
-                    b.Property<string>("Pwdhash")
-                        .IsRequired();
-
-                    b.Property<string>("Scopes")
-                        .IsRequired();
+                    b.Property<string>("Pwdhash");
 
                     b.Property<string>("UserName")
                         .IsRequired();

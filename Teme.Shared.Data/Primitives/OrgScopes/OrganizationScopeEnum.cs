@@ -10,6 +10,11 @@ namespace Teme.Shared.Data.Primitives.OrgScopes
     public class OrganizationScopeEnum
     {
         /// <summary>
+        /// Доступ к Identity серверу для продления аутентификации
+        /// </summary>
+        public const string Identity = "identity";
+
+        /// <summary>
         /// Внешний портал Теми
         /// </summary>
         public const string Ext = "ext";

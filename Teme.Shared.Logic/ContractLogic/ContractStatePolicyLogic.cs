@@ -9,7 +9,7 @@ namespace Teme.Shared.Logic.ContractLogic
     /// <summary>
     /// Все статусы по договорам
     /// </summary>
-    public class ContractStatePolicyLogic : IContractStatePolicyLogic
+    public class ContractStatePolicyLogic
     {
         public List<StatePolicy> GetStatePolicy(string stage, int contractId)
         {
