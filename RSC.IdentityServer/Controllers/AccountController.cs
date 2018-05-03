@@ -31,19 +31,18 @@ namespace RSC.IdentityServer.Controllers
             }
         }
 
-        [AllowAnonymous]
-        [HttpPost]
+        [HttpGet]
         [Route("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] OutLoginDto dto)
+        public async Task<IActionResult> Refresh()
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
-                return Json(await Logic.UpdateToken(dto));
+                return Json(await Logic.UpdateToken(CurrentUserId));
             }
             catch (Exception ex)
             {
-                return ExceptionResult(ex, dto);
+                return ExceptionResult(ex, CurrentUserId);
             }
         }
     }

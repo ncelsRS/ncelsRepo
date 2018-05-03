@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Login } from './login/Login';
 
 @Component({
     selector: 'app',

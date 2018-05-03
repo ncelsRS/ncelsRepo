@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using NSwag.AspNetCore;
 using RSC.IdentityServer.Startups;
 using Serilog;
+using System;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.OrgScopes;
 using Teme.SharedApi;
@@ -50,14 +43,19 @@ namespace RSC.IdentityServer
                 options.UseSqlServer(connectionStr);
             });
 
-            services.AddRscAuth(Configuration, new string[]
-            {
-                OrganizationScopeEnum.Ext
-            });
-
             services.AddMvc();
 
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Identity
+            });
+
             var containerBuilder = new Autofac.ContainerBuilder();
+            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.Populate(services);
             containerBuilder.RegisterInstance(Configuration);
@@ -83,6 +81,7 @@ namespace RSC.IdentityServer
 
             loggerFactory.AddSerilog();
 
+            #region CORS
 #if !DEBUG
             var urls = Configuration
                 .GetChildren()
@@ -100,12 +99,13 @@ namespace RSC.IdentityServer
                 .AllowAnyHeader()
                 .AllowAnyMethod()
             );
+            #endregion
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
-            app.UseAuthentication();
-
             app.UseStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
