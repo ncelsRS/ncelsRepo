@@ -16,7 +16,9 @@ import {ExtDeclarationsActionsComponent} from './ext-declarations/ext-declaratio
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {ExtJournalListComponent} from './ext-declaration/ext-journal/ext-journal-list/ext-journal-list.component';
 import {HttpClientModule} from "@angular/common/http";
-
+import { ExtSubjectComponent } from './ext-declaration/ext-subject/ext-subject.component';
+import { PackageUploadBtnComponent } from './ext-declaration/ext-imn-set/package-upload-btn/package-upload-btn.component';
+import {ExtProducerContentComponent} from'./ext-declaration/ext-producer/ext-producer-content/ext-producer-content.component'
 @NgModule({
   imports: [
     CommonModule,
@@ -37,10 +39,14 @@ import {HttpClientModule} from "@angular/common/http";
     ExtJournalComponent,
     ExtAttachmentsComponent,
     ExtDeclarationsActionsComponent,
-    ExtJournalListComponent],
+    ExtJournalListComponent,
+    ExtSubjectComponent,
+    PackageUploadBtnComponent,
+    ExtProducerContentComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
-    ExtJournalListComponent
+    ExtJournalListComponent,
+    PackageUploadBtnComponent
   ],
   exports: [ExtDeclarationsActionsComponent],
 })

@@ -48,7 +48,8 @@ export class ExtDeclarationComponent implements OnInit {
       vitroDiagnostic: null,
       withoutAE: null,
       transportationCondition: null,
-      storageCondition: null
+      storageCondition: null,
+      closedSystem: null,
     },
     producer: {
       producer: null,
@@ -76,6 +77,33 @@ export class ExtDeclarationComponent implements OnInit {
       measure: null,
       expirationDate: null,
       serieParty: null
+    },
+    subject: {
+      subject: null,
+      resident: null,
+      notResident: null,
+      individual: null,
+      legalEntity: null,
+      firstChiefSurname: null,
+      firstChiefName: null,
+      bin: null,
+      middleName: null,
+      firstLeaderPositionRu: null,
+      firstLeaderPositionKz: null,
+      bankName: null,
+      IIK: null,
+      currency: null,
+      leaderBin: null,
+      leaderBik: null,
+      leaderCode: null,
+      subjectNameRu: null,
+      subjectCountry: null,
+      legalAddress: null,
+      factualAddress: null,
+      phoneNumber: null,
+      email: null,
+      fax: null,
+      organizationForm: null,
     }
   };
 

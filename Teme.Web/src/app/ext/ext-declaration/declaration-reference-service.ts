@@ -7,7 +7,7 @@ const httpOptions = {
 
 @Injectable()
 export class DeclarationReferenceService {
-  url = 'http://localhost:5121/api/Reference/';
+  url = 'http://localhost:5121/api/reference/';
 
   constructor(private http: HttpClient) {
   }
@@ -37,5 +37,9 @@ export class DeclarationReferenceService {
     return promise;
   }
 
+  public getCurrency(){
+    let promise = this.http.get(this.url + 'Currency').toPromise();
+    return promise;
+  }
 
 }

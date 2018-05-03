@@ -1,5 +1,6 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {IntContractBtnComponent} from "./int-contract-btn/int-contract-btn.component";
+import {Menu} from "../../../shared/menu/menu.model";
 
 @Component({
   selector: 'app-int-contract',
@@ -8,6 +9,7 @@ import {IntContractBtnComponent} from "./int-contract-btn/int-contract-btn.compo
   encapsulation: ViewEncapsulation.None
 })
 export class IntContractComponent implements OnInit {
+  public menuItems: Array<any>;
   public data = [{
     number: '1321 #1223',
     contractAddition: 'sdfg',
@@ -96,6 +98,7 @@ export class IntContractComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.menuItems = this.getMenuItems();
   }
 
   public onDeleteConfirm(event): void {
@@ -116,6 +119,20 @@ export class IntContractComponent implements OnInit {
 
   public onRowHover(event) {
     //console.log(event);
+  }
+
+  getMenuItems() {
+    return [
+      new Menu (1, 'Не распределенные', '/pages/dashboard', null, 'tachometer', null, false, 0),
+      new Menu (2, 'В работе', '/pages/membership', null, 'users', null, false, 0),
+      new Menu (3, 'На карректировке', null, null, 'laptop', null, true, 0),
+      new Menu (4, 'Требует согдасования', '/pages/ui/buttons', null, 'keyboard-o', null, false, 3),
+      new Menu (5, 'Согласованные', '/pages/ui/cards', null, 'address-card-o', null, false, 3),
+      new Menu (6, 'Не согласованные', '/pages/ui/components', null, 'creative-commons', null, false, 3),
+      new Menu (7, 'Активные', '/pages/ui/icons', null, 'font-awesome', null, false, 3),
+      new Menu (8, 'Истекшие', '/pages/ui/list-group', null, 'th-list', null, false, 3),
+      new Menu (9, 'Все', '/pages/ui/media-objects', null, 'object-group', null, false, 3),
+    ]
   }
 
 }

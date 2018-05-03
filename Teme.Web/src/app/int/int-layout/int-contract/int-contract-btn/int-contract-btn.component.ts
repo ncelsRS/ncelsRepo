@@ -14,7 +14,6 @@ export class IntContractBtnComponent implements OnInit {
 
   @Output() save: EventEmitter<any> = new EventEmitter();
 
-
   constructor() { }
 
   onClick() {
