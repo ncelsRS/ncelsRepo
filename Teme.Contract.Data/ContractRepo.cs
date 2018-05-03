@@ -72,7 +72,7 @@ namespace Teme.Contract.Data
         /// </summary>
         /// <param name="iin"></param>
         /// <returns></returns>
-        public async Task<Context.Declarant> SearchDeclarantResident(string iin) => await Context.Declarants.FirstOrDefaultAsync(e => e.IdNumber == iin);
+        public async Task<Context.Declarant> SearchDeclarantResident(string iin) => await Context.Declarants.Include(x => x.DeclarantDetails).FirstOrDefaultAsync(e => e.IdNumber == iin);
 
         /// <summary>
         /// Поиск заявителя по странам
