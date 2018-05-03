@@ -1,5 +1,5 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http, Headers } from '@angular/http';
+import { Http } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -14,27 +14,14 @@ export class LoginSvc {
         private winSvc: WindowSvc
     ) { }
 
-    private objToForm(obj: any): string {
-        var keys = Object.keys(obj);
-        if (keys.length === 0) return '';
-        var keyVals: string[] = [];
-        keys.forEach(key => {
-            var val = obj[key];
-            keyVals.push(`${key}=${val}`);
-        });
-        return keyVals.join('&');
-    }
-
     post(login: Login, returnUrl: URL) {
-        var headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        return this.http.post('/con/Login', this.objToForm(login), { headers: headers })
+        return this.http.post('/account/login', login)
             .toPromise()
             .then(res => {
                 var authData = JSON.stringify(res.json());
-                if (returnUrl.searchParams.get("authData") != null)
-                    returnUrl.searchParams.delete("authData");
-                returnUrl.searchParams.append("authData", authData);
+                if (returnUrl.searchParams.get("onetime") != null)
+                    returnUrl.searchParams.delete("onetime");
+                returnUrl.searchParams.append("onetime", authData);
                 this.winSvc.nativeWindow.location = returnUrl.href;
             })
             .catch(err => {

@@ -1,15 +1,16 @@
-﻿import {Component} from '@angular/core';
-import {ParamMap, Router, ActivatedRoute, Params} from '@angular/router';
+﻿import { Component } from '@angular/core';
+import { ParamMap, Router, ActivatedRoute, Params } from '@angular/router';
 
-import {Login} from './Login';
-import {LoginSvc} from './login.svc';
+import { Login } from './Login';
+import { LoginSvc } from './login.svc';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
     login: Login = new Login();
 
@@ -20,18 +21,19 @@ export class LoginComponent {
     constructor(
         private route: ActivatedRoute,
         private loginSvc: LoginSvc) {
+    }
 
+    ngOnInit() {
         this.route.queryParams
             .subscribe(params => {
                 this.returnUrl = params.returnUrl;
-                this.login.client_id = params.client_id || this.login.client_id;
-                this.login.client_secret = params.client_secret || this.login.client_secret;
             });
-
     }
 
-    onSubmit(loginForm: any) {
-        //this.res = this.loginSvc.post(this.login, new URL(this.returnUrl));
+    onSubmit(isValid: boolean) {
+        if (!isValid) return;
+        this.res = this.loginSvc
+            .post(this.login, new URL(this.returnUrl));
     }
 
 }
