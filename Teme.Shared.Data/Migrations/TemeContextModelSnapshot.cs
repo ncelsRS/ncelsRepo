@@ -42,16 +42,14 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool?>("HasIin");
 
-                    b.Property<string>("Iin")
-                        .IsRequired();
+                    b.Property<string>("Iin");
 
                     b.Property<string>("LastName")
                         .IsRequired();
 
                     b.Property<string>("MiddleName");
 
-                    b.Property<string>("Pwdhash")
-                        .IsRequired();
+                    b.Property<string>("Pwdhash");
 
                     b.Property<string>("UserName")
                         .IsRequired();
@@ -75,8 +73,6 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<DateTime>("DateUpdate");
 
                     b.Property<string>("Scope");
-
-                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
@@ -298,6 +294,178 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("DeclarantDetails");
                 });
 
+            modelBuilder.Entity("Teme.Shared.Data.Context.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ApplicationAreaKz");
+
+                    b.Property<string>("ApplicationAreaRu");
+
+                    b.Property<string>("AppointmentKz");
+
+                    b.Property<string>("AppointmentRu");
+
+                    b.Property<string>("CardNumber");
+
+                    b.Property<string>("ChangesMade");
+
+                    b.Property<string>("ClassRisk");
+
+                    b.Property<int>("ContractId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsBlank");
+
+                    b.Property<bool>("IsClosedSystem");
+
+                    b.Property<bool>("IsDiagnostics");
+
+                    b.Property<bool>("IsMeasures");
+
+                    b.Property<bool>("IsPresenceMedicinalProduct");
+
+                    b.Property<bool>("IsStyryl");
+
+                    b.Property<bool>("IsTypeImnMt");
+
+                    b.Property<string>("NameKz");
+
+                    b.Property<string>("NameRu");
+
+                    b.Property<string>("NumberModificationImn");
+
+                    b.Property<string>("RationaleManufacturer");
+
+                    b.Property<string>("RevisionBeforeChanges");
+
+                    b.Property<string>("TradeName");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentEquipment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<int?>("CountryId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<int>("EquipmentTypeId");
+
+                    b.Property<string>("Manufacturer");
+
+                    b.Property<string>("Model");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("PaymentId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("EquipmentTypeId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("PaymentEquipments");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentPackaging", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("NumberUnitsInBox");
+
+                    b.Property<int?>("PackagingTypeId");
+
+                    b.Property<int>("PackagingtTypeId");
+
+                    b.Property<int>("PaymentId");
+
+                    b.Property<string>("ShortDescription");
+
+                    b.Property<string>("SizeHeight");
+
+                    b.Property<string>("SizeLength");
+
+                    b.Property<int?>("SizeMeasureId");
+
+                    b.Property<string>("SizeWidth");
+
+                    b.Property<int?>("VolumeMeasureId");
+
+                    b.Property<string>("VolumeValue");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackagingTypeId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("SizeMeasureId");
+
+                    b.HasIndex("VolumeMeasureId");
+
+                    b.ToTable("PaymentPackagings");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentPlatform", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("CountryId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("FactAddress")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("LegalAddress")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("NameEn");
+
+                    b.Property<string>("NameKz");
+
+                    b.Property<string>("NameRu");
+
+                    b.Property<int>("PaymentId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("PaymentPlatforms");
+                });
+
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_ApplicationType", b =>
                 {
                     b.Property<int>("Id")
@@ -447,6 +615,54 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("Ref_DegreeRiskClasses");
                 });
 
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_EquipmentType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_EquipmentTypes");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_Measure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_Measures");
+                });
+
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_NomenclatureCodeMedProduct", b =>
                 {
                     b.Property<int>("Id")
@@ -499,6 +715,30 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ref_OrganizationForms");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PackagingType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("NameKz")
+                        .IsRequired();
+
+                    b.Property<string>("NameRu")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ref_PackagingTypes");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.References.Ref_PriceList", b =>
@@ -761,6 +1001,63 @@ namespace Teme.Shared.Data.Migrations
                     b.HasOne("Teme.Shared.Data.Context.Declarant", "Declarant")
                         .WithMany("DeclarantDetails")
                         .HasForeignKey("DeclarantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.Payment", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentEquipment", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_Country", "Ref_Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_EquipmentType", "Ref_EquipmentType")
+                        .WithMany()
+                        .HasForeignKey("EquipmentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentPackaging", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_PackagingType", "Ref_PackagingType")
+                        .WithMany()
+                        .HasForeignKey("PackagingTypeId");
+
+                    b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_Measure", "Ref_SizeMeasure")
+                        .WithMany()
+                        .HasForeignKey("SizeMeasureId");
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_Measure", "Ref_VolumeMeasure")
+                        .WithMany()
+                        .HasForeignKey("VolumeMeasureId");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.PaymentPlatform", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_Country", "Ref_Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

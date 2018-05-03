@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -20,7 +20,7 @@ namespace Teme.Shared.Data.Context
         /// Дата изменения сущности
         /// </summary>
         [Column(Order = 102)]
-        public DateTime DateUpdate { get; set; } = DateTime.Now;
+        public DateTime DateUpdate { get; set; }
 
         public virtual string ClassName => this.GetType().FullName;
     }

@@ -12,6 +12,7 @@ using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.Shared.Data.Primitives.OrgScopes;
 using Teme.Shared.Data.Repos.ContractRepo;
 using Teme.Shared.Logic.ContractLogic;
 
@@ -185,9 +186,38 @@ namespace Teme.Contract.Logic
             await _repo.DeleteCostWork(contractId);
         }
 
-        //public async Task GetListContracts() //int userId
-        //{
-        //    await _repo.GetListContracts();
-        //}
+        /// <summary>
+        /// Получение списка договоров
+        /// </summary>
+        /// <param name="contractScope">Scope структурного подразделения OrganizationScopeEnum</param>
+        /// <returns>Возвращает список договоров</returns>
+        public async Task<object> GetListContracts(string contractScope)
+        {
+            var result = await _repo.GetListContracts(contractScope);
+            return result.Select(x => new {
+                x.Id,
+                x.Number,
+                x.DateCreate,
+                x.ContractForm,
+                x.StatePolicies.FirstOrDefault(e => e.Scope == OrganizationScopeEnum.Ext).Status,
+                x.Manufactur.NameRu,
+                x.Manufactur.NameKz,
+                x.MedicalDeviceNameRu,
+                x.MedicalDeviceNameKz,
+                x.ContractScope
+            });
+        }
+
+        /// <summary>
+        /// Получение договора по Id
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> GetContractById(int contractId)
+        {
+            var result = await _repo.GetContract(contractId);
+            if (result == null)
+                return null;
+            return _dtoRepo.ConvertEntityToContract(result);
+        }
     }
 }

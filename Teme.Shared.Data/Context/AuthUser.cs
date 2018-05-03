@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using Teme.Shared.Data.Primitives.IUser;
 
 namespace Teme.Shared.Data.Context
 {
@@ -16,10 +12,8 @@ namespace Teme.Shared.Data.Context
 
         public bool? HasIin { get; set; }
 
-        [Required]
         public string Iin { get; set; }
 
-        [Required]
         public string Pwdhash { get; set; }
 
         public string CompanyName { get; set; }
@@ -43,7 +37,6 @@ namespace Teme.Shared.Data.Context
 
     public class AuthUserScopes : BaseEntity
     {
-        public int UserId { get; set; }
         public string Scope { get; set; }
     }
 }

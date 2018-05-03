@@ -15,6 +15,7 @@ namespace Teme.Contract.Logic
         Task<object> GetDeclarantById(int id);
         Task<object> SaveCostWork(CostWorkModel[] costWorkModel);
         Task DeleteCostWork(int contractId);
-        //Task<object> GetListContracts(); //int userId
+        Task<object> GetListContracts(string contractScope);
+        Task<object> GetContractById(int contractId);
     }
 }

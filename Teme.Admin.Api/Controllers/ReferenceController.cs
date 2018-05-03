@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
@@ -218,5 +218,38 @@ namespace Teme.Admin.Api.Controllers
         {
             return Ok(await _refLogic.GetShowPrice(isImport, serviceTypeId, serviceTypeModifId));
         }
+
+        /// <summary>
+        /// Тип комплектации ИМН и МТ
+        /// </summary>
+        /// <returns></returns>
+        [Route("EquipmentType")]
+        [HttpGet]
+        public async Task<IActionResult> EquipmentType()
+        {
+          return Ok(await _refLogic.GetEquipmentType());
+        }
+
+    /// <summary>
+    /// Тип упаковки
+    /// </summary>
+    /// <returns></returns>
+    [Route("PackagingType")]
+    [HttpGet]
+    public async Task<IActionResult> PackagingType()
+    {
+      return Ok(await _refLogic.GetPackagingType());
     }
+
+    /// <summary>
+    /// Единица измерения
+    /// </summary>
+    /// <returns></returns>
+    [Route("Measure")]
+    [HttpGet]
+    public async Task<IActionResult> Measure()
+    {
+      return Ok(await _refLogic.GetMeasure());
+    }
+  }
 }

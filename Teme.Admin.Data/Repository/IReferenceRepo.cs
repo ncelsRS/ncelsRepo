@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Shared.Data.Context.References;
@@ -21,5 +21,8 @@ namespace Teme.Admin.Data.Repository
         Task<IQueryable<Ref_ServiceType>> CalculatorServiceType(int applicationTypeId);
         Task<Ref_ValueAddedTax> GetValueAddedTax(int year);
         Task<Ref_PriceList> GetPriceList(int id, bool isImport);
-    }
+        Task<IEnumerable<Ref_EquipmentType>> EquipmentTypeAsync();
+        Task<IEnumerable<Ref_PackagingType>> PackagingTypeAsync();
+        Task<IEnumerable<Ref_Measure>> MeasureAsync();
+  }
 }

@@ -1,26 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using NSwag.AspNetCore;
 using RSC.IdentityServer.Startups;
 using Serilog;
+using System;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace RSC.IdentityServer
 {
@@ -48,31 +43,19 @@ namespace RSC.IdentityServer
                 options.UseSqlServer(connectionStr);
             });
 
-            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
-            services.AddIdentity<AuthUser, Role>()
-                .AddDefaultTokenProviders();
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidIssuer = Configuration["Urls:Identity"],
-                        ValidAudience = Configuration["Urls:Identity"],
-                        IssuerSigningKey = new X509SecurityKey(cert)
-                    };
-                });
-
             services.AddMvc();
 
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Identity
+            });
+
             var containerBuilder = new Autofac.ContainerBuilder();
+            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.Populate(services);
             containerBuilder.RegisterInstance(Configuration);
@@ -98,13 +81,31 @@ namespace RSC.IdentityServer
 
             loggerFactory.AddSerilog();
 
-            app.UseCors(cfg => cfg.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            #region CORS
+#if !DEBUG
+            var urls = Configuration
+                .GetChildren()
+                .FirstOrDefault(x => x.Key == "Urls")
+                .GetChildren()
+                .Select(x => x.Value)
+                .ToArray();
+#endif
+            app.UseCors(cfg => cfg
+#if DEBUG
+                .AllowAnyOrigin()
+#else
+                .WithOrigins(urls)
+#endif
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+            );
+            #endregion
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
-            app.UseAuthentication();
-
             app.UseStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

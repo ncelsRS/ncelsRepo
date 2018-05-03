@@ -5,30 +5,33 @@ import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './components/app/app.component';
-import { NavMenuComponent } from './components/navmenu/navmenu.component';
-import { HomeComponent } from './components/home/home.component';
-import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
-import { CounterComponent } from './components/counter/counter.component';
+import { LoginComponent } from './components/app/login/login.component';
+import { LoginSvc } from './components/app/login/login.svc';
+import { RegisterSvc } from './components/app/register/register.svc';
+import { WindowSvc } from './windowSvc';
+import { RegisterComponent } from './components/app/register/register.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        NavMenuComponent,
-        CounterComponent,
-        FetchDataComponent,
-        HomeComponent
+        LoginComponent,
+        RegisterComponent
     ],
     imports: [
         CommonModule,
         HttpModule,
         FormsModule,
         RouterModule.forRoot([
-            { path: '', redirectTo: 'home', pathMatch: 'full' },
-            { path: 'home', component: HomeComponent },
-            { path: 'counter', component: CounterComponent },
-            { path: 'fetch-data', component: FetchDataComponent },
-            { path: '**', redirectTo: 'home' }
+            { path: '', redirectTo: 'login', pathMatch: 'full' },
+            { path: 'login', component: LoginComponent },
+            { path: 'register', component: RegisterComponent },
+            { path: '**', redirectTo: 'login' }
         ])
+    ],
+    providers: [
+        WindowSvc,
+        LoginSvc,
+        RegisterSvc
     ]
 })
 export class AppModuleShared {
