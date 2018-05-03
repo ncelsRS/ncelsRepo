@@ -3,39 +3,66 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
 using Teme.Shared.Logic;
-using System.Linq;
-using System.Collections.Concurrent;
 
 namespace Teme.Identity.Logic
 {
     public class IdentityLogic : BaseLogic, IIdentityLogic
     {
         private readonly IConfiguration _config;
-        private static readonly ConcurrentDictionary<string, int> _updateTokens = new ConcurrentDictionary<string, int>();
-        public IdentityLogic(IConfiguration config)
+        private readonly X509Certificate2 _cert;
+
+        public IdentityLogic(IConfiguration config, X509Certificate2 cert)
         {
             _config = config;
+            _cert = cert;
         }
 
-        public string GenerateToken(AuthUser user)
+
+        public string GenerateOneTimeToken(int userId)
+        {
+            var secondsStr = _config["IdentityConfig:OneTimeExpirationSeconds"];
+            if (!int.TryParse(secondsStr, out var seconds))
+                seconds = (int)TimeSpan.FromMinutes(1).TotalSeconds;
+
+            return GenerateToken(userId, seconds, new[] { OrganizationScopeEnum.Identity });
+        }
+
+        public string GenerateAccessToken(int userId, IEnumerable<string> audiences)
+        {
+            var secondsStr = _config["IdentityConfig:AccessExpirationSeconds"];
+            if (!int.TryParse(secondsStr, out var seconds))
+                seconds = (int)TimeSpan.FromMinutes(30).TotalSeconds;
+
+            return GenerateToken(userId, seconds, audiences);
+        }
+
+        public string GenerateRefreshToken(int userId)
+        {
+            var secondsStr = _config["IdentityConfig:RefreshExpirationSeconds"];
+            if (!int.TryParse(secondsStr, out var seconds))
+                seconds = (int)TimeSpan.FromDays(30).TotalSeconds;
+
+            return GenerateToken(userId, seconds, new[] { OrganizationScopeEnum.Identity });
+        }
+
+
+
+        private string GenerateToken(int userId, int seconds, IEnumerable<string> audiences)
         {
             var issuer = _config["IdentityConfig:Issuer"];
             var certPath = _config["IdentityConfig:CertPath"];
             var certPass = _config["IdentityConfig:CertPass"];
-            var extTime = _config[$"IdentityConfig:ExpirationSeconds"];
 
-            var claims = new List<Claim> { new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()) };
-            var scopeClaims = user.Scopes.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x.Scope));
-            claims.AddRange(scopeClaims);
+            var claims = audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)).ToList();
+            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()));
 
-            var cert = new X509Certificate2(certPath, certPass);
-            var creds = new SigningCredentials(new X509SecurityKey(cert), SecurityAlgorithms.RsaSha256);
-            var expires = DateTime.Now.AddSeconds(Double.Parse(extTime));
+            var creds = new SigningCredentials(new X509SecurityKey(_cert), SecurityAlgorithms.RsaSha256);
+            var expires = DateTime.Now.AddSeconds(seconds);
 
             var token = new JwtSecurityToken(
                 issuer,
@@ -48,18 +75,5 @@ namespace Teme.Identity.Logic
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateUpdateToken(int id)
-        {
-            var newRefreshToken = Guid.NewGuid().ToString("N");
-            _updateTokens.TryAdd(newRefreshToken, id);
-            return newRefreshToken;
-        }
-
-        public int RealiseUpdateToken(string token)
-        {
-            if (!_updateTokens.TryRemove(token, out var id))
-                return 0;
-            return id;
-        }
     }
 }

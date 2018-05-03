@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -15,6 +16,11 @@ namespace Teme.Shared.Data.Repos
         {
             Context = context;
             Repo = Context.Set<TEntity>();
+        }
+
+        public IQueryable<AuthUser> GetCurrentUser(int userId)
+        {
+            return Context.AuthUsers.Where(x => x.Id == userId);
         }
 
         public async Task Add(TEntity entity)

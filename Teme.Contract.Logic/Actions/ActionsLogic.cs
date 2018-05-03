@@ -1,15 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
+using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Repos;
+using Teme.Shared.Logic;
+using Teme.Shared.Logic.ContractLogic;
 using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Logic.Actions
 {
-    public class ActionsLogic : IActionsLogic
+    public class ActionsLogic : BaseLogic<IBaseRepo<BaseEntity>, BaseEntity>, IActionsLogic
     {
         private readonly IContractWorkflowLogic _wflogic;
-
-        public ActionsLogic(IContractWorkflowLogic wflogic)
+        protected ActionsLogic(IBaseRepo<BaseEntity> repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
         }
