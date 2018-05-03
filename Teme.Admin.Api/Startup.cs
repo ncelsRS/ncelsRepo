@@ -59,6 +59,7 @@ namespace Teme.Admin.Api
             loggerFactory.AddSerilog();
             app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
     }
 }

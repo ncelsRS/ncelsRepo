@@ -24,9 +24,9 @@ namespace Teme.Admin.Api.Controllers
         /// <returns></returns>
         [Route("StorageCondition")]
         [HttpGet]
-        public async Task<IActionResult> StorageCondition()
+        public async Task<IActionResult> StorageCondition(string name, string culture, int page, int counter)
         {
-            return Ok(await _refLogic.GetStorageCondition());
+            return Ok(await _refLogic.GetStorageCondition(name, culture, page, counter));
         }
 
         /// <summary>
@@ -47,11 +47,11 @@ namespace Teme.Admin.Api.Controllers
         /// <returns></returns>
         [Route("NomenclatureCodeMedProduct")]
         [HttpGet]
-        public async Task<IActionResult> NomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IActionResult> NomenclatureCodeMedProduct(string name, string culture, int page, int counter)
         {
             if (name == null || culture == null)
                 return BadRequest();
-            return Ok(await _refLogic.GetNomenclatureCodeMedProduct(name, culture));
+            return Ok(await _refLogic.GetNomenclatureCodeMedProduct(name, culture, page, counter));
         }
 
         /// <summary>
