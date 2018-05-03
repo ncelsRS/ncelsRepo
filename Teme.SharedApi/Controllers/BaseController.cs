@@ -9,7 +9,7 @@ using Teme.Shared.Logic;
 
 namespace Teme.SharedApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     public class BaseController<TILogic> : Controller where TILogic : IBaseLogic
     {
