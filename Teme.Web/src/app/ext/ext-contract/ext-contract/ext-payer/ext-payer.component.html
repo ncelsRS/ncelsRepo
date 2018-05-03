@@ -6,45 +6,57 @@
 
         <div class="form-group">
           <label>Плательщик</label>
-          <select class="form-control" >
+          <select name="ChoosePayer" class="form-control" [(ngModel)]="model.ChoosePayer"  (ngModelChange)="onChoosePayer($event)">
+            <option></option>
+            <!--<option value="1">Заявитель</option>-->
+            <!--<option value="2">Производитель</option>-->
+            <!--<option value="3"> Третье лицо</option>-->
+            <option *ngFor="let item of items" [value]="item.key">{{item.nameRu}}</option>
           </select>
         </div>
 
         <div class="form-group">
           <div class="custom-control custom-radio radio-inline" >
-            <input type="radio" class="custom-control-input radio-primary" name="payerIsResident" id="payerResident"  [(ngModel)]="isPayerRes" value="res" >
-            <label class="custom-control-label" for="payerResident">Резидент РК</label>
+            <input type="radio" class="custom-control-input radio-primary" name="IsResident" id="payerResident"  [(ngModel)]="model.isPayerRes" value="res">
+            <label class="custom-control-label" for="payerResident" >Резидент РК</label>
           </div>
           <div class="custom-control custom-radio radio-inline">
-            <input type="radio" class="custom-control-input radio-primary" name="payerIsResident" id="payerNoResident" [(ngModel)]="isPayerRes" value="unres">
+            <input type="radio" class="custom-control-input radio-primary" name="IsResident" id="payerNoResident" [(ngModel)]="model.isPayerRes" value="unres">
             <label class="custom-control-label" for="payerNoResident">Нерезидент РК</label>
           </div>
         </div>
 
-        <div [hidden]="isPayerRes!=='res'" class="form-group">
+        <div [hidden]="model.isPayerRes!=='res'" class="form-group">
           <div class="custom-control custom-radio radio-inline" >
-            <input type="radio" class="custom-control-input radio-primary" name="payerIsFlUl" id="payerFL"  [(ngModel)]="isPayerPlFl" value="fl" >
+            <input type="radio" class="custom-control-input radio-primary" name="IsJuridical" id="payerFL"  [(ngModel)]="model.isPayerJuridical" value="fl"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledPayerDetail">
             <label class="custom-control-label" for="payerFL">Физическое лицо</label>
           </div>
           <div class="custom-control custom-radio radio-inline">
-            <input type="radio" class="custom-control-input radio-primary" name="payerIsFlUl" id="payerUl" [(ngModel)]="isPayerPlFl" value="ul">
+            <input type="radio" class="custom-control-input radio-primary" name="IsJuridical" id="payerUl" [(ngModel)]="model.isPayerJuridical" value="ul"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledPayerDetail">
             <label class="custom-control-label" for="payerUl">Юридическое лицо</label>
           </div>
         </div>
 
-        <div [hidden]="isPayerRes==='unres'" >
+        <div [hidden]="model.isPayerRes==='unres'" >
           <label>ИИН/БИН *</label>
           <div>
             <input maxlength="24" name="payerBin" class="form-control"   type="text"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
                    #payerBin = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && payerBin.invalid }"
-                   [(ngModel)]="model.payerBin"
+                   [(ngModel)]="model.IdNumber"
+                   [disabled]="disabledPayerDetail"
                    required>
           </div><br>
-          <button type="button" class="btn btn-sm btn-primary" >Найти</button>
+          <button type="button" class="btn btn-sm btn-primary"
+                  (click)="searchPayer(payerBin.value)">Найти</button>
+
           <button type="button" class="btn btn-sm btn-primary" >Отмена</button>
         </div>
-        <div [hidden]="isPayerRes!=='unres'" >
+        <div [hidden]="model.isPayerRes!=='unres'" >
         <div class="form-group">
           <label>Страна</label>
           <select class="form-control"  name="payerNoRes"
@@ -52,11 +64,12 @@
                   [ngClass]="{'has-error':showErrors === true && payerNoRes.invalid && isDecRes !== 'unres'}"
                   [(ngModel)]="model.payerNoRes"
                   required>
+            <option></option>
             <option *ngFor="let item of countryVarNoRes">{{item.nameRu}}</option>
           </select>
         </div>
         </div>
-        <div [hidden]="isPayerRes!=='unres'" >
+        <div [hidden]="model.isPayerRes!=='unres'" >
           <div class="form-group">
             <label>Наименование на русском языке *</label>
             <select class="form-control" name="payerNoResName"
@@ -67,28 +80,34 @@
             </select>
           </div>
         </div>
-
-        <div class="form-group ng-hide" ng-show="payerNotFound &amp;&amp; object.Payer.IsResident == true">
-          По Вашему запросу ничего не найдено!
-        </div>
-        <div class="form-group ng-hide" ng-show="payerNotFound">
-          <button type="button" class="btn btn-sm btn-primary" ng-click="addManufactur('Payer');" ng-disabled="addPayerDisabled">Добавить</button>
+        <div *ngIf="viewAddPayer">
+          <div class="form-group ng-hide" >
+            По Вашему запросу ничего не найдено!
+          </div>
+          <div class="form-group ng-hide" ng-show="payerNotFound">
+            <button type="button" class="btn btn-sm btn-primary"
+            (click)="createPayer()">Добавить</button>
+          </div>
         </div>
 
         <div >
           <div class="form-group">
             <label>Организационная форма</label>
-            <select class="form-control" name="payerOrgForm"
+            <select class="form-control" name="OrganizationFormId"
                     #payerOrgForm = "ngModel"
                     [ngClass]="{'has-error':showErrors === true && payerOrgForm.invalid}"
                     [(ngModel)]="model.payerOrgForm"
+                    (change)="onChangedModel($event.target)"
+                    [disabled]="disabledAddDetail"
                     required>
-              <option  *ngFor="let item of orgFormVar">{{item.nameRu}}</option>
+              <option></option>
+              <option  *ngFor="let item of orgFormVar" [value]="item.id">{{item.nameRu}}</option>
             </select>
           </div>
         </div>
         <div class="form-group ng-hide">
-          <button type="button" class="btn btn-sm btn-primary" (click)="addOrgForm()">Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="addOrgForm()"
+                  [disabled]="disabledAddDetail">Добавить</button>
         </div>
 
         <div *ngIf="isAddOrgForm">
@@ -123,31 +142,37 @@
         <div class="form-group">
         <label>Наименование на русском языке *</label>
         <div>
-          <input class="form-control" placeholder="Введите значение"  type="text"  name="payerNameRu"
+          <input class="form-control" placeholder="Введите значение"  type="text"  name="NameRu"
                  #payerNameRu = "ngModel"
                  [ngClass]="{'has-error':showErrors === true && payerNameRu.invalid}"
                  [(ngModel)]="model.payerNameRu"
+                 (change)="onChangedModel($event.target)"
+                 [disabled]="disabledAddDetail"
                  required>
         </div>
       </div>
         <div class="form-group">
           <label>Страна</label>
-          <select class="form-control" name="payerCountry"
+          <select class="form-control" name="CountryId"
                   #payerCountry = "ngModel"
                   [ngClass]="{'has-error':showErrors === true && payerNameRu.invalid}"
                   [(ngModel)]="model.payerCountry"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of countryVarRes">{{item.nameRu}}></option>
+            <option *ngFor="let item of countryVarRes" [value]="item.id">{{item.nameRu}}></option>
           </select>
         </div>
         <div class="form-group">
           <label>Юридический адрес</label>
           <div>
             <input id="payerAddressLegalRu" class="form-control" placeholder="Введите значение"  type="text"
-                   lass="form-control" name="payerAddressLegalRu"
+                   lass="form-control" name="LegalAddress"
                    #payerAddressLegalRu = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && payerAddressLegalRu.invalid}"
                    [(ngModel)]="model.payerAddressLegalRu"
+                   [disabled]="disabledAddDetail"
+                   (change)="onChangedModel($event.target)"
                    required>
           </div>
         </div>
@@ -156,17 +181,20 @@
 
         <div class="form-group">
           <label>Название банка</label>
-          <select class="form-control" name="payerBankName" #payerBankName = "ngModel"
+          <select class="form-control" name="BankId" #payerBankName = "ngModel"
                   #payerBankName="ngModel"
                   [ngClass]="{'has-error':showErrors === true && payerBankName.invalid}"
                   [(ngModel)]="model.payerBankName"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of bankVar">{{item.nameRu}}</option>
+            <option *ngFor="let item of bankVar" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <button type="button" class="btn btn-sm btn-primary" (click)="addBankName()">Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="addBankName()"
+                  [disabled]="disabledAddDetail">Добавить</button>
         </div>
         <div *ngIf="isAddBankName">
           <div class="card card-outline-info text-left">
@@ -199,10 +227,12 @@
         <div class="form-group ng-hide" ng-show="object.Payer.IsResident == true">
           <label>Расчетный счет/ИИК</label>
           <div>
-            <input name="payerBankIik" class="form-control" placeholder="Введите значение"  type="text" ng-disabled="showContactInformationPayer"
+            <input name="BankIik" class="form-control" placeholder="Введите значение"  type="text" ng-disabled="showContactInformationPayer"
                    #payerBankIik="ngModel"
                    [ngClass]="{'has-error':showErrors === true && payerBankIik.invalid }"
                    [(ngModel)]="model.payerBankIik"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
@@ -215,10 +245,12 @@
 
         <div class="form-group">
           <label>Валюта *</label>
-          <select class="form-control" name="payerBankCurr"
+          <select class="form-control" name="Ref_Currency"
                   #payerBankCurr="ngModel"
                   [ngClass]="{'has-error':showErrors === true && payerBankCurr.invalid}"
                   [(ngModel)]="model.payerBankCurr"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
             <option *ngFor="let item of currencyVar">{{item.nameRu}}</option>
           </select>
@@ -227,7 +259,9 @@
         <div class="form-group ng-hide" ng-show="object.Payer.IsResident == true">
           <label>ИИН/БИН</label>
           <div >
-            <input id="BankAccount2" class="form-control"  placeholder="Введите значение"  type="text" ng-disabled="true" required="" >
+            <input name="BankBin" class="form-control"  placeholder="Введите значение"  type="text" ng-disabled="true" required=""
+                   [disabled]="disabledAddDetail"
+                   (change)="onChangedModel($event.target)">
           </div>
         </div>
 
@@ -235,10 +269,12 @@
           <label ng-show="object.Payer.IsResident == true" class="ng-hide">БИК</label>
           <!--<label ng-show="object.Payer.IsResident == false" class="ng-hide">SWIFT *</label>-->
           <div ng-class="{'input-group': showComments}">
-            <input name="payerBankSwift" class="form-control" placeholder="Введите значение"  type="text"
+            <input name="BankSwift" class="form-control" placeholder="Введите значение"  type="text"
                    #payerBankSwift="ngModel"
                    [ngClass]="{'has-error':showErrors === true && payerBankSwift.invalid}"
                    [(ngModel)]="model.payerBankSwift"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>

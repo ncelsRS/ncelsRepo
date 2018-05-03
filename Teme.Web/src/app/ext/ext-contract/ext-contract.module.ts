@@ -14,6 +14,8 @@ import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payme
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
+import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 
 @NgModule({
   imports: [
@@ -23,7 +25,8 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
     FormsModule,
     Ng2SmartTableModule,
     NgbModule.forRoot(),
-    HttpClientModule,
+    HttpClientModule
+
 
   ],
   declarations: [
@@ -34,7 +37,9 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
     ExtAttachmentComponent,
     ExtDeclarantComponent,
     ExtPaymentTabComponent,
-    ExtPayerComponent
+    ExtPayerComponent,
+    ExtCertificateComponent,
+    ExtManufacturActionComponent
   ]
 })
 export class ExtContractModule { }

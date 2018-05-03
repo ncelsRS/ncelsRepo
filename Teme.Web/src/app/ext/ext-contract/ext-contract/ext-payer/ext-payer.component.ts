@@ -1,4 +1,4 @@
-import {Component, forwardRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR
@@ -33,15 +33,29 @@ export class ExtPayerComponent extends TemplateValidation {
 
   public countryVarNoRes;
   public countryVarRes;
+  public viewAddPayer=false;
+  public disabledAddDetail=true;
+  public disabledPayerDetail=true;
+  @Input() idContractChild:string;
+  @Output() onChangedManufYes = new EventEmitter<boolean>();
+  @Output() onChangedDeclarantYes = new EventEmitter<boolean>();
 
   public  currencyVar;
+  public  choosePayerVar;
+  public items = [];
+  public listVarRes;
+  changeModelHead;
+  changeModelRes:any;
 
   constructor(private refService: RefService) { super();
     this.getOrgForm();
     this.getBanks();
     this.getCountryNoRes();
     this.getCountry();
-    this.getCurrency();}
+    this.getCurrency();
+    this.getChoosePayer();
+
+  }
 
   ngOnInit() {
   }
@@ -182,6 +196,218 @@ export class ExtPayerComponent extends TemplateValidation {
         () =>
           console.log('done loading Currency')
       );
+
+  }
+
+
+    onChoosePayer(lev)
+  {
+    console.log(lev);
+    if (lev=='1') {
+      this.onChangedDeclarantYes.emit(lev);
+      this.changeModelHead =
+        ({'id': this.idContractChild, 'classname': 'Teme.Shared.Data.Context.Contract',
+          'fields':
+            {'ChoosePayer': '1',
+              'PayerId': this.model.id,
+              'PayerDetailsId': this.model.detailId
+            }
+        });
+    }
+    else if(lev=='2'){
+      this.onChangedManufYes.emit(lev);
+      this.changeModelHead =
+        ({'id': this.idContractChild, 'classname': 'Teme.Shared.Data.Context.Contract',
+          'fields':
+            {'ChoosePayer': '2',
+              'PayerId': this.model.id,
+              'PayerDetailsId': this.model.detailId
+            }
+        });
+    }
+    else
+    {
+      this.disabledPayerDetail = false;
+    }
+
+  }
+
+  getChoosePayer() {
+    this.refService.getChosenPayer()
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.choosePayerVar = response;
+        this.getData(this.choosePayerVar);
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+  }
+
+  getData(items) {
+    this.items = items;
+    for (let item of this.items) {
+      if (item.value == 'Declarant') {
+        item.nameRu = 'Заявитель';
+        item.nameKz = 'Заявитель кз';
+      }
+      else if (item.value == 'Manufactur') {
+        item.nameRu = 'Прозводитель';
+        item.nameKz = 'Прозводитель кз';
+      }
+      else if (item.value == 'Other') {
+        item.nameRu = 'Третье лицо';
+        item.nameKz = 'Третье лицо кз';
+      }
+    }
+
+  }
+
+  searchPayer(val)
+  {
+    this.refService.SearchDeclarantResident(val)
+      .toPromise()
+      .then(response => {
+        this.listVarRes = response ;
+        console.log(response);
+        if(response==null)
+        {
+          this.viewAddPayer = true;
+        }
+        else
+        {
+          this.loadData(this.listVarRes);
+        }
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+
+  }
+
+  loadData(data)
+  {
+    let dataArray=[];
+    dataArray.push(data);
+
+    this.model.id = dataArray[0].Id;
+    this.model.payerOrgForm = dataArray[0].organizationFormId;
+    this.model.payerNameRu = dataArray[0].nameRu;
+    this.model.payerCountry = dataArray[0].countryId;
+    this.model.detailId = dataArray[0].declarantDetailDto.id;
+    this.model.payerAddressLegalRu = dataArray[0].declarantDetailDto.legalAddress;
+    this.model.payerBankName = dataArray[0].declarantDetailDto.bankId;
+    this.model.payerBankIik = dataArray[0].declarantDetailDto.bankIik;
+    this.model.payerBankCurr = dataArray[0].declarantDetailDto.currencyId;
+    this.model.declarantBankSwift = dataArray[0].declarantDetailDto.bankSwift;
+
+
+  }
+
+  createPayer()
+  {
+    let responseData;
+    //this.idContractChild
+    this.refService.AddDeclarant(this.idContractChild, 'Payer')
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        responseData = response;
+        this.model.id  = responseData.id;
+        this.model.detailId = responseData.detailId;
+        this.disabledAddDetail = false;
+        this.onChangedModelResisdent();
+
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+  }
+
+  onChangedModel(evnt) {
+
+    if (evnt.name == 'NameKz' || evnt.name == 'NameRu' || evnt.name == 'IsJuridical' ||
+      evnt.name == 'NameEn' || evnt.name == 'OrganizationFormId' || evnt.name == 'CountryId') {
+      if (evnt.name =='IsJuridical') {
+        if (evnt.value == 'fl') {
+          this.changeModelHead =
+          ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: 1}})
+        }
+        else {
+          this.changeModelHead =
+          ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: 0}})
+        }
+        ;
+
+      }
+      else {
+        this.changeModelHead = ({
+          'id': this.model.id,
+          'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: evnt.value}
+        })
+      }
+    }
+    else {
+      this.changeModelHead = ({
+        'id': this.model.id,
+        'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
+      })
+    }
+
+
+    if(!this.listVarRes)
+    {
+      console.log(evnt.value);
+      console.log(this.changeModelHead);
+      this.changedModelRef(this.changeModelHead);
+
+    }
+
+  }
+
+  onChangedModelResisdent() {
+
+    if (this.model.isPayerRes == 'res') {
+      this.changeModelHead =
+        ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident': 1}})
+    }
+    else {
+      this.changeModelHead = ({
+        'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident': 0}});
+    }
+
+    if(!this.listVarRes)
+    {
+      console.log(this.changeModelHead);
+      this.changedModelRef(this.changeModelHead);
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.IdNumber}});
+    }
+
+  }
+
+  changedModelRef(obj)
+  {
+    this.refService.changeModel(obj)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.changeModelRes = response ;
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
 
   }
 
