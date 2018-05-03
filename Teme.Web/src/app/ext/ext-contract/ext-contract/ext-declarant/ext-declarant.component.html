@@ -4,78 +4,90 @@
     <div class="row">
       <div class="col-lg-6 b-r">
         <div class="form-group">
-            <label><input type="checkbox" name="isManufacturer"  value="">Является производителем</label>
+            <label><input type="checkbox" name="DeclarantIsManufacture" [(ngModel)]="model.DeclarantIsManufacture"  (ngModelChange)="onManufChange($event)" checked="false">Является производителем</label>
 
         </div>
 
         <div class="form-group" >
           <div class="custom-control custom-radio radio-inline" >
-            <input type="radio" class="custom-control-input radio-primary " name="DeclarantIsResident" id="DeclarantResident"  [(ngModel)]="isDecRes" value="res" >
+            <input type="radio" class="custom-control-input radio-primary " name="IsResident" id="DeclarantResident"
+                   [(ngModel)]="model.isDecRes" value="res">
             <label class="custom-control-label" for="DeclarantResident">Резидент РК</label>
           </div>
           <div class="custom-control custom-radio radio-inline ">
-            <input type="radio" class="custom-control-input  radio-primary" name="DeclarantIsResident" id="DeclarantNoResident" [(ngModel)]="isDecRes" value="unres">
+            <input type="radio" class="custom-control-input  radio-primary" name="IsResident" id="DeclarantNoResident"
+                   [(ngModel)]="model.isDecRes" value="unres">
             <label class="custom-control-label" for="DeclarantNoResident">Нерезидент РК</label>
           </div>
         </div>
 
-        <div *ngIf="isDecRes !== 'unres'" class="form-group">
+        <div *ngIf="model.isDecRes !== 'unres'" class="form-group">
           <label>ИИН/БИН *</label>
           <div>
-            <input maxlength="24" name="declarantBin"   class="form-control"  type="text"   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
+            <input maxlength="24" name="IdNumber"
+                   class="form-control"  type="text"
+                   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
                    #declarantBin = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBin.invalid && isDecRes !== 'unres'}"
-                   [(ngModel)]="model.declarantBin"
+                   [(ngModel)]="model.IdNumber"
                    required>
           </div>
           <br>
-          <button type="button" class="btn btn-sm btn-primary"  >Найти</button>
-          <button type="button" class="btn btn-sm btn-primary" ng-click="cancelFind('Declarant');" ng-disabled="!iinSearchActiveDeclarant" >Отмена</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="searchDeclarant(declarantBin.value)">Найти</button>
+          <button type="button" class="btn btn-sm btn-primary" >Отмена</button>
         </div>
 
-        <div [hidden]="isDecRes !== 'unres'" >
+        <div [hidden]="model.isDecRes !== 'unres'" >
           <div class="form-group">
             <label>Страна</label>
             <select class="form-control"   name="declarantNoResCounty"
                     #declarantNoResCounty = "ngModel"
-                    [ngClass]="{'has-error':showErrors === true && declarantNoResCounty.invalid && isDecRes === 'unres'}"
+                    (change)="searchManufacturNoRes()"
+                    [ngClass]="{'has-error':showErrors === true && declarantNoResCounty.invalid && model.isDecRes === 'unres'}"
                     [(ngModel)]="model.declarantNoResCounty"
                     required>
+              <option></option>
               <option *ngFor="let item of countryVarNoRes">{{item.nameRu}}</option>
             </select>
           </div>
         </div>
-        <div [hidden]="isDecRes !== 'unres'" >
+        <div [hidden]="model.isDecRes !== 'unres'" >
           <div class="form-group">
             <label>Наименование на русском языке *</label>
               <select class="form-control" name="declarantRuName"
                       #declarantRuName = "ngModel"
-                      [ngClass]="{'has-error':showErrors === true && declarantRuName.invalid && isDecRes === 'unres'}"
+                      [ngClass]="{'has-error':showErrors === true && declarantRuName.invalid && model.isDecRes === 'unres'}"
                       [(ngModel)]="model.declarantRuName"
                       required>
               </select>
           </div>
         </div>
+        <div *ngIf="viewAddDeclarant">
         <div class="form-group ng-hide">
           По Вашему запросу ничего не найдено!
         </div>
         <div>
-          <button type="button" class="btn btn-sm btn-primary" ng-click="addManufactur('Declarant');" >Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary"
+                  (click)="createDeclarant()">Добавить</button>
         </div>
-
+        </div>
         <h4>Заявитель</h4>
         <div class="form-group">
           <label>Организационная форма*</label>
-          <select class="form-control" name="declarantOrgForm"
+          <select class="form-control" name="OrganizationFormId"
                   #declarantOrgForm = "ngModel"
                   [ngClass]="{'has-error':showErrors === true && declarantOrgForm.invalid}"
                   [(ngModel)]="model.declarantOrgForm"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of orgFormVar">{{item.nameRu}}</option>
+            <option></option>
+            <option *ngFor="let item of orgFormVar" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
         <div>
-          <button type="button" class="btn btn-sm btn-primary" (click)="addOrgForm()">Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="addOrgForm()"
+                  [disabled]="disabledAddDetail">Добавить</button>
         </div>
 
         <div *ngIf="isAddOrgForm">
@@ -110,91 +122,109 @@
         <div class="form-group">
           <label>Наименование на государственном языке *</label>
           <div>
-            <input name="declarantNameKz"  class="form-control"  placeholder="Введите значение"  type="text" required=""
+            <input name="NameKz"  class="form-control"  placeholder="Введите значение"  type="text" required=""
                    #declarantNameKz = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantNameKz.invalid}"
                    [(ngModel)]="model.declarantNameKz"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Наименование на русском языке *</label>
           <div>
-            <input name="declarantNameRu"  class="form-control"  placeholder="Введите значение"  type="text" required=""
+            <input name="NameRu"  class="form-control"  placeholder="Введите значение"  type="text" required=""
                    #declarantNameRu = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantNameRu.invalid}"
                    [(ngModel)]="model.declarantNameRu"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Наименование на английском языке*</label>
           <div>
-            <input id="declarantNameEn" class="form-control" placeholder="Введите значение"  type="text"  name="declarantNameEn"
+            <input name="NameEn" class="form-control" placeholder="Введите значение"  type="text"
                    #declarantNameEn = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantNameRu.invalid}"
                    [(ngModel)]="model.declarantNameEn"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Страна*</label>
-          <select class="form-control" name="declarantCountry"
+          <select class="form-control" name="CountryId"
                   #declarantCountry = "ngModel"
                   [ngClass]="{'has-error':showErrors === true && declarantCountry.invalid}"
                   [(ngModel)]="model.declarantCountry"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of countryVarRes">{{item.nameRu}}</option>
+            <option></option>
+            <option *ngFor="let item of countryVarRes" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
         <div class="form-group">
           <h4>Адрес</h4>
           <label>Юридический адрес * </label>
           <div>
-            <input name="declarantAddressLegalRu"  class="form-control"  placeholder="Введите значение" type="text"
+            <input name="LegalAddress"  class="form-control"  placeholder="Введите значение" type="text"
                    #declarantAddressLegalRu = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantAddressLegalRu.invalid}"
                    [(ngModel)]="model.declarantAddressLegalRu"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Фактический адрес * </label>
           <div>
-            <input name="declarantAddressFact"  class="form-control"  placeholder="Введите значение"  type="text"
-                   #declarantAddressLegalRu = "ngModel"
-                   [ngClass]="{'has-error':showErrors === true && declarantAddressLegalRu.invalid}"
-                   [(ngModel)]="model.declarantAddressLegalRu"
+            <input name="FactAddress"  class="form-control"  placeholder="Введите значение"  type="text"
+                   #declarantAddressFact = "ngModel"
+                   [ngClass]="{'has-error':showErrors === true && declarantAddressFact.invalid}"
+                   [(ngModel)]="model.declarantAddressFact"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Номер телефона * </label>
           <div>
-            <input name="declarantPhone"  class="form-control"  ui-mask="+7 (999) 999-99-99"  type="text" placeholder="+7 (___) ___-__-__"
+            <input name="Phone"  class="form-control"  ui-mask="+7 (999) 999-99-99"  type="text" placeholder="+7 (___) ___-__-__"
                    #declarantPhone = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantPhone.invalid}"
                    [(ngModel)]="model.declarantPhone"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Номер телефона</label>
           <div>
-            <input name="declarantPhone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"   placeholder="+7 (___) ___-__-__"
+            <input name="Phone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"   placeholder="+7 (___) ___-__-__"
                    #declarantPhone2 = "ngModel"
-                   [ngClass]="{'has-error':showErrors === true && declarantPhone2.invalid}"
                    [(ngModel)]="model.declarantPhone2"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Адрес электронной почты * </label>
           <div>
-            <input name="declarantEmail" class="form-control"  placeholder="example@mail.ru"  type="text"    ng-pattern=".+@.+\..+"
+            <input name="Email" class="form-control"  placeholder="example@mail.ru"  type="text"    ng-pattern=".+@.+\..+"
                    #declarantEmail = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantEmail.invalid}"
                    [(ngModel)]="model.declarantEmail"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
@@ -204,46 +234,57 @@
           <h4>Подписывающее лицо</h4>
           <label>Фамилия первого руководителя *</label>
           <div>
-            <input name="declarantBossLastName" class="form-control"  placeholder="Введите значение"  type="text"
+            <input name="BossLastName" class="form-control"  placeholder="Введите значение"  type="text"
                    #declarantBossLastName = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBossLastName.invalid}"
                    [(ngModel)]="model.declarantBossLastName"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Имя первого руководителя *</label>
           <div>
-            <input name="declarantBossFirstName" class="form-control"  placeholder="Введите значение"  type="text"
+            <input name="BossFirstName" class="form-control"  placeholder="Введите значение"  type="text"
                    #declarantBossFirstName = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBossFirstName.invalid}"
                    [(ngModel)]="model.declarantBossFirstName"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Отчество первого руководителя</label>
           <div >
-            <input id="declarantBossMiddleName"  class="form-control"  placeholder="Введите значение"  type="text">
+            <input name="BossMiddleName"  class="form-control"  placeholder="Введите значение"  type="text"
+                   [(ngModel)]="model.declarantBossMiddleName"
+                   [disabled]="disabledAddDetail"
+                   (change)="onChangedModel($event.target)">
           </div>
         </div>
         <div class="form-group">
           <label>Должность первого руководителя на русском языке *</label>
           <div>
-            <input name="declarantBossPosition" class="form-control"  placeholder="Введите значение"  type="text"
+            <input name="BossPositionRu" class="form-control"  placeholder="Введите значение"  type="text"
                    #declarantBossPosition = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBossPosition.invalid}"
                    [(ngModel)]="model.declarantBossPosition"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Должность первого руководителя на государственном языке *</label>
           <div>
-            <input name="declarantBossPositionKz"  class="form-control"  placeholder="Введите значение"  type="text"
+            <input name="BossPositionKz"  class="form-control"  placeholder="Введите значение"  type="text"
                    #declarantBossPositionKz = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBossPositionKz.invalid}"
                    [(ngModel)]="model.declarantBossPositionKz"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
@@ -253,16 +294,20 @@
 
         <div class="form-group">
           <label>Название банка</label>
-          <select class="form-control" name="declarantBank"
+          <select class="form-control" name="BankId"
                   #declarantBank = "ngModel"
                   [ngClass]="{'has-error':showErrors === true && declarantBank.invalid}"
                   [(ngModel)]="model.declarantBank"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of bankVar">{{item.nameRu}}</option>
+            <option></option>
+            <option *ngFor="let item of bankVar" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
         <div class="form-group">
-          <button type="button" class="btn btn-sm btn-primary" (click)="addBankName()">Добавить</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="addBankName()"
+                  [disabled]="disabledAddDetail">Добавить</button>
         </div>
         <div *ngIf="isAddBankName">
           <div class="card card-outline-info text-left">
@@ -295,38 +340,48 @@
         <div class="form-group">
           <label>Расчетный счет *</label>
           <div>
-            <input name="declarantBankIik"  class="form-control"  placeholder="Введите значение" type="text"
+            <input name="BankIik"  class="form-control"  placeholder="Введите значение" type="text"
                    #declarantBankIik = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantBankIik.invalid}"
                    [(ngModel)]="model.declarantBankIik"
+                   (change)="onChangedModel($event.target)"
+                   [disabled]="disabledAddDetail"
                    required>
           </div>
         </div>
         <div class="form-group">
           <label>Валюта *</label>
-          <select class="form-control" name="declarantBankCurr"
+          <select class="form-control" name="CurrencyId"
                   #declarantBankCurr= "ngModel"
                   [ngClass]="{'has-error':showErrors === true && declarantBankCurr.invalid}"
                   [(ngModel)]="model.declarantBankCurr"
+                  (change)="onChangedModel($event.target)"
+                  [disabled]="disabledAddDetail"
                   required>
-            <option *ngFor="let item of currencyVar">{{item.nameRu}}</option>
+            <option></option>
+            <option *ngFor="let item of currencyVar" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
-        <div [hidden]="isDecRes !== 'unres'" >
+        <div [hidden]="model.isDecRes !== 'unres'" >
           <div class="form-group ng-scope" >
             <label>SWIFT *</label>
             <div>
-              <input name="declarantBankSwift" class="form-control" placeholder="Введите значение"  type="text"
+              <input name="BankSwift" class="form-control" placeholder="Введите значение"  type="text"
                      #declarantBankSwift= "ngModel"
-                     [ngClass]="{'has-error':showErrors === true && declarantBankSwift.invalid && isDecRes === 'unres'}"
+                     [ngClass]="{'has-error':showErrors === true && declarantBankSwift.invalid && model.isDecRes === 'unres'}"
                      [(ngModel)]="model.declarantBankSwift"
+                     (change)="onChangedModel($event.target)"
+                     [disabled]="disabledAddDetail"
                      required>
             </div>
           </div>
         </div>
 
         <h4>Действующее на основании</h4>
-        <select class="form-control" type="number" name="declarantSelectDocType" [(ngModel)]="selectedDeclarantDocType">
+        <select class="form-control" type="number" name="DeclarantDocType" [(ngModel)]="selectedDeclarantDocType"
+                [disabled]="disabledAddDetail"
+                [(ngModel)]="model.DeclarantDocType">
+          <option></option>
           <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeDocLevel(level)">
             {{level.name}}
           </option>
@@ -336,7 +391,9 @@
           <div class="col-lg-2">
             <div class="form-group">
               <div class="checkbox">
-                <label><input type="checkbox" name="declarantWithoutNumber" value="" >Без номера</label>
+                <label><input type="checkbox" name="DeclarantDocWithoutNumber" checked="false" (change)="onChangedModel($event.target)"
+                              [(ngModel)]="model.DeclarantDocWithoutNumber"
+                  >Без номера</label>
               </div>
             </div>
           </div>
@@ -344,7 +401,9 @@
             <div class="form-group">
               <label>№ документа *</label>
               <div>
-                <input id="declarantDocNumber" class="form-control"  placeholder="Введите значение"  type="text" >
+                <input name="DeclarantDocNumber" class="form-control"  placeholder="Введите значение"  type="text"
+                       [(ngModel)]="model.DeclarantDocNumber"
+                       (change)="onChangedModel($event.target)">
               </div>
             </div>
           </div>
@@ -352,8 +411,10 @@
             <label>Дата начала действия *</label>
           <div class="input-group">
             <input class="form-control"
-                   name="letterBDate" [(ngModel)]="model.letterBDate" ngbDatepicker
-                   #letterBDate="ngModel" #letterBDateBtn="ngbDatepicker">
+                   name="DeclarantDocStartDate"  ngbDatepicker
+                   #letterBDate="ngModel" #letterBDateBtn="ngbDatepicker"
+                   [(ngModel)]="model.DeclarantDocStartDate"
+                   (ngModelChange) ="onChangedModelDate(letterBDate.name,model.DeclarantDocStartDate)">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="letterBDateBtn.toggle()"
                       type="button">
@@ -365,8 +426,10 @@
             <label>Дата окончание *</label>
             <div class="input-group">
               <input class="form-control"
-                     name="letterEDate" [(ngModel)]="model.letterEDate" ngbDatepicker
-                     #letterEDate="ngModel" #letterEDateBtn="ngbDatepicker">
+                     name="DeclarantDocEndDate"  ngbDatepicker
+                     #letterEDate="ngModel" #letterEDateBtn="ngbDatepicker"
+                     [(ngModel)]="model.DeclarantDocEndDate"
+                     (ngModelChange) ="onChangedModelDate(letterEDate.name, model.DeclarantDocEndDate)">
               <div class="input-group-append">
                 <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="letterEDateBtn.toggle()"
                         type="button">
@@ -378,7 +441,9 @@
           <div class="col-lg-3">
             <div class="form-group">
               <div class="checkbox">
-                <label><input type="checkbox" value="" name="unlimited">Бессрочный</label>
+                <label><input type="checkbox" checked="false" name="DeclarantPerpetualDoc"
+                              [(ngModel)]="model.DeclarantPerpetualDoc"
+                              (change)="onChangedModel($event.target)">Бессрочный</label>
               </div>
             </div>
             </div>
