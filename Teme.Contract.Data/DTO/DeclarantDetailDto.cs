@@ -5,10 +5,6 @@ namespace Teme.Contract.Data.DTO
     public class DeclarantDetailDto
     {
         public int Id { get; set; }
-        /// <summary>
-        /// Заявитель
-        /// </summary>
-        public int DeclarantId { get; set; }
 
         /// <summary>
         /// Юридический адрес

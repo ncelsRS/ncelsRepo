@@ -38,8 +38,7 @@ namespace Teme.Admin.Api
             });
             services.AddCors();
             services.AddMvc();
-            
-            // Add Autofac
+           
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -51,7 +50,6 @@ namespace Teme.Admin.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

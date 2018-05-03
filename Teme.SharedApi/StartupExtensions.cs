@@ -16,9 +16,8 @@ namespace Teme.SharedApi
 {
     public static class StartupExtensions
     {
-        public static IServiceCollection AddRscAuth(this IServiceCollection services, IConfiguration configuration, IEnumerable<string> scopes)
+        public static IServiceCollection AddRscAuth(this IServiceCollection services, IConfiguration configuration, X509Certificate2 cert, IEnumerable<string> scopes)
         {
-            var cert = new X509Certificate2("./IdentityConfig/identity.pfx", "ncels");
             services.AddIdentity<AuthUser, Role>()
                 .AddDefaultTokenProviders();
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();

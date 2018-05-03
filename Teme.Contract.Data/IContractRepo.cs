@@ -13,6 +13,7 @@ namespace Teme.Contract.Data
         Task CreateDeclarant(Shared.Data.Context.Declarant declarant);
         Task CreateDeclarantDetail(Shared.Data.Context.DeclarantDetail declarantdetail);
         Task<Shared.Data.Context.Contract> GetContract(int id);
+        Task<Shared.Data.Context.Contract> GetContractByWorkflowId(string workflowId);
         Task<ContractTypeEnum> GetContractType(int contractId);
         Task<Shared.Data.Context.Declarant> GetDeclarant(int id);
         Task UpdateContractSql(Type data, string fieldName, object value, int id);
@@ -21,7 +22,6 @@ namespace Teme.Contract.Data
         Task<IEnumerable<Shared.Data.Context.Declarant>> SearchDeclarantNonResident(int countryId);
         Task SaveCostWork(Shared.Data.Context.CostWork costWork);
         Task DeleteCostWork(int contractId);
-        Task SaveStatePolice(List<Shared.Data.Context.StatePolicy> statePolicies, int contractId);
         Task<IQueryable<Shared.Data.Context.Contract>> GetListContracts(string contractScope);
     }
 }
