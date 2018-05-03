@@ -7,6 +7,6 @@ namespace Teme.Identity.Logic.IUser
     public interface IUserLogic : IBaseUserLogic
     {
         Task<OutLoginDto> Login(InLoginDto dto);
-        Task<OutLoginDto> UpdateToken(string refreshToken);
+        Task<OutLoginDto> UpdateToken(OutLoginDto dto);
     }
 }

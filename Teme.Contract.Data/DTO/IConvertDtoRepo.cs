@@ -6,5 +6,6 @@ namespace Teme.Contract.Data.DTO
     {
         DeclarantDto ConvertEntityToDeclarant(Declarant decalarant);
         DeclarantDetailDto ConvertEntityToDeclarantDetail(DeclarantDetail decalarantDetail);
+        ContractDto ConvertEntityToContract(Shared.Data.Context.Contract contract);
     }
 }

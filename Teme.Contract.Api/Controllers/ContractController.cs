@@ -177,15 +177,31 @@ namespace Teme.Contract.Api.Controllers
         /// <summary>
         /// Получение списка договоров
         /// </summary>
+        /// <param name="contractScope">scope ЕАЭС или Нац</param>
         /// <returns></returns>
         [HttpGet]
         [Route("GetListContracts")]
-        public async Task<IActionResult> GetListContracts([FromQuery] [Required] int userId)
+        public async Task<IActionResult> GetListContracts([FromQuery] [Required] string contractScope)
         {
             try
             {
-                //await Logic.GetListContracts();//userId
-                return Json(Ok());
+                var result = await Logic.GetListContracts(contractScope);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetContractById")]
+        public async Task<IActionResult> GetContractById(int contractId)
+        {
+            try
+            {
+                var result = await Logic.GetContractById(contractId);
+                return Json(result);
             }
             catch (Exception ex)
             {

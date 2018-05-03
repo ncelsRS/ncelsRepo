@@ -8,6 +8,7 @@ using Teme.Contract.Data.Model;
 using System;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using Teme.Shared.Data.Primitives.OrgScopes;
 
 namespace Teme.Contract.Data
 {
@@ -114,6 +115,16 @@ namespace Teme.Contract.Data
             Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync());
             Context.StatePolicies.AddRange(statePolicies);
             await Context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Получение списка договор
+        /// </summary>
+        /// <param name="contractScope">scope ЕАЭС или Нац</param>
+        /// <returns></returns>
+        public async Task<IQueryable<Context.Contract>> GetListContracts(string contractScope) // string organizationScope
+        {
+            return await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.ContractScope.Contains(contractScope) && e.StatePolicies.Any(x => x.Scope == OrganizationScopeEnum.Ext)));
         }
     }
 }
