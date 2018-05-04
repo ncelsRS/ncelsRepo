@@ -48,14 +48,7 @@ export class ExtCostComponent extends TemplateValidation {
   public calculatorApplicationTypeVar;
   public calculatorServiceVar;
   public calculatorServiceData=[];
-  //   =[{
-  //   id: null,
-  //   children:null,
-  //   code:null,
-  //   nameKz:null,
-  //   nameRu:null,
-  //   calculatorServiceTypeModificationModels:[]
-  // }];
+
   public calculatorModifVar=[];
   public calculatorModifdata=[];
   public applTypeLevel;
