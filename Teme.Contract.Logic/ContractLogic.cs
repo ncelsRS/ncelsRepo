@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -60,6 +60,7 @@ namespace Teme.Contract.Logic
                     { "CostWork", "Teme.Shared.Data.Context.CostWork" }
                 }
             };
+
         }
 
         /// <summary>
