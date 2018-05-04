@@ -34,7 +34,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             @*<div>&nbsp;</div>
-                            <label>Инструкции</label>*@
+                                <label>Инструкции</label>*@
                             <div id="noinstructions_@Model.Id" style="display: none">
                                 <span>Нет доступных инструкций</span>
                             </div>
@@ -88,7 +88,7 @@
                                         @if (Model.Type == "create")
                                         {<button type="button" class="btn btn-default" id="saveResultBtn" onclick="saveResult()">Сохранить</button>}
                                         @*else
-                                        {<button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("SubTaskProtokol", "OBKTask", new { tmid = Model.Id})'">Печатная форма протокола</button>}*@
+                                            {<button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("SubTaskProtokol", "OBKTask", new { tmid = Model.Id})'">Печатная форма протокола</button>}*@
                                         <button type="button" class="btn btn-default" onclick="signBtn()">Подписать</button>
                                         <button type="button" class="btn btn-default">Отмена</button>
                                     </div>
@@ -104,9 +104,126 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tableExpertResult_@Model.Id" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>Показатель</td>
+                                                    <td>Обозначение нормативных документов на методы испытаний</td>
+                                                    <td>Требования НД</td>
+                                                    <td>Фактически полученный результат</td>
+                                                    <td>Т 0С и влажность (%)</td>
+                                                    <td>Результат испытаний</td>
+                                                    <td></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.Type == "create")
+                                                {
+                                                    <tr rowid="1">
+                                                        <td>1</td>
+                                                        <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
+                                                        <td><select id="regulation_1" name="regulation" class="form-control subtask-control"></select></td>
+                                                        <td><input type="text" id="claim" class="form-control subtask-control" /></td>
+                                                        <td><input type="text" id="factResult" class="form-control subtask-control" /></td>
+                                                        <td><input type="text" id="humidity" class="form-control subtask-control" /></td>
+                                                        <td>@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control subtask-control", value = "" })</td>
+                                                        <td></td>
+                                                    </tr>
+                                                }
+                                                else
+                                                {
+                                                    for (int i = 0; i < Model.SubTaskIndicator.Count; i++)
+                                                    {
+                                                        var rowId = i + 1;
+                                                        var expResult = Model.SubTaskIndicator[i].ExpertiseResult ? "Соотвествует требованиям" : " Не соотвествет требованиям";
+                                                        if (Model.SubTaskIndicator[i].TaskComment)
+                                                        {
+                                                            //var lmid = Model.SubTaskIndicator[i].LaboratoryMarkId;
+                                                            //var lmNdid = Model.SubTaskIndicator[i].RegulationId;
+                                                            <tr rowid="@rowId" class="add-commnet" rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
+                                                                <td>@rowId</td>
+                                                                <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)ViewData["LabMarks"], String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
+                                                                <td><select id="regulation_@rowId" name="regulation" class="form-control subtask-control"><option value='@Model.SubTaskIndicator[i].RegulationId'>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</option></select></td>
+                                                                <td><input type="text" id="claim" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Claim" /></td>
+                                                                <td><input type="text" id="factResult" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].FactResult" /></td>
+                                                                <td><input type="text" id="humidity" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Humidity" /></td>
+                                                                <td>@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control subtask-control", value = expResult })</td>
+                                                                <td>
+                                                                    <span class="input-group-addon">
+                                                                        <a class="subTaskComment" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
+                                                                <td>@rowId</td>
+                                                                <td>@Model.SubTaskIndicator[i].LaboratoryMarkNameRu</td>
+                                                                <td>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</td>
+                                                                <td>@Model.SubTaskIndicator[i].Claim</td>
+                                                                <td>@Model.SubTaskIndicator[i].FactResult</td>
+                                                                <td>@Model.SubTaskIndicator[i].Humidity</td>
+                                                                <td>@expResult</td>
+                                                                <td>
+                                                                    <span class="input-group-addon">
+                                                                        <a class="subTaskComment" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                }
+                                            </tbody>
+                                            @if (Model.Type == "create")
+                                            {
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="8" style="text-align: left;">
+                                                            <button type="button" class="btn btn-default" id="addRowTableBtn" onclick="addRowTable()">Добавить</button>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            }
+                                            @if (Model.Type != "create" && Model.SubTaskIndicator.Any(x => x.TaskComment))
+                                            {
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="8" style="text-align: left;">
+                                                            <button type="button" class="btn btn-default" id="saveRemarkTableBtn_@Model.Id" onclick="saveRemark()">Сохранить</button>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            }
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.SubTaskCoExecutorResult != null)
+                        {
+                            <div id="@tab3" class="tab-pane">
+                                <div class="panel-body">
+                                    @foreach (var s in Model.SubTaskCoExecutorResult)
+                                    {
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <table id="tableExpertResult_@Model.Id" class="table table-bordered">
+                                                <label>Соисполнитель: </label>
+                                                <p>@s.SubTaskCoExecutorName</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <label>Показатели результатов испытаний: </label>
+                                                <table class="table table-striped table-bordered table-hover dataTable">
                                                     <thead>
                                                         <tr>
                                                             <td></td>
@@ -116,166 +233,49 @@
                                                             <td>Фактически полученный результат</td>
                                                             <td>Т 0С и влажность (%)</td>
                                                             <td>Результат испытаний</td>
-                                                            <td></td>
+                                                            <td>Подписан</td>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @if (Model.Type == "create")
+                                                        @if (s.SubTaskIndicatorCoExecutor.Count > 0)
                                                         {
-                                                            <tr rowid="1">
-                                                                <td>1</td>
-                                                                <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
-                                                                <td><select id="regulation_1" name="regulation" class="form-control subtask-control"></select></td>
-                                                                <td><input type="text" id="claim" class="form-control subtask-control" /></td>
-                                                                <td><input type="text" id="factResult" class="form-control subtask-control" /></td>
-                                                                <td><input type="text" id="humidity" class="form-control subtask-control" /></td>
-                                                                <td>@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control subtask-control", value = "" })</td>
-                                                                <td></td>
-                                                            </tr>
+                                                            for (int i = 0; i < s.SubTaskIndicatorCoExecutor.Count; i++)
+                                                            {
+                                                                var rowId = i + 1;
+                                                                var expResult = s.SubTaskIndicatorCoExecutor[i].ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествет требованиям";
+                                                                <tr>
+                                                                    <td>@rowId</td>
+                                                                    <td>@s.SubTaskIndicatorCoExecutor[i].LaboratoryMarkNameRu</td>
+                                                                    <td>@s.SubTaskIndicatorCoExecutor[i].LaboratoryRegulationNameRu</td>
+                                                                    <td>@s.SubTaskIndicatorCoExecutor[i].Claim</td>
+                                                                    <td>@s.SubTaskIndicatorCoExecutor[i].FactResult</td>
+                                                                    <td>@s.SubTaskIndicatorCoExecutor[i].Humidity</td>
+                                                                    <td>@expResult</td>
+                                                                    <td>
+                                                                        @if (s.SubTaskIndicatorCoExecutor[i].ExecutorSign)
+                                                                        {<label>Да</label>}
+                                                                        else
+                                                                        {<label>Нет</label>}
+                                                                    </td>
+                                                                </tr>
+                                                            }
                                                         }
                                                         else
                                                         {
-                                                            for (int i = 0; i < Model.SubTaskIndicator.Count; i++)
-                                                            {
-                                                                var rowId = i + 1;
-                                                                var expResult = Model.SubTaskIndicator[i].ExpertiseResult ? "Соотвествует требованиям" : " Не соотвествет требованиям";
-                                                                if (Model.SubTaskIndicator[i].TaskComment)
-                                                                {
-                                                                    //var lmid = Model.SubTaskIndicator[i].LaboratoryMarkId;
-                                                                    //var lmNdid = Model.SubTaskIndicator[i].RegulationId;
-                                                                    <tr rowid="@rowId" class="add-commnet" rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
-                                                                        <td>@rowId</td>
-                                                                        <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)ViewData["LabMarks"], String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })</td>
-                                                                        <td><select id="regulation_@rowId" name="regulation"  class="form-control subtask-control"><option value='@Model.SubTaskIndicator[i].RegulationId'>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</option></select></td>
-                                                                        <td><input type="text" id="claim" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Claim" /></td>
-                                                                        <td><input type="text" id="factResult" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].FactResult" /></td>
-                                                                        <td><input type="text" id="humidity" class="form-control subtask-control" value="@Model.SubTaskIndicator[i].Humidity" /></td>
-                                                                        <td>@Html.DropDownList("ExpertiseResult", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control subtask-control", value = expResult })</td>
-                                                                        <td>
-                                                                            <span class="input-group-addon">
-                                                                                <a class="subTaskComment" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </td>
-                                                                    </tr>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <tr rcId="@Model.SubTaskIndicator[i].ResearchCenterId" teId="@Model.TaskExecutorId">
-                                                                        <td>@rowId</td>
-                                                                        <td>@Model.SubTaskIndicator[i].LaboratoryMarkNameRu</td>
-                                                                        <td>@Model.SubTaskIndicator[i].LaboratoryRegulationNameRu</td>
-                                                                        <td>@Model.SubTaskIndicator[i].Claim</td>
-                                                                        <td>@Model.SubTaskIndicator[i].FactResult</td>
-                                                                        <td>@Model.SubTaskIndicator[i].Humidity</td>
-                                                                        <td>@expResult</td>
-                                                                        <td>
-                                                                            <span class="input-group-addon">
-                                                                                <a class="subTaskComment" href="#">
-                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
-                                                                                </a>
-                                                                            </span>
-                                                                        </td>
-                                                                    </tr>
-                                                                }
-                                                            }
+                                                            <tr>
+                                                                <td colspan="8">Нет данных</td>
+                                                            </tr>
                                                         }
                                                     </tbody>
-                                                    @if (Model.Type == "create")
-                                                    {
-                                                        <tfoot>
-                                                        <tr>
-                                                            <td colspan="8" style="text-align: left;">
-                                                                <button type="button" class="btn btn-default" id="addRowTableBtn" onclick="addRowTable()">Добавить</button>
-                                                            </td>
-                                                        </tr>
-                                                        </tfoot>
-                                                    }
-                                                    @if (Model.Type != "create" && Model.SubTaskIndicator.Any(x=>x.TaskComment))
-                                                    {
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td colspan="8" style="text-align: left;">
-                                                                    <button type="button" class="btn btn-default" id="saveRemarkTableBtn_@Model.Id"  onclick="saveRemark()">Сохранить</button>
-                                                                </td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    }
                                                 </table>
                                             </div>
                                         </div>
-                                    </div>
+                                    }
+
                                 </div>
-                                @if (Model.SubTaskCoExecutorResult != null)
-                                {
-                                    <div id="@tab3" class="tab-pane">
-                                        <div class="panel-body">
-                                            @foreach (var s in Model.SubTaskCoExecutorResult)
-                                            {
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <label>Соисполнитель: </label>
-                                                        <p>@s.SubTaskCoExecutorName</p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <label>Показатели результатов испытаний: </label>
-                                                        <table class="table table-striped table-bordered table-hover dataTable">
-                                                            <thead>
-                                                                <tr>
-                                                                    <td></td>
-                                                                    <td>Показатель</td>
-                                                                    <td>Обозначение нормативных документов на методы испытаний</td>
-                                                                    <td>Требования НД</td>
-                                                                    <td>Фактически полученный результат</td>
-                                                                    <td>Т 0С и влажность (%)</td>
-                                                                    <td>Результат испытаний</td>
-                                                                    <td>Подписан</td>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @if (s.SubTaskIndicatorCoExecutor.Count > 0)
-                                                                {
-                                                                    for (int i = 0; i < s.SubTaskIndicatorCoExecutor.Count; i++)
-                                                                    {
-                                                                        var rowId = i + 1;
-                                                                        var expResult = s.SubTaskIndicatorCoExecutor[i].ExpertiseResult ? "Соотвествует требованиям" : "Не соотвествет требованиям";
-                                                                        <tr>
-                                                                            <td>@rowId</td>
-                                                                            <td>@s.SubTaskIndicatorCoExecutor[i].LaboratoryMarkNameRu</td>
-                                                                            <td>@s.SubTaskIndicatorCoExecutor[i].LaboratoryRegulationNameRu</td>
-                                                                            <td>@s.SubTaskIndicatorCoExecutor[i].Claim</td>
-                                                                            <td>@s.SubTaskIndicatorCoExecutor[i].FactResult</td>
-                                                                            <td>@s.SubTaskIndicatorCoExecutor[i].Humidity</td>
-                                                                            <td>@expResult</td>
-                                                                            <td>
-                                                                                @if (s.SubTaskIndicatorCoExecutor[i].ExecutorSign)
-                                                                                {<label>Да</label>}
-                                                                                else
-                                                                                {<label>Нет</label>}
-                                                                            </td>
-                                                                        </tr>
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    <tr>
-                                                                        <td colspan="8">Нет данных</td>
-                                                                    </tr>
-                                                                }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            }
-
-                                        </div>
-                                    </div>
-                                }
                             </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

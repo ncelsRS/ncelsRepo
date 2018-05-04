@@ -529,6 +529,24 @@ namespace PW.Ncels.Database.Recources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Наименование показателей на казахском.
+        /// </summary>
+        public static string NameOfLaboratoryMarkKz {
+            get {
+                return ResourceManager.GetString("NameOfLaboratoryMarkKz", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Наименование показателей на русском.
+        /// </summary>
+        public static string NameOfLaboratoryMarkRu {
+            get {
+                return ResourceManager.GetString("NameOfLaboratoryMarkRu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Наименование решения на казахском.
         /// </summary>
         public static string NameOfSolutionKz {

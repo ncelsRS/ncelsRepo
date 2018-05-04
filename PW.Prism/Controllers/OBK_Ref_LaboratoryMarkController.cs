@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -37,7 +38,7 @@ namespace PW.Prism.Controllers
 
         [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult DicCreate([DataSourceRequest] DataSourceRequest request, OBKReferenceLaboratoryMarkModel dictionary, string type)
-        {
+         {
             if (dictionary != null)
             {
                 OBK_Ref_LaboratoryMark d = new OBK_Ref_LaboratoryMark()
@@ -45,11 +46,28 @@ namespace PW.Prism.Controllers
                     Id = Guid.NewGuid(),
                     NameRu = dictionary.NameRu,
                     NameKz = dictionary.NameKz,
-                    IsDeleted = false
+                    IsDeleted = false,
                 };
                 db.OBK_Ref_LaboratoryMark.Add(d);
-                db.SaveChanges();
                 dictionary.Id = d.Id;
+
+                string[] regulationListGuid = dictionary.RegulationList.ToString().Split(',');
+
+                List<OBK_Ref_LaboratoryRegulation_Mark> list = new List<OBK_Ref_LaboratoryRegulation_Mark>();
+                
+                foreach (var q in regulationListGuid)
+                {
+                    OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
+
+                    regulationMark.Id = Guid.NewGuid();
+                    regulationMark.laboratoryMark_id = d.Id;
+                    regulationMark.laboratoryRegulation_id = Guid.Parse(q);
+                    list.Add(regulationMark);
+                }
+
+                db.OBK_Ref_LaboratoryRegulation_Mark.AddRange(list);
+
+                db.SaveChanges();
             }
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
         }

@@ -391,7 +391,8 @@ namespace PW.Prism.Controllers.OBKTask
         public ActionResult GetRegulation(Guid id)
         {
             var result = repo.GetRegulation(id);
-            var maskNd = new SelectList(result, "Id", "NameRu");
+            var resultNm = repo.GetRegulationName(result);
+            var maskNd = new SelectList(resultNm, "Id", "NameRu");
             return Json(maskNd);
         }
 

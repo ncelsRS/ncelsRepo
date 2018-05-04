@@ -115,10 +115,27 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             return AppContext.OBK_Ref_LaboratoryMark.Where(e => !e.IsDeleted);
         }
-
-        public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulation(Guid id)
+        
+        /*public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulation(Guid id)
         {
             return AppContext.OBK_Ref_LaboratoryRegulation.Where(e => !e.IsDeleted && e.LaboratoryMarkId == id);
+        }*/
+        public IQueryable<OBK_Ref_LaboratoryRegulation_Mark> GetRegulation(Guid id)
+        {
+            var t =  AppContext.OBK_Ref_LaboratoryRegulation_Mark.Where(e => e.laboratoryMark_id == id);
+            return t;
+        }
+
+        public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulationName(IQueryable<OBK_Ref_LaboratoryRegulation_Mark> regulation_mark)
+        {
+            List<OBK_Ref_LaboratoryRegulation> list = new List<OBK_Ref_LaboratoryRegulation>();
+
+            foreach (var reg in regulation_mark)
+            {
+                list.Add(AppContext.OBK_Ref_LaboratoryRegulation.Where(r => r.Id == reg.laboratoryRegulation_id).FirstOrDefault());
+            }
+
+            return list.AsQueryable();
         }
 
         public IQueryable<OBK_Ref_LaboratoryRegulation> GetRegulation()

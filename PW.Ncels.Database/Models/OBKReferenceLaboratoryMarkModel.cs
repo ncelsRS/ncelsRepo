@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PW.Ncels.Database.DataModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace PW.Ncels.Database.Models
         [Required]
         public string NameRu { get; set; }
         [Required]
-        public string NameKz { get; set; }
+        public string NameKz { get; set; } 
 
-        public List<Guid> RegulationList { get; set; }
+        public List<object> RegulationList { get; set; }
     }
 }
