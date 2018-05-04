@@ -376,40 +376,51 @@ namespace PW.Ncels.Controllers
 
                 var priceKz = new OBKContractRepository().GetPriceCountNumber(id); 
                 report.Dictionary.Variables["PriceCountNameKz"].ValueObject = PriceHelperKz.ConvertKzNumbers(priceKz);
-
+                var signData = db.OBK_ContractSignedDatas.FirstOrDefault(x => x.ContractId == id);
+                if (signData?.ApplicantSign != null) //&& signData.CeoSign != null
+                {
+                    report.RegBusinessObject("appSign", obkRepo.GetContractApplicantData(id));
+                    report.RegBusinessObject("ceoSign", obkRepo.GetContractCeoData(id));
+                }
                 report.Render(false);
             }
             catch (Exception ex)
             {
                 LogHelper.Log.Error("ex: " + ex.Message + " \r\nstack: " + ex.StackTrace);
             }
+
             Stream stream = new MemoryStream();
-            report.ExportDocument(StiExportFormat.Word2007, stream);
+            report.ExportDocument(StiExportFormat.Pdf, stream);
             stream.Position = 0;
+            return new FileStreamResult(stream, "application/pdf");
 
-            Aspose.Words.Document doc = new Aspose.Words.Document(stream);
+            //Stream stream = new MemoryStream();
+            //report.ExportDocument(StiExportFormat.Word2007, stream);
+            //stream.Position = 0;
 
-            try
-            {
-                var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
-                if(signData != null && signData.ApplicantSign != null)
-                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
-                if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
-                {
-                    doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
-                    doc.InserQrCodesToEnd("CeoSign", signData.CeoSign);
-                }
-            }
-            catch (Exception ex)
-            {
+            //Aspose.Words.Document doc = new Aspose.Words.Document(stream);
 
-            }
+            //try
+            //{
+            //    var signData = db.OBK_ContractSignedDatas.Where(x => x.ContractId == id).FirstOrDefault();
+            //    if(signData != null && signData.ApplicantSign != null)
+            //        doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
+            //    if (signData != null && signData.ApplicantSign != null && signData.CeoSign != null)
+            //    {
+            //        doc.InserQrCodesToEnd("ApplicantSign", signData.ApplicantSign);
+            //        doc.InserQrCodesToEnd("CeoSign", signData.CeoSign);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
 
-            var file = new MemoryStream();
-            doc.Save(file, Aspose.Words.SaveFormat.Pdf);
-            file.Position = 0;
+            //}
 
-            return new FileStreamResult(file, "application/pdf");
+            //var file = new MemoryStream();
+            //doc.Save(file, Aspose.Words.SaveFormat.Pdf);
+            //file.Position = 0;
+
+            //return new FileStreamResult(file, "application/pdf");
         }
 
         public ActionResult GetPaymentTemplatePdf(Guid id)
@@ -435,8 +446,8 @@ namespace PW.Ncels.Controllers
                 //прописью
                 var priceText = RuDateAndMoneyConverter.CurrencyToTxtTenge(Convert.ToDouble(totalPriceWithCount), false);
                 report.Dictionary.Variables["TotalPriceWithCountName"].ValueObject = priceText;
-                report.Dictionary.Variables["ChiefAccountant"].ValueObject = payRepo.GetEmpoloyee(Guid.Parse("E1EE3658-0C35-41EB-99FD-FDDC4D07CEC4"));
-                report.Dictionary.Variables["Executor"].ValueObject = payRepo.GetEmpoloyee(Guid.Parse("55377FAC-A5F0-4093-BBB6-18BD28E53BE1"));
+                //report.Dictionary.Variables["ChiefAccountant"].ValueObject = payRepo.GetEmpoloyee(Guid.Parse("E1EE3658-0C35-41EB-99FD-FDDC4D07CEC4"));
+                //report.Dictionary.Variables["Executor"].ValueObject = payRepo.GetEmpoloyee(Guid.Parse("55377FAC-A5F0-4093-BBB6-18BD28E53BE1"));
                 report.Render(false);
             }
             catch (Exception ex)
