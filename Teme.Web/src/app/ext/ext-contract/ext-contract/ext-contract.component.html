@@ -25,12 +25,7 @@
           <!--<button type="button" class="btn btn-success btn-sm btn"><i class="fa fa-check"></i>Проверить </button>-->
           <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i>Просмотр </button>
         </div>
-        <div class="btn-group  pull-right" role="group" >
-          <button type="button" class="btn btn-success btn-sm"><i class="fa fa-send-o"></i>Подписать и отправить </button>
-          <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Подписать ЭЦП и отправить в ЦОЗ</button>
-          <button type="button" class="btn btn-warning btn-sm"><i class=" fa fa-send-o"></i>Отправить в ЦОЗ (в случае отсутствия ЭЦП)</button>
-          <button type="button" class="btn btn-success btn-sm"(click)="sendToNcels(contractForm.valid)"><i class=" fa fa-save"></i>Сохранить</button>
-        </div>
+        <app-ext-certificate></app-ext-certificate>
       </div>
       <h3>Договор</h3>
       <div class="row">
@@ -40,8 +35,11 @@
               <p class="height-mid">Договор состовляется с*</p>
             </div>
             <div class="col-md-6">
-              <select class="custom-select input-drop-down" >
-
+              <select class="custom-select input-drop-down" name="HolderType">
+                <option></option>
+                <option *ngFor="let item of holderTypeItems" [value]="item.value" >
+                  {{item.nameRu}}
+                </option>
               </select>
             </div>
           </div>
@@ -54,9 +52,10 @@
               <p class="height-mid">Тип договора</p>
             </div>
             <div class="col-md-6">
-              <select class="form-control" type="number" name="registerList" [(ngModel)]="selectedLevel" (ngModelChange)="onNameChange($event)" >
-                <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeLevel(level)">
-                  {{level.name}}
+              <select class="form-control input-drop-down" name="ContractForm"  [ngModel]="selectedLevel" (ngModelChange)="changeLevel($event)">
+                <option></option>
+                <option *ngFor="let item of items" [value]="item.key" >
+                  {{item.nameRu}}
                 </option>
               </select>
             </div>
@@ -77,24 +76,33 @@
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('attachment')" >Вложения</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
-             aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('payment')" >Заявка на платеж</a>
+             aria-controls="nav-contact" aria-selected="false" [hidden]="ramoch==='Multi'" (click)="setDeclarationTab('payment')" >Заявка на платеж</a>
         </div>
       </nav>
       <div class="pd-20">
         <div [hidden]="type !== 'manufacturer'"><app-ext-manufacturer  [prnRegisterType]="selectedLevel"
+                                                                       [idContractChild]="idContract"
                                                                        [showErrors]="showAllErr"
                                                                        name="manufacturForms"
                                                                        [(ngModel)]="contract.manufactur"
+
                                                                        required #manufacturForm="ngModel"></app-ext-manufacturer></div>
         <div [hidden]="type !== 'declarant'"><app-ext-declarant  [showErrors]="showAllErr"
                                                                  name="declarantForms"
                                                                  [(ngModel)]="contract.declarant"
+                                                                 [idContractChild]="idContract"
+                                                                 (onChangedManufYes)="onChildChanged($event)"
                                                                  required #declarantForm="ngModel"></app-ext-declarant></div>
         <div [hidden]="type !== 'payer'"><app-ext-payer [showErrors]="showAllErr"
                                                         name="payerForms"
                                                         [(ngModel)]="contract.payer"
+                                                        [idContractChild]="idContract"
+                                                        (onChangedManufYes)="onChildManufacturChanged($event)"
+                                                        (onChangedDeclarantYes)="onChildDeclarantChanged($event)"
                                                         required #payerForm="ngModel"></app-ext-payer></div>
-        <div [hidden]="type !== 'cost'"><app-ext-cost [showErrors]="showAllErr"
+        <div [hidden]="type !== 'cost'"><app-ext-cost [prnRegisterType]="selectedLevel"
+                                                      [showErrors]="showAllErr"
+                                                      [idContractChild]="idContract"
                                                       name="costForms"
                                                       [(ngModel)]="contract.cost"
                                                       required #costForm="ngModel"></app-ext-cost></div>

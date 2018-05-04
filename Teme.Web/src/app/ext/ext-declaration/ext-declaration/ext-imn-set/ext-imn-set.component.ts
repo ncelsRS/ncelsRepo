@@ -120,10 +120,17 @@ export class ExtImnSetComponent implements OnInit {
         }
       },
       type: {
-        title: 'Вид (первичная или вторичная)\n' +
-        '\n',
-        type: 'string',
-        filter: true
+        title: 'Вид (первичная или вторичная)',
+        type: 'html',
+        editor: {
+          type: 'list',
+          config: {
+            list: [{value: 'Первичный', title: 'Первичный'}, {value: 'Вторичный', title: 'Вторичный'}, {
+              value: '<b>Промежуточный</b>',
+              title: 'Промежуточный'
+            }]
+          }
+        }
       },
       name: {
         title: 'Наименование',
@@ -134,29 +141,31 @@ export class ExtImnSetComponent implements OnInit {
         type: 'string'
       },
       model: {
-        title: 'Ед.изм.\n' +
-        '\n',
-        type: 'string'
+        title: 'Ед.изм.',
+        type: 'html',
+        editor: {
+          type: 'list',
+          config: {
+            list: [{value: 'грамм', title: 'грамм'}, {value: 'литр', title: 'литр'}, {
+              value: '<b>тонна</b>',
+              title: 'тонна'
+            }]
+          }
+        }
       },
       user: {
-        title: 'Кол-во ед. в упаковке\n' +
-        '\n',
+        title: 'Кол-во ед. в упаковке\n',
         type: 'string'
       },
       country: {
-        title: 'Краткое описание\n' +
-        '\n',
+        title: 'Краткое описание',
         type: 'string'
       },
       choose: {
         title: 'Файл',
         type: 'custom',
-        renderComponent: PackageUploadBtnComponent,
-        onComponentInitFunction(instance) {
-          instance.save.subscribe(row => {
-            alert(`${row.name} saved!`)
-          });
-        }
+        filter: false,
+        renderComponent: PackageUploadBtnComponent
       }
     },
     pager: {
@@ -164,6 +173,7 @@ export class ExtImnSetComponent implements OnInit {
       perPage: 10
     }
   };
+
   //PackageUploadBtnComponent
   constructor() {
     this.imnTable = true;
