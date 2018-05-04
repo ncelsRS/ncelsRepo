@@ -16,6 +16,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
+import {ShReferenceComponent} from '../../shared/sh-reference/sh-reference.component';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
   imports: [
@@ -23,6 +25,7 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     ExtContractRoutingModule,
     FileUploadModule,
     FormsModule,
+    NgSelectModule,
     Ng2SmartTableModule,
     NgbModule.forRoot(),
     HttpClientModule
@@ -39,7 +42,8 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     ExtPaymentTabComponent,
     ExtPayerComponent,
     ExtCertificateComponent,
-    ExtManufacturActionComponent
+    ExtManufacturActionComponent,
+    ShReferenceComponent
   ]
 })
 export class ExtContractModule { }

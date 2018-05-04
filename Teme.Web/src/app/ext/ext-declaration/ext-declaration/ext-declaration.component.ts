@@ -29,6 +29,7 @@ export class ExtDeclarationComponent implements OnInit {
       imnOfficialLanguage: null,
       GMDN: null,
       imnRussianLanguage: null,
+      NomenclatureCodeMedProduct: null,
       codeNomenclatureOfficial: null,
       codeNomenclatureRussian: null,
       descrNomenclatureRussian: null,
@@ -128,6 +129,7 @@ export class ExtDeclarationComponent implements OnInit {
 
   sendToNcels(valid) {
     this.showAllErr = true;
+    console.log(this.declaration);
   }
 
   diagnostic() {

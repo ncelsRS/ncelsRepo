@@ -8,7 +8,7 @@ import {Headers} from '@angular/http';
 @Injectable()
 export class RefService  {
 
-  url="http://localhost:5000/api/Reference/";
+  url="http://localhost:5121/api/Reference/";
   urlData="http://localhost:62559/Contract/";
 
 
@@ -140,16 +140,8 @@ export class RefService  {
     console.log(cntType+"   "+cntScope)
     //let headers = new Headers({ 'Content-Type': 'application/json' });
     return  this.http.post(this.urlData+"Create", {
-        params: {
           contractType: cntType,
           contractScope: cntScope
-        },
-        headers: {
-          // "Access-Control-Allow-Origin": "*",
-          // "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-          "Content-Type": "application/json; charset=utf-8",
-
-        }
       }
     // ,{
     //     headers: {
@@ -181,7 +173,7 @@ export class RefService  {
     return  this.http.get(this.urlData+"AddDeclarant",{
       params: {
         contractId: contractId,
-        serviceTypeId:code
+        code:code
     }});
   }
 
