@@ -7,10 +7,16 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 {
     public class SelectExecutorsFirst : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public SelectExecutorsFirst(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            _ss.SelectExecutorsFirst(context.Workflow.Id);
             var pointerId = ""; // Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
@@ -23,11 +29,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                     ExecutorsIds.Add(key, executors[key]);
                 });
             }
-
-
-
             // TODO Contract states
-
             return ExecutionResult.Next();
         }
     }

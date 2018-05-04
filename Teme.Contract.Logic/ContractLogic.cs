@@ -13,8 +13,10 @@ using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.Shared.Data.Primitives.Statuses;
 using Teme.Shared.Data.Repos.ContractRepo;
 using Teme.Shared.Logic.ContractLogic;
+using static Teme.Shared.Data.Primitives.Permissions.Permissions;
 
 namespace Teme.Contract.Logic
 {
@@ -45,6 +47,9 @@ namespace Teme.Contract.Logic
                 ContractScope = createModel.ContractScope
             };
             await _repo.CreateContract(contract);
+            await _repo.SaveStatePolice(new List<StatePolicy>{
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.Draft, Permission = ExtPortal.IsDeclarant }
+                });
             return new {
                 contract.Id,
                 contract.WorkflowId,
