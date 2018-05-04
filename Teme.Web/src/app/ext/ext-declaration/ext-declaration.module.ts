@@ -19,6 +19,9 @@ import {HttpClientModule} from "@angular/common/http";
 import { ExtSubjectComponent } from './ext-declaration/ext-subject/ext-subject.component';
 import { PackageUploadBtnComponent } from './ext-declaration/ext-imn-set/package-upload-btn/package-upload-btn.component';
 import {ExtProducerContentComponent} from'./ext-declaration/ext-producer/ext-producer-content/ext-producer-content.component'
+import { NgSelectModule } from '@ng-select/ng-select';
+import {ShReferenceComponent} from '../../shared/sh-reference/sh-reference.component';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -27,6 +30,7 @@ import {ExtProducerContentComponent} from'./ext-declaration/ext-producer/ext-pro
     Ng2SmartTableModule,
     FileUploadModule,
     HttpClientModule,
+    NgSelectModule,
     NgbModule.forRoot()
   ],
   declarations: [
@@ -42,7 +46,8 @@ import {ExtProducerContentComponent} from'./ext-declaration/ext-producer/ext-pro
     ExtJournalListComponent,
     ExtSubjectComponent,
     PackageUploadBtnComponent,
-    ExtProducerContentComponent],
+    ExtProducerContentComponent,
+    ShReferenceComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent,

@@ -22,7 +22,13 @@ const routes: Routes = [
                 component: ExtContractComponent
             },
             {
-              path: 'create',
+              path: ':id/:viewtype/:idContract/:workflowId',
+              data: { title: 'Договор' },
+              component: ExtContractComponent
+            },
+
+            {
+              path: 'c',
               data: {title: 'Заявление'},
               component: ExtContractComponent
             },

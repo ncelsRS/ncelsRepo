@@ -31,9 +31,7 @@ export class ExtAttachmentComponent {
         });
     this.hasBaseDropZoneOver = false;
     this.hasAnotherDropZoneOver = false;
-
     this.response = '';
-
     this.uploader.response.subscribe( res => this.response = res );
 }
 

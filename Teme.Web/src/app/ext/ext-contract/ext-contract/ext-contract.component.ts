@@ -19,7 +19,8 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
 
 })
 export class ExtContractComponent  extends TemplateValidation {
-  private contractView: string
+
+
   public ramoch;
 
   selectedLevel: string;
@@ -29,6 +30,8 @@ export class ExtContractComponent  extends TemplateValidation {
   @Input() childType: string;
   public createContractId;
   public idContract;
+  _idworkflow:string;
+  _viewtype: string;
 
   type: string;
   public id: string;
@@ -44,7 +47,7 @@ export class ExtContractComponent  extends TemplateValidation {
     this.getContactForm();
     this.getHolderType();
 
-    this.createContract('1','eaesrg')
+    //this.createContract('1','eaesrg')
 
 
   }
@@ -65,8 +68,12 @@ export class ExtContractComponent  extends TemplateValidation {
   ngOnInit(){
     this.route.params
       .subscribe(params => {
-       // this.ramoch = param;
-        console.log(params);
+        this.idContract = params.idContract;
+        this.idContractEvent.emit(this.idContract);
+        this._idworkflow  = params.workflowId;
+        this._viewtype = params.viewtype;
+        console.log(this._idworkflow);
+
       });
     console.log(this.id);
 
@@ -268,6 +275,8 @@ export class ExtContractComponent  extends TemplateValidation {
       )
 
   }
+
+
 
   onChildChanged()
   {
