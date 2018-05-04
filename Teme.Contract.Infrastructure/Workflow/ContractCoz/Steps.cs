@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -16,7 +16,6 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            _ss.SelectExecutorsFirst(context.Workflow.Id);
             var pointerId = ""; // Helpers.GetUserTaskPointer(context);
             var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
 
@@ -29,6 +28,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                     ExecutorsIds.Add(key, executors[key]);
                 });
             }
+            _ss.SelectExecutorsFirst(context.Workflow.Id);
             // TODO Contract states
             return ExecutionResult.Next();
         }

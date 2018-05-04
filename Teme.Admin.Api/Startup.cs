@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.Reflection;
 using Teme.Admin.Api.Startups;
 using Teme.Shared.Data.Context;
 
@@ -38,7 +39,8 @@ namespace Teme.Admin.Api
             });
             services.AddCors();
             services.AddMvc();
-           
+
+            // Add Autofac
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);

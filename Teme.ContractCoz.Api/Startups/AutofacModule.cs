@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,16 +14,22 @@ namespace Teme.ContractCoz.Api.Startups
             var assemblyBranch = "ContractCoz";
             var assembly = Assembly.Load(new AssemblyName("Teme.Shared.Data"));
             builder.RegisterAssemblyTypes(assembly)
-                       .Where(t => t.Name.EndsWith("Repo"))
-                       .AsImplementedInterfaces();
+                   .Where(t => t.Name.EndsWith("Repo"))
+                   .AsImplementedInterfaces();
             assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Data"));
             builder.RegisterAssemblyTypes(assembly)
                    .Where(t => t.Name.EndsWith("Repo"))
                    .AsImplementedInterfaces();
+
+            assembly = Assembly.Load(new AssemblyName($"Teme.Contract.Infrastructure"));
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Logic"))
+                .AsImplementedInterfaces();
+
             assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Logic"));
             builder.RegisterAssemblyTypes(assembly)
                    .Where(t => t.Name.EndsWith("Logic"))
-                   .AsSelf();
+                   .AsImplementedInterfaces();
         }
     }
 }

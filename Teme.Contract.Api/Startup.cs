@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,7 +42,7 @@ namespace Teme.Contract.Api
 
             // Add Workflow with the persistence provider
             //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
-            services.AddWorkflow();
+            services.AddContractInfrastructure();
             services.AddCors();
             // Default vm template
             services.AddMvc();
@@ -72,8 +72,8 @@ namespace Teme.Contract.Api
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
             // Start the Workflow instance
+            app.UseContractInfrastructure();
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
             host.Start();
             app.UseMvc();
         }
