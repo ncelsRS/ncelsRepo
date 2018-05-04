@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,20 +25,13 @@ namespace Teme.Shared.Data.Repos.ContractRepo
         }
 
         /// <summary>
-        /// Получение списка статусов
-        /// </summary>
-        /// <param name="contractId">Id договора</param>
-        /// <returns></returns>
-        public async Task<List<StatePolicy>> GetListStatePolice(int contractId) => await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync();
-
-        /// <summary>
         /// Удаление списка статусов
         /// </summary>
         /// <param name="list">Список статусов</param>
         /// <returns></returns>
-        public async Task RemoveStatePolice(List<StatePolicy> list)
+        public async Task RemoveStatePolice(int contractId)
         {
-            Context.StatePolicies.RemoveRange(list);
+            Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync());
             await Context.SaveChangesAsync();
         }
     }
