@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Logic;
 using Teme.Contract.Logic.Actions;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.Contract.Api.Controllers
 {

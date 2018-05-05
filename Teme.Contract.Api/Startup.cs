@@ -16,6 +16,9 @@ using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
+using Teme.SharedApi;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Teme.Contract.Api
 {
@@ -44,12 +47,22 @@ namespace Teme.Contract.Api
             //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
             services.AddWorkflow();
             services.AddCors();
+
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Identity
+            });
+
             // Default vm template
             services.AddMvc();
             services.AddWorkFlowInfrastructure();
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();
+            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
             containerBuilder.Populate(services);
