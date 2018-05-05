@@ -1,8 +1,9 @@
-import {Component, forwardRef, Input} from '@angular/core';
+import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms'
 import {TemplateValidation} from 'app/shared/TemplateValidation';
 import {ConstantContractForm} from './constant/contractContractForm';
 import {reference} from './reference';
+import {ReferenceService} from './reference.service';
 
 @Component({
   selector: 'app-reference-contract-form-validation',
@@ -25,10 +26,10 @@ import {reference} from './reference';
     provide: NG_VALIDATORS,
     useExisting: forwardRef(() => ContractForm),
     multi: true
-  }
+  },ReferenceService
   ]
 })
-export class ContractForm extends TemplateValidation {
+export class ContractForm extends TemplateValidation implements OnInit  {
   @Input() showItemErrors = false;
   // model: any;
 
@@ -37,21 +38,27 @@ export class ContractForm extends TemplateValidation {
     new reference(null, 'Reregistration', 'Перерегистрация', 'Перерегистрация кз'),
     new reference(null, 'Modification', 'Внесение изменения', 'Внесение изменения кз'),
   ];
-  public dataArr = [];
+  public dataArr;
 
-  constructor() {
+  constructor(private referenceService: ReferenceService) {
     super();
     this.getData((dataArr) => {
+
+      for (let data of this.dataArr){
+
+      }
       //this.items = items;
       for (let item of this.items) {
         item.id = "" + dataArr.filter(data => data.value===item.code )[0].key;
       }
     });
   }
-
-  public getConstantContractForm():Array<reference> {
-    return ConstantContractForm;
+  ngOnInit(){
   }
+
+  // public getConstantContractForm():Array<reference> {
+  //   return ConstantContractForm;
+  // }
   public getData(dataArr) {
     const req = new XMLHttpRequest();
     req.open('GET', 'http://localhost:5121/api/reference/ContractForm');
@@ -59,6 +66,11 @@ export class ContractForm extends TemplateValidation {
       dataArr(JSON.parse(req.response));
     };
     req.send();
+
+
+    //ttt =[];
+    //this.referenceService.getContractForm().subscribe(data => dataArr=data);
+    //dataArr(ttt)
   }
 
   getTest(){

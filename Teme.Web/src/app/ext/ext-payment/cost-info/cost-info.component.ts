@@ -23,24 +23,24 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
 })
 export class CostInfoComponent extends TemplateValidation {
   isNotRegistred = false;
-  bekbol: any;
+  // bekbol: any;
   @Input() showErrors = false;
+  @Input() costInfoModal: any;
 
-  public childData: any = {
-    contractForm: this.model.contractForm
-  }
+  // public childData: any = {
+  //   contractForm: this.model.contractForm
+  // }
 
   constructor(public iconModal:  IconModal) {
     super();
-
   }
 
 
   ngOnInit() {
-
+    this.model = this.costInfoModal;
   }
   getTest(){
-    console.log(this.model);
+    console.log(this.costInfoModal,this.model);
   }
 
 }

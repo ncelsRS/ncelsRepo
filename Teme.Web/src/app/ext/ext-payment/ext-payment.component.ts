@@ -18,7 +18,7 @@ export class ExtPaymentComponent implements OnInit {
 
   ngOnInit() {
   }
-  setDeclarationTab(name: string) {
+  setTab(name: string) {
     this.type = name;
   }
   sendPaymentRequest(validate) {
@@ -31,9 +31,9 @@ export class ExtPaymentComponent implements OnInit {
 
 
 
-  public declaration: any = {
+  public paymentModel: any = {
     costInfo: {
-      contractForm: "",             //Тип регистрации
+      contractForm: "1",             //Тип регистрации
       contractNumber: null, 			    //Номер договора
       conclusionBeginDate: null,	    //Дата заключения
       conclusionEndDate: null,		    //Срок Действия
@@ -138,8 +138,8 @@ export class ExtPaymentComponent implements OnInit {
       confirmation: null,						    //Подтвержден
     },
     testPayment: {
-      testSelect: null,
-      contractForm: null
+      contractForm: "2",
+      testSelect: "hhh",
     }
   };
   //отключение заставки
@@ -150,6 +150,6 @@ export class ExtPaymentComponent implements OnInit {
 
 
   getTestVar(){
-    console.log(this.declaration);
+    console.log(this.paymentModel.testPayment);
   }
 }

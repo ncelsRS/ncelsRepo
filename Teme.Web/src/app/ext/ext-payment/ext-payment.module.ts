@@ -24,7 +24,7 @@ import { SubjectComponent } from './subject/subject.component';
 import { AttachmentsComponent } from './attachments/attachments.component';
 import { SigningComponent } from './signing/signing.component';
 import { TestPaymentComponent } from './test-payment/test-payment.component';
-import {ContractForm} from '../../shared/reference/ContractForm';
+import {ContractForm} from '../../shared/reference/contractForm';
 
 @NgModule({
   imports: [
