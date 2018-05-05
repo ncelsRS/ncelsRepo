@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,18 +19,50 @@ namespace Teme.Contract.Infrastructure.Workflow
             _repo = repo;
         }
 
-        public async Task SendToNcels(bool isSignedByDeclarant, string workflowId)
+        /// <summary>
+        /// Отправка договора в ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task SendToNcels(string workflowId)
         {
             var contract = await _repo.GetContractByWorkflowId(workflowId);
+            await _repo.RemoveStatePolice(contract.Id);
+            await _repo.SaveStatePolice(
+                new List<StatePolicy>{
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InProcessing, Permission = ExtPortal.IsDeclarant },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.OnDistribution, Permission = IntPortal.IsChief }
+                });
+        }
 
-            var sts = new List<StatePolicy>();
-            if (isSignedByDeclarant)
-            {
-                sts.Add(new StatePolicy { ContractId = 1, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InProcessing, Permission = ExtPortal.IsDeclarant });
-                sts.Add(new StatePolicy { ContractId = 1, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.OnDistribution, Permission = IntPortal.IsChief });
-            }
+        /// <summary>
+        /// Удаление договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task DeleteContract(string workflowId)
+        {
+            var contract = await _repo.GetContractByWorkflowId(workflowId);
+            contract.isDeleted = true;
+            await _repo.UpdateContract(contract);
+        }
 
-            Log.Information($"IsSignedByDeclarant = {isSignedByDeclarant}");
+        /// <summary>
+        /// Распеределение договора по исполнителям
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task SelectExecutorsFirst(string workflowId)
+        {
+            var contract = await _repo.GetContractByWorkflowId(workflowId);
+            await _repo.RemoveStatePolice(contract.Id);
+            await _repo.SaveStatePolice(
+                new List<StatePolicy>{
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InWork, Permission = ExtPortal.IsDeclarant },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsChief },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsExecutor }
+                });
+
         }
     }
 }

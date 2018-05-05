@@ -11,10 +11,10 @@ using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Logic.Actions
 {
-    public class ActionsLogic : BaseLogic<IBaseRepo<BaseEntity>, BaseEntity>, IActionsLogic
+    public class ActionsLogic : EntityLogic, IActionsLogic
     {
         private readonly IContractWorkflowLogic _wflogic;
-        protected ActionsLogic(IBaseRepo<BaseEntity> repo, IContractWorkflowLogic wflogic) : base(repo)
+        public ActionsLogic(IEntityRepo repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
         }

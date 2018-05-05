@@ -24,7 +24,6 @@ namespace Teme.Contract.Infrastructure.Workflow
                 .UserTask(UserPromts.Declarant.SendOrRemove, (d, c) => "declarant")
                     .WithOption(UserOptions.SendWithSign).Do(then =>
                         then.StartWith<SendToNcels>()
-                            .Input(s=>s.IsSignedByDeclarant, d=>true)
                             .Output(d => d.IsSignedByDeclarant, s => true)
                             .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                             .Output(d => d.ContractType, s => s.ContractType)

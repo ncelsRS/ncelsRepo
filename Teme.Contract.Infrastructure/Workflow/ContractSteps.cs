@@ -18,8 +18,14 @@ namespace Teme.Contract.Infrastructure.Workflow
     /// </summary>
     public class Delete : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public Delete(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            _ss.DeleteContract(context.Workflow.Id);
             TaskCompletionService.ReleaseAll(context.Workflow.Id);
             Log.Verbose($"Delete contract, workflowId: {context.Workflow.Id}");
 
@@ -37,14 +43,13 @@ namespace Teme.Contract.Infrastructure.Workflow
         {
             _ss = ss;
         }
-        public bool IsSignedByDeclarant { get; set; }
         public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             var workflowId = context.Workflow.Id;
-            _ss.SendToNcels(IsSignedByDeclarant, workflowId);
+            _ss.SendToNcels(workflowId);
             var attrs = context.GetParentScope(1).ExtensionAttributes;
             if (attrs.TryGetValue("Data", out var contractType))
                 ContractType = (ContractTypeEnum)contractType;

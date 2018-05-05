@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -7,6 +7,11 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 {
     public class SelectExecutorsFirst : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public SelectExecutorsFirst(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
@@ -23,11 +28,8 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                     ExecutorsIds.Add(key, executors[key]);
                 });
             }
-
-
-
+            _ss.SelectExecutorsFirst(context.Workflow.Id);
             // TODO Contract states
-
             return ExecutionResult.Next();
         }
     }

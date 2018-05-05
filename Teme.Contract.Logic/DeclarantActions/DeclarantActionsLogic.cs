@@ -14,24 +14,23 @@ using Teme.Shared.Logic.ContractLogic;
 
 namespace Teme.Contract.Logic.DeclarantActions
 {
-    public class DeclarantActionsLogic : BaseLogic<IBaseRepo<BaseEntity>, BaseEntity>, IDeclarantActionsLogic
+    public class DeclarantActionsLogic : EntityLogic, IDeclarantActionsLogic
     {
         private readonly IContractWorkflowLogic _wflogic;
-
-        protected DeclarantActionsLogic(IBaseRepo<BaseEntity> repo, IContractWorkflowLogic wflogic) : base(repo)
+        public DeclarantActionsLogic(IEntityRepo repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
         }
 
-        public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId, int contractId)
+        public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId)
         {
             var actions = await _wflogic.GetUserActions(workflowId, "declarant");
             var action = actions
                 .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
             if (action == null) throw new ArgumentException("Action not found");
-            var executorsIds = new Dictionary<string, IEnumerable<string>> {{ScopeEnum.Coz, new[] {"BossCoz"}}};
+            var executorsIds = new Dictionary<string, IEnumerable<string>> { { ScopeEnum.Coz, new[] { "BossCoz" } } };
             var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
-            return new {r};
+            return new { r };
         }
     }
 }
