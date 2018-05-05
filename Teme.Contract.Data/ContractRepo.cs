@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Context = Teme.Shared.Data.Context;
@@ -39,33 +39,54 @@ namespace Teme.Contract.Data
             await Context.Database.ExecuteSqlCommandAsync(string.Format(@"UPDATE {0} SET {1} = '{2}' WHERE Id = {3}", data.Name + "s", fieldName, value, id));
         }
 
-        public async Task<Context.Contract> GetContract(int id)
-        {
-            return await Context.Contracts.FirstOrDefaultAsync(e => e.Id == id);
-        }
+        /// <summary>
+        /// Поулчение договора по ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Context.Contract> GetContract(int id) => await Context.Contracts.FirstOrDefaultAsync(e => e.Id == id);
 
-        public async Task<Context.Contract> GetContractByWorkflowId(string workflowId)
-        {
-            return await Context.Contracts.FirstOrDefaultAsync(e => e.WorkflowId == workflowId);
-        }
+        /// <summary>
+        /// Получение договора по workflowId
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task<Context.Contract> GetContractByWorkflowId(string workflowId) => await Context.Contracts.FirstOrDefaultAsync(e => e.WorkflowId == workflowId);
 
+        /// <summary>
+        /// Создание договора
+        /// </summary>
+        /// <param name="contract"></param>
+        /// <returns></returns>
         public async Task CreateContract(Context.Contract contract)
         {
             Context.Contracts.Add(contract);
             await Context.SaveChangesAsync();
         }
 
-        public async Task<Context.Declarant> GetDeclarant(int id)
-        {
-            return await Context.Declarants.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
-        }
+        /// <summary>
+        /// Получение Заявиетоля по ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Context.Declarant> GetDeclarant(int id) => await Context.Declarants.Include(x => x.DeclarantDetails).FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
 
+        /// <summary>
+        /// Создание заявителя
+        /// </summary>
+        /// <param name="declarant"></param>
+        /// <returns></returns>
         public async Task CreateDeclarant(Context.Declarant declarant)
         {
             Context.Declarants.Add(declarant);
             await Context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Создание описания заявителя
+        /// </summary>
+        /// <param name="declarantdetail"></param>
+        /// <returns></returns>
         public async Task CreateDeclarantDetail(Context.DeclarantDetail declarantdetail)
         {
             Context.DeclarantDetails.Add(declarantdetail);
