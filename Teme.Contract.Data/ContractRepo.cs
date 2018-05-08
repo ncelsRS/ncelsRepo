@@ -141,9 +141,8 @@ namespace Teme.Contract.Data
         /// </summary>
         /// <param name="contractScope">scope ЕАЭС или Нац</param>
         /// <returns></returns>
-        public async Task<IQueryable<Context.Contract>> GetListContracts(string contractScope) // string organizationScope
-        {
-            return await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.ContractScope.Contains(contractScope) && e.StatePolicies.Any(x => x.Scope == OrganizationScopeEnum.Ext)));
-        }
+        public async Task<IQueryable<Context.Contract>> GetListContracts(string contractScope) => // string organizationScope
+            await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.ContractScope.Contains(contractScope) && e.StatePolicies.Any(x => x.Scope == OrganizationScopeEnum.Ext)));
+        
     }
 }

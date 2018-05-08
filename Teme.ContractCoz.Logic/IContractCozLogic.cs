@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
-using Teme.Shared.Logic;
+using Teme.Shared.Logic.ContractLogic;
 
 namespace Teme.ContractCoz.Logic
 {
-    public interface IContractCozLogic : IBaseLogic
+    public interface IContractCozLogic : IBaseContractLogic
     {
-        Task<object> DistributionByExecutors(string userPromt, string userOption, string workflowId, int userId);
+        Task<object> GetContractById(int contractId);
+        Task<object> GetDeclarantById(int id);
     }
 }
