@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Logic;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.Contract.Api.Controllers
 {

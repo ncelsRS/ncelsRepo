@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
-using System.Reflection;
 using Teme.Admin.Api.Startups;
 using Teme.Shared.Data.Context;
 
@@ -39,8 +38,7 @@ namespace Teme.Admin.Api
             });
             services.AddCors();
             services.AddMvc();
-
-            // Add Autofac
+           
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -52,12 +50,14 @@ namespace Teme.Admin.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
+            
             app.UseMvc();
         }
     }
