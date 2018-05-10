@@ -42,10 +42,6 @@ namespace Teme.Contract.Api
             var connectionStr = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
-
-            // Add Workflow with the persistence provider
-            //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
-            services.AddContractInfrastructure();
             services.AddCors();
 
             var certPath = Configuration["IdentityConfig:CertPath"];
@@ -58,10 +54,9 @@ namespace Teme.Contract.Api
 
             // Default vm template
             services.AddMvc();
-            services.AddWorkFlowInfrastructure();
-
+            //services.AddWorkFlowInfrastructure();
             // Add Autofac
-            var containerBuilder = new Autofac.ContainerBuilder();
+            var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -83,11 +78,6 @@ namespace Teme.Contract.Api
             loggerFactory.AddSerilog();
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
-            // Start the Workflow instance
-            app.UseContractInfrastructure();
-            //var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            //host.Start();
             app.UseMvc();
         }
     }

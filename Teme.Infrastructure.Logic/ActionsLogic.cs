@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Teme.Contract.Data.Model;
 using Teme.Contract.Infrastructure;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
@@ -15,6 +16,12 @@ namespace Teme.Infrastructure.Logic
         public ActionsLogic(IEntityRepo repo, IContractWorkflowLogic wflogic) : base(repo)
         {
             _wflogic = wflogic;
+        }
+
+        public async Task<object> Create(CreateModel createModel)
+        {
+            var workflowId = await _wflogic.Create();
+            return new { workflowId };
         }
 
         public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)
