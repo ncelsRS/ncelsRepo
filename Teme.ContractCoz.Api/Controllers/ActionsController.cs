@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.ContractCoz.Logic;
+using Teme.ContractCoz.Logic.Actions;
 
 namespace Teme.ContractCoz.Api.Controllers
 {
-    public class ActionsController : BaseController<IContractCozLogic>
+    public class ActionsController : BaseController<IActionsLogic>
     {
-        public ActionsController(IContractCozLogic logic) : base(logic)
+        public ActionsController(IActionsLogic logic) : base(logic)
         {
         }
 

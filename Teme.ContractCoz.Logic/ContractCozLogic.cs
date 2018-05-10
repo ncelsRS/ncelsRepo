@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Teme.Contract.Data;
+using Teme.Contract.Data.DTO;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.ContractCoz.Data;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.ContractLogic;
@@ -13,26 +16,41 @@ using Teme.Shared.Logic.ContractLogic;
 namespace Teme.ContractCoz.Logic
 {
 
-    public class ContractCozLogic : EntityLogic, IContractCozLogic
+    public class ContractCozLogic : BaseContractLogic<IContractCozRepo>, IContractCozLogic
     {
-        private readonly IContractWorkflowLogic _wflogic;
-        public ContractCozLogic(IEntityRepo repo, IContractWorkflowLogic wflogic) : base(repo)
+        private readonly IContractRepo _contractRepo;
+        private readonly IContractCozRepo _repo;
+        private readonly IConvertDtoRepo _dto;
+        public ContractCozLogic(IContractCozRepo repo, IContractRepo contractRepo, IConvertDtoRepo dto) : base(repo)
         {
-            _wflogic = wflogic;
+            _repo = repo;
+            _contractRepo = contractRepo;
+            _dto = dto;
         }
 
         /// <summary>
-        /// Отправка договора выбранному испольнителю ЦОЗ
+        /// Получение договора по Id
         /// </summary>
-        /// <param name="dbem"></param>
         /// <returns></returns>
-        public async Task<object> DistributionByExecutors(string userPromt, string userOption, string workflowId, int userId)
+        public async Task<object> GetContractById(int contractId)
         {
-            var actions = await _wflogic.GetUserActions(workflowId, "SelectExecutors");
-            var action = actions.FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
-            var executorsIds = new Dictionary<string, IEnumerable<string>>() {{ ScopeEnum.Coz, new[] { userId.ToString() }}};
-            var result = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds);
-            return result;
+            var result = await _contractRepo.GetContract(contractId);
+            if (result == null)
+                return null;
+            return _dto.ConvertEntityToContract(result);
+        }
+
+        /// <summary>
+        /// Получение заявителя по Id
+        /// </summary>
+        /// <param name="id">Id заявителя</param>
+        /// <returns></returns>
+        public async Task<object> GetDeclarantById(int id)
+        {
+            var declarant = await _contractRepo.GetDeclarant(id);
+            if (declarant != null)
+                return _dto.ConvertEntityToDeclarant(declarant);
+            return null;
         }
     }
 }
