@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Teme.ContractCoz.Logic;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.ContractCoz.Api.Controllers
 {

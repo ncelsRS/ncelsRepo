@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
@@ -24,6 +25,11 @@ namespace Teme.Contract.Logic.DeclarantActions
 
         public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId)
         {
+
+            var client = new HttpClient();
+
+            //client.GetAsync().Result.Content.ReadAsStreamAsync<>().Result;
+
             var actions = await _wflogic.GetUserActions(workflowId, "declarant");
             var action = actions
                 .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
