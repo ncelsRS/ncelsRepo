@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System;
@@ -9,7 +9,7 @@ using Teme.Shared.Logic;
 
 namespace Teme.SharedApi.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("[controller]")]
     public class BaseController<TILogic> : Controller where TILogic : IBaseLogic
     {
