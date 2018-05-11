@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,17 +46,24 @@ namespace Teme.Contract.Infrastructure.Workflow
         public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
+        
+
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var workflowId = context.Workflow.Id;
-            _ss.SendToNcels(workflowId);
-            var attrs = context.GetParentScope(1).ExtensionAttributes;
-            if (attrs.TryGetValue("Data", out var contractType))
-                ContractType = (ContractTypeEnum)contractType;
-            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
-                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            try {
+                _ss.SendToNcels(context.Workflow.Id);
+                var attrs = context.GetParentScope(1).ExtensionAttributes;
+                if (attrs.TryGetValue("Data", out var contractType))
+                    ContractType = (ContractTypeEnum)contractType;
+                if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                    ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
 
-            Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
+                Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SendToNcels", ex);
+            }
             return ExecutionResult.Next();
         }
     }

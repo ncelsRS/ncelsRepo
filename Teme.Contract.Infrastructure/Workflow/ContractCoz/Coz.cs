@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using Teme.Contract.Infrastructure.Primitives;
@@ -13,15 +13,11 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         public static IWorkflowBuilder<ContractWorkflowTransitionData> Coz(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder.StartWith(c => Log.Verbose("Start Coz"))
-                .ForEach(d => d.ExecutorsIds[ScopeEnum.Coz])
-                    .Do(t => t.StartWith(c => Log.Information("ForEach"))
-                        .UserTask(UserPromts.SelectExecutors, (d, c) => c.Item as string)
-                            .WithOption(UserOptions.SelectExecutors, "o1").Do(t1 =>
-                                t1.StartWith<SelectExecutorsFirst>()
-                                    .Input(s => s.ExecutorsIds, d => d.ExecutorsIds)
-                                    .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
-                                .Then<CancelParallelUserTasks>()
-                            )
+                .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())
+                    .WithOption(UserOptions.SelectExecutors, "o1").Do(t1 =>
+                        t1.StartWith<SelectExecutorsFirst>()
+                            .Input(s => s.ExecutorsIds, d => d.ExecutorsIds)
+                            .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                     )
                 .UserTask(UserPromts.IsMeetRequirements, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].First())
                     .WithOption(UserOptions.MeetRequirements).Do(t =>
