@@ -24,13 +24,11 @@ namespace Teme.Contract.Infrastructure.Workflow
                 .UserTask(UserPromts.Declarant.SendOrRemove, (d, c) => "declarant")
                     .WithOption(UserOptions.SendWithSign).Do(then =>
                         then.StartWith<SendToNcels>()
-                            .Output(d => d.IsSignedByDeclarant, s => true)
                             .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                             .Output(d => d.ContractType, s => s.ContractType)
                     )
                     .WithOption(UserOptions.SendWithoutSign).Do(then =>
                         then.StartWith<SendToNcels>()
-                            .Output(d => d.IsSignedByDeclarant, s => false)
                             .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
                             .Output(d => d.ContractType, s => s.ContractType)
                     )
@@ -46,7 +44,7 @@ namespace Teme.Contract.Infrastructure.Workflow
                         .Join()
                 )
                 .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(t => t.Coz())
-                .UserTask(UserPromts.IsMeetRequirements, (d, c) => d.ExecutorsIds[ScopeEnum.Root].First())
+                .UserTask(UserPromts.IsMeetRequirements, (d, c) => d.ExecutorsIds[ScopeEnum.Root].FirstOrDefault())
                     .WithOption(UserOptions.MeetRequirements).Do(t => { })
                     .WithOption(UserOptions.NotMeetRequirements).Do(t => { })
                 .If(d => d.IsSignedByDeclarant).Do(t => t
@@ -56,8 +54,7 @@ namespace Teme.Contract.Infrastructure.Workflow
                 {
                     TaskCompletionService.ReleaseAll(c.Workflow.Id);
                     Log.Verbose($"End workflow: {c.Workflow.Id}");
-                })
-                ;
+                });
         }
     }
 }

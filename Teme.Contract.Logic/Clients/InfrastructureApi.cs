@@ -38,21 +38,19 @@ namespace Teme.Contract.Logic.Clients
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<FileResponse> ListAsync(string workflowId)
+        public System.Threading.Tasks.Task<object> ListAsync(string workflowId)
         {
             return ListAsync(workflowId, System.Threading.CancellationToken.None);
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<FileResponse> ListAsync(string workflowId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<object> ListAsync(string workflowId, System.Threading.CancellationToken cancellationToken)
         {
-            if (workflowId == null)
-                throw new System.ArgumentNullException("workflowId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Actions/contract/{workflowId}");
-            urlBuilder_.Replace("{workflowId}", System.Uri.EscapeDataString(ConvertToString(workflowId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Actions/List?");
+            urlBuilder_.Append("workflowId=").Append(System.Uri.EscapeDataString(workflowId != null ? ConvertToString(workflowId, System.Globalization.CultureInfo.InvariantCulture) : "")).Append("&");
+            urlBuilder_.Length--;
 
             var client_ = new System.Net.Http.HttpClient();
             try
@@ -80,12 +78,19 @@ namespace Teme.Contract.Logic.Clients
                         ProcessResponse(client_, response_);
 
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206")
+                        if (status_ == "200")
                         {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse((int)response_.StatusCode, headers_, responseStream_, client_, response_);
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result_ = default(object);
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_;
+                            }
+                            catch (System.Exception exception_)
+                            {
+                                throw new InfrastructureApi("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -94,7 +99,7 @@ namespace Teme.Contract.Logic.Clients
                             throw new InfrastructureApi("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
                         }
 
-                        return default(FileResponse);
+                        return default(object);
                     }
                     finally
                     {
@@ -190,14 +195,14 @@ namespace Teme.Contract.Logic.Clients
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<FileResponse> SendOrRemoveDeleteAsync(string workflowId, ContractTypeEnum contractType)
+        public System.Threading.Tasks.Task<object> SendOrRemoveDeleteAsync(string workflowId, ContractTypeEnum contractType)
         {
             return SendOrRemoveDeleteAsync(workflowId, contractType, System.Threading.CancellationToken.None);
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<FileResponse> SendOrRemoveDeleteAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<object> SendOrRemoveDeleteAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
         {
             if (contractType == null)
                 throw new System.ArgumentNullException("contractType");
@@ -235,12 +240,19 @@ namespace Teme.Contract.Logic.Clients
                         ProcessResponse(client_, response_);
 
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206")
+                        if (status_ == "200")
                         {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse((int)response_.StatusCode, headers_, responseStream_, client_, response_);
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result_ = default(object);
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_;
+                            }
+                            catch (System.Exception exception_)
+                            {
+                                throw new InfrastructureApi("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -249,7 +261,7 @@ namespace Teme.Contract.Logic.Clients
                             throw new InfrastructureApi("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
                         }
 
-                        return default(FileResponse);
+                        return default(object);
                     }
                     finally
                     {
@@ -266,14 +278,14 @@ namespace Teme.Contract.Logic.Clients
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<FileResponse> SendOrRemoveSendWithSignAsync(string workflowId, ContractTypeEnum contractType)
+        public System.Threading.Tasks.Task<object> SendOrRemoveSendWithSignAsync(string workflowId, ContractTypeEnum contractType)
         {
             return SendOrRemoveSendWithSignAsync(workflowId, contractType, System.Threading.CancellationToken.None);
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<FileResponse> SendOrRemoveSendWithSignAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<object> SendOrRemoveSendWithSignAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
         {
             if (contractType == null)
                 throw new System.ArgumentNullException("contractType");
@@ -311,12 +323,19 @@ namespace Teme.Contract.Logic.Clients
                         ProcessResponse(client_, response_);
 
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206")
+                        if (status_ == "200")
                         {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse((int)response_.StatusCode, headers_, responseStream_, client_, response_);
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result_ = default(object);
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_;
+                            }
+                            catch (System.Exception exception_)
+                            {
+                                throw new InfrastructureApi("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -325,7 +344,7 @@ namespace Teme.Contract.Logic.Clients
                             throw new InfrastructureApi("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
                         }
 
-                        return default(FileResponse);
+                        return default(object);
                     }
                     finally
                     {
@@ -342,14 +361,14 @@ namespace Teme.Contract.Logic.Clients
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<FileResponse> SendOrRemoveSendWithoutSignAsync(string workflowId, ContractTypeEnum contractType)
+        public System.Threading.Tasks.Task<object> SendOrRemoveSendWithoutSignAsync(string workflowId, ContractTypeEnum contractType)
         {
             return SendOrRemoveSendWithoutSignAsync(workflowId, contractType, System.Threading.CancellationToken.None);
         }
 
         /// <exception cref="InfrastructureApi">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<FileResponse> SendOrRemoveSendWithoutSignAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<object> SendOrRemoveSendWithoutSignAsync(string workflowId, ContractTypeEnum contractType, System.Threading.CancellationToken cancellationToken)
         {
             if (contractType == null)
                 throw new System.ArgumentNullException("contractType");
@@ -387,12 +406,19 @@ namespace Teme.Contract.Logic.Clients
                         ProcessResponse(client_, response_);
 
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206")
+                        if (status_ == "200")
                         {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse((int)response_.StatusCode, headers_, responseStream_, client_, response_);
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result_ = default(object);
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_;
+                            }
+                            catch (System.Exception exception_)
+                            {
+                                throw new InfrastructureApi("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -401,7 +427,7 @@ namespace Teme.Contract.Logic.Clients
                             throw new InfrastructureApi("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
                         }
 
-                        return default(FileResponse);
+                        return default(object);
                     }
                     finally
                     {
@@ -514,42 +540,6 @@ namespace Teme.Contract.Logic.Clients
 
         OneToMore = 2,
 
-    }
-
-    public partial class FileResponse : System.IDisposable
-    {
-        private System.IDisposable _client;
-        private System.IDisposable _response;
-
-        public int StatusCode { get; private set; }
-
-        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
-
-        public System.IO.Stream Stream { get; private set; }
-
-        public bool IsPartial
-        {
-            get { return StatusCode == 206; }
-        }
-
-        public FileResponse(int statusCode, System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.IO.Stream stream, System.IDisposable client, System.IDisposable response)
-        {
-            StatusCode = statusCode;
-            Headers = headers;
-            Stream = stream;
-            _client = client;
-            _response = response;
-        }
-
-        public void Dispose()
-        {
-            if (Stream != null)
-                Stream.Dispose();
-            if (_response != null)
-                _response.Dispose();
-            if (_client != null)
-                _client.Dispose();
-        }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.17.3.0 (NJsonSchema v9.10.46.0 (Newtonsoft.Json v9.0.0.0))")]

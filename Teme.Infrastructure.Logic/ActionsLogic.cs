@@ -38,8 +38,8 @@ namespace Teme.Infrastructure.Logic
                 .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
             if (action == null) throw new ArgumentException("Action not found");
             var executorsIds = new Dictionary<string, IEnumerable<string>> { { ScopeEnum.Coz, new[] { "BossCoz" } } };
-            var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
-            return new { r };
+            var result = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
+            return new { result };
         }
     }
 }

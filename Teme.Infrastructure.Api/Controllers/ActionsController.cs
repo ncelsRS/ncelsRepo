@@ -26,9 +26,9 @@ namespace Teme.Infrastructure.Api.Controllers
         /// </summary>
         /// <param name="workflowId"></param>
         /// <returns></returns>
-        [Route("contract/{workflowId}")]
+        [Route("List")]
         [HttpGet]
-        public async Task<IActionResult> List([FromRoute] [Required] string workflowId)
+        public async Task<object> List([FromQuery] [Required] string workflowId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try

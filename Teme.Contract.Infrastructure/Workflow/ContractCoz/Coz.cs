@@ -12,8 +12,8 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
     {
         public static IWorkflowBuilder<ContractWorkflowTransitionData> Coz(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
-            builder.StartWith(c => Log.Verbose("Start Coz"))
-                .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())
+            builder.StartWith(c => Log.Information("Start Coz"))
+                .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].First())
                     .WithOption(UserOptions.SelectExecutors, "o1").Do(t1 =>
                         t1.StartWith<SelectExecutorsFirst>()
                             .Input(s => s.ExecutorsIds, d => d.ExecutorsIds)

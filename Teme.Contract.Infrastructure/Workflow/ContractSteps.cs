@@ -52,12 +52,13 @@ namespace Teme.Contract.Infrastructure.Workflow
         {
             try {
                 _ss.SendToNcels(context.Workflow.Id);
-                var attrs = context.GetParentScope(1).ExtensionAttributes;
+                var attrs = context.GetParentScope(0).ExtensionAttributes;
+                if (attrs.Count <= 0)
+                    throw new NullReferenceException();
                 if (attrs.TryGetValue("Data", out var contractType))
-                    ContractType = (ContractTypeEnum)contractType;
+                    ContractType = (ContractTypeEnum)Convert.ToInt32(contractType);
                 if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
                     ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
-
                 Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
             }
             catch (Exception ex)
