@@ -23,8 +23,7 @@ namespace Teme.Infrastructure.Logic
 
         public async Task<object> Create(CreateModel createModel)
         {
-            var workflowId = await _wflogic.Create();
-            return new { workflowId };
+            return await _wflogic.Create();
         }
 
         public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)

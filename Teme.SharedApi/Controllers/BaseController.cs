@@ -58,5 +58,28 @@ namespace Teme.SharedApi.Controllers
             return Json(msg);
 #endif
         }
+
+        protected JsonResult ExceptionJsonResult(Exception ex, object args = null)
+        {
+            var controllerName = ControllerContext.ActionDescriptor.ControllerName;
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var msg = $"{controllerName} {actionName} {ex.Message}";
+
+            if (ex is ArgumentException)
+            {
+                Log.Warning(ex, msg, args);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                Log.Error(ex, msg, args);
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+#if DEBUG
+            return Json(ex);
+#else
+            return Json(msg);
+#endif
+        }
     }
 }

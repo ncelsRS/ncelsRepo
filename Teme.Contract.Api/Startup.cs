@@ -78,9 +78,6 @@ namespace Teme.Contract.Api
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
             app.UseRscAuth();
-
-            // Start the Workflow instance
-            app.UseContractInfrastructure();
             app.UseMvc();
         }
     }

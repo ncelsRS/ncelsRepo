@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Infrastructure.Primitives;
@@ -13,6 +14,7 @@ using Teme.SharedApi.Controllers;
 
 namespace Teme.Infrastructure.Api.Controllers
 {
+    [AllowAnonymous]
     public class ActionsController : BaseController<IActionsLogic>
     {
         public ActionsController(IActionsLogic logic) : base(logic)
@@ -46,7 +48,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create([FromBody][Required]CreateModel createModel)
+        public async Task<object> Create([FromBody][Required]CreateModel createModel)
         {
             try
             {
@@ -69,7 +71,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveDelete")]
-        public async Task<IActionResult> SendOrRemoveDelete([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
+        public async Task<object> SendOrRemoveDelete([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
         {
             try
             {
@@ -91,7 +93,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveSendWithSign")]
-        public async Task<IActionResult> SendOrRemoveSendWithSign([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
+        public async Task<object> SendOrRemoveSendWithSign([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
         {
             try
             {
@@ -113,7 +115,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveSendWithoutSign")]
-        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
+        public async Task<object> SendOrRemoveSendWithoutSign([FromQuery][Required] string workflowId, [FromQuery][Required] ContractTypeEnum contractType)
         {
             try
             {
