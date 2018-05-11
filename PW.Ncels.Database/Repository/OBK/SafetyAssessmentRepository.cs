@@ -54,7 +54,7 @@ namespace PW.Ncels.Database.Repository.OBK
 
             var contract = AppContext.OBK_Contract.Where(e => AppContext.OBK_AssessmentDeclaration.Where(r => r.StatusId != 14 && r.StatusId != 15 && r.StatusId != 17).ToList().Any(x => x.ContractId == e.Id) 
             && e.EmployeeId == employeeId && e.Type == type &&
-            e.Status == 13);
+            e.Status == 8);
 
             return contract;
 

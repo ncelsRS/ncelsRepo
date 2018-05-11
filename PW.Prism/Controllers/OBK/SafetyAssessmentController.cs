@@ -72,7 +72,7 @@ namespace PW.Prism.Controllers.OBK
             declaration.ExtraditeDate = DateTime.Now;
 
 
-            //new SafetyAssessmentRepository().AddHistory(assessmentStage.DeclarationId, OBK_Ref_StageStatus.requiresConclusion);
+            new SafetyAssessmentRepository().AddHistory(declaration.Id, OBK_Ref_StageStatus.InWork, UserHelper.GetCurrentEmployee().Id);
 
             db.SaveChanges();
             return Json(new { success = true, message = "Успешно сохранено!" });

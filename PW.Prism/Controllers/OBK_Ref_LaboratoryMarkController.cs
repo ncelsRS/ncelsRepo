@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using Newtonsoft.Json;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
 using PW.Ncels.Database.Models;
@@ -51,11 +52,11 @@ namespace PW.Prism.Controllers
                 db.OBK_Ref_LaboratoryMark.Add(d);
                 dictionary.Id = d.Id;
 
-                string[] regulationListGuid = dictionary.RegulationList.ToString().Split(',');
+                List <OBK_Ref_LaboratoryRegulation_Mark> list = new List<OBK_Ref_LaboratoryRegulation_Mark>();
 
-                List<OBK_Ref_LaboratoryRegulation_Mark> list = new List<OBK_Ref_LaboratoryRegulation_Mark>();
-                
-                foreach (var q in regulationListGuid)
+                string[] tokens = dictionary.RegulationList.Split(',');
+
+                foreach (var q in tokens)
                 {
                     OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
 
