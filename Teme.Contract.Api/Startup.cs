@@ -54,7 +54,6 @@ namespace Teme.Contract.Api
 
             // Default vm template
             services.AddMvc();
-            //services.AddWorkFlowInfrastructure();
             // Add Autofac
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
@@ -68,18 +67,13 @@ namespace Teme.Contract.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
             loggerFactory.AddSerilog();
-
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
             app.UseRscAuth();
-
             app.UseMvc();
         }
     }

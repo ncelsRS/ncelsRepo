@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -22,15 +23,15 @@ namespace Teme.Contract.Logic
 {
     public class ContractLogic : BaseContractLogic<IContractRepo>, IContractLogic
     {
-        //private readonly IContractWorkflowLogic _wflogic;
         private readonly IContractRepo _repo;
         private readonly IConvertDtoRepo _dtoRepo;
+        private readonly IConfiguration _config;
 
-        public ContractLogic(IContractRepo repo,  IConvertDtoRepo dtoRepo) : base(repo) //IContractWorkflowLogic wflogic,
+        public ContractLogic(IContractRepo repo,  IConvertDtoRepo dtoRepo, IConfiguration config) : base(repo)
         {
-            //_wflogic = wflogic;
             _repo = repo;
             _dtoRepo = dtoRepo;
+            _config = config;
         }
 
         /// <summary>
@@ -39,10 +40,11 @@ namespace Teme.Contract.Logic
         /// <returns></returns>
         public async Task<object> Create(CreateModel createModel)
         {
-            var workflowId = ""; //await _wflogic.Create();
+            var client = new Clients.ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            var workflowId = await client.CreateAsync(new Clients.CreateModel() { ContractScope = createModel.ContractScope, ContractType = (Clients.ContractTypeEnum)createModel.ContractType });
             var contract = new Shared.Data.Context.Contract()
             {
-                WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
+                WorkflowId = workflowId.ToString(),
                 ContractType = createModel.ContractType,
                 ContractScope = createModel.ContractScope
             };

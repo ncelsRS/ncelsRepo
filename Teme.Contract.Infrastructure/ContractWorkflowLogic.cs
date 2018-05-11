@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ namespace Teme.Contract.Infrastructure
         {
             var workflowId = await _host.StartWorkflow(WorkflowShemeId, new ContractWorkflowTransitionData());
             await TaskCompletionService.AddTask(workflowId);
-            return new {workflowId};
+            return workflowId;
         }
 
         [Obsolete("Используем UserExtension")]
