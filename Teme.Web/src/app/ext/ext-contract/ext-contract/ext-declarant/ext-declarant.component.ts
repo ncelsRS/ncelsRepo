@@ -6,8 +6,7 @@ import {
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
 import {RefService} from '../ext-ref-sevice';
-import {NgbDate} from '@ng-bootstrap/ng-bootstrap/datepicker/ngb-date';
-import {NgbDatepickerModuleNgFactory} from '@ng-bootstrap/ng-bootstrap/datepicker/datepicker.module.ngfactory';
+
 
 
 
@@ -33,8 +32,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   isAddBankName = false;
   selectedDeclarantDocType: string;
   levels: Array<DeclarantDocType> = [
-    {code: 'Procuration', name: 'Доверенность'},
-    {code: 'organizationChart', name: 'Устав'},
+    {code: '0', name: 'Доверенность'},
+    {code: '1', name: 'Устав'},
   ]
 
   public orgFormVar;
@@ -63,7 +62,6 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
   constructor( private refService: RefService) {
     super();
-    //this.selectedDeclarantDocType = 'Procuration';
     this.getOrgForm();
     this.getBanks();
     this.getCountryNoRes();
@@ -391,7 +389,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     this.model.declarantNameEn = dataArray[0].nameEn ;
     this.model.declarantOrgForm = dataArray[0].organizationFormId;
     this.model.declarantCountry = dataArray[0].countryId;
-    this.model.isRes = dataArray[0].isResident;
+    this.model.isRes = (dataArray[0].isResident)?'res':'unres';
     this.model.declarantDetailId = dataArray[0].declarantDetailDto.id;
     this.model.declarantAddressLegalRu = dataArray[0].declarantDetailDto.legalAddress;
     this.model.declarantAddressFact = dataArray[0].declarantDetailDto.factAddress;

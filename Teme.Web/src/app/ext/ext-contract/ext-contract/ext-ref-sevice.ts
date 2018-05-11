@@ -155,6 +155,44 @@ export class RefService  {
       params: {
         contractScope: contractScope
       }
+      // ,
+      // headers:   { "Access-Control-Allow-Origin": "*",
+      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+      //   "Content-Type": "application/json; charset=utf-8",
+      //   "Accept": "application/json",
+      //   "Access-Control-Allow-Credentials": "true",
+      // }
     });
+
+  }
+
+  GetContractById(contractId){
+    return  this.http.get(this.urlData+"GetContractById",{
+      params: {
+        contractId: contractId
+      }
+    });
+
+  }
+
+  GetDeclarantById(id){
+    return  this.http.get(this.urlData+"GetDeclarantById",{
+      params: {
+        id: id
+      }
+    });
+
+  }
+
+  SaveCostWork(obj){
+    return  this.http.put(this.url+"SaveCostWork", obj)
+  }
+
+  DeleteCostWork(contractId){
+    return  this.http.delete(this.urlData+"DeleteCostWork",{
+     params: {
+       contractId: contractId
+     }
+    })
   }
 }

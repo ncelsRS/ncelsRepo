@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {ViewCell} from 'ng2-smart-table';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-ext-manufactur-action',
@@ -13,17 +14,34 @@ export class ExtManufacturActionComponent implements OnInit ,  ViewCell{
   @Input() value: string | number;
   @Input() rowData: any;
 
-  @Output() save: EventEmitter<any> = new EventEmitter();
+  @Output() smart : EventEmitter<any> = new EventEmitter();
+  @Output() view: EventEmitter<any> = new EventEmitter();
+  @Output() edit: EventEmitter<any> = new EventEmitter();
+  @Output() dlte: EventEmitter<any> = new EventEmitter();
 
   ngOnInit() {
     this.renderValue = this.value.toString().toUpperCase();
   }
 
-  onClick() {
-    this.save.emit(this.rowData);
+  constructor(private router: Router) { }
+
+  viewData()
+  {
+    this.view.emit(this.rowData);
+    this.router.navigate(['ext/contracts/6','view',this.rowData.id,'null' ]);
   }
 
-  constructor() { }
+  editData()
+  {
+    this.edit.emit(this.rowData);
+  }
+
+  deleteData()
+  {
+    this.dlte.emit(this.rowData);
+  }
+
+
 
 
 }
