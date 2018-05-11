@@ -4,19 +4,21 @@ import 'rxjs/add/operator/map';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import {Headers} from '@angular/http';
+import {environment} from '../../../../environments/environment';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class RefService  {
 
-  url="http://localhost:5000/api/Reference/";
-  urlData="http://localhost:62559/Contract/";
+  url= environment.urls.admin + "/api/Reference/";
+  urlData=environment.urls.extContract + "/Contract/";
 
 
   constructor(private http: HttpClient){
     this.getContractForm();
   }
 
-  saveOrgForm(nameKz:string,nameRu:string){
+  saveOrgForm(nameKz:string,nameRu:string):Observable<any>{
 
     return  this.http.get(this.url+"SaveOrganizationForm", {
       params: {
@@ -30,7 +32,7 @@ export class RefService  {
       //   "Access-Control-Allow-Credentials": "true",
       // },
       // observe: 'response'
-    })
+    });
 
   }
 

@@ -13,7 +13,6 @@ import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant
 import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payment-tab.component';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 
@@ -24,10 +23,7 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     FileUploadModule,
     FormsModule,
     Ng2SmartTableModule,
-    NgbModule.forRoot(),
-    HttpClientModule
-
-
+    NgbModule.forRoot()
   ],
   declarations: [
     ExtContractsComponent,

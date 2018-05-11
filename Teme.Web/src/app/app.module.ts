@@ -11,6 +11,7 @@ import {AppSettings} from './app.settings';
 import {AppComponent} from './app.component';
 import {NotFoundComponent} from './pages/errors/not-found/not-found.component';
 import {IdentityModule} from "./shared/identity/identity.module";
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import {IdentityModule} from "./shared/identity/identity.module";
     NotFoundComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
     IdentityModule,

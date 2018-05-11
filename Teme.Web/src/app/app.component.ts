@@ -1,5 +1,5 @@
 import {Component, ViewEncapsulation} from '@angular/core';
-import {ActivatedRoute, ChildrenOutletContexts, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {AppSettings} from './app.settings';
 import {Settings} from './app.settings.model';
 import {IdentityProviderSvc} from './shared/identity/IdentityProviderSvc';
@@ -15,18 +15,23 @@ export class AppComponent {
 
   constructor(
     public appSettings: AppSettings,
-    private router: Router,
     private route: ActivatedRoute,
     private identitySvc: IdentityProviderSvc
   ) {
     this.settings = this.appSettings.settings;
-    this.route.queryParams
-      .subscribe(params => {
-        if (params.auth) {
-          this.identitySvc.setAuth(params.auth);
-        }
-      });
-    // this.route.url.subscribe(url => console.log(JSON.stringify(url)));
+
+    let url = window.location.href;
+    let index = url.indexOf('onetime');
+    if (index > 0) {
+      let onetime = url.substr(index, url.length - 1)
+        .split('&')[0]
+        .split('=')[1];
+      this.identitySvc.setAuthFromOneTime(onetime)
+        .subscribe();
+    }
+    else
+      this.identitySvc.checkAuthWithRefresh()
+        .subscribe();
   }
 
 

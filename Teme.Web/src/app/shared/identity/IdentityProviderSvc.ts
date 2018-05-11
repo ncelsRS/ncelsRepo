@@ -1,74 +1,95 @@
-import {Injectable} from "@angular/core";
-import {IdentityRes} from "./dtos/IdentityRes";
-import {HttpHeaders, HttpParams, HttpClient} from "@angular/common/http";
-import {environment} from "../../../environments/environment";
-import {IdentityDto} from "./dtos/IdentityDto";
-import {IdentityUpdateTokenDto} from "./dtos/IdentityUpdateTokenDto";
+import {Injectable} from '@angular/core';
+import {IdentityRes} from './dtos/IdentityRes';
+import {HttpHeaders, HttpClient} from '@angular/common/http';
+import {environment} from '../../../environments/environment';
+import {Observable} from 'rxjs/Observable';
+import {Router} from '@angular/router';
+
+import 'rxjs/add/observable/of';
+import {catchError, map} from 'rxjs/operators';
 
 @Injectable()
 
 export class IdentityProviderSvc {
 
   constructor(private http: HttpClient) {
-    console.log("IdentityProvider created");
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
   }
 
-  private _auth: IdentityRes = null;
+  private static _auth: IdentityRes = null;
+  private _identityUrl = environment.urls.identity;
 
-  public getAuth(): IdentityRes {
-    if (!this._auth) {
-      let authStr = localStorage.getItem("auth");
-      if (authStr)
-        this._auth = JSON.parse(authStr);
-    }
-    return this._auth;
-  }
-
-  public setAuth(auth: IdentityRes): void {
-    if (auth)
-      localStorage.setItem("auth", JSON.stringify(auth));
-  }
-
-  private getJwtExp(jwt: string): number {
+  private isJwtExp(jwt: string): boolean {
     let jwtArr = jwt.split('.');
     let jwtEnc = atob(jwtArr[1]);
     let data = JSON.parse(jwtEnc);
-    return data.exp;
+    return +data.exp < Date.now() / 1000;
   }
 
-  private isJwtExp(jwt: string): boolean {
-    let exp = this.getJwtExp(jwt);
-    return exp < new Date().getTime();
+  public setAuth(auth: IdentityRes): void {
+    if (auth) {
+      IdentityProviderSvc._auth = auth;
+      localStorage.setItem('auth', JSON.stringify(auth));
+    }
   }
 
-  private objToForm(obj: any): HttpParams {
-    let params = new HttpParams();
-    Object.keys(obj).forEach(key => {
-      params = params.set(key, obj[key]);
-    });
-
-    return params;
+  private getAuth(): IdentityRes {
+    if (!IdentityProviderSvc._auth) {
+      let authStr = localStorage.getItem('auth');
+      if (authStr)
+        IdentityProviderSvc._auth = JSON.parse(authStr);
+    }
+    return IdentityProviderSvc._auth;
   }
 
-  public checkAuthWithRefresh(): Promise<boolean> {
-    return new Promise(resolve => {
-      if (!this.getAuth()) return false;
-      if (!this.isJwtExp(this._auth.access_token)) return true;
-      if (this.isJwtExp(this._auth.refresh_token)) return false;
-
-      return this.postIdentity(new IdentityUpdateTokenDto(this._auth.refresh_token));
-    });
+  private refreshAuth(jwt: string): Observable<boolean> {
+    let headers = new HttpHeaders().set('Authorization', 'Bearer ' + jwt);
+    return this.http.get<IdentityRes>(this._identityUrl + '/account/refresh', {headers})
+      .pipe(
+        map(res => {
+          this.setAuth(res);
+          return true;
+        })
+      );
   }
 
-  public postIdentity(login: IdentityDto): Promise<boolean> {
-    let params = this.objToForm(login);
-    return this.http.post<IdentityRes>(environment.urls.identity + '/oauth/token', params,
-      {headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')})
-      .toPromise()
-      .then(res => {
-        this.setAuth(res);
-        return true;
-      });
+
+  public setAuthFromOneTime(oneTime: string): Observable<boolean> {
+    if (!oneTime || this.isJwtExp(oneTime))
+      this.redirectToLogin();
+    return this.refreshAuth(oneTime);
+  }
+
+  public checkAuthWithRefresh(): Observable<boolean> {
+    let auth = this.getAuth();
+    if (!auth)
+      this.redirectToLogin();
+    if (auth.accessToken && !this.isJwtExp(auth.accessToken))
+      return Observable.of(true);
+    if (auth.refreshToken && !this.isJwtExp(auth.refreshToken))
+      return this.refreshAuth(auth.refreshToken);
+  }
+
+  public getAuthHeader(): Observable<string> {
+    return this.checkAuthWithRefresh()
+      .pipe(map(res => {
+        if (!res) return null;
+        let auth = this.getAuth();
+        return 'Bearer ' + auth.accessToken;
+      }));
+  }
+
+  public redirectToLogin() {
+    let url = environment.urls.identity;
+    url += '/account/login?returnUrl=';
+    url += window.location.href;
+    window.location.href = url;
+  }
+
+  public getCurrentUser(): any {
+    let auth = this.getAuth();
+    if (!auth) return;
+    return auth.user;
   }
 
 }
