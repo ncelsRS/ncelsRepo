@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System.Linq;
 using MongoDB.Bson;
 using Teme.Contract.Infrastructure.Primitives;

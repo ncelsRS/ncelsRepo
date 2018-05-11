@@ -6,6 +6,7 @@ using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.ContractCoz.Logic;
 using Teme.ContractCoz.Logic.Actions;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.ContractCoz.Api.Controllers
 {

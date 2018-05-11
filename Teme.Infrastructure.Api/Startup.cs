@@ -43,6 +43,7 @@ namespace Teme.Infrastructure.Api
             services.AddCors();
             // Default vm template
             services.AddMvc();
+            services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
             services.AddWorkFlowInfrastructure();
 
             // Add Autofac
@@ -65,7 +66,6 @@ namespace Teme.Infrastructure.Api
             loggerFactory.AddSerilog();
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
             // Start the Workflow instance
-            app.UseContractInfrastructure();
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
             host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
             host.Start();
