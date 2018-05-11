@@ -57,7 +57,6 @@ namespace Teme.Contract.Api
             //services.AddWorkFlowInfrastructure();
             // Add Autofac
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
             containerBuilder.Populate(services);
@@ -81,8 +80,6 @@ namespace Teme.Contract.Api
 
             app.UseRscAuth();
 
-            // Start the Workflow instance
-            app.UseContractInfrastructure();
             app.UseMvc();
         }
     }
