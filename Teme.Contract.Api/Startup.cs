@@ -49,15 +49,13 @@ namespace Teme.Contract.Api
             var cert = new X509Certificate2(certPath, certPass);
             services.AddRscAuth(Configuration, cert, new string[]
             {
-                OrganizationScopeEnum.Identity
+                OrganizationScopeEnum.Ext
             });
 
             // Default vm template
             services.AddMvc();
-            //services.AddWorkFlowInfrastructure();
             // Add Autofac
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
             containerBuilder.Populate(services);

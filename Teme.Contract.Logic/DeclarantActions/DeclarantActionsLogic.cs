@@ -12,37 +12,35 @@ using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.ContractLogic;
+using Teme.Contract.Logic.Clients;
+using Microsoft.Extensions.Configuration;
 
 namespace Teme.Contract.Logic.DeclarantActions
 {
     public class DeclarantActionsLogic : EntityLogic, IDeclarantActionsLogic
     {
-        public DeclarantActionsLogic(IEntityRepo repo) : base(repo)
+        private readonly IConfiguration _config;
+        public DeclarantActionsLogic(IEntityRepo repo, IConfiguration config) : base(repo)
         {
+            _config = config;
         }
 
-        public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId)
+        public async Task<object> SendOrRemoveDelete(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
         {
-
-            //var actions = await _wflogic.GetUserActions(workflowId, "declarant");
-            //var action = actions
-            //    .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
-            //if (action == null) throw new ArgumentException("Action not found");
-            //var executorsIds = new Dictionary<string, IEnumerable<string>> { { ScopeEnum.Coz, new[] { "BossCoz" } } };
-            //var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
-            //return new { r };
-            return new { r = "" };
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveDeleteAsync(workflowId, (Clients.ContractTypeEnum)contractType);
         }
 
-        //public async Task<object> SendOrRemoveDelete(string workflowId, ContractTypeEnum contractType)
-        //{
-        //    var client = new ActionsClient() { BaseUrl = "http://localhost:24870" };
-        //    var response = await client.CreateAsync(new CreateModel()
-        //    {
-        //        ContractType = contractType,
-        //        ContractScope = "national"
-        //    });
-        //    return response;
-        //}
+        public async Task<object> SendOrRemoveSendWithSign(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
+        {
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveSendWithSignAsync(workflowId, (Clients.ContractTypeEnum)contractType);
+        }
+
+        public async Task<object> SendOrRemoveSendWithoutSign(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
+        {
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveSendWithoutSignAsync(workflowId, (Clients.ContractTypeEnum)contractType);
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace Teme.Contract.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete, contractType, workflowId);
+                var r = await Logic.SendOrRemoveDelete(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace Teme.Contract.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove,  UserOptions.SendWithSign, contractType, workflowId);
+                var r = await Logic.SendOrRemoveSendWithSign(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace Teme.Contract.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign, contractType, workflowId);
+                var r = await Logic.SendOrRemoveSendWithoutSign(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
