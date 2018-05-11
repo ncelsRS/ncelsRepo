@@ -15,8 +15,10 @@ namespace PW.Ncels.Database.Models
         [Required]
         public string NameRu { get; set; }
         [Required]
-        public string NameKz { get; set; } 
+        public string NameKz { get; set; }  
 
-        public List<object> RegulationList { get; set; }
+        public string RegulationList { get; set; }
+
+        public string hidden { get; set; }
     }
 }
