@@ -70,8 +70,14 @@ export class ExtContractsComponent implements OnInit {
         type: 'custom',
         renderComponent: ExtManufacturActionComponent,
         onComponentInitFunction(instance) {
-          instance.save.subscribe(row => {
-            alert(`${row.name} saved!`)
+          instance.view.subscribe(row => {
+            alert(`${row.id} view is work!`);
+          });
+          instance.edit.subscribe(row => {
+            alert(`${row.id} edit is work!`)
+          });
+          instance.dlte.subscribe(row => {
+            alert(`${row.id} delete is work!`)
           });
         }
       },
@@ -127,6 +133,8 @@ export class ExtContractsComponent implements OnInit {
       )
 
   }
+
+
 
 
 }

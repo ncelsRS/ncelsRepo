@@ -42,6 +42,7 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     ExtManufacturActionComponent,
   ],
   entryComponents: [
-    ExtManufacturActionComponent]
+    ExtManufacturActionComponent,
+    ExtCertificateComponent]
 })
 export class ExtContractModule { }

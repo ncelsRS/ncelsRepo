@@ -8,7 +8,7 @@ import {ContentType} from '@angular/http/src/enums';
 @Injectable()
 export class RefService  {
 
-  url="http://localhost:5121/api/Reference/";
+  url="http://localhost:9121/api/Reference/";
   urlData="http://localhost:62559/Contract/";
 
 
@@ -154,6 +154,44 @@ export class RefService  {
       params: {
         contractScope: contractScope
       }
+      // ,
+      // headers:   { "Access-Control-Allow-Origin": "*",
+      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+      //   "Content-Type": "application/json; charset=utf-8",
+      //   "Accept": "application/json",
+      //   "Access-Control-Allow-Credentials": "true",
+      // }
     });
+
+  }
+
+  GetContractById(contractId){
+    return  this.http.get(this.urlData+"GetContractById",{
+      params: {
+        contractId: contractId
+      }
+    });
+
+  }
+
+  GetDeclarantById(id){
+    return  this.http.get(this.urlData+"GetDeclarantById",{
+      params: {
+        id: id
+      }
+    });
+
+  }
+
+  SaveCostWork(obj){
+    return  this.http.put(this.url+"SaveCostWork", obj)
+  }
+
+  DeleteCostWork(contractId){
+    return  this.http.delete(this.urlData+"DeleteCostWork",{
+     params: {
+       contractId: contractId
+     }
+    })
   }
 }

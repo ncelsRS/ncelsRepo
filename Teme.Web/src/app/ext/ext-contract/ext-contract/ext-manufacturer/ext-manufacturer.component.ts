@@ -47,6 +47,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
    @Input() prnRegisterType: string;
    @Input() showErrors = false;
    @Input() idContractChild:string;
+   @Input() viewAction:string;
 
   constructor(private refService: RefService){
     super();
@@ -60,6 +61,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
   OnInit()
   {
+
 
   }
 
@@ -309,29 +311,41 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
   }
 
-  searchManufactur(val)
-  {
+  searchManufactur(val) {
     this.refService.SearchDeclarantResident(val)
       .toPromise()
       .then(response => {
-        this.listVarRes = response ;
+        this.listVarRes = response;
         console.log(response);
-        if(response==null)
-        {
+        if (response == null) {
           this.viewAddManufacture = true;
 
         }
-        else
-          {
+        else {
           this.loadData(response);
         }
       })
-      .catch (err=>
-        {
+      .catch(err => {
           console.error(err);
         }
-      )
-    ;
+      );
+  }
+
+    GetDeclarantById(val)
+    {
+      this.refService.GetDeclarantById(val)
+        .toPromise()
+        .then(response => {
+          this.listVarRes = response ;
+          console.log(response);
+          this.loadData(response);
+        })
+        .catch (err=>
+          {
+            console.error(err);
+          }
+        )
+      ;
 
   }
 
@@ -339,6 +353,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
   {
     let dataArray=[];
     dataArray.push(data);
+    console.log(dataArray);
 
     this.model.id = dataArray[0].id;
     this.model.manufacturNameRu = dataArray[0].nameRu;
@@ -346,7 +361,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     this.model.manufacturNameEn = dataArray[0].nameEn ;
     this.model.manufacturOrgForm = dataArray[0].organizationFormId;
     this.model.manufacturCountry = dataArray[0].countryId;
-    this.model.isRes = dataArray[0].isResident;
+    this.model.isRes = (dataArray[0].isResident)?'res':'unres';
     this.model.manufacturDetailId = dataArray[0].declarantDetailDto.id;
     this.model.manufacturAddressLegalRu = dataArray[0].declarantDetailDto.legalAddress;
     this.model.manufacturAddressFact = dataArray[0].declarantDetailDto.factAddress;
@@ -355,7 +370,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     this.model.manufacturBossMiddleName = dataArray[0].declarantDetailDto.bossMiddleName;
     this.model.manufacturBossPosition = dataArray[0].declarantDetailDto.bossPositionRu;
     this.model.manufacturBossPositionKz = dataArray[0].declarantDetailDto.bossPositionKz;
-    this.model.manufacturBankName = dataArray[0].declarantDetailDto.bankId;
+    this.model.manufacturBankName = dataArray[0].declarantDetailDto.bankName;
     this.model.manufacturBankIik = dataArray[0].declarantDetailDto.bankIik;
     this.model.manufacturBankSwift = dataArray[0].declarantDetailDto.bankSwift;
     this.model.manufacturCurr = dataArray[0].declarantDetailDto.currencyId;
@@ -366,5 +381,14 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
   }
 
+  onViewChangeContract()
+  {
+    console.log("viewAction="+this.viewAction);
+    this.GetDeclarantById(this.model.id);
 
   }
+
+  }
+
+
+

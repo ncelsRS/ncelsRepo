@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewEncapsulation} from '@angular/core';
 
 @Component({
   selector: 'app-ext-certificate',
@@ -9,6 +9,8 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 export class ExtCertificateComponent implements OnInit {
 
   public file:any;
+  @Output() showErrEvent = new EventEmitter<boolean>();
+  showerr:boolean;
 
   fileUpload=false;
   constructor() { }
@@ -35,6 +37,11 @@ export class ExtCertificateComponent implements OnInit {
 
   removeFile():void{
     this.file = '';
+  }
+
+  sendToNcels() {
+    this.showerr = true;
+    this.showErrEvent.emit(this.showerr);
   }
 
 }
