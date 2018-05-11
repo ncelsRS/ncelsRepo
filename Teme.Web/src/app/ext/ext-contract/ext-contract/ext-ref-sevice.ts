@@ -3,36 +3,36 @@ import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/map';
-import {Headers} from '@angular/http';
+import {ContentType} from '@angular/http/src/enums';
 import {environment} from '../../../../environments/environment';
-import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class RefService  {
 
-  url= environment.urls.admin + "/api/Reference/";
-  urlData=environment.urls.extContract + "/Contract/";
+  url = environment.urls.reference;
+  urlData = environment.urls.contract;
 
 
   constructor(private http: HttpClient){
     this.getContractForm();
   }
 
-  saveOrgForm(nameKz:string,nameRu:string):Observable<any>{
+  saveOrgForm(nameKz:string,nameRu:string){
 
-    return  this.http.get(this.url+"SaveOrganizationForm", {
-      params: {
-        nameRu: nameKz,
-        nameKz: nameRu
-      },
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // },
+    return  this.http.put(this.url+"SaveOrganizationForm",  {
+   },{
+    params: {
+      nameRu: nameKz,
+      nameKz: nameRu
       // observe: 'response'
-    });
+    },
+      headers:   { "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+          "Content-Type": "application/json; charset=utf-8",
+          "Accept": "application/json",
+          "Access-Control-Allow-Credentials": "true",
+        }
+    })
 
   }
 
@@ -41,20 +41,12 @@ export class RefService  {
   }
 
   saveBank(nameKz:string,nameRu:string){
+     let data = ({  nameRu: nameRu, nameKz: nameKz});
+     console.log(data);
+    console.log("rr");
+    return  this.http.put(this.url+"SaveBank", data
 
-    return  this.http.get(this.url+"SaveBank", {
-      params: {
-        nameRu: nameRu,
-        nameKz: nameKz
-      },
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // },
-      //bserve: 'response'
-    })
+    )
 
   }
 
@@ -90,13 +82,6 @@ export class RefService  {
         contractScope: contractScope,
         contractForm: contractForm
        }
-       //,
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // }
     })
 
   }
@@ -108,13 +93,6 @@ export class RefService  {
         applicationTypeId: applicationTypeId,
 
       }
-      //,
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // }
     })
 
   }
@@ -127,63 +105,33 @@ export class RefService  {
         serviceTypeId:serviceTypeId,
         serviceTypeModifId: serviceTypeModifId
       }
-      //,
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // }
+
     })
 
   }
 
   createContract(cntType, cntScope){
-    console.log(cntType+"   "+cntScope)
-    //let headers = new Headers({ 'Content-Type': 'application/json' });
     return  this.http.post(this.urlData+"Create", {
-        params: {
           contractType: cntType,
           contractScope: cntScope
-        },
-        headers: {
-          // "Access-Control-Allow-Origin": "*",
-          // "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-          "Content-Type": "application/json; charset=utf-8",
 
-        }
       }
-    // ,{
-    //     headers: {
-    //       "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-    //         "Content-Type": "application/json; charset=utf-8",
-    //         "Accept": "application/json",
-    //         "Access-Control-Allow-Credentials": "true",
-    //     }
-    //   }
     );
   }
 
   changeModel(obj){
+    console.log("ww");
     console.log(obj);
      return  this.http.put(this.urlData+"ChangeModel",obj
-       //{ //,
-    //   headers:   { "Access-Control-Allow-Origin": "",
-    //     "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-    //     "Content-Type": "application/json; charset=utf-8",
-    //     "Accept": "application/json",
-    //     "Access-Control-Allow-Credentials": "true",
-    //   }}
     );
-    //console.log(obj);
+
   }
 
   AddDeclarant(contractId,code){
     return  this.http.get(this.urlData+"AddDeclarant",{
       params: {
         contractId: contractId,
-        serviceTypeId:code
+        code:code
     }});
   }
 
@@ -198,15 +146,53 @@ export class RefService  {
     return  this.http.get(this.urlData+"SearchDeclarantNonResident",{
       params: {
         countryId: countryId
-      }//,
+      }
+    });
+  }
+
+  GetListContracts(contractScope){
+    return  this.http.get(this.urlData+"GetListContracts",{
+      params: {
+        contractScope: contractScope
+      }
+      // ,
       // headers:   { "Access-Control-Allow-Origin": "*",
       //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
       //   "Content-Type": "application/json; charset=utf-8",
       //   "Accept": "application/json",
       //   "Access-Control-Allow-Credentials": "true",
       // }
-
-
     });
+
+  }
+
+  GetContractById(contractId){
+    return  this.http.get(this.urlData+"GetContractById",{
+      params: {
+        contractId: contractId
+      }
+    });
+
+  }
+
+  GetDeclarantById(id){
+    return  this.http.get(this.urlData+"GetDeclarantById",{
+      params: {
+        id: id
+      }
+    });
+
+  }
+
+  SaveCostWork(obj){
+    return  this.http.put(this.url+"SaveCostWork", obj)
+  }
+
+  DeleteCostWork(contractId){
+    return  this.http.delete(this.urlData+"DeleteCostWork",{
+     params: {
+       contractId: contractId
+     }
+    })
   }
 }

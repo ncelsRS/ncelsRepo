@@ -1,5 +1,5 @@
 import {Component, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {DataComponent} from '../data/data.component';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
@@ -19,7 +19,7 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
     useExisting: forwardRef(() => EquipmentComponent),
     multi: true
   },
-    IconModal
+    IconExtModal
   ]
 })
 export class EquipmentComponent extends TemplateValidation {
@@ -205,7 +205,7 @@ export class EquipmentComponent extends TemplateValidation {
     }
   };
 
-  constructor(public iconModal:  IconModal) {
+  constructor(public iconModal:  IconExtModal) {
     super();
     // this.getData((data) => {
     //   this.data = data;

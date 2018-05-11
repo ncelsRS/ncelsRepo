@@ -5,3 +5,8 @@ export class reference {
               public nameKz: string,
   ){}
 }
+export class referenceEnum {
+  constructor(public key: string,
+              public value: string
+  ){}
+}

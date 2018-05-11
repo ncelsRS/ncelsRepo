@@ -35,7 +35,10 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     ExtPaymentTabComponent,
     ExtPayerComponent,
     ExtCertificateComponent,
-    ExtManufacturActionComponent
-  ]
+    ExtManufacturActionComponent,
+  ],
+  entryComponents: [
+    ExtManufacturActionComponent,
+    ExtCertificateComponent]
 })
 export class ExtContractModule { }

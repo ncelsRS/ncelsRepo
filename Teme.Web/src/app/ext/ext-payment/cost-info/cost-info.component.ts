@@ -1,8 +1,11 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {TemplateValidation} from 'app/shared/TemplateValidation';
-
+import {NgbDateParserFormatter, NgbDatepickerI18n} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDatePTParserFormatter} from '../../../shared/datepicker/NgbDatePTParserFormatter';
+import {CustomDatepickerI18n, I18n} from '../../../shared/datepicker/CustomDatepickerI18n';
+import {ExtPaymentService} from '../ext-payment.service';
 
 @Component({
   selector: 'app-cost-info',
@@ -17,31 +20,61 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
     useExisting: forwardRef(() => CostInfoComponent),
     multi: true
   },
-    IconModal
+    IconExtModal, ExtPaymentService,
+    [I18n, { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n }],
+    [{provide: NgbDateParserFormatter, useClass: NgbDatePTParserFormatter}],
   ]
   //encapsulation: ViewEncapsulation.None
 })
 export class CostInfoComponent extends TemplateValidation {
+  // public dateMask = [ /[1-9]/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/];
   isNotRegistred = false;
-  bekbol: any;
   @Input() showErrors = false;
+  @Input() costInfoModal: any;
 
-  public childData: any = {
-    contractForm: this.model.contractForm
-  }
+  applicationTypeId: string = "1";
 
-  constructor(public iconModal:  IconModal) {
+
+  constructor(public iconModal:  IconExtModal, private paymentService: ExtPaymentService) {
     super();
-
   }
 
 
   ngOnInit() {
-
+    this.model = this.costInfoModal;
   }
   getTest(){
-    console.log(this.model);
+    // console.log(this.costInfoModal,this.model);
+    var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
+
+
+    // changeModelHead = ({
+    //   'id': this.model.id,
+    //   'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
+    // })
+
+
+    this.paymentService.changeModel(changeModelHead)
+      .subscribe(
+        (data) => console.log(data),
+        error => console.log(error)
+      );
+      // .then(response => {
+      //   console.log(response);
+      //   this.changeModelRes = response ;
+      // })
+      // .catch (err=>
+      //   {
+      //     console.error(err);
+      //   }
+      // )
+    ;
+
+
+
   }
+
+
 
 }
 

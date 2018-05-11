@@ -358,7 +358,7 @@ export class ExtPayerComponent extends TemplateValidation {
     }
     else {
       this.changeModelHead = ({
-        'id': this.model.id,
+        'id': this.model.detailId,
         'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
       })
     }

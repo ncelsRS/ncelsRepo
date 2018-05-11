@@ -1,6 +1,7 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import {RefService} from '../ext-contract/ext-ref-sevice';
-import {ExtDeclarationsActionsComponent} from '../../ext-declaration/ext-declarations/ext-declarations-actions/ext-declarations-actions.component';
+import {Router} from "@angular/router";
+
 import {ExtManufacturActionComponent} from '../ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 
 @Component({
@@ -12,22 +13,14 @@ import {ExtManufacturActionComponent} from '../ext-contract/ext-manufactur-actio
 export class ExtContractsComponent implements OnInit {
 
   public createContractId;
-  public idContract;
-  @Output() idContractEvent = new EventEmitter<string>();
+  public contractList=[];
 
   public contractsSettings = {
     selectMode: 'single',
     hideHeader: false,
     hideSubHeader: false,
     noDataMessage: 'Нет данных',
-    actions: {
-      columnTitle: 'Действия',
-      add: true,
-      edit: true,
-      delete: true,
-      custom: [],
-      position: 'right' // left|right
-    },
+    actions: false,
     add: {
       addButtonContent: '<h4 class="mb-1"><i class="fa fa-plus ml-3 text-success"></i></h4>',
       createButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
@@ -44,27 +37,31 @@ export class ExtContractsComponent implements OnInit {
     },
     prop: {name: 'view', filter: false},
     columns: {
-      view: {
+      id: {
         title: '№ Договора',
         type: 'string'
       },
-      declarationType: {
+      number: {
+        title: '№ Договора',
+        type: 'string'
+      },
+      dateCreate: {
         title: 'Дата',
         type: 'string'
       },
-      name: {
+      contractForm: {
         title: 'Статус',
         type: 'string'
       },
-      number: {
+      nameRu: {
         title: 'Производитель',
         type: 'string'
       },
-      currentStatus: {
+      medicalDeviceNameRu: {
         title: 'Наименования ИМН/МТ',
         type: 'string'
       },
-      sendDate: {
+      contractScope: {
         title: 'Тип',
         type: 'string'
       },
@@ -73,8 +70,14 @@ export class ExtContractsComponent implements OnInit {
         type: 'custom',
         renderComponent: ExtManufacturActionComponent,
         onComponentInitFunction(instance) {
-          instance.save.subscribe(row => {
-            alert(`${row.name} saved!`)
+          instance.view.subscribe(row => {
+            alert(`${row.id} view is work!`);
+          });
+          instance.edit.subscribe(row => {
+            alert(`${row.id} edit is work!`)
+          });
+          instance.dlte.subscribe(row => {
+            alert(`${row.id} delete is work!`)
           });
         }
       },
@@ -85,7 +88,9 @@ export class ExtContractsComponent implements OnInit {
     }
   };
 
-  constructor(private refService: RefService) {
+  constructor(private refService: RefService,
+              private router: Router) {
+    this.GetListContracts('eaesrg');
   }
 
   ngOnInit() {
@@ -97,9 +102,8 @@ export class ExtContractsComponent implements OnInit {
         .then(response => {
           console.log(response);
           this.createContractId = response;
-          // this.idContract = this.creataContractId.id;
-          // console.log(this.idContract)
-          this.idContractEvent.emit(this.createContractId);
+          console.log(this.createContractId);
+          this.router.navigate(['ext/contracts/6','create',this.createContractId.id,this.createContractId.workflowId ]);
         })
         .catch(err => {
             console.error(err);
@@ -107,5 +111,31 @@ export class ExtContractsComponent implements OnInit {
         )
 
     }
+
+  onCreate(contractType) {
+
+    this.createContract(contractType,'eaesrg');
+
+  }
+
+  GetListContracts(contractScpe)
+  {
+    this.refService.GetListContracts(contractScpe)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.contractList.push(response);
+        console.log(this.contractList);
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+  }
+
+
+
+
 }
 

@@ -1,14 +1,11 @@
 import {Component, OnInit, Output, EventEmitter, ViewChild, Input, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {FormsModule} from '@angular/forms';
-import {RegisterType} from './RegisterType'
 import {ExtManufacturerComponent} from './ext-manufacturer/ext-manufacturer.component';
 import {ExtDeclarantComponent} from './ext-declarant/ext-declarant.component';
 import {ExtPayerComponent} from './ext-payer/ext-payer.component';
 import {ExtCostComponent} from './ext-cost/ext-cost.component';
 import {RefService} from './ext-ref-sevice';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
-
 
 
 @Component({
@@ -19,16 +16,21 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
 
 })
 export class ExtContractComponent  extends TemplateValidation {
-  private contractView: string
+
+
   public ramoch;
+  @ViewChild(ExtManufacturerComponent) manufacturChild:ExtManufacturerComponent;
 
   selectedLevel: string;
-  public showAllErr = false;
+  @Input()  showAllErr = false;
   @Output() selectedLevelChange = new EventEmitter<string>();
   @Output() idContractEvent = new EventEmitter<string>();
+  @Output() viewEvent = new EventEmitter<string>();
   @Input() childType: string;
-  public createContractId;
+  @Output() onChangeViewType = new EventEmitter<string>();
   public idContract;
+  _idworkflow:string;
+  public viewtype: string;
 
   type: string;
   public id: string;
@@ -36,6 +38,7 @@ export class ExtContractComponent  extends TemplateValidation {
   public holderTypeItems = [];
   public contractFormVar;
   public holderTypeVar;
+  changeModelHead;
 
   constructor(private route: ActivatedRoute, private refService: RefService) {
     super();
@@ -44,7 +47,7 @@ export class ExtContractComponent  extends TemplateValidation {
     this.getContactForm();
     this.getHolderType();
 
-    this.createContract('1','eaesrg')
+    //this.createContract('1','eaesrg')
 
 
   }
@@ -54,9 +57,10 @@ export class ExtContractComponent  extends TemplateValidation {
   }
 
 
-  changeLevel(lev: string) {
+  changeLevel(lev) {
 
     console.log(lev);
+    this.onChangedModel(lev.target);
     this.selectedLevel = lev;
     this.selectedLevelChange.emit(lev);
 
@@ -65,12 +69,20 @@ export class ExtContractComponent  extends TemplateValidation {
   ngOnInit(){
     this.route.params
       .subscribe(params => {
-       // this.ramoch = param;
+        this.idContract = params.idContract;
+        this.idContractEvent.emit(this.idContract);
+        this._idworkflow  = params.workflowId;
+        this.viewtype = params.viewtype;
+
         console.log(params);
+        this.viewAction();
+
       });
     console.log(this.id);
 
   }
+
+
 
   public contract: any = {
     manufactur: {
@@ -178,7 +190,7 @@ export class ExtContractComponent  extends TemplateValidation {
   @ViewChild(ExtCostComponent)
   private ExtCost: ExtCostComponent;
 
-  sendToNcels(valid) {
+  sendToNcels() {
     this.showAllErr = true;
   }
 
@@ -252,15 +264,37 @@ export class ExtContractComponent  extends TemplateValidation {
 
   }
 
-  createContract(contractType,contractScpe) {
-    this.refService.createContract(contractType,contractScpe)
+  viewAction()
+  {
+    if(this.viewtype == 'view')
+    {
+      this.getContractById();
+
+
+    }
+    else if(this.viewtype == 'edit') {
+      this.getContractById();
+      //this.viewEvent.emit(this.viewtype);
+    }
+    else {}
+  }
+
+    getContractById()
+    {
+      let responseData;
+    this.refService.GetContractById(this.idContract)
       .toPromise()
       .then(response => {
         console.log(response);
-        this.createContractId = response;
-        this.idContract = this.createContractId.id;
-        console.log(this.idContract.id)
-        this.idContractEvent.emit(this.idContract);
+        responseData = response;
+        this.contract.manufactur.id = responseData.manufacturId;
+        this.contract.manufactur.detailId = responseData.manufacturDetailId;
+        this.contract.declarant.id =  responseData.declarantId;
+        this.contract.declarant.detailId = responseData.declarantDetailId;
+        this.contract.payer.id = responseData.payerId;
+        this.contract.payer.detailId = responseData.payerDetailId;
+        this.viewEvent.emit(this.viewtype);
+        this.manufacturChild.onViewChangeContract();
       })
       .catch(err => {
           console.error(err);
@@ -268,6 +302,8 @@ export class ExtContractComponent  extends TemplateValidation {
       )
 
   }
+
+
 
   onChildChanged()
   {
@@ -331,6 +367,33 @@ export class ExtContractComponent  extends TemplateValidation {
     this.contract.payer.payerBankIik = this.contract.manufactur.manufacturBankIik;
     this.contract.payer.payerBankCurr = this.contract.manufactur.manufacturCurr;
     this.contract.declarantBankSwift = this.contract.manufactur.manufacturBankSwift;
+
+  };
+
+  onChangedModel(evnt) {
+
+
+      this.changeModelHead = ({
+        'id': this.model.id,
+        'classname': 'Teme.Shared.Data.Context.Contract', 'fields': {[evnt.name]: evnt.value}
+      })
+      this.changedModelRef(this.changeModelHead);
+
+  }
+
+  changedModelRef(obj)
+  {
+    this.refService.changeModel(obj)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
 
   }
 }

@@ -1,6 +1,6 @@
 import {Component, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {FileUploader} from 'ng2-file-upload';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {DataComponent} from '../data/data.component';
@@ -21,7 +21,7 @@ const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
     useExisting: forwardRef(() => AttachmentsComponent),
     multi: true
   },
-    IconModal
+    IconExtModal
   ]
 })
 export class AttachmentsComponent extends TemplateValidation {
@@ -32,7 +32,7 @@ export class AttachmentsComponent extends TemplateValidation {
   hasAnotherDropZoneOver: boolean;
   response: string;
 
-  constructor(public iconModal:  IconModal) {
+  constructor(public iconModal:  IconExtModal) {
     super();
     this.uploader = new FileUploader({
       url: URL,

@@ -1,8 +1,9 @@
 import {Component, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {IconModal} from '../../../shared/IconModal';
+import {IconExtModal} from '../../../shared/icon/icon-ext-modal';
 import {DataComponent} from '../data/data.component';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
+
 
 @Component({
   selector: 'app-subject',
@@ -18,13 +19,17 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
     useExisting: forwardRef(() => SubjectComponent),
     multi: true
   },
-    IconModal
+    IconExtModal
   ]
 })
 export class SubjectComponent extends TemplateValidation {
   @Input() showErrors = false;
 
-  constructor(public iconModal:  IconModal) {
+  public phoneMask = ['+','7',' ','(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
+  public iinMask = [/[1-9]/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]
+
+
+  constructor(public iconModal:  IconExtModal) {
     super();
   }
 

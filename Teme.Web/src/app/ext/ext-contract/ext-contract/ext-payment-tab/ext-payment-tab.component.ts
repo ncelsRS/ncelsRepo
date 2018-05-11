@@ -1,14 +1,17 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {ExtPaymentService} from '../../../ext-payment/ext-payment.service';
 
 @Component({
   selector: 'app-ext-payment-tab',
   templateUrl: './ext-payment-tab.component.html',
   styleUrls: ['./ext-payment-tab.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [ExtPaymentService]
 })
 export class ExtPaymentTabComponent implements OnInit {
-
-  constructor() { }
+  paymentId: number = null;
+  done: boolean = false;
+  constructor(private paymentService: ExtPaymentService) { }
 
 
     // public menuItems = [
@@ -25,5 +28,14 @@ export class ExtPaymentTabComponent implements OnInit {
   showPaymentModal(){
     //jQuery('#add-modal').modal('hide');
     jQuery('#frameModal').modal('show');
+  }
+
+  test(){
+    this.paymentService.createPayment(3)
+      .subscribe(
+        (data: number) => {this.paymentId=data; this.done=true;},
+        error => console.log(error)
+      );
+    console.log(this.paymentId,this.done);
   }
 }

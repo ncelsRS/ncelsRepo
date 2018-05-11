@@ -10,6 +10,7 @@ import {RefService} from '../ext-ref-sevice';
 import {Ng2SmartTableComponent} from 'ng2-smart-table/ng2-smart-table.component';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import {LocalDataSource} from 'ng2-smart-table';
+import {forEach} from '@angular/router/src/utils/collection';
 
 
 @Component({
@@ -48,16 +49,10 @@ export class ExtCostComponent extends TemplateValidation {
   public calculatorApplicationTypeVar;
   public calculatorServiceVar;
   public calculatorServiceData=[];
-  //   =[{
-  //   id: null,
-  //   children:null,
-  //   code:null,
-  //   nameKz:null,
-  //   nameRu:null,
-  //   calculatorServiceTypeModificationModels:[]
-  // }];
+
   public calculatorModifVar=[];
   public calculatorModifdata=[];
+  _dataCostWork;
   public applTypeLevel;
   public serviceLevel;
   public serciveCount;
@@ -71,6 +66,9 @@ export class ExtCostComponent extends TemplateValidation {
   public disabledViewCost = true;
   @Input() public idContractChild:string;
   public data;
+  changeModelHead;
+  changeModelRes;
+  listVarRes;
 
 
   constructor(private refService: RefService) {
@@ -235,13 +233,15 @@ export class ExtCostComponent extends TemplateValidation {
 
       this.data=new LocalDataSource();
       this.data.add({Cnt:1, workName:this.serviceLevelText,priceWONSD:t.price, countWork:'1',allPrice:t.price+t.price*t.valueAddedTax/100});
+      this._dataCostWork.add({PriceListId:this.serviceLevel,ContractId:this.idContractChild, Count: 1, IsImport:(this.isManuf=='frg')?1:0,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:t.price+t.price*t.valueAddedTax/100})
       if(t.priceListModificationModels!=null)
       {
         addServiceSum =this.serviceCount*(t.priceListModificationModels.price+t.priceListModificationModels.price*t.priceListModificationModels.valueAddedTax/100);
         this.data.add({Cnt:2, workName:this.addServiceLevelText,priceWONSD:t.priceListModificationModels.price, countWork:this.serviceCount,allPrice:addServiceSum});
+        this._dataCostWork.add({PriceListId:this.serviceLevel,ContractId:this.idContractChild, Count: this.serviceCount, IsImport:(this.isManuf=='frg')?1:0,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:addServiceSum})
       }
       this.data.add({Cnt:'', workName:'',priceWONSD:'Всего', countWork:this.serviceCount+1 ,allPrice:(t.price+t.price*t.valueAddedTax/100)+addServiceSum});
-
+      this.saveCalculateCost();
       console.log(this.data);
       this.data.reset();
 
@@ -274,12 +274,49 @@ export class ExtCostComponent extends TemplateValidation {
   clearCost(){
     this.data=null;
     this.data.reset();
+    this.refService.DeleteCostWork(this.idContractChild);
   }
 
   changeServiceCount(evnt)
   {
     this.serviceCount = Number(evnt.target.value);
   }
+
+  onChangedModel(evnt) {
+    this.changeModelHead = ({
+        'id': this.idContractChild,
+        'classname': 'Teme.Shared.Data.Context.CostWork', 'fields': {[evnt.name]: evnt.value}
+      });
+    console.log(this.changeModelHead);
+    this.changedModelRef(this.changeModelHead);
+  }
+
+
+
+  changedModelRef(obj)
+  {
+    this.refService.changeModel(obj)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.changeModelRes = response ;
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+
+  }
+
+  saveCalculateCost()
+  {
+    this.refService.SaveCostWork(this._dataCostWork);
+  }
+
+
+
 }
 
 
