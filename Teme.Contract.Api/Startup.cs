@@ -53,7 +53,7 @@ namespace Teme.Contract.Api
             var cert = new X509Certificate2(certPath, certPass);
             services.AddRscAuth(Configuration, cert, new string[]
             {
-                OrganizationScopeEnum.Identity
+                OrganizationScopeEnum.Ext
             });
 
             // Default vm template
@@ -62,9 +62,8 @@ namespace Teme.Contract.Api
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();
-            containerBuilder.RegisterInstance(cert);
             containerBuilder.RegisterModule<AutofacModule>();
-            containerBuilder.RegisterInstance(Configuration);
+            containerBuilder.RegisterInstance(Configuration).SingleInstance();
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
             return new AutofacServiceProvider(container);
@@ -84,10 +83,10 @@ namespace Teme.Contract.Api
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
+            app.UseRscAuth();
+
             // Start the Workflow instance
             app.UseContractInfrastructure();
-            //var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            //host.Start();
             app.UseMvc();
         }
     }

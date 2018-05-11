@@ -8,8 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.Security.Cryptography.X509Certificates;
 using Teme.Admin.Api.Startups;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace Teme.Admin.Api
 {
@@ -37,8 +40,12 @@ namespace Teme.Admin.Api
                 options.ForwardClientCertificate = false;
             });
             services.AddCors();
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[] { OrganizationScopeEnum.Common });
             services.AddMvc();
-           
+
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -57,7 +64,9 @@ namespace Teme.Admin.Api
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
-            
+
+            app.UseRscAuth();
+
             app.UseMvc();
         }
     }

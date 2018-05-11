@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.OrgScopes;
 using Teme.Shared.Logic;
 
@@ -39,6 +40,13 @@ namespace Teme.Identity.Logic
                 seconds = (int)TimeSpan.FromMinutes(30).TotalSeconds;
 
             return GenerateToken(userId, seconds, audiences);
+            //return GenerateToken(userId, seconds, new string[] {
+            //    OrganizationScopeEnum.Common,
+            //    OrganizationScopeEnum.Coz,
+            //    OrganizationScopeEnum.Ext,
+            //    OrganizationScopeEnum.Gv,
+            //    OrganizationScopeEnum.Identity
+            //});
         }
 
         public string GenerateRefreshToken(int userId)
@@ -60,6 +68,7 @@ namespace Teme.Identity.Logic
 
             var claims = audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)).ToList();
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()));
+
 
             var creds = new SigningCredentials(new X509SecurityKey(_cert), SecurityAlgorithms.RsaSha256);
             var expires = DateTime.Now.AddSeconds(seconds);

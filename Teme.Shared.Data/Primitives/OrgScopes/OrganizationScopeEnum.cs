@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +13,11 @@ namespace Teme.Shared.Data.Primitives.OrgScopes
         /// Доступ к Identity серверу для продления аутентификации
         /// </summary>
         public const string Identity = "identity";
+
+        /// <summary>
+        /// Обязательное использование для всех пользователей для всех пользователей
+        /// </summary>
+        public const string Common = "common";
 
         /// <summary>
         /// Внешний портал Теми
