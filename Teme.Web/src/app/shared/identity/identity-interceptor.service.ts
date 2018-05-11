@@ -15,7 +15,7 @@ export class IdentityInterceptorService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const auth = this.identity.getAuth();
     if (!auth) {
-      this.router.navigate(['login']);
+      //this.router.navigate(['login']);
       return next.handle(req);
     }
     const _req = req.clone({

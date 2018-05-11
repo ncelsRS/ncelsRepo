@@ -24,7 +24,11 @@ import { SubjectComponent } from './subject/subject.component';
 import { AttachmentsComponent } from './attachments/attachments.component';
 import { SigningComponent } from './signing/signing.component';
 import { TestPaymentComponent } from './test-payment/test-payment.component';
-import {ContractForm} from '../../shared/reference/contractForm';
+import {ContractForm} from '../../shared/reference/contract-form';
+import {Country} from '../../shared/reference/country';
+import { TextMaskModule } from 'angular2-text-mask';
+import {CalculatorServiceType} from '../../shared/reference/calculator-service-type';
+import {Calendar} from '../../shared/datepicker/calendar';
 
 @NgModule({
   imports: [
@@ -38,7 +42,8 @@ import {ContractForm} from '../../shared/reference/contractForm';
     routing,
     Ng2SmartTableModule,
     FileUploadModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TextMaskModule
   ],
   declarations: [
     ExtPaymentComponent,
@@ -50,7 +55,10 @@ import {ContractForm} from '../../shared/reference/contractForm';
     AttachmentsComponent,
     SigningComponent,
     TestPaymentComponent,
-    ContractForm
+    ContractForm,
+    Country,
+    CalculatorServiceType,
+    Calendar
   ],
   //exports: [ExtPaymentComponent],
   providers:[

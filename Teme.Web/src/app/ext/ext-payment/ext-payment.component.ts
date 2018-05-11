@@ -33,7 +33,7 @@ export class ExtPaymentComponent implements OnInit {
 
   public paymentModel: any = {
     costInfo: {
-      contractForm: "1",             //Тип регистрации
+      contractForm: "2",             //Тип регистрации
       contractNumber: null, 			    //Номер договора
       conclusionBeginDate: null,	    //Дата заключения
       conclusionEndDate: null,		    //Срок Действия

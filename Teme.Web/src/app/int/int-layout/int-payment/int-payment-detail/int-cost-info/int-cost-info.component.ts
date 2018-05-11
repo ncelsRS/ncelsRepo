@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 
 @Component({
   selector: 'app-int-cost-info',
@@ -7,12 +7,12 @@ import {IconModal} from 'app/shared/IconModal';
   styleUrls: ['./int-cost-info.component.scss'],
   encapsulation: ViewEncapsulation.None,
   providers: [
-    IconModal
+    IconExtModal
 ]
 })
 export class IntCostInfoComponent implements OnInit {
 
-  constructor(public iconModal:  IconModal) { }
+  constructor(public iconModal:  IconExtModal) { }
 
   ngOnInit() {
   }

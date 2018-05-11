@@ -1,12 +1,12 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 
 @Component({
   selector: 'app-int-equipment',
   templateUrl: './int-equipment.component.html',
   styleUrls: ['./int-equipment.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  providers:[IconModal]
+  providers:[IconExtModal]
 })
 export class IntEquipmentComponent {
 
@@ -191,7 +191,7 @@ export class IntEquipmentComponent {
     }
   };
 
-  constructor(public iconModal:  IconModal) {
+  constructor(public iconModal:  IconExtModal) {
     // this.getData((data) => {
     //   this.data = data;
     // });

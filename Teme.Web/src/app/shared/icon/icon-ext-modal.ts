@@ -1,8 +1,8 @@
 import {OnInit, ElementRef, Injectable } from '@angular/core';
-import {TemplateValidation} from './TemplateValidation';
+import {TemplateValidation} from '../TemplateValidation';
 
 @Injectable()
-export class IconModal {
+export class IconExtModal {
 
   constructor(private elementRefIconModal: ElementRef) {
 

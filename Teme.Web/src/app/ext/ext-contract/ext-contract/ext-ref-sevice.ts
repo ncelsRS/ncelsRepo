@@ -4,12 +4,13 @@ import 'rxjs/add/operator/map';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import {ContentType} from '@angular/http/src/enums';
+import {environment} from '../../../../environments/environment';
 
 @Injectable()
 export class RefService  {
 
-  url="http://localhost:5121/api/Reference/";
-  urlData="http://localhost:62559/Contract/";
+  url = environment.urls.reference;
+  urlData = environment.urls.contract;
 
 
   constructor(private http: HttpClient){

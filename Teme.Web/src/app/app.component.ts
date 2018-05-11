@@ -20,12 +20,12 @@ export class AppComponent {
     private identitySvc: IdentityProviderSvc
   ) {
     this.settings = this.appSettings.settings;
-    this.route.queryParams
-      .subscribe(params => {
-        if (params.auth) {
-          this.identitySvc.setAuth(params.auth);
-        }
-      });
+    // this.route.queryParams
+    //   .subscribe(params => {
+    //     if (params.auth) {
+    //       this.identitySvc.setAuth(params.auth);
+    //     }
+    //   });
     // this.route.url.subscribe(url => console.log(JSON.stringify(url)));
   }
 

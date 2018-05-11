@@ -9,7 +9,10 @@ export const environment = {
     identity: 'http://localhost:9433',
     extContract: 'http://localhost:9101',
     admin: 'http://localhost:9121',
-    payment: 'http://localhost:60825/',
-    reference: 'http://localhost:5121/api/reference/'
+    payment: 'http://localhost:60825/Payment/',
+    //reference: 'http://localhost:5121/api/reference/',
+    reference: 'http://localhost:9001/Admin/api/reference/',
+    contract: 'http://localhost:62559/Contract/',
+    //contract: 'http://localhost:9001/Contract/Contract/'
   }
 };

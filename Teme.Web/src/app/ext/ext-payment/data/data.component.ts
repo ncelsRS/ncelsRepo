@@ -1,5 +1,5 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';;
 import {TemplateValidation} from 'app/shared/TemplateValidation';
 
@@ -17,7 +17,7 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
     useExisting: forwardRef(() => DataComponent),
     multi: true
   },
-    IconModal
+    IconExtModal
   ]
   //encapsulation: ViewEncapsulation.None,
 })
@@ -25,7 +25,7 @@ export class DataComponent extends TemplateValidation {
 
   @Input() showErrors = false;
 
-  constructor( public iconModal:  IconModal) {
+  constructor( public iconModal:  IconExtModal) {
     super();
   }
 

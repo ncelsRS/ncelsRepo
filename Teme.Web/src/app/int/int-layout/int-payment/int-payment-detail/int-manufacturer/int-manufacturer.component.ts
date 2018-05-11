@@ -1,17 +1,17 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {IconModal} from 'app/shared/IconModal';
+import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 
 @Component({
   selector: 'app-int-manufacturer',
   templateUrl: './int-manufacturer.component.html',
   styleUrls: ['./int-manufacturer.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  providers:[IconModal]
+  providers:[IconExtModal]
 })
 export class IntManufacturerComponent implements OnInit {
 
 
-  constructor(public iconModal:  IconModal) { }
+  constructor(public iconModal:  IconExtModal) { }
 
   ngOnInit() {
   }
