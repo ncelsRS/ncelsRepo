@@ -49,8 +49,6 @@ namespace Teme.ContractCoz.Api
                 options.ForwardClientCertificate = false;
             });
 
-            services.AddContractInfrastructure();
-
             services.AddCors();
             services.AddMvc();
 
@@ -73,9 +71,6 @@ namespace Teme.ContractCoz.Api
             }
             loggerFactory.AddSerilog();
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
-            app.UseContractInfrastructure();
-
             app.UseMvc();
         }
     }

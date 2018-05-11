@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Teme.Shared.Data.Context;
 
@@ -84,6 +84,8 @@ namespace Teme.Contract.Data.DTO
             return costs.Select(e => new CostWorkDto{
                 Id = e.Id,
                 PriceListId = e?.PriceListId,
+                NameRu = e?.Ref_PriceList.Ref_ServiceType.NameRu,
+                NameKz = e?.Ref_PriceList.Ref_ServiceType.NameKz,
                 ContractId = e.ContractId,
                 Count = e.Count,
                 IsImport = e.IsImport,
