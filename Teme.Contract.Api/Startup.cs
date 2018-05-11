@@ -67,16 +67,12 @@ namespace Teme.Contract.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
             loggerFactory.AddSerilog();
-
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
             app.UseRscAuth();
             app.UseMvc();
         }
