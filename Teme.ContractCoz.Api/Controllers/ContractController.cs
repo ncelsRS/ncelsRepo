@@ -62,6 +62,8 @@ namespace Teme.ContractCoz.Api.Controllers
         /// Получение списка договоров
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
+        [Route("GetListContract")]
         public async Task<IActionResult> GetListContract()
         {
             try
