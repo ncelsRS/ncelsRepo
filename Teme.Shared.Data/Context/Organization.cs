@@ -13,9 +13,9 @@ namespace Teme.Shared.Data.Context
     public class Organization : BaseEntity
     {
         /// <summary>
-        /// Код структурного подразделения
+        /// Код структурного подразделения (OrganizationScopeEnum)
         /// </summary>
-        public OrganizationScopeEnum Code { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// ИИН или БИН

@@ -35,9 +35,9 @@ namespace Teme.Shared.Data.Context
         [Required]
         public virtual IEnumerable<AuthUserScopes> Scopes { get; set; }
 
-        public int? PositionId { get; set; }
-        [ForeignKey("PositionId")]
-        public virtual Organization Position { get; set; }
+        //public int? PositionId { get; set; }
+        //[ForeignKey("PositionId")]
+        //public virtual Organization Position { get; set; }
     }
 
     public class AuthUserScopes : BaseEntity

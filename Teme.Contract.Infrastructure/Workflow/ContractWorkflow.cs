@@ -21,6 +21,7 @@ namespace Teme.Contract.Infrastructure.Workflow
         {
             builder
                 .StartWith(c => { Log.Verbose($"New contract, workflowId: {c.Workflow.Id}"); })
+                // отправка договора в ЦОЗ
                 .UserTask(UserPromts.Declarant.SendOrRemove, (d, c) => "declarant")
                     .WithOption(UserOptions.SendWithSign).Do(then =>
                         then.StartWith<SendToNcels>()
@@ -36,17 +37,30 @@ namespace Teme.Contract.Infrastructure.Workflow
                         then.StartWith<Delete>()
                             .EndWorkflow()
                     )
+                //.While(d => (bool)d.Value).Do(then1 => then1.StartWith(c => { })
+                // договор один к одному
                 .If(d => d.ContractType == ContractTypeEnum.OneToOne).Do(then =>
                     then.StartWith(c => Log.Verbose("Start Coz and Gv"))
                         .Parallel()
                         .Do(t => t.Coz())
                         .Do(t => t.Gv())
                         .Join()
-                )
+                    )
+
+                // договор один ко многим
                 .If(d => d.ContractType == ContractTypeEnum.OneToMore).Do(t => t.Coz())
-                .UserTask(UserPromts.IsMeetRequirements, (d, c) => d.ExecutorsIds[ScopeEnum.Root].FirstOrDefault())
-                    .WithOption(UserOptions.MeetRequirements).Do(t => { })
-                    .WithOption(UserOptions.NotMeetRequirements).Do(t => { })
+
+                //Консалидация всех выявленных несоответствий
+                .If(d => (bool)d.Value == true).Do(t => t.MeetOrNotMeetRequirement())
+
+                //Cогласование договора рук ЦОЗ
+                .UserTask("CozBossMeetReq", (d, c) => d.ExecutorsIds[ScopeEnum.Coz].First())
+                    .WithOption("CozBossMeetReq").Do(t =>
+                        t.StartWith<CozBossMeetReq>()
+                            .Input(s => s.ExecutorsIds, d => d.ExecutorsIds)
+                            .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                            .Output(d => d.Value, s => s.Agreed))
+
                 .If(d => d.IsSignedByDeclarant).Do(t => t
                     .StartWith(c => { Log.Verbose("Sign"); })
                 )

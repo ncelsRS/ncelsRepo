@@ -165,7 +165,6 @@ namespace Teme.Contract.Logic
         /// <returns></returns>
         public async Task<object> SaveCostWork(CostWorkModel[] costWorkModel)
         {
-            List<Task> tasks = new List<Task>();
             foreach(var cw in costWorkModel)
             {
                 var costwork = new CostWork()
@@ -177,9 +176,8 @@ namespace Teme.Contract.Logic
                     PriceWithValueAddedTax = cw.PriceWithValueAddedTax,
                     TotalPriceWithValueAddedTax = cw.TotalPriceWithValueAddedTax
                 };
-                tasks.Add(_repo.SaveCostWork(costwork));
+                await _repo.SaveCostWork(costwork);
             }
-            Task.WaitAll(tasks.ToArray());
             return new { contractId = costWorkModel.First().ContractId };
         }
 

@@ -7,5 +7,6 @@ namespace Teme.ContractCoz.Logic
     {
         Task<object> GetContractById(int contractId);
         Task<object> GetDeclarantById(int id);
+        Task<object> GetListContract();
     }
 }

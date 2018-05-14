@@ -154,12 +154,12 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <param name="executors"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("CozBossAgreeRequest")]
+        [Route("CozExecutorAgreedRequest")]
         public async Task<object> CozExecutorAgreedRequest([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.SelectExecutors, UserOptions.SelectExecutors, true, workflowId, null, executors);
+                var r = await Logic.PublishUserAction(UserPromts.IsMeetRequirements, UserOptions.MeetRequirements, true, workflowId, null, executors);
                 return Json(r);
             }
             catch (Exception ex)
@@ -175,7 +175,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// <param name="executors"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("CozBossAgreeRequest")]
+        [Route("CozExecutorNotAgreedRequest")]
         public async Task<object> CozExecutorNotAgreedRequest([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors)
         {
             try

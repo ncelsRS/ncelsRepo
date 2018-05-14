@@ -8,6 +8,6 @@ namespace Teme.Shared.Data.Repos.ContractRepo
     public interface IContractBaseRepo : IBaseRepo<Contract>
     {
         Task SaveStatePolice(List<StatePolicy> statePolicies);
-        Task RemoveStatePolice(int contractId);
+        Task RemoveStatePolice(int contractId, List<string> scope);
     }
 }

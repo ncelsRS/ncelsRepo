@@ -14,6 +14,7 @@ namespace Teme.Contract.Infrastructure
         {
             service.AddTransient<SendToNcels>();
             service.AddTransient<SelectExecutorsFirst>();
+            service.AddTransient<CozExecutorMeetReq>();
             service.AddTransient<CozBossMeetReq>();
         }
     }
