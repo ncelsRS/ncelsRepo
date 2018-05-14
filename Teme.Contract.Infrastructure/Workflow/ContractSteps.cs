@@ -46,8 +46,6 @@ namespace Teme.Contract.Infrastructure.Workflow
         public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
-        
-
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             try {

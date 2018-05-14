@@ -67,7 +67,6 @@ namespace Teme.Infrastructure.Api.Controllers
         /// </summary>
         /// <param name="workflowId"></param>
         /// <param name="contractType"></param>
-        /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveDelete")]
@@ -75,7 +74,7 @@ namespace Teme.Infrastructure.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete, contractType, workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete, contractType, workflowId, "declarant", new[] { "BossCoz" });
                 return Json(r);
             }
             catch (Exception ex)
@@ -89,7 +88,6 @@ namespace Teme.Infrastructure.Api.Controllers
         /// </summary>
         /// <param name="workflowId"></param>
         /// <param name="contractType"></param>
-        /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveSendWithSign")]
@@ -97,7 +95,7 @@ namespace Teme.Infrastructure.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithSign, contractType, workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithSign, contractType, workflowId, "declarant", new[] { "BossCoz" });
                 return Json(r);
             }
             catch (Exception ex)
@@ -111,7 +109,6 @@ namespace Teme.Infrastructure.Api.Controllers
         /// </summary>
         /// <param name="workflowId"></param>
         /// <param name="contractType"></param>
-        /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("SendOrRemoveSendWithoutSign")]
@@ -119,7 +116,7 @@ namespace Teme.Infrastructure.Api.Controllers
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign, contractType, workflowId);
+                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign, contractType, workflowId, "declarant", new[] { "BossCoz" });
                 return Json(r);
             }
             catch (Exception ex)
@@ -127,5 +124,91 @@ namespace Teme.Infrastructure.Api.Controllers
                 return ExceptionResult(ex, workflowId);
             }
         }
+
+        /// <summary>
+        /// Отправка договора исполнителю ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="executors"></param>
+        /// <param name="contractType"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("SendToCozExecutor")]
+        public async Task<object> SendToCozExecutor([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors, [FromQuery][Required] ContractTypeEnum contractType)
+        {
+            try
+            {
+                var r = await Logic.PublishUserAction(UserPromts.SelectExecutors, UserOptions.SelectExecutors, contractType, workflowId, null, executors);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, workflowId);
+            }
+        }
+
+        /// <summary>
+        /// Согласовано исполнителям ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="executors"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("CozBossAgreeRequest")]
+        public async Task<object> CozExecutorAgreedRequest([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors)
+        {
+            try
+            {
+                var r = await Logic.PublishUserAction(UserPromts.SelectExecutors, UserOptions.SelectExecutors, true, workflowId, null, executors);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, workflowId);
+            }
+        }
+
+        /// <summary>
+        /// НЕ Согласовано исполнителям ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="executors"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("CozBossAgreeRequest")]
+        public async Task<object> CozExecutorNotAgreedRequest([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors)
+        {
+            try
+            {
+                var r = await Logic.PublishUserAction(UserPromts.SelectExecutors, UserOptions.SelectExecutors, false, workflowId, null, executors);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, workflowId);
+            }
+        }
+
+        /// <summary>
+        /// Согласование руководителем ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="executors"></param>
+        /// <param name="contractType"></param>
+        /// <returns></returns>
+        //[HttpPost]
+        //[Route("CozBossAgreeRequest")]
+        //public async Task<object> CozBossAgreeRequest([FromQuery][Required] string workflowId, [FromQuery][Required] IEnumerable<string> executors, [FromQuery][Required] ContractTypeEnum contractType)
+        //{
+        //    try
+        //    {
+        //        var r = await Logic.PublishUserAction(UserPromts.SelectExecutors, UserOptions.SelectExecutors, contractType, workflowId, null, executors);
+        //        return Json(r);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ExceptionResult(ex, workflowId);
+        //    }
+        //}
     }
 }

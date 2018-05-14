@@ -54,13 +54,6 @@ namespace Teme.Shared.Data.Context
         public bool IsDeleted { get; set; } = false;
 
         /// <summary>
-        /// Исполнитель
-        /// </summary>
-        public int? EmployeeId { get; set; }
-        [ForeignKey("EmployeeId")]
-        public virtual AuthUser Employee { get; set; }
-
-        /// <summary>
         /// Родитель
         /// </summary>
         public int? ParentId { get; set; }

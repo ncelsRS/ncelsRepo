@@ -14,7 +14,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         {
             builder.StartWith(c => Log.Information("Start Coz"))
                 .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].First())
-                    .WithOption(UserOptions.SelectExecutors, "o1").Do(t1 =>
+                    .WithOption(UserOptions.SelectExecutors).Do(t1 =>
                         t1.StartWith<SelectExecutorsFirst>()
                             .Input(s => s.ExecutorsIds, d => d.ExecutorsIds)
                             .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
