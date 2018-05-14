@@ -143,9 +143,9 @@ export class ExtPaymentComponent implements OnInit {
     }
   };
   //отключение заставки
-  ngAfterViewInit(){
-    document.getElementById('preloader').classList.add('hide');
-  }
+  // ngAfterViewInit(){
+  //   document.getElementById('preloader').classList.add('hide');
+  // }
 
 
 

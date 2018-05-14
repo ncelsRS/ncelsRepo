@@ -15,6 +15,7 @@ import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
+import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     FileUploadModule,
     FormsModule,
     Ng2SmartTableModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    RscFileModule
   ],
   declarations: [
     ExtContractsComponent,
