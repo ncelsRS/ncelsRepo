@@ -56,6 +56,7 @@ namespace PW.Prism.Controllers
 
                 string[] tokens = dictionary.RegulationList.Split(',');
 
+
                 foreach (var q in tokens)
                 {
                     OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
