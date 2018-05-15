@@ -43,8 +43,10 @@ namespace Teme.Shared.Data.Context
         public DbSet<Ref_EquipmentType> Ref_EquipmentTypes { get; set; }
         public DbSet<Ref_PackagingType> Ref_PackagingTypes { get; set; }
         public DbSet<Ref_Measure> Ref_Measures { get; set; }
+        public DbSet<Icon> Icons { get; set; }
+        public DbSet<IconRecord> IconRecords { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
       modelBuilder.Entity<Declarant>()

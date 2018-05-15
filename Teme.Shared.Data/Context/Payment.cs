@@ -15,14 +15,14 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Id Договора
         /// </summary>
-        public int? ContractId { get; set; }
+        public int ContractId { get; set; }
         [ForeignKey("ContractId")]
         public virtual Contract Contract { get; set; }
 
         /// <summary>
         /// Тип договора
         /// </summary>
-        public ContractFormEnum ContractForm { get; set; }
+        public ContractFormEnum? ContractForm { get; set; }
 
         /// <summary>
         /// Номер регистрационного удостоверения
@@ -116,6 +116,11 @@ namespace Teme.Shared.Data.Context
         /// Вносимые изменения
         /// </summary>
         public string ChangesMade { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
 
 
     }

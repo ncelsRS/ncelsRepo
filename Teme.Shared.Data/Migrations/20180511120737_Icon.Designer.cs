@@ -7,13 +7,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives;
 using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    [Migration("20180502123209_TemeFirstMigration")]
-    partial class TemeFirstMigration
+    [Migration("20180511120737_Icon")]
+    partial class Icon
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -295,6 +296,62 @@ namespace Teme.Shared.Data.Migrations
                     b.ToTable("DeclarantDetails");
                 });
 
+            modelBuilder.Entity("Teme.Shared.Data.Context.Icon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("FieldName")
+                        .HasMaxLength(500);
+
+                    b.Property<int>("ModuleType");
+
+                    b.Property<int>("ObjectId");
+
+                    b.Property<bool>("isDeleted");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Icons");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.IconRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AuthRoleId");
+
+                    b.Property<int>("AuthUserId");
+
+                    b.Property<DateTime>("DateCreate");
+
+                    b.Property<DateTime>("DateUpdate");
+
+                    b.Property<string>("DisplayField")
+                        .HasMaxLength(500);
+
+                    b.Property<int>("IconId");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000);
+
+                    b.Property<string>("ValueField")
+                        .HasMaxLength(500);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthUserId");
+
+                    b.HasIndex("IconId");
+
+                    b.ToTable("IconRecords");
+                });
+
             modelBuilder.Entity("Teme.Shared.Data.Context.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -314,25 +371,27 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("ClassRisk");
 
+                    b.Property<int?>("ContractForm");
+
                     b.Property<int>("ContractId");
 
                     b.Property<DateTime>("DateCreate");
 
                     b.Property<DateTime>("DateUpdate");
 
-                    b.Property<bool>("IsBlank");
+                    b.Property<bool?>("IsBlank");
 
-                    b.Property<bool>("IsClosedSystem");
+                    b.Property<bool?>("IsClosedSystem");
 
-                    b.Property<bool>("IsDiagnostics");
+                    b.Property<bool?>("IsDiagnostics");
 
-                    b.Property<bool>("IsMeasures");
+                    b.Property<bool?>("IsMeasures");
 
-                    b.Property<bool>("IsPresenceMedicinalProduct");
+                    b.Property<bool?>("IsPresenceMedicinalProduct");
 
-                    b.Property<bool>("IsStyryl");
+                    b.Property<bool?>("IsStyryl");
 
-                    b.Property<bool>("IsTypeImnMt");
+                    b.Property<bool?>("IsTypeImnMt");
 
                     b.Property<string>("NameKz");
 
@@ -345,6 +404,8 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("RevisionBeforeChanges");
 
                     b.Property<string>("TradeName");
+
+                    b.Property<bool>("isDeleted");
 
                     b.HasKey("Id");
 
@@ -1002,6 +1063,19 @@ namespace Teme.Shared.Data.Migrations
                     b.HasOne("Teme.Shared.Data.Context.Declarant", "Declarant")
                         .WithMany("DeclarantDetails")
                         .HasForeignKey("DeclarantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.IconRecord", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.AuthUser", "AuthUser")
+                        .WithMany()
+                        .HasForeignKey("AuthUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.Icon", "Icon")
+                        .WithMany("IconRecords")
+                        .HasForeignKey("IconId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
