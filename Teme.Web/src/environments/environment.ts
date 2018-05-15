@@ -14,5 +14,6 @@ export const environment = {
     reference: 'http://localhost:9001/Admin/api/reference/',
     contract: 'http://localhost:62559/Contract/',
     //contract: 'http://localhost:9001/Contract/Contract/'
+    icon: 'http://localhost:49980/Icon/',
   }
 };

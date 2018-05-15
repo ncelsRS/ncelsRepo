@@ -29,6 +29,8 @@ import {Country} from '../../shared/reference/country';
 import { TextMaskModule } from 'angular2-text-mask';
 import {CalculatorServiceType} from '../../shared/reference/calculator-service-type';
 import {Calendar} from '../../shared/datepicker/calendar';
+import {IconButton} from '../../shared/icon/icon-button';
+//import {IconService} from '../../shared/icon/icon.service';
 
 @NgModule({
   imports: [
@@ -58,7 +60,9 @@ import {Calendar} from '../../shared/datepicker/calendar';
     ContractForm,
     Country,
     CalculatorServiceType,
-    Calendar
+    Calendar,
+    IconButton
+    //IconService
   ],
   //exports: [ExtPaymentComponent],
   providers:[
