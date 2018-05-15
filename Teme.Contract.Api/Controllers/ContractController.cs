@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Logic;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.Contract.Api.Controllers
 {
@@ -25,6 +26,7 @@ namespace Teme.Contract.Api.Controllers
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
+                var qwe = CurrentUserId;
                 var r = await Logic.Create(createModel);
                 return Json(r);
             }

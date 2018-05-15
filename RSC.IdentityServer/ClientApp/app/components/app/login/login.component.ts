@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
     onSubmit(isValid: boolean) {
         if (!isValid) return;
         this.res = this.loginSvc
-            .post(this.login, new URL(this.returnUrl));
+            .post(this.login, this.returnUrl);
     }
 
 }

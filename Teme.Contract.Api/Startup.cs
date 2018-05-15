@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +16,9 @@ using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
+using Teme.SharedApi;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Teme.Contract.Api
 {
@@ -39,17 +42,20 @@ namespace Teme.Contract.Api
             var connectionStr = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
-
-            // Add Workflow with the persistence provider
-            //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
-            services.AddWorkflow();
             services.AddCors();
+
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Ext
+            });
+
             // Default vm template
             services.AddMvc();
-            services.AddWorkFlowInfrastructure();
-
             // Add Autofac
-            var containerBuilder = new Autofac.ContainerBuilder();
+            var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
             containerBuilder.Populate(services);
@@ -61,20 +67,13 @@ namespace Teme.Contract.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
             loggerFactory.AddSerilog();
-
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
-            // Start the Workflow instance
-            var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
-            host.Start();
+            app.UseRscAuth();
             app.UseMvc();
         }
     }

@@ -235,12 +235,16 @@ namespace Teme.Admin.Logic
                     Price = priceList.Price,
                     ValueAddedTax = valueAddedTax.Value,
                     IsImport = priceList.IsImport,
+                    NameRu = priceList.Ref_ServiceType.NameRu,
+                    NameKz = priceList.Ref_ServiceType.NameKz,
                     priceListModificationModels = new PriceListModificationModel
                     {
                         Id = priceListModif.Id,
                         Price = priceListModif.Price,
                         ValueAddedTax = valueAddedTax.Value,
-                        IsImport = priceListModif.IsImport
+                        IsImport = priceListModif.IsImport,
+                        NameRu = priceListModif.Ref_ServiceType.NameRu,
+                        NameKz = priceListModif.Ref_ServiceType.NameKz,
                     }
                 };
             }
@@ -249,7 +253,9 @@ namespace Teme.Admin.Logic
                 Id = priceList.Id,
                 Price = priceList.Price,
                 ValueAddedTax = valueAddedTax.Value,
-                IsImport = priceList.IsImport
+                IsImport = priceList.IsImport,
+                NameRu = priceList.Ref_ServiceType.NameRu,
+                NameKz = priceList.Ref_ServiceType.NameKz
             };
         }
 

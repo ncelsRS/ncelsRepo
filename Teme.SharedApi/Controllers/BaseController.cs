@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System;
@@ -9,7 +9,7 @@ using Teme.Shared.Logic;
 
 namespace Teme.SharedApi.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("[controller]")]
     public class BaseController<TILogic> : Controller where TILogic : IBaseLogic
     {
@@ -52,6 +52,29 @@ namespace Teme.SharedApi.Controllers
 
             Log.Error(ex, msg, args);
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+#if DEBUG
+            return Json(ex);
+#else
+            return Json(msg);
+#endif
+        }
+
+        protected JsonResult ExceptionJsonResult(Exception ex, object args = null)
+        {
+            var controllerName = ControllerContext.ActionDescriptor.ControllerName;
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var msg = $"{controllerName} {actionName} {ex.Message}";
+
+            if (ex is ArgumentException)
+            {
+                Log.Warning(ex, msg, args);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                Log.Error(ex, msg, args);
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
 #if DEBUG
             return Json(ex);
 #else

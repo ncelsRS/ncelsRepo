@@ -12,7 +12,7 @@ namespace Teme.Shared.Data.Repos
         public TemeContext Context { get; }
         public DbSet<TEntity> Repo { get; }
 
-        protected BaseRepo(TemeContext context)
+        public BaseRepo(TemeContext context)
         {
             Context = context;
             Repo = Context.Set<TEntity>();

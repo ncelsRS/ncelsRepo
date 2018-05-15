@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +14,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSwag.AspNetCore;
 using Serilog;
+using Teme.Contract.Infrastructure;
+using Teme.Contract.Infrastructure.Primitives;
+using Teme.Contract.Infrastructure.Workflow;
 using Teme.ContractCoz.Api.Startups;
+using Teme.ContractCoz.Logic;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
 
@@ -44,6 +48,7 @@ namespace Teme.ContractCoz.Api
             {
                 options.ForwardClientCertificate = false;
             });
+
             services.AddCors();
             services.AddMvc();
 
@@ -59,12 +64,13 @@ namespace Teme.ContractCoz.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
-            app.UseCors(builder => builder.AllowAnyOrigin());
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
             app.UseMvc();
         }
     }

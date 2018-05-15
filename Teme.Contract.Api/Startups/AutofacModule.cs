@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +23,10 @@ namespace Teme.Contract.Api.Startups
                 .Where(t => t.Name.EndsWith("Repo"))
                 .AsImplementedInterfaces();
 
-            assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Infrastructure"));
-            builder.RegisterAssemblyTypes(assembly)
-                .Where(t => t.Name.EndsWith("Logic"))
-                .AsImplementedInterfaces();
+            //assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Infrastructure"));
+            //builder.RegisterAssemblyTypes(assembly)
+            //    .Where(t => t.Name.EndsWith("Logic"))
+            //    .AsImplementedInterfaces();
 
             assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Logic"));
             builder.RegisterAssemblyTypes(assembly)

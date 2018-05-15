@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Teme.Shared.Logic;
 using WorkflowCore.Users.Models;
 
 namespace Teme.Contract.Infrastructure

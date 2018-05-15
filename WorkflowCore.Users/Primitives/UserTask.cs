@@ -1,4 +1,5 @@
-﻿using System;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
@@ -29,53 +30,60 @@ namespace WorkflowCore.Users.Primitives
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            if (!context.ExecutionPointer.EventPublished)
+            try
             {
-                context.ExecutionPointer.ExtensionAttributes[ExtAssignPrincipal] = AssignedPrincipal;
-                context.ExecutionPointer.ExtensionAttributes[ExtPrompt] = Prompt;
-                context.ExecutionPointer.ExtensionAttributes[ExtUserOptions] = _options;
-
-                var effectiveDate = DateTime.Now.ToUniversalTime();
-                var eventKey = context.Workflow.Id + "." + context.ExecutionPointer.Id;
-
-                SetupEscalations(context);
-
-                return ExecutionResult.WaitForEvent(EventName, eventKey, effectiveDate);
-            }
-
-            if (!(context.ExecutionPointer.EventData is UserAction))
-                throw new ArgumentException();
-
-            var action = (UserAction)context.ExecutionPointer.EventData;
-            if (action.ExecutorsIds != null)
-                context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
-            if (action.Data != null)
-                context.ExecutionPointer.ExtensionAttributes["Data"] = action.Data;
-
-            if (context.PersistenceData == null)
-            {
-                var result = ExecutionResult.Branch(new List<object>() { null }, new ControlPersistenceData() { ChildrenActive = true });
-                result.OutcomeValue = action.OutcomeValue;
-                return result;
-            }
-
-            if ((context.PersistenceData is ControlPersistenceData) && ((context.PersistenceData as ControlPersistenceData).ChildrenActive))
-            {
-                bool complete = true;
-                foreach (var childId in context.ExecutionPointer.Children)
-                    complete = complete && IsBranchComplete(context.Workflow.ExecutionPointers, childId);
-
-                if (complete)
-                    return ExecutionResult.Next();
-                else
+                if (!context.ExecutionPointer.EventPublished)
                 {
-                    var result = ExecutionResult.Persist(context.PersistenceData);
+                    context.ExecutionPointer.ExtensionAttributes[ExtAssignPrincipal] = AssignedPrincipal;
+                    context.ExecutionPointer.ExtensionAttributes[ExtPrompt] = Prompt;
+                    context.ExecutionPointer.ExtensionAttributes[ExtUserOptions] = _options;
+
+                    var effectiveDate = DateTime.Now.ToUniversalTime();
+                    var eventKey = context.Workflow.Id + "." + context.ExecutionPointer.Id;
+
+                    SetupEscalations(context);
+
+                    return ExecutionResult.WaitForEvent(EventName, eventKey, effectiveDate);
+                }
+
+                if (!(context.ExecutionPointer.EventData is UserAction))
+                    throw new ArgumentException();
+
+                var action = (UserAction)context.ExecutionPointer.EventData;
+                if (action.ExecutorsIds != null)
+                    context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
+                if (action.Data != null)
+                    context.ExecutionPointer.ExtensionAttributes["Data"] = action.Data;
+
+                if (context.PersistenceData == null)
+                {
+                    var result = ExecutionResult.Branch(new List<object>() { null }, new ControlPersistenceData() { ChildrenActive = true });
                     result.OutcomeValue = action.OutcomeValue;
                     return result;
                 }
-            }
 
-            throw new ArgumentException("PersistenceData");
+                if ((context.PersistenceData is ControlPersistenceData) && ((context.PersistenceData as ControlPersistenceData).ChildrenActive))
+                {
+                    bool complete = true;
+                    foreach (var childId in context.ExecutionPointer.Children)
+                        complete = complete && IsBranchComplete(context.Workflow.ExecutionPointers, childId);
+
+                    if (complete)
+                        return ExecutionResult.Next();
+                    else
+                    {
+                        var result = ExecutionResult.Persist(context.PersistenceData);
+                        result.OutcomeValue = action.OutcomeValue;
+                        return result;
+                    }
+                }
+                throw new ArgumentException("PersistenceData");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message, ex.StackTrace);
+                throw ex;   
+            }
         }
 
         private void SetupEscalations(IStepExecutionContext context)

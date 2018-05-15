@@ -5,7 +5,7 @@ namespace Teme.Shared.Logic.ContractLogic
 {
     public class BaseContractLogic<TIRepo> : BaseLogic<TIRepo, Contract>, IBaseContractLogic where TIRepo : IContractBaseRepo
     {
-        protected BaseContractLogic(TIRepo repo) : base(repo)
+        public BaseContractLogic(TIRepo repo) : base(repo)
         {
         }
     }

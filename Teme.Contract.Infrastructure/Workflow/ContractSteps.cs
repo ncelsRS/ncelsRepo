@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +18,14 @@ namespace Teme.Contract.Infrastructure.Workflow
     /// </summary>
     public class Delete : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public Delete(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            _ss.DeleteContract(context.Workflow.Id);
             TaskCompletionService.ReleaseAll(context.Workflow.Id);
             Log.Verbose($"Delete contract, workflowId: {context.Workflow.Id}");
 
@@ -37,21 +43,26 @@ namespace Teme.Contract.Infrastructure.Workflow
         {
             _ss = ss;
         }
-        public bool IsSignedByDeclarant { get; set; }
         public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            var workflowId = context.Workflow.Id;
-            _ss.SendToNcels(IsSignedByDeclarant, workflowId);
-            var attrs = context.GetParentScope(1).ExtensionAttributes;
-            if (attrs.TryGetValue("Data", out var contractType))
-                ContractType = (ContractTypeEnum)contractType;
-            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
-                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
-
-            Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
+            try {
+                _ss.SendToNcels(context.Workflow.Id);
+                var attrs = context.GetParentScope(0).ExtensionAttributes;
+                if (attrs.Count <= 0)
+                    throw new NullReferenceException();
+                if (attrs.TryGetValue("Data", out var contractType))
+                    ContractType = (ContractTypeEnum)Convert.ToInt32(contractType);
+                if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                    ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+                Log.Information($"SendToNcels, ContractType = {ContractType.ToString()}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("SendToNcels", ex);
+            }
             return ExecutionResult.Next();
         }
     }

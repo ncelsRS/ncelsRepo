@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,6 +11,10 @@ namespace Teme.Contract.Data.DTO
         /// Прайс лист
         /// </summary>
         public int? PriceListId { get; set; }
+
+        public string NameRu { get; set; }
+
+        public string NameKz { get; set; }
 
         /// <summary>
         /// Id Договора

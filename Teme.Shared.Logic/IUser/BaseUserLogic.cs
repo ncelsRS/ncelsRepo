@@ -5,7 +5,7 @@ namespace Teme.Shared.Logic.IUser
 {
     public class BaseUserLogic<TIRepo> : BaseLogic<TIRepo, AuthUser>, IBaseUserLogic where TIRepo : IBaseUserRepo
     {
-        protected BaseUserLogic(TIRepo repo) : base(repo)
+        public BaseUserLogic(TIRepo repo) : base(repo)
         {
         }
     }
