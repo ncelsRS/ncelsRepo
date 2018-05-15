@@ -20,7 +20,7 @@ namespace Teme.Shared.Data.Context
         /// Дата изменения сущности
         /// </summary>
         [Column(Order = 102)]
-        public DateTime DateUpdate { get; set; }
+        public DateTime DateUpdate { get; set; } = DateTime.Now;
 
         public virtual string ClassName => this.GetType().FullName;
     }

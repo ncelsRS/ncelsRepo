@@ -22,9 +22,13 @@
         public class IntPortal
         {
             /// <summary>
-            /// 
+            /// Руководитель
             /// </summary>
             public const string IsChief = "IsChief";
+            /// <summary>
+            /// Исполнитель
+            /// </summary>
+            public const string IsExecutor = "IsExecutor";
         }
         
     }

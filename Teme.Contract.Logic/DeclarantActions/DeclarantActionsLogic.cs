@@ -1,37 +1,46 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
-using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.ContractLogic;
+using Teme.Contract.Logic.Clients;
+using Microsoft.Extensions.Configuration;
 
 namespace Teme.Contract.Logic.DeclarantActions
 {
-    public class DeclarantActionsLogic : BaseLogic<IBaseRepo<BaseEntity>, BaseEntity>, IDeclarantActionsLogic
+    public class DeclarantActionsLogic : EntityLogic, IDeclarantActionsLogic
     {
-        private readonly IContractWorkflowLogic _wflogic;
-
-        protected DeclarantActionsLogic(IBaseRepo<BaseEntity> repo, IContractWorkflowLogic wflogic) : base(repo)
+        private readonly IConfiguration _config;
+        public DeclarantActionsLogic(IEntityRepo repo, IConfiguration config) : base(repo)
         {
-            _wflogic = wflogic;
+            _config = config;
         }
 
-        public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId, int contractId)
+        public async Task<object> SendOrRemoveDelete(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
         {
-            var actions = await _wflogic.GetUserActions(workflowId, "declarant");
-            var action = actions
-                .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
-            if (action == null) throw new ArgumentException("Action not found");
-            var executorsIds = new Dictionary<string, IEnumerable<string>> {{ScopeEnum.Coz, new[] {"BossCoz"}}};
-            var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
-            return new {r};
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveDeleteAsync(workflowId, (Clients.ContractTypeEnum)contractType);
+        }
+
+        public async Task<object> SendOrRemoveSendWithSign(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
+        {
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveSendWithSignAsync(workflowId, (Clients.ContractTypeEnum)contractType);
+        }
+
+        public async Task<object> SendOrRemoveSendWithoutSign(string workflowId, Shared.Data.Primitives.Contract.ContractTypeEnum contractType)
+        {
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendOrRemoveSendWithoutSignAsync(workflowId, (Clients.ContractTypeEnum)contractType);
         }
     }
 }

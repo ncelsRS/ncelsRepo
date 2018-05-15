@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Teme.Identity.Data.Repos.IUser;
 using Teme.Identity.Logic.Dtos;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
 using Teme.Shared.Logic.IUser;
 
 namespace Teme.Identity.Logic.IUser
@@ -40,12 +41,17 @@ namespace Teme.Identity.Logic.IUser
             var user = await Repo.GetLogin(x => x.Id == userId);
             if (user == null) throw new ArgumentException("User not found");
 
-            var audiences = user.Scopes.Select(x => x.Scope);
+            var audiences = user.Scopes.Select(x => x.Scope).ToList();
+            audiences.Add(OrganizationScopeEnum.Common);
 
             return new
             {
                 AccessToken = _identityLogic.GenerateAccessToken(user.Id, audiences),
-                RefreshToken = _identityLogic.GenerateRefreshToken(user.Id)
+                RefreshToken = _identityLogic.GenerateRefreshToken(user.Id),
+                User = new
+                {
+                    Name = $"{user.FirstName} {user.LastName}"
+                }
             };
         }
 

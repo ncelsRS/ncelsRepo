@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +6,7 @@ using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Logic.DeclarantActions;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.SharedApi.Controllers;
 
 namespace Teme.Contract.Api.Controllers
 {
@@ -23,13 +24,12 @@ namespace Teme.Contract.Api.Controllers
         /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{contractType}/{workflowId}/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.Delete + "/{contractType}/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveDelete([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.Delete, contractType,
-                    workflowId, contractId);
+                var r = await Logic.SendOrRemoveDelete(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
@@ -46,13 +46,12 @@ namespace Teme.Contract.Api.Controllers
         /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{contractType}/{workflowId}/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithSign + "/{contractType}/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove,  UserOptions.SendWithSign, contractType,
-                    workflowId, contractId);
+                var r = await Logic.SendOrRemoveSendWithSign(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
@@ -69,13 +68,12 @@ namespace Teme.Contract.Api.Controllers
         /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{contractType}/{workflowId}/{contractId}")]
-        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType, [FromRoute] int contractId)
+        [Route(UserPromts.Declarant.SendOrRemove + "/" + UserOptions.SendWithoutSign + "/{contractType}/{workflowId}")]
+        public async Task<IActionResult> SendOrRemoveSendWithoutSign([FromRoute] string workflowId, [FromRoute] ContractTypeEnum contractType)
         {
             try
             {
-                var r = await Logic.PublishUserAction(UserPromts.Declarant.SendOrRemove, UserOptions.SendWithoutSign, contractType,
-                    workflowId, contractId);
+                var r = await Logic.SendOrRemoveSendWithoutSign(workflowId, contractType);
                 return Json(r);
             }
             catch (Exception ex)

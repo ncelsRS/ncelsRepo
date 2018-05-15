@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +10,8 @@ namespace Teme.Admin.Data.Model
         public decimal Price { get; set; }
         public decimal ValueAddedTax { get; set; }
         public bool IsImport { get; set; }
+        public string NameRu { get; set; }
+        public string NameKz { get; set; }
         public PriceListModificationModel priceListModificationModels { get; set; }
 
     }
@@ -20,5 +22,7 @@ namespace Teme.Admin.Data.Model
         public decimal Price { get; set; }
         public decimal ValueAddedTax { get; set; }
         public bool IsImport { get; set; }
+        public string NameRu { get; set; }
+        public string NameKz { get; set; }
     }
 }

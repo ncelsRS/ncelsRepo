@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,22 +14,24 @@ using Teme.Contract.Infrastructure.Workflow;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.Shared.Data.Primitives.Statuses;
 using Teme.Shared.Data.Repos.ContractRepo;
 using Teme.Shared.Logic.ContractLogic;
+using static Teme.Shared.Data.Primitives.Permissions.Permissions;
 
 namespace Teme.Contract.Logic
 {
     public class ContractLogic : BaseContractLogic<IContractRepo>, IContractLogic
     {
-        private readonly IContractWorkflowLogic _wflogic;
         private readonly IContractRepo _repo;
         private readonly IConvertDtoRepo _dtoRepo;
+        private readonly IConfiguration _config;
 
-        public ContractLogic(IContractRepo repo, IContractWorkflowLogic wflogic, IConvertDtoRepo dtoRepo) : base(repo)
+        public ContractLogic(IContractRepo repo,  IConvertDtoRepo dtoRepo, IConfiguration config) : base(repo)
         {
-            _wflogic = wflogic;
             _repo = repo;
             _dtoRepo = dtoRepo;
+            _config = config;
         }
 
         /// <summary>
@@ -37,14 +40,20 @@ namespace Teme.Contract.Logic
         /// <returns></returns>
         public async Task<object> Create(CreateModel createModel)
         {
-            var workflowId = await _wflogic.Create();
+            var client = new Clients.ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            var workflowId = await client.CreateAsync(new Clients.CreateModel() { ContractScope = createModel.ContractScope, ContractType = (Clients.ContractTypeEnum)createModel.ContractType });
             var contract = new Shared.Data.Context.Contract()
             {
-                WorkflowId = workflowId.GetType().GetProperty("workflowId").GetValue(workflowId).ToString(),
+                WorkflowId = workflowId.ToString(),
                 ContractType = createModel.ContractType,
                 ContractScope = createModel.ContractScope
             };
+
             await _repo.CreateContract(contract);
+            await _repo.SaveStatePolice(new List<StatePolicy>{
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.Draft, Permission = ExtPortal.IsDeclarant }
+                });
+            
             return new {
                 contract.Id,
                 contract.WorkflowId,
@@ -55,6 +64,7 @@ namespace Teme.Contract.Logic
                     { "CostWork", "Teme.Shared.Data.Context.CostWork" }
                 }
             };
+
         }
 
         /// <summary>
@@ -155,7 +165,6 @@ namespace Teme.Contract.Logic
         /// <returns></returns>
         public async Task<object> SaveCostWork(CostWorkModel[] costWorkModel)
         {
-            List<Task> tasks = new List<Task>();
             foreach(var cw in costWorkModel)
             {
                 var costwork = new CostWork()
@@ -167,9 +176,8 @@ namespace Teme.Contract.Logic
                     PriceWithValueAddedTax = cw.PriceWithValueAddedTax,
                     TotalPriceWithValueAddedTax = cw.TotalPriceWithValueAddedTax
                 };
-                tasks.Add(_repo.SaveCostWork(costwork));
+                await _repo.SaveCostWork(costwork);
             }
-            Task.WaitAll(tasks.ToArray());
             return new { contractId = costWorkModel.First().ContractId };
         }
 

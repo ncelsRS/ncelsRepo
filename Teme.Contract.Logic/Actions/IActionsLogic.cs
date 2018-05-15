@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;
@@ -15,6 +15,6 @@ namespace Teme.Contract.Logic.Actions
         /// </summary>
         /// <param name="workflowId">Идентификатор воркфлоу договора</param>
         /// <returns>Открытые задачи для пользователя по текущему контракту</returns>
-        Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId);
+        Task<object> OpenUserActions(string workflowId);
     }
 }

@@ -26,7 +26,7 @@ namespace Teme.Shared.Logic
     {
         protected TIRepo Repo { get; }
 
-        protected BaseLogic(TIRepo repo)
+        public BaseLogic(TIRepo repo)
         {
             Repo = repo;
         }

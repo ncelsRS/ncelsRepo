@@ -227,29 +227,29 @@ namespace Teme.Admin.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> EquipmentType()
         {
-          return Ok(await _refLogic.GetEquipmentType());
+            return Ok(await _refLogic.GetEquipmentType());
         }
 
-    /// <summary>
-    /// Тип упаковки
-    /// </summary>
-    /// <returns></returns>
-    [Route("PackagingType")]
-    [HttpGet]
-    public async Task<IActionResult> PackagingType()
-    {
-      return Ok(await _refLogic.GetPackagingType());
-    }
+        /// <summary>
+        /// Тип упаковки
+        /// </summary>
+        /// <returns></returns>
+        [Route("PackagingType")]
+        [HttpGet]
+        public async Task<IActionResult> PackagingType()
+        {
+            return Ok(await _refLogic.GetPackagingType());
+        }
 
-    /// <summary>
-    /// Единица измерения
-    /// </summary>
-    /// <returns></returns>
-    [Route("Measure")]
-    [HttpGet]
-    public async Task<IActionResult> Measure()
-    {
-      return Ok(await _refLogic.GetMeasure());
+        /// <summary>
+        /// Единица измерения
+        /// </summary>
+        /// <returns></returns>
+        [Route("Measure")]
+        [HttpGet]
+        public async Task<IActionResult> Measure()
+        {
+            return Ok(await _refLogic.GetMeasure());
+        }
     }
-  }
 }
