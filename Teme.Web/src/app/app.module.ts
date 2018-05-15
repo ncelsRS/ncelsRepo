@@ -11,13 +11,16 @@ import {AppSettings} from './app.settings';
 import {AppComponent} from './app.component';
 import {NotFoundComponent} from './pages/errors/not-found/not-found.component';
 import {IdentityModule} from "./shared/identity/identity.module";
+import {HttpClientModule} from '@angular/common/http';
+import {RscFileModule} from './shared/modules/rsc-file/rsc-file.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NotFoundComponent
+    NotFoundComponent,
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
     IdentityModule,
@@ -25,7 +28,7 @@ import {IdentityModule} from "./shared/identity/identity.module";
       apiKey: 'AIzaSyDe_oVpi9eRSN99G4o6TwVjJbFBNr58NxE'
     }),
     CalendarModule.forRoot(),
-    routing
+    routing,
   ],
   providers: [AppSettings],
   bootstrap: [AppComponent]
