@@ -6,7 +6,7 @@ import {Observable} from 'rxjs/Observable';
 import {TemplateValidation} from '../TemplateValidation';
 import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms';
 
-enum ReferenceType {
+export enum ReferenceType {
   NMI = 'NomenclatureCodeMedProduct',
   StorageConditions = 'StorageCondition',
   Declarant = 'Declarant'
