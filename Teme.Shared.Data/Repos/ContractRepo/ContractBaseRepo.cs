@@ -29,9 +29,9 @@ namespace Teme.Shared.Data.Repos.ContractRepo
         /// </summary>
         /// <param name="list">Список статусов</param>
         /// <returns></returns>
-        public async Task RemoveStatePolice(int contractId)
+        public async Task RemoveStatePolice(int contractId, List<string> scope)
         {
-            Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId).ToListAsync());
+            Context.StatePolicies.RemoveRange(await Context.StatePolicies.Where(e => e.ContractId == contractId && scope.Contains(e.Scope)).ToListAsync());
             await Context.SaveChangesAsync();
         }
     }

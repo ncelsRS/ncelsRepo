@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,25 +15,16 @@ namespace Teme.Contract.Logic.Actions
 {
     public class ActionsLogic : EntityLogic, IActionsLogic
     {
-        public ActionsLogic(IEntityRepo repo) : base(repo)
+        private readonly IConfiguration _config;
+        public ActionsLogic(IEntityRepo repo, IConfiguration config) : base(repo)
         {
+            _config = config;
         }
 
-        public async Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId)
+        public async Task<object> OpenUserActions(string workflowId)
         {
-            var result = await UserActions(workflowId);
-            return result;
-        }
-
-        public async Task<IEnumerable<OpenUserAction>> UserActions(string workflowId)
-        {
-            var client = new ActionsClient() { BaseUrl = "http://localhost:24870" };
-            var response = await client.CreateAsync(new CreateModel()
-            {
-                ContractType = ContractTypeEnum.OneToOne,
-                ContractScope = "national"
-            });
-            return response as IEnumerable<OpenUserAction>;
+            var client = new ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.ListAsync(workflowId);
         }
     }
 }

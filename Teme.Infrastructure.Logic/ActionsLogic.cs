@@ -31,15 +31,15 @@ namespace Teme.Infrastructure.Logic
             return await _wflogic.GetUserActions(workflowId);
         }
 
-        public async Task<object> PublishUserAction(string userPromt, string userOption, ContractTypeEnum contractType, string workflowId)
+        public async Task<object> PublishUserAction(string userPromt, string userOption, object value, string workflowId, string userId = null, IEnumerable<string> executors = null)
         {
-            var actions = await _wflogic.GetUserActions(workflowId, "declarant");
+            var actions = await _wflogic.GetUserActions(workflowId, userId);
             var action = actions
                 .FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
             if (action == null) throw new ArgumentException("Action not found");
-            var executorsIds = new Dictionary<string, IEnumerable<string>> { { ScopeEnum.Coz, new[] { "BossCoz" } } };
-            var r = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, contractType);
-            return new { r };
+            var executorsIds = new Dictionary<string, IEnumerable<string>> { { ScopeEnum.Coz, executors } };
+            var result = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds, value);
+            return new { result };
         }
     }
 }

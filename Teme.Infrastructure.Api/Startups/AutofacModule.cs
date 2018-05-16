@@ -16,6 +16,11 @@ namespace Teme.Infrastructure.Api.Startups
                 .Where(t => t.Name.EndsWith("Repo"))
                 .AsImplementedInterfaces();
 
+            assembly = Assembly.Load(new AssemblyName("Teme.Contract.Data"));
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Repo"))
+                .AsImplementedInterfaces();
+
             assembly = Assembly.Load(new AssemblyName("Teme.Contract.Infrastructure"));
             builder.RegisterAssemblyTypes(assembly)
                 .Where(t => t.Name.EndsWith("Logic"))

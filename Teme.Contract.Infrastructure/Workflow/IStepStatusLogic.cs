@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace Teme.Contract.Infrastructure.Workflow
 {
@@ -7,5 +7,6 @@ namespace Teme.Contract.Infrastructure.Workflow
         Task SendToNcels(string workflowId);
         Task DeleteContract(string workflowId);
         Task SelectExecutorsFirst(string workflowId);
+        Task CozExecutorMeetReq(string workflowId);
     }
 }

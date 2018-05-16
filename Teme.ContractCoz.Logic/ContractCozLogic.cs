@@ -19,11 +19,9 @@ namespace Teme.ContractCoz.Logic
     public class ContractCozLogic : BaseContractLogic<IContractCozRepo>, IContractCozLogic
     {
         private readonly IContractRepo _contractRepo;
-        private readonly IContractCozRepo _repo;
         private readonly IConvertDtoRepo _dto;
         public ContractCozLogic(IContractCozRepo repo, IContractRepo contractRepo, IConvertDtoRepo dto) : base(repo)
         {
-            _repo = repo;
             _contractRepo = contractRepo;
             _dto = dto;
         }
@@ -51,6 +49,15 @@ namespace Teme.ContractCoz.Logic
             if (declarant != null)
                 return _dto.ConvertEntityToDeclarant(declarant);
             return null;
+        }
+
+        /// <summary>
+        /// Получение списка договоров
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> GetListContract()
+        {
+            return await Repo.GetListContract();
         }
     }
 }

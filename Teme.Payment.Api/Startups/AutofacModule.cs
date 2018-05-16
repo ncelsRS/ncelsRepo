@@ -11,26 +11,26 @@ namespace Teme.Payment.Api.Startups
     {
         protected override void Load(ContainerBuilder builder)
         {
-            //const string assemblyBranch = "Contract";
+            const string assemblyBranch = "Payment";
 
-            //var assembly = Assembly.Load(new AssemblyName("Teme.Shared.Data"));
-            //builder.RegisterAssemblyTypes(assembly)
-            //    .Where(t => t.Name.EndsWith("Repo"))
-            //    .AsImplementedInterfaces();
-            //assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Data"));
-            //builder.RegisterAssemblyTypes(assembly)
-            //    .Where(t => t.Name.EndsWith("Repo"))
-            //    .AsImplementedInterfaces();
+            var assembly = Assembly.Load(new AssemblyName("Teme.Shared.Data"));
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Repo"))
+                .AsImplementedInterfaces();
+            assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Data"));
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Repo"))
+                .AsImplementedInterfaces();
 
             //assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Infrastructure"));
             //builder.RegisterAssemblyTypes(assembly)
             //    .Where(t => t.Name.EndsWith("Logic"))
             //    .AsImplementedInterfaces();
 
-            //assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Logic"));
-            //builder.RegisterAssemblyTypes(assembly)
-            //    .Where(t => t.Name.EndsWith("Logic"))
-            //    .AsImplementedInterfaces();
+            assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Logic"));
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Logic"))
+                .AsImplementedInterfaces();
         }
     }
 }

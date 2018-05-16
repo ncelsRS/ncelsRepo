@@ -27,7 +27,7 @@ namespace Teme.Contract.Infrastructure.Workflow
         public async Task SendToNcels(string workflowId)
         {
             var contract = await _repo.GetContractByWorkflowId(workflowId);
-            await _repo.RemoveStatePolice(contract.Id);
+            await _repo.RemoveStatePolice(contract.Id, new List<string> { OrganizationScopeEnum.Ext, OrganizationScopeEnum.Coz });
             await _repo.SaveStatePolice(
                 new List<StatePolicy>{
                     new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InProcessing, Permission = ExtPortal.IsDeclarant },
@@ -55,7 +55,7 @@ namespace Teme.Contract.Infrastructure.Workflow
         public async Task SelectExecutorsFirst(string workflowId)
         {
             var contract = await _repo.GetContractByWorkflowId(workflowId);
-            await _repo.RemoveStatePolice(contract.Id);
+            await _repo.RemoveStatePolice(contract.Id, new List<string> { OrganizationScopeEnum.Ext, OrganizationScopeEnum.Coz });
             await _repo.SaveStatePolice(
                 new List<StatePolicy>{
                     new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InWork, Permission = ExtPortal.IsDeclarant },
@@ -63,6 +63,25 @@ namespace Teme.Contract.Infrastructure.Workflow
                     new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsExecutor }
                 });
 
+        }
+
+
+        //TODO поправить статусы
+        /// <summary>
+        /// Согласование договора исполнителем ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task CozExecutorMeetReq(string workflowId)
+        {
+            var contract = await _repo.GetContractByWorkflowId(workflowId);
+            await _repo.RemoveStatePolice(contract.Id, new List<string> { OrganizationScopeEnum.Ext, OrganizationScopeEnum.Coz });
+            await _repo.SaveStatePolice(
+                new List<StatePolicy>{
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InWork, Permission = ExtPortal.IsDeclarant },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsChief },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsExecutor }
+                });
         }
     }
 }

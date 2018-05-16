@@ -13,9 +13,9 @@ namespace Teme.Shared.Data.Context
     public class Organization : BaseEntity
     {
         /// <summary>
-        /// Код структурного подразделения
+        /// Код структурного подразделения (OrganizationScopeEnum)
         /// </summary>
-        public OrganizationScopeEnum Code { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// ИИН или БИН
@@ -52,13 +52,6 @@ namespace Teme.Shared.Data.Context
         /// Признак удаления
         /// </summary>
         public bool IsDeleted { get; set; } = false;
-
-        /// <summary>
-        /// Исполнитель
-        /// </summary>
-        public int? EmployeeId { get; set; }
-        [ForeignKey("EmployeeId")]
-        public virtual AuthUser Employee { get; set; }
 
         /// <summary>
         /// Родитель

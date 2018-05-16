@@ -44,7 +44,7 @@ namespace Teme.Contract.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Context.Contract> GetContract(int id) => await Context.Contracts.FirstOrDefaultAsync(e => e.Id == id);
+        public async Task<Context.Contract> GetContract(int id) => await Context.Contracts.Include(x => x.CostWorks).ThenInclude(x=>x.Ref_PriceList).ThenInclude(s=>s.Ref_ServiceType).FirstOrDefaultAsync(e => e.Id == id);
 
         /// <summary>
         /// Получение договора по workflowId

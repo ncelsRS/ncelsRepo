@@ -57,5 +57,25 @@ namespace Teme.ContractCoz.Api.Controllers
                 return ExceptionResult(ex);
             }
         }
+
+        /// <summary>
+        /// Получение списка договоров
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetListContract")]
+        public async Task<IActionResult> GetListContract()
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var result = await Logic.GetListContract();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
     }
 }

@@ -39,14 +39,14 @@ namespace Teme.Identity.Logic
             if (!int.TryParse(secondsStr, out var seconds))
                 seconds = (int)TimeSpan.FromMinutes(30).TotalSeconds;
 
-            return GenerateToken(userId, seconds, audiences);
-            //return GenerateToken(userId, seconds, new string[] {
-            //    OrganizationScopeEnum.Common,
-            //    OrganizationScopeEnum.Coz,
-            //    OrganizationScopeEnum.Ext,
-            //    OrganizationScopeEnum.Gv,
-            //    OrganizationScopeEnum.Identity
-            //});
+            //return GenerateToken(userId, seconds, audiences);
+            return GenerateToken(userId, seconds, new string[] {
+                OrganizationScopeEnum.Common,
+                OrganizationScopeEnum.Coz,
+                OrganizationScopeEnum.Ext,
+                OrganizationScopeEnum.Gv,
+                OrganizationScopeEnum.Identity
+            });
         }
 
         public string GenerateRefreshToken(int userId)
