@@ -1,2 +1,0 @@
-INSERT INTO dbo.Dictionaries(Id, Code, Name, Type, IsGuide)
-VALUES ('165d5caa-26b3-4f91-8185-6da4fba332bb', 1, N'ѕисьмо обоснование дл€ проведени€ испытани€', 'sysAttachOBKContractRationaleExpertisePlase', 0);

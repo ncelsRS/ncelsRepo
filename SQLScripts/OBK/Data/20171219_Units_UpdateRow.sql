@@ -1,1 +1,0 @@
-update Units set Code=N'coz' where Id='BBF0867E-E3EC-4B02-8B7D-B08FE96A893B'

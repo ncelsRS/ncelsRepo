@@ -1,6 +1,0 @@
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 1%') where NameRu like N'%Класс 1%'
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 2а%') where NameRu like N'%Класс 2А%'
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 2б%') where NameRu like N'%Класс 2Б%'
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 3%') where NameRu like N'%Класс 3%'
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 2б%') where NameRu like N'%Медицинская техника - класс безопасности 2 б и 3 - регистрация%'
-update EMP_Ref_ServiceType set DegreeRiskId=(select Id from EMP_Ref_DegreeRisk where NameRu like N'%Класс 1%') where NameRu like N'%Медицинская техника - класс безопасности 1 и 2а - регистрация%'

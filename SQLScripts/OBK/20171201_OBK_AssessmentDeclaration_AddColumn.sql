@@ -1,1 +1,0 @@
-alter table OBk_AssessmentDeclaration add EndDate dateTime null

@@ -1,1 +1,0 @@
-alter table OBK_AssessmentDeclaration add CertificateManufacturName nvarchar(512) null

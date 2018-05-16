@@ -1,1 +1,0 @@
-﻿ALTER TABLE OBK_DeclarantContact ADD Phone2 NVARCHAR(20) null

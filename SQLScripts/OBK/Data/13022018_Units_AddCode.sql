@@ -1,2 +1,0 @@
-﻿UPDATE Units SET Code='UOBK-DEPARTMENT' WHERE Id='f5eb95b6-fdf0-4f5a-afb6-85839419aa93' -- Управление по оценке безопасности  и качества ЛС и ИМН
-UPDATE Units SET Code='PPIS-DEPARTMENT' WHERE Id='102aae37-a9b0-4a1b-97c5-8478dbe6f94a' -- Управление по внедрению и развитию надлежащих фармацевтических практик и международных стандартов
