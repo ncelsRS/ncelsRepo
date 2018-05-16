@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -20,6 +21,8 @@ using Teme.Contract.Infrastructure.Workflow;
 using Teme.ContractCoz.Api.Startups;
 using Teme.ContractCoz.Logic;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 using WorkflowCore.Interface;
 
 namespace Teme.ContractCoz.Api
@@ -49,6 +52,14 @@ namespace Teme.ContractCoz.Api
                 options.ForwardClientCertificate = false;
             });
 
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Ext
+            });
+
             services.AddCors();
             services.AddMvc();
 
@@ -70,6 +81,7 @@ namespace Teme.ContractCoz.Api
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
+            app.UseRscAuth();
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
             app.UseMvc();
         }

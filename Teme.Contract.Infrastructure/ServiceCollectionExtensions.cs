@@ -15,7 +15,15 @@ namespace Teme.Contract.Infrastructure
             service.AddTransient<SendToNcels>();
             service.AddTransient<SelectExecutorsFirst>();
             service.AddTransient<CozExecutorMeetReq>();
+            service.AddTransient<CozExecutorNotMeetReq>();
+
+            service.AddTransient<CozReturnToDeclarant>();
+
             service.AddTransient<CozBossMeetReq>();
+            service.AddTransient<CozBossNotMeetReq>();
+
+            service.AddTransient<CeoMeetReq>();
+            service.AddTransient<CeoNotMeetReq>();
         }
     }
 }

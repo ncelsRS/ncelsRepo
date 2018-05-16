@@ -22,12 +22,6 @@ namespace Teme.Contract.Api.Startups
             builder.RegisterAssemblyTypes(assembly)
                 .Where(t => t.Name.EndsWith("Repo"))
                 .AsImplementedInterfaces();
-
-            //assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Infrastructure"));
-            //builder.RegisterAssemblyTypes(assembly)
-            //    .Where(t => t.Name.EndsWith("Logic"))
-            //    .AsImplementedInterfaces();
-
             assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Logic"));
             builder.RegisterAssemblyTypes(assembly)
                 .Where(t => t.Name.EndsWith("Logic"))

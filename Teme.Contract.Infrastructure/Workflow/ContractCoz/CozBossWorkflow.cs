@@ -14,7 +14,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         public static IWorkflowBuilder<ContractWorkflowTransitionData> CozBossAgreements(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder.StartWith(c => Log.Information("Start CozBossAgreements"))
-                .UserTask(UserPromts.CozBossAgreements, (d, c) => d.ExecutorsIds[ScopeEnum.CozBoss].FirstOrDefault())
+                .UserTask(UserPromts.CozBossAgreements, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())
                     .WithOption(UserOptions.MeetRequirements).Do(t =>
                         t.StartWith<CozBossMeetReq>()
                             .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
