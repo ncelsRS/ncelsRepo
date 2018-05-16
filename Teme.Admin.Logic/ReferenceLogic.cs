@@ -19,9 +19,9 @@ namespace Teme.Admin.Logic
             _refRepo = refRepo;
         }
 
-        public async Task<IEnumerable<ReferenceModel>> GetStorageCondition()
+        public async Task<IEnumerable<ReferenceModel>> GetStorageCondition(string name, string culture, int page, int counter)
         {
-            var scs = await _refRepo.StorageConditionAsync();
+            var scs = await _refRepo.StorageConditionAsync(name, culture, page, counter);
             return scs.Select(x => new ReferenceModel
             {
                 Id = x.Id,
@@ -43,9 +43,9 @@ namespace Teme.Admin.Logic
             });
         }
 
-        public async Task<IEnumerable<NomenclatureCodeMedProductModel>> GetNomenclatureCodeMedProduct(string name, string culture)
+        public async Task<IEnumerable<NomenclatureCodeMedProductModel>> GetNomenclatureCodeMedProduct(string name, string culture, int page, int counter)
         {
-            var ncmps = await _refRepo.NomenclatureCodeMedProductAsync(name, culture);
+            var ncmps = await _refRepo.NomenclatureCodeMedProductAsync(name, culture, page, counter);
             return ncmps.Select(x => new NomenclatureCodeMedProductModel
             {
                 Id = x.Id,

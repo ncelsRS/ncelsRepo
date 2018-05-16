@@ -12,11 +12,11 @@ namespace Teme.Admin.Data.Repository
         Task<IEnumerable<Ref_Country>> CountryAsync();
         Task<IEnumerable<Ref_Currency>> CurrencyAsync();
         Task<IEnumerable<Ref_DegreeRiskClass>> DegreeRiskClassAsync();
-        Task<IQueryable<Ref_NomenclatureCodeMedProduct>> NomenclatureCodeMedProductAsync(string name, string culture);
+        Task<IQueryable<Ref_NomenclatureCodeMedProduct>> NomenclatureCodeMedProductAsync(string name, string culture, int page, int counter);
         Task<IEnumerable<Ref_OrganizationForm>> OrganizationFormAsync();
         Task<int> SaveBankAsync(string nameRu, string nameKz, bool isConfirmed);
         Task<int> SaveOrganizationFormAsync(string nameRu, string nameKz, bool isConfirmed);
-        Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync();
+        Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync(string name, string culture, int page, int counter);
         Task<IQueryable<Ref_ApplicationType>> CalculatorApplicationType(string contractScope, string contractForm);
         Task<IQueryable<Ref_ServiceType>> CalculatorServiceType(int applicationTypeId);
         Task<Ref_ValueAddedTax> GetValueAddedTax(int year);

@@ -6,19 +6,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NSwag.AspNetCore;
 using Serilog;
 using System;
 using System.Reflection;
-using NSwag.AspNetCore;
-using Teme.Contract.Api.Startups;
-using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Workflow;
-using Teme.Shared.Data.Context;
-using WorkflowCore.Interface;
-using Teme.SharedApi;
-using Teme.Shared.Data.Primitives.OrgScopes;
 using System.Security.Cryptography.X509Certificates;
+using Teme.Contract.Api.Startups;
+using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace Teme.Contract.Api
 {
@@ -66,7 +62,7 @@ namespace Teme.Contract.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
