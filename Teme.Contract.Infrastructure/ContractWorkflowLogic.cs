@@ -44,11 +44,11 @@ namespace Teme.Contract.Infrastructure
         }
 
         public async Task<string> PublishUserAction(string key, string chosenValue,
-            Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null)
+            Dictionary<string, IEnumerable<string>> executorsIds = null, object value = null, Dictionary<string, bool> agreements = null)
         {
             var workflowId = key.Split('.')[0];
             var awaiter = TaskCompletionService.AddTask(workflowId);
-            await _host.PublishUserAction(key, chosenValue, executorsIds, value);
+            await _host.PublishUserAction(key, chosenValue, executorsIds, value, agreements);
             return await awaiter;
         }
     }

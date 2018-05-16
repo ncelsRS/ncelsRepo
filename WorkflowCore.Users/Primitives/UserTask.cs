@@ -54,6 +54,8 @@ namespace WorkflowCore.Users.Primitives
                     context.ExecutionPointer.ExtensionAttributes["ExecutorsIds"] = action.ExecutorsIds;
                 if (action.Data != null)
                     context.ExecutionPointer.ExtensionAttributes["Data"] = action.Data;
+                if (action.Agreements != null)
+                    context.ExecutionPointer.ExtensionAttributes["Agreements"] = action.Agreements;
 
                 if (context.PersistenceData == null)
                 {

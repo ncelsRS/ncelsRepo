@@ -2,6 +2,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Teme.Contract.Infrastructure.Primitives;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -19,23 +20,11 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         {
             try
             {
-                Log.Verbose("Run SelectExecutorsFirst");
-                var attrs = context.GetParentScope(1).ExtensionAttributes;
+                Log.Information("Run SelectExecutorsFirst");
+                var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
                     ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
-                //var pointerId = ""; // Helpers.GetUserTaskPointer(context);
-                //var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
-
-                //if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
-                //{
-                //    var executors = executorsValue as Dictionary<string, IEnumerable<string>>;
-                //    executors.Keys.ToList().ForEach(key =>
-                //    {
-                //        ExecutorsIds.Remove(key);
-                //        ExecutorsIds.Add(key, executors[key]);
-                //    });
-                //}
-                _ss.SelectExecutorsFirst(context.Workflow.Id);                
+                _ss.SelectExecutorsFirst(context.Workflow.Id);
             }
             catch (Exception ex)
             {
@@ -53,17 +42,56 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
             _ss = ss;
         }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
-        public bool Agreed { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Verbose("Run CozExecutorMeetReq");
-            var attrs = context.GetParentScope(1).ExtensionAttributes;
+            Log.Information("Run CozExecutorMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
             if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
-            if (attrs.TryGetValue("Data", out var agreedValue))
-                Agreed = (bool)agreedValue;
-            //_ss.CozExecutorMeetReq(context.Workflow.Id);
+            if (attrs.TryGetValue("Agreements", out var agreedValue))
+                Agreements = agreedValue as Dictionary<string, bool>;
+            _ss.CozExecutorMeetReq(context.Workflow.Id);
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class CozExecutorNotMeetReq : StepBody
+    {
+        private readonly IStepStatusLogic _ss;
+        public CozExecutorNotMeetReq(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
+
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("Run CozExecutorMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            if (attrs.TryGetValue("Agreements", out var agreedValue))
+                Agreements = agreedValue as Dictionary<string, bool>;
+            _ss.CozExecutorMeetReq(context.Workflow.Id);
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class CozReturnToDeclarant : StepBody
+    {
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("Run CozExecutorMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            if (attrs.TryGetValue("Agreements", out var agreedValue))
+                Agreements = agreedValue as Dictionary<string, bool>;
             return ExecutionResult.Next();
         }
     }
@@ -71,29 +99,67 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
     public class CozBossMeetReq : StepBody
     {
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
-        public bool Agreed { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            Log.Verbose("Run CozBossMeetReq");
-            var attrs = context.GetParentScope(1).ExtensionAttributes;
+            Log.Information("Run CozBossMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
             if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
-            if (attrs.TryGetValue("Data", out var agreedValue))
-                Agreed = (bool)agreedValue;
-            //var pointerId = ""; // Helpers.GetUserTaskPointer(context);
-            //var pointer = context.Workflow.ExecutionPointers.Find(x => x.Id == pointerId);
+            if (attrs.TryGetValue("Agreements", out var agreementsValue))
+                Agreements = agreementsValue as Dictionary<string, bool>;
+            return ExecutionResult.Next();
+        }
+    }
 
-                //if (pointer.ExtensionAttributes.TryGetValue("ExecutorsIds", out object executorsValue))
-                //{
-                //    var executors = executorsValue as Dictionary<string, IEnumerable<string>>;
-                //    executors.Keys.ToList().ForEach(key =>
-                //    {
-                //        ExecutorsIds.Remove(key);
-                //        ExecutorsIds.Add(key, executors[key]);
-                //    });
-                //}
+    public class CozBossNotMeetReq : StepBody
+    {
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
 
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("Run CozBossMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            if (attrs.TryGetValue("Agreements", out var agreementsValue))
+                Agreements = agreementsValue as Dictionary<string, bool>;
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class CeoMeetReq : StepBody
+    {
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
+
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("Run CeoMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            if (attrs.TryGetValue("Agreements", out var agreementsValue))
+                Agreements = agreementsValue as Dictionary<string, bool>;
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class CeoNotMeetReq : StepBody
+    {
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
+
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            Log.Information("Run CeoMeetReq");
+            var attrs = context.GetParentScope().ExtensionAttributes;
+            if (attrs.TryGetValue("ExecutorsIds", out var executorsValue))
+                ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
+            if (attrs.TryGetValue("Agreements", out var agreementsValue))
+                Agreements = agreementsValue as Dictionary<string, bool>;
             return ExecutionResult.Next();
         }
     }

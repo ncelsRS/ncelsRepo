@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,8 +32,23 @@ namespace Teme.Contract.Infrastructure.Primitives
         public const string MeetRequirements = "MeetRequirements";
 
         /// <summary>
-        /// Не соответствует требованиям
+        /// НЕ Соответсвует требованиям
         /// </summary>
         public const string NotMeetRequirements = "NotMeetRequirements";
+
+        ///// <summary>
+        ///// Согласование руководителем ЦОЗ
+        ///// </summary>
+        //public const string CozBossAgreementsOption = "CozBossAgreementsOption";
+
+        ///// <summary>
+        ///// Согласование ЗамГенДир
+        ///// </summary>
+        //public const string CeoAgreedOption = "CeoAgreedOption";
+
+        /// <summary>
+        /// Возврат заявителю 
+        /// </summary>
+        public const string ReturnToDeclarant = "ReturnToDeclarant";
     }
 }

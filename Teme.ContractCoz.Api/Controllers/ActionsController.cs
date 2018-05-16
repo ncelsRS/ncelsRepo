@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.Contract.Logic.Clients;
 using Teme.ContractCoz.Logic;
 using Teme.ContractCoz.Logic.Actions;
 using Teme.SharedApi.Controllers;
@@ -22,13 +23,13 @@ namespace Teme.ContractCoz.Api.Controllers
         /// <param name="dbem"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route(UserPromts.SelectExecutors + "/" + UserOptions.SelectExecutors + "/{workflowId}/{userId}")]
-        public async Task<IActionResult> DistributionByExecutors([FromRoute] string workflowId, [FromRoute] int userId)
+        [Route(UserPromts.SelectExecutors + "/" + UserOptions.SelectExecutors + "/{workflowId}/{userId}/{contractType}")]
+        public async Task<IActionResult> DistributionByExecutors([FromRoute][Required] string workflowId, [FromRoute][Required] int userId, [FromRoute][Required] ContractTypeEnum contractType)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
-                var r = await Logic.DistributionByExecutors(UserPromts.SelectExecutors, UserOptions.SelectExecutors, workflowId, userId);
+                var r = await Logic.DistributionByExecutors(workflowId, userId, contractType);
                 return Json(r);
             }
             catch (Exception ex)
