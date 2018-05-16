@@ -24,7 +24,32 @@ namespace Teme.Admin.Data.Repository
         /// Условия хранения(справочник)
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync() => await _context.Ref_StorageConditions.Where(e => !e.IsDeleted).ToListAsync();
+        public async Task<IEnumerable<Ref_StorageCondition>> StorageConditionAsync(string name, string culture, int page, int counter)
+        {
+            Expression<Func<Ref_StorageCondition, bool>> condition;
+            if (name != null)
+            {
+                switch (culture)
+                {
+                    case "ru":
+                        condition = x => x.NameRu.Contains(name) && !x.IsDeleted;
+                        break;
+                    case "kz":
+                        condition = x => x.NameKz.Contains(name) && !x.IsDeleted;
+                        break;
+                    default:
+                        condition = x => x.Id == 0;
+                        break;
+                }
+            }
+            else
+            {
+                condition = x => !x.IsDeleted;
+            }
+
+            return await Task.Run(() => _context.Ref_StorageConditions.AsQueryable().Where(condition).Skip(counter).Take(page));
+        }
+      
         
         /// <summary>
         /// Классификатор областей медицинского применения медицинских изделий(справочник)
@@ -37,7 +62,7 @@ namespace Teme.Admin.Data.Repository
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public async Task<IQueryable<Ref_NomenclatureCodeMedProduct>> NomenclatureCodeMedProductAsync(string name, string culture)
+        public async Task<IQueryable<Ref_NomenclatureCodeMedProduct>> NomenclatureCodeMedProductAsync(string name, string culture, int page, int counter)
         {
             Expression<Func<Ref_NomenclatureCodeMedProduct, bool>> nomeclature;
             if(name != null)
@@ -59,7 +84,7 @@ namespace Teme.Admin.Data.Repository
             {
                 nomeclature = x => !x.IsDeleted;
             }
-            return await Task.Run(() => _context.Ref_NomenclatureCodeMedProducts.AsQueryable().Where(nomeclature).Take(10));
+            return await Task.Run(() => _context.Ref_NomenclatureCodeMedProducts.AsQueryable().Where(nomeclature).Skip(counter).Take(page));
         }
 
         /// <summary>

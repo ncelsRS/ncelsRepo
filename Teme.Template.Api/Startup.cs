@@ -1,56 +1,56 @@
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NSwag.AspNetCore;
-using Serilog;
-using System;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using Teme.Contract.Api.Startups;
+using Microsoft.Extensions.Options;
 using Teme.Shared.Data.Context;
-using Teme.Shared.Data.Primitives.OrgScopes;
-using Teme.SharedApi;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Teme.Admin.Api.Startups;
+using Serilog;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Aspose.Words;
 
-namespace Teme.Contract.Api
+namespace Teme.Template.Api
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
                 .CreateLogger();
+
+            var stream = new FileStream(@"wwwroot\AsposeLisence\Aspose.Words.lic", FileMode.Open);
+            stream.Position = 0;
+            License aposeLic = new License();
+            aposeLic.SetLicense(stream);
+
         }
 
-        private IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // получаем строку подключения из файла конфигурации
-            var connectionStr = Configuration.GetConnectionString("DefaultConnection");
+            string connection = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст TemeContext в качестве сервиса в приложение
-            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
-            services.AddCors();
-
-            var certPath = Configuration["IdentityConfig:CertPath"];
-            var certPass = Configuration["IdentityConfig:CertPass"];
-            var cert = new X509Certificate2(certPath, certPass);
-            services.AddRscAuth(Configuration, cert, new string[]
+            services.AddDbContext<TemeContext>(options => options.UseSqlServer(connection));
+            services.Configure<IISOptions>(options =>
             {
-                OrganizationScopeEnum.Ext
+                options.ForwardClientCertificate = false;
             });
-
-            // Default vm template
+            services.AddCors();
             services.AddMvc();
-            // Add Autofac
+
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule<AutofacModule>();
             containerBuilder.RegisterInstance(Configuration);
@@ -62,15 +62,14 @@ namespace Teme.Contract.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             loggerFactory.AddSerilog();
-            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-            app.UseRscAuth();
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
     }
 }

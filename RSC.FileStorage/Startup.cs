@@ -78,6 +78,7 @@ namespace RSC.FileStorage
 #endif
                 .AllowAnyHeader()
                 .AllowAnyMethod()
+                .AllowCredentials()
             );
             #endregion
 
