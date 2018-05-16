@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using System.Linq;
 using System.Reflection;
 
@@ -20,7 +20,7 @@ namespace Teme.Admin.Api.Startups
                    .Where(t => t.Name.EndsWith("Logic"))
                    .AsSelf();
 
-            assembly = Assembly.Load(new AssemblyName($"Teme.Contract.Data"));
+            assembly = Assembly.Load(new AssemblyName($"Teme.{assemblyBranch}.Data"));
             builder.RegisterAssemblyTypes(assembly)
                    .Where(t => t.Name.EndsWith("Repo"))
                    .AsSelf();

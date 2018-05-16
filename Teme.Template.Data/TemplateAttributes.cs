@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Teme.Template.Logic
+namespace Teme.Template.Data
 {
     public enum TemplateAttributes
     {
-        tttDeclarantsOrgformIDttt,
+        tttDeclarantOrgformIdttt,
         tttDeclarantNameRuttt,
         tttDeclarantNameEnttt,
         tttDeclarantBossLastNamettt,
@@ -15,15 +15,15 @@ namespace Teme.Template.Logic
         tttDeclarantBossPositionRuttt,
         tttApplicantDocumenttypettt,
         tttContractMedicalDeviceNameRuttt,
-        tttPayerPayerCurrencyIDttt,
+        tttPayerCurrencyttt,
         tttContractCostTotalPricettt,
-        tttProducerOrgformIDttt,
-        tttProducerApplicantNameRuttt,
-        tttProducerApplicantNameengttt,
-        tttProducerAddressLegalttt,
-        tttProducerApplicantbankIDttt,
-        tttProducerApplicantaccountttt,
-        tttProducerPhonettt,
+        tttManufacturerOrgformIdttt,
+        tttManufacturerNameRuttt,
+        tttManufacturerNameEnttt,
+        tttManufacturerAddressLegalttt,
+        tttManufacturerBankIdttt,
+        tttManufacturerBankSwiftttt,
+        tttManufacturerPhonettt,
         tttPayerOrgformIDttt,
         tttPayerApplicantNameRuttt,
         tttPayerApplicantNameengttt,
@@ -39,7 +39,7 @@ namespace Teme.Template.Logic
 
         //На казахском
         tttContractCostDrugTradeNamekzttt,
-        tttProducerApplicantNameKzttt,
+        tttManufacturerNameKzttt,
         tttPayerApplicantNameKzttt,
         tttApplicantApplicantNameKzttt,
         tttContractcostDrugTradeNamekzttt

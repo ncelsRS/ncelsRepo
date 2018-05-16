@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using Teme.Template.Logic;
 
 namespace Teme.Template.Api.Controllers
@@ -15,9 +16,9 @@ namespace Teme.Template.Api.Controllers
 
         [Route("GetContract")]
         [HttpGet]
-        public ActionResult GetContract()
+        public async Task<ActionResult> GetContract(int contractId)
         {
-            return File(_templateLogic.GetContract(), "application/pdf");
+            return File(await _templateLogic.GetContract(contractId), "application/pdf");
             //return File(_templateLogic.GetContract(), "application/msword");
         }
     }
