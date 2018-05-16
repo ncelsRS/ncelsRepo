@@ -18,20 +18,30 @@ export class IdentityInterceptorService implements HttpInterceptor {
     if (req.headers.has('Authorization'))
       return next.handle(req);
     return this.identity.getAuthHeader()
-      .pipe(mergeMap(authHeader => {
-        let _req = req;
-        if (authHeader)
-          _req = req.clone({
-            setHeaders: {
-              Authorization: `${authHeader}`
-            }
-          });
-        return next.handle(_req)
-          .pipe(catchError(err => {
-            if (err.status == 401)
-              this.identity.redirectToLogin();
-            return Observable.throw(err);
-          }));
-      }));
+      .pipe(
+        mergeMap(authHeader => {
+          let _req = req;
+          if (authHeader)
+            _req = req.clone({
+              setHeaders: {
+                Authorization: `${authHeader}`
+              }
+            });
+          return next.handle(_req)
+            .pipe(catchError(err => {
+              if (err.status == 401)
+                this.identity.redirectToLogin();
+              return Observable.throw(err);
+            }));
+        }),
+        catchError(err => {
+          return next.handle(req)
+            .pipe(catchError(err => {
+              if (err.status == 401)
+                this.identity.redirectToLogin();
+              return Observable.throw(err);
+            }));
+        })
+      );
   }
 }

@@ -3,6 +3,8 @@ import {FileItem, FileUploader} from 'ng2-file-upload';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {environment} from '../../../../../environments/environment';
 import {EntityTypes, FilePermissions, FileTypeCodes} from '../file-enums';
+import {RscFile} from '../rsc-file';
+import {RscFileService} from './rsc-file.service';
 
 @Component({
   selector: 'rsc-file-upload',
@@ -12,10 +14,12 @@ import {EntityTypes, FilePermissions, FileTypeCodes} from '../file-enums';
   animations: [
     trigger('hiddenAnimation', [
       state('true', style({
-        height: '0px'
+        height: '0',
+        padding: '0'
       })),
       state('false', style({
-        height: '*'
+        height: '*',
+        padding: '*'
       })),
       transition('true <=> false', animate('200ms ease'))
     ])
@@ -24,17 +28,17 @@ import {EntityTypes, FilePermissions, FileTypeCodes} from '../file-enums';
 export class UploadComponent implements OnInit {
 
   @Input() entityType: EntityTypes;
-  @Input() entityId: string;
+  @Input() entityId: number;
   @Input() private fileType: string;
   @Input() multiple: boolean;
   @Input() required: boolean;
   @Input() permissions: FilePermissions[];
 
-  private _files: any[] = [];
+  public files: RscFile[] = [];
 
   uploader: FileUploader;
 
-  constructor() {
+  constructor(private svc: RscFileService) {
     this.uploader = new FileUploader({
       url: environment.urls.files + '/files'
     });
@@ -47,9 +51,13 @@ export class UploadComponent implements OnInit {
       form.append('meta', JSON.stringify(meta));
     };
     this.uploader.onAfterAddingFile = fileItem => {
-      this._files.push({id: null, fileItem: fileItem});
+      let file = new RscFile();
+      file.filename = fileItem.file.name;
+      file.contentType = fileItem.file.type;
+      file.fileItem = fileItem;
+      this.files.push(file);
       fileItem.onComplete = response => {
-        this._files.find(x => x.fileItem == fileItem).id = JSON.parse(response).fileId;
+        file.id = JSON.parse(response).fileId;
       };
       fileItem.upload();
     };
@@ -59,6 +67,10 @@ export class UploadComponent implements OnInit {
 
   ngOnInit() {
     this.fileTypeValue = FileTypeCodes[this.fileType].value;
+    this.svc.getFiles(this.entityType, this.entityId, this.fileType)
+      .subscribe(files => {
+        this.files = files;
+      });
   }
 
   @ViewChild('uploaderEl') uploaderEl: ElementRef;
@@ -75,9 +87,8 @@ export class UploadComponent implements OnInit {
       || this.permissions.includes(FilePermissions.add);
   }
 
-  public downloadFile(item: FileItem) {
-    let id = this._files.find(x => x.fileItem == item).id;
-    window.location.href = environment.urls.files + '/files/' + id;
+  public downloadFile(item: RscFile) {
+    window.location.href = environment.urls.files + '/files/' + item.id;
   }
 
 }
