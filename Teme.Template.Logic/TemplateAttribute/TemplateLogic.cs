@@ -41,7 +41,7 @@ namespace Teme.Template.Logic
             var contract = await _templateRepo.GetContract(id);
             if (contract != null)
             {
-                _fillTemplateLogic.FillContract(dictionary, contract);
+                await _fillTemplateLogic.FillContract(dictionary, contract);
             }
             return dictionary;
         }

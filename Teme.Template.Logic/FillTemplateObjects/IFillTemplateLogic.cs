@@ -8,6 +8,6 @@ namespace Teme.Template.Logic
 {
     interface IFillTemplateLogic
     {
-        void FillContract(Dictionary<string, string> dictionary, Shared.Data.Context.Contract contract);
+        Task FillContract(Dictionary<string, string> dictionary, Shared.Data.Context.Contract contract);
     }
 }
