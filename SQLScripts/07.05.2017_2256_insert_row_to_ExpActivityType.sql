@@ -1,0 +1,2 @@
+﻿insert into Dictionaries (Id, Type, Code, Name, NameKz, DisplayName, IsGuide)
+values( NEWID(), 'ExpActivityType', '7', N'Подписание исходящего письма', N'Подписание исходящего письма', N'Подписание исходящего письма', 0)

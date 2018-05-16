@@ -1,0 +1,65 @@
+﻿@model PW.Ncels.Database.DataModel.FileLink
+<script>
+    $(document).ready(function () {
+        var contractId = '@Model.DocumentId';
+        var uiId = '@(ViewBag.UiId)';
+        var viewModel = kendo.observable({
+            Register: function (e) {
+                debugger;
+                kendo.ui.progress($('#loader' + uiId), true);
+                $.ajax({
+                    type: 'POST',
+                    url: '/Contract/RegisterContract?contractId=' + contractId,
+                    success: function (result) {
+                        debugger;
+                        var callback = $("#TaskCommandWindow").data("kendoWindow").dialogCallback;
+                        if (callback) {
+                            callback();
+                        }
+                    },
+                    complete: function() {
+                        kendo.ui.progress($('#loader' + uiId), false);
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    }
+                });
+            },
+            Cancel: function (e) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+                var gridId = $("#TaskCommandWindow").data("kendoWindow").contractFilesGrid;
+                if (gridId) {
+                    var grid = $("#" + gridId).data("kendoGrid");
+                    grid.dataSource.read();
+                }
+            }
+        });
+        kendo.bind($("#addNewContractForm@(ViewBag.UiId)"), viewModel);
+    });
+</script>
+<div id="loader@(ViewBag.UiId)"></div>
+<div class="row" id="addNewContractForm@(ViewBag.UiId)">
+    <div class="row">
+        @(Html.Kendo().Upload().Name("attachContract" + (string)ViewBag.UiId).Multiple(false).HtmlAttributes(new { accept = Model.AcceptFormats })
+        .Async(ac => ac.AutoUpload(false)
+        .Save("FilePost", "Upload", new
+        {
+            code = Model.CategoryId,
+            path = Model.DocumentId,
+            saveMetadata = true,
+            originFileId = Model.Id
+        })))
+
+    </div>
+    <div class="row">
+        <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+            <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                <button type="button" class="k-button" data-bind="click: Cancel">Закрыть</button>
+            </div>
+            @if ((bool) ViewBag.CanRegister)
+            {
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button k-primary" data-bind="click: Register">Зарегистрировать</button>
+                </div>
+            }
+            </div>
+        </div>
+    </div>

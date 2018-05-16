@@ -1,0 +1,234 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid?
+
+<script>
+
+    function FindCertificateByType() {
+        initOBKCertificateFilters();
+    }
+
+    function additionalInfo() {
+        var y = $("#findType" + '@Model').val();
+        return {
+            status: y
+        }
+    }
+
+    function onEdit(e) {
+        e.container.find(".k-grid-cancel").bind("click", function () {
+            alert("Handler for .click() called.");
+        })
+    }
+
+    function refresh() {
+        $('#gridListCertificateDic' + '@Model').data('kendoGrid').dataSource.read();
+    }
+
+    function addDeleteButton() {
+
+        var id = $("#Id").val();
+        var CertificateValidityType = $("#CertificateValidityType").val();
+        $('<a class="k-button k-button-icontext k-state-disabled" id="simulationUpdate" href="\\#"><span></span>Обновить</a>').insertBefore(".k-grid-update");
+        $("#simulationUpdate").hide();
+
+        if (id != null && id != "" && CertificateValidityType == "Действующий") {
+            $('<a class="k-button k-button-icontext k-grid-delete" id="Recall" href="\\#"><span></span>Отозвать</a>').insertBefore(".k-grid-update");
+        }
+
+        initFileUpload();
+
+        $("#Recall").click(function () {
+
+                var r = confirm("Подтвердите");
+                if (r == true) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/OBKCertificateReference/Recall",
+                        data: "{'Id':'" + id + "'}",
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (result) {
+                            $("#Recall").hide();
+                           // $("#CertificateValidityType").val("Отозван").change();
+                            $('#gridListCertificateDic' + '@Model').data('kendoGrid').dataSource.read();
+                        }
+                    });
+                }
+        });
+
+    }
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+          
+
+panes.Add().Scrollable(false).Size("100%").Content(
+    @<div class="pwPanelBar">
+
+        <div class="pwBlockAdd k-block">
+
+            <div id="pwTwo" style="width:70px">
+                <label style="padding-top: 7px;">@PW.Ncels.Database.Recources.Messages.Status</label>
+            </div>
+            <div id="pwTwo">
+                @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                       .DataTextField("Text")
+                                       .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "all"
+                                           },
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Activ, Value = "Active"
+                                           },
+                                           new SelectListItem() {
+                                               Text = PW.Ncels.Database.Recources.Messages.Passive, Value = "Passive"
+                                           },
+                                           new SelectListItem() {
+                                               Text = "Отозван", Value = "Recalled"
+                                           },
+                                       })
+                                       .SelectedIndex(0).Events(o => o.Change("FindCertificateByType"))
+                )
+            </div>
+
+        </div>
+        <div id="pwSix">
+            @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+        </div>
+        @(Html.Kendo().Grid<OBKCertificateReferenceModel>()
+                                   .Name("gridListCertificateDic" + Model)
+                           .Columns(columns =>
+                           {
+                               columns.Bound(p => p.Number).Title(PW.Ncels.Database.Recources.Messages.Number).Width(50);
+                               columns.Bound(p => p.CertificateNumber).Title(PW.Ncels.Database.Recources.Messages.CertificateNumber).Width(50);
+                               columns.Bound(p => p.StartDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.CertificateTermStart).Width(80);
+                               columns.Bound(p => p.EndDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.CertificateTermEnd).Width(80);
+                               columns.Bound(p => p.CertificateCountry).Title(PW.Ncels.Database.Recources.Messages.CertificateCountry).Width(80);
+                               columns.Bound(p => p.CertificateOrganization).Title(PW.Ncels.Database.Recources.Messages.ProducerName).Width(80);
+                               columns.Bound(p => p.CertificateProducer).Title("Орган выдачи сертификата").Width(80);
+                               columns.Bound(p => p.LastInspection).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.LastInspection).Width(80);
+                               columns.Bound(p => p.CertificateType).Title(PW.Ncels.Database.Recources.Messages.Type).Width(50);
+                               columns.Bound(p => p.CertificateValidityCode).Visible(false);
+
+                               columns.Command(command => { command.Edit(); command.Destroy(); }).Width(100);
+                           })
+                            .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                            .Reorderable(reorderable => reorderable.Columns(true))
+                            .Resizable(resizable => resizable.Columns(true))
+                            .Scrollable(scrollable => scrollable.Virtual(true))
+                             .Filterable()
+                            .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                            .HtmlAttributes(new { @class = "pwGridRef" })
+                            .Pageable()
+                            .Events(ev => ev.Edit("addDeleteButton"))
+                            .DataSource(dataSource => dataSource
+                               .Ajax().Events(e => e.Sync("refresh"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    model.Field(f => f.CertificateCountry);
+                                    model.Field(f => f.CertificateCountryId);
+                                    model.Field(f => f.CertificateNumber);
+                                    model.Field(f => f.CertificateOrganization);
+                                    model.Field(f => f.CertificateType);
+                                    model.Field(f => f.CertificateTypeId);
+                                    model.Field(f => f.EndDate);
+                                    model.Field(f => f.StartDate);
+                                    model.Field(f => f.CertificateValidityType);
+
+                                })
+                            .PageSize(50)
+                            .Sort(sort => sort.Add("CertificateCountry").Ascending())
+                            .Create(update => update.Action("DicCreate", "OBKCertificateReference"))
+                            .Read(read => read.Action("AllList", "OBKCertificateReference").Data("additionalInfo"))
+                            .Update(update => update.Action("DicUpdate", "OBKCertificateReference"))
+                            .Destroy(update => update.Action("DicDestroy", "OBKCertificateReference"))
+
+                           ))
+
+
+
+    </div>
+             );
+            }))
+
+     <script>
+
+    resizeGrid('@("#gridListCertificateDic" + Model)');
+
+    $("#reload" + "@Model").click(function (e) {
+        var grid = $("#gridListCertificateDic" + nameRu).data("kendoGrid");
+        grid.dataSource.read();
+    });
+
+
+    function initOBKCertificateFilters()
+    {
+        var grid = $("#gridListCertificateDic" + "@Model").data("kendoGrid");
+        var filterArr = grid.dataSource.filter();
+        var filter = [];
+        if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+        }
+
+         var findType = $('#findType' + '@Model').val();
+
+         debugger;
+
+         if (findType != undefined && findType != null && findType != "" && findType != "all")
+        {
+             checkRemove(filter, "CertificateValidityCode", "eq");
+            filter.push(
+                { field: "CertificateValidityCode", operator: "eq", value: findType });
+        } else
+        {
+             checkRemove(filter, "CertificateValidityCode", "eq");
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    InitFilterOBKDictionaryGrid('@Model.ToString()');
+
+    function checkRemove(arr, field, operator)
+    {
+        for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].field == field && arr[i].operator == operator)
+                    {
+                    arr.splice(i, 1);
+                    }
+            }
+    }
+
+
+function changeCountry(e) {
+    var x = $("#CountryCombobox").data("kendoDropDownList").text();
+    var y = $("#CountryCombobox").val();
+    $("#CertificateCountryId").val(y).change();
+    $("#CertificateCountry").val(x).change();
+    }
+
+    function changeType(e) {
+        var x = $("#TypeCombobox").data("kendoDropDownList").text();
+        var y = $("#TypeCombobox").val();
+        $("#CertificateTypeId").val(y).change();
+        $("#CertificateType").val(x).change();
+    }
+
+    function setGuid(id) {
+        $("#DocumentId").val(id).change();
+    }
+
+     </script>

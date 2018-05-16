@@ -1,0 +1,64 @@
+﻿@model Guid
+
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formReview" + Model)">
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>Получатель</label>
+        </div>
+        <div class="col-md-8">
+            <input id="@("receiverFio"+ Model)" class="k-textbox" style="width:300px;" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>Дата передачи</label>
+        </div>
+        <div class="col-md-8">
+            @(Html.Kendo().DatePicker().Name("receivedDate" + Model).HtmlAttributes(new { style = "width:300px" }))
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" data-role="button" id="TaskJobCancel" class="k-button " style="width:150px" onclick="closeSendExpert()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+            <button type="button" data-role="button" id="TaskJob" class="k-button pull-right" style="width:150px" onclick="sendExpertConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    var name = '@Model';
+
+    function closeSendExpert() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+
+    function sendExpertConfirm() {
+
+        $.ajax({
+            type: 'POST',
+            url: '/SafetyAssessment/OutputResult',
+            data: {
+                id: name,
+                receiverFio: $("#receiverFio" + "@Model").val(),
+                receivedDate: $("#receivedDate" + "@Model").val()
+            },
+            success: function (result) {
+                $("#reject" + name).prop("enable", false);
+                $("#review" + name).prop("enable", false);
+                $("#reject" + name).attr('disabled', 'disabled');
+                $("#review" + name).attr('disabled', 'disabled');
+                $("#deSignNote").prop("readonly", true);
+                $("#TaskCommandWindow").data("kendoWindow").close();
+                $("#outputResult" + name).hide();
+
+                
+            }
+        });
+    }
+
+</script>

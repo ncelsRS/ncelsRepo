@@ -1,0 +1,51 @@
+﻿@model Guid
+
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formReview" + Model)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">Отправить заявку на первичную экспертизу <span style="font-weight: bold" id="@("DocumenetNumber" + Model)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+ @*   <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                @PW.Ncels.Database.Recources.Messages.Property_Исполнитель_222__00
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("CustomExecutorsId"+ Model.Id)" data-bind="value: document.CustomExecutorsId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+            </div>
+        </div>
+    </div>*@
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="closeSendExpert()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="sendExpertConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+   </div>
+</form>
+
+<script>
+    var name = '@Model';
+
+    function closeSendExpert() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+
+    function sendExpertConfirm() {
+
+        $.ajax({
+            type: 'POST',
+            url: '/DrugDeclaration/DocumentReviewConfirm',
+            data: { id: name },
+            success: function (result) {
+                $("#register" + name).prop("enable", false);
+                $("#review" + name).prop("enable", false);
+                $("#register" + name).attr('disabled', 'disabled');
+                $("#review" + name).attr('disabled', 'disabled');
+                $("#deSignNote").prop("readonly", true);
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+    }
+
+</script>

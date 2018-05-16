@@ -1,0 +1,33 @@
+﻿@model Guid
+
+@{
+    Layout = null;
+}
+
+<div>
+    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.History>()
+        .Name("gridHistory" + Model)
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.OperationId).ClientTemplate("<img src=\"/Content/images/history/#=OperationId#.png\" title=#=OperationStr# />").Title(PW.Ncels.Database.Recources.Messages.Property_Действие_315__00).Width(24);
+            columns.Bound(p => p.TableName).ClientTemplate("<img src=\"/Content/images/history/#=TableName#.png\" title='#=TableNameStr#' />").Title(PW.Ncels.Database.Recources.Messages.Property_Тип_398__00).Width(24);
+            columns.Bound(p => p.Record).Title(PW.Ncels.Database.Recources.Messages.Property_Объект_365__00).Width(100);
+            columns.Bound(p => p.ColumnNameStr).Title(PW.Ncels.Database.Recources.Messages.Property_Поле_389__00).Width(100);
+            columns.Bound(p => p.NewValue).Title(PW.Ncels.Database.Recources.Messages.Property_Новоезначение_185__00).Width(100);
+            columns.Bound(p => p.OldValue).Title(PW.Ncels.Database.Recources.Messages.Property_Староезначение_157__00).Width(100);
+            columns.Bound(p => p.UserName).Title(PW.Ncels.Database.Recources.Messages.Property_Ктоизменил_251__00).Width(100);
+            //columns.Bound(p => p.Ip).Title(PW.Ncels.Database.Recources.Messages.Property_Ip_адрес_380__00).Width(100);
+            columns.Bound(p => p.CreatedTime).Title(PW.Ncels.Database.Recources.Messages.Property_Датаизменения_186__00).Format("{0:dd.MM.yyyy HH:mm}").Hidden(true).Width(100);
+        })
+        .Reorderable(reorderable => reorderable.Columns(false))
+        .Resizable(resizable => resizable.Columns(true))
+        //.Scrollable(scrollable => scrollable.Virtual(true))
+        .HtmlAttributes(new { @class = "pwGridHistory" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Sort(sort => sort.Add("CreatedTime"))
+            .Model(model => model.Id(p => p.Id))
+            .Group(group => group.Add(p => p.CreatedTime))
+            .Read(read => read.Action("GetHistory", "History", new { id = Model }))
+        ))
+</div>

@@ -1,0 +1,81 @@
+﻿@using PW.Ncels.Database.DataModel
+
+<script src="~/Scripts/ExpertCouncil/index.js"></script>
+@(Html.Kendo().Splitter()
+    .HtmlAttributes(new { @class = "pwSplitter k-block" })
+    .Name(("splitter" + "ExpertCouncil"))
+    .Panes(panes =>
+        {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                    @<div id="expertCouncil_leftPane" class="pwPanelBar">
+                        @Html.Action("GetLeftPane")
+                    </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                     <div class="row">
+                         <div class="col-lg-3">
+                             <div class="form-group">
+                                 <label>Номер протокола</label>
+                                 <input type="text" class="k-textbox" id="ECNumber" />
+                             </div>
+                         </div>
+                         <div class="col-lg-5">
+                             <div class="form-group">
+                                 <label>Фактическая дата проведения</label>
+                                 @(Html.Kendo().DatePicker()
+                                    .Name("expertCouncilActualDate")
+                                    .Min(DateTime.Now.ToString("dd.MM.yyyy"))
+                                    .Start(CalendarView.Month)
+                                    .Depth(CalendarView.Month)
+                                    .Format("dd.MM.yyyy")
+                                    .Value(DateTime.Now.ToString("yyyy-MM-dd"))
+                                    .HtmlAttributes(new { style = "width: 300px" })
+                                 )
+                             </div>
+                         </div>
+                         <div class="col-lg-4">
+                             <div class="form-group">
+                                 <label>&nbsp;</label><br />
+                                 <button id="buttonEcClose" type="button" class="k-button" onclick="ecClose()">Завершить Экспертный совет</button>
+                             </div>
+                         </div>
+                     </div>
+                    @Html.Action("DeclarationList", new { ecId = "" })
+                </div>
+            );
+        }
+    )
+)
+
+<div id="expertCouncilAddWindow" hidden>
+    <div>
+        @(Html.Kendo().DropDownList()
+            .Name("expertCouncilAddName")
+            .OptionLabel("Выберите тип Экспертного Совета")
+            .AutoBind(false)
+            .DataSource(cf => cf.Read(read => read.Action("GetECType", "OBKExpertCouncil")))
+            .HtmlAttributes(new { @class = "pwWidth100", required = "", validationMessage = "Обязательно для заполнения" }))
+        <br />
+        <label>Дата проведения</label>
+        @(Html.Kendo().DatePicker()
+            .Name("expertCouncilAddDate")
+            .Min(DateTime.Now.ToString("dd.MM.yyyy"))
+            .Start(CalendarView.Month)
+            .Depth(CalendarView.Month)
+            .Format("dd.MM.yyyy")
+            .Value(DateTime.Now.ToString("yyyy-MM-dd"))
+            .HtmlAttributes(new { style = "width: 100%" })
+        )
+    </div>
+    <br />
+    <div class="pull-right">
+        <button class="k-button k-primary" onclick="expertCouncilSave(event)">Сохранить</button>
+    </div>
+</div>

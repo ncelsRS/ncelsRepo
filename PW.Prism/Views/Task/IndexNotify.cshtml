@@ -1,0 +1,369 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+<script>
+    InitFilterTaskGrid('@Model.ToString()');
+    function GetPapamsTaskList() {
+        return {
+            type: '@ViewBag.Type'
+        };
+    }
+
+</script>
+
+<script id="taskTree-template" type="text/kendo-ui-template">
+    # if (item.Type > -1) { #
+    <table id="pwTableTaskView">
+        <tr class="pwActivityStyle">
+            <td style="padding: 2px 4px;"><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            <td style="padding: 2px 4px;">#: item.CreateDateTime #</td>
+            #if (item.ExecutionDateTime!="") {#
+            <td style="padding: 2px 4px;">#: item.ExecutionDateTime #</td>
+            # } #
+            <td style="padding: 2px 4px; white-space: pre-line;">#: item.Executor #</td>
+            #if (item.Text!=null) {#
+            <td style="padding: 2px 4px; width: 250px; white-space: pre-line;">#: item.Text #</td>
+            # } #
+            # if (item.IsAllowEdit) { #
+            <td style="padding: 2px 4px;">
+                <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-default" onclick='taskEditDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" onclick='taskDeleteDoc("#=item.Id#", "#=item.TaskId#")'>
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+                </td>
+            # } #
+        </tr>
+    </table>
+    # } else { #
+    <table>
+        <tr class="pwTaskStyle">
+            <td style="padding: 2px 4px !important;"><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+            @*<td style="padding: 2px 4px !important;">#: item.Number #</td>*@
+            # if (item.IsResponsible) { #
+            # if (item.IsMineLine) { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwIsMineLine pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } else { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible pwTaskStyleIsResponsible2 pwTaskStyleIsResponsible3">#: item.Executor #</td>
+            # } #
+            <td class="pwTaskStyleIsResponsible pwTaskStyleIsResponsibleX">
+                <img src="../../Content/images/FunctionType_Responsible.png" height="16" width="16" title="@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00" />
+            </td>
+            # } else { #
+            <td style="padding: 2px 4px !important;" class="pwTaskStyleIsResponsible4">#: item.Executor #</td>
+            # } #
+
+        </tr>
+        # for (var i = 0; i < item.Reports.length; i++) { #
+        <tr class="pwTaskStyle">
+            <td style="padding: 2px 4px !important;" colspan="2">#: item.Reports[i].ReportDate #</td>
+            <td style="padding: 2px 4px !important; width: 200px; white-space: pre-line;" colspan="2">#: item.Reports[i].ReportText #</td>
+        </tr>
+        # } #
+    </table>
+    # } #
+</script>
+
+@(Html.Kendo().Splitter()
+      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+      .Name(("splitter" + Model))
+      .Panes(panes => {
+          panes.Add()
+              .Size("250px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("250px")
+              .Content(
+            @<div class="pwPanelBar">
+                @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                             .Name("panelbar" + Model)
+                             .ExpandMode(PanelBarExpandMode.Multiple)
+                             .ExpandAll(true)
+                             .HtmlAttributes(new { style = "width:auto;" })
+                             .Events(e => e.Select("panelTaskSelect"))
+                             .Items(panelbar => {
+                                 panelbar.Add()
+                                     .Expanded(true);
+                                 if (ViewBag.Type != 2 && ViewBag.Type != 4 && ViewBag.Type != 5 && ViewBag.Type != 6 && ViewBag.Type != 7) {
+                                     panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                         .Items(projects => {
+                                             projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                             projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Новые_377__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           
+                                             projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вработе_309__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                             if (ViewBag.Type == 3)
+                                                 projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Исполненные_240__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                         });
+                                 }
+                                 panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Потипузадания_165__00)
+                                     .Items(programs => {
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Рассмотрение_235__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Резолюция_303__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Поручение_304__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Согласование_236__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Нарегистрацию_192__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "4" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                         programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Наперевод_277__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "TypeEx" }, { "ModelId", Model.ToString() } });
+                                     });
+                             })
+                )
+            </div>
+              );
+
+          panes.Add().Scrollable(false).Size("100%").Content(
+            @<div class="pwPanelBar">
+                <div class="pwBlockAdd k-block">
+                    <div id="pwOne">
+                        @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                    </div>
+
+                    <div id="pwTwo">
+                        @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 .BindTo(new List<SelectListItem>()
+                                 {
+                                     new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                     },
+                                     new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Пономерузадания_112__00, Value = "1"
+                                     },
+                                     new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Пономерудокумента_80__00, Value = "2"
+                                     },
+                                     new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Поавторузадания_113__00, Value = "3"
+                                     },   
+                                      new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Пократкомусодержанию, Value = "4"
+                                     },
+                                     new SelectListItem()
+                                     {
+                                         Text = PW.Ncels.Database.Recources.Messages.Property_Поисходящемуномеру, Value = "5"
+                                     }
+                                 })
+                                 .SelectedIndex(0)
+                        )
+
+                    </div>
+
+                    <div id="pwThree">
+                        @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                 .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                 .ImageUrl("/Content/images/find.png"))
+                    </div>
+
+                    <div id="pwFour">
+                        @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                 .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                 .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportTaskDoc")))
+                    </div>
+
+                </div>
+                <div id="pwSix">
+                    @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                             .Content("")
+                             .ImageUrl("/Content/images/reload.png"))
+
+                </div>
+                @(Html.Kendo().Grid<TaskListItemModel>()
+                         .Name("gridTaskList" + Model)
+                         .Columns(columns => {
+                             columns.Bound(p => p.DocumentNumber).Title(PW.Ncels.Database.Recources.Messages.Property_Документ_322__00).Width(100).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 +"#=count#");
+                             columns.Bound(p => p.DocumentDate).Title(PW.Ncels.Database.Recources.Messages.Property_Дата_391__00).Format("{0:dd.MM.yyyy}").ClientTemplate("#=DocumentDateStr#").Width(100);
+                             columns.Bound(p => p.ResponsibleValue).Title(PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00).Width(300);
+                             
+                             columns.Bound(p => p.OutgoingNumber).Title(PW.Ncels.Database.Recources.Messages.Property_Исходящийномер_166__00).Width(150);
+                             columns.Bound(p => p.OutgoingDate).Title(PW.Ncels.Database.Recources.Messages.Property_Дата_391__00).Format("{0:dd.MM.yyyy}").ClientTemplate("#=OutgoingDateStr#").Width(100);
+
+                             columns.Bound(p => p.CorrespondentsValue).Title(PW.Ncels.Database.Recources.Messages.Property_Корреспондент_208__00).Width(350);
+                             columns.Bound(p => p.DocumentMonitoringType).Title(PW.Ncels.Database.Recources.Messages.Property_Типконтроля_224__00).ClientTemplate("<img src=\"/Content/images/MonitoringType_#=DocumentMonitoringType#.png\" height='16px' title='#=ImageMonitoringTypeTitle#'/>").Width(38).Filterable(filterable => filterable.UI("MonitoringFilterTask"));
+                             columns.Bound(p => p.ExecutionDate).Title(PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_156__00).Format("{0:dd.MM.yyyy}").ClientTemplate("#=ExecutionDateStr#").Width(100);
+                                                 if (ViewBag.Type != 2)
+                                                 {
+                                                     columns.Bound(p => p.ExecutionDate).Title(PW.Ncels.Database.Recources.Messages.Property_Осталось_331__00).Filterable(false).Groupable(false).Sortable(false).ClientTemplate("#=TimeTask2#").Width(80);
+                                                 }
+                             columns.Bound(p => p.ImageStateTitle).Title(PW.Ncels.Database.Recources.Messages.Property_Статус_357__00).Width(100).Filterable(filterable => filterable.UI("StateFilterTask"));
+
+                             //columns.Bound(p => p.Number).Title(PW.Ncels.Database.Recources.Messages.Property_Номерзадания_219__00).Width(80);
+                             columns.Bound(p => p.CreatedDate).Title(PW.Ncels.Database.Recources.Messages.Property_Поступило_305__00).Filterable(false).ClientTemplate("#=TimeTask#").Groupable(false).Sortable(false).Width(100);
+                             columns.Bound(p => p.Author).Title(PW.Ncels.Database.Recources.Messages.Property_Автор_374__00).Width(370);
+                             columns.Bound(p => p.Text).Title(PW.Ncels.Database.Recources.Messages.Property_Текстзадания_220__00).Width(250);
+                             columns.Bound(p => p.Executor).Title(PW.Ncels.Database.Recources.Messages.Property_Исполнитель_244__00).ClientTemplate("<table><tr><td style='padding: 0 !important;'>#=Executor#</td><td style='vertical-align: top;border:0; padding: 0 !important; width:22px;'># if (IsResponsible) { # <img height='16px' style='float:right;' src='/Content/images/FunctionType_Responsible.png' title='@PW.Ncels.Database.Recources.Messages.Property_Отвисполнитель_124__00'/># } #</td></tr></table>").Width(370);
+                             columns.Bound(p => p.DestinationValue).Title(PW.Ncels.Database.Recources.Messages.Property_Дополняет_299__00).Width(250);
+                             
+                         })
+
+                         .Reorderable(reorderable => reorderable.Columns(true))
+                         .Resizable(resizable => resizable.Columns(true))
+                         .Sortable(sortable => sortable.AllowUnsort(false))
+                         .Groupable()
+                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                       //  .Navigatable()
+                         .Scrollable(scrollable => scrollable.Virtual(false))
+                         .Filterable()
+                         .Pageable()
+                         .Events(e => { e.DataBound("dataBoundTaskList");
+                                          e.DetailExpand("DetailExpandTaskList");
+                         })
+                         .HtmlAttributes(new { @class = "pwGridTask" })
+                         .ClientDetailTemplateId("template")
+                         .DataSource(dataSource => dataSource.Ajax().Aggregates(aggregates => aggregates.Add(p => p.DocumentNumber).Count())
+                         .Sort(sort => sort.Add("CreatedDate").Descending())
+                         .PageSize(100)
+                         .Read(read => read.Action("GetTasksNotify", "Task").Data("GetPapamsTaskList")))
+                )
+            </div>
+              );
+      }))
+
+<script>
+    resizeGrid3('@("#gridTaskList" + Model)', 285);
+</script>
+
+<script id="template" type="text/kendo-template">
+
+    <div class="btn-group pwTaskCommandWrapper">
+     
+        # if (Type == 0) { #
+        # if (State == 4 || State == 0 ) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonResolution_#=TaskId#" onclick="taskOnResolution('#=TaskId#')"><span class="pwTaskButtonRes"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Резолюция_303__00</span></button></div>*@
+        # } else {#
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonResolution_#=TaskId#" onclick="taskOnResolution('#=TaskId#')" disabled><span class="pwTaskButtonRes"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Резолюция_303__00</span></button></div>*@
+        # } #
+        # } #
+        # if (Type == 1 || Type == 2) { #
+        # if (State == 1 || State == 4|| State == 3|| State == 0 ) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonReasigment_#=TaskId#" onclick="taskOnReassignment('#=TaskId#')"><span class="pwTaskButtonRea"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Поручение_304__00</span></button></div>*@
+        # } else {#
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonReasigment_#=TaskId#" onclick="taskOnReassignment('#=TaskId#')" disabled><span class="pwTaskButtonRea"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Поручение_304__00</span></button></div>*@
+        # } #
+        # } #
+        # if (Type == 3) { #
+        # if ( State == 4|| State == 0 ) { #
+            # if (TypeEx == 1) { #
+           @*     <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement1('#=TaskId#')"><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Перевести_306__00</span></button></div>*@
+            # } else { # 
+             @*   <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement('#=TaskId#')"><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Согласовать_260__00</span></button></div>*@
+            # } #
+        # } else {#
+            # if (TypeEx == 1) { #
+                @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement1('#=TaskId#')" disabled><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Перевести_306__00</span></button></div>*@
+            # } else { #
+                @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAgreement_#=TaskId#" onclick="taskOnAgreement('#=TaskId#')" disabled><span class="pwTaskButtonAgr"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Согласовать_260__00</span></button></div>*@
+            # } #
+        # } #
+        # } #
+        # if (Type == 4) { #
+        # if (State == 0 || State == 4 ) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonSigning_#=TaskId#" onclick="taskOnSing('#=TaskId#')"><span class="pwTaskButtonSig"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Нарегистрацию_192__00</span></button></div>*@
+        # } else {#
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonSigning_#=TaskId#" onclick="taskOnSing('#=TaskId#')" disabled><span class="pwTaskButtonSig"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Нарегистрацию_192__00</span></button></div>*@
+        # } #
+        # } #
+        # if (Type == 4) { #
+        # if (State == 0 || State == 4 ) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonTranslate_#=TaskId#" onclick="taskOnTranslate('#=TaskId#')"><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Наперевод_277__00</span></button></div>*@
+        # } else {#
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonTranslate_#=TaskId#" onclick="taskOnTranslate('#=TaskId#')" disabled><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Наперевод_277__00</span></button></div>*@
+        # } #
+        # } #
+        # if (Type == 0 || Type == 1 || Type == 2) { #
+        # if ((State == 1 || State == 4|| State == 3|| State == 0 ) && (DocumentMonitoringType!=2 && DocumentMonitoringType!=3 && DocumentMonitoringType!=4) ) { #
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteTrue_#=TaskId#" onclick="taskOnExclude('#=TaskId#')"><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">Принять к сведению</span></button></div>
+        # } else {#
+        <div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteTrue_#=TaskId#" onclick="taskOnExclude('#=TaskId#')" disabled><span class="pwTaskButtonExe"></span><span class="pwToolbarButtonTitle">Принято к сведению</span></button></div>
+        # } #
+        # } #
+        # if ((Type == 3) && IsAddBp && ( State == 4|| State == 0)) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonAddAgreement_#=TaskId#" onclick="taskOnAddAgreement('#=TaskId#')"><span class="pwTaskButtonTrn"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Добавитьсогласование_51__00</span></button></div>*@
+        # } #
+    
+        # if (Type == 3 || Type == 4) { #
+        # if (State == 1 || State == 4|| State == 0  ) { #
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteFalse_#=TaskId#" onclick="taskOnReject('#=TaskId#')"><span class="pwTaskButtonRej"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отказать_332__00</span></button></div>*@
+        # } else {#
+        @*<div class="btn-group"><button type="button" class="btn btn-default" id="ButtonExecuteFalse_#=TaskId#" onclick="taskOnReject('#=TaskId#')" disabled><span class="pwTaskButtonRej"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отказать_332__00</span></button></div>*@
+        # } #
+        # } #
+
+        # if (Type == 0 || Type == 1 || Type == 2) { #
+        # if (State == 1 || State == 4|| State == 3|| State == 0 ) { #
+        @*<div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle pwWidthAuto" data-toggle="dropdown" id="ButtonCreateProject_#=TaskId#">
+                <span class="pwTaskCommandPrjAdd"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Создатьпроект_191__00</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a onclick='addProjectCorClickByTask("#=TaskId#")'>@PW.Ncels.Database.Recources.Messages.Property_Проектслужебнойзаписки_38__00</a></li>
+                <li><a onclick='addProjectOutClickByTask("#=TaskId#")'>@PW.Ncels.Database.Recources.Messages.Property_Проектисходящегодокумента_24__00</a></li>
+            </ul>
+        </div>*@
+        # } else {#
+        @*<div class="btn-group">
+            <button type="button" disabled class="btn btn-default dropdown-toggle pwWidthAuto" data-toggle="dropdown" id="ButtonCreateProject_#=TaskId#">
+                <span class="pwTaskCommandPrjAdd"></span><span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Создатьпроект_191__00</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a onclick='addProjectCorClickByTask("#=TaskId#")'>@PW.Ncels.Database.Recources.Messages.Property_Проектслужебнойзаписки_38__00</a></li>
+                <li><a onclick='addProjectOutClickByTask("#=TaskId#")'>@PW.Ncels.Database.Recources.Messages.Property_Проектисходящегодокумента_24__00</a></li>
+            </ul>*@
+            # } #
+        # } #
+        </div>
+    @*</div>*@
+    @(Html.Kendo().TabStrip()
+          .Name("tabStrip_#=TaskId#").HtmlAttributes(new { @style = "height:300px; width: 862px; border:0;background: none repeat scroll 0 0 ; clear: both;" })
+          .Animation(false)
+          .SelectedIndex(0)
+          .Items(items => {
+
+              items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Документ_322__00).LoadContentFrom("DocumentDetails", "Task", new { id = "#=TaskId#" });
+              items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вложения_333__00).Content(
+                  @<div style="height:256px" id="DocumentFileTask_#=TaskId#">
+                    <a onclick="DownloadAllFile('#=DocumentId#')">Скачать все одним файлом</a>
+                       # if ((Type == 3 || Type == 4) && State==1) { #
+    @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listView_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                        .ClientTemplateId("fileEditTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileRead", "Upload", new { taskId = "#=TaskId#" }))).ToClientTemplate()
+          )
+                 
+                       # } else {#
+                       @(Html.Kendo().ListView<UploadInitialFile>()
+                                .Name("listView_#=TaskId#")
+                                .TagName("div").HtmlAttributes(new { @style = "height:250px; border:0;overflow: auto;width: 838px;" })
+                                                .ClientTemplateId("fileReadTemplate")
+                                .DataSource(dataSource => dataSource.Read(read => read.Action("FileRead", "Upload", new { taskId = "#=TaskId#" }))).ToClientTemplate()
+                       )
+                       # } #
+</div>);
+
+              items.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Ходисполнения_193__00).Content(
+                @<text>
+                    @(Html.Kendo().TreeView()
+                                              .Name("treeviewTask_#=TaskId#")
+                                      .HtmlAttributes(new { @class = "pwTaskTree2" })
+                                      .TemplateId("taskTree-template")
+                                      .ExpandAll(true)
+                                      .DataSource(dataSource => dataSource
+                                          .Model(m => m.Id("Id").HasChildren("HasChildren").Children("Children"))
+                                                  .Read(read => read.Action("BpTasks", "Task", new { id = "#=DocumentId#", taskId = "#=TaskId#" }))
+                                      ).ToClientTemplate())
+                </text>);
+          }).ToClientTemplate())
+
+</script>
+
+
+

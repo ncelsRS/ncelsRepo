@@ -1,0 +1,98 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.Models.Expertise.DialogParameter
+
+<script>
+    var GridOfPriceListMultiSelect = {
+        checkedIds: {},
+
+        selectRow: function() {
+            var checked = this.checked,
+                row = $(this).closest("tr"),
+                grid = $('#gridPriceList' + '@Model.Id').data("kendoGrid"),
+                dataItem = grid.dataItem(row);
+
+            GridOfPriceListMultiSelect.checkedIds[dataItem.id] = dataItem.Number;
+            if (checked) {
+                //-select the row
+                GridOfPriceListMultiSelect.checkedIds[dataItem.id] = dataItem.Number;
+                row.addClass("k-state-selected");
+            } else {
+                //-remove selection
+                delete GridOfPriceListMultiSelect.checkedIds[dataItem.id];
+                row.removeClass("k-state-selected");
+            }
+        },
+
+        onDataBound: function(e) {
+            var view = this.dataSource.view();
+            for (var i = 0; i < view.length; i++) {
+                if (GridOfPriceListMultiSelect.checkedIds[view[i].Id]) {
+                    this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                        .addClass("k-state-selected")
+                        .find(".checkbox")
+                        .attr("checked", "checked");
+                }
+            }
+        },
+
+        approve: function() {
+            var wdw = $('#' + '@Model.ContainerId').data("kendoWindow");
+            var listNumbers = '';
+            var listIds = '';
+            for (var key in GridOfPriceListMultiSelect.checkedIds) {
+                listNumbers += GridOfPriceListMultiSelect.checkedIds[key] + '; ';
+                listIds += key + ';';
+            }
+            $('#' + wdw.controlId).val(listNumbers);
+            $('#' + wdw.controlId).attr('data-ids', listIds);
+            $("#" + "@Model.ContainerId").data("kendoWindow").close();
+        },
+
+        cancel: function() {
+            $("#" + "@Model.ContainerId").data("kendoWindow").close();
+        }
+    };
+</script>
+<div>
+    @(Html.Kendo().Grid<EXP_PriceList>()
+          .Name("gridPriceList" + Model.Id)
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.IsSelect).Title("").Filterable(false).ClientTemplate("<input type='checkbox' class='checkbox' #=IsSelect ? checked='checked' :''# />").Width(30);
+              columns.Bound(p => p.Number).Title(Messages.Property_Номер_373__00).Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+              columns.Bound(p => p.NameRu).Title(Messages.Property_Наименование_230__00).Width(150);
+          })
+          //.Resizable(s => s.Columns(true))
+          .Filterable()
+          .Sortable()
+          .Pageable()
+          .Scrollable()
+          .Events(c => c.DataBound("GridOfPriceListMultiSelect.onDataBound"))
+          .Selectable(c => c.Mode(GridSelectionMode.Multiple))
+          .HtmlAttributes(new { @class = "pwGrid", style = "height:400px;" })
+          .DataSource(dataSource => dataSource.Ajax().Model(model =>
+              {
+                  model.Id(p => p.Id);
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadPriceList", "DirectionToPay")))
+    )
+</div>
+<div class="pwWinFooter">
+    @(Html.Kendo().Button().Name("GridOfPriceListMultiSelectCancel")
+        .Content(PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00)
+        .HtmlAttributes(new { @class = "k-button pwWinButton", type = "button" })
+        .Events(e => e.Click("GridOfPriceListMultiSelect.cancel")))
+    @(Html.Kendo().Button().Name("GridOfPriceListMultiSelectSave")
+        .Content("Подтвердить")
+        .HtmlAttributes(new { @class = "k-button k-primary pwWinButton", type = "button" })
+        .Events(e => e.Click("GridOfPriceListMultiSelect.approve")))
+</div>
+
+<script>
+    (function() {
+        var g = $('#gridPriceList' + '@Model.Id').data("kendoGrid");
+        g.table.on("click", ".checkbox", GridOfPriceListMultiSelect.selectRow);
+    })();
+</script>

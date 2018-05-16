@@ -1,0 +1,84 @@
+﻿
+@model Guid
+
+
+<div id="@("loader"+ Model)"></div>
+<form id="@("formWithdraw" + Model)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconReject"></div>
+        <div class="pwWinTitleText">Отзыв задачи по заявке <span style="font-weight: bold">@ViewBag.TaskDocumentNumber</span> от <span style="font-weight: bold">@ViewBag.TaskDocumentDate</span> </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="@("Text" + Model)" class="pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+
+
+<script>
+    
+    var name = '@Model';
+
+    var viewModel = kendo.observable({
+
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var text = $('#Text' + name).val();
+            var request = {};
+            request.id = '@Model';
+            request.text = text;
+
+            var json = JSON.stringify(request);
+ 
+            $.ajax({
+                type: 'POST',
+                url: '/Task/WithdrawConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    if (result.State == true) {
+                        //ActionTaskEnable(result.Task.State, result.Task.DocumentState, result.Task.Type, result.Task.MonitoringType, result.Task.Id);
+
+                        //var treeTask = $("#treeviewTask_" + name).data("kendoTreeView");
+                        //console.log('treeTask', treeTask);
+                        //if (treeTask != null) {
+                        //    treeTask.dataSource.read();
+                        //}
+                        debugger;
+                        var grid = $("#gridTaskList" + '@ViewBag.ParentModel').data("kendoGrid");
+                        grid.dataSource.read();
+
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close(); 
+        }
+
+    });
+
+    kendo.bind($("#formWithdraw" + name), viewModel);
+</script>

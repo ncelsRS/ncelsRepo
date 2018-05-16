@@ -1,0 +1,212 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKTaskListViewModel
+
+<style>
+    input .form-group {
+         padding-left: 10px !important;
+    }
+    input[type=file] {
+        display: none;
+    }
+    div::-webkit-scrollbar { 
+        display: none;
+    }
+</style>
+
+<div id="editTaskPanel_@Model.TaskId" style="margin-left: 10px; margin-right: 10px; width: auto; height: 550px; overflow-y: scroll;">
+    <div class="pwPage" style="overflow: hidden; width: auto;">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" onclick="showTaskProducts(true)">Посмотрет задания</button>
+                    <button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("ExportTaskFilePdf", "OBKTask", new { taskId = Model.TaskId, taskNumber = Model.TaskNumber })'">Печать задания</button>
+                    <button type="button" class="btn btn-default" disabled="@ViewBag.SendToIC" onclick="sendTask()">Передать образцы</button>
+                    <label for="file" class="btn btn-default">Прикрепить файл отправки</label>
+                    <input type="file" id="file"/>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Задание на испытание
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped table-bordered table-hover dataTable">
+                            <thead>
+                            <tr>
+                                <td>№ задания</td>
+                                <td>Дата регистрации</td>
+                                <td>Создал</td>
+                                <td>Принял образцы (ЦОЗ)</td>
+                                <td>Кому передано в ИЦ</td>
+                                <td>Дата передачи в ИЦ</td> 
+                                <td>ИЦ/Лаборатория</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>@Model.TaskNumber</td>
+                                <td>@Model.RegisterDate</td>
+                                <td>@Model.ExecutorName</td>
+                                <td>@Model.CozExecutorName</td>
+                                <td>@Model.ICExecutorName</td>
+                                <td>@Model.SentToIC</td>
+                                <td>@Model.UnitName</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panelProduct" class="panel panel-default">
+            <div class="panel-heading">
+                Таблица распределения продукции
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ задания*</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@Model.TaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата регистрации*</label>
+                            <input class="form-control date-control" disabled="disabled" type="text" value="@Model.RegisterDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ акта отбора*</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.ActNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Лаборатория*</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.UnitName">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tableTaskList" class="table table-striped table-bordered table-hover dataTable">
+                            <thead>
+                            <tr>
+                                <td style="width: 40%">Наименование образцов предьявленной продукции</td>
+                                <td>№ партии</td>
+                                <td>Дата изготовления</td>
+                                <td>Срок годности</td>
+                                <td>Кол-во отобранных образцов продукции</td>
+                                <td>Ед. измерения</td>
+                                <td>Вид испытаний</td>
+                                <td>Наличие</td>
+                                <td style="width: 40%">Примечание</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var t in Model.ProductListViewModels)
+                            {
+                                <tr rowid="@t.Id">
+                                    <td>@t.ProductNameRu</td>
+                                    <td>@t.Series</td>
+                                    <td>@t.SeriesStartdate</td>
+                                    <td>@t.SeriesEndDate</td>
+                                    <td>@t.Quantity</td>
+                                    <td>@t.SeriesMeasure</td>
+                                    <td>@t.LaboratoryName</td>
+                                    <td><input id="@t.Id" disabled="@ViewBag.CozAccept" type="checkbox"></td>
+                                    <td><textarea disabled="@ViewBag.CozAccept" class="form-control" rows="5" cols="10" type="text" id="@t.Id"></textarea></td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button type="button" class="btn btn-default" disabled="@ViewBag.CozAccept" onclick="acceptProducts()">Принять образцы</button>
+                <button type="button" class="btn btn-default" onclick="showTaskProducts(false)">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDialog_@Model.TaskId" class="modal fade">
+    <div id="dialogContent" class="modal-dialog modal-sm"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#panelProduct").hide();
+    });
+    function showTaskProducts(val) {
+        if(val)
+            $("#panelProduct").show();
+        else
+            $("#panelProduct").hide();
+    }
+    function acceptProducts() {
+        debugger;
+        var productListViewModel = new Array();
+        $('table#tableTaskList tbody tr').each(function () {
+            debugger;
+            var selectProductSeries = null;
+            var comment = null;
+            var row = $(this).attr('rowid');
+            if ($(this).find('input[type=checkbox]').is(':checked')) {
+                selectProductSeries = true;
+            }
+            if ($(this).find('textarea').val() != null && $(this).find('textarea').val() != "") {
+                comment = $(this).find('textarea').val();
+            }
+            productListViewModel.push({ "Id": row, "SelectProductSeries": selectProductSeries, "Comment": comment });
+        });
+
+        var model = {
+            TaskId: '@Model.TaskId',
+            ProductListViewModels: productListViewModel
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AcceptTaskList")',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    debugger;
+                    $("#editTaskPanel_@Model.TaskId").load('@Url.Action("EditTask", new { taskId = Model.TaskId})');
+                    alert("Образцы приняты!");
+                } else {
+                    alert("Ошибка при принятии образцов");
+                }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+
+    function sendTask() {
+        debugger;
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ShowModalExecutor',
+            data: { code: 'supplyDivision', id: '@Model.TaskId' }, //researchcenter
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#dialogContent').html(data);
+                $('#modalDialog_@Model.TaskId').modal('show');
+            }
+        });
+    }
+</script>

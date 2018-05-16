@@ -1,0 +1,237 @@
+﻿@model PW.Ncels.Database.Models.OBK.SubTaskDetails
+
+<style>
+    .add-commnet {
+        background-color: #dd4353;
+        color: #2e2e2e;
+    }
+</style>
+
+<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Просмотр результатов испытаний</h4>
+    </div>
+    @if (Model.SubTaskResult.Count > 0)
+    {
+        foreach (var s in Model.SubTaskResult)
+        {
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ протокола</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@s.SubTaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата создания</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@s.SubTaskCreateDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Исполнитель</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryExpertName" value="@s.LaboratoryExpertName">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Лаборатория</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.UnitLaboratoryName" value="@s.UnitLaboratoryName">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>Вид испытания</label>
+                            <input class="form-control" disabled="disabled" type="text" title="@s.LaboratoryTypeName" value="@s.LaboratoryTypeName">
+                        </div>
+                    </div>
+                </div>
+                
+                <div hidden="hidden" id="panelTaskComment_@s.TaskExecutorId">
+                    <div id="taskComment_@s.TaskExecutorId"></div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tableSubTaskIndicator_@s.TaskExecutorId" class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <td>Показатель</td>
+                                <td>Обозначение нормативных документов на методы испытаний</td>
+                                <td>Требования НД</td>
+                                <td>Фактически полученный результат</td>
+                                <td>Т 0С и влажность (%)</td>
+                                <td>Результат</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @if (s.SubTaskIndicator != null && s.SubTaskIndicator.Count > 0)
+                            {
+                                foreach (var t in s.SubTaskIndicator)
+                                {
+                                    var className = "";
+                                    if (t.TaskComment) { className = "class=add-commnet"; }
+
+                                    <tr @className tableId="@s.Id" rcId="@t.ResearchCenterId" teId="@s.TaskExecutorId">
+                                        <td>@t.LaboratoryMarkNameRu</td>
+                                        <td>@t.LaboratoryRegulationNameRu</td>
+                                        <td>@t.Claim</td>
+                                        <td>@t.FactResult</td>
+                                        <td>@t.Humidity</td>
+                                        <td>@t.ExpertiseResultName</td>
+                                        <td>
+                                            <span class="input-group-addon">
+                                                <a class="subTaskComment" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" style="text-align: center;"><label>Нет данных</label></td></tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>№ протокола</label>
+                        <input class="form-control" type="text" disabled="disabled">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Дата создания</label>
+                        <input class="form-control" disabled="disabled" type="text">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Результат</label>
+                        <input class="form-control" disabled="disabled" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Исполнитель</label>
+                        <input class="form-control" disabled="disabled" type="text">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Лаборатория</label>
+                        <input class="form-control" disabled="disabled" type="text">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label>Вид испытания</label>
+                        <input class="form-control" disabled="disabled" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <td>Показатель</td>
+                            <td>Обозначение нормативных документов на методы испытаний</td>
+                            <td>Требования НД</td>
+                            <td>Фактически полученный результат</td>
+                            <td>Т 0С и влажность (%)</td>
+                            <td>Результат</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td colspan="6" style="text-align: center;"><label>Испытания не завершены</label></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="returnToExecutor" onclick="returnToResearchCenter('@Model.AssessmentDeclarationId', '@Model.ProductSeriesId')" style="display: none" data-dismiss="modal">Отправить на доработку</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+    </div>
+</div>
+
+
+<script>
+    $(".subTaskComment").click(function () {
+        debugger;
+        var table = $(this).parent().parent().parent();
+        var rcId = table.attr('rcId');
+        var teId = table.attr('teId');
+        $.ajax({
+            type: 'GET',
+            url: '/OBKExpDocument/TaskComment?rcId=' + rcId + '&teId=' + teId,
+            cache: false,
+            success: function (data) {
+                debugger;
+                $("#taskComment_" + teId).html(data);
+                $("#panelTaskComment_" + teId).show();
+            }
+        });
+    });
+
+    function returnToResearchCenter(adId, psId) {
+        debugger;
+        var commentIds = new Array();
+        $(".add-commnet").each(function () {
+            var tmId = $(this).attr('tableId');
+            var rcId = $(this).attr('rcId');
+            var teId = $(this).attr('teId');
+            commentIds.push({ TaskmaterailId: tmId, ResearchCenterId: rcId, TaskExecutorId: teId });
+        });
+
+        debugger;
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/ReturnToResearchCenters',
+            data: JSON.stringify(commentIds),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data.isSuccess) {
+                    $("#panelTaskDetails_" + adId).hide();
+                }
+            }
+        });
+
+        //$.ajax({
+        //    type: 'GET',
+        //    url: '/OBKExpDocument/ReturnToResearchCenter?adId=' + adId + '&psId=' + psId,
+        //    cache: false,
+        //    success: function (data) {
+        //        debugger;
+        //        if (data.isSuccess) {
+        //            $("#panelTaskDetails_" + adId).hide();
+        //        }
+        //    }
+        //});
+    }
+</script>

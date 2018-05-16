@@ -1,0 +1,135 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <div class="CSSTableGenerator">
+            <table id="patentTable" style="width: 100%; text-align: center">
+                <thead>
+                    <tr>
+                        <td>Название документа на товарный знак</td>
+                        <td>Наименование правообладателя</td>
+                        <td>№ документа на товарный знак</td>
+                        <td>Дата выдачи</td>
+                        <td>Срок действия</td>
+                    </tr>
+                </thead>
+                <tbody id="tab3">
+                    @for (var i = 0; i < Model.ExpDrugPatents.Count; i++)
+                    {
+                        var index = i + 1;
+                        var code = @CodeConstManager.EXP_DrugPatentCode+"_" + Model.ExpDrugPatents[i].Id + "_";
+                        var patentNumberId = code + "PatentNumber";
+                        var nameDocumentId = code + "NameDocument";
+                        var nameOwnerId = code + "NameOwner";
+                        var patentDateStrId = code + "PatentDateStr";
+                        var patentExpiryDateStrId = code + "PatentExpiryDateStr";
+
+                        <tr rowid="@Model.ExpDrugPatents[i].Id" rowindex="@index" rowkind="1">
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugPatents[i].NameDocument, new { @class = "patent-control edit-control form-control", @id = @nameDocumentId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugPatents[i].NameOwner, new { @class = "patent-control edit-control form-control", @id = @nameOwnerId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugPatents[i].PatentNumber, new { @class = "patent-control edit-control form-control", @id= @patentNumberId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugPatents[i].PatentDateStr, new { @class = "patent-control edit-control form-control date-control", @id = patentDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.ExpDrugPatents[i].PatentExpiryDateStr, new { @class = "patent-control edit-contro  form-control date-control", @id = patentExpiryDateStrId })<span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                </div>
+                            </td>
+                            @if (i == 0)
+                            {
+                                <td><a class="deleteRow"></a></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="8" style="text-align: left;">
+                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addPatent" style="margin-top: 10px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //bird
+    $(document).ready(function () {
+        changeFieldList(".patent-control", '@CodeConstManager.EXP_DrugPatentCode');
+        $("#addPatent").on("click", function () {
+            var row = $(this).closest("tr").prev();
+            var rowindex = parseInt(row.attr('rowindex'), 10) || 0;
+            var nextIndex = rowindex + 1;
+            var kindObject = "ExpDrugPatents";
+
+            var cols = '<tr rowid="0" rowindex="' + nextIndex + '">';
+
+            var idNameDocument = "patent_a" + nextIndex + "_NameDocument";
+            var idNameOwner = "patent_a" + nextIndex + "_NameOwner";
+            var idPatentNumber ="patent_a"+nextIndex+ "_PatentNumber";
+            var idPatentDateStr = "patent_a" + nextIndex + "_PatentDateStr";
+            var idPatentExpiryDateStr = "patent_a" + nextIndex + "_PatentExpiryDateStr";
+
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].NameDocument" id="' + idNameDocument + '" class="patent-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].NameOwner" id="' + idNameOwner + '" class="patent-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].PatentNumber" id="' + idPatentNumber + '" class="patent-control edit-control form-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].PatentDateStr" id="' + idPatentDateStr + '" class="patent-control edit-control form-control date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+            cols += '<td><div class="input-group"><input type="text" name="' + kindObject + '[' + nextIndex + '].PatentExpiryDateStr" id="' + idPatentExpiryDateStr + '" class="patent-control edit-control form-control date-control" /><span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span></div></td>';
+
+            cols += '<td><i class="glyphicon glyphicon-remove deleteRow"  title="@ResourceSetting.delete"></td>';
+            cols += '</tr>';
+            row.after(cols);
+            changeFieldList("#" + idNameDocument, '@CodeConstManager.EXP_DrugPatentCode');
+            changeFieldList("#" + idNameOwner, '@CodeConstManager.EXP_DrugPatentCode');
+            changeFieldList("#" + idPatentNumber, '@CodeConstManager.EXP_DrugPatentCode');
+            changeFieldList("#" + idPatentDateStr, '@CodeConstManager.EXP_DrugPatentCode');
+            changeFieldList("#" + idPatentExpiryDateStr, '@CodeConstManager.EXP_DrugPatentCode');
+            setDateFormat("#" + idPatentDateStr);
+            setDateFormat("#" + idPatentExpiryDateStr);
+        });
+
+
+        $("#patentTable").on("click", ".deleteRow", function () {
+
+            var row = $(this).closest('tr');
+            var success = function () {
+                var entityId = row.attr('rowid');
+                DeleteRecord('@CodeConstManager.EXP_DrugPatentCode', entityId);
+                row.remove();
+            }
+            var cancel = function () {
+            };
+            showConfirmation("@ResourceSetting.delete", "@ResourceSetting.deleteconfirm", success, cancel);
+        });
+    });
+</script>

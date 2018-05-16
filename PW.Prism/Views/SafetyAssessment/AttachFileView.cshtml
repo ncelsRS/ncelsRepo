@@ -1,0 +1,94 @@
+﻿@using System.Activities.Statements
+@using System.Linq.Dynamic
+@model IEnumerable<PW.Ncels.Database.Models.Common.FileGroup>
+<link href="~/Content/css/custom/subform-comment-style.css" rel="stylesheet" type="text/css" />
+
+<table class="table table-stripped toggle-arrow-tiny pw-table-attach">
+    <tbody>
+    @foreach (var dic in Model)
+    {
+        var inputId = "_" + dic.Id;
+        var uploadinputId = "upload-file-info_" + dic.Id;
+        
+        <tr class="@dic.MarkClassName">
+            <td style="width: 22px;">
+                <button type="button" class="btn btn-link btn-xs btn-white slide-files-btn"> <i class="glyphicon glyphicon-plus"></i></button>
+                @*                <button ng-if="!dic.expanded" ng-click="dic.expanded = true" class="btn btn-link btn-xs btn-white"><i class="fa fa-plus"></i></button>*@
+            </td>
+            <td>    
+                <div class="input-group">
+                    @dic.Name (кол-во файлов: @dic.FileGroupItems.Count())
+                    <span class="input-group-addon" ng-if="dic.ShowComment">
+                        <a class="commentDialog" href="#" onclick="showDocComment(this)" name="@dic.Id">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </td>
+        </tr>
+    <tr style="display: none">
+            <td style="border-top: 0"></td>
+            <td style="border-top: 0">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Файл</th>
+                        <th ng-if="history" class="text-center" style="width: 80px;">Версия</th>
+                        <th class="text-center" style="width: 80px;">Размер</th>
+                        <th class="text-center" style="width: 80px;">Статус</th>
+                    </tr>
+                    </thead>
+                    <tbody class="pw-project-files">
+                    @foreach (var record in dic.FileGroupItems)
+                    {
+                        var attach = "/Upload/FileDownload?" + record.AttachId;
+                        decimal sizeFile = 0;
+                        if (record.AttachSize != null)
+                        {
+                            sizeFile = record.AttachSize.Value / 1024;
+                            sizeFile = Math.Round(sizeFile / 1024, 2) ;
+
+                        }
+                        <tr>        
+                            <td>
+                                <a href="@attach"><i class="fa fa-file"></i> @record.AttachName</a>
+                                <p style="color: cadetblue"><i class="glyphicon glyphicon-user"></i> @record.OwnerName (@record.CreateDate)
+                                </p>
+                            </td>
+                            <td ng-if="history">
+                                <p class="text-center">@record.Version</p></td>
+                            <td class="text-center">@sizeFile MB</td>
+                            <td class="text-center">
+                                <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                            </td>
+                          
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".slide-files-btn").on("click",
+            function () {
+                var currentRow = $(this).closest("tr").next('tr');
+
+
+                if ($(this).find("i").hasClass("glyphicon-plus")) {
+                    $(this).find("i").removeClass("glyphicon-plus");
+                    $(this).find("i").addClass("glyphicon-minus");
+                    currentRow.show();
+                } else {
+                    $(this).find("i").addClass("glyphicon-plus");
+                    $(this).find("i").removeClass("glyphicon-minus");
+                    currentRow.hide();
+                }
+            });
+    });
+</script>

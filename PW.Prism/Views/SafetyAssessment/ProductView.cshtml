@@ -1,0 +1,599 @@
+﻿@using System.Web.Script.Serialization
+@model PW.Ncels.Database.DataModel.OBK_Contract
+
+@{
+    var @modelId = Model.Id;
+    var @nameRu = "";
+    var @nameKz = "";
+    var @producerNameRu = "";
+    var @producerNameKz = "";
+    var @countryNameRu = "";
+    var @countryNameKz = "";
+    var @tnvedCode = "";
+    var @kpvedCode = "";
+    var @price = "";
+    var @currency = "";
+    int @count = Model.ObkRsProductCount;
+
+}
+
+@{
+    bool showProductComments = false;
+    if (ViewBag.ShowProductComments != null && ViewBag.ShowProductComments == true)
+    {
+        showProductComments = true;
+    }
+}
+
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tableProducts_@modelId" width="100%"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="mtPartsId">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Комплектность
+                </div>
+                <div class="panel-body">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table id="tableMtPart_@modelId" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable" width="100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Информация о заявлемой продукции
+                </div>
+                <div class="panel-body" id="productsId">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="input-group">
+                                            <label>№ рег. удостоверения</label>
+                                            <input id="RegNumber" name="RegNumber" type="text" class="form-control" readonly="readonly" />
+                                            <input id="RegisterId" name="RegisterId" type="hidden" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="input-group">
+                                            <label>Дата регистрации</label>
+                                            <input id="RegDate" name="RegDate" type="text" class="form-control" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="input-group">
+                                            <label>Дата истечения</label>
+                                            <input id="ExpirationDate" name="ExpirationDate" type="text" class="form-control" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="input-group">
+                                            <label>Тип НД</label>
+                                            <input id="NdName" name="NdName" type="text" class="form-control" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="input-group">
+                                            <label>Номер НД</label>
+                                            <input id="NdNumber" name="NdNumber" type="text" class="form-control" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-6 b-l">
+                                        <label>Наименование*</label>
+                                        <div class="input-group">
+                                            <textarea rows="4" id="NameRu" name="NameRu" type="text" class="form-control edit-control" readonly="readonly"></textarea>
+                                            <span class="input-group-addon">
+                                                <a class="obkcontractdialog" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Наименование на казахском</label>
+                                        <div class="input-group">
+                                            <textarea rows="4" id="NameKz" name="NameKz" type="text" class="form-control edit-control" readonly="readonly"></textarea>
+                                            <span class="input-group-addon">
+                                                <a class="obkcontractdialog" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <label>Наименование производителя</label>
+                                        <input id="ProducerNameRu" name="ProducerNameRu" type="text" class="form-control edit-control" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <label>Наименование производителя на казахском</label>
+                                        <input id="ProducerNameKz" name="ProducerNameKz" type="text" class="form-control edit-control" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <label>Страна</label>
+                                        <input id="CountryNameRu" name="CountryNameRu" type="text" class="form-control edit-control" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <label>Страна на казахском</label>
+                                        <input id="CountryNameKz" name="CountryNameKz" type="text" class="form-control edit-control" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                            @if (ViewBag.HidePriceAndCurrency == null || ViewBag.HidePriceAndCurrency == false)
+                            {
+                                <div class="form-group">
+                                    <div class="col-lg-6">
+                                        <label>Цена</label>
+                                        <div class="input-group">
+                                            <input id="Price" name="Price" type="text" class="form-control edit-control" placeholder="Введите сумму" typeField="float">
+                                            <span class="input-group-addon">
+                                                <a class="OBKcommentDialog" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Валюта</label>
+                                        <div class="input-group">
+                                            @Html.DropDownList("CurrencyId", (IEnumerable<SelectListItem>)(ViewData["Courrency"]), String.Empty, new { @class = "form-control edit-control" })
+                                            <span class="input-group-addon">
+                                                <a class="OBKcommentDialog" href="#">
+                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div>&nbsp;</div>
+                                        <label>Инструкции</label>
+                                        <div id="noinstructions" style="display: none">
+                                            <span>Нет доступных инструкций</span>
+                                        </div>
+                                        <ul id="listinstructions" style="display: none"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="seriesId">
+                                <div class="col-lg-12">
+                                    <table id="tableProductSeries_@modelId" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $("#mtPartsId").hide();
+        $('#seriesId').hide();
+
+        $("#tableProducts_@modelId").DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            bLengthChange: false,
+            columns: [
+                { title: "" },
+                //{ title: "Наименование" },
+                { title: "Полное наименование" },
+                { title: "Размерность (для ИМН)" },
+                { title: "Производитель" },
+                { title: "Кол-во в потр.уп." },
+                { title: "Страна-производитель" },
+                { title: "Место проведения аналитической экспертизы" }
+                @{ if (showProductComments)
+                {
+                    @:    ,
+                    @:{ title: "" }
+                }
+                }
+            ]
+        });
+
+        $("#tableProductSeries_@modelId").DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            bLengthChange: false,
+            columns: [
+                { title: "Серия" },
+                { title: "Произведена" },
+                { title: "Истекает" },
+                { title: "Партия" },
+                { title: "Ед. измерения" }
+                @{ if (showProductComments)
+                {
+                    @:    ,
+                    @:{ title: "" }
+                }
+                }
+            ]
+        });
+        if (@count >= 1) {
+            var val = '@Model.Id';
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetContract", "SafetyAssessment")',
+                data: { 'id': val },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        data.result.ObkRsProductses.forEach(function (product) {
+                            if (product.ExpertisePlace == 0)
+                                product.ExpertisePlace = 'Лаборатория экспертной организации';
+                            else if (product.ExpertisePlace)
+                                product.ExpertisePlace = 'Лаборатория производителя';
+                        });
+                        $("#tableProducts_@modelId").DataTable({
+                            language: {
+                                url: "/Content/json/Russian.json"
+                            },
+                            data: data.result.ObkRsProductses,
+                            destroy: true,
+                            searching: false,
+                            iDisplayLength: 5,
+                            LengthMenu: false,
+                            bLengthChange: false,
+                            autoWidth: true,
+                            rowCallback: rowCallback,
+                            columns: [
+                                { data: "Id" },
+                                //{ data: "NameRu" },
+                                { data: "DrugFormFullName" },
+                                { data: "Dimension" },
+                                { data: "ProducerNameRu" },
+                                { data: "DrugFormBoxCount" },
+                                { data: "CountryNameRu" },
+                                { data: "ExpertisePlace" }
+                                @{ if (showProductComments)
+                                    {
+                                        @: ,
+                                        @: {
+                                                                    @:"render": function(data, type, full, meta) {
+                                                                                                @:        return '<span class="input-group-addon"><a productId="' + full.Id + '" class="obkproductdialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+                                                                                                @:    }
+                                                                        @: }
+                                    }
+                                 }
+                            ]
+                        });
+                    }
+                },
+                error: function () {
+                    alert("Connection Failed. Please Try Again");
+                }
+            });
+        }
+
+        $("#tableProducts_@modelId").on('click', '.obkproductdialog', function () {
+            var productId = $(this).attr("productId");
+            var url = "/OBKContract/ShowCommentProduct?productId=" + productId;
+            var fieldValue = "";
+            var fieldDisplay = "";
+            $("<div style=" + '"' + "text-align: center;" + '"' + "><img src=" + '"' + "../../content/img/spinner.gif" + '"' + " style=" + '"' + "display: block; margin: 0 auto;" + '"' + " /></br>" + "....</div>")
+            .addClass("dialog")
+            .attr("id", $(this)
+                .attr("data-dialog-id"))
+            .appendTo("body")
+            .dialog({
+                title: "Описание",
+                closeText: "x",
+                open: function (event, ui) {
+                    $(event.target).parent().css('position', 'fixed');
+                    $(event.target).parent().css('top', '150px');
+                    $(event.target).parent().css('center');
+                    $(this).closest(".ui-dialog")
+                        .find(".ui-dialog-titlebar-close")
+//      .removeClass("ui-dialog-titlebar-close")
+                        .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
+
+
+                },
+                close: function () { $(this).remove(); },
+                width: 800,
+                height: 400,
+                modal: true,
+                //   open: function(event, ui) { $(".ui-dialog-titlebar-close").text(''); },
+                buttons: {
+                    Сохранить: function () {
+                        var comment = $("#NoteComment").val();
+                        var userId = $("#EditorId").val();
+                        var isError;
+                        if ($("#IsError").is(":checked")) {
+                            isError = true;
+                        } else {
+                            isError = false;
+                        }
+                        var params = JSON.stringify({ 'productId': productId, 'isError': isError, 'comment': comment, 'fieldValue': fieldValue, 'userId': userId, 'fieldDisplay': fieldDisplay });
+                        $.ajax({
+                            type: "POST",
+                            url: '/OBKContract/SaveCommentProduct',
+                            data: params,
+                            dataType: 'json',
+                            cache: false,
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                if (!thisControl.hasClass('mark-icon')) {
+                                    thisControl.addClass('mark-icon');
+                                }
+                                if (isError) {
+                                    if (!controlEdit.hasClass('control-error')) {
+                                        controlEdit.addClass('control-error');
+                                    }
+                                    if (controlEdit.hasClass('control-good')) {
+                                        controlEdit.removeClass('control-good');
+                                    }
+                                } else {
+                                    if (!controlEdit.hasClass('control-good')) {
+                                        controlEdit.addClass('control-good');
+                                    }
+                                    if (controlEdit.hasClass('control-error')) {
+                                        controlEdit.removeClass('control-error');
+                                    }
+                                }
+                            },
+                            error: function () {
+                                alert("Connection Failed. Please Try Again");
+                            }
+                        });
+                        $(this).dialog("close");
+                    }
+                },
+            })
+            .load(url);
+        });
+
+        $("#tableProductSeries_@modelId").on('click', '.obkproductseriedialog', function () {
+            var productSerieId = $(this).attr("productSerieId");
+            var url = "/OBKContract/ShowCommentProductsSerie?productSerieId=" + productSerieId;
+            var fieldValue = "";
+            var fieldDisplay = "";
+            $("<div style=" + '"' + "text-align: center;" + '"' + "><img src=" + '"' + "../../content/img/spinner.gif" + '"' + " style=" + '"' + "display: block; margin: 0 auto;" + '"' + " /></br>" + "....</div>")
+            .addClass("dialog")
+            .attr("id", $(this)
+                .attr("data-dialog-id"))
+            .appendTo("body")
+            .dialog({
+                title: "Описание",
+                closeText: "x",
+                open: function (event, ui) {
+                    $(event.target).parent().css('position', 'fixed');
+                    $(event.target).parent().css('top', '150px');
+                    $(event.target).parent().css('center');
+                    $(this).closest(".ui-dialog")
+                        .find(".ui-dialog-titlebar-close")
+//      .removeClass("ui-dialog-titlebar-close")
+                        .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
+
+
+                },
+                close: function () { $(this).remove(); },
+                width: 800,
+                height: 400,
+                modal: true,
+                //   open: function(event, ui) { $(".ui-dialog-titlebar-close").text(''); },
+                buttons: {
+                    Сохранить: function () {
+                        var comment = $("#NoteComment").val();
+                        var userId = $("#EditorId").val();
+                        var isError;
+                        if ($("#IsError").is(":checked")) {
+                            isError = true;
+                        } else {
+                            isError = false;
+                        }
+                        var params = JSON.stringify({ 'productSerieId': productSerieId, 'isError': isError, 'comment': comment, 'fieldValue': fieldValue, 'userId': userId, 'fieldDisplay': fieldDisplay });
+                        $.ajax({
+                            type: "POST",
+                            url: '/OBKContract/SaveCommentProductsSerie',
+                            data: params,
+                            dataType: 'json',
+                            cache: false,
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                if (!thisControl.hasClass('mark-icon')) {
+                                    thisControl.addClass('mark-icon');
+                                }
+                                if (isError) {
+                                    if (!controlEdit.hasClass('control-error')) {
+                                        controlEdit.addClass('control-error');
+                                    }
+                                    if (controlEdit.hasClass('control-good')) {
+                                        controlEdit.removeClass('control-good');
+                                    }
+                                } else {
+                                    if (!controlEdit.hasClass('control-good')) {
+                                        controlEdit.addClass('control-good');
+                                    }
+                                    if (controlEdit.hasClass('control-error')) {
+                                        controlEdit.removeClass('control-error');
+                                    }
+                                }
+                            },
+                            error: function () {
+                                alert("Connection Failed. Please Try Again");
+                            }
+                        });
+                        $(this).dialog("close");
+                    }
+                },
+            })
+            .load(url);
+        });
+
+    });
+
+    function rowCallback(row) {
+        function dateformatHtml(data) {
+            if (data == null)
+                return '';
+            var d = new Date(parseInt(data.slice(6, -2)));
+
+            var yyyy = d.getFullYear();
+            var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
+            var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+
+            return dd + "." + mm + "." + yyyy;
+        }
+
+        $('td', row).unbind('click');
+        $('td', row).bind('click', function () {
+            var tab = $(this.parentNode.parentNode.parentNode).DataTable();
+            tab.$('tr.pw-row-selected').removeClass('pw-row-selected');
+            $(this.parentNode).addClass('pw-row-selected');
+            var mass = tab.row('.pw-row-selected').data();
+            debugger;
+            if (mass.RegTypeId === 2)
+                $("#mtPartsId").show();
+            else
+                $("#mtPartsId").hide();
+
+            $("#RegNumber").val(mass.RegNumber);
+            $("#RegisterId").val(mass.RegisterId);
+            $("#RegDate").val(dateformatHtml(mass.RegDate));
+            $("#ExpirationDate").val(dateformatHtml(mass.ExpirationDate));
+            $("#NdName").val(mass.NdName);
+            $("#NdNumber").val(mass.NdNumber);
+            $("#NameRu").val(mass.NameRu);
+            $("#NameKz").val(mass.NameKz);
+            $("#ProducerNameRu").val(mass.ProducerNameRu);
+            $("#ProducerNameKz").val(mass.ProducerNameKz);
+            $("#CountryNameRu").val(mass.CountryNameRu);
+            $("#CountryNameKz").val(mass.CountryNameKZ);
+            $("#Price").val(mass.Price);
+            $("#CurrencyId option[value=" + mass.CurrencyId + "]").prop('selected', 'selected');
+
+            if (mass.OBK_Procunts_Series && mass.OBK_Procunts_Series.length > 0)
+                $('#seriesId').show();
+            else
+                $('#seriesId').hide();
+
+            $("#tableProductSeries_@modelId").DataTable({
+                language: {
+                    url: "/Content/json/Russian.json"
+                },
+                data: mass.OBK_Procunts_Series,
+                destroy: true,
+                searching: false,
+                LengthMenu: false,
+                bLengthChange: false,
+                columns: [
+                    { data: "Series" },
+                    { data: "SeriesStartdate" },
+                    { data: "SeriesEndDate" },
+                    { data: "SeriesParty" },
+                    { data: "SeriesShortNameRu" }
+                    @{ if (showProductComments)
+                        {
+                            @: ,
+                            @: {
+                                                    @:"render": function (data, type, full, meta) {
+                                                                    @:        return '<span class="input-group-addon"><a productSerieId="' + full.Id + '" class="obkproductseriedialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+                                                                    @:    }
+                                                @: }
+                        }
+                    }
+                ]
+            });
+
+            $('#tableMtPart_@modelId').DataTable({
+                language: {
+                    url: "/Content/json/Russian.json"
+                },
+                data: mass.OBK_MtPart,
+                destroy: true,
+                searching: false,
+                LengthMenu: false,
+                bLengthChange: false,
+                columns: [
+                    { title: "№", data: "PartNumber" },
+                    { title: "Модель", data: "Model" },
+                    { title: "Тех.характеристики", data: "Specification" },
+                    { title: "Наименование изделия", data: "Name", defaultData: "нет данных" }, //"Наименование изделия"
+                    { title: "Производитель",data: "ProducerName" },
+                    { title: "Страна", data: "CountryName" }
+                ]
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetInstuctions", "OBKContract")',
+                data: { 'registerId': $("#RegisterId").val() },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    debugger;
+                    if (data > 0) {
+                        $("#listinstructions").empty();
+                        $("#listinstructions").append('<li><a href="/OBKContract/GetInstruction?registerId=' + $("#RegisterId").val() + '">' +  'Скачать АНД' + '</a></li>');
+                        
+                        $("#noinstructions").hide();
+                        $("#listinstructions").show();
+                    }
+                    else {
+                        $("#listinstructions").empty();
+                        $("#noinstructions").show();
+                        $("#listinstructions").hide();
+                    }
+                },
+                error: function () {
+                    alert("Connection Failed. Please Try Again");
+                }
+            });
+        });
+        return row;
+    }
+
+
+    $(".obkcommentdialogwithcontract").click(function() {
+        alert("ОК!");
+    });
+
+</script>

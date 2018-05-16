@@ -1,0 +1,36 @@
+﻿@model PW.Ncels.Database.Models.DocumentModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReview" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">Отправить в архив<span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="closeArchive()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="sendArchiveConfirm()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+
+    function closeArchive() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+
+    function sendArchiveConfirm() {
+        
+        $.ajax({
+            type: 'POST',
+            url: '/IncomingDoc/SendArchiveConfirm',
+            data: { id: name },
+            success: function (result) {
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            }
+        });
+    }
+
+</script>

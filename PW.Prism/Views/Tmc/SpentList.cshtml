@@ -1,0 +1,67 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@model Guid
+
+
+
+
+<script>
+    function DicParams() {
+        return {
+            type: 5
+        };
+    }
+    InitFilterDictionaryGrid('@Model.ToString()');
+</script>
+
+
+<div class="pwPanelBar">
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+    </div>
+    @(Html.Kendo().Grid<Ref_MarketPrices>()
+        .Name("gridListDic" + Model)
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Name).Title("Дата использования").Width(150).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+            columns.Bound(p => p.Name).Title("№ заявки").Width(150);
+            columns.Bound(p => p.Name).Title("Израсходовано").Width(150);
+            columns.Bound(p => p.Name).Title("Наименование испытуемых СЛ, ИМН и МТ").Width(150);
+            //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+
+        })
+        .ColumnMenu(c => c.Columns(true))
+        .Reorderable(reorder => reorder.Columns(true))
+        .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .Reorderable(reorderable => reorderable.Columns(true))
+        .Resizable(resizable => resizable.Columns(true))
+        .Scrollable(scrollable => scrollable.Virtual(true))
+        .Resizable(s => s.Columns(true))
+        .Filterable()
+        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+        .HtmlAttributes(new { @class = "pwGridRef" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => model.Id(p => p.Id))
+        .Aggregates(aggregates => { aggregates.Add(p => p.Name).Count(); })
+        .PageSize(0)
+        .Sort(sort => sort.Add("Name").Ascending())
+        .Create(update => update.Action("RegisterCreate", "Registeries").Data("DicParams"))
+        .Read(read => read.Action("Read", "Tmc").Data("DicParams"))
+        //.Update(update => update.Action("RegisterUpdate", "Registeries").Data("DicParams"))
+        //.Destroy(update => update.Action("RegisterDestroy", "Registeries").Data("DicParams"))
+
+        ))
+</div>
+
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+
+
+
+</script>

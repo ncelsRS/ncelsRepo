@@ -1,0 +1,1686 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <prism2015 Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>prism2015</Alias>
+        <ConnectionStringEncrypted>+XTNSUhUQoniR73MYdjjL5nygYrJWTGkz1q5xGNY4hPVWt0DVlkxnctJqIFnGON/jXi7ycZ7Q83iQayATnjgE8Ra2SjvTA==</ConnectionStringEncrypted>
+        <Name>prism2015</Name>
+      </prism2015>
+    </Databases>
+    <DataSources isList="true" count="9">
+      <Employees Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Employees</Alias>
+        <Columns isList="true" count="3">
+          <value>Name,System.String</value>
+          <value>Rank,System.Int32</value>
+          <value>Id,System.Guid</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Employees</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand>SELECT [Name]
+	,[Rank]
+,Id
+
+	FROM [Units]
+	where type =1 
+	order by cast(Rank as nvarchar(50))</SqlCommand>
+      </Employees>
+      <Holidays Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Holidays</Alias>
+        <Columns isList="true" count="10">
+          <value>displayName,System.String</value>
+          <value>DateStart,System.DateTime</value>
+          <value>DateEnd,System.DateTime</value>
+          <value>PeriodStart,System.DateTime</value>
+          <value>PeriodEnd,System.DateTime</value>
+          <value>Count,System.Int32</value>
+          <value>Note,System.String</value>
+          <value>HolidayTypeDictionaryValue,System.String</value>
+          <value>EmployeeId,System.Guid</value>
+          <value>ParentId,System.Guid</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Holidays</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_OrganizationId,OrganizationId,12,100</value>
+        </Parameters>
+        <SqlCommand>select 
+	e.displayName,
+	H.DateStart,
+	H.DateEnd, 
+	H.PeriodStart,
+	H.PeriodEnd,
+	H.Count,
+	(case when H.Note is null then H.DocumentValue else H.Note end) as Note,
+	H.HolidayTypeDictionaryValue, 
+	convert(UNIQUEIDENTIFIER, H.EmployeeId) EmployeeId,
+    u.ParentId
+from Holidays as H
+left join Employees as e on e.Id = convert(UNIQUEIDENTIFIER, H.EmployeeId) 
+left join Units as u on u.id = e.PositionId
+where e.OrganizationId = @OrganizationId
+order by H.DateStart</SqlCommand>
+      </Holidays>
+      <HolidayCount Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>HolidayCount</Alias>
+        <Columns isList="true" count="2">
+          <value>EmployeeId,System.Guid</value>
+          <value>DayCount,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>HolidayCount</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_OrganizationId,OrganizationId,12,100</value>
+        </Parameters>
+        <SqlCommand>	
+
+---SELECT 	convert(UNIQUEIDENTIFIER, E.Id) EmployeeId,
+--	sum(H.Count) As DayCount
+--	FROM Employees E left join Holidays H on E.Id = H.EmployeeId
+----  where H.HolidayTypeDictionaryId&lt;&gt; 'c70515d8-6675-482b-b760-14547b44fdb1' and H.HolidayTypeDictionaryId&lt;&gt; '9787d11d-abe0-485f-a90a-81dde70d0ef7'
+--and H.HolidayTypeDictionaryId&lt;&gt;'74ae3330-c82e-407a-86f9-717a362f7d85'  
+--group by E.Id
+     
+select 
+	e.Id as EmployeeId,
+	(select sum(h.Count) from Holidays as h where h.EmployeeId = e.Id and H.HolidayTypeDictionaryId&lt;&gt; 'c70515d8-6675-482b-b760-14547b44fdb1' and H.HolidayTypeDictionaryId&lt;&gt; '9787d11d-abe0-485f-a90a-81dde70d0ef7'
+and H.HolidayTypeDictionaryId&lt;&gt;'74ae3330-c82e-407a-86f9-717a362f7d85') as DayCount
+	 from Employees as e where e.OrganizationId = @OrganizationId</SqlCommand>
+      </HolidayCount>
+      <FilialsEmployees Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>FilialsEmployees</Alias>
+        <Columns isList="true" count="8">
+          <value>fil,System.String</value>
+          <value>dep,System.String</value>
+          <value>otd,System.String</value>
+          <value>sec,System.String</value>
+          <value>FullName,System.String</value>
+          <value>EmployeeId,System.Guid</value>
+          <value>DateFile,System.DateTime</value>
+          <value>Position,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>FilialsEmployees</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand>SELECT 
+
+	(case  when F.DisplayName is null then (case when D.DisplayName is null then (case when O.DisplayName is null then S.DisplayName else O.DisplayName end) else D.DisplayName end) else F.DisplayName end) AS fil,
+(case when F.DisplayName is not null then D.DisplayName else (case when D.DisplayName is not null then O.DisplayName else (case when O.DisplayName is not null then S.DisplayName end ) end) end) as dep,
+(case when F.DisplayName is not null and D.DisplayName is not null  then O.DisplayName else (case when F.DisplayName is null and D.DisplayName is not null then S.DisplayName end) end) as otd,
+(case when F.DisplayName is not null and D.DisplayName is not null and O.DisplayName is not null then S.DisplayName end) as sec,
+		E.FullName, convert(UNIQUEIDENTIFIER, E.Id) EmployeeId, E.DateFile, P.Name as Position
+	
+from Employees E
+
+left join Units P on P.Id = E.PositionId
+left join Units S on S.Id = P.ParentId
+left join Units O on O.Id = S.ParentId
+left join Units D on D.Id = O.ParentId
+left join Units F on F.Id = D.ParentId
+
+where  E.OrganizationId != '8F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE'  and P.PositionState !=5  and P.Name in('Директор филиала','Заместитель директора','Главный бухгалтер')
+
+order by (case  when F.Name is null then (case when D.Name is null then (case when O.Name is null then S.Name else O.Name end) else D.Name end) else F.Name end) ,P.Rank, E.FullName
+		
+</SqlCommand>
+      </FilialsEmployees>
+      <EmployeesPosition Ref="7" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EmployeesPosition</Alias>
+        <Columns isList="true" count="6">
+          <value>Id,System.Guid</value>
+          <value>DisplayName,System.String</value>
+          <value>ParentId,System.Guid</value>
+          <value>DateFile,System.DateTime</value>
+          <value>FullName,System.String</value>
+          <value>Name,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EmployeesPosition</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand>select 
+	e.Id,
+	e.DisplayName,
+	u.ParentId,
+	e.DateFile,
+	e.FullName,
+	u.Name
+	from Employees as e 
+left join Units as u on u.id = e.PositionId
+where e.OrganizationId = @organizationId and u.PositionState &lt;&gt; 5
+order by u.Rank</SqlCommand>
+      </EmployeesPosition>
+      <EmployeesPositionRegion Ref="8" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EmployeesPositionRegion</Alias>
+        <Columns isList="true" count="6">
+          <value>Id,System.Guid</value>
+          <value>DisplayName,System.String</value>
+          <value>ParentId,System.Guid</value>
+          <value>DateFile,System.DateTime</value>
+          <value>FullName,System.String</value>
+          <value>Name,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EmployeesPositionRegion</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand>select 
+	e.Id,
+	e.DisplayName,
+	u.ParentId,
+	e.DateFile,
+	e.FullName,
+	u.Name
+	from Employees as e 
+left join Units as u on u.id = e.PositionId
+where e.OrganizationId &lt;&gt; @organizationId and u.PositionState &lt;&gt; 5  and u.Name in('Директор филиала','Заместитель директора','Главный бухгалтер')
+order by u.Rank</SqlCommand>
+      </EmployeesPositionRegion>
+      <EmployeesUnits Ref="9" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>EmployeesUnits</Alias>
+        <Columns isList="true" count="3">
+          <value>Name,System.String</value>
+          <value>Rank,System.Int32</value>
+          <value>Id,System.Guid</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>EmployeesUnits</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_organizationId,OrganizationId,12,1000</value>
+        </Parameters>
+        <SqlCommand>SELECT [Name]
+	,[Rank]
+,Id
+
+	FROM [Units]
+	where type =0 and Id &lt;&gt; @organizationId
+	order by Name</SqlCommand>
+      </EmployeesUnits>
+      <HolidayCountRegion Ref="10" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>HolidayCountRegion</Alias>
+        <Columns isList="true" count="2">
+          <value>DayCount,System.Int32</value>
+          <value>EmployeeId,System.Guid</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>HolidayCountRegion</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_OrganizationId,OrganizationId,12,100</value>
+        </Parameters>
+        <SqlCommand>	
+
+--SELECT 	convert(UNIQUEIDENTIFIER, E.Id) EmployeeId,
+--	sum(H.Count) As DayCount
+--	FROM Employees E left join Holidays H on E.Id = H.EmployeeId
+--  where H.HolidayTypeDictionaryId&lt;&gt; 'c70515d8-6675-482b-b760-14547b44fdb1' and H.HolidayTypeDictionaryId&lt;&gt; '9787d11d-abe0-485f-a90a-81dde70d0ef7'
+--and H.HolidayTypeDictionaryId&lt;&gt;'74ae3330-c82e-407a-86f9-717a362f7d85'  
+--group by E.Id
+
+select 
+	e.Id as EmployeeId,
+	(select sum(h.Count) from Holidays as h where h.EmployeeId = e.Id and H.HolidayTypeDictionaryId&lt;&gt; 'c70515d8-6675-482b-b760-14547b44fdb1' and H.HolidayTypeDictionaryId&lt;&gt; '9787d11d-abe0-485f-a90a-81dde70d0ef7'
+and H.HolidayTypeDictionaryId&lt;&gt;'74ae3330-c82e-407a-86f9-717a362f7d85') as DayCount
+	 from Employees as e where e.OrganizationId &lt;&gt; @OrganizationId
+      </SqlCommand>
+      </HolidayCountRegion>
+      <HolidaysRegion Ref="11" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>HolidaysRegion</Alias>
+        <Columns isList="true" count="10">
+          <value>displayName,System.String</value>
+          <value>DateStart,System.DateTime</value>
+          <value>DateEnd,System.DateTime</value>
+          <value>PeriodStart,System.DateTime</value>
+          <value>PeriodEnd,System.DateTime</value>
+          <value>Count,System.Int32</value>
+          <value>Note,System.String</value>
+          <value>HolidayTypeDictionaryValue,System.String</value>
+          <value>EmployeeId,System.Guid</value>
+          <value>ParentId,System.Guid</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>HolidaysRegion</Name>
+        <NameInSource>prism2015</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>_x0040_OrganizationId,OrganizationId,12,100</value>
+        </Parameters>
+        <SqlCommand>select 
+	e.displayName,
+	H.DateStart,
+	H.DateEnd, 
+	H.PeriodStart,
+	H.PeriodEnd,
+	H.Count,
+	(case when H.Note is null then H.DocumentValue else H.Note end) as Note,
+	H.HolidayTypeDictionaryValue, 
+	convert(UNIQUEIDENTIFIER, H.EmployeeId) EmployeeId,
+    u.ParentId
+from Holidays as H
+left join Employees as e on e.Id = convert(UNIQUEIDENTIFIER, H.EmployeeId) 
+left join Units as u on u.id = e.PositionId
+where e.OrganizationId &lt;&gt; @OrganizationId
+order by H.DateStart</SqlCommand>
+      </HolidaysRegion>
+    </DataSources>
+    <Relations isList="true" count="6">
+      <Unit_Emp Ref="12" type="DataRelation" isKey="true">
+        <Alias>Unit_Emp</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>EmployeeId</value>
+        </ChildColumns>
+        <ChildSource isRef="4" />
+        <Dictionary isRef="1" />
+        <Name>Unit_Emp</Name>
+        <NameInSource>Unit</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="7" />
+      </Unit_Emp>
+      <Emp_Unit Ref="13" type="DataRelation" isKey="true">
+        <Alias>Emp_Unit</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>ParentId</value>
+        </ChildColumns>
+        <ChildSource isRef="7" />
+        <Dictionary isRef="1" />
+        <Name>Emp_Unit</Name>
+        <NameInSource>Emp</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="3" />
+      </Emp_Unit>
+      <HolydayEmp Ref="14" type="DataRelation" isKey="true">
+        <Alias>HolydayEmp</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>EmployeeId</value>
+        </ChildColumns>
+        <ChildSource isRef="5" />
+        <Dictionary isRef="1" />
+        <Name>HolydayEmp</Name>
+        <NameInSource>Holyday_Emp</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="7" />
+      </HolydayEmp>
+      <UnitEmp Ref="15" type="DataRelation" isKey="true">
+        <Alias>UnitEmp</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>ParentId</value>
+        </ChildColumns>
+        <ChildSource isRef="8" />
+        <Dictionary isRef="1" />
+        <Name>UnitEmp</Name>
+        <NameInSource>Un_Emp</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="9" />
+      </UnitEmp>
+      <EmpRegionHol Ref="16" type="DataRelation" isKey="true">
+        <Alias>EmpRegionHol</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>EmployeeId</value>
+        </ChildColumns>
+        <ChildSource isRef="10" />
+        <Dictionary isRef="1" />
+        <Name>EmpRegionHol</Name>
+        <NameInSource>EmpRegion_Hol</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="8" />
+      </EmpRegionHol>
+      <Emp_Pos Ref="17" type="DataRelation" isKey="true">
+        <Alias>Emp_Pos</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>EmployeeId</value>
+        </ChildColumns>
+        <ChildSource isRef="11" />
+        <Dictionary isRef="1" />
+        <Name>Emp_Pos</Name>
+        <NameInSource>EmpPos</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>Id</value>
+        </ParentColumns>
+        <ParentSource isRef="8" />
+      </Emp_Pos>
+    </Relations>
+    <Report isRef="0" />
+    <Variables isList="true" count="3">
+      <value>,DateStart,DateStart,System.DateTime,_x0031_0_x002F_6_x002F_2011_x0020_4:51:01_x0020_PM,False,False</value>
+      <value>,DateEnd,DateEnd,System.DateTime,_x0031_0_x002F_10_x002F_2015_x0020_4:51:42_x0020_PM,False,False</value>
+      <value>,OrganizationId,OrganizationId,System.String,_x0038_F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="2">
+    <Page2 Ref="18" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <ReportTitleBand2 Ref="19" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27.7,1.4</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text54 Ref="20" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>20.8,0,6.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <Guid>1886ef7b8810455a9ceb44c479347628</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text54</Name>
+              <Page isRef="18" />
+              <Parent isRef="19" />
+              <Text>{Time}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text54>
+            <Text55 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.6,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>52c5a7b0bd6b41d8833fb677664f3a73</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text55</Name>
+              <Page isRef="18" />
+              <Parent isRef="19" />
+              <Text>Республиканский центр электронного здравоохранения</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text55>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>897237912a1348e0a1b882f6c0cd3485</Guid>
+          <Name>ReportTitleBand2</Name>
+          <Page isRef="18" />
+          <Parent isRef="18" />
+        </ReportTitleBand2>
+        <DataBand3 Ref="22" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,2.6,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="1">
+            <Text3 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>ab73afe9945a444fa1256781177bc41f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="18" />
+              <Parent isRef="22" />
+              <Text>{Employees.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Employees</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>b8803bfea60d4ba783957abe43ccc5f9</Guid>
+          <Name>DataBand3</Name>
+          <Page isRef="18" />
+          <Parent isRef="18" />
+          <Sort isList="true" count="0" />
+        </DataBand3>
+        <DataBand4 Ref="24" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,4.2,27.7,2.2</ClientRectangle>
+          <Components isList="true" count="8">
+            <Text4 Ref="25" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,27.6,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>16c2c7d7f4e5433995b7e0a0b9789d48</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>{EmployeesPosition.FullName}  - {EmployeesPosition.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text5 Ref="26" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,7,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>4e06f0747ed641c4a3657b2809507636</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Вид отпуска</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text12 Ref="27" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,1.2,6.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>43838b2d4c65484cb31ef314edaed57c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Приказ</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+            <Text24 Ref="28" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>79a8eba4d05044ef94b9bc5fa8b88fa6</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Отпуск с</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text24>
+            <Text25 Ref="29" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.8,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>c3bb539ab91d40529431ea4109950c80</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Отпуск по</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text25>
+            <Text26 Ref="30" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.2,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>d232663f9d3b4974bbad843f1a2f53ef</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Количество дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text26>
+            <Text27 Ref="31" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.6,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>f18d01f15ea14cd588f9008d35e00cf2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Период с</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text27>
+            <Text28 Ref="32" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>8ba399ba9e31404985c4f29dd17f60a8</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="18" />
+              <Parent isRef="24" />
+              <Text>Период по</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text28>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>Emp</DataRelationName>
+          <DataSourceName>EmployeesPosition</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>f2a80c5c2969482c8894ba1884d80a42</Guid>
+          <MasterComponent isRef="22" />
+          <Name>DataBand4</Name>
+          <Page isRef="18" />
+          <Parent isRef="18" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand4>
+        <DataBand5 Ref="33" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <CanBreak>True</CanBreak>
+          <ClientRectangle>0,7.2,27.7,1</ClientRectangle>
+          <Components isList="true" count="7">
+            <Text29 Ref="34" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,7,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>da72e4171de74a26afaa09fdee970f70</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text29</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.HolidayTypeDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text29>
+            <Text31 Ref="35" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7,0,6.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5e489d6398f64c4ca09227bd6ceffaf5</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.Note}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text31>
+            <Text32 Ref="36" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7e8ed280dc674a3f95533cdc16b37f0c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.DateStart}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="37" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text32>
+            <Text33 Ref="38" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4131f3150aff47fc9237253c4ede3843</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.DateEnd}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="39" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text33>
+            <Text34 Ref="40" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>01f0ad04f0ad47059e8171f19a9bc37c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text34</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.PeriodStart}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="41" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text34>
+            <Text35 Ref="42" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5f551bc85b29495382ccc874c19138bd</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text35</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.PeriodEnd}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="43" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text35>
+            <Text36 Ref="44" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19.2,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>211cc21ff3684df5ad163959869995bb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text36</Name>
+              <Page isRef="18" />
+              <Parent isRef="33" />
+              <Text>{Holidays.Count}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text36>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>Unit</DataRelationName>
+          <DataSourceName>Holidays</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>65e148b3bb0f42fcb25f2fe6a840e6e4</Guid>
+          <MasterComponent isRef="24" />
+          <Name>DataBand5</Name>
+          <Page isRef="18" />
+          <Parent isRef="18" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand5>
+        <DataBand6 Ref="45" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,9,27.7,1</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text44 Ref="46" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>af4590b8e8bb4ddd8979d37ba8c43081</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text44</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>Период с:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text44>
+            <Text45 Ref="47" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>4ddd7bf8e51d4ff0a718be87b9cccc58</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text45</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>Всего дней:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text45>
+            <Text46 Ref="48" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>fa7038141a8d4589a467a517a9337cdb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text46</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>Из них осталось:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text46>
+            <Text47 Ref="49" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.4,0,2.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>33cac3a01f9e44cd8273f62949dbeae5</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text47</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>Период по:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text47>
+            <Text48 Ref="50" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>14cbbfebad4045658679a4e0a8e6065f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text48</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>{Today}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="51" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text48>
+            <Text49 Ref="52" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>ab17db66ab92405cb7d158e968a1cb6e</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text49</Name>
+              <NullValue>0</NullValue>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>{((decimal)(DateTime.Now.Date - EmployeesPosition.DateFile.Date).TotalDays / (decimal)365) * 30-HolidayCount.DayCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="53" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <UseLocalSetting>False</UseLocalSetting>
+              </TextFormat>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text49>
+            <Text50 Ref="54" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>05defef083654b11b6588d0d7df5264f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text50</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>{EmployeesPosition.DateFile}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="55" type="DateFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text50>
+            <Text51 Ref="56" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>0d93dd87c5f642a9b34aa587abaad087</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text51</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>{((decimal)(DateTime.Now.Date - EmployeesPosition.DateFile.Date).TotalDays / (decimal)365) * 30  }</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="57" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <GroupSeparator>,</GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <UseLocalSetting>False</UseLocalSetting>
+              </TextFormat>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text51>
+            <Text52 Ref="58" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>88712667efb94e4fac561739b2af0715</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text52</Name>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>Проведенно в отпуске</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text52>
+            <Text53 Ref="59" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.2,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>684fef4431674ea199b54b2bd8558d78</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text53</Name>
+              <NullValue>0</NullValue>
+              <Page isRef="18" />
+              <Parent isRef="45" />
+              <Text>{HolidayCount.DayCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text53>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>Holyday_Emp</DataRelationName>
+          <DataSourceName>HolidayCount</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>a43d298c976c4c5bbbdafa52dae98ff1</Guid>
+          <MasterComponent isRef="24" />
+          <Name>DataBand6</Name>
+          <Page isRef="18" />
+          <Parent isRef="18" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataBand6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>314c2af6ff574466ad22421466c5a81c</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page2</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="60" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page2>
+    <Page1 Ref="61" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <ReportTitleBand1 Ref="62" type="ReportTitleBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,27.7,1.4</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text30 Ref="63" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>20.8,0,6.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text30</Name>
+              <Page isRef="61" />
+              <Parent isRef="62" />
+              <Text>{Time}</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text30>
+            <Text2 Ref="64" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.6,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="61" />
+              <Parent isRef="62" />
+              <Text>Филиалы</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>ReportTitleBand1</Name>
+          <Page isRef="61" />
+          <Parent isRef="61" />
+        </ReportTitleBand1>
+        <DataBand7 Ref="65" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,2.6,27.7,0.8</ClientRectangle>
+          <Components isList="true" count="1">
+            <Text56 Ref="66" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,27.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>554a9e5016af42e0ab0031c71062bee5</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text56</Name>
+              <Page isRef="61" />
+              <Parent isRef="65" />
+              <Text>{EmployeesUnits.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text56>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>EmployeesUnits</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>85255b9de2424a7997d2bf89f309e282</Guid>
+          <Name>DataBand7</Name>
+          <Page isRef="61" />
+          <Parent isRef="61" />
+          <Sort isList="true" count="0" />
+        </DataBand7>
+        <DataBand1 Ref="67" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,4.2,27.7,2.2</ClientRectangle>
+          <Components isList="true" count="8">
+            <Text1 Ref="68" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,27.6,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>{EmployeesPositionRegion.FullName}  - {EmployeesPositionRegion.Name}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text9 Ref="69" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,7,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>e83d574fb2a34562aaef426fbdd52912</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Вид отпуска</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="70" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,1.2,6.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>e9db45d16dcd4673afb0a099799b0c1f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Приказ</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text6 Ref="71" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>aa57510ad5fe416b9db0109c53a4573a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Отпуск с</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="72" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.8,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>4892004f39b84a1cb00fd65417b79214</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Отпуск по</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="73" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.2,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>d185d46076b84b908e9667bd62b40d10</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Количество дней</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text11 Ref="74" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.6,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>25caed96837f4c04a1465ac11acc59fd</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Период с</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Text13 Ref="75" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,1.2,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>74fd76b91f1c461a91f6b42a219de8eb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="61" />
+              <Parent isRef="67" />
+              <Text>Период по</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>Un_Emp</DataRelationName>
+          <DataSourceName>EmployeesPositionRegion</DataSourceName>
+          <Filters isList="true" count="0" />
+          <MasterComponent isRef="65" />
+          <Name>DataBand1</Name>
+          <Page isRef="61" />
+          <Parent isRef="61" />
+          <Sort isList="true" count="0" />
+        </DataBand1>
+        <DataBand2 Ref="76" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <CanBreak>True</CanBreak>
+          <ClientRectangle>0,7.2,27.7,1</ClientRectangle>
+          <Components isList="true" count="7">
+            <Text14 Ref="77" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,7,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>bc43cc651a284345ad3d1d96562f7ada</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.HolidayTypeDictionaryValue}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text15 Ref="78" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7,0,6.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>eb03c9729c2d433a925d280ce79936eb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.Note}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text16 Ref="79" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>22,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>db97e1ee3a0a44049b4b066df7f86f60</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.DateStart}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="80" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="81" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>24.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>4e1b024786e747259d9c065f3c7d1a6f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.DateEnd}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="82" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+            <Text20 Ref="83" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>9dffe60fc1e541faa4cce6d7be5faecb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.PeriodStart}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="84" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+            <Text19 Ref="85" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>b7b4899d58884d68af0cb99c54fe825a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.PeriodEnd}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="86" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text18 Ref="87" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>19.2,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>f12ffb72cdc343269a0ec6eb59703221</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="61" />
+              <Parent isRef="76" />
+              <Text>{HolidaysRegion.Count}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text18>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>EmpPos</DataRelationName>
+          <DataSourceName>HolidaysRegion</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>3fce593cb02d4fdbb15e0a4779b979e8</Guid>
+          <MasterComponent isRef="67" />
+          <Name>DataBand2</Name>
+          <Page isRef="61" />
+          <Parent isRef="61" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+        <DataHolidayCount Ref="88" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,9,27.7,1</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text38 Ref="89" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>55b6882b81d74cf5b61749bddc2da474</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text38</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>Период с:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text38>
+            <Text39 Ref="90" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>b011dd30567844acb9efb0064bb83ef9</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text39</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>Всего дней:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text39>
+            <Text40 Ref="91" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>22,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>7a9fa9a092cf4e318150e901d251b742</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text40</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>Из них осталось:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text40>
+            <Text41 Ref="92" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.4,0,2.6,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>69ec30dccdb3440f85730dd390bdc94c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text41</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>Период по:</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text41>
+            <Text42 Ref="93" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>f35d773c6b844d83a8fde75f013580da</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text42</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>{Today}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="94" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text42>
+            <Text21 Ref="95" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>24.8,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>6b6778b5d53d486dbfa781954086e399</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <NullValue>0</NullValue>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>{((decimal)(DateTime.Now.Date - EmployeesPositionRegion.DateFile.Date).TotalDays / (decimal)365) * 30-HolidayCountRegion.DayCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="96" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <UseLocalSetting>False</UseLocalSetting>
+              </TextFormat>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text43 Ref="97" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>5a0aaf999ce347ed9844b8d16317b24b</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text43</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>{EmployeesPositionRegion.DateFile}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="98" type="DateFormat" isKey="true" />
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text43>
+            <Text37 Ref="99" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.6,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>321d939ef80a4b1ca07387163bd37cdb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text37</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>{((decimal)(DateTime.Now.Date - EmployeesPositionRegion.DateFile.Date).TotalDays / (decimal)365) * 30  }</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="100" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <GroupSeparator>,</GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <UseLocalSetting>False</UseLocalSetting>
+              </TextFormat>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text37>
+            <Text23 Ref="101" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.4,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>2f5971cc611b41b987ef5f9926e6406a</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>Проведенно в отпуске</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text23>
+            <Text22 Ref="102" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>19.2,0,2.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>2c24701e58c348d38ced9a33ccb88b08</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <NullValue>0</NullValue>
+              <Page isRef="61" />
+              <Parent isRef="88" />
+              <Text>{HolidayCountRegion.DayCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName>EmpRegion_Hol</DataRelationName>
+          <DataSourceName>HolidayCountRegion</DataSourceName>
+          <Filters isList="true" count="0" />
+          <MasterComponent isRef="67" />
+          <Name>DataHolidayCount</Name>
+          <Page isRef="61" />
+          <Parent isRef="61" />
+          <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
+          <Sort isList="true" count="0" />
+        </DataHolidayCount>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>b187fbc865a14c3cb1183be5a67fa6db</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>21</PageHeight>
+      <PageWidth>29.7</PageWidth>
+      <Report isRef="0" />
+      <UnlimitedBreakable>False</UnlimitedBreakable>
+      <Watermark Ref="103" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="104" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>12/3/2015 11:29:02 AM</ReportChanged>
+  <ReportCreated>7/30/2015 4:47:18 PM</ReportCreated>
+  <ReportFile>C:\Users\ovseikin\Source\Repos\Assistent\src\PW.Prism\PW.Prism\Reports\List\EmployeesHolidayList.mrt</ReportFile>
+  <ReportGuid>d4e42cbafa1849948ab58fb81204de5b</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+			
+        }
+//		public void IsVisible(){ 
+//			string orgId = OrganizationId.ToUpper();
+//			if (orgId!="8F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE"){
+//				Page1.Components.Remove(HeaderBand2);
+//				Page1.Components.Remove(HeaderBand3);
+//				Page1.Components.Remove(GroupHeaderBand6);
+//				Page1.Components.Remove(GroupHeaderBand7);
+//				Page1.Components.Remove(GroupHeaderBand8);
+//             	Page1.Components.Remove(GroupHeaderBand9);
+//				Page1.Components.Remove(GroupHeaderBand10);
+//				Page1.Components.Remove(DataBand4);
+//				Page1.Components.Remove(DataBand5);
+//				Page1.Components.Remove(DataBand6);
+//				Page1.Components.Remove(FooterBand2);
+//			}
+//		}
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

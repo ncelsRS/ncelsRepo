@@ -1,0 +1,81 @@
+﻿
+@using PW.Ncels.Database.Enums
+@using PW.Ncels.Database.Models
+@model Guid
+
+@{
+    Layout = null;
+}
+<script>
+    var name = '@Model';
+    function DicParams() {
+        return {
+            id: '@Model'
+        };
+    }
+
+    $(document).ready(function () {
+        $("#calcMarkup" + '@Model').on('click', function () {
+            var rfkPrice = $("#priceMarkupFormToSave" + '@Model').find("#MarkupFixRfkPrice").val();
+
+            kendo.ui.progress($('#loader' + name), true);
+            $.ajax({
+                type: 'get',
+                url: '/Application/GetMarkupPrice?id=' + name + '&rfkPrice='+rfkPrice,
+                contentType: 'application/json; charset=utf-8',
+                success: function (result) {
+                    $("#priceMarkupFormToSave" + '@Model').find("#MaxPriceOptMarkup").val(result.optMarkup);
+                    $("#priceMarkupFormToSave" + '@Model').find("#MaxPriceRznMarkup").val(result.rznMarkup);
+                },
+                error: function() {
+                    alert('Не удалось произвести рассчет');
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        });
+    });
+</script>
+
+<div class="pwPage" style="height: 400px;">
+    <form id="priceMarkupFormToSave@(Model)" name="priceMarkupFormToSave@(Model)" method="post">
+        <input id="Id" name="Id" class="k-textbox pwWidth100" value="@Model" hidden="hidden"/>
+
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Зафиксированная цена НЦЭЛС:</div>
+            <div class="col-lg-5">
+                <input id="MarkupFixNcelsPrice" name="MarkupFixNcelsPrice" value="@ViewBag.NcelsPrice" class="k-textbox pwWidth100" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Зафиксированная цена после РФК:</div>
+            <div class="col-lg-5">
+                <input id="MarkupFixRfkPrice" name="MarkupFixRfkPrice" value="@ViewBag.RfkPrice" class="k-textbox pwWidth100" placeholder="Введите значение" />
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Предельная цена по ТН с учетом оптовой надбавки:</div>
+            <div class="col-lg-5">
+                <input id="MaxPriceOptMarkup" name="MaxPriceOptMarkup" value="@ViewBag.OptPrice" class="k-textbox pwWidth100" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6">Предельная цена по ТН с учетом розничной надбавки:</div>
+            <div class="col-lg-5">
+                <input id="MaxPriceRznMarkup" name="MaxPriceRznMarkup" value="@ViewBag.RznPrice" class="k-textbox pwWidth100" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="hr-line-dashed2"></div>
+        <div class="row">
+            <div class="col-lg-6"></div>
+            <div class="col-lg-5">
+                <button type="button" class="btn btn-default" style="float: right; background-color: #eee;" id="@("calcMarkup"+ Model)"><span class="pwToolbarButtonExecuteEx"></span><span class="pwToolbarButtonTitle">Рассчитать наценку</span></button>
+            </div>
+        </div>
+    </form>
+</div>

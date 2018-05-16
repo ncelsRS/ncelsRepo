@@ -1,0 +1,160 @@
+﻿
+@using PW.Ncels.Database.DataModel
+@model Guid
+
+
+
+
+<script>
+    function DicParams() {
+        return {
+            year: $('@("#typeDic" + Model)').val()
+        };
+    }
+
+    InitFilterArchivGrid('@Model.ToString()');
+
+    function collapseGroupRows() {
+        var grid = $('@("#gridListDic" + Model)');
+        if (grid != null)
+            grid.find(".k-icon.k-i-collapse").trigger("click");
+    }
+
+    function expandGroupRows() {
+        var grid = $('@("#gridListDic" + Model)');
+        if (grid != null)
+            grid.find(".k-icon.k-i-expand").trigger("click");
+    }
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("0px")
+                .Collapsible(true)
+                .MaxSize("0px")
+                .MinSize("0px")
+                .Content(
+                @<div class="pwPanelBar">
+
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" }).Events(e => e.Select("panelNomenclatureSelect"))
+                               .Items(panelbar =>
+                               {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Годноменклатуры_137__00);
+                                   //.Items(projects =>
+                                   //{
+                                   //    foreach (DictionaryInfo dictionaryInfo in (List<DictionaryInfo>)ViewData["NomenclatureList"])
+                                   //    {
+                                   //        projects.Add().Text(dictionaryInfo.Name).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemType", dictionaryInfo.Type }, { "ModelId", Model.ToString() } });
+                                   //    }
+                                   //});
+                               })
+                    )
+
+                </div>
+                );
+
+panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+
+                        <div id="pwTwo" hidden="true">
+                            @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Покоду_345__00, Value = "2"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Попримечанию_215__00, Value = "3"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                            )
+                        </div>
+
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                      .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                      .ImageUrl("/Content/images/find.png"))
+                        </div>
+
+                        <div id="pwFour2">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-default" onclick="collapseGroupRows()"><span class="glyphicon glyphicon-expand"></span></button>
+                                <button type="button" class="btn btn-default" onclick="expandGroupRows()"><span class="glyphicon glyphicon-collapse-down"></span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload pwReloadButtonFix" }).Content("").ImageUrl("/Content/images/reload.png"))
+                    </div>
+                    @(Html.Kendo().Grid<ArchivView>()
+                                   .Name("gridListDic" + Model)
+                           .Columns(columns =>
+                           {
+                               columns.Bound(p => p.DepartmentsValue).Hidden().Title("Департамент").Width(150);
+                               columns.Bound(p => p.Code).Width(70).Title(PW.Ncels.Database.Recources.Messages.Property_Код_399__00).ClientGroupHeaderTemplate("#= value # всего: #=count# <button type='button' onclick=\"printDocument('#=value#')\" class='btn btn-default btn-xs' style='width:150px;' >Опись дел</button>");
+
+                               columns.Bound(p => p.DisplayName).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:150px;' class='btn btn-default btn-xs' onclick=\"tagAnswerClick('#=Id#', '#=DisplayName#')\"><span style=\"color:rgb(66,139,202);\">#=DisplayName#</span></button>" +
+
+                                    "</div>"
+                                   ).Width(70).Title("Дата документ").ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                               columns.Bound(p => p.Summary).Title("Заголовок документов").Width(150);
+                               columns.Bound(p => p.Akt).Title("Акт").Width(40);
+                               columns.Bound(p => p.Deed).Title("Том").Width(40);
+                               columns.Bound(p => p.Book).Title("Лист").Width(40);
+                               columns.Command(command => { command.Edit(); }).Width(80);
+                           })
+                           .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Sortable()
+                            .Filterable()
+                           .HtmlAttributes(new { @class = "pwGridRef" })
+                           .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Model(model => model.Id(p => p.Id))
+                                .Aggregates(aggregates => { aggregates.Add(p => p.DisplayName).Count(); aggregates.Add(p => p.Code).Count(); })
+                                .PageSize(200)
+                                .Read(read => read.Action("ReadArchivDocuments", "Reference").Data("DicParams"))
+                                .Update(update => update.Action("ArchivUpdate", "Reference").Data("DicParams"))
+
+                                .Group(groups =>
+                                {
+                                    groups.Add(p => p.DepartmentsValue);
+                                    groups.Add(p => p.Code);
+                                })
+                                .Sort(sort => sort.Add("DisplayName").Ascending()))
+                    )
+                </div>
+             );
+            }))
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+</script>

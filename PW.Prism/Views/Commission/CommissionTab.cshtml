@@ -1,0 +1,209 @@
+﻿@using PW.Prism.ViewModels.Commissions
+@model CommissionModel
+
+@{
+    var title = Model.Id == null ? "Добавление повестки заседания" : "Редактирование повестки заседания";
+    //простите за всё это, очень спешу
+    var tabName = "tabstripCommission" + Model.Id;
+}
+
+<style>
+    @*вынести в цсс*@
+     #UnitsTable.show-mode .unit-row label {
+         padding-left: 0 !important;
+     }
+
+    .unit-not-found {
+        display: none;
+    }
+
+    #calendarContainer .k-datepicker {
+        width: 115px !important;
+    }
+
+     #@(tabName) {
+         overflow-y: scroll;
+         //max-height: 600px;
+         //height: 600px;
+     }
+</style>
+<div class="demo-section k-content">
+                @(Html.Kendo().TabStrip()
+                      .Name(tabName)
+                      .Animation(false) //.Animation(animation =>animation.Open(effect =>effect.Fade(FadeDirection.In)))
+                      .Items(items =>
+                      {
+                          items.Add().Text("Повестка")
+                              .Selected(true)
+                              .Content(
+                                  @<text>
+                                      <input type="hidden" id="commissionId" value="@Model.Id"/>
+                                      <div class="row">
+                                          <div class="col-md-4 col-sm-12">
+                                                  <label>Номер повестки</label>
+                                                    @if (Model.Id == null)
+                                                    {
+                                                        <input type="text" id="commissionNumber" value="@Model.Number" readonly="readonly" style="width: 70px;" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@Model.Number</span>
+                                                    }
+                                            </div>
+                                          <div class="col-md-8 col-sm-12">
+                                              <label>Тип комиссии</label>
+                                              @if (Model.Id == null)
+                                              {
+                                                  <select id="commissionType" onchange="commissionTypeChange('@tabName')">
+                                                      @foreach (var t in Model.TypeList)
+                                                      {
+                                                          if (t.Value == Model.Type.ToString())
+                                                          {
+                                                              t.Selected = true;
+                                                          }
+                                                          <option value="@t.Value">@t.Text</option>
+                                                      }
+                                                  </select>
+                                              }
+                                              else
+                                              {
+                                                  var typeName = Model.TypeList.Single(x => x.Value == Model.Type.ToString()).Text;
+                                                  <span>@typeName</span>
+                                              }
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-md-4 col-sm-12" id="calendarContainer">
+                                              <label>Дата проведения</label>
+                                              @(Html.Kendo().DatePicker().Name("commissionDate" + Model.Id)
+                                     .Format("yyyy-MM-dd")
+                                      .Value((Model.Date ?? DateTime.Now).ToString("yyyy-MM-dd"))
+                                              )
+                                              @*<input type="text" id="commissionDate" value="@((Model.Date ?? DateTime.Now).ToShortDateString())" style="width: 75px;"/>*@
+                                          </div>
+                                          <div class="col-md-8 col-sm-12">
+                                              <label> Вид ЛС и ИМН</label>
+                                              <select id="commissionKind">
+                                                  @foreach (var t in Model.KindList)
+                                                  {
+                                                      if (t.Value == Model.Kind.ToString())
+                                                      {
+                                                          t.Selected = true;
+                                                      }
+                                                      <option value="@t.Value">@t.Text</option>
+                                                  }
+                                              </select>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-md-12 col-sm-12">
+                                              <label>Проведено</label>
+                                              @{
+                                                  var checkedComplete = "";
+                                                  if (Model.IsComplete)
+                                                  {
+                                                      checkedComplete = "checked=checked";
+                                                  }
+                                              }
+                                              <input type="checkbox" id="commissionComplete" disabled @checkedComplete value="@Model.IsComplete"/>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-md-12 col-sm-12">
+                                              <label>Комментарий</label>
+                                              <textarea rows="10" cols="45" id="commissionComment" style="width: 100%" value="@Model.Comment">@Model.Comment</textarea>
+                                          </div>
+                                      </div>
+                <button type="button" class="btn btn-primary" onclick="SaveCommission('@tabName')">Сохранить</button>
+
+                                   </text>);
+
+                          items.Add().Text("Список участников")
+                              .Content(
+                                  @<text>
+                                      <input type="text" placeholder="поиск" onchange="searchEmployeeChange(this,'@tabName');"/>
+                                      <table id="UnitsTable" class="table-bordered show-mode" style="max-height: 300px; overflow-y: scroll; display: block;">
+                                          <thead>
+                                          <tr>
+                                              <td><label>ФИО сотрудника</label><button class="btn btn-info" onclick="changeEditMode('@tabName')"><i class="glyphicon glyphicon-edit"></i></button></td>
+                                              @foreach (var ut in Model.CommissionUnitTypes)
+                                              {
+                                                  <td class="unit-type-header-cell">
+                                                      <label>@ut.Name</label>
+                                                  </td>
+                                              }
+                                          </tr>
+                                          </thead>
+                                          <tbody>
+                                          @UnitRow(Model.Units,-20, null, tabName)
+                                          </tbody>
+                                      </table>
+                <button type="button" class="btn btn-primary" onclick="SaveCommission('@tabName')">Сохранить</button>
+                                   </text>);
+                      items.Add().Text("Вопросы повестки")
+                          .Content(
+                                  @<text>
+                                        <div id="CommissionQuestionsMain" style="max-height: 500px;overflow-y: scroll;">
+                                            @Html.Partial("CommissionQuestionsMain", Model)
+                                        </div>
+
+    <div id="commissionCreateQuestionModal" class="modal fade" style="padding-top: 100px">
+    </div>
+    <div id="commissionConclusionDrugDeclarationModal" class="modal fade" style="padding-top: 100px">
+    </div>
+                                   </text>);
+                      })
+                      )
+</div>
+@helper UnitRow(List<CommissionEmployeeDepartment> deps, int shift, Guid? depId, string tabName)
+{
+    shift += 20;
+    foreach (var dep in deps)
+    {
+        <tr class="dep-row hidden" data-dep="@dep.Id" data-parent-dep="@depId">
+            <td colspan="@(Model.CommissionUnitTypes.Count+1)">
+               <label style="padding-left: @(shift)px;">@dep.Name</label>
+            </td>
+        </tr>
+        @UnitRow(dep.Departments, shift, dep.Id, tabName)
+        @UnitRow(dep.Employees, shift, dep.Id, tabName)
+    }
+}
+
+@helper UnitRow(List<CommissionEmployee> emps, int shift, Guid depId, string tabName)
+{
+shift += 20;
+foreach (var emp in emps)
+{
+        var hiddenClass = "";
+        var hasChecked = Model.CommissionUnitTypes.Any(x=>x.Id == emp.Type);
+        if (!hasChecked)
+        {
+            hiddenClass = "hidden not-checked";
+        }
+        <tr class="unit-row @hiddenClass"  data-unit-id="@emp.Id" data-unit-search="@emp.Name.ToLower()" data-dep="@depId" >
+            <td>
+                <label style="padding-left: @(shift)px;">@emp.Name</label>
+            </td>
+            @foreach (var ut in Model.CommissionUnitTypes)
+            {
+                var state = "";
+                if(emp.Type == ut.Id)
+                {
+                    state = "checked=checked";
+                }
+                <td style="text-align: center;">
+                    <input type="checkbox" @state class="unit-type-cell" disabled data-unit-type="@ut.Id" data-unit-id="@emp.Id" onchange="changeUnitType(this, '@tabName')"/>
+                </td>
+            }
+        </tr>
+    }
+}
+@if (Model.Id == null)
+{
+    <script>
+        $(document).ready(function () {
+            commissionTypeChange('@tabName');
+        });
+    </script>
+}

@@ -1,0 +1,208 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKTaskResearchCenter
+
+<style>
+    .btn-blue {
+        color: #ffffff;
+        background-color: #008fbf;
+        border-color: #008ebf;
+    }
+
+    table.tableResearchCenter tr, td, th {
+        /*text-align: center;*/
+        vertical-align: middle;
+    }
+
+    tr.expandable-table-row{
+        display: none
+    }
+    tr.expandable-table-row.active{
+        display: table-row;
+    }
+
+    tr.italic {
+        font-style: italic;
+    }
+
+    div::-webkit-scrollbar { 
+        display: none;
+    }
+
+
+    td {
+        border: 1px #beebff solid; 
+        padding: 5px;
+    }
+
+    .selected {
+        background-color: #beebff;
+        color: #2e2e2e;
+    }
+
+
+</style>
+
+<div style="margin-left: 10px; margin-right: 10px; width: auto; height: 550px; overflow-y: scroll;">
+    <div class="pwPage pwPageEx" style="overflow: hidden; width: auto;">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    @if (Model.StatusCode != "completed")
+                    {
+                        <button type="button" class="btn btn-default" @{
+                                                                       if (Model.ChiefSign)
+                                                                       {
+                                                                           <text> disabled="disabled" </text>
+                                                                       }
+                                                                   } onclick="chiefSignBtn()">Подписать</button>
+                        <button type="button" class="btn btn-default" onclick="returnToExecutor('@Model.TaskId')">Вернуть на доработку</button>
+                    }
+                        <button type="button" class="btn btn-default" Id="showProtocol_@Model.TaskId" style="display: none" onclick="showProtocol()">Печатная форма протокола</button>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Просмотр результатов проведеных испытаний
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ задания</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@Model.TaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата регистрации</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.RegisterDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ акта отбора</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.ActNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>ИЦл/ИЛ</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.UnitName">
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <table id="tableExpertResearchCenter_@Model.TaskId" class="table table-bordered dataTable tableResearchCenter">
+                            <thead>
+                            <tr>
+                                <td>Наименование продукции</td>
+                                <td>Серия</td>
+                                <td>Вид испытаний</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var t in Model.TaskListResearchCenter)
+                            {
+                                <tr rowProductId="@t.ProductSeriesId">
+                                    <td>@t.ProductNameRu</td>
+                                    <td><a onclick="getTasksDetails('@Model.TaskId', '@t.ProductSeriesId')"><span style="color: rgb(66, 139, 202);">@t.Series</span></a></td>
+                                    <td>@t.LaboratoryName</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div hidden="hidden" id="panelTaskDetails_@Model.TaskId" class="modal fade">
+    <div id="responseContent_@Model.TaskId" class="modal-dialog modal-lg" style="width: 1100px !important;"></div>
+</div>
+
+<script>
+
+
+    $("#tableExpertResearchCenter_@Model.TaskId tbody tr").click(function () {
+        $(this).addClass('selected').siblings().removeClass('selected');
+        $("#showProtocol_@Model.TaskId").show();
+    });
+
+    function showProtocol() {
+        $("#tableExpertResearchCenter_@Model.TaskId tbody tr.selected").each(function () {
+            var psid = $(this).attr('rowProductId');
+            window.open('/OBKTask/SubTaskProtokol?psId=' + psid);
+        });
+    }
+
+    function getTasksDetails(taskId, productSeriesId) {
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ShowModalTaskDetails',
+            data: { taskId, productSeriesId, executorCode: '@Model.ExecutorCode' },
+            cache: false,
+            success: function (data) {
+                debugger;
+                $('#responseContent_@Model.TaskId').html(data);
+                $('#panelTaskDetails_@Model.TaskId').modal('show');
+            }
+        });
+    }
+
+    function returnToExecutor(tid) {
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/ReturnToExecutor?tid=' + tid,
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data.isSuccess) {
+                    alert('Задание отправлено на доработку');
+                }
+            }
+        });
+    }
+
+    function chiefSignBtn() {
+        var taskId = '@Model.TaskId';
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetSignTaskChief?taskId=' + taskId,
+            success: function (result) {
+                startSign(result.data, taskId, saveSignedTaskChief);
+            }
+        });
+
+        function saveSignedTaskChief(signedData, id) {
+            debugger;
+            var sData = {
+                taskId: id,
+                signedData: signedData
+            };
+            var json = JSON.stringify(sData);
+            $.ajax({
+                type: 'POST',
+                url: '/OBKTask/SaveSignedTaskChief',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    debugger;
+                    if (result.isSuccess) {
+                        alert("Задание успешно подписано");
+                    } else {
+                        alert("Ошибка при подписании");
+                    }
+                }
+            });
+        }
+    }
+</script>
+

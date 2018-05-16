@@ -1,0 +1,158 @@
+﻿@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.DataModel
+@model Guid
+
+<script>
+    
+</script>
+@helper GridToolbarTemplate()
+{
+    <div class="pull-left">
+        @(Html.Kendo().Button().Name("agree" + Model)
+              .Content("<span class='glyphicon glyphicon-check'></span> Согласовать"))
+    </div>
+    <div class="pull-left">
+        @(Html.Kendo().Button().Name("sign" + Model)
+              .Content("<span class='glyphicon glyphicon-edit'></span> Утвердить"))
+    </div>
+    <div class="pull-left">
+        @(Html.Kendo().Button().Name("reject" + Model)
+              .Content("<span class='glyphicon glyphicon-ban-circle'></span> Отклонить"))
+    </div>
+    <div class="pull-right">
+        <div style="display: inline-block">
+            @(Html.Kendo().Button().Name("reload" + Model)
+                  .Content("")
+                  .ImageUrl("/Content/images/reload.png"))
+        </div>
+    </div>
+}
+
+@(Html.Kendo().Splitter()
+      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+      .Name(("splitter" + Model))
+      .Panes(panes =>
+      {
+          panes.Add()
+              .Size("300px")
+              .Collapsible(true)
+              .MaxSize("500px")
+              .MinSize("300px")
+              .Content(
+            @<div class="pwPanelBar">
+                @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                            .Name("panelbar" + Model)
+                            .ExpandMode(PanelBarExpandMode.Multiple)
+                            .ExpandAll(true)
+                            .HtmlAttributes(new { style = "width:auto;" })
+                            .Events(e => e.Select("panelExpDocAgreementSelect"))
+                            .Items(panelbar =>
+                            {
+                                panelbar.Add().Expanded(true);
+                                panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                    .Items(projects =>
+                                    {
+                                        projects.Add().Text("Новые")
+                                            .Selected(ViewBag.FilterId == "newTasks")
+                                            .LinkHtmlAttributes(new Dictionary<string, object>()
+                                            {
+                                                { "ItemId", Dictionary.ExpTaskStatus.InWork },
+                                                { "ItemType", "StatusCode" },
+                                                { "ModelId", Model.ToString() },
+                                                {"FilterName", "newTasks" },
+                                                {"id", "newTasks"+ Model.ToString() }
+                                            });
+                                        projects.Add().Text("Отработанные")
+                                            .Selected(ViewBag.FilterId == "executedTasks")
+                                            .LinkHtmlAttributes(new Dictionary<string, object>()
+                                            {
+                                                { "ItemId", string.Join(";", Dictionary.ExpTaskStatus.Executed, Dictionary.ExpTaskStatus.Rejected) },
+                                                { "ItemType", "StatusCode" },
+                                                { "ModelId", Model.ToString() },
+                                                {"FilterName", "executedTasks" },
+                                                {"id", "executedTasks"+ Model.ToString() }
+                                            });
+                                    });
+
+                            })
+                )
+            </div>
+              );
+
+          panes.Add().Scrollable(false).Size("100%").Content(
+            @<div class="pwPanelBar">
+                @(Html.Kendo().Grid<EXP_TaskRegistryView>()
+                        .Name("gridExpDocAgreement" + Model)
+                        .Columns(columns =>
+                        {
+                            columns.Bound(p => p.DocNumber).Width(125).ClientTemplate(
+                                "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"openExpAgreementDoc('#=DocumentId#', '#=DocNumber#', '#=DocumentTypeCode#')\"><span style=\"color:rgb(66,139,202);\">#=DocNumber ?DocNumber : 'б/н'#</span></button>" +
+                                "</div>"
+                                ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00);                            
+                            columns.Bound(p => p.DocumentTypeRu).Title("Тип документа").Width(150);
+                            columns.Bound(p => p.AuthorName).Title("Автор").Width(200);
+                            columns.Bound(p => p.ApproverNames).Title("Согласующий").Width(300).HtmlAttributes(new { @class = "need-cell-tooltip" });
+                            columns.Bound(p => p.SignerNames).Title("Утверждающий").Width(300).HtmlAttributes(new { @class = "need-cell-tooltip" });
+                            columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title("Создан").Width(125);
+                            columns.Bound(p => p.StatusRu).ClientTemplate("#if (TaskTypeCode=='2' && StatusCode=='3') { #" +
+                                               " #= 'На утверждение' # " + "# } else if (StatusCode=='2') {#" +
+                                               " #= 'Отклонен' # " +
+                                               "# } else if (StatusCode=='3'){#" +
+                                               " #= 'На согласовании' # " +
+                                               "# } else if (TaskTypeCode=='2' && StatusCode=='1'){#" +
+                                               " #= 'Утвержден' # " +
+                                               "# } else if (StatusCode=='1'){#" +
+                                               " #= 'Согласован' # " +
+                                               "# } else {#" +
+                                               " #= StatusRu #" + "# } #"
+                                               )
+                                .Title("Статус").Width(150);
+                        })
+                      .ToolBar(toolbar =>
+                      {
+                          toolbar.Template(GridToolbarTemplate().ToHtmlString());
+                      })
+                        .AutoBind(false)
+                        .Reorderable(reorderable => reorderable.Columns(true))
+                        .Resizable(resizable => resizable.Columns(true))
+                        .Sortable(sortable => sortable.AllowUnsort(false))
+                        .Groupable()
+                        .Scrollable(scrollable => scrollable.Virtual(true))
+                        .Filterable()
+                        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                        .HtmlAttributes(new { @class = "pwGrid" })
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Sort(sort => { sort.Add("CreatedDate").Descending(); })
+                            .PageSize(50)
+                            .Read(read => read.Action("ListContract", "ExpDocumentAgreement"))
+                        ) )
+            </div>
+              );
+      }))
+<script>
+    $(document).ready(function () {
+        debugger;
+        InitExpDocAgreementGrid('@Model.ToString()');
+        resizeGrid('@("#gridExpDocAgreement" + Model)');
+        $('@("#gridExpDocAgreement" + Model)').data('ModelId', '@Model');
+        $('#@(ViewBag.FilterId+Model.ToString())').click();
+        $('@("#gridExpDocAgreement" + Model)').kendoTooltip({
+            filter: "td.need-cell-tooltip",
+            position: "left",
+            show: function(e){
+                if(this.content.text()){
+                    this.content.parent().css("visibility", "visible");
+                }
+            },
+            hide:function(e){
+                this.content.parent().css("visibility", "hidden");
+            },
+            content: function (e) {
+                debugger;
+                return $(e.target).text();
+            }
+        }).data("kendoTooltip");
+    });
+</script>

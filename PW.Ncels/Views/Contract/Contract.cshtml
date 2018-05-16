@@ -1,0 +1,1071 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Новый договор</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Договоры</a>
+            </li>
+            <li class="active">
+                <strong>Создать договор</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId" />
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="contractForm">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Новый договор
+                        <small>Заполните все поля формы</small>
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction, "Contract")'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="editProject()" check-validate ng-if="!object.Contract.ContractStatus || object.Contract.ContractStatus.Code=='@Contract.StatusNew' || object.Contract.ContractStatus.Code=='@Contract.StatusOnCorrection'">
+                            <i class="fa fa-save"></i>
+                            Сохранить
+                        </button>                        
+                        <button class="btn btn-default btn-sm" type="button" ng-click="sendInProcessing()" ng-if="object.Contract.ContractStatus.Code=='@Contract.StatusNew' || object.Contract.ContractStatus.Code=='@Contract.StatusOnCorrection'"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-if="object.Contract.ContractStatus" ng-click="viewContract('@Model')"><i class="fa fa-eye"></i> Просмотр </button>                        
+                    </div>
+                </div>
+                <form name="contractCreateForm">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-horizontal row">
+                                    <div class="col-lg-5">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Договор составляется с</label>
+                                            <div class="col-lg-8">
+                                                <ui-select ng-model="object.Contract.HolderTypeId" ui-select-selected required theme="bootstrap" ng-change="contractHolderChanged($select)">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in ContractHolderType | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-4">Подписант со стороны НЦЭЛС</label>
+                                            <div class="col-lg-8">
+                                                <ui-select ng-model="object.Contract.SignerId" ui-select-selected required theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in Signers | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="form-group">
+                                            <label class="control-label col-lg-6">Подписывать договор ЭЦП</label>
+                                            <div class="col-lg-6">
+                                                <ui-select ng-model="object.Contract.IsHasDigCert" required ui-select-selected theme="bootstrap">
+                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                    <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#tab-1">Производитель</a></li>
+                                        <li class=""><a data-toggle="tab" href="#tab-2">Заявитель</a></li>
+                                        @*<li class=""><a data-toggle="tab" href="#tab-3">Доверенное лицо</a></li>*@
+                                        <li class=""><a data-toggle="tab" href="#tab-4">Держатель регистрационного удостоверения</a></li>
+                                        <li class=""><a data-toggle="tab" href="#tab-5">Плательщик</a></li>
+                                        <li class=""><a data-toggle="tab" href="#tab-6">Плательщик за перевод</a></li>
+                                        <li class=""><a data-toggle="tab" href="#tab-7">Вложения</a></li>
+                                        <li ng-if="object.Contract.ContractStatus && object.Contract.ContractStatus.Code!=='@Contract.StatusNew'" class=""><a data-toggle="tab" href="#tab-8"><h3 style="color: red">Замечания</h3></a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tab-1" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(manufacturesSource, 'Manufacture', 'manufacture')"><i class="glyphicon glyphicon-erase"></i> Очистить данные производителя</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать производителя из справочника</label>
+                                                            <div style="color: maroon" role="alert">«В случае отсутствия наименования производителя в справочнике, необходимо заполнить поле «Наименование на русском языке», «Наименование на английском языке»</div>
+                                                            <ui-select ng-model="manufacturesSource.selected" theme="bootstrap" ng-change="fetchOrganization('manufacturesSource', object.Manufacture, copyManufactureFields,'manufacture')">
+                                                                <ui-select-match placeholder="Введите наименование производителя для поиска в справочнике">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in manufacturesSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'manufacturesSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'manufacturesSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="manufacturesSource.loading || manufacturesSource.page>manufacturesSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма</label>
+                                                            <ui-select name="object.Manufacture.OpfTypeDicId" ng-model="object.Manufacture.OpfTypeDicId" theme="bootstrap" ng-change="setSelectedCode('OpfType','manufactureOpfType',object.Manufacture.OpfTypeDicId);syncOrgs(object.Manufacture,'manufacture');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.NameRu">Наименование на русском языке *</label>
+                                                            <input name="object.Manufacture.NameRu" ng-model="object.Manufacture.NameRu" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.NameEn">Наименование на английском языке *</label>
+                                                            <div ng-show="contractCreateForm.manufactureEnName.$invalid" style="color: maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="manufactureEnName" ng-model="object.Manufacture.NameEn" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.CountryDicId">Страна *</label>
+                                                            <ui-select name="object.Manufacture.CountryDicId" ng-model="object.Manufacture.CountryDicId" ui-select-selected required theme="bootstrap" ng-change="setSelectedCode('Country','manufactureCountry',object.Manufacture.CountryDicId);syncOrgs(object.Manufacture,'manufacture');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.AddressLegal">Юридический адрес *</label>
+                                                            <input name="object.Manufacture.AddressLegal" ng-model="object.Manufacture.AddressLegal" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.AddressFact">Фактический адрес *</label>
+                                                            <input name="object.Manufacture.AddressFact" ng-model="object.Manufacture.AddressFact" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.Phone">Телефон *</label>
+                                                            <input name="object.Manufacture.Phone" ng-model="object.Manufacture.Phone" class="form-control required" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.Email">e-mail *</label>
+                                                            <input name="object.Manufacture.Email" ng-model="object.Manufacture.Email" placeholder="example@mail.ru" class="form-control" type="text" ui-select-selected required ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.BossLastName">Фамилия первого руководителя *</label>
+                                                            <input name="object.Manufacture.BossLastName" ng-model="object.Manufacture.BossLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.BossFirstName">Имя первого руководителя *</label>
+                                                            <input name="object.Manufacture.BossFirstName" ng-model="object.Manufacture.BossFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <input name="object.Manufacture.BossMiddleName" ng-model="object.Manufacture.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Должность первого руководителя</label>
+                                                            <input name="object.Manufacture.BossPosition" ng-model="object.Manufacture.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Manufacture.BankName">Название банка *</label>
+                                                            <input name="object.Manufacture.BankName" ng-model="object.Manufacture.BankName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureCountry=='KZ'">
+                                                            <label>ИИК</label>
+                                                            <input name="object.Manufacture.BankIik" ng-model="object.Manufacture.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureCountry!='KZ'">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.Manufacture.PaymentBill" ng-model="object.Manufacture.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.Manufacture.BankCurencyDicId" ng-model="object.Manufacture.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureCountry!='KZ'">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.Manufacture.BankSwift" ng-model="object.Manufacture.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureCountry=='KZ'">
+                                                            <label>БИК</label>
+                                                            <input name="object.Manufacture.BankBik" ng-model="object.Manufacture.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureCountry=='KZ'">
+                                                            <label>БИН</label>
+                                                            <input name="object.Manufacture.Bin" ng-model="object.Manufacture.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="manufactureOpfType=='fl'">
+                                                            <label>ИИН</label>
+                                                            <input name="object.Manufacture.Iin" ng-model="object.Manufacture.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Manufacture,'manufacture');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-2" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" ng-model="applicantIsManufacture" ng-change="applicantIsManufactureChanged(applicantIsManufacture)"> Является производителем
+                                                            </label>
+                                                        </div>
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(applicantSource, 'Applicant', 'applicant')"><i class="glyphicon glyphicon-erase"></i> Очистить данные заявителя</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать заявителя из справочника</label>
+                                                            <div style="color:maroon" role="alert">«В случае отсутствия наименования заявителя в справочнике, необходимо заполнить поле «Наименование на русском языке», «Наименование на английском языке»</div>
+                                                            <ui-select ng-model="applicantSource.selected" theme="bootstrap" ng-change="fetchOrganization('applicantSource', object.Applicant, copyApplicantFields,'applicant')">
+                                                                <ui-select-match placeholder="Введите наименование заявителя для поиска в справочнике">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in applicantSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'applicantSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'applicantSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="applicantSource.loading || applicantSource.page>applicantSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма</label>
+                                                            <ui-select name="object.Applicant.OpfTypeDicId" ng-model="object.Applicant.OpfTypeDicId" theme="bootstrap" ng-change="setSelectedCode('OpfType','applicantOpfType',object.Applicant.OpfTypeDicId);syncOrgs(object.Applicant,'applicant');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.NameRu">Наименование на русском языке *</label>
+                                                            <input name="object.Applicant.NameRu" ng-model="object.Applicant.NameRu" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на английском языке</label>
+                                                            <div ng-show="contractCreateForm.applicantEnName.$invalid" style="color:maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="applicantEnName" ng-model="object.Applicant.NameEn" placeholder="Введите значение" class="form-control" type="text" ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.CountryDicId">Страна *</label>
+                                                            <ui-select name="object.Applicant.CountryDicId" ng-model="object.Applicant.CountryDicId" ui-select-selected required theme="bootstrap" ng-change="setSelectedCode('Country','applicantCountry',object.Applicant.CountryDicId);syncOrgs(object.Applicant,'applicant');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.AddressLegal">Юридический адрес *</label>
+                                                            <input name="object.Applicant.AddressLegal" ng-model="object.Applicant.AddressLegal" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.AddressFact">Фактический адрес *</label>
+                                                            <input name="object.Applicant.AddressFact" ng-model="object.Applicant.AddressFact" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.Phone">Телефон *</label>
+                                                            <input name="object.Applicant.Phone" ng-model="object.Applicant.Phone" class="form-control required" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.Email">e-mail *</label>
+                                                            <input name="object.Applicant.Email" ng-model="object.Applicant.Email" placeholder="example@mail.ru" class="form-control" type="text" ui-select-selected required ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.BossLastName">Фамилия подписывающего лица *</label>
+                                                            <input name="object.Applicant.BossLastName" ng-model="object.Applicant.BossLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.BossFirstName">Имя подписывающего лица *</label>
+                                                            <input name="object.Applicant.BossFirstName" ng-model="object.Applicant.BossFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Отчество подписывающего лица</label>
+                                                            <input name="object.Applicant.BossMiddleName" ng-model="object.Applicant.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Должность подписывающего лица</label>
+                                                            <input name="object.Applicant.BossPosition" ng-model="object.Applicant.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Applicant.BankName">Название банка *</label>
+                                                            <input name="object.Applicant.BankName" ng-model="object.Applicant.BankName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantCountry=='KZ'">
+                                                            <label>ИИК</label>
+                                                            <input name="object.Applicant.BankIik" ng-model="object.Applicant.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantCountry!='KZ'">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.Applicant.PaymentBill" ng-model="object.Applicant.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.Applicant.BankCurencyDicId" ng-model="object.Applicant.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantCountry!='KZ'">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.Applicant.BankSwift" ng-model="object.Applicant.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantCountry=='KZ'">
+                                                            <label>БИК</label>
+                                                            <input name="object.Applicant.BankBik" ng-model="object.Applicant.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantOpfType!='fl' && applicantCountry=='KZ'">
+                                                            <label>БИН</label>
+                                                            <input name="object.Applicant.Bin" ng-model="object.Applicant.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="applicantOpfType=='fl'">
+                                                            <label>ИИН</label>
+                                                            <input name="object.Applicant.Iin" ng-model="object.Applicant.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Applicant,'applicant');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label>Вид документа</label>
+                                                            <ui-select name="object.Contract.DoverennostTypeDicId" ng-model="object.Contract.DoverennostTypeDicId" theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in DoverennostType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Наличие номера</label>
+                                                            <ui-select name="object.Contract.IsHasDoverennostNumber" ng-model="object.Contract.IsHasDoverennostNumber" ui-select-selected required theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group" ng-if="object.Contract.IsHasDoverennostNumber">
+                                                            <label>Номер документа</label>
+                                                            <input name="object.Contract.DoverennostNumber" ng-model="object.Contract.DoverennostNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Срок действия с</label>                                                            
+                                                            <div class="input-group">
+                                                                <input  name="object.Contract.DoverennostCreatedDate" class="form-control datepicker"
+                                                                       placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup="dd.MM.yyyy"
+                                                                       datepicker-options="datePicker.doverennostCreatedDateOptions"
+                                                                       is-open="datePicker.doverennostCreatedDateStatus.opened"
+                                                                       ng-model="object.Contract.DoverennostCreatedDate"
+                                                                       ng-click="datePicker.doverennostCreatedDateOpen($event)"
+                                                                       ui-select-selected />
+                                                                <span class="input-group-addon" ng-click="datePicker.doverennostCreatedDateOpen($event)">
+                                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Срок действия по</label>                                                            
+                                                            <div class="input-group">
+                                                                <input  name="object.Contract.DoverennostExpiryDate" class="form-control datepicker"
+                                                                        placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup="dd.MM.yyyy"
+                                                                        datepicker-options="datePicker.doverennostExpiryDateOptions"
+                                                                        is-open="datePicker.doverennostExpiryDateStatus.opened"
+                                                                        ng-model="object.Contract.DoverennostExpiryDate"
+                                                                        ng-click="datePicker.doverennostExpiryDateOpen($event)"
+                                                                        ui-select-selected />
+                                                                <span class="input-group-addon" ng-click="datePicker.doverennostExpiryDateOpen($event)">
+                                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*<div id="tab-3" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">                                                        
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(agentSource, 'Agent', 'agent')"><i class="glyphicon glyphicon-erase"></i> Очистить данные доверенного лица</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать доверенное лицо из справочника</label>
+                                                            <div style="color:maroon" role="alert">«В случае отсутствия наименования доверенного лица в справочнике, необходимо заполнить поле «Наименование на русском языке», «Наименование на английском языке»</div>
+                                                            <ui-select ng-model="agentSource.selected" theme="bootstrap" ng-change="fetchOrganization('agentSource', object.Agent, copyAgentFields,'agent')">
+                                                                <ui-select-match placeholder="Введите наименование доверенного лица для поиска в справочнике">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in agentSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'agentSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'agentSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="agentSource.loading || agentSource.page>agentSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма</label>
+                                                            <ui-select name="object.Agent.OpfTypeDicId" ng-model="object.Agent.OpfTypeDicId" theme="bootstrap" ng-change="setSelectedCode('OpfType','agentOpfType',object.Agent.OpfTypeDicId);syncOrgs(object.Agent,'agent');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на русском языке</label>
+                                                            <input name="object.Agent.NameRu" ng-model="object.Agent.NameRu" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');agentAttachValidation()">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на английском языке</label>
+                                                            <div ng-show="contractCreateForm.agentEnName.$invalid" style="color:maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="agentEnName" ng-model="object.Agent.NameEn" placeholder="Введите значение" class="form-control" type="text" ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Agent,'agent');agentAttachValidation()">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Страна</label>
+                                                            <ui-select name="object.Agent.CountryDicId" ng-model="object.Agent.CountryDicId" ui-select-selected theme="bootstrap" ng-change="setSelectedCode('Country','agentCountry',object.Agent.CountryDicId);syncOrgs(object.Agent,'agent');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Юридический адрес</label>
+                                                            <input name="object.Agent.AddressLegal" ng-model="object.Agent.AddressLegal" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Фактический адрес</label>
+                                                            <input name="object.Agent.AddressFact" ng-model="object.Agent.AddressFact" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Телефон</label>
+                                                            <input name="object.Agent.Phone" ng-model="object.Agent.Phone" class="form-control required" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>e-mail</label>
+                                                            <input name="object.Agent.Email" ng-model="object.Agent.Email" placeholder="example@mail.ru" class="form-control" type="text" ui-select-selected ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label>Фамилия подписывающего лица</label>
+                                                            <input name="object.Agent.BossLastName" ng-model="object.Agent.BossLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Имя подписывающего лица</label>
+                                                            <input name="object.Agent.BossFirstName" ng-model="object.Agent.BossFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Отчество подписывающего лица</label>
+                                                            <input name="object.Agent.BossMiddleName" ng-model="object.Agent.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Должность подписывающего лица</label>
+                                                            <input name="object.Agent.BossPosition" ng-model="object.Agent.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Название банка</label>
+                                                            <input name="object.Agent.BankName" ng-model="object.Agent.BankName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentCountry=='KZ'">
+                                                            <label>ИИК</label>
+                                                            <input name="object.Agent.BankIik" ng-model="object.Agent.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentCountry!='KZ'">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.Agent.PaymentBill" ng-model="object.Agent.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.Agent.BankCurencyDicId" ng-model="object.Agent.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.Agent,'agent');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentCountry!='KZ'">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.Agent.BankSwift" ng-model="object.Agent.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentCountry=='KZ'">
+                                                            <label>БИК</label>
+                                                            <input name="object.Agent.BankBik" ng-model="object.Agent.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentOpfType!='fl' && agentCountry=='KZ'">
+                                                            <label>БИН</label>
+                                                            <input name="object.Agent.Bin" ng-model="object.Agent.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="agentOpfType=='fl'">
+                                                            <label>ИИН</label>
+                                                            <input name="object.Agent.Iin" ng-model="object.Agent.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Agent,'agent');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label>Вид документа</label>
+                                                            <ui-select name="object.Contract.AgentDocTypeDicId" ng-model="object.Contract.AgentDocTypeDicId" theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in DoverennostType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Наличие номера</label>
+                                                            <ui-select name="object.Contract.IsHasAgentDocNumber" ng-model="object.Contract.IsHasAgentDocNumber" ui-select-selected theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group" ng-if="object.Contract.IsHasAgentDocNumber">
+                                                            <label>Номер документа</label>
+                                                            <input name="object.Contract.AgentDocNumber" ng-model="object.Contract.AgentDocNumber" placeholder="Введите значение" class="form-control" type="text">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Срок действия с</label>
+                                                            <div class="input-group">
+                                                                <input name="object.Contract.AgentDocCreateDate" class="form-control datepicker"
+                                                                       placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup="dd.MM.yyyy"
+                                                                       datepicker-options="datePicker.agentDocCreatedDateOptions"
+                                                                       is-open="datePicker.agentDocCreatedDateStatus.opened"
+                                                                       ng-model="object.Contract.AgentDocCreateDate"
+                                                                       ng-click="datePicker.agentDocCreatedDateOpen($event)"
+                                                                       ui-select-selected />
+                                                                <span class="input-group-addon" ng-click="datePicker.agentDocCreatedDateOpen($event)">
+                                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <div class="form-group">
+                                                            <label>Срок действия по</label>
+                                                            <div class="input-group">
+                                                                <input name="object.Contract.AgentDocExpiryDate" class="form-control datepicker"
+                                                                       placeholder="ДД.ММ.ГГГГ" uib-datepicker-popup="dd.MM.yyyy"
+                                                                       datepicker-options="datePicker.agentDocExpiryDateOptions"
+                                                                       is-open="datePicker.agentDocExpiryDateStatus.opened"
+                                                                       ng-model="object.Contract.AgentDocExpiryDate"
+                                                                       ng-click="datePicker.agentDocExpiryDateOpen($event)"
+                                                                       ui-select-selected />
+                                                                <span class="input-group-addon" ng-click="datePicker.agentDocExpiryDateOpen($event)">
+                                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                        <div id="tab-4" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(holderSource, 'Holder', 'holder')"><i class="glyphicon glyphicon-erase"></i> Очистить данные держателя рег. удостоверения</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать держателя из справочника</label>
+                                                            <div style="color: maroon" role="alert">«В случае отсутствия наименования держателя в справочнике, необходимо заполнить поле «Наименование на русском языке», «Наименование на английском языке»</div>
+                                                            <ui-select ng-model="holderSource.selected" theme="bootstrap" ng-change="fetchOrganization('holderSource', object.Holder, copyHolderFields,'holder')">
+                                                                <ui-select-match placeholder="Введите наименование держателя">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in holderSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'holderSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'holderSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="holderSource.loading || holderSource.page>holderSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <ui-select name="object.Holder.OpfTypeDicId" ng-model="object.Holder.OpfTypeDicId" theme="bootstrap" ng-change="setSelectedCode('OpfType','holderOpfType',object.Holder.OpfTypeDicId);syncOrgs(object.Holder,'holder');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на русском языке{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.NameRu" ng-model="object.Holder.NameRu" placeholder="Введите значение" ng-required="object.Contract.HolderTypeCode==='holder'" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Наименование на английском языке{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <div ng-show="contractCreateForm.holderEnName.$invalid" style="color: maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="holderEnName" ng-model="object.Holder.NameEn" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Страна{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <ui-select name="object.Holder.CountryDicId" ng-required="object.Contract.HolderTypeCode==='holder'" ng-model="object.Holder.CountryDicId" theme="bootstrap" ng-change="setSelectedCode('Country','holderCountry',object.Holder.CountryDicId);syncOrgs(object.Holder,'holder');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Юридический адрес{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.AddressLegal" ng-model="object.Holder.AddressLegal" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Фактический адрес{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.AddressFact" ng-model="object.Holder.AddressFact" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Телефон{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.Phone" ng-model="object.Holder.Phone" ng-required="object.Contract.HolderTypeCode==='holder'" class="form-control" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>e-mail{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.Email" ng-model="object.Holder.Email" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="example@mail.ru" class="form-control" type="text" ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group">
+                                                            <label>Фамилия первого руководителя{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.BossLastName" ng-model="object.Holder.BossLastName" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Имя первого руководителя{{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.BossFirstName" ng-model="object.Holder.BossFirstName" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <input name="object.Holder.BossMiddleName" ng-model="object.Holder.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Должность первого руководителя</label>
+                                                            <input name="object.Holder.BossPosition" ng-model="object.Holder.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Название банка {{object.Contract.HolderTypeCode==='holder' ? ' *': ''}}</label>
+                                                            <input name="object.Holder.BankName" ng-model="object.Holder.BankName" ng-required="object.Contract.HolderTypeCode==='holder'" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderCountry=='KZ'">
+                                                            <label>ИИК</label>
+                                                            <input name="object.Holder.BankIik" ng-model="object.Holder.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderCountry!='KZ'">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.Holder.PaymentBill" ng-model="object.Holder.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.Holder.BankCurencyDicId" ng-model="object.Holder.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.Holder,'holder');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderCountry!='KZ'">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.Holder.BankSwift" ng-model="object.Holder.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderCountry=='KZ'">
+                                                            <label>БИК</label>
+                                                            <input name="object.Holder.BankBik" ng-model="object.Holder.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderCountry=='KZ'">
+                                                            <label>БИН</label>
+                                                            <input name="object.Holder.Bin" ng-model="object.Holder.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="holderOpfType=='fl'">
+                                                            <label>ИИН</label>
+                                                            <input name="object.Holder.Iin" ng-model="object.Holder.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Holder,'holder');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-5" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(payerSource, 'Payer', 'payer', object.NewPayerId)"><i class="glyphicon glyphicon-erase"></i> Очистить данные плательщика</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать плательщика из справочника</label>
+                                                            <div style="color: maroon" role="alert">«В случае отсутствия наименования плательщика в справочнике, необходимо заполнить поле «Наименование»</div>
+                                                            <ui-select ng-model="payerSource.selected" theme="bootstrap" ng-disabled="selection.payerType.Code!=='other'" ng-change="fetchOrganization('payerSource', object.Payer, null,'payer')">
+                                                                <ui-select-match placeholder="Введите наименование плательщика">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in payerSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'payerSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'payerSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="payerSource.loading || payerSource.page>payerSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Payer.IsResident">Резидент РК *</label>
+                                                            <ui-select ng-model="object.Payer.IsResident" ui-select-selected required theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="selection.payerType">Плательщик *</label>
+                                                            <ui-select ng-model="selection.payerType" ui-select-selected required theme="bootstrap" ng-change="selectPayer(selection.payerType, object.Payer)">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in PayerType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма *</label>
+                                                            <ui-select name="object.Payer.OpfTypeDicId" ng-model="object.Payer.OpfTypeDicId" ui-select-selected required theme="bootstrap" ng-change="syncOrgs(object.Payer,'payer');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Payer.NameRu">Наименование *</label>
+                                                            <input name="object.Payer.NameRu" ng-model="object.Payer.NameRu" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.NameEn">Наименование на английском языке</label>
+                                                            <div ng-show="contractCreateForm.payerEnName.$invalid" style="color: maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="payerEnName" ng-model="object.Payer.NameEn" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Payer.CountryDicId">Страна *</label>
+                                                            <ui-select name="object.Payer.CountryDicId" ng-model="object.Payer.CountryDicId" ui-select-selected required theme="bootstrap" ng-change="syncOrgs(object.Payer,'payer');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Payer.AddressLegal">Юридический адрес *</label>
+                                                            <input name="object.Payer.AddressLegal" ng-model="object.Payer.AddressLegal" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.AddressFact">Фактический адрес</label>
+                                                            <input name="object.Payer.AddressFact" ng-model="object.Payer.AddressFact" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.Phone">Телефон</label>
+                                                            <input name="object.Payer.Phone" ng-model="object.Payer.Phone" class="form-control" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.Email">e-mail</label>
+                                                            <input name="object.Payer.Email" ng-model="object.Payer.Email" placeholder="example@mail.ru" class="form-control" type="text" ui-select-selected ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.BossLastName">Фамилия первого руководителя</label>
+                                                            <input name="object.Payer.BossLastName" ng-model="object.Payer.BossLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label for="object.Payer.BossFirstName">Имя первого руководителя</label>
+                                                            <input name="object.Payer.BossFirstName" ng-model="object.Payer.BossFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <input name="object.Payer.BossMiddleName" ng-model="object.Payer.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerType.Code!=='other'">
+                                                            <label>Должность первого руководителя</label>
+                                                            <input name="object.Payer.BossPosition" ng-model="object.Payer.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.Payer.BankName">Название банка *</label>
+                                                            <input name="object.Payer.BankName" ng-model="object.Payer.BankName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected required ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.Payer.IsResident">
+                                                            <label>ИИК</label>
+                                                            <input name="object.Payer.BankIik" ng-model="object.Payer.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="!object.Payer.IsResident">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.Payer.PaymentBill" ng-model="object.Payer.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.Payer.BankCurencyDicId" ng-model="object.Payer.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.Payer,'payer');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="!object.Payer.IsResident">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.Payer.BankSwift" ng-model="object.Payer.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.Payer.IsResident">
+                                                            <label>БИК</label>
+                                                            <input name="object.Payer.BankBik" ng-model="object.Payer.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.Payer.IsResident">
+                                                            <label>БИН</label>
+                                                            <input name="object.Payer.Bin" ng-model="object.Payer.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.Payer.IsResident">
+                                                            <label>ИИН</label>
+                                                            <input name="object.Payer.Iin" ng-model="object.Payer.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.Payer,'payer');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-6" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6 b-r">
+                                                        <div class="row">
+                                                            <button class="btn btn-default col-lg-12" type="button" ng-click="clearOrgTabData(payerTranslationSource, 'PayerTranslation', 'payerTranslation', object.NewPayerTranslationId)"><i class="glyphicon glyphicon-erase"></i> Очистить данные плательщика за перевод</button>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Выбрать плательщика за перевод из справочника</label>
+                                                            <div style="color: maroon" role="alert">«В случае отсутствия наименования плательщика за перевод в справочнике, необходимо заполнить поле «Наименование»</div>
+
+                                                            <ui-select ng-model="payerTranslationSource.selected" theme="bootstrap" ng-disabled="selection.payerTranslation.Code!=='other'" ng-change="fetchOrganization('payerTranslationSource', object.PayerTranslation,null,'payerTranslation')">
+                                                                <ui-select-match placeholder="Введите наименование плательщика за перевод">{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in payerTranslationSource.items | filter: $select.search" refresh="fetchOrganizations($select, 'payerTranslationSource')" refresh-delay="1000">
+                                                                    <div ng-bind-html="item.Name"></div>
+                                                                    <div ng-if="$index == $select.items.length-1">
+                                                                        <button class="btn btn-xs btn-success" ng-click="fetchOrganizations($select, 'payerTranslationSource', $event)"
+                                                                                style="width: 100%; margin-top: 5px;"
+                                                                                ng-disabled="payerTranslationSource.loading || payerTranslationSource.page>payerTranslationSource.lastPage">
+                                                                            Загрузить еще...
+                                                                        </button>
+                                                                    </div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.PayerTranslation.IsResident">Резидент РК</label>
+                                                            <ui-select ng-model="object.PayerTranslation.IsResident" ui-select-selected theme="bootstrap">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="selection.payerTranslation">Плательщик за перевод</label>
+                                                            <ui-select ng-model="selection.payerTranslation" ui-select-selected theme="bootstrap" ng-change="selectPayer(selection.payerTranslation,object.PayerTranslation)">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item in PayerType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Организационная форма</label>
+                                                            <ui-select name="object.PayerTranslation.OpfTypeDicId" ng-model="object.PayerTranslation.OpfTypeDicId" ui-select-selected theme="bootstrap" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.PayerTranslation.NameRu">Наименование</label>
+                                                            <input name="object.PayerTranslation.NameRu" ng-model="object.PayerTranslation.NameRu" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.NameEn">Наименование на английском языке</label>
+                                                            <div ng-show="contractCreateForm.payerTranslationEnName.$invalid" style="color: maroon" role="alert">В наименование должны быть только символы английского алфавита</div>
+                                                            <input name="payerTranslationEnName" ng-model="object.PayerTranslation.NameEn" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-pattern="enName" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.PayerTranslation.CountryDicId">Страна</label>
+                                                            <ui-select name="object.PayerTranslation.CountryDicId" ng-model="object.PayerTranslation.CountryDicId" ui-select-selected theme="bootstrap" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.PayerTranslation.AddressLegal">Юридический адрес</label>
+                                                            <input name="object.PayerTranslation.AddressLegal" ng-model="object.PayerTranslation.AddressLegal" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.AddressFact">Фактический адрес</label>
+                                                            <input name="object.PayerTranslation.AddressFact" ng-model="object.PayerTranslation.AddressFact" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.Phone">Телефон</label>
+                                                            <input name="object.PayerTranslation.Phone" ng-model="object.PayerTranslation.Phone" class="form-control" type="text" ng-model-options="{allowInvalid:true}" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.Email">e-mail</label>
+                                                            <input name="object.PayerTranslation.Email" ng-model="object.PayerTranslation.Email" placeholder="example@mail.ru" class="form-control" type="text" ui-select-selected ng-pattern="emailPattern" ng-model-options="{allowInvalid:true}" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 b-l">
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.BossLastName">Фамилия первого руководителя</label>
+                                                            <input name="object.PayerTranslation.BossLastName" ng-model="object.PayerTranslation.BossLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label for="object.PayerTranslation.BossFirstName">Имя первого руководителя</label>
+                                                            <input name="object.PayerTranslation.BossFirstName" ng-model="object.PayerTranslation.BossFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label>Отчество первого руководителя</label>
+                                                            <input name="object.PayerTranslation.BossMiddleName" ng-model="object.PayerTranslation.BossMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="selection.payerTranslation.Code!=='other'">
+                                                            <label>Должность первого руководителя</label>
+                                                            <input name="object.PayerTranslation.BossPosition" ng-model="object.PayerTranslation.BossPosition" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="object.PayerTranslation.BankName">Название банка</label>
+                                                            <input name="object.PayerTranslation.BankName" ng-model="object.PayerTranslation.BankName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.PayerTranslation.IsResident">
+                                                            <label>ИИК</label>
+                                                            <input name="object.PayerTranslation.BankIik" ng-model="object.PayerTranslation.BankIik" placeholder="Введите значение" class="form-control" type="text" ui-mask="********************" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="!object.PayerTranslation.IsResident">
+                                                            <label>Расчетный счет</label>
+                                                            <input name="object.PayerTranslation.PaymentBill" ng-model="object.PayerTranslation.PaymentBill" placeholder="Введите значение" class="form-control" type="text" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Валюта</label>
+                                                            <ui-select name="object.PayerTranslation.BankCurencyDicId" ng-model="object.PayerTranslation.BankCurencyDicId" theme="bootstrap" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
+                                                        </div>
+                                                        <div class="form-group" ng-if="!object.PayerTranslation.IsResident">
+                                                            <label>SWIFT</label>
+                                                            <input name="object.PayerTranslation.BankSwift" ng-model="object.PayerTranslation.BankSwift" placeholder="Введите значение" class="form-control" type="text" ui-mask="********" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.PayerTranslation.IsResident">
+                                                            <label>БИК</label>
+                                                            <input ng-model="object.PayerTranslation.BankBik" placeholder="Введите значение" class="form-control" type="text" ui-mask="AAAAAAAA" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.PayerTranslation.IsResident">
+                                                            <label>БИН</label>
+                                                            <input name="object.PayerTranslation.Bin" ng-model="object.PayerTranslation.Bin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                        <div class="form-group" ng-if="object.PayerTranslation.IsResident">
+                                                            <label>ИИН</label>
+                                                            <input name="object.PayerTranslation.Iin" ng-model="object.PayerTranslation.Iin" placeholder="Введите значение" class="form-control" type="text" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_" ng-change="syncOrgs(object.PayerTranslation,'payerTranslation');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-7" class="tab-pane">
+                                            <div class="panel-body">
+                                                <h3 class="m-t-none m-b">3. Вложения</h3>
+                                                <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                                <attach-edit metadata="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="sysAttachContractDict" path="@Model" />
+                                            </div>
+                                        </div>
+                                        <div ng-if="object.Contract.ContractStatus && object.Contract.ContractStatus.Code!=='@Contract.StatusNew'" id="tab-8" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <grid-object url="\Contract\ListComments?contractId=@(Model)" column-order="0"></grid-object>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="contractHolderChanged.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Предупреждение</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <p>Держатель регистрационного удостоверения является производителем?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" type="button" ng-click="fillManufacturerFromHolder()">Да</button>
+            <button class="btn btn-white" type="button" ng-click="cancelFillManufacturerFromHolder()">Нет</button>
+        </div>
+    </script>
+</div>

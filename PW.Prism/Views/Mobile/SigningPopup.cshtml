@@ -1,0 +1,73 @@
+﻿@model PW.Ncels.Database.DataModel.Task
+
+<div>
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button pw-back" data-align="left" data-role="backbutton" id="cancel">Назад</a>
+            <span data-role="view-title">На регистрацию</span>
+
+            <a class="nav-button" data-align="right" data-role="button" id="done" onclick="sendToRegisterclick()">Да</a>
+        </div>
+    </header>
+    <form id="sendToRegisterform">
+        @Html.HiddenFor(o => o.Id)
+        <ul data-role="listview" data-style="inset" onclick="">
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Документ_298__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <span class="pw-right-fix">@Html.DisplayFor(o => o.Document.Number)</span>
+
+                        @PW.Ncels.Database.Recources.Messages.Property_от_400__00
+
+                        @String.Format("{0:dd/MM/yyyy}", Model.Document.DocumentDate)
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="fullTaskMobileWindow">
+                    <div class="leftTaskMobileWindow">
+                        <label>
+                            @PW.Ncels.Database.Recources.Messages.Property_Текст_351__00
+                        </label>
+                    </div>
+                    <div class="rightTaskMobileWindow">
+                        <label>
+                            <input id="NoteSigning" name="Note" class="pw-text" type="text" required validationmessage="Текст:"/>
+                        </label>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+</div>
+
+<script>
+    var validator = $("#sendToRegisterform").kendoValidator().data("kendoValidator");
+    //Кнопка да отправить на регистрацию--------------------------------------------
+    function sendToRegisterclick() {
+        if (validator.validate()) {
+            startLoading();
+            var dataId = '@Model.Id';
+            var dataform = $('#sendToRegisterform').serialize();
+            $.ajax({
+                type: 'POST',
+                url: '/Mobile/SigningConfirm?TaskId=' + dataId,
+                dataType: 'json',
+                data: dataform,
+                success: function (result) {
+                    kendo.mobile.application.navigate("#:back");
+                    kendo.mobile.application.pane.loader.hide();
+                },
+            });
+        }
+    }
+    function startLoading() {
+        kendo.mobile.application.changeLoadingMessage("Ждите!");
+        kendo.mobile.application.showLoading();
+    }
+</script>

@@ -1,0 +1,137 @@
+﻿@using PW.Ncels.Database.Constants
+
+@model Guid
+
+<script>
+    class MR {
+        constructor(entity) {
+            this._html = {
+                DeclarantName: $("#mrDeclarantName" + modelId),
+                DeclarationNumber: $("#mrDeclarationNumber" + modelId),
+                ECNumber: $("#mrECNumber" + modelId),
+                ECDate: $("#mrECDate" + modelId),
+                ECResult: $("#mrECResult" + modelId)
+            }
+
+            this.DeclarantName = entity.DeclarantName;
+            this.DeclarationNumber = entity.DeclarationNumber;
+            this.ECNumber = entity.ECNumber;
+            this.ECDate = entity.ECDate;
+            this.ECResult = entity.ECResult;
+        }
+
+        set DeclarantName(val) { this._html.DeclarantName.val(val); }
+        set DeclarationNumber(val) { this._html.DeclarationNumber.val(val); }
+        set ECNumber(val) { this._html.ECNumber.val(val); }
+        set ECDate(val) { this._html.ECDate.val(val); }
+        set ECResult(val) { this._html.ECResult.val(val); }
+    }
+
+    var modelId = "@Model";
+    var mr;
+
+    function loadRefusal() {
+        $.ajax({
+            url: "/OP/GetMotivationRefusal",
+            data: {
+                declarationId: modelId
+            },
+            success: function (res) {
+                mr = new MR(res);
+            },
+            error: err => {
+                console.error(err);
+            }
+        })
+    }
+
+    function mrUpdateHtml() {
+        if (isAssessmentExecutor && report.StatusCode == "OPMotivatedRefusalNew")
+            $("#mrSign" + modelId).show();
+        else
+            $("#mrSign" + modelId).hide();
+    }
+
+    function mrInit() {
+        loadRefusal();
+        mrUpdateHtml();
+    }
+
+    function viewOpMotivationRefuse() {
+        $.ajax({
+            type: 'POST',
+            url: '/OP/ViewMotivationRefuse/',
+            data: { declarationId: modelId },
+            success: function (data) {
+                $("#mrOPWindowFrame" + modelId).html(data);
+            }
+        });
+    }
+
+    function mrSign() {
+        $.ajax({
+            type: 'GET',
+            url: '/OP/GetSign?id=' + modelId,
+            data: { declarationId : modelId },
+            success: function (result) {
+                startSign(result.data, modelId, saveMotivationRefuseSign);
+            }
+        });
+    }
+
+    function saveMotivationRefuseSign(signedData, id) {
+        var data1 = {
+            id: id,
+            signedData: signedData
+        };
+        var json = JSON.stringify(data1);
+        $.ajax({
+            type: 'POST',
+            url: '/OP/SaveSigned',
+            contentType: 'application/json; charset=utf-8',
+            data: json,
+            success: function (result) {
+                alert(result.message);
+                loadReport();
+                loadRefusal();
+                mrUpdateHtml();
+            }
+        });
+    }
+</script>
+
+<div class="">
+    <button id="mrSign@(Model)" class="k-button" onclick="mrSign()" hidden>Подписать</button>
+    <button class="k-button" onclick="viewOpMotivationRefuse()">Просмотр</button>
+    <br /><br />
+    <div class="form-group">
+        <label>Наименование Заявителя:</label>
+        <input type="text" class="k-textbox" readonly id="mrDeclarantName@(Model)">
+    </div>
+    <div class="form-group">
+        <label>Номер заявки:</label>
+        <input type="text" class="k-textbox" readonly id="mrDeclarationNumber@(Model)">
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <label>Протокол Экспертного Совета</label><br /><br />
+            <div class="form-group">
+                <label>Номер:</label>
+                <input type="text" class="k-textbox" readonly id="mrECNumber@(Model)">
+            </div>
+            <div class="form-group">
+                <label>Дата:</label>
+                <input type="text" class="k-textbox" readonly id="mrECDate@(Model)">
+            </div>
+            <div class="form-group">
+                <label>Решение</label><br />
+                <textarea class="k-textbox pwWidth100" id="mrECResult@(Model)" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="@("mrOPWindowFrame" + Model)">
+
+    </div>
+
+</div>

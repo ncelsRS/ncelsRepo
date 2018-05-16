@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>Прайс лист</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Референтное ценообразование ЛС, ИМН</a>
+            </li>
+            <li class="active">
+                <strong>Прайс лист</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<input type="hidden" value="@Model" id="projectId" />
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="pharmaProfile">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Личные данные
+                    </h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" type="button" ng-click="editProject()" check-validate><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" type="button" ng-click="send()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-trash"></i> Редактировать</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Регион</label>
+                                <ui-select ng-model="object.RegionDicId" ui-select-selected required theme="bootstrap">
+                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                    <ui-select-choices repeat="item.Id as item in Kato | filter: $select.search">
+                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="object.Phone">Телефон</label>
+                                <input id="plPhone" ng-model="object.Phone" class="form-control required" placeholder="+7(000)-000-00-00" ui-input-valid ui-mask="+7(999)-999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" type="text" ui-select-selected required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Фармацевтическая деятельность</label>
+                                @*ng-init="object.Manufacture.CountryDicId=true"*@
+                                @*<ui-select ng-model="object.PharmaType" ui-select-selected required theme="bootstrap" ng-change="PharmaTypeChange(object.PharmaType)">
+                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                    <ui-select-choices repeat="item.Id as item in PharmaType | filter: $select.search">
+                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>*@
+
+                                <select name="plPharmaType" id="plPharmaType" ng-model="object.PharmaType" class="form-control edit-control main-control" required
+                                        ng-change="PharmaTypeChange(object.PharmaType)">
+                                    <option ng-repeat="item in PharmaTypes | filter: $select.search" value="{{item.Id}}">{{item.Name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Прайс лист
+                        <small>Загрузите прайс листы</small>
+                    </h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div style="overflow-y: scroll; height: 700px; ">
+                                <grid-integration-object object-id="priceListsGrid" url="/Project/ReadPriceList?type={{object.PharmaType}}" dt-id="gridPharma" dt-selectfun="selectPharmaGrid" reload-row="reloadPharmaGrid" column-order="1" dt-options="dtOptions" dt-columns="dtColumns1"></grid-integration-object>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

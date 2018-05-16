@@ -1,0 +1,59 @@
+﻿
+@using PW.Ncels.Database.Models
+@model Guid
+
+@{
+    Layout = null;
+}
+<script>
+    function DicParams() {
+        return {
+            id: '@Model'
+        };
+    }
+</script>
+<div class="pwPage">
+         @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.PrtPrjsView2>()
+          .Name("gridPricesView" + Model)
+          .Columns(columns => {
+              columns.Bound(p => p.ProtocolNumber).Width(150).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:120px;' class='btn btn-default btn-xs' onclick=\"getProjectDetails('#=ProtocolId#', '#=ProtocolNumber#')\"><span style=\"color:rgb(66,139,202);\">#=ProtocolNumber#</span></button>" +
+                                    "</div>"
+                                   ).Title("Номер").Width(100);
+              columns.Bound(p => p.ProtocolDate).Title("Дата").Format("{0:dd.MM.yyyy}").Width(100);
+              columns.Bound(p => p.ProtocolSummary).Title("Краткое содержание").Width(100);
+              columns.Bound(p => p.Name).Title("Результат").Width(100);
+              columns.Command(command => {
+                  command.Edit();
+                  command.Destroy();
+              }).Width(55);
+          }).ToolBar(toolbar => toolbar.Create())
+          .Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .Reorderable(reorderable => reorderable.Columns(false))
+          .Resizable(resizable => resizable.Columns(true))
+          .Scrollable(scrollable => scrollable.Virtual(true))
+          .ClientDetailTemplateId("templateProtocols")
+          .HtmlAttributes(new { @class = "pwGridPrice" })
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Sort(sort => sort.Add("ProtocolNumber"))
+              .Model(model => model.Id(p => p.Id))
+              .Read(read => read.Action("PrjPrtsList", "Project", new { id = Model }))
+              .Update(update => update.Action("PrjPrtUpdate", "Application"))
+              .Create(update => update.Action("PrjPrtCreate", "Application", new { id1 = Model }))
+              .Destroy(update => update.Action("PrjPrtDestroy", "Application"))
+          ))
+</div>
+
+<script id="templateProtocols" type="text/kendo-template">
+    @(Html.Kendo().ListView<UploadInitialFile>()
+                    .Name("listViewOutDoc_#=ProtocolId#")
+                    .TagName("div").HtmlAttributes(new { style = "height:auto; border:0; overflow: auto; width: auto;" })
+                    .ClientTemplateId("fileReadTemplate")
+                    .DataSource(dataSource => dataSource.Read(read => read.Action("FileReadonly", "Upload", new { docId = "#=ProtocolId#" }))).ToClientTemplate())
+</script>
+
+<script>
+    InitializeDataIncomingPrice('@Model');
+</script>

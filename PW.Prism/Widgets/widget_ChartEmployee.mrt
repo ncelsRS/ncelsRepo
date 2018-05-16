@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <AutoLocalizeReportOnRun>True</AutoLocalizeReportOnRun>
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <Соединение Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>Соединение</Alias>
+        <ConnectionStringEncrypted>+XTNSUhUQs3iR73MYdjjL5nygYrJWTGkz1q5xGNYZRPVWt0rVlkxnctJ/ZhqGON/jXi7ycZ7k83iQdGETnjgE8Ra2SjvTA==</ConnectionStringEncrypted>
+        <Name>Соединение</Name>
+      </Соединение>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <ИсточникДанных1 Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>ИсточникДанных1</Alias>
+        <Columns isList="true" count="6">
+          <value>ExecutorValue,System.String</value>
+          <value>New,System.Int32</value>
+          <value>Work,System.Int32</value>
+          <value>Expired,System.Int32</value>
+          <value>Done,System.Int32</value>
+          <value>Total,System.Int32</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>ИсточникДанных1</Name>
+        <NameInSource>Соединение</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>EmployeeId,EmployeeId,12,36</value>
+        </Parameters>
+        <SqlCommand>DECLARE @param1 nvarchar(8)
+SET @param1 = (SELECT ep.[PermissionValue] FROM [EmployeePermissions] as ep where ep.EmployeeId = @EmployeeId and ep.PermissionKey = 'IsAllStructureDashboard')
+
+;WITH q AS (
+SELECT  [StateType] = 'New',ExecutorId, fSum = count(*) FROM [Tasks] where State = 0  group by [ExecutorId]
+	UNION ALL SELECT  [StateType] = 'Work',ExecutorId, fSum = count(*) FROM [Tasks] where State in (1,4)  group by [ExecutorId]
+UNION ALL SELECT  [StateType] = 'Expired',ExecutorId, fSum = count(*) FROM [Tasks] as t left join Documents as d on d.Id = t.DocumentId where State in (0,1,4) and d.ExecutionDate &lt; Getdate() and d.StateType &lt;&gt; 9 and d.MonitoringType &gt; 1 group by [ExecutorId]
+UNION ALL SELECT  [StateType] = 'Done',ExecutorId, fSum = count(*) FROM [Tasks] where State in (2,3)  group by [ExecutorId]
+)
+SELECT TOP(10)  (select ShortName from Employees where Id = ExecutorId) as ExecutorValue
+        , New = ISNULL(New, 0)
+        , Work = ISNULL(Work, 0) - ISNULL(Expired, 0)
+        , Expired = ISNULL(Expired, 0)
+        , Done = ISNULL(Done, 0)
+		, Total = ISNULL(New, 0)+ ISNULL(Work, 0) + ISNULL(Done, 0)
+FROM    (SELECT * FROM q where ExecutorId in (select Id from dbo.GetEmployeesInDep(@EmployeeId, @param1))) s 
+PIVOT (SUM(fSum) FOR StateType IN ([New], [Work], [Expired],[Done])) pvt order by [Total] desc</SqlCommand>
+      </ИсточникДанных1>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="1">
+      <value>,EmployeeId,EmployeeId,System.String,_x0034_FFCCBE5-B5A9-4D88-BBDB-BDF0D9650EE0,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="3">
+    <Item3 Ref="4" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>ru</CultureName>
+      <Items isList="true" count="0" />
+    </Item3>
+    <Item4 Ref="5" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>en</CultureName>
+      <Items isList="true" count="1">
+        <value>Text3.Text,Tasks_x0020_by_x0020_employees</value>
+      </Items>
+    </Item4>
+    <Item5 Ref="6" type="Stimulsoft.Report.StiGlobalizationContainer" isKey="true">
+      <CultureName>kk</CultureName>
+      <Items isList="true" count="1">
+        <value>Text3.Text,Орындаушы_x0020_арналған_x0020_тапсырма</value>
+      </Items>
+    </Item5>
+  </GlobalizationStrings>
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="7" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <Chart1 Ref="8" type="Stimulsoft.Report.Chart.StiChart" isKey="true">
+          <Area Ref="9" type="Stimulsoft.Report.Chart.StiStackedBarArea" isKey="true">
+            <BorderColor>95, 95, 95</BorderColor>
+            <Brush>GradientBrush,[255:255:255],[255:255:255],90</Brush>
+            <Chart isRef="8" />
+            <GridLinesHor Ref="10" type="Stimulsoft.Report.Chart.StiGridLinesHor" isKey="true">
+              <Area isRef="9" />
+              <Color>100, 95, 95, 95</Color>
+              <MinorColor>100, 95, 95, 95</MinorColor>
+            </GridLinesHor>
+            <GridLinesHorRight Ref="11" type="Stimulsoft.Report.Chart.StiGridLinesHor" isKey="true">
+              <Area isRef="9" />
+              <Color>Silver</Color>
+              <MinorColor>Gainsboro</MinorColor>
+              <Visible>False</Visible>
+            </GridLinesHorRight>
+            <GridLinesVert Ref="12" type="Stimulsoft.Report.Chart.StiGridLinesVert" isKey="true">
+              <Area isRef="9" />
+              <Color>100, 95, 95, 95</Color>
+              <MinorColor>100, 95, 95, 95</MinorColor>
+            </GridLinesVert>
+            <InterlacingHor Ref="13" type="Stimulsoft.Report.Chart.StiInterlacingHor" isKey="true">
+              <Area isRef="9" />
+              <InterlacedBrush>[10:145:145:145]</InterlacedBrush>
+            </InterlacingHor>
+            <InterlacingVert Ref="14" type="Stimulsoft.Report.Chart.StiInterlacingVert" isKey="true">
+              <Area isRef="9" />
+              <InterlacedBrush>[10:145:145:145]</InterlacedBrush>
+            </InterlacingVert>
+            <XAxis Ref="15" type="Stimulsoft.Report.Chart.StiXBottomAxis" isKey="true">
+              <Area isRef="9" />
+              <DateTimeStep Ref="16" type="Stimulsoft.Report.Chart.StiAxisDateTimeStep" isKey="true">
+                <NumberOfValues>1</NumberOfValues>
+              </DateTimeStep>
+              <Interaction Ref="17" type="Stimulsoft.Report.Chart.StiAxisInteraction" isKey="true" />
+              <Labels Ref="18" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Font>Tahoma,8</Font>
+              </Labels>
+              <LineColor>95, 95, 95</LineColor>
+              <Range Ref="19" type="Stimulsoft.Report.Chart.StiAxisRange" isKey="true" />
+              <Ticks Ref="20" type="Stimulsoft.Report.Chart.StiAxisTicks" isKey="true" />
+              <Title Ref="21" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Direction>LeftToRight</Direction>
+                <Font>Tahoma,12,Bold</Font>
+              </Title>
+            </XAxis>
+            <XTopAxis Ref="22" type="Stimulsoft.Report.Chart.StiXTopAxis" isKey="true">
+              <Area isRef="9" />
+              <Interaction Ref="23" type="Stimulsoft.Report.Chart.StiAxisInteraction" isKey="true" />
+              <Labels Ref="24" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Font>Tahoma,8</Font>
+              </Labels>
+              <LineColor>95, 95, 95</LineColor>
+              <Ticks Ref="25" type="Stimulsoft.Report.Chart.StiAxisTicks" isKey="true" />
+              <Title Ref="26" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Direction>LeftToRight</Direction>
+                <Font>Tahoma,12,Bold</Font>
+              </Title>
+            </XTopAxis>
+            <YAxis Ref="27" type="Stimulsoft.Report.Chart.StiYLeftAxis" isKey="true">
+              <Area isRef="9" />
+              <Interaction Ref="28" type="Stimulsoft.Report.Chart.StiAxisInteraction" isKey="true" />
+              <Labels Ref="29" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Font>Tahoma,8</Font>
+              </Labels>
+              <LineColor>95, 95, 95</LineColor>
+              <Range Ref="30" type="Stimulsoft.Report.Chart.StiAxisRange" isKey="true" />
+              <Ticks Ref="31" type="Stimulsoft.Report.Chart.StiAxisTicks" isKey="true" />
+              <Title Ref="32" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Direction>BottomToTop</Direction>
+                <Font>Tahoma,12,Bold</Font>
+              </Title>
+            </YAxis>
+            <YRightAxis Ref="33" type="Stimulsoft.Report.Chart.StiYRightAxis" isKey="true">
+              <Area isRef="9" />
+              <Interaction Ref="34" type="Stimulsoft.Report.Chart.StiAxisInteraction" isKey="true" />
+              <Labels Ref="35" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Font>Tahoma,8</Font>
+                <TextAlignment>Left</TextAlignment>
+              </Labels>
+              <LineColor>95, 95, 95</LineColor>
+              <Range Ref="36" type="Stimulsoft.Report.Chart.StiAxisRange" isKey="true" />
+              <Ticks Ref="37" type="Stimulsoft.Report.Chart.StiAxisTicks" isKey="true" />
+              <Title Ref="38" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+                <Color>95, 95, 95</Color>
+                <Direction>TopToBottom</Direction>
+                <Font>Tahoma,12,Bold</Font>
+              </Title>
+            </YRightAxis>
+          </Area>
+          <Brush>[255:255:255]</Brush>
+          <ClientRectangle>0,0,22,11</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <ConstantLines isList="true" count="0" />
+          <CustomStyleName />
+          <Filters isList="true" count="0" />
+          <GrowToHeight>True</GrowToHeight>
+          <Legend Ref="39" type="Stimulsoft.Report.Chart.StiLegend" isKey="true">
+            <BorderColor>95, 95, 95</BorderColor>
+            <Brush>GradientBrush,[255:255:255],[255:255:255],90</Brush>
+            <Chart isRef="8" />
+            <Font>Arial,8</Font>
+            <LabelsColor>95, 95, 95</LabelsColor>
+            <MarkerSize>10, 10</MarkerSize>
+            <MarkerVisible>False</MarkerVisible>
+            <TitleColor>95, 95, 95</TitleColor>
+            <TitleFont>Arial,14,Bold</TitleFont>
+            <Visible>False</Visible>
+          </Legend>
+          <Name>Chart1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Series isList="true" count="4">
+            <Item8 Ref="40" type="Stimulsoft.Report.Chart.StiStackedBarSeries" isKey="true">
+              <AllowApplyStyle>False</AllowApplyStyle>
+              <ArgumentDataColumn>ИсточникДанных1.ExecutorValue</ArgumentDataColumn>
+              <BorderColor>84, 141, 212</BorderColor>
+              <Brush>[84:141:212]</Brush>
+              <BrushNegative>[84:141:212]</BrushNegative>
+              <Chart isRef="8" />
+              <Conditions isList="true" count="0" />
+              <Filters isList="true" count="0" />
+              <SeriesLabels Ref="41" type="Stimulsoft.Report.Chart.StiCenterAxisLabels" isKey="true">
+                <BorderColor>95, 72, 29</BorderColor>
+                <Brush>Wheat</Brush>
+                <Chart isRef="8" />
+                <Font>Arial,7</Font>
+                <LabelColor>95, 72, 29</LabelColor>
+                <MarkerSize>8, 6</MarkerSize>
+                <ValueTypeSeparator>-</ValueTypeSeparator>
+                <Width>0</Width>
+              </SeriesLabels>
+              <ShowShadow>False</ShowShadow>
+              <Title>new</Title>
+              <TopN Ref="42" type="Stimulsoft.Report.Chart.StiSeriesTopN" isKey="true" />
+              <ValueDataColumn>ИсточникДанных1.New</ValueDataColumn>
+            </Item8>
+            <Item9 Ref="43" type="Stimulsoft.Report.Chart.StiStackedBarSeries" isKey="true">
+              <AllowApplyStyle>False</AllowApplyStyle>
+              <ArgumentDataColumn>ИсточникДанных1.ExecutorValue</ArgumentDataColumn>
+              <BorderColor>255, 183, 75</BorderColor>
+              <Brush>[255:183:75]</Brush>
+              <BrushNegative>[255:183:75]</BrushNegative>
+              <Chart isRef="8" />
+              <Conditions isList="true" count="0" />
+              <Filters isList="true" count="0" />
+              <SeriesLabels Ref="44" type="Stimulsoft.Report.Chart.StiCenterAxisLabels" isKey="true">
+                <BorderColor>95, 72, 29</BorderColor>
+                <Brush>Wheat</Brush>
+                <Chart isRef="8" />
+                <Font>Arial,7</Font>
+                <LabelColor>95, 72, 29</LabelColor>
+                <MarkerSize>8, 6</MarkerSize>
+                <ValueTypeSeparator>-</ValueTypeSeparator>
+                <Width>0</Width>
+              </SeriesLabels>
+              <ShowShadow>False</ShowShadow>
+              <Title>work</Title>
+              <TopN Ref="45" type="Stimulsoft.Report.Chart.StiSeriesTopN" isKey="true" />
+              <ValueDataColumn>ИсточникДанных1.Work</ValueDataColumn>
+            </Item9>
+            <Item10 Ref="46" type="Stimulsoft.Report.Chart.StiStackedBarSeries" isKey="true">
+              <AllowApplyStyle>False</AllowApplyStyle>
+              <ArgumentDataColumn>ИсточникДанных1.ExecutorValue</ArgumentDataColumn>
+              <BorderColor>255, 126, 124</BorderColor>
+              <Brush>[255:126:124]</Brush>
+              <BrushNegative>[255:126:124]</BrushNegative>
+              <Chart isRef="8" />
+              <Conditions isList="true" count="0" />
+              <Filters isList="true" count="0" />
+              <SeriesLabels Ref="47" type="Stimulsoft.Report.Chart.StiCenterAxisLabels" isKey="true">
+                <BorderColor>95, 72, 29</BorderColor>
+                <Brush>Wheat</Brush>
+                <Chart isRef="8" />
+                <Font>Arial,7</Font>
+                <LabelColor>95, 72, 29</LabelColor>
+                <MarkerSize>8, 6</MarkerSize>
+                <ValueTypeSeparator>-</ValueTypeSeparator>
+                <Width>0</Width>
+              </SeriesLabels>
+              <ShowShadow>False</ShowShadow>
+              <Title>Experid</Title>
+              <TopN Ref="48" type="Stimulsoft.Report.Chart.StiSeriesTopN" isKey="true" />
+              <ValueDataColumn>ИсточникДанных1.Expired</ValueDataColumn>
+            </Item10>
+            <Item11 Ref="49" type="Stimulsoft.Report.Chart.StiStackedBarSeries" isKey="true">
+              <AllowApplyStyle>False</AllowApplyStyle>
+              <ArgumentDataColumn>ИсточникДанных1.ExecutorValue</ArgumentDataColumn>
+              <BorderColor>146, 208, 80</BorderColor>
+              <Brush>[146:208:80]</Brush>
+              <BrushNegative>[146:208:80]</BrushNegative>
+              <Chart isRef="8" />
+              <Conditions isList="true" count="0" />
+              <Filters isList="true" count="0" />
+              <SeriesLabels Ref="50" type="Stimulsoft.Report.Chart.StiCenterAxisLabels" isKey="true">
+                <BorderColor>95, 72, 29</BorderColor>
+                <Brush>Wheat</Brush>
+                <Chart isRef="8" />
+                <Font>Arial,7</Font>
+                <LabelColor>95, 72, 29</LabelColor>
+                <MarkerSize>8, 6</MarkerSize>
+                <ValueTypeSeparator>-</ValueTypeSeparator>
+                <Width>0</Width>
+              </SeriesLabels>
+              <ShowShadow>False</ShowShadow>
+              <Title>done</Title>
+              <TopN Ref="51" type="Stimulsoft.Report.Chart.StiSeriesTopN" isKey="true" />
+              <ValueDataColumn>ИсточникДанных1.Done</ValueDataColumn>
+            </Item11>
+          </Series>
+          <SeriesLabels Ref="52" type="Stimulsoft.Report.Chart.StiNoneLabels" isKey="true">
+            <Chart isRef="8" />
+            <MarkerSize>8, 6</MarkerSize>
+            <ValueTypeSeparator>-</ValueTypeSeparator>
+            <Width>0</Width>
+          </SeriesLabels>
+          <SeriesLabelsConditions isList="true" count="0" />
+          <Sort isList="true" count="0" />
+          <Strips isList="true" count="0" />
+          <Style Ref="53" type="Stimulsoft.Report.Chart.StiStyle02" isKey="true" />
+          <Table Ref="54" type="Stimulsoft.Report.Chart.StiChartTable" isKey="true">
+            <Font>Tahoma,8</Font>
+            <GridLineColor>95, 95, 95</GridLineColor>
+            <Header Ref="55" type="Stimulsoft.Report.Chart.StiChartTableHeader" isKey="true">
+              <Brush>White</Brush>
+              <Font>Arial,8</Font>
+              <TextColor>DarkGray</TextColor>
+            </Header>
+            <TextColor>95, 95, 95</TextColor>
+          </Table>
+          <Title Ref="56" type="Stimulsoft.Report.Chart.StiChartTitle" isKey="true">
+            <Brush>[95:95:95]</Brush>
+            <Font>Arial,14,Bold</Font>
+            <Spacing>0</Spacing>
+            <Text> </Text>
+            <Visible>True</Visible>
+          </Title>
+        </Chart1>
+        <Text1 Ref="57" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>16.4,0.16,4.8,0.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,8</Font>
+          <Guid>4f2ffb49e0dd4a3d93e1ed27faa2a1c7</Guid>
+          <HorAlignment>Right</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text1</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Text>{Time}</Text>
+          <TextBrush>[165:165:165]</TextBrush>
+          <Type>Expression</Type>
+          <VertAlignment>Bottom</VertAlignment>
+        </Text1>
+        <Text3 Ref="58" type="Text" isKey="true">
+          <Border>All;Black;1;None;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>6.8,0.2,8.4,0.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,14,Bold</Font>
+          <Guid>c9d6dff07037425b9f84c73357f27b57</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text3</Name>
+          <Page isRef="7" />
+          <Parent isRef="7" />
+          <Text>Задания по исполнителям</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Text3>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>217a7685fec14bc6bfaeaa1dae462938</Guid>
+      <Margins>0,0,0,0</Margins>
+      <Name>Page1</Name>
+      <Orientation>Landscape</Orientation>
+      <PageHeight>11</PageHeight>
+      <PageWidth>22</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="59" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="60" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>12/4/2015 5:26:33 PM</ReportChanged>
+  <ReportCreated>3/20/2015 3:52:31 PM</ReportCreated>
+  <ReportFile>C:\Users\morozilnik\OneDrive\Git\Assistent\src\PW.Prism\PW.Prism\Widgets\widget_ChartEmployee.mrt</ReportFile>
+  <ReportGuid>711de06914a940cfa3084a5841aa38bd</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

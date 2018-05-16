@@ -1,0 +1,73 @@
+﻿@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_ExpertiseStageDosage
+@{
+    var tableName = Model.Id + "tableName1";
+    var tbodyName = Model.Id + "tbodyName1";
+    var listObject = Model.ExpDrugAnaliseIndicators.Where(e=>e.InProtocol).ToList();
+}
+<div class="row" style="margin-top: 20px; margin-bottom: 10px">
+<button class="btn btn-success btn-sm" type="button" security bp-type="project" bp-action="edit" onclick="exportProtocol('@Model.Id')"><i class="glyphicon glyphicon-print"></i> Сформировать</button>
+    </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Протокол комиссий
+    </div>
+    <div class="panel-body" style="padding: 10px;">
+
+        <form>
+
+            <div class="CSSTableGenerator">
+            <table style="width: 100%; text-align: center" id="@tableName">
+                <thead>
+                <tr>
+                    <th>Наименование показателей</th>
+                    <th style="width: 100px">Температура С</th>
+                    <th style="width: 100px">Влажность %</th>
+                    <th>Требование НД</th>
+                    <th>Фактически полученные результаты</th>
+                </tr>
+
+                </thead>
+                <tbody id="@tbodyName">
+                @for (var i = 0; i < listObject.Count; i++)
+                {
+                    var nameRu = listObject[i].Id + "_NameRu1";
+                    var rowId = listObject[i].Id + "rowId";
+                    var temperature = listObject[i].Id + "_Temperature1";
+                    var humidity = listObject[i].Id + "_Humidity1";
+                    var designation = listObject[i].Id + "_Designation1";
+                    var demand = listObject[i].Id + "_Demand1";
+                    var actualResult = listObject[i].Id + "_ActualResult1";
+
+                    <tr rowId="@listObject[i].Id" class="protocol-row" id="@rowId">
+                        <td>
+                            @Html.TextBox("NameRu", listObject[i].EXP_DIC_AnalyseIndicator.NameRu, new { @class = "form-control", @readonly = "readonly", id = nameRu })
+                        </td>
+                        <td>
+                            @Html.TextBox("Temperature", listObject[i].Temperature, new { @class = "form-control", @readonly = "readonly", id = temperature })
+                        </td>
+                        <td>
+                            @Html.TextBox("Humidity", listObject[i].Humidity, new { @class = "form-control", @readonly = "readonly", id = humidity })
+                        </td>
+                        <td>
+                            @Html.TextBox("Demand", listObject[i].Demand, new { @class = "form-control growed", @readonly = "readonly", id = demand })
+                        </td>
+                        <td>
+                            @Html.TextBox("ActualResult", listObject[i].ActualResult, new { @class = "form-control growed", @readonly = "readonly", id = actualResult })
+                        </td>
+                    </tr>
+                }
+
+            </table>
+                </div>
+        </form>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        chekcInProtocol(".is-protocol");
+    });
+</script>

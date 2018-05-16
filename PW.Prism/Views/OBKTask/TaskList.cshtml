@@ -1,0 +1,60 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+
+    
+    @(Html.Kendo().Splitter()
+      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+      .Name(("splitter" + Model))
+      .Panes(panes =>
+      {
+          panes.Add().Scrollable(false).Size("100%").Content(
+              @<div class="pwPanelBar">
+                  <div id="pwSix">
+                      @( Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new {@class = "pwWidth100 pwButtonReload"})
+                             .Content("")
+                             .ImageUrl("/Content/images/reload.png"))
+                  </div>
+                  @( Html.Kendo().Grid<OBKTaskListRegisterView>()
+                         .Name("gridTaskList" + Model)
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(24).Title("").Filterable(false).Sortable(false)
+                             //    .HeaderHtmlAttributes(new {@class = "not-visible-custom-column"});
+                             columns.Bound(p => p.TaskNumber).Width(125).ClientTemplate(
+                                 "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                 "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getTaskDetails('#=Id#', '#=TaskNumber#')\"><span style=\"color:rgb(66,139,202);\">#=TaskNumber#</span></button>" + "</div>"
+                                 ).Title("№ задания");
+                             columns.Bound(p => p.RegisterDate).Format("{0:dd.MM.yyyy}").Title("Дата регистрации").Width(120);
+                             //columns.Bound(@dateCount).Title("Кол-во дней до контрольной даты").Width(120);
+                             columns.Bound(p => p.TaskEndDate).Format("{0:dd.MM.yyyy}").Title("Контрольная дата").Width(120);
+                             columns.Bound(p => p.StatusNameRu).Title("Статус").Width(150);
+                             columns.Bound(p => p.ShortName).Title("ФИО принявшего образцы (ЦОЗ)").Width(150);
+                         })
+                         //.AutoBind(false)
+                         .Reorderable(reorderable => reorderable.Columns(true))
+                         .Resizable(resizable => resizable.Columns(true))
+                         //.ToolBar(toolbar => { toolbar.Template(GridToolbarTemplate().ToHtmlString()); })
+                         .Groupable()
+                         .Sortable()
+                         .Filterable()
+                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                         .Scrollable(scrollable => scrollable.Virtual(true))
+                         .Pageable()
+                         .HtmlAttributes(new {@class = "pwGrid"})
+                         .DataSource(dataSource => dataSource
+                             .Ajax()
+                             .PageSize(50)
+                             .Read(read => read.Action("GetTaskList", "OBKTask"))
+                         ))
+              </div>
+
+
+              );
+      }))
+
+    <script>
+        $(document).ready(function () {
+            resizeGrid('@("#gridTaskList" + Model)');
+            InitFilterOBKTaskGrid('@Model.ToString()');
+        });
+    </script>

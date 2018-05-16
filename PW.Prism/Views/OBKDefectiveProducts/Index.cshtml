@@ -1,0 +1,221 @@
+﻿@using PW.Ncels.Database.Models
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@model Guid
+
+@helper NotSendedToolbarTemplate()
+    {
+<div class="pull-left">
+    @{
+        if (EmployePermissionHelper.DefectiveProducts == true)
+        {
+            @( Html.Kendo().Button().Name("formingLetter" + Model).Content("Формирование проекта письма в КФ"))
+            @( Html.Kendo().Button().Name("SendEDO" + Model).Content("Отправка проекта письма в ЭДО"))
+        }
+    }
+
+</div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("notSendedReload" + Model).Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@helper SendedToolbarTemplate()
+    {
+/**/
+        <div class="pull-left">
+            @{  if (EmployePermissionHelper.DefectiveProducts == true)
+                {
+                    @( Html.Kendo().Button().Name("addLetterDetails" + Model).Content("Добавить сведения по информированию КФ"))
+                }
+            }
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("sendedReload" + Model).Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@(Html.Kendo().TabStrip().HtmlAttributes(new { @class = "pwTab" })
+                                          .Name("tabstripDefective")
+                                          .Animation(false)
+                                          .Items(tabstrip =>
+                                          {
+                                              tabstrip.Add().HtmlAttributes(new { id = "notSended" + Model }).Text("Не отправленные в КФ").Selected(true)
+                                              .Visible(true).Content(
+                                                @<div class="">
+                                                    @( Html.Kendo().Grid<OBK_DefectiveProductsView>()
+                                                                                            .Name("NotSendedDefectiveProductsView" + Model)
+                                                            .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                             .Columns(columns =>
+                                                             {
+                                                                         columns.Bound(p => p.Declarant).Title("Информация<br> о Заявителе").Width(150);
+                                                                         columns.Bound(p => p.DrugFormFullName).Title("Полное <br> наименование <br> продукции").Width(150);
+                                                                         columns.Bound(p => p.ProducerName).Title("Производитель").Width(150);
+                                                                         columns.Bound(p => p.ProducerCountry).Title("Страна <br> производитель").Width(150);
+                                                                         columns.Bound(p => p.Series).Title("Серия <br> продукции").Width(100);
+                                                                         columns.Bound(p => p.SeriesEndDate).Format("{0:dd.MM.yyyy}").Title("Срок <br> годности").Width(100);
+                                                                         columns.Bound(p => p.Quantity).Title("Количество").Width(100);
+                                                                         columns.Bound(p => p.Status).Title("Статус").Width(100);
+                                                                         columns.Bound(p => p.Measure).Title("Единица <br> измерения").Width(150);
+                                                                         columns.Bound(p => p.RefuseDate).Format("{0:dd.MM.yyyy}").Title("Дата решения <br> об отказе").Width(150);
+                                                                         columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").HeaderTemplate("<input class='checkbox' type='checkbox' id='SelectAllDefective' style='float: left;'/> <span style='display: block;line-height: 18px;padding: .5em .6em .4em .6em;'>Выбрать все<span>").Width(150).Filterable(false).Sortable(false).HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+                                                                     })
+                                                .AutoBind(false)
+                                                .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                                                             .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                                                             .ToolBar(toolbar => { toolbar.Template(NotSendedToolbarTemplate().ToHtmlString()); })
+                                                                                                                                                                             .Groupable()
+                                                                                                                                                                             .Sortable()
+                                                                                                                                                                             .Filterable()
+                                                                                                                                                                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                                                             .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                                                             .Pageable()
+                                                                                                                                                                             //.HtmlAttributes(new { @class = "pwGrid" })
+                                                                                                                                                                             .DataSource(dataSource => dataSource
+                                                                                                                                                                                 .Ajax()
+                                                                                                                                                                                 .Sort(sort => { sort.Add("RefuseDate").Descending(); })
+                                                                                                                                                                                 .PageSize(20)
+                                                                                                                                                                                 .Read(read => read.Action("ListNotSended", "OBKDefectiveProducts"))
+                                                                                                                                                                                )
+                                                    ))
+
+                                                </div>);
+
+                                                      tabstrip.Add().HtmlAttributes(new { id = "sended" + Model }).Text("Отправленные в КФ")
+                                          .Visible(true).Content(
+                                                                @<div class="">
+                                                                    @( Html.Kendo().Grid<OBK_DefectiveProductsView>()
+                                                                                                            .Name("SendedDefectiveProductsView" + Model)
+                                                                            .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                             .Columns(columns =>
+                                                                             {
+                                                                                         columns.Bound(p => p.Declarant).Title("Информация<br> о Заявителе").Width(150);
+                                                                                         columns.Bound(p => p.DrugFormFullName).Title("Полное <br> наименование <br> продукции").Width(150);
+                                                                                         columns.Bound(p => p.ProducerName).Title("Производитель").Width(150);
+                                                                                         columns.Bound(p => p.ProducerCountry).Title("Страна <br> производитель").Width(150);
+                                                                                         columns.Bound(p => p.Series).Title("Серия <br> продукции").Width(100);
+                                                                                         columns.Bound(p => p.SeriesEndDate).Format("{0:dd.MM.yyyy}").Title("Срок <br> годности").Width(100);
+                                                                                         columns.Bound(p => p.Quantity).Title("Количество").Width(100);
+                                                                                         columns.Bound(p => p.Measure).Title("Единица <br> измерения").Width(150);
+                                                                                         columns.Bound(p => p.RefuseDate).Format("{0:dd.MM.yyyy}").Title("Дата решения <br> об отказе").Width(150);
+                                                                                         columns.Bound(p => p.Status).Title("Статус").Width(100);
+                                                                                         columns.Bound(p => p.RefuseDate).ClientTemplate("#=handleLetterNumber(Number)# #=handleLetterDate(SendDate)#").Title("Сведения о <br> письме в КФ").Width(150);
+                                                                                         columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").HeaderTemplate("<input class='checkbox' type='checkbox' id='SelectAllSended' style='float: left;'/> <span style='display: block;line-height: 18px;padding: .5em .6em .4em .6em;'>Выбрать все<span>").Width(150).Filterable(false).Sortable(false).HeaderHtmlAttributes(new { @class = "not-visible-custom-column" });
+
+                                                                                     })
+                                                                .AutoBind(false)
+                                                                .Reorderable(reorderable => reorderable.Columns(true))
+                                                                                                                                                                                             .Resizable(resizable => resizable.Columns(true))
+                                                                                                                                                                                             .ToolBar(toolbar => { toolbar.Template(SendedToolbarTemplate().ToHtmlString()); })
+                                                                                                                                                                                             .Groupable()
+                                                                                                                                                                                             .Sortable()
+                                                                                                                                                                                             .Filterable()
+                                                                                                                                                                                             .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                                                                                                                                             .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                                                                                                                                             .Pageable()
+                                                                                                                                                                                             //.HtmlAttributes(new { @class = "pwGrid" })
+                                                                                                                                                                                             .DataSource(dataSource => dataSource
+                                                                                                                                                                                                 .Ajax()
+                                                                                                                                                                                                 .Sort(sort => { sort.Add("RefuseDate").Descending(); })
+                                                                                                                                                                                                 .PageSize(50)
+                                                                                                                                                                                                 .Read(read => read.Action("ListSended", "OBKDefectiveProducts"))
+                                                                                                                                                                                                )
+                                                                    ))
+
+                                                                </div>);
+
+                                                          })
+)
+
+<div class="modal fade modal-lg" id="@("modal" + Model)" role="dialog">
+    <div class="modal-dialog" style="width:1000px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Форма проекта письма в КФ</h4>
+            </div>
+            <div class="modal-body" id="@("modal-body-"+ Model)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" aria-hidden="true" id="@("letterModal" + Model)">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label id="@("number" + Model + "-label")">№ исходящего письма в ЭДО</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="@("number" + Model)" class="form-control k-input" style="width:200px">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label id="@("date" + Model + "-label")">Дата отправки письма</label>
+                    </div>
+                    <div class="col-md-6">
+                        @(Html.Kendo().DatePicker().Name("date" + Model).HtmlAttributes(new { style = "width:200px" }))
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info btn-sm" data-dismiss="modal" id="@("cancel") + Model">Отменить</button>
+                <button class="btn btn-info btn-sm" id="@("save" + Model)">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    InitDefectiveProducts("#NotSendedDefectiveProductsView" + "@Model", "@Model");
+    InitSendedProducts("#SendedDefectiveProductsView" + "@Model", "@Model");
+
+    $(document).ready(function ()
+    {
+        $("#NotSendedDefectiveProductsView"+"@Model").data("kendoGrid").dataSource.read();
+    });
+
+    function handleLetterNumber(number)
+    {
+        if (number != null && number != undefined && number != "")
+        {
+            return number
+        }
+
+        return "";
+    }
+
+    function handleLetterDate(date)
+    {
+        if (date != null && date != undefined && date != "")
+        {
+            var mm = date.getMonth() + 1;
+            var dd = date.getDate();
+            var yyyy = date.getFullYear();
+            var date = dd + '.' + mm + '.' + yyyy;
+            return date
+        }
+
+        return "";
+    }
+
+    $("#sended" + "@Model").click(function ()
+    {
+        $("#SendedDefectiveProductsView"+"@Model").data("kendoGrid").dataSource.read();
+    })
+
+    $("#notSended" + "@Model").click(function ()
+    {
+        $("#NotSendedDefectiveProductsView" + "@Model").data("kendoGrid").dataSource.read();
+    })
+
+</script>
+

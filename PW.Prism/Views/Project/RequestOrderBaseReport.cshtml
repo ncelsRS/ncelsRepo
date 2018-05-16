@@ -1,0 +1,132 @@
+﻿@model Guid
+<script id="ref-treeview-template" type="text/kendo-ui-template">
+    # if (item.Type == 1) { #
+    <img src="../../Content/images/units/org.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 2) { #
+    <img src="../../Content/images/units/dep.png" height="16" width="16" />
+    # } #
+    # if (item.Type == 3) { #
+    <img src="../../Content/images/history/document.png" height="16" width="16" />
+    # } #   
+    #: item.Name #
+
+</script>
+<script>
+    var name = '@Model';
+    var reportName = '@ViewBag.ReportName';
+
+    var dataId = null, year, type, uid;
+
+    function onSelectRefRow(e) {
+        name = '@Model';
+        reportName = '@ViewBag.ReportName';
+        dataId = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).id;
+        type = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).Type;
+        year = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).Year;
+        uid = $("#treeview" + name).data("kendoTreeView").dataItem(e.node).uid;
+    }
+
+    function buttonReportGenerate(name, reportName, exportType) {
+        var url = "/Project/RequestOrderBaseReportGenerate?Id=" + dataId + '&reportName=' + reportName + '&exportType=' + exportType;
+        if (exportType == 1) {
+            window.open(url);
+        } else {
+            kendo.ui.progress($('#loader' + name), true);
+            $.ajax({
+                url: url,
+                success: function (result) {
+                    // refreshes partial view
+                    $('#contentReport' + name).html(result);
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        }
+
+    }
+
+    $(document).ready(function () {
+        $("#buttonGen" + name).click(function () {
+            name = '@Model';
+            reportName = '@ViewBag.ReportName';
+            if (dataId == null)
+                return;
+            //html
+            buttonReportGenerate(name, reportName, 0);
+        });
+
+        $("#buttonExpGen" + name).click(function () {
+            name = '@Model';
+            reportName = '@ViewBag.ReportName';
+            if (dataId == null)
+                return;
+            //Excel
+            buttonReportGenerate(name, reportName, 1);
+        });
+    });
+
+</script>
+<div id="@("loader"+ Model)"></div>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("230px")
+                .Collapsible(true)
+                .MaxSize("400px")
+                .MinSize("230px")
+                .Content(
+                @<div class="pwPanelBar">
+                    @(Html.Kendo().TreeView()
+                                   .Name("treeview" + Model)
+                                   .TemplateId("ref-treeview-template")
+                                   .DataTextField("Name")
+                                   .Events(events => events.Select("onSelectRefRow"))
+                                        .DataSource(dataSource => dataSource
+                                            .Read(read => read.Action("RequestOrderList", "Project")
+                                        )
+                                    )
+                                   .HtmlAttributes(new { @class = "pwOs" })
+                    )
+                </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPageScrollable">
+                        <div class="pwPanelBar">
+                            <div class="pwBlockAdd k-block">
+
+                                <div id="pwReport5">
+                                    @(Html.Kendo().Button().Name("buttonGen" + Model).Content(PW.Ncels.Database.Recources.Messages.Property_Сформировать_234__00)
+                                        .HtmlAttributes(new { @class = "pwWidth100", ModelId = Model.ToString() }))
+                                </div>
+                                <div id="pwReport6">
+                                    @(Html.Kendo().Button().Name("buttonExpGen" + Model).HtmlAttributes(new { @class = "pwWidth100", ModelId = Model })
+                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                           .ImageUrl("/Content/images/export.png"))
+                                </div>
+
+                            </div>
+                            <div id="@("contentReport" + Model)" class="pwPageReport" style="overflow-x: scroll;">
+                            </div>
+                        </div>
+                    </div>
+             );
+            }))
+<script>
+    function selectMenu(parameters) {
+        console.log('parame', parameters.sender);
+    }
+</script>
+<script type="text/javascript">
+
+    var treeviewElement = $("#treeview" + '@Model');
+    treeviewElement.height($(window).height() - 210);
+
+    $("#contentReport" + '@Model').height($(window).height() - 250);
+
+</script>

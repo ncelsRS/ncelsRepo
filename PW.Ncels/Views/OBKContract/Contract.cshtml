@@ -1,0 +1,1425 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Constants
+@model Guid?
+@{
+    ViewBag.Title = "Contract";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Home/OBK_SignView.cshtml")
+
+@{
+    var GeneratedGuid = Guid.NewGuid().ToString();
+    var ModelGuid = "";
+    if (Model == null)
+    {
+        ModelGuid = GeneratedGuid;
+    }
+    else
+    {
+        ModelGuid = Model.ToString();
+    }
+}
+
+<style type="text/css">
+    .grid {
+        width: 1000px;
+        height: 500px;
+    }
+
+    .gridSeries {
+        width: 1000px;
+        height: 300px;
+    }
+
+    .grid-products {
+        width: 1000px;
+        height: 200px;
+    }
+
+    .grid-calculator {
+        width: 100%;
+        height: 300px;
+    }
+
+    .grid-example {
+        widows: 100%;
+        height: 200px;
+    }
+
+    .grid-product-services {
+        width: 100%;
+        height: 200px;
+    }
+
+    #gridOptionsCalculator .ui-grid-viewport .ui-grid-cell-contents {
+        word-wrap: break-word;
+        white-space: normal !important;
+    }
+
+    #gridOptionsCalculator .ui-grid-row, .ui-grid-cell {
+        height: auto !important;
+    }
+
+        #gridOptionsCalculator .ui-grid-row div[role=row] {
+            display: flex;
+            align-content: stretch;
+        }
+
+    #gridOptionsCalculator .ui-grid-header .ui-grid-cell-contents {
+        word-wrap: break-word;
+        white-space: normal !important;
+    }
+
+    #gridOptionsCalculatorAdditional .ui-grid-viewport .ui-grid-cell-contents {
+        word-wrap: break-word;
+        white-space: normal !important;
+    }
+
+    #gridOptionsCalculatorAdditional .ui-grid-row, .ui-grid-cell {
+        height: auto !important;
+    }
+
+        #gridOptionsCalculatorAdditional .ui-grid-row div[role=row] {
+            display: flex;
+            align-content: stretch;
+        }
+
+    #gridOptionsCalculatorAdditional .ui-grid-header .ui-grid-cell-contents {
+        word-wrap: break-word;
+        white-space: normal !important;
+    }
+</style>
+@if (ViewBag.Comments != null)
+{
+    foreach (var comment in ((List<OBK_ContractCom>)ViewBag.Comments))
+    {
+        <p class="rating" idcontrol="@comment.ControlId" iserror=@true></p>
+    }
+}
+
+<div ng-controller="obkContractForm">
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-12">
+            <h2 ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">Новый договор</h2>
+            <h2 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID) && object.Number == 'б/н'">Договор {{object.Number}}</h2>
+            <h2 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID) && object.Number != 'б/н'">Договор №{{object.Number}}</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+                </li>
+                <li>
+                    <a>Договоры</a>
+                </li>
+                <li class="active" ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">
+                    <strong>Создать договор</strong>
+                </li>
+                <li class="active" ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID)">
+                    <strong>Просмотр договора</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+    <input type="hidden" value="@Model" id="projectId" />
+    <input type="hidden" value="@GeneratedGuid" id="generatedGuid" />
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5 ng-show="object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID">
+                            Новый договор
+                            <small>Заполните все поля формы</small>
+                        </h5>
+                        <h5 ng-show="!(object.Status == null || object.Status == @CodeConstManager.STATUS_OBK_DRAFT_ID)">
+                            Договор
+                            <small ng-show="object.Status == @CodeConstManager.STATUS_OBK_ONCORRECTION">Внесите изменения на форму</small>
+                        </h5>
+                        <div ibox-tools></div>
+                    </div>
+                    <div class="ibox-content ibox-heading">
+                        <div class="note-font btn-group">
+                            <button class="btn btn-info btn-sm" type="button" onclick="location.href='@Url.Action(ViewBag.ListAction)'"><i class="fa fa-arrow-left"></i> Вернуться в список</button>
+                            <button class="btn btn-default btn-sm" type="button" ng-click="saveBtnClick()" check-validate ng-disabled="object.viewMpde" ng-if="!object.Contract.ContractStatus || object.Contract.ContractStatus.Code=='@Contract.StatusNew' || object.Contract.ContractStatus.Code=='@Contract.StatusOnCorrection'">
+                                <i class="fa fa-save"></i>
+                                Сохранить
+                            </button>
+                            <button class="btn btn-default btn-sm" type="button" ng-click="sendWithDigitalSign();" check-validate ng-disabled="object.viewMpde"><i class="fa fa-send-o"></i> Подписать ЭЦП и отправить в ЦОЗ</button>
+                            <button class="btn btn-default btn-sm" type="button" ng-click="sendWithoutDigitalSign();" check-validate ng-disabled="object.viewMpde"><i class="fa fa-send-o"></i> Отправить в ЦОЗ без подписи</button>
+                            <button class="btn btn-default btn-sm" type="button" ng-click="viewContract('@ModelGuid')"><i class="fa fa-eye"></i> Просмотр</button>
+                            <button class="btn btn-default btn-sm" type="button" ng-click="viewInvoicePayment('@ModelGuid')" check-validate ng-hide="object.Status != ('@CodeConstManager.STATUS_OBK_EXPECTED_PAYMENT' || '@CodeConstManager.STATUS_OBK_NOT_FULL_PAYMENT' || '@CodeConstManager.STATUS_OBK_PAYMENT_EXPIRED')"><i class="fa fa-file-text-o"></i> Счет на оплату</button>
+                        </div>
+                    </div>
+                    <form name="contractCreateForm">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="tabs-container">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a data-toggle="tab" href="#tab-1">Общие сведения</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-2">Информация о заявляемой продукции</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-6" ng-show="object.Type == 1">Производственные площадки</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-3" ng-click="tab3click();">Стоимость работ</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-4">Вложения</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-5">История</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div id="tab-1" class="tab-pane active">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-lg-6 b-r">
+                                                            <input type="hidden" id="objectGuid" ng-model="object.Id" />
+                                                            <input type="hidden" id="objectNumber" ng-model="object.Number" />
+                                                            <input type="hidden" id="objectCreatedDate" ng-model="object.CreatedDate" />
+                                                            <input type="hidden" id="objectStatus" ng-model="object.Status" />
+
+                                                            <div class="form-group">
+                                                                <label>Тип договора *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.Type" theme="bootstrap" name="type" ui-select-selected required ng-change="refTypeChange(true);" ng-disabled="object.viewMpde">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in ObkContractTypes | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="ContractType" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null">
+                                                                <div class="radio-inline">
+                                                                    <label><input type="radio" name="declarantisresident" ng-model="declarant.IsResident" ng-value="true" ng-change="residentChange();" ng-disabled="object.viewMpde">Резидент РК</label>
+                                                                </div>
+                                                                <div class="radio-inline">
+                                                                    <label><input type="radio" name="declarantisresident" ng-model="declarant.IsResident" ng-value="false" ng-change="residentChange();" ng-disabled="object.viewMpde || object.Type !='1'">Нерезидент РК</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && declarant.IsResident == true">
+                                                                <label>ИИН/БИН *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input maxlength="12" id="bin" ng-model="declarant.Bin" class="form-control edit-control" type="text" ui-select-selected name="bin" ng-required="declarant.IsResident == true" ng-disabled="iinSearchActive || object.viewMpde" ng-pattern="iinPattern" ng-minlength="iinMinLength" ng-maxlength="iinMaxLength" ui-mask="999999999999" ui-mask-placeholder ui-mask-placeholder-char="_">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                                <button type="button" class="btn btn-sm btn-success" ng-disabled="declarant.Bin == null || declarant.Bin.length !== 12 || iinSearchActive || object.viewMpde" ng-click="findDeclarant();">Найти</button>
+                                                                <button type="button" class="btn btn-sm btn-success" ng-click="cancelFindDeclarant();" ng-disabled="!iinSearchActive || object.viewMpde">Отмена</button>
+                                                            </div>
+                                                            <div class="form-group" ng-show="declarant.IsResident == false">
+                                                                <label>Страна</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.Country" theme="bootstrap" ui-select-selected ng-required="declarant.IsResident == false" ng-disabled="object.viewMpde" ng-change="nonResidentCountryChange();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="CountryNonResident" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="declarant.IsResident == false">
+                                                                <label>Наименование на русском языке *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.NameNonResident" theme="bootstrap" ui-select-selected ng-required="declarant.IsResident == false" ng-disabled="object.Country == null || object.viewMpde" ng-change="nameNonResidentChange();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in NamesNonResidents | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="NameNonResident" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="declarantNotFound && declarant.IsResident == true">
+                                                                По Ващему запросу ничего не найдено!
+                                                            </div>
+                                                            <div class="form-group" ng-show="declarantNotFound">
+                                                                <button type="button" class="btn btn-sm btn-success" ng-click="addDeclarant();" ng-disabled="addDeclarantDisabled || object.viewMpde">Добавить</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 b-l">
+                                                            <div class="form-group">
+                                                                <label>Экспертная организация *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.ExpertOrganization" ui-select-selected required theme="bootstrap" ng-change="editExpertOrganization();" @*ng-change="editProject();"*@ ng-disabled="object.viewMpde">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in ExpertOrganizations | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="ExpertOrganization" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Подписывающее лицо *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.Signer" ui-select-selected required theme="bootstrap" ng-change="editProject();" ng-disabled="object.viewMpde">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in ContractSigners | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="Signer" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 b-r">
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation" style="display: none;">
+                                                                <h4></h4>
+                                                                <label>Наименование</label>
+                                                                <ui-select ng-model="object.DeclarantId" theme="bootstrap" ng-change="companyChange(true);" ng-disabled="object.viewMpde">
+                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                    <ui-select-choices repeat="item.Id as item in Organizations | filter: $select.search">
+                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                    </ui-select-choices>
+                                                                </ui-select>
+                                                            </div>
+                                                            <div class="form-group" ng-if="showResidentsBlock">
+                                                                <label>Статус</label>
+                                                                <div class="radio">
+                                                                    <label><input type="radio" name="drugtype0" ng-model="declarant.IsResident" value="1" ng-change="residentChange();" ng-disabled="object.viewMpde">Резидент</label>
+                                                                </div>
+                                                                <div class="radio">
+                                                                    <label><input type="radio" name="drugtype0" ng-model="declarant.IsResident" value="0" ng-change="residentChange();" ng-disabled="object.viewMpde">Нерезидент</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <h4>&nbsp;</h4>
+                                                                <input type="hidden" ng-model="declarant.Id" />
+                                                                <label>Организационная форма</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="declarant.OrganizationFormId" theme="bootstrap" ui-select-selected name="organizationForm" required ng-disabled="!enableCompanyData || object.viewMpde" ng-change="editDeclarant();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in OpfType | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="OrganizationForm" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Наименование на государственном языке *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="declarantNameKz" ng-model="declarant.NameKz" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="declarantNameKz" required ng-disabled="!enableCompanyData || object.viewMpde" ng-blur="editDeclarant();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Наименование на русском языке *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="declarantNameRu" ng-model="declarant.NameRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="declarantNameRu" required ng-disabled="!enableCompanyData || object.viewMpde" ng-blur="editDeclarant($event);">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Наименование на английском языке</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="declarantNameEn" ng-model="declarant.NameEn" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="declarantNameEn" required ng-disabled="!enableCompanyData || object.viewMpde" ng-blur="editDeclarant();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Страна</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="declarant.CountryId" theme="bootstrap" ui-select-selected name="declarantCountryId" required ng-disabled="!enableCompanyData || declarant.IsResident == false || object.viewMpde" ng-change="editDeclarant();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in Country | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="Country" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 b-l">
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <h4>Адрес</h4>
+                                                                <label>Юридический адрес * </label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="AddressLegalRu" ng-model="object.AddressLegalRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="AddressLegalRu" ng-disabled="object.viewMpde" required ng-blur="editProject();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Юридический адрес на казахском * </label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="AddressLegalKz" ng-model="object.AddressLegalKz" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="AddressLegalKz" ng-disabled="object.viewMpde" required ng-blur="editProject();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Фактический адрес * </label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="AddressFact" ng-model="object.AddressFact" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="AddressFact" ng-disabled="object.viewMpde" required ng-blur="editProject();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Номер телефона * </label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="Phone" ng-model="object.Phone" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="Phone" ng-disabled="object.viewMpde" required ng-blur="validatePhone(); editProject();" ng-pattern="phonePattern" ng-model-options="{ allowInvalid: true}">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group" ng-show="object.Type != null && showContactInformation">
+                                                                <label>Адрес электронной почты * </label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="Email" ng-model="object.Email" placeholder="example@mail.ru" class="form-control edit-control" type="text" ui-select-selected name="Email" ng-disabled="object.viewMpde" ng-pattern="emailPattern" required ng-blur="editProject();">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <h4>Подписывающее лицо</h4>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Фамилия *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BossLastName" ng-model="object.BossLastName" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected ng-blur="editProject();" ng-disabled="object.viewMpde">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Имя *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BossFirstName" ng-model="object.BossFirstName" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected ng-blur="editProject();" ng-disabled="object.viewMpde">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Отчество</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BossMiddleName" ng-model="object.BossMiddleName" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected ng-blur="editProject();" ng-disabled="object.viewMpde">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Должность на русском языке *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BossPosition" ng-model="object.BossPosition" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected ng-blur="editProject();" ng-disabled="object.viewMpde">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <label>Должность на казахском языке *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BossPositionKz" ng-model="object.BossPositionKz" placeholder="Введите значение" class="form-control edit-control" type="text" required ui-select-selected ng-blur="editProject();" ng-disabled="object.viewMpde">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <h4>Действующее на основании</h4>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Вид документа *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <ui-select ng-model="object.BossDocType" required ui-select-selected theme="bootstrap" ng-change="editProject();" ng-disabled="object.viewMpde">
+                                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                                <ui-select-choices repeat="item.Id as item in OBKContractDocumentType | filter: $select.search">
+                                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                                </ui-select-choices>
+                                                                            </ui-select>
+                                                                            <span id="BossDocType" class="edit-control" style="display: none"></span>
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <div class="checkbox">
+                                                                            <label><input type="checkbox" value="" ng-model="object.BossDocUnlimited" ng-disabled="object.viewMpde">Бессрочный</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>Наличие номера *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.IsHasBossDocNumber" ui-select-selected name="IsHasBossDocNumber" required theme="bootstrap" ng-change="editProject();" ng-disabled="object.viewMpde">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="IsHasBossDocNumber" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>Номер документа</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="BossDocNumber" ng-model="object.BossDocNumber" placeholder="Введите значение" class="form-control edit-control" type="text" ng-required="object.IsHasBossDocNumber == true" ui-select-selected name="BossDocNumber" ng-required="object.IsHasBossDocNumber == true" ng-blur="editProject();" ng-disabled="object.IsHasBossDocNumber != true || object.viewMpde">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>Дата начала действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input id="BossDocCreatedDate" ng-model="object.BossDocCreatedDate" class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected required date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" ng-change="editProject();" ng-disabled="object.viewMpde">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation && !object.BossDocUnlimited">
+                                                            <div class="form-group">
+                                                                <label>Дата окончания действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input id="BossDocEndDate" ng-model="object.BossDocEndDate" class="form-control edit-control" placeholder="ДД.ММ.ГГГГ" ui-select-selected ng-required="object.BossDocUnlimited == false" date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" ng-change="editProject();" ng-disabled="object.viewMpde">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <h4>Подписывающее лицо</h4>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="form-group">
+                                                                <div class="checkbox">
+                                                                    <label><input type="checkbox" value="" ng-model="object.SignerIsBoss" ng-change="signerIsLeaderCheckBoxChanged();" ng-disabled="object.viewMpde">Является руководителем</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="row">
+                                                                <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                                    <div class="form-group">
+                                                                        <label>Фамилия *</label>
+                                                                        <input ng-model="object.SignLastName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected name="SignLastName" ng-disabled="object.viewMpde" ng-blur="editProject();">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                                    <div class="form-group">
+                                                                        <label>Имя *</label>
+                                                                        <input ng-model="object.SignFirstName" placeholder="Введите значение" class="form-control" type="text" ui-select-selected name="SignFirstName" ng-disabled="object.viewMpde" ng-blur="editProject();">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                                    <div class="form-group">
+                                                                        <label>Отчество</label>
+                                                                        <input ng-model="object.SignMiddleName" placeholder="Введите значение" class="form-control" type="text" ng-disabled="object.viewMpde" ui-select-selected ng-blur="editProject();">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                                    <div class="form-group">
+                                                                        <label>Должность на русском языке *</label>
+                                                                        <input ng-model="object.SignPosition" placeholder="Введите значение" class="form-control" type="text" ui-select-selected name="SignPosition" ng-disabled="object.viewMpde" ng-blur="editProject();">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                                    <div class="form-group">
+                                                                        <label>Должность на казахском языке *</label>
+                                                                        <input ng-model="object.SignPositionKz" placeholder="Введите значение" class="form-control" type="text" ui-select-selected name="SignPositionKz" ng-disabled="object.viewMpde" ng-blur="editProject();">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <h4>Действующее на основании</h4>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Вид документа *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <ui-select ng-model="object.SignDocType" ui-select-selected theme="bootstrap" name="SignDocType" ng-disabled="object.viewMpde" ng-change="editProject();">
+                                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                                <ui-select-choices repeat="item.Id as item in OBKContractDocumentType | filter: $select.search">
+                                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                                </ui-select-choices>
+                                                                            </ui-select>
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    <div class="form-group">
+                                                                        <div class="checkbox">
+                                                                            <label><input type="checkbox" value="" ng-disabled="object.viewMpde" ng-model="object.SignDocUnlimited">Бессрочный</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="form-group">
+                                                                <label>Наличие номера *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.IsHasSignDocNumber" ui-select-selected name="IsHasSignDocNumber" ng-disabled="object.viewMpde" theme="bootstrap" ng-change="editProject();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in BoolDic | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="form-group">
+                                                                <label>Номер документа</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input ng-model="object.SignDocNumber" placeholder="Введите значение" class="form-control" type="text" ui-select-selected name="SignDocNumber" ng-required="object.IsHasSignDocNumber == true" ng-blur="editProject();" ng-disabled="object.IsHasSignDocNumber != true || object.viewMpde">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="form-group">
+                                                                <label>Дата начала действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input ng-model="object.SignDocCreatedDate" class="form-control" placeholder="ДД.ММ.ГГГГ" name="SignDocCreatedDate" ng-disabled="object.viewMpde" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" ng-change="editProject();">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation" style="display: none">
+                                                            <div class="form-group">
+                                                                <label>Дата окончания действия *</label>
+                                                                <div class="input-group date">
+                                                                    <input ng-model="object.SignDocEndDate" class="form-control" placeholder="ДД.ММ.ГГГГ" name="SignDocEndDate" ng-disabled="object.viewMpde" ui-select-selected date-time auto-close="true" view="date" min-view="date" format="DD.MM.YYYY" ng-change="editProject();">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <h4>Банковские реквизиты</h4>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>ИИК (р/с) *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="BankIik" ng-model="object.BankIik" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="BankIik" ng-disabled="object.viewMpde" ng-pattern="iikPattern" required ng-blur="validateIik(); editProject();" ng-model-options="{ allowInvalid: true}">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>БИК *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <input id="BankBik" ng-model="object.BankBik" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="BankBik" ng-disabled="object.viewMpde" required ng-blur="validateBik(); editProject();" ng-pattern="bankBikPattern" ng-minlength="bankBikMinLength" ng-maxlength="bankBikMaxLength" ng-model-options="{ allowInvalid: true}">
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-3" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="form-group">
+                                                                <label>Валюта *</label>
+                                                                <div ng-class="{'input-group': showComments}">
+                                                                    <ui-select ng-model="object.CurrencyId" ui-select-selected name="CurrencyId" ng-disabled="object.viewMpde" required theme="bootstrap" ng-change="editProject();">
+                                                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                        <ui-select-choices repeat="item.Id as item in Currency | filter: $select.search">
+                                                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
+                                                                    <span id="Currency" class="edit-control" style="display: none"></span>
+                                                                    <span class="input-group-addon" ng-show="showComments">
+                                                                        <a class="obkcontractdialog" href="#">
+                                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Наименование банка *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BankNameRu" ng-model="object.BankNameRu" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="BankNameRu" ng-disabled="object.viewMpde" required ng-blur="editProject();">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12" ng-show="object.Type != null && showContactInformation">
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div class="form-group">
+                                                                        <label>Наименование банка на казахском языке *</label>
+                                                                        <div ng-class="{'input-group': showComments}">
+                                                                            <input id="BankNameKz" ng-model="object.BankNameKz" placeholder="Введите значение" class="form-control edit-control" type="text" ui-select-selected name="BankNameKz" ng-disabled="object.viewMpde" required ng-blur="editProject();">
+                                                                            <span class="input-group-addon" ng-show="showComments">
+                                                                                <a class="obkcontractdialog" href="#">
+                                                                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                </a>
+                                                                            </span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-2" class="tab-pane">
+
+                                                <div class="panel-body">
+
+                                                    <div class="row">
+
+                                                        <div id="gridOptionsProducts" ui-grid="gridOptionsProducts" ui-grid-selection class="grid-products"></div>
+                                                        <br />
+
+                                                    </div>
+
+                                                    <button id="btnAddDrug" class="btn btn-sm btn-success" type="button" ng-click="addDrug()" ng-disabled="showAddEditDrugBlock || object.viewMpde">Добавить</button>
+                                                    <button id="btnEditDrug" class="btn btn-sm btn-success" type="button" ng-click="editDrug()" ng-disabled="addedProducts == null || addedProducts.length == 0 || showAddEditDrugBlock || object.viewMpde">Изменить</button>
+                                                    <button id="btnDeleteDrug" class="btn btn-sm btn-danger" type="button" ng-click="deleteDrug()" ng-disabled="addedProducts == null || addedProducts.length == 0 || showAddEditDrugBlock || object.viewMpde">Удалить</button>
+                                                    <button id="btnDisplayDrug" class="btn btn-sm btn-success" type="button" ng-click="displayDrug()" ng-disabled="addedProducts == null || addedProducts.length == 0 || showAddEditDrugBlock" ng-show="object.viewMpde">Просмотр</button>
+
+                                                    <div style="height: 10px;">&nbsp;</div>
+
+                                                    <div class="row" ng-show="showAddEditDrugBlock && showSearchDrugInReestr">
+                                                        <div class="col-lg-12">
+                                                            <div class="panel panel-default">
+                                                                <div class="panel-heading">
+                                                                    Поиск в Гос. реестре ЛС, ИМН и МТ
+                                                                </div>
+                                                                <div class="panel-body">
+                                                                    <div class="row" style="margin-bottom: 10px">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <div class="col-lg-2">
+                                                                                    <div class="input-group">
+                                                                                        <label>Рег. номер</label>
+                                                                                        <input id="RegNumber" name="RegNumber" type="text" class="form-control edit-control" text="" ng-model="object.drugNumber">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4">
+                                                                                    <div class="input-group">
+                                                                                        <label>Тип</label>
+                                                                                        <br />
+                                                                                        <label class="radio-inline"><input type="radio" name="drugtype" ng-model="object.drugRegType" value="1">Лекарственные средства</label>
+                                                                                        <label class="radio-inline"><input type="radio" name="drugtype" ng-model="object.drugRegType" value="2">ИМН и МТ</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-3">
+                                                                                    <div class="input-group">
+                                                                                        <label>&nbsp;</label>
+                                                                                        <br />
+                                                                                        <div class="checkbox" style="margin-top: 0">
+                                                                                            <label><input type="checkbox" value="" ng-model="object.drugEndDateExpired">С истекшим сроком действия</label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <div class="col-lg-12">
+                                                                                    <div class="input-group">
+                                                                                        <label>Торговое название</label>
+                                                                                        <input id="TradeName" name="TradeName" type="text" class="form-control edit-control" text="" ng-model="object.drugTradeName">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <div class="col-lg-6">
+                                                                                    <button type="button" class="btn btn-success btn-sm add-btn-from4" id="searchBtn" ng-click="searchDrug()" ng-disabled="searchDrugWorking" style="margin-top: 10px">
+                                                                                        <span class="glyphicon" aria-hidden="true"></span> Поиск
+                                                                                    </button>
+                                                                                    <button type="button" class="btn btn-success btn-sm add-btn-from4" id="clearSearchDrugBtn" ng-click="clearSearchDrugArea()" ng-disabled="searchDrugWorking" style="margin-top: 10px">
+                                                                                        <span class="glyphicon" aria-hidden="true"></span> Очистить критерии поиска
+                                                                                    </button>
+                                                                                    <img src="~/Content/img/spinner.gif" style="height: 25px;" ng-show="searchDrugWorking" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row" ng-show="showAddEditDrugBlock && showSearchDrugInReestr">
+                                                        <div class="col-lg-12">
+                                                            <div class="panel panel-default">
+                                                                <div class="panel-heading">
+                                                                    Результаты поиска
+                                                                </div>
+                                                                <div class="panel-body">
+                                                                    <div id="gridOptions" ui-grid="gridOptions" ui-grid-selection class="grid"></div>
+                                                                    <div class="form-group">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="radio-inline">
+                                                                            <label><input type="radio" name="searchviewmode" ng-model="searchViewMode" value="drugform">Форма выпуска</label>
+                                                                        </div>
+                                                                        <div class="radio-inline" ng-show="object.drugRegType == '2'">
+                                                                            <label><input type="radio" name="searchviewmode" ng-model="searchViewMode" value="mtpart" ng-disabled="object.drugRegType == '1'">Комплектность</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group" ng-show="searchViewMode == 'drugform'">
+                                                                        <div id="gridOptionsDrugForm" ui-grid="gridOptionsDrugForm" ui-grid-selection class="grid"></div>
+                                                                    </div>
+                                                                    <div class="form-group" ng-show="searchViewMode == 'mtpart'">
+                                                                        <div id="gridOptionsMtPart" ui-grid="gridOptionsMtPart" class="grid"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row" ng-show="showAddEditDrugBlock">
+                                                        <div class="col-lg-12">
+                                                            <div class="panel panel-default">
+                                                                <div class="panel-heading">
+                                                                    Информация о заявлемой продукции
+                                                                </div>
+                                                                <div class="panel-body" id="productsId">
+                                                                    <div class="row" style="margin-bottom: 10px">
+                                                                    <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-6">
+                                                                            <label>Наименование *</label>
+                                                                            <div ng-class="{'input-group': showComments}">
+                                                                                <input id="ProductId" name="ProductId" type="hidden" ng-model="product.Id"/>
+                                                                                <input id="ProductIdReestr" name="ProductIdReestr" type="hidden" ng-model="product.productId"/>
+                                                                                <input id="ProductTypeId" name="ProductTypeId" type="hidden" ng-model="product.RegTypeId"/>
+                                                                                <input id="DegreeRiskId" name="DegreeRiskId" type="hidden" ng-model="product.DegreeRiskId"/>
+                                                                                <input id="ProductRegisterId" name="ProductRegisterId" type="hidden" ng-model="product.RegisterId"/>
+                                                                                <input id="ProductRegNumber" name="ProductRegNumber" type="hidden" ng-model="product.RegNumber"/>
+                                                                                <input id="ProductRegNumberKz" name="ProductRegNumberKz" type="hidden" ng-model="product.RegNumberKz"/>
+                                                                                <input id="ProductRegDate" name="ProductRegDate" type="hidden" ng-model="product.RegDate"/>
+                                                                                <input id="ProductExpirationDate" name="ProductExpirationDate" type="hidden" ng-model="product.ExpirationDate"/>
+                                                                                <input id="ProductNdName" name="ProductNdName" type="hidden" ng-model="product.NdName"/>
+                                                                                <input id="ProductNdNumber" name="ProductNdNumber" type="hidden" ng-model="product.NdNumber"/>
+                                                                                <textarea id="NameRu" name="NameRu" rows="4" class="form-control edit-control" ng-model="product.NameRu" ng-disabled="object.viewMpde"></textarea>
+                                                                                <span class="input-group-addon" ng-show="showComments">
+                                                                                    <a class="obkcontractdialog" href="#">
+                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                    </a>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-6">
+                                                                            <label>Наименование на казахском</label>
+                                                                            <div ng-class="{'input-group': showComments}">
+                                                                                <textarea id="NameKz" name="NameKz" rows="4" class="form-control edit-control" ng-model="product.NameKz" ng-disabled="object.viewMpde"></textarea>
+                                                                                <span class="input-group-addon" ng-show="showComments">
+                                                                                    <a class="obkcontractdialog" href="#">
+                                                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                                                    </a>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-6">
+                                                                            <div class="">
+                                                                                <label>Наименование производителя</label>
+                                                                                <textarea id="ProducerNameRu" name="producerNameRu" class="form-control edit-control" ng-model="product.ProducerNameRu" readonly></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-6">
+                                                                            <div class="">
+                                                                                <label>Наименование производителя на казахском</label>
+                                                                                <textarea id="ProducerNameKz" name="ProducerNameKz" class="form-control edit-control" ng-model="product.ProducerNameKz" readonly></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-6">
+                                                                            <div class="">
+                                                                                <label>Страна</label>
+                                                                                <textarea id="CountryNameRu" name="CountryNameRu" class="form-control edit-control" ng-model="product.CountryNameRu" readonly></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-6">
+                                                                            <div class="">
+                                                                                <label>Страна на казахском</label>
+                                                                                <textarea id="CountryNameKz" name="CountryNameKz" class="form-control edit-control" ng-model="product.CountryNameKz" readonly></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-3">
+                                                                            <div class="input-group" style="display: none">
+                                                                                <label>ТН ВЭД</label>
+                                                                                <input id="TnvedCode" name="TnvedCode" type="text" class="form-control edit-control" text="" ng-model="product.TnvedCode" readonly>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3" style="display: none;">
+                                                                            <div class="input-group">
+                                                                                <label>КП ВЭД</label>
+                                                                                <input id="KpvedCode" name="KpvedCode" type="text" class="form-control edit-control" text="" ng-model="product.KpvedCode" readonly>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3" style="display: none">
+                                                                            <div class="input-group">
+                                                                                <label>Цена</label>
+                                                                                <input id="Price" name="Price" type="text" class="form-control edit-control" text="" ng-model="product.Price" readonly>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3" style="display: none">
+                                                                            <div class="input-group">
+                                                                                <label>Валюта</label>
+                                                                                <input id="Currency" name="Currency" type="text" class="form-control edit-control" text="" ng-model="product.Currency" readonly>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row">
+                                                                                <div class="col-lg-3">
+                                                                                    <div class="input-group">
+                                                                                        <label>Форма выпуска</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row">
+                                                                                <div class="col-lg-3">
+                                                                                    <div class="input-group">
+                                                                                        <label>Кол-во в потр.уп.</label>
+                                                                                        <input type="text" class="form-control edit-control" ng-model="product.DrugFormBoxCount" readonly/>
+                                                                                        <input type="hidden" ng-model="product.DrugFormId"/>
+                                                                                        <input type="hidden" ng-model="product.DrugFormRegisterId"/>
+                                                                                        <input type="hidden" ng-model="product.DrugFormFullNameKz"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-lg-6">
+                                                                                    <div>
+                                                                                        <label>Полное наименование</label>
+                                                                                        <textarea class="form-control edit-control" ng-model="product.DrugFormFullName" readonly></textarea>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group" ng-show="product.RegTypeId == 2">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row">
+                                                                                <div class="col-lg-3">
+                                                                                    <div class="input-group">
+                                                                                        <label>Комплектность</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group" ng-show="product.RegTypeId == 2">
+                                                                        <div class="col-lg-12">
+                                                                            <div id="gridOptionsSelectedMtPart" ui-grid="gridOptionsSelectedMtPart" ui-grid-selection class="grid"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-12">
+                                                                            <br/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-12">
+                                                                            <label>Тип услуги</label>
+                                                                            <ui-select ng-model="product.ServiceName" theme="bootstrap">
+                                                                                <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                                <ui-select-choices repeat="item.Id as item in productServiceNames | filter: $select.search">
+                                                                                    <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                                </ui-select-choices>
+                                                                            </ui-select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-12">
+                                                                            <br/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="row">
+                                                                            <div class="col-lg-6" ng-show="object.Type == 1">
+                                                                                <strong>Место проведения аналитической экспертизы (АЭ)</strong>
+                                                                                <div class="col-lg-6">
+                                                                                    <label>
+                                                                                        <input type="radio"
+                                                                                               ng-model="product.expertisePlace"
+                                                                                               value="0"/>
+                                                                                        Лаборатория экспертной организации (ЭО)
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-lg-6">
+                                                                                    <label>
+                                                                                        <input type="radio"
+                                                                                               ng-model="product.expertisePlace"
+                                                                                               value="1"/>
+                                                                                        Лаборатория производителя (Контрактная лаборатория)
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-lg-6" ng-show="object.Type == 1 && product.RegTypeId == 2">
+                                                                                <strong>Размерность ИМН</strong>
+                                                                                <input type="text" class="form-control" ng-model="product.Dimension"/>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br/>
+                                                                    </div>
+                                                                    <div class="form-group" ng-show="object.Type != 1">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row">
+                                                                                <div class="col-lg-12">
+                                                                                    <div class="panel panel-default">
+                                                                                        <div class="panel-heading">
+                                                                                            Серии продукции
+                                                                                        </div>
+                                                                                        <div id="productsSeriesId" class="panel-body">
+
+                                                                                            <div class="row" style="margin-bottom: 10px" ng-show="!object.viewMpde">
+                                                                                                <div class="col-sm-12">
+                                                                                                    <div class="form-group" id="attachProduct">
+                                                                                                        <div class="col-lg-3">
+                                                                                                            <div class="input-group">
+                                                                                                                <label>Номер серии</label>
+                                                                                                                <input id="series" name="series" type="text" class="form-control edit-control" text="" ng-model="object.seriesValue">
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-lg-3">
+                                                                                                            <label>Произведена</label>
+                                                                                                            <div class="input-group">
+                                                                                                                <input ng-model="object.seriesCreateDate" class="form-control" placeholder="ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="month" min-view="month" format="MM.YYYY">
+                                                                                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-lg-2">
+                                                                                                            <label>Истекает</label>
+                                                                                                            <div class="input-group">
+                                                                                                                <input ng-model="object.seriesExpireDate" class="form-control" placeholder="ММ.ГГГГ" ui-select-selected date-time auto-close="true" view="month" min-view="month" format="MM.YYYY">
+                                                                                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-lg-2">
+                                                                                                            <div class="input-group">
+                                                                                                                <label>Размер партии</label>
+                                                                                                                <input id="series1" name="series1" type="number" min="1" class="form-control edit-control" text="" ng-model="object.partValue">
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-lg-2">
+                                                                                                            <div class="input-group">
+                                                                                                                <label>Ед. измерения</label>
+                                                                                                                <ui-select ng-model="object.seriesUnit" theme="bootstrap">
+                                                                                                                    <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                                                                                                    <ui-select-choices repeat="item in SRMeasures | filter: $select.search">
+                                                                                                                        <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                                                                                                    </ui-select-choices>
+                                                                                                                </ui-select>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="row" style="margin-bottom: 10px" ng-show="!object.viewMpde">
+                                                                                                <div class="col-sm-12">
+                                                                                                    <div class="form-group">
+                                                                                                        <div class="col-lg-3">
+                                                                                                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="addProductSeriesBtn" ng-click="addSeries()">
+                                                                                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Добавить
+                                                                                                            </button>
+                                                                                                            <button type="button" class="btn btn-sm btn-danger" id="deleteProductSeries" ng-click="deleteSeries()" ng-disabled="productSeries == null || productSeries.length == 0">
+                                                                                                                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Удалить
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="row">
+                                                                                                <div class="col-sm-12">
+                                                                                                    <div id="gridOptionsSeries" ui-grid="gridOptionsSeries" ui-grid-selection class="gridSeries"></div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-3">
+                                                                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="saveProductBtn" style="margin-top: 10px" ng-click="saveProduct();" ng-show="!object.viewMpde">
+                                                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Сохранить
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="cancelProductBtn" style="margin-top: 10px" ng-click="cancelSaveProduct();" ng-show="!object.viewMpde">
+                                                                                Отменить
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-success btn-sm add-btn-from4" id="closeProductBtn" style="margin-top: 10px" ng-click="closeDisplayDrug();" ng-show="object.viewMpde">
+                                                                                Закрыть
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-3" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            Общая стоимость выполняемых работ с НДС - {{ totalCostCalculator }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            &nbsp;
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <div id="gridOptionsCalculator" ui-grid="gridOptionsCalculator" ui-grid-selection class="grid-calculator"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div ng-show="object.Type == 1">
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                &nbsp;
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <strong>Дополнительные услуги</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                &nbsp;
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <div id="gridOptionsCalculatorAdditional" ui-grid="gridOptionsCalculatorAdditional" ui-grid-selection class="grid-calculator"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-4" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <h3 class="m-t-none m-b">Вложения</h3>
+                                                    <div ng-show="declarant.Id == null" id="filesWarning">
+                                                        <p class="text-bold">Для загрузки вложений выберите заявителя</p>
+                                                    </div>
+                                                    <div ng-show="declarant.Id != null && declarant.IsResident == true" id="filesResident">
+                                                        <div ng-show="!object.viewMpde">
+                                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                    </div>
+                                                    <div ng-show="declarant.Id != null && declarant.IsResident == false" id="filesNonResident">
+                                                        <div ng-show="!object.viewMpde">
+                                                            <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_NON_RESIDENT" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                    </div>
+                                                    <div ng-show="object.Type == 1 && viewRationaleFile" id="filesRationalePlace">
+                                                        <div ng-show="!object.viewMpde">
+                                                            <attach-edit metadata="true" showcomment="true" history="true" url="/Upload/GetAttachListEdit?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RATIONALE_EXPERTISE_PLASE" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && object.Status != @CodeConstManager.STATUS_OBK_ACTIVE && object.Status != @CodeConstManager.STATUS_OBK_INVOCE_GENERATING">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList?excludeCodes=0" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RATIONALE_EXPERTISE_PLASE" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                        <div ng-show="object.viewMpde && (object.Status == @CodeConstManager.STATUS_OBK_ACTIVE || object.Status == @CodeConstManager.STATUS_OBK_INVOCE_GENERATING)">
+                                                            <attach-read metadata="true" history="true" url="/Upload/GetAttachList" type="@CodeConstManager.ATTACH_CONTRACT_FILE_RATIONALE_EXPERTISE_PLASE" id="@ModelGuid" path="@ModelGuid" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-5" class="tab-pane">
+                                                @Html.Partial("~/Views/OBKContract/HistoriesView.cshtml", @Model)
+                                            </div>
+                                            <div id="tab-6" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <div class="col-lg-12">
+                                                        <div ng-show="!showAddEditDrugBlock && !object.viewMpde">
+                                                            <div class="row" style="margin-bottom: 10px">
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-3">
+                                                                            <div class="input-group">
+                                                                                <label>Наименование площадки</label>
+                                                                                <input type="text" class="form-control edit-control" text="" ng-model="factory.Name">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3">
+                                                                            <div class="input-group">
+                                                                                <label>Юридический адрес площадки</label>
+                                                                                <input type="text" class="form-control edit-control" text="" ng-model="factory.LegalLocation">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3">
+                                                                            <div class="input-group">
+                                                                                <label>Фактический адрес площадки</label>
+                                                                                <input type="text" class="form-control edit-control" text="" ng-model="factory.ActualLocation">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-3">
+                                                                            <div class="input-group">
+                                                                                <label>Количество цехов</label>
+                                                                                <input type="text" class="form-control edit-control" text="" ng-model="factory.Count">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row" style="margin-bottom: 10px">
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <div class="col-lg-3">
+                                                                            <button type="button" class="btn btn-success btn-sm add-btn-from4" ng-click="addFactory();">
+                                                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Добавить
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-sm btn-danger" id="deleteProductSeries" ng-click="deleteFactory();" ng-disabled="showAddEditDrugBlock || object.viewMpde || factories == null || factories.length == 0">
+                                                                                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> Удалить
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="gridOptionsFactories" ui-grid="gridOptionsFactories" ui-grid-selection class="gridSeries"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="~/Scripts/js/custom/obkcontractcomments.js"></script>
+<script src="~/Scripts/js/custom/atach-comment.js"></script>
+<script src="~/Scripts/photon/crypto/obk/obk_eds.js"></script>
+<link href="~/Content/css/plugins/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .ui-dialog {
+        background: white;
+    }
+
+    .ui-dialog-titlebar-close {
+        background: #08e7d2;
+    }
+
+    .ui-widget-header {
+        border: 1px solid #08e7d2;
+        background: #004d86;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .ui-dialog .ui-dialog-buttonpane button {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+    .alert-dialog.ui-dialog .ui-dialog-titlebar-close {
+        display: none;
+    }
+
+    .alert-dialog.ui-dialog .ui-dialog-buttonpane button {
+        background-color: #ededed;
+        color: #2b2b2b;
+    }
+</style>

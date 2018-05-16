@@ -1,0 +1,176 @@
+﻿@using PW.Ncels.Database.DataModel;
+@model EXP_DirectionToPaysView
+
+<script>
+    var CreateDirectionForm = {
+        save: function (e) {
+            e.preventDefault();
+            kendo.ui.progress($('#loader' + name), true);
+            var t = SelectFromGridControl.serializeObject($('#@("formCreateDirection" + Model.Id)')); 
+            var direction = JSON.stringify(t);
+            debugger;
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CreateDirection", "DirectionToPay")',
+                contentType: 'application/json; charset=utf-8',
+                data: direction,
+                success: function (result) {
+                    debugger;
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var id = $("#TaskCommandWindow").data("kendoWindow").directionGridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+                },
+                complete: function() {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+            return false;
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        },
+        onchangePageCount: function (e) {
+            debugger;
+            var total = this.value() * 2277;
+            $("#TotalPrice").data("kendoNumericTextBox").value(total);
+        },
+        onchangeType: function (e) {
+            debugger;
+            if (this.value() == '@EXP_DirectionToPaysView.ExpertWorkType.ToString()') {
+                $("#pageCountContainer").hide();
+            } else {
+                $("#pageCountContainer").show();
+            }
+        }
+    };
+
+</script>
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formCreateDirection" + Model.Id)" >
+    <h4>Направления на оплату</h4>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>@Html.DisplayNameFor(model => model.Type)</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.Kendo().DropDownListFor(model => model.Type)
+                    //.Name("ddlType" + Model.Id)
+                      .DataTextField("Text")
+                      .DataValueField("Value")
+                      .Events(e => e.Change("CreateDirectionForm.onchangeType"))
+                      .BindTo(new List<SelectListItem>() {
+                          new SelectListItem() {
+                              Text = "Экспертные работы",
+                              Value = EXP_DirectionToPaysView.ExpertWorkType.ToString()
+                          },
+                          new SelectListItem() {
+                              Text = "Переводы",
+                              Value = EXP_DirectionToPaysView.TranslateType.ToString()
+                          },
+                          new SelectListItem() {
+                              Text = "Доплата по переводам",
+                              Value = EXP_DirectionToPaysView.AdditionalTranslateType.ToString()
+                          }
+                      })
+                      .HtmlAttributes(new { style = "width: 100%" })
+                )
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>@Html.DisplayNameFor(model => model.DirectionDate)</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @Html.Kendo().DatePickerFor(model => model.DirectionDate).Value(DateTime.Now).HtmlAttributes(new { style = "width: 100%", type="" })
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Заявки на экспертизу</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <span class="k-textbox k-space-right" style="width:100%; padding-left: 0px; padding-top: 0px; padding-bottom: 0px;cursor: pointer;">
+                    @Html.Kendo().TextBox().Name("DrugDeclarations").HtmlAttributes(new { @class = "multiselect-control" })
+                    <span id="loadDrugDeclarationsBtn" class="k-icon k-i-more">&nbsp;</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pageCountContainer" style="display: none">
+        <div class="pwWinContent2">
+            <div class="pwWinContentLine1">
+                <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                    <p>Количество страниц</p>
+                </div>
+                <div class="pwWinContentRight2">
+                    @(Html.Kendo().NumericTextBoxFor(d => d.PageCount)
+                          .Decimals(0)
+                          .Min(0)
+                          .Events(a => a.Change("CreateDirectionForm.onchangePageCount"))
+                          .HtmlAttributes(new { style = "width: 100%" }))
+                </div>
+            </div>
+        </div>
+        <div class="pwWinContent2">
+            <div class="pwWinContentLine1">
+                <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                    <p>Общая сумма</p>
+                </div>
+                <div class="pwWinContentRight2">
+                    @(Html.Kendo().NumericTextBoxFor(d => d.TotalPrice)
+                    .Format("n2")
+                    .Decimals(2)
+                    .Min(0)
+                    .HtmlAttributes(new { style = "width: 100%", @readonly="readonly" })
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Прейскуранты</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <span class="k-textbox k-space-right" style="width:100%; padding-left: 0px; padding-top: 0px; padding-bottom: 0px;cursor: pointer;">
+                    @Html.Kendo().TextBox().Name("PriceLists").HtmlAttributes(new { @class="multiselect-control" })
+                    <span id="loadPriceListBtn" class="k-icon k-i-more">&nbsp;</span>
+                </span>
+            </div>
+        </div>
+    </div>
+*@
+    <div class="pwWinFooter">
+        @Html.Kendo().Button().Name("Cancel").Content(PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00).HtmlAttributes(new { @class = "k-button pwWinButton", type="button" }).Events(e => e.Click("CreateDirectionForm.cancel"))
+        @Html.Kendo().Button().Name("Save").Content(PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00).HtmlAttributes(new {@class = "k-button k-primary pwWinButton", type = "button" }).Events(e => e.Click("CreateDirectionForm.save"))
+    </div>
+</form>
+
+
+<script>
+    (function (){
+        var name = '@Model.Id';
+        $("#loadDrugDeclarationsBtn").click(function () {
+            var type = $("#Type").data("kendoDropDownList").value();
+            SelectFromGridControl.showGridDialog('@Url.Action("GridOfExpertiseMultiselect", "DirectionToPay")?containerId=divDialog&type=' + type
+                , "divDialog", "Заявки на экспертизу", "DrugDeclarations");
+        });
+
+        $("#loadPriceListBtn").click(function () {
+            SelectFromGridControl.showGridDialog('@Url.Action("GridOfPriceListMultiselect", "DirectionToPay")?containerId=divDialog'
+                , "divDialog", "Прейскуранты", "PriceLists");
+        });
+
+    })();
+</script>

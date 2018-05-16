@@ -1,0 +1,942 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.0" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <ncels Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>ncels</Alias>
+        <ConnectionString />
+        <Name>ncels</Name>
+        <PromptUserNameAndPassword>False</PromptUserNameAndPassword>
+      </ncels>
+    </Databases>
+    <DataSources isList="true" count="3">
+      <Protocol Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>Protocol</Alias>
+        <Columns isList="true" count="7">
+          <value>OwnerName,System.String</value>
+          <value>ComMembers,System.String</value>
+          <value>RequesterName,System.String</value>
+          <value>IsImn,System.Boolean</value>
+          <value>ChiefName,System.String</value>
+          <value>ProtocolDate,System.DateTime</value>
+          <value>Number,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>Protocol</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>protocolId,protocolId,14,0</value>
+        </Parameters>
+        <SqlCommand>select
+	e.FullName as OwnerName,
+	p.ProtocolDate,
+	p.Number,
+	(select 
+	(cast(e.ShortName as varchar(200))+', ') as [text()] 
+		from 
+			PP_ProtocolComissionMembers as cm
+			inner join Employees as e on cm.EmployeeId = e.Id
+		where ProtocolId = p.Id
+		for XML PATH('')) as ComMembers,
+	p.RequesterName,
+	p.IsImn,
+	ec.ShortName as ChiefName
+from 
+	PP_Protocols as p
+	inner join Employees as e on p.OwnerId = e.Id
+	left join Units as u on e.PositionId = u.Id
+	left join Employees as ec on p.ChiefId = ec.Id
+where p.Id = @protocolId</SqlCommand>
+      </Protocol>
+      <ComissionMembers Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>ComissionMembers</Alias>
+        <Columns isList="true" count="1">
+          <value>ShortName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>ComissionMembers</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>protocolId,protocolId,14,0</value>
+        </Parameters>
+        <SqlCommand>select 
+	e.ShortName
+from 
+	PP_ProtocolComissionMembers as cm
+	inner join Employees as e on cm.EmployeeId = e.Id
+where cm.ProtocolId=@protocolId</SqlCommand>
+      </ComissionMembers>
+      <ProductPrices Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>ProductPrices</Alias>
+        <Columns isList="true" count="3">
+          <value>ProductNameRu,System.String</value>
+          <value>PriceFirst,System.Decimal</value>
+          <value>PriceNew,System.Decimal</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>ProductPrices</Name>
+        <NameInSource>ncels</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>protocolId,protocolId,14,0</value>
+        </Parameters>
+        <SqlCommand>select
+	ProductNameRu,
+	PriceFirst,
+	PriceNew
+from 
+	PP_ProtocolProductPrices
+where ProtocolId=@protocolId</SqlCommand>
+      </ProductPrices>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="1">
+      <value>,protocolId,protocolId,System.Guid,,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="3">
+    <Page1 Ref="6" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="2">
+        <HeaderBand1 Ref="7" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,2</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Name>HeaderBand1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </HeaderBand1>
+        <DataBand1 Ref="8" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,3.2,19,24.6</ClientRectangle>
+          <Components isList="true" count="15">
+            <Text6 Ref="9" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.86,1,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>41636e1deba94a51ac9c60a1d3055749</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>ХАТТАМА</Text>
+              <TextBrush>Black</TextBrush>
+            </Text6>
+            <Text7 Ref="10" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.2,1,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>2aa4dcfba0e0484da0e45b7777a7b014</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>ПРОТОКОЛ</Text>
+              <TextBrush>Black</TextBrush>
+            </Text7>
+            <Text8 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,8.6,9,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>79b157650a054c60a0a1c22266daa66b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>Председатель – Сабденалиев Д.М.
+</Text>
+              <TextBrush>Black</TextBrush>
+            </Text8>
+            <Text9 Ref="12" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,9.4,18,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>29879476fdb2475a9e1a4b86a9670db0</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>Секретарь - {Protocol.OwnerName}</Text>
+              <TextBrush>Black</TextBrush>
+            </Text9>
+            <Text1 Ref="13" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,5.2,8.6,2.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>Комиссия по проведению 
+переговоровдля обоснования 
+цены заявителя на 
+государственную регистрацию
+ и ее снижения (далее – Комиссия)
+</Text>
+              <TextBrush>Black</TextBrush>
+            </Text1>
+            <Text2 Ref="14" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,10.6,5,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>c3411206d6a34be9bc73602726dfc72b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>Присутствовали:</Text>
+              <TextBrush>Black</TextBrush>
+            </Text2>
+            <Text3 Ref="15" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,11.2,18,1.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>eee31317c7324a3b9a74b20664783318</Guid>
+              <HideZeros>True</HideZeros>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <ProcessAtEnd>True</ProcessAtEnd>
+              <Text>{Protocol.ComMembers}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+            </Text3>
+            <Text4 Ref="16" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,13,18,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>f7b17629c5a94248937ce27ecd8a3d31</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>Приглашенные: 
+Официальный представитель производителяи/или уполномоченный представитель производителя
+</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+            </Text4>
+            <Text5 Ref="17" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,14.6,18,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>6ba81182d39e4d01ae60fa39d180aab2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>{Protocol.RequesterName}</Text>
+              <TextBrush>Black</TextBrush>
+            </Text5>
+            <Text10 Ref="18" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,17,17.8,7.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <HorAlignment>Width</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>По итогам переговоров с Комиссией после согласования официального представителя производителя и/или уполномоченного представителя производителя
+принято решение:&lt;br/&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;1. В течение 3 (трех) рабочих дней предоставить заявления на внесение изменений согласно приложению {IIF(Protocol.IsImn,"5","4")} приказа исполняющего обязанности Министра здравоохранения и социального развития Республики Казахстан от 30 июля 2015 года № 639 «Об утверждении Правил формирования цен на лекарственные средства и изделия медицинского назначения в рамках гарантированного объема бесплатной медицинской помощи» согласно Приложению, к настоящему Протоколу;
+</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text10>
+            <Text11 Ref="19" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,16,4.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>ПОСТАНОВИЛИ:</Text>
+              <TextBrush>Black</TextBrush>
+            </Text11>
+            <Text12 Ref="20" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.86,2,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold| Underline</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>{Format("{0:dd.MM.yyyy}", Protocol.ProtocolDate)}
+
+Алматы қаласы
+</Text>
+              <TextBrush>Black</TextBrush>
+            </Text12>
+            <Text13 Ref="21" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2.8,3,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>99231ba656da4bc2a0eb7a08184b46bc</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>&lt;u&gt;Алматы&lt;/u&gt; қаласы
+</Text>
+              <TextBrush>Black</TextBrush>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text13>
+            <Text14 Ref="22" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.2,2,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>eb1ddeac4934428ab24c325b18d508d2</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>№ &lt;u&gt;{Protocol.Number}&lt;/u&gt;</Text>
+              <TextBrush>Black</TextBrush>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text14>
+            <Text15 Ref="23" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.2,3,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>b9e41c68c1744be58d59e1371ad3d059</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="6" />
+              <Parent isRef="8" />
+              <Text>город &lt;u&gt;Алматы&lt;/u&gt;</Text>
+              <TextBrush>Black</TextBrush>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text15>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Protocol</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataBand1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Sort isList="true" count="0" />
+        </DataBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>88bb0e307b0b45b8aeba5461953aeb63</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <UnlimitedHeight>True</UnlimitedHeight>
+      <Watermark Ref="24" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+    <Page2 Ref="25" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <DataBand2 Ref="26" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,0.4,19,6.6</ClientRectangle>
+          <Components isList="true" count="5">
+            <Text25 Ref="27" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,0.6,17.8,2.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>c263c684b93e4288ac95387c68740419</Guid>
+              <HorAlignment>Width</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="25" />
+              <Parent isRef="26" />
+              <Text>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;2. В течение 3 (трех) рабочих дней предоставить письмо фирменном бланке на имя руководителя экспертной организации с указанием причин невозможности понижения заявленной на регистрацию цены &lt;u&gt;{IIF(Protocol.IsImn,"ИМН","ЛС")}&lt;/u&gt; согласно Приложению к настоящему Протоколу;</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text25>
+            <Text16 Ref="28" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,4,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="25" />
+              <Parent isRef="26" />
+              <Text>Председатель</Text>
+              <TextBrush>Black</TextBrush>
+            </Text16>
+            <Text17 Ref="29" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.4,4,5,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>d81f516207444439ba57d439c9e57a3b</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="25" />
+              <Parent isRef="26" />
+              <Text>____________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text17>
+            <Text18 Ref="30" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.6,4,5,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>e4bff3fb8f7041b287691be446d2a0ef</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="25" />
+              <Parent isRef="26" />
+              <Text>Сабденалиев Д.</Text>
+              <TextBrush>Black</TextBrush>
+            </Text18>
+            <Text19 Ref="31" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,6,3.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>036d420f07244993af8d55bf5f5e7605</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="25" />
+              <Parent isRef="26" />
+              <Text>Члены Комиссии</Text>
+              <TextBrush>Black</TextBrush>
+            </Text19>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Protocol</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>e26065ddc88d4fe99639a4c12b703928</Guid>
+          <Name>DataBand2</Name>
+          <Page isRef="25" />
+          <Parent isRef="25" />
+          <Sort isList="true" count="0" />
+        </DataBand2>
+        <DataComissionMembers Ref="32" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,7.8,19,1.2</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text20 Ref="33" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.4,0.2,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>e5ac72c24c4b4af9a48c8b337636bcf7</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="25" />
+              <Parent isRef="32" />
+              <Text>____________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text20>
+            <Text21 Ref="34" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.6,0.2,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>0774700843c6494d98410518b265a553</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="25" />
+              <Parent isRef="32" />
+              <Text>{ComissionMembers.ShortName}</Text>
+              <TextBrush>Black</TextBrush>
+            </Text21>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>ComissionMembers</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataComissionMembers</Name>
+          <Page isRef="25" />
+          <Parent isRef="25" />
+          <Sort isList="true" count="0" />
+        </DataComissionMembers>
+        <DataProtocol Ref="35" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,9.8,19,18</ClientRectangle>
+          <Components isList="true" count="7">
+            <Text22 Ref="36" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,1,7,2.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>Официальный представитель 
+производителя или 
+уполномоченный 
+представитель производителя</Text>
+              <TextBrush>Black</TextBrush>
+            </Text22>
+            <Text23 Ref="37" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.4,2,5,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>dcc2642fefec42618cb0f748b62d803d</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>____________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text23>
+            <Text24 Ref="38" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.6,2,6.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>9d1073e26d2c4cf2b52dfd9788f7fefc</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>{Protocol.RequesterName}</Text>
+              <TextBrush>Black</TextBrush>
+            </Text24>
+            <Text26 Ref="39" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,4.6,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>82bfea9dc87f4795974f057d598b0181</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>Секретарь</Text>
+              <TextBrush>Black</TextBrush>
+            </Text26>
+            <Text27 Ref="40" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.4,4.6,5,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>4fda1781534644349572211ff4402bb1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>____________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text27>
+            <Text28 Ref="41" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.6,4.6,5,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>166d3d8f0d284b2f9c91be2ec2144618</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <Text>Кожамкулов С.</Text>
+              <TextBrush>Black</TextBrush>
+            </Text28>
+            <Text39 Ref="42" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,17,3.8,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>4ddc955d216247228faa851251e01ff1</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text39</Name>
+              <Page isRef="25" />
+              <Parent isRef="35" />
+              <TextBrush>Black</TextBrush>
+            </Text39>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Protocol</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataProtocol</Name>
+          <Page isRef="25" />
+          <Parent isRef="25" />
+          <Sort isList="true" count="0" />
+        </DataProtocol>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>48881830700941cfb7f45d4b59c1e4d7</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page2</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <UnlimitedBreakable>False</UnlimitedBreakable>
+      <UnlimitedHeight>True</UnlimitedHeight>
+      <Watermark Ref="43" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page2>
+    <Page3 Ref="44" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <DataBand3 Ref="45" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,0.4,19,11</ClientRectangle>
+          <Components isList="true" count="6">
+            <Text29 Ref="46" type="Text" isKey="true">
+              <AllowHtmlTags>True</AllowHtmlTags>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.26,0,11.4,5.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Guid>acd8cc7e6aab4e9d93be0ba4a36c6868</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text29</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+Приложение&lt;br/&gt;
+к Протоколу  Комиссии&lt;br/&gt;
+от &lt;u&gt;{Format("{0:dd.MM.yyyy}", Protocol.ProtocolDate)}&lt;/u&gt;  № &lt;u&gt;{Protocol.Number}&lt;/u&gt;</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text29>
+            <Text30 Ref="47" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,5.4,18.2,2.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>658c8a18a6ac4db1a68293451f0793eb</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text30</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>Перечень {IIF(Protocol.IsImn,"изделий медицинского назначения","лекарственных средств")}, 
+на которые производителем снижены заявленные на государственную 
+регистрацию цены 
+</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <TextQuality>Wysiwyg</TextQuality>
+            </Text30>
+            <Text31 Ref="48" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,9,9.8,2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>Наименования {IIF(Protocol.IsImn,"изделий медицинского назначения","лекарственных средств")}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </Text31>
+            <Text32 Ref="49" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.8,9,9.2,1.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>ab5370d7e99946a4af1953cb12bf7761</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>Цена для регистрации
+(в тенге за ед.изм.)
+</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text32>
+            <Text33 Ref="50" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.8,10.2,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>4358460117a04d048b955b857e086281</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>до переговоров</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text33>
+            <Text34 Ref="51" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>14.4,10.2,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>c2e8fbde46a24c36add14340ff5eb4e7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text34</Name>
+              <Page isRef="44" />
+              <Parent isRef="45" />
+              <Text>после переговоров</Text>
+              <TextBrush>Black</TextBrush>
+              <VertAlignment>Center</VertAlignment>
+            </Text34>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>Protocol</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>0d77d0a1b7c741d9b3602c325f7ed946</Guid>
+          <Name>DataBand3</Name>
+          <Page isRef="44" />
+          <Parent isRef="44" />
+          <Sort isList="true" count="0" />
+        </DataBand3>
+        <DataProductPrices Ref="52" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,12.2,19,0.8</ClientRectangle>
+          <Components isList="true" count="3">
+            <DataProductPrices_ProductNameRu Ref="53" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,9.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataProductPrices_ProductNameRu</Name>
+              <Page isRef="44" />
+              <Parent isRef="52" />
+              <Text>{ProductPrices.ProductNameRu}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataProductPrices_ProductNameRu>
+            <DataProductPrices_PriceFirst Ref="54" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>9.8,0,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <HorAlignment>Right</HorAlignment>
+              <Linked>True</Linked>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataProductPrices_PriceFirst</Name>
+              <Page isRef="44" />
+              <Parent isRef="52" />
+              <Text>{ProductPrices.PriceFirst}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataProductPrices_PriceFirst>
+            <DataProductPrices_PriceNew Ref="55" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>14.4,0,4.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <HorAlignment>Right</HorAlignment>
+              <Linked>True</Linked>
+              <Margins>0,0,0,0</Margins>
+              <Name>DataProductPrices_PriceNew</Name>
+              <Page isRef="44" />
+              <Parent isRef="52" />
+              <Text>{ProductPrices.PriceNew}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
+              <VertAlignment>Center</VertAlignment>
+            </DataProductPrices_PriceNew>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>ProductPrices</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataProductPrices</Name>
+          <Page isRef="44" />
+          <Parent isRef="44" />
+          <Sort isList="true" count="0" />
+        </DataProductPrices>
+        <DataProtocol2 Ref="56" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,13.8,19,6.6</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text35 Ref="57" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.46,1.8,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text35</Name>
+              <Page isRef="44" />
+              <Parent isRef="56" />
+              <Text>Председатель комиссии</Text>
+              <TextBrush>Black</TextBrush>
+            </Text35>
+            <Text36 Ref="58" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,1.8,9,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>5ff3e34a7d9b4286837ee10478ccaa23</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text36</Name>
+              <Page isRef="44" />
+              <Parent isRef="56" />
+              <Text>Официальный представитель 
+производителя или уполномоченный 
+представитель производителя
+</Text>
+              <TextBrush>Black</TextBrush>
+            </Text36>
+            <Text37 Ref="59" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,4.2,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>810fea6cfe87438a800c6fbdcbc3f519</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text37</Name>
+              <Page isRef="44" />
+              <Parent isRef="56" />
+              <Text>______________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text37>
+            <Text38 Ref="60" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,4.2,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,14,Bold</Font>
+              <Guid>7113aa197cb84643b0f362be44481e6a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text38</Name>
+              <Page isRef="44" />
+              <Parent isRef="56" />
+              <Text>______________________</Text>
+              <TextBrush>Black</TextBrush>
+            </Text38>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataSourceName>Protocol</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DataProtocol2</Name>
+          <Page isRef="44" />
+          <Parent isRef="44" />
+          <Sort isList="true" count="0" />
+        </DataProtocol2>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>cf34c694f1e64ebabba908c2995a4ae2</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page3</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <UnlimitedBreakable>False</UnlimitedBreakable>
+      <UnlimitedHeight>True</UnlimitedHeight>
+      <Watermark Ref="61" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page3>
+  </Pages>
+  <PrinterSettings Ref="62" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>6/1/2017 1:18:58 PM</ReportChanged>
+  <ReportCreated>2/18/2017 10:06:24 PM</ReportCreated>
+  <ReportFile>D:\Projects\ncels\PW.Prism\Reports\PriceProject\Protocol.mrt</ReportFile>
+  <ReportGuid>a10efe9d812e4dd986d5fbc32e74927d</ReportGuid>
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2010.1.700</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

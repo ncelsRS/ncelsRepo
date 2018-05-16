@@ -1,0 +1,128 @@
+﻿
+@model PW.Ncels.Database.DataModel.Task
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReject" + Model.Id)">
+    @Html.HiddenFor(o => o.Id)
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconReject"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Отказатьвсогласованиидокумента_13__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Document.Number)</span> @PW.Ncels.Database.Recources.Messages.Property_от_400__00 <span style="font-weight: bold">@Html.DisplayFor(o => o.Document.DocumentDate)</span> </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine2">
+            <div class="pwWinContentLeft2">
+                <p>@PW.Ncels.Database.Recources.Messages.Property_Текст_351__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <textarea id="Note" name="Note" cols="8" rows="4" class="k-textbox pwTextArea pwWidth100"></textarea>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    @*<div class="pwWinContent4">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p style="padding-top: 11px;">@PW.Ncels.Database.Recources.Messages.Property_Вложения_280__00</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <input name="files" id="@("filesTasks" + Model.DocumentId)" type="file" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>*@
+    <div class="pwWinFooter">
+        <button type="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickRejectCancel()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" id="TaskJob" class="k-button pwWinButton" onclick="clickReject()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+
+
+<script>
+
+    function clickReject() {
+        var name = '@Model.Id';
+        var type = '@Model.Type';
+        kendo.ui.progress($('#loader' + name), true);
+
+
+        var form = $('#formReject' + name);
+        $.ajax({
+            type: 'POST',
+            url: '/Task/RejectConfirm?taskId=' + name,
+            data: form.serialize(),
+            success: function (result) {
+                if (result.State == true) {
+                    ActionTaskEnable(result.Task.State, result.Task.DocumentState, result.Task.Type, result.Task.MonitoringType, result.Task.Id);
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loader' + name), false);
+            }
+        });
+    }
+    nameDocId = '@Model.DocumentId';
+
+    $("#filesTasks" + nameDocId).kendoUpload({
+        localization: {
+            select: 'Выбрать файл...',
+            remove: '',
+            cancel: '',
+            headerStatusUploading: "Загрузка...",
+            headerStatusUploaded: "Загружено!"
+        },
+        // multiple: true,
+        async: {
+            saveUrl: "/Upload/save",
+            removeUrl: "/Upload/remove",
+            autoUpload: true
+        }
+        , upload: function (e) {
+
+            e.data = { documentId: nameDocId };
+        },
+        remove: function (e) {
+            e.data = { documentId: nameDocId };
+        },
+        complete: function (e) {
+            var files = $("#filesTasks" + nameDocId).closest(".k-upload").find("a");
+            $.each(files, function (i, file) {
+                file.onclick = function () {
+                    fileView(nameDocId, file.getAttribute('fileName'));
+                };
+            });
+            var filesButton = $("#filesTasks" + nameDocId).closest(".k-upload").find("button");
+
+            $.each(filesButton, function (i, file) {
+                if (file.className == 'file-edit') {
+                    file.onclick = function () {
+
+                        fileEdit(nameDocId, file.getAttribute('fileName'));
+
+                    };
+                };
+            });
+            var filesDownload = $("#filesTasks" + nameDocId).closest(".k-upload").find("button");
+            $.each(filesDownload, function (i, file) {
+                if (file.className == 'file-download') {
+                    file.onclick = function () {
+                        fileDownload(nameDocId, file.getAttribute('fileName'));
+                    };
+                };
+            });
+        },
+        select: function (e) { },
+        template: kendo.template($('#fileTemplate').html())
+    });
+    function clickRejectCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

@@ -1,0 +1,103 @@
+﻿@using PW.Prism.ViewModels.Commissions
+@model CommissionQuestionsModel
+
+@{
+    //простите за всё это, очень спешу
+    var modelId = Model.Guid.ToString();
+}
+<script>
+    InitFilterCommissionQuestionAllGrid('@modelId');
+</script>
+<div class="pwPanelBar">
+    <div class="pwBlockAdd k-block">
+        <div id="pwOne">
+            @(Html.Kendo().MaskedTextBox().Name("findText" + modelId).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+        </div>
+        @*<div id="pwTwo">
+                @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                       .DataTextField("Text")
+                       .DataValueField("Value")
+                       .BindTo(new List<SelectListItem>() {
+                           new SelectListItem() {
+                               Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                           },
+                       })
+                       .SelectedIndex(0)
+                )
+            </div>*@
+        <div id="pwThree">
+            @(Html.Kendo().Button().Name("find" + modelId).HtmlAttributes(new { @class = "pwWidth100" })
+                             .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                             .ImageUrl("/Content/images/find.png"))
+        </div>
+        <div id="pwFour">
+        </div>
+    </div>
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + modelId).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                        .Content("")
+                                   .ImageUrl("/Content/images/reload.png"))
+    </div>
+
+    @(Html.Kendo().Grid<CommissionDrugDeclarationListItemModel>()
+        .Name("gridCommissionQuestionsList" + modelId)
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Number).Title("Номер").Width(125).ClientTemplate(
+                            "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                            "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getDeclarationDetails('#=DosageStageId#', '#=DeclarationNumber#','DrugPrimary')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                            "</div>"
+                            ).Title("№ заявления");
+            //columns.Bound(p => p.Number).Title("Номер");
+            //columns.Bound(p => p.DeclarationNumber).Width(125).ClientTemplate(
+            //                "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+            //                "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getDeclarationDetails('#=DosageStageId#', '#=DeclarationNumber#','DrugPrimary')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+            //                "</div>"
+            //                ).Title("№ заявления");
+            columns.Bound(p => p.Name).Title("Торговое наименование препарата");
+            columns.Bound(p => p.StageName).Title("Этап");
+            columns.Bound(p => p.Date).Title("Дата выдачи").Format("{0:dd/MM/yyyy}");
+            columns.Bound(p => p.ProducerCountryName).Title("Производитель, страна").ClientTemplate("#=ProducerCountryName#,#=ProducerNameRu#");
+            columns.Bound(p => p.ProducerDocDate).Title("Срок регистрации").Format("{0:dd/MM/yyyy}");
+            columns.Bound(p => p.ProducerDocExpiryDate).Title("Срок годности").Format("{0:dd/MM/yyyy}");
+            columns.Bound(p => p.DosageSaleTypeName).Title("Форма отпуска");
+            columns.Bound(p => p.DeclarationAtxName).Title("ATX");
+            columns.Bound(p => p.DeclarationMnnName).Title("непатентованное название (МНН)");
+            columns.Bound(p => p.DosageFormName).Title("Лекарственная форма");
+            columns.Bound(p => p.NtdNameRu).Title("Тип НД");
+            columns.Bound(p => p.IsRepeat).Title("Повтор").ClientTemplate("<input type='checkbox' disabled='disabled'  #= IsRepeat ? checked='checked' :'' # />");
+            columns.Bound(p => p.ResultNameRu).Title("Результат");
+            columns.Bound(p => p.ResultDate).Title("Дата результата").Format("{0:dd/MM/yyyy}");
+            columns.Bound(p => p.ResultCreatorShortName).Title("Эксперт");
+            columns.Bound(p => p.ConclusionName).Title("Заключение");
+            columns.Bound(p => p.ConclusionComment).Title("Комментарий");
+            columns.Bound(p => p.Id).ClientTemplate(
+                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                          "<button type='button' style='width:30px;' class='btn btn-default btn-xs' onclick=\"ConclusionCommissionDrugDeclaration('#=Id#','"+ Model.CommissionId + "')\">" +
+                                            "<span style=\"color:rgb(66,139,202);\"><i class='glyphicon glyphicon-stats' title='Заключение'></i> </span></button>" +
+                                      "</div>"+
+                                     "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                          "<button type='button' style='width:30px;' class='btn btn-default btn-xs' onclick=\"RemoveCommissionDrugDeclaration('#=Id#','" + Model.CommissionId + "')\">" +
+                                            "<span style=\"color:rgb(66,139,202);\"><i class='glyphicon glyphicon-trash' title='Исключить'></i> </span></button>" +
+                                      "</div>"
+                                    ).Title("").Width(100).Filterable(false).Sortable(false);
+        })
+        .Filterable()
+        .Sortable()
+        .Pageable()
+        .Resizable(x => x.Columns(true))
+        .Scrollable()
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+                 .Model(model =>
+                 {
+                     model.Id(p => p.Id);
+                     model.Field(p => p.Id).Editable(false);
+                 })
+                .PageSize(20)
+                //.Sort(sort => sort.Add("Name").Ascending())
+                .Read(read => read.Action("CommissionDrugDelaretionRead", "Commission", new { commissionId = Model.CommissionId }))
+                .Events(events => events.Error("error_handlerPP"))
+                ))
+</div>

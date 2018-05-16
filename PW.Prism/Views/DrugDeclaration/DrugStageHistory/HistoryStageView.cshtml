@@ -1,0 +1,164 @@
+﻿@using PW.Ncels.Database.Constants
+@model List<PW.Ncels.Database.DataModel.EXP_ExpertiseStage>
+<style type="text/css">
+    .history-expertise-page {
+    }
+
+    .history-dosage-page {
+    }
+</style>
+@{
+    var fistTab = false;
+}
+<input type="hidden" id="showHistory" value="true">
+<div class="panel-group">
+    @foreach (var entity in Model)
+    {
+        var classname = "panel-collapse collapse";
+        if (!fistTab)
+        {
+            classname += " in";
+            fistTab = true;
+        }
+        var tabId = Guid.NewGuid();
+        var tabHref = "#" + tabId;
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="@tabHref">
+                        @entity.EXP_DIC_Stage.NameRu
+                    </a>
+                </h4>
+            </div>
+            <div id="@tabId" class="@classname">
+                <div class="panel-body">
+                    @Html.Partial("~/Views/DrugDeclaration/DrugStageHistory/TemplHistoryStagePage.cshtml", @entity)
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+
+<script>
+    function readonlyHistoryStage() {
+        $('checkbox').attr('disabled', 'disabled');
+        $('button').attr('disabled', 'disabled');
+        $("input").prop("readonly", true);
+        $('select').attr('disabled', 'disabled');
+        $('input:checkbox').attr('disabled', 'disabled');
+        $('.btn-default').attr('disabled', 'disabled');
+        $("textarea").prop("readonly", true);
+    }
+
+    $(document).ready(function () {
+        //  window.Showbusy(event);
+        $('.history-expertise-page').each(function () {
+
+            if ($(this).html().trim().length > 0) {
+                return;
+            }
+            var expertisePage = "#" + $(this).attr('Id');
+            var stage = $(this).attr('stage');
+            var url = "";
+            switch (stage) {
+                case '@CodeConstManager.STAGE_PRIMARY':
+                    {
+                        url = "/DrugPrimary/PrimaryPageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                case '@CodeConstManager.STAGE_PHARMACEUTICAL':
+                    {
+                        url = "/Pharmaceutical/PharmaceuticalPageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                case '@CodeConstManager.STAGE_PHARMACOLOGICAL':
+                    {
+                        url = "/Pharmacological/PharmacologicalPageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                case '@CodeConstManager.STAGE_SAFETYREPORT':
+                    {
+                        url = "/Safetyreport/SafetyReportPageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                case '@CodeConstManager.STAGE_TRANSLATE':
+                    {
+                        url = "/Translate/TranslatePageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                case '@CodeConstManager.STAGE_ANALITIC':
+                    {
+                         url = "/DrugAnalitic/AnaliticPageView?Id=" + $(this).attr('stageId');
+                        break;
+                    }
+                        
+            }
+            $.ajax({
+                url: url,
+                success: function (result) {
+                    $(expertisePage).html(result);
+                    readonlyHistoryStage();
+                }
+            });
+        });
+        $('.history-dosage-page')
+            .each(function () {
+
+                if ($(this).html().trim().length > 0) {
+                    return;
+                }
+                var stagePage = $(this);
+                var stage = $(this).attr('stage');
+                var controllerName = "";
+                switch (stage) {
+                    case '@CodeConstManager.STAGE_PRIMARY':
+                        {
+                            controllerName = "DrugPrimary";
+                            break;
+                        }
+                    case '@CodeConstManager.STAGE_PHARMACEUTICAL':
+                        {
+                            controllerName = "Pharmaceutical";
+                            break;
+                        }
+                    case '@CodeConstManager.STAGE_PHARMACOLOGICAL':
+                        {
+                            controllerName = "Pharmacological";
+                            break;
+                        }
+                    case '@CodeConstManager.STAGE_SAFETYREPORT':
+                        {
+                            controllerName = "Safetyreport";
+                            break;
+                        }
+                    case '@CodeConstManager.STAGE_TRANSLATE':
+                        {
+                            controllerName = "Translate";
+                            break;
+                        }
+                    case '@CodeConstManager.STAGE_ANALITIC':
+                        {
+                            controllerName = "DrugAnalitic";
+                            break;
+                        }
+
+                    default:
+                        {
+                            controllerName = "DrugDeclaration";
+                            break;
+                        }
+                }
+                $.ajax({
+                    url: '/' + controllerName + '/AppDosage?Id=' + $(this).attr('dosageId'),
+                    success: function (result) {
+                        stagePage.html(result);
+                        readonlyHistoryStage();
+                    }
+                });
+            });
+        // $("#loading").hide();
+
+    });
+</script>

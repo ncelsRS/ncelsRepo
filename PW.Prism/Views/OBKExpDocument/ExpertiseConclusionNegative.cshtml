@@ -1,0 +1,113 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKExpertiseConclusionNegative
+
+
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-lg-12">
+                        <label class="control-label">Результат</label>
+                        @if (Model.ToShow)
+                        {
+                            @Html.DropDownList("RefReasonId", Model.Reasons, String.Empty, new { @class = "form-control form-disabled" })
+                        }
+                        else
+                        {
+                            @Html.DropDownList("RefReasonId", Model.Reasons, String.Empty, new { @class = "form-control form-disabled" })
+                        }
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-6">
+                        <label class="control-label">Основание на русском языке*</label>
+                        @if (Model.ToShow)
+                        {
+                            <textarea rows="4" id="ecNegativeReasonNameRu" name="ecNegativeReasonNameRu" type="text" class="form-control form-disabled">@Model.ExpReasonNameRu</textarea>
+                        }
+                        else
+                        {
+                            <textarea rows="4" id="ecNegativeReasonNameRu" name="ecNegativeReasonNameRu" type="text" class="form-control form-disabled"></textarea>    
+                        }
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="control-label">Основание на казахском языке*</label>
+                        @if (Model.ToShow)
+                        {
+                            <textarea rows="4" id="ecNegativeReasonNameKz" name="ecNegativeReasonNameKz" type="text" class="form-control form-disabled">@Model.ExpReasonNameKz</textarea>
+                        }
+                        else
+                        {
+                            <textarea rows="4" id="ecNegativeReasonNameKz" name="ecNegativeReasonNameKz" type="text" class="form-control form-disabled"></textarea>    
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="btn btn-default form-disabled" onclick="saveExpConclusionNegative()">Сохранить</button>
+        <button type="button" class="btn btn-default" onclick="closeExpConclusionNegative()">Отмена</button>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        if ('@Model.ToShow' === 'True') {
+            $('.form-disabled').each(function () {
+                $(this).attr('disabled', true);
+            });
+        }
+    });
+
+    function saveExpConclusionNegative() {
+        var model = {
+            AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
+            ProductId: '@Model.ProductId',
+            ProductSeriesId: '@Model.ProductSeriesId',
+            ExpReasonNameRu: $("#ecNegativeReasonNameRu").val(),
+            ExpReasonNameKz: $("#ecNegativeReasonNameKz").val(),
+            RefReasonId: $("#RefReasonId").val()
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/SaveExpertiseConclusionNegative',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    alert('Решение успешно сохранено');
+                    $('.form-disabled').each(function () {
+                        $(this).attr('disabled', true);
+                    });
+                    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").each(function () {
+                        var psid = $(this).attr('rowid');
+                        if (psid == '@Model.ProductSeriesId') {
+                            $(this).attr('br', '2');
+                        }
+                    });
+                } else {
+                    alert('Ошибка при сохранении');
+                }
+            }
+        });
+    }
+
+    function closeExpConclusionNegative() {
+        $("#panelExpertiseConclusion_@Model.AssessmentDeclarationId").hide();
+    }
+
+    $("#RefReasonId").on('change', function () {
+        var reasonSelect = $("option:selected", this);
+        var reason = reasonSelect.text().split('/');
+        $("textarea#ecNegativeReasonNameRu").val(reason[0]);
+        $("textarea#ecNegativeReasonNameKz").val(reason[1]);
+    });
+
+</script>
+

@@ -1,0 +1,39 @@
+﻿@model List<PW.Ncels.Database.DataModel.PP_ProtocolProductPrices>
+@{
+    int index = 0;
+    int rowCount = Model.Count;
+}
+<script>
+    $(document).ready(function () {
+        var list = $(".cPrice");
+        list.each(function (i) {
+            $(this).kendoNumericTextBox();
+        });
+    });
+</script>
+<table id="protocolPrices" priceCount="@rowCount">
+    <tr>
+        <th style="width: 70%">
+            Наименование
+        </th>
+        <th style="width: 30%">
+            Цена
+        </th>
+    </tr>
+    @foreach (var item in Model) {
+        var price = item.PriceNew.ToString();
+        price = price.Replace(",",".");
+        index++;
+        <tr class="priceRow" index="@index" ppId="@item.PriceProjectId" prName="@item.ProductNameRu" priceFirst="@item.PriceFirst">
+            <td>
+                <input id="cbAddPrice@(index)" type="checkbox" style="display:inline;" @(ViewBag.IsSelected ? "checked" : "")/>
+                <label for="cbAddPrice@(index)" style="font-weight: normal;display:inline;">@item.ProductNameRu</label>
+                @*@Html.DisplayFor(modelItem => item.ProductNameRu)*@
+            </td>
+            <td>
+                <input id="price@(index)" type="number" value="@price" min="0" class="pwWidth100 cPrice" placeholder="Введите значение"/>
+                @*<input id="price@(index)" name="MarkupCost" value="@item.PriceNew" class="k-textbox pwWidth100 cPrice" placeholder="Введите значение"/>*@
+            </td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,155 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+@{
+//Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<script>
+    InitFilterRegisterProjectGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                               .Events(e => e.Select("panelRegisterProjecSelect"))
+                               .Items(panelbar =>
+                               {
+                                   panelbar.Add().Expanded(true);
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                                   .Items(projects =>
+                                                   {
+                                                       projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "StatusValue" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("Черновик").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("На регистрации").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("На анализе").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("Переговоры").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("Завершено").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "4" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                       projects.Add().Text("На доработке у заявителя").LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "99" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                                   });
+
+
+
+                               })
+                    )
+                </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+                        <div id="pwTwo">
+                            @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поисполнителю_170__00, Value = "2"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поотправителю_171__00, Value = "3"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                            )
+                        </div>
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+                        </div>
+                        <div id="pwFour">
+                            @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                   .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportInDoc")))
+                        </div>
+                    </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+                    </div>
+                    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.RegisterProjectJournal>()
+                                   .Name("gridRegisterProjec" + Model)
+                           .Columns(columns =>
+                           {
+                               columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                                "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                    "<button  type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getIncomingDetails('#=Id#', '#=Number#')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                "</div>"
+                                ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).Locked(true).Lockable(false).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                               columns.Bound(p => p.RegisterType).Title(PW.Ncels.Database.Recources.Messages.Ncels_Вид_рег_2).Width(100).Locked(true);
+                               columns.Bound(p => p.NameRu).Title(PW.Ncels.Database.Recources.Messages.Ncels_Наименование_ЛС_30).Width(100).Locked(true);
+                               columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_рег_3).Width(100).Locked(true);
+                               columns.Bound(p => p.ManufaturerName).Title(PW.Ncels.Database.Recources.Messages.Ncels_Производитель_5).Width(100);
+                               columns.Bound(p => p.CountryName).Title(PW.Ncels.Database.Recources.Messages.Ncels_Страна_6).Width(100);
+                               columns.Bound(p => p.ApplicantName).Title(PW.Ncels.Database.Recources.Messages.Ncels_Заявитель_7).Width(100);
+                               columns.Bound(p => p.StatusValue).Title(PW.Ncels.Database.Recources.Messages.Ncels_Статус_33).Width(100);
+                               columns.Bound(p => p.Classification).Title(PW.Ncels.Database.Recources.Messages.Ncels_Классификация_8).Width(100);
+                               columns.Bound(p => p.Mnn).Title(PW.Ncels.Database.Recources.Messages.Ncels_МНН_9).Width(100);
+                               columns.Bound(p => p.LsFormNameRu).Title(PW.Ncels.Database.Recources.Messages.Ncels_Лекарственная_форма_10).Width(100);
+                               columns.Bound(p => p.Dosage).Title(PW.Ncels.Database.Recources.Messages.Ncels_Дозировка_11).Width(100);
+                               columns.Bound(p => p.DosageMeasureTypeName).Title(PW.Ncels.Database.Recources.Messages.Ncels_Концентрация_12).Width(100);
+                               columns.Bound(p => p.ExpertiseStage).Title(PW.Ncels.Database.Recources.Messages.Ncels_Этап_экспертизы_13).Width(100);
+                               columns.Bound(p => p.ResponsibleValue).Title(PW.Ncels.Database.Recources.Messages.Ncels_Эксперт_14).Width(100);
+                               columns.Bound(p => p.ResultTypeName).Title(PW.Ncels.Database.Recources.Messages.Ncels_Результат__15).Width(100);
+                               columns.Bound(p => p.IsPayed).Title(PW.Ncels.Database.Recources.Messages.Ncels_Пр_опл_16).Width(100).ClientTemplate("<input  disabled='disabled' type='checkbox' #= IsPayed ? checked='checked' :'' # />");
+                               columns.Bound(p => p.PayDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_оплаты_17).Width(100);
+                               columns.Bound(p => p.StartDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_начала_18).Width(100);
+                               columns.Bound(p => p.ContrDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Контр_дата_19).Width(100);
+                               columns.Bound(p => p.ConclusionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Ncels_Дата_закл_20).Width(100);
+                               columns.Bound(p => p.IsStageEnd).Title(PW.Ncels.Database.Recources.Messages.Ncels_Этап_завер_21).Width(100).ClientTemplate("<input  disabled='disabled' type='checkbox' #= IsStageEnd ? checked='checked' :'' # />");
+                               columns.Bound(p => p.EndDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_ДатаОконч).Width(100);
+                               columns.Bound(p => p.IsStageExpired).Title(PW.Ncels.Database.Recources.Messages.Ncels_ЭтапПроср_38).Width(100).ClientTemplate("<input  disabled='disabled' type='checkbox' #= IsStageExpired ? checked='checked' :'' # />");
+                               columns.Bound(p => p.ExpiredDayCount).Title(PW.Ncels.Database.Recources.Messages.Ncels_Проср_дней_22).Width(100);
+                               columns.Bound(p => p.ExpertAz).Title(PW.Ncels.Database.Recources.Messages.Ncels_Эксперт_АЗ_23).Width(100);
+                               columns.Bound(p => p.OutgoingDoc).Title(PW.Ncels.Database.Recources.Messages.Ncels_Исх_Письмо_24).Width(100);
+                               columns.Bound(p => p.DayCount).Title(PW.Ncels.Database.Recources.Messages.Ncels_Колво_дней_25).Width(100);
+                               columns.Bound(p => p.IsNewManufacrurer).Title(PW.Ncels.Database.Recources.Messages.Ncels_Новый_производитель_26).Width(100).ClientTemplate("<input  disabled='disabled' type='checkbox' #= IsNewManufacrurer ? checked='checked' :'' # />");
+                           })
+
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable()
+
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => { aggregates.Add(p => p.Number).Count(); })
+                               .Sort(sort => { sort.Add("CreatedDate").Descending(); })
+                               .PageSize(50)
+                               .Read(read => read.Action("ListRegister", "Project", new { type = 2 }))
+                           ) )
+                </div>
+             );
+            }))
+<script>
+    resizeGrid('@("#gridRegisterProjec" + Model)');
+
+</script>

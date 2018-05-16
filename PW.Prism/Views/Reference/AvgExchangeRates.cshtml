@@ -1,0 +1,56 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@model Guid
+
+<script>
+    //function DicParams() {
+    //    return {
+    //        type: 6
+    //    };
+    //}
+    InitFilterDictionaryGrid('@Model.ToString()');
+</script>
+
+
+<div class="pwPanelBar">
+    <div id="pwSix">
+        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                .Content("")
+            .ImageUrl("/Content/images/reload.png"))
+
+    </div>
+    @(Html.Kendo().Grid<PP_DIC_AvgExchangeRateView>()
+                .Name("gridListDic" + Model)
+            .Columns(columns => {
+                columns.Bound(p => p.Name).Title("Валюта").Width(150).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                columns.Bound(p => p.Rate).Title("Курс, тг.").Width(150);
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(80);
+
+            })
+        .ToolBar(toolbar => toolbar.Create().HtmlAttributes(new { @class = "pwRefAdd" }))
+        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .Reorderable(reorderable => reorderable.Columns(true))
+        .Resizable(resizable => resizable.Columns(true))
+        .Scrollable(scrollable => scrollable.Virtual(true))
+            .Filterable()
+        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+        .HtmlAttributes(new { @class = "pwGridRef" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+                    .Model(model => model.Id(p => p.Id))
+                            .Aggregates(aggregates => { aggregates.Add(p => p.Name).Count(); })
+
+        .PageSize(50)
+        .Sort(sort => sort.Add("Name").Ascending())
+        .Create(update => update.Action("AvgExchangeRateCreate", "Reference"))
+        .Read(read => read.Action("AvgExchangeRateRead", "Reference"))
+        .Update(update => update.Action("AvgExchangeRateUpdate", "Reference"))
+        .Destroy(update => update.Action("AvgExchangeRateDestroy", "Reference"))
+
+        ))
+</div>
+         
+<input type="hidden" id="@("typeDic" + Model)" />
+<script>
+    resizeGrid('@("#gridListDic" + Model)');
+</script>

@@ -1,0 +1,1 @@
+﻿ALTER TABLE OBK_ResearchCenterResultCom ADD Fixed BIT NOT NULL DEFAULT(0)

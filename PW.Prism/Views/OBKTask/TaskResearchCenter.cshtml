@@ -1,0 +1,427 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKTaskResearchCenter
+    
+@{
+    var tab1 = "tab-1" + Model.TaskId;
+    var tab1b = "#" + tab1;
+    var tab2 = "tab-2" + Model.TaskId;
+    var tab2b = "#" + tab2;
+}
+
+<style>
+    table.table-RC td, th {
+        text-align: center;
+        vertical-align: middle;
+    }
+    div::-webkit-scrollbar { 
+        display: none;
+    }
+
+    /*td {
+        border: 1px #beebff solid; 
+        padding: 5px;
+    }*/
+
+    .selected {
+        background-color: #beebff;
+        color: #2e2e2e;
+    }
+</style>
+   
+<div id="editTaskPanel_@Model" style="margin-left: 10px; margin-right: 10px; width: auto; height: 550px; overflow-y: scroll;">
+    <div class="pwPage pwPageEx" style="overflow: hidden; width: auto;">
+        <div class="pwToolbar">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" id="acceptTaskBtn" onclick="acceptTask()">Принять образцы</button>
+                    <button type="button" class="btn btn-default" onclick="location.href = '@Url.Action("ExportTaskFilePdf", "OBKTask", new { taskId = Model.TaskId, taskNumber = Model.TaskNumber })'">Печатная форма задания</button>
+                    <button type="button" class="btn btn-default" disabled="disabled" id="sendToResearchCenters" onclick="sendToRC()">Передать в лаборатории</button>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Просмотр задания на проведение испытаний
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ задания</label>
+                            <input class="form-control" type="text" disabled="disabled" value="@Model.TaskNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>Дата регистрации</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.RegisterDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>№ акта отбора</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.ActNumber">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>ИЦл/ИЛ</label>
+                            <input class="form-control" disabled="disabled" type="text" value="@Model.UnitName">
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="tabs-container">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="@tab1b">Задание на испытания</a></li>
+                                <li class=""><a data-toggle="tab" href="@tab2b">Общие сведения</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="@tab1" class="tab-pane active">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tableCreate_@Model.TaskId" class="table table-bordered dataTable table-RC">
+                                                    <thead>
+                                                    <tr>
+                                                        <td>Наименование продукции</td>
+                                                        <td>Серия</td>
+                                                        <td>Размерность ИМН</td>
+                                                        <td>Кол-во продукции</td>
+                                                        <td>Идентификационный номер</td>
+                                                        <td>Условия хранения</td>
+                                                        <td>Внешнее состояние</td>
+                                                        <td>Вид испытаний</td>
+                                                        <td>Наименование лаборатории</td>
+                                                        <td>Кол-во переданных образцов</td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @if (!Model.IsShow)
+                                                    {
+                                                        foreach (var t in Model.TaskListResearchCenter)
+                                                        {
+                                                            <tr rowId="@t.ProductSeriesId" registeId="@t.RegisterId">
+                                                                <td>@t.ProductNameRu</td>
+                                                                <td>@t.Series</td>
+                                                                <td><input id="dimensionIMN" type="text" class="form-control"/></td>
+                                                                <td>@t.SeriesParty</td>
+                                                                <td><input type="text" id="idNumber" class="form-control task-control"/></td>
+                                                                <td>@Html.DropDownList("StorageConditionId", Model.StorageConditions, String.Empty, new {@class = "form-control task-control"})</td>
+                                                                <td>@Html.DropDownList("ExternalConditionId", Model.ExternalConditions, String.Empty, new {@class = "form-control task-control"})</td>
+                                                                <td>
+                                                                    <table class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td>@l.LaboratoryName</td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <table id="tableResearchCenter" class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td>@Html.DropDownList("ResearchcenterId", Model.Researchcenters, String.Empty, new {@class = "form-control task-control"})</td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <table id="tableQuantity" class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td><input type="number" min="0" max="@t.SeriesParty" id="quantity" class="form-control task-control"/></td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var t in Model.TaskListResearchCenter)
+                                                        {
+                                                            <tr rowId="@t.ProductSeriesId" registeId="@t.RegisterId">
+                                                                <td>@t.ProductNameRu</td>
+                                                                <td>@t.Series</td>
+                                                                <td>@t.DimensionIMN</td>
+                                                                <td>@t.SeriesParty</td>
+                                                                <td>@t.IdNumber</td>
+                                                                <td>@t.StorageConditionNameRu</td>
+                                                                <td>@t.ExternalConditionNameRu</td>
+                                                                <td>
+                                                                    <table class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td>@l.LaboratoryName</td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <table id="tableResearchCenter" class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td>@l.ResearchcenterNameRu</td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <table id="tableQuantity" class="table dataTable table-RC">
+                                                                        <tbody>
+                                                                        @foreach (var l in t.Laboratory)
+                                                                        {
+                                                                            <tr rowLabId="@l.LaboratoryId">
+                                                                                <td>@t.Quantity</td>
+                                                                            </tr>
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="@tab2" class="tab-pane">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <div id="noinstructions_@Model.TaskId" style="display: none">
+                                                                <span>Нет доступных инструкций</span>
+                                                            </div>
+                                                            <ul id="listinstructions_@Model.TaskId" style="display: none"></ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="table_product_@Model.TaskId" class="table table-bordered dataTable">
+                                                    <thead>
+                                                    <tr>
+                                                        <td>Наименование продукции</td>
+                                                        <td>Серия</td>
+                                                        <td>Ед. измерения</td>
+                                                        <td>Дата изготовления</td>
+                                                        <td>Срок годности</td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (var t in Model.TaskListResearchCenter)
+                                                    {
+                                                        <tr rowId="@t.ProductSeriesId" registeId="@t.RegisterId">
+                                                            <td>@t.ProductNameRu</td>
+                                                            <td>@t.Series</td>
+                                                            <td>@t.SeriesMeasure</td>
+                                                            <td>@t.SeriesStartdate</td>
+                                                            <td>@t.SeriesEndDate</td>
+                                                        </tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalManager_@Model.TaskId" class="modal fade">
+    <div id="dialogContent_@Model.TaskId" class="modal-dialog modal-sm"></div>
+</div>
+
+<script>
+
+    $("#table_product_@Model.TaskId tbody tr").click(function () {
+        $(this).addClass('selected').siblings().removeClass('selected');
+        var registerId = $(this).attr('registeId');
+        getInstuction(registerId);
+    });
+
+
+    function getInstuction(registerId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetInstuctionCount", "OBKTask")',
+            data: { 'registerId': registerId },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data > 0) {
+                    $("#listinstructions_@Model.TaskId").empty();
+                    $("#listinstructions_@Model.TaskId").append('<li><a href="/OBKContract/GetInstruction?registerId=' + registerId + '">' + 'Скачать АНД' + '</a></li>');
+
+                    $("#noinstructions_@Model.TaskId").hide();
+                    $("#listinstructions_@Model.TaskId").show();
+                }
+                else {
+                    $("#listinstructions_@Model.TaskId").empty();
+                    $("#noinstructions_@Model.TaskId").show();
+                    $("#listinstructions_@Model.TaskId").hide();
+                }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    };
+
+
+    function sendToRC() {
+        if (validTaskRC()) {
+            sendToResearchCenters();
+        } else {
+            alert("Заполните обязательные поля");
+        }
+    }
+
+    function sendToResearchCenters() {
+        debugger;
+        var taskListReturn = new Array();
+        var selectedResearchCenter = new Array();
+        var selectedQuantity = new Array();
+        $('table#tableCreate_' + '@Model.TaskId' + ' tbody tr').each(function () {
+            debugger;
+            var dimensionIMN = null;
+            var idNumber = null;
+            var storageConditionId = null;
+            var externalConditionId = null;
+            selectedResearchCenter = [];
+            selectedQuantity = [];
+            var row = $(this).attr('rowid');
+            if (row != null) {
+                dimensionIMN = $(this).find('td input#dimensionIMN').val();
+                idNumber = $(this).find('td input#idNumber').val();
+                storageConditionId = $(this).find('td select#StorageConditionId option:selected').val();
+                externalConditionId = $(this).find('td select#ExternalConditionId option:selected').val();
+                var selectResearchCenter = $(this).find('table#tableResearchCenter tbody tr');
+                if (selectResearchCenter.length > 0) {
+                    selectResearchCenter.each(function() {
+                        var rowLabId = $(this).attr('rowLabId');
+                        var researchcenterId = $(this).find('td select option:selected').val();
+                        selectedResearchCenter.push({ "LaboratoryId": rowLabId, "ResearchcenterId": researchcenterId });
+                    });
+                }
+                var selectQuantity = $(this).find('table#tableQuantity tbody tr');
+                if (selectQuantity.length > 0) {
+                    selectQuantity.each(function() {
+                        var rowQuantityId = $(this).attr('rowLabId');
+                        var quantity = $(this).find('td input#quantity').val();
+                        selectedQuantity.push({ "LaboratoryId": rowQuantityId, "Quantity": quantity });
+                    });
+                }
+                taskListReturn.push({
+                    "ProductSeriesId": row,
+                    "DimensionIMN": dimensionIMN,
+                    "IdNumber": idNumber,
+                    "StorageCondition": storageConditionId,
+                    "ExternalCondition": externalConditionId,
+                    "SelectedResearchCenter": selectedResearchCenter,
+                    "SelectedQuantity": selectedQuantity
+                });
+            }
+        });
+        debugger;
+        var model = {
+            TaskId: '@Model.TaskId',
+            TaskListResearchCenter: taskListReturn
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SendToReseachCenter")',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (data.isSuccess) {
+                    debugger;
+
+                    //модальное окно отвественных лиц
+                    $.ajax({
+                        type: 'GET',
+                        url: '/OBKTask/ShowManagerResearchCenter',
+                        data: { taskId: '@Model.TaskId' },
+                        cache: false,
+                        success: function(data1) {
+                            debugger;
+                            $('#dialogContent_@Model.TaskId').html(data1);
+                            $('#modalManager_@Model.TaskId').modal('show');
+                        }
+                    });
+                } else {
+                    alert("Ошибка при отправке задания");
+                }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+
+    function acceptTask() {
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/AcceptTaskReseachCenter',
+            data: { taskId: '@Model.TaskId' },
+            cache: false,
+            success: function() {
+                alert("Образцы приняты");
+                $("#sendToResearchCenters").removeAttr("disabled");
+            }
+        });
+    }
+
+    function validTaskRC() {
+        var valid = true;
+        $('.task-control').each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                $(this).css({ 'border-color': '#a94442' });
+                valid = false;
+            } else {
+                $(this).css({ 'border-color': '#cccccc' });
+            }
+        });
+        return valid;
+    };
+</script>

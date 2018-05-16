@@ -1,0 +1,185 @@
+﻿@model string[]
+<div id="@("loader"+ Model[0])"></div>
+
+<script>
+
+    var branchId = '@Model[0]';
+    function filterOrg() {
+        return {
+            id: $("#OrganizationId" + branchId).val()
+        };
+    }
+
+    function filterDep() {
+        return {
+            id: $("#DepartmentId" + branchId).val()
+        };
+    }
+  
+    
+    function filterPos() {
+        return {
+            id: $("#BranchId" + branchId).val()
+        };
+    }
+</script>
+<form id="@("formJob" + Model[0])" style="height: 100%; width: 100%">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconOnJob"></div>
+        <div class="pwWinTitleText">@string.Format(PW.Ncels.Database.Recources.Messages.Перевестисотрудника1, Model[1])  </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Организация</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.Kendo().DropDownList()
+                      .Name("OrganizationId" + Model[0])
+                      .HtmlAttributes(new { @class = "pwWidth100" })
+                      .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+                         .DataTextField("Name")
+                         .DataValueField("Id")
+                         .DataSource(source => {
+                             source.Read(read => read.Action("ListOrganization", "Reference"));
+                         })
+                )
+                @*<input id="@("DepartmentId" + Model[0])" class="pwWidth100" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />*@
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Департамент</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.Kendo().DropDownList()
+                      .Name("DepartmentId" + Model[0])
+                      .HtmlAttributes(new {@class = "pwWidth100"})
+                      .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+                      .DataTextField("Name")
+                      .DataValueField("Id")
+                      .DataSource(source => 
+                        {
+                          source.Read(read =>
+                          {
+                              read.Action("ListDepartment", "Reference")
+                                  .Data("filterOrg");
+                          })
+                              .ServerFiltering(true);
+                      })
+                                .Enable(false)
+                              .AutoBind(false)
+                                      .CascadeFrom("OrganizationId" + Model[0])
+                      )
+                @*<input id="@("DepartmentId" + Model[0])" class="pwWidth100" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />*@
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Отдел/Сектор</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.Kendo().DropDownList()
+                      .Name("BranchId" + Model[0])
+                      .HtmlAttributes(new {@class = "pwWidth100"})
+                      .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+                      .DataTextField("Name")
+                      .DataValueField("Id")
+                      .DataSource(source =>
+                      {
+                          source.Read(read =>
+                          {
+                              read.Action("ListBranch", "Reference")
+                                  .Data("filterDep");
+                          })
+                              .ServerFiltering(true);
+                      })
+                      .Enable(false)
+                      .AutoBind(false)
+                              .CascadeFrom("DepartmentId" + Model[0])
+                      )
+                @*<input id="@("BranchId" + Model[0])" class="pwWidth100" disabled="disabled" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />*@
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Должность</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.Kendo().DropDownList()
+                      .Name("PositionId" + Model[0])
+                      .HtmlAttributes(new {@class = "pwWidth100"})
+                      .OptionLabel(PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00)
+                      .DataTextField("Name")
+                      .DataValueField("Id")
+                      .DataSource(source =>
+                      {
+                          source.Read(read =>
+                          {
+                              read.Action("ListPosition", "Reference")
+                                  .Data("filterPos");
+                          })
+                              .ServerFiltering(true);
+                      })
+                      .Enable(false)
+                      .AutoBind(false)
+                      .CascadeFrom("BranchId" + Model[0])
+                      )
+                @*<input id="@("PositionId" + Model[0])" class="pwWidth100" disabled="disabled" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />*@
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" onclick="clickJobCancel()">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" onclick="clickJob()">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+
+</form>
+
+<script>
+
+    function clickJob() {
+        var sendEmployeeId = '@Model[0]';
+
+        kendo.ui.progress($('#loader' + sendEmployeeId), true);
+
+
+        $.ajax({
+            type: 'POST',
+            url: '/Employe/SendEmployeConfirm?id=' + sendEmployeeId + '&positionId=' + $("#PositionId" + sendEmployeeId).val() + '&organizationId=' + $("#OrganizationId" + sendEmployeeId).val(),
+            success: function (result) {
+                if (result == 'True') {
+
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    //refresh
+                    var treeSendEmployee = $("#treeview" + id).data("kendoTreeView");
+                    treeSendEmployee.dataSource.read();
+                    $('#saveButtonEmployee').prop('disabled', true);
+
+                   
+                    //refresh
+                } else {
+
+                    taskActionError();
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loader' + sendEmployeeId), false);
+            }
+        });
+    }
+
+    function clickJobCancel() {
+        $("#TaskCommandWindow").data("kendoWindow").close();
+    }
+</script>

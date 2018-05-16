@@ -1,0 +1,56 @@
+﻿@model PW.Ncels.Database.Models.Expertise.PharmacologicalEntity
+@{
+    var indecator = Guid.NewGuid().ToString();
+    var tab1 = "tabDoasage-1" + indecator;
+    var tab1b = "#" + tab1;
+    var tab2 = "tabDoasage-2" + indecator;
+    var tab2b = "#" + tab2;
+    var tab3 = "tabDoasage-3" + indecator;
+    var tab3b = "#" + tab3;
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+@Html.Partial("~/Views/Pharmaceutical/CommentView.cshtml", Model.ExpStageId.ToString())
+<div class="ibox-content">
+    @Html.Partial("~/Views/DrugDeclaration/StageResult.cshtml", Model.CurrentStage)
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="@tab1b">Экспертиза</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab2b">Замечание</a></li>
+                    <li class=""><a data-toggle="tab" href="@tab3b">Переписка</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="@tab1" class="tab-pane active">
+                        @Html.Partial("~/Views/Pharmacological/PharmacologicalOTDView.cshtml", Model)
+                    </div>
+                    <div id="@tab2" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/ExpertiseStageRemarkView.cshtml", Model)
+
+                    </div>
+                    <div id="@tab3" class="tab-pane">
+                        @Html.Partial("~/Views/DrugDeclaration/DrugCorespondenceView.cshtml", Model)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var itemId = '@Model.ExpStageId';
+        var primaryTreeControl = "primaryTree" + itemId;
+        var searchTreeControl = "#searchTree" + itemId;
+        FillJSTree(itemId, primaryTreeControl, '@controllerName', true);
+        setDateFormat(".date-control");
+        var to = false;
+        $(searchTreeControl).keyup(function () {
+            if (to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                var v = $(searchTreeControl).val();
+                $('#' + primaryTreeControl).jstree(true).search(v);
+            }, 250);
+        });
+    });
+</script>

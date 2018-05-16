@@ -1,0 +1,145 @@
+﻿@using PW.Ncels.Database.DataModel
+@model Guid
+
+@helper GridToolbarTemplate()
+{
+    <div class="pull-left">
+        @(Html.Kendo().Button().Name("mark" + Model)
+              .Content("<span class='glyphicon glyphicon-eye-open'></span> Отметить как прочитанное"))
+    </div>
+    <div class="pull-left">
+        @(Html.Kendo().Button().Name("markAll" + Model)
+              .Content("<span class='glyphicon glyphicon-check'></span> Отметить все как прочитанные"))
+    </div>
+    <div class="pull-right">
+        <div style="display: inline-block">
+            @(Html.Kendo().Button().Name("reload" + Model)
+                  .Content("")
+                  .ImageUrl("/Content/images/reload.png"))
+        </div>
+    </div>
+}
+
+<div class="pwPanelBar">
+    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Notification>()
+          .Name("gridNotifications" + Model)
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.Id).ClientTemplate("<input class='checkbox' type='checkbox' />").Width(12).Title("").Filterable(false).Sortable(false);
+              columns.Bound(p => p.IsRead).Width(75).Title("Статус").ClientTemplate("#if (!IsRead) {#" +
+                                                                                     "<span class='label label-info'>Новое</span>"
+    + "# } else {#" + "<span class='label label-success'>Прочитанное</span>" + "# } #");
+              columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy HH:MM}").Title("Дата уведомления").Width(125);
+              columns.Bound(p => p.ModifiedUser).Title("Автор").Width(300);
+              columns.Bound(p => p.Note).Title("Текст уведомления").Width(500).HtmlAttributes(new { @class = "need-cell-tooltip" });
+          })
+          .ToolBar(toolbar =>
+          {
+              toolbar.Template(GridToolbarTemplate().ToHtmlString());
+          })
+          .Reorderable(reorderable => reorderable.Columns(true))
+          .Resizable(resizable => resizable.Columns(true))
+          .Sortable(sortable => sortable.AllowUnsort(false))
+          .Groupable()
+          .Scrollable(scrollable => scrollable.Virtual(true))
+          .Filterable()
+          .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+          .HtmlAttributes(new { @class = "pwGrid" })
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Sort(sort => { sort.Add("CreatedDate").Descending(); })
+              .PageSize(100)
+              .Read(read => read.Action("NotificationList", "Notification"))
+          ) )
+</div>
+<script>
+    $(document).ready(function () {
+        var uiId = '@Model';
+        resizeGrid('#gridNotifications' + uiId);
+        $("#reload" + uiId).click(function (e) {
+            var grid = $("#gridNotifications" + uiId).data("kendoGrid");
+            grid.dataSource.read();
+        });
+        var grid = $("#gridNotifications" + uiId).data("kendoGrid");
+        $("#gridNotifications" + uiId).kendoTooltip({
+            filter: "td.need-cell-tooltip",
+            position: "left",
+            show: function(e){
+                if(this.content.text()){
+                    this.content.parent().css("visibility", "visible");
+                }
+            },
+            hide:function(e){
+                this.content.parent().css("visibility", "hidden");
+            },
+            content: function (e) {
+                return $(e.target).text();
+            }
+        }).data("kendoTooltip");
+        function notificationRowSelect(e) {
+            var selectedRows = this.select();
+            if (selectedRows.length > 0) {
+                var selectedItem = grid.dataItem(grid.select());
+                if (!selectedItem.IsRead)
+                    $('#mark' + uiId).removeClass('k-state-disabled');
+            }
+            $("#gridNotifications" + uiId+' tr').find('[type=checkbox]').prop('checked', false);
+            $("#gridNotifications" + uiId+' tr.k-state-selected').find('[type=checkbox]').prop('checked', true);
+        }
+        grid.bind("change", notificationRowSelect);
+        grid.bind("dataBound",
+            function (e) {
+                $("#gridNotifications" + uiId + " .checkbox").bind("change", function (e) {
+                    if (e.target.checked) {
+                        $('#mark' + uiId).removeClass('k-state-disabled');
+                    }
+                    $(e.target).closest("tr").toggleClass("k-state-selected");
+                });
+                if (!$('#mark' + uiId).hasClass('k-state-disabled'))
+                    $('#mark' + uiId).addClass('k-state-disabled');
+            });
+        $('#mark' + uiId).click(function (e) {
+            var idsToSend = [];
+            var ds = grid.dataSource.view();
+
+            for (var i = 0; i < ds.length; i++) {
+                var row = grid.table.find("tr[data-uid='" + ds[i].uid + "']");
+                var checkbox = $(row).find(".checkbox");
+                if (checkbox.is(":checked") && !ds[i].IsRead) {
+                    idsToSend.push(ds[i].Id);
+                }
+            }
+            if (idsToSend.length > 0) {
+                var json = JSON.stringify(idsToSend);
+                kendo.ui.progress($("#mainWindowLoader"), true);
+                $.ajax({
+                    type: 'POST',
+                    url: '/Notification/MarkAsReaded',
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function(result) {
+                        grid.dataSource.read();
+                    },
+                    complete: function() {
+                        kendo.ui.progress($("#mainWindowLoader"), false);
+                    }
+                });
+            } else {
+                grid.dataSource.read();
+            }
+        });
+        $('#markAll' + uiId).click(function (e) {
+            kendo.ui.progress($("#mainWindowLoader"), true);
+            $.ajax({
+                type: 'POST',
+                url: '/Notification/MarkAllAsReaded',
+                success: function (result) {
+                    grid.dataSource.read();
+                },
+                complete: function () {
+                    kendo.ui.progress($("#mainWindowLoader"), false);
+                }
+            });
+        });
+    });
+</script>

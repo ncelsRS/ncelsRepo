@@ -1,0 +1,110 @@
+﻿@model PW.Ncels.Models.LetterModel
+@{
+    ViewBag.Title = "Home Page";
+    Layout = null;
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#datetimepicker1').datetimepicker({ format: 'DD.MM.YYYY', locale: 'ru' });
+    });
+
+</script>
+@using (Html.BeginForm("Edit", "LetterWithEdo", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ID)
+        <div class="form-group">
+            <label class="col-md-2 control-label">Номер договора</label>
+            <div class="col-md-10 selectContainer">
+                <div class="input-group" style="width:100%;">
+                    @Html.DropDownListFor(model => model.ContractId, (SelectList)ViewData["Contract"], new { @class = "form-control selectpicker" })
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Номер письма", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RegName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RegName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Дата письма", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class='col-md-4'>
+                    <div class="form-group">
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input type='text' class="form-control" name="LetterRegDate" value="@Model.LetterRegDate" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Краткое содержание", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.LetterContent, new { htmlAttributes = new { @class = "form-control" }, style = "width:100%", cols = "4", rows = "4" })
+                @Html.ValidationMessageFor(model => model.LetterContent, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Файлы", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.files, "", new { @class = "form-control", @type = "file", @multiple = "multiple" })
+                @Html.ValidationMessageFor(model => model.files, "", new { @class = "text-danger" })
+            </div>
+        </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-lg-4">Файл</th>
+                        <th class="col-lg-4">Подписан</th>
+                        <th class="col-lg-4">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var data in Model.listDoc)
+                    {
+                        <tr>
+                            <td class="col-lg-4">@data.AttachmentName</td>
+                            @if (data.isSigned)
+                    {
+                                <td class="col-lg-4">Да</td>
+                                <td class="col-lg-4">-</td>
+                            }
+                            else
+                            {
+                                <td class="col-lg-4">Нет</td>
+                                <td class="col-lg-4"><a class="btn btn-primary" href="@Url.Action("SignViewStart", "LetterWithEdo",Model)">Подписать</a></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        <div class="form-group">
+            @if (Model.LetterStatusId == 1)
+            {
+            <div class="col-md-offset-4 col-md-4">
+                <button type="submit" class="btn btn-primary" style="width:100%;">Сохранить</button>
+            </div>
+            }
+            else
+            {
+                <div class="col-md-offset-4 col-md-4">
+                    <button class="btn btn-danger" data-dismiss="modal" style="width:100%;" data-target="#modelEditLetter">Закрыть</button>
+                </div>
+            }
+                </div>
+    </div>
+}
+

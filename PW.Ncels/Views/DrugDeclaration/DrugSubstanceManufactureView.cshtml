@@ -1,0 +1,94 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugSubstance
+
+@{
+    var btnId = "addWrapBtn_" + Model.Position;
+    var pricebtnId = "addPriceBtn_" + Model.Position;
+}
+<div id="substanceManufacturesPage">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Производитель
+        </div>
+        <div class="panel-body" style="padding: 10px;">
+
+            <div class="CSSTableGenerator">
+                <table class="tableSubstanceManufacture" style="width: 100%; text-align: center" substanceId="@Model.Id">
+                    <thead>
+                        <tr>
+                            <td>Наименование</td>
+                            <td>Страна</td>
+                            <td>Адрес производственной площадки</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ExpDrugSubstanceManufactures == null)
+                        {
+                            Model.ExpDrugSubstanceManufactures = new List<EXP_DrugSubstanceManufacture>();
+                        }
+                        @for (var i = 0; i < Model.ExpDrugSubstanceManufactures.Count; i++)
+                        {
+                            var code = Model.Id + "_" + Model.ExpDrugSubstanceManufactures[i].Id + "_";
+                            var producerNameId = code + "ProducerName";
+                            var countryIdId = code + "CountryId";
+                            var producerAddressId = code + "ProducerAddress";
+                            var idRecord = "";
+                            if (Model.Id > -1)
+                            {
+                                idRecord = Model.ExpDrugSubstanceManufactures[i].Id.ToString();
+                            }
+                            <tr rowid="@Model.ExpDrugSubstanceManufactures[i].Id" class="substanceManufacture-row">
+
+                                <td>
+                                    <div class="input-group">
+                                        @Html.TextBox("ProducerName", Model.ExpDrugSubstanceManufactures[i].ProducerName, new { @class = "edit-control smanufacture-control form-control", id = producerNameId })
+                                        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        @Html.DropDownList("CountryId", (IEnumerable<SelectListItem>)(ViewData["SubstanceCounties" + idRecord]), String.Empty, new { @class = "form-control edit-control smanufacture-control", id = countryIdId })
+                                        <span class="input-group-addon">
+                                            <a class="commentDialog" href="#">
+                                                <i class="glyphicon glyphicon-info-sign"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        @Html.TextBox("ProducerAddress", Model.ExpDrugSubstanceManufactures[i].ProducerAddress, new { @class = "edit-control smanufacture-control form-control", id = producerAddressId })
+                                        <span class="input-group-addon"><a class="commentDialog" href="#"><i class="glyphicon glyphicon-info-sign"></i></a></span>
+                                    </div>
+                                </td>
+
+                                @if (i == 0)
+                                {
+                                    <td><a class="deleteRow"></a></td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <i class="glyphicon glyphicon-remove deleteRow" title="Удалить"></i>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    <tfoot>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9" style="text-align: left;">
+                                <button type="button" class="btn btn-success btn-sm add-btn-from4 add-smanufacture" id="@btnId" style="margin-top: 10px">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@ResourceSetting.add
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

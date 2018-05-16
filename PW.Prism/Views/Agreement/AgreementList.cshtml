@@ -1,0 +1,233 @@
+﻿@model PW.Ncels.Database.Models.AgreementListViewModel
+
+<script id="taskTreeBp-template" type="text/kendo-ui-template">    
+    # { #
+    <table id="pwTableTaskView">
+        <tr class="pwActivityStyle">
+                <td><img src="#: item.Image #" height="16" width="16" title="#: item.ImageTitle #" /></td>
+                <td>#: item.OrderN #</td>
+                <td>#: item.CreatedDatetime #</td>
+            #if (item.ExecutedDatetime != null) {#
+                <td>#: item.ExecutedDatetime #</td>
+            # } #
+                <td style="white-space: pre-line;">#: item.Executor #</td>
+            #if (item.Status!=null) {#
+                <td style="width:250px; white-space: pre-line;">#: item.Status #</td>
+            # } #
+            # if (item.IsAllowEdit) { #
+                <td style="padding: 2px 4px;">
+                    <div class="btn-group btn-group-xs">
+                        <button type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        @*<button type="button" class="btn btn-default" onclick='taskDeleteDoc("#=item.Id#", "#=item.TaskId#")'>
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>*@
+
+                    </div>
+                </td>
+            # } #
+        </tr>
+    </table>
+    # } #
+</script>
+@* onclick='taskEditDoc("#=item.Id#", "#=item.TaskId#")'*@
+<script>
+    var AgreementList = {
+        documentTypeCode: '@Model.DocumentTypeCode',
+        activityTypeCode: '@Model.ActivityTypeCode',
+        taskTypeCode: '@Model.TaskTypeCode',
+        onSelectTreeItem: function(e) {
+
+            var id = '@Model.Id';
+            var state = '@Model.Status';
+            debugger;
+            if (e.node != null) {
+                var viewModel = kendo.observable({
+                    task: $("#treeview" + id).data("kendoTreeView").dataItem(e.node),
+                    edit: function() {
+                        AgreementList.editFn(this.task.Id);
+                    },
+                    remove: function() {
+                        AgreementList.deleteFn(this.task.Id);
+                    }
+                });
+
+                kendo.bind($("#taskButtonEdit" + id), viewModel);
+
+                $('#edit' + id).prop('disabled', false);
+                $('#delete' + id).prop('disabled', false);
+            }
+        },
+        treeViewData: function() {
+            return {
+                documentId: '@Model.Id',
+                documentTypeCode: '@Model.DocumentTypeCode'
+            };
+        },
+        _callEditDialogForm: function (titleText, id) {
+            var window = $("#divDialog");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                resizable: false,
+                title: titleText,
+                actions: ["Close"],
+                position: {
+                    top: 100,
+                    left: "30%"
+                }
+            });
+
+            window.data("kendoWindow").dialogCallback = function (r) {
+                AgreementList.refreshTreeview();
+            };
+            window.data("kendoWindow").title(titleText);
+            window.data("kendoWindow").refresh('/Dialog/ReassignmentDialog?id=' + id
+                + '&documentTypeCode=' + AgreementList.documentTypeCode
+                + '&activityTypeCode=' + AgreementList.activityTypeCode
+                + '&taskTypeCode=' + AgreementList.taskTypeCode);
+            // window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        _callDialog: function (dataItem, url, text, func) {
+            var window = $("#TaskCommandWindow");
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: text,
+                actions: ["Close"]
+            });
+            window.data("kendoWindow").dialogCallback = func;
+            window.data("kendoWindow").title(text);
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + url
+                + '&text=' + text);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        addFn: function(id) {
+            AgreementList._callEditDialogForm("Добавить", id);
+        },
+        editFn: function(id) {
+            AgreementList._callEditDialogForm("Редактировать", id);
+        },
+        deleteFn: function (id) {
+            debugger;
+            var dataItem = {
+                Id: id
+            };
+            var url = encodeURIComponent('@Url.Action("DeleteReassignment", "Dialog")?id=' + dataItem.Id);
+            var func = function (r) {
+                AgreementList.refreshTreeview();
+            };
+            AgreementList._callDialog(dataItem, url, "Удалить?", func);
+        },
+        sendFn: function (id) {
+            var dataItem = {
+                Id: id
+            };
+            var url = encodeURIComponent('@Url.Action("SendToAgreement", "Agreement")?documentId=' + dataItem.Id
+                + '&documentTypeCode=' + '@Model.DocumentTypeCode'
+                + '&activityTypeCode=' + '@Model.ActivityTypeCode');
+
+            var func = function (r) {
+                var window = $("#CardCommandWindow").data("kendoWindow");
+                if (window) {
+
+                    if (window.dialogCallback)
+                        window.dialogCallback();
+
+                    window.close();
+                }
+            };
+
+            AgreementList._callDialog(dataItem, url, "Отправить на согласование?", func);
+        },
+        refreshTreeview: function() {
+            var tree = $("#treeview" + '@Model.Id').data("kendoTreeView");
+            if (tree != null) {
+                tree.dataSource.read();
+            }
+        }
+    };
+</script>
+
+<div class="pwToolbar">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group" id="@("taskButtonAdd"+ Model.Id)">
+            <button type="button" data-bind="click: add, enabled: hasAgreement" class="btn btn-default" id="@("agreement" + Model.Id)">
+                <span class="pwToolbarButtonAgr"></span>
+                <span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Добавитьсогласование_51__00</span>
+            </button>
+        </div>
+        <div class="btn-group" id="@("taskButtonEdit" + Model.Id)">
+            <button type="button" data-bind="click: edit" class="btn btn-default" id="@("edit" + Model.Id)" disabled>
+                <span class="pwToolbarButtonEdit"></span>
+                <span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Редактировать_212__00</span>
+            </button>
+            <button type="button" data-bind="click: remove" class="btn btn-default" id="@("delete" + Model.Id)" disabled>
+                <span class="pwToolbarButtonDelete"></span>
+                <span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Удалить_334__00</span>
+            </button>
+        </div>
+        <div class="btn-group" id="@("taskButtonReview" + Model.Id)">
+            <button type="button" class="btn btn-default" data-bind="click: send, enabled: hasSend" id="@("send" + Model.Id)">
+                <span class="pwToolbarButtonSend"></span>
+                <span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отправитьнасогласование_32__00</span>
+            </button>
+            <!--
+        <button type="button" class="btn btn-default" data-bind="click: reject, enabled: hasReject" id="@("reject" + Model.Id)">
+            <span class="pwToolbarButtonReturn"></span>
+            <span class="pwToolbarButtonTitle">@PW.Ncels.Database.Recources.Messages.Property_Отозвать_321__00</span>
+        </button>
+            -->
+        </div>
+    </div>
+</div>
+<div class="pwPageA5">
+    @(Html.Kendo().TreeView()
+          .Name("treeview" + Model.Id)
+          .HtmlAttributes(new { @class = "pwTaskTree" })
+          .TemplateId("taskTreeBp-template")
+          .ExpandAll(true)
+          .AutoBind(true)
+          .DataSource(dataSource => dataSource
+              .Model(m => m.Id("Id").HasChildren("HasChildren").Children("Childrens"))
+              .Read(read => read.Action("GetSettingTasks", "Agreement").Data("AgreementList.treeViewData"))
+          )
+          .Events(events => events.Select("AgreementList.onSelectTreeItem"))
+    )
+</div>
+
+<script>
+    var id = '@Model.Id';
+    var state = '@Model.Status';
+    var documentTypeCode = '@Model.DocumentTypeCode';
+    var viewModelAdd = kendo.observable({
+        hasAgreement:true,
+        add: function () {
+            AgreementList.addFn(id);
+        }
+    });
+
+    kendo.bind($("#taskButtonAdd" + id), viewModelAdd);
+    
+
+    var viewModelReview = kendo.observable({
+        hasSend: true,
+        send: function () {
+            debugger;
+            AgreementList.sendFn(id);
+        }
+    });
+    kendo.bind($("#taskButtonReview" + id), viewModelReview);
+
+</script>

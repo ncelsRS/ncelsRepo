@@ -1,0 +1,144 @@
+﻿@using PW.Ncels.Database.Models
+@model Guid
+
+<script>
+    InitFilterReportGrid('@Model.ToString()');
+    var IndexDepartmentTMC = {
+        changeDateStart: function(e) {
+            var startDate = this.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+
+                var datePicker = $('#dateEnd' + '@Model').data("kendoDatePicker");
+                datePicker.min(startDate);
+
+            }
+        },
+         changeDateEnd: function(e) {
+            var enddate = this.value();
+            if (enddate) {
+                enddate = new Date(enddate);
+                enddate.setDate(enddate.getDate());
+
+                var datePicker = $('#dateStart' + '@Model').data("kendoDatePicker");
+                datePicker.max(enddate);
+            }
+        }
+    }
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+                panes.Add()
+                    .Size("250px")
+                    .Collapsible(true)
+                    .MaxSize("500px")
+                    .MinSize("250px")
+                    .Content(
+                    @<div class="pwPanelBar">
+                        @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                                       .Events(e => e.Select("panelReportDepSelect"))
+                               .Items(panelbar => {
+                                   foreach (var info in ((List<DictionaryInfo>)ViewData["ReportList"]).GroupBy(o => o.Type)) {
+                                       panelbar.Add().Expanded(true);
+                                       panelbar.Add().Text(info.Key).Items(projects =>
+                                       {
+                                           foreach (DictionaryInfo dictionaryInfo in info.Select(o => o))
+                                           {
+                                               projects.Add().Text(dictionaryInfo.Name).LinkHtmlAttributes(new Dictionary<string, object>() {{"ItemType", dictionaryInfo.Report}, {"ModelId", Model.ToString()}});
+                                           }
+                                       });
+                                   }
+                               })
+                        )
+                    </div>
+                );
+
+                panes.Add().Scrollable(false).Size("100%").Content(
+                    @<div class="pwPageScrollable">
+                         <div class="pwPanelBar">
+                             <div class="pwBlockAdd k-block">
+                                 <div id="pwReport1">
+                                     <span> @PW.Ncels.Database.Recources.Messages.Property_Дата_391__00 c:</span>
+                                 </div>
+                                 <div id="pwReport2">
+                                     @(Html.Kendo().DatePicker().Name("dateStart" + Model)
+                                         .Format("dd.MM.yyyy")
+                                         .HtmlAttributes(new { @class = "pwWidth100", type = "" })
+                                         .Value(new DateTime(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month, 1))
+                                         .Max(new DateTime(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month, DateTime.DaysInMonth(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month)))
+                                         .Events(c => c.Change("IndexDepartmentTMC.changeDateStart")).Enable(false)
+                                      )
+                                 </div>
+                                 <div id="pwReport3">
+                                     <span> @PW.Ncels.Database.Recources.Messages.Property_Датапо_326__00</span>
+                                 </div>
+                                 <div id="pwReport4">
+                                     @(Html.Kendo().DatePicker().Name("dateEnd" + Model)
+                                         .Format("dd.MM.yyyy")
+                                         .HtmlAttributes(new { @class = "pwWidth100", type="" })
+                                         .Min(new DateTime(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month, 1))
+                                         .Value(new DateTime(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month, DateTime.DaysInMonth(DateTime.Now.AddMonths(-1).Year, DateTime.Now.AddMonths(-1).Month)))
+                                         .Events(c => c.Change("IndexDepartmentTMC.changeDateEnd")).Enable(false)
+                                      )
+                                 </div>
+                                 
+                                 <div id="divDepartmentContainer_@Model" style="display: none; float: left; width: 300px;">
+                                     <div id="pwReport3">
+                                         <span> Отдел:</span>
+                                     </div>
+                                     <div id="pwReport5_1">
+                                         @(Html.Kendo().DropDownList().Name("ddl" + Model).DataValueField("Id").DataTextField("Name")
+                                               .DataSource(source => source.Read("ListDepartmentsForReport", "Reference")
+                                               .ServerFiltering(true)))
+                                     </div>
+                                 </div>
+
+                                 <div id="pwReport5">
+                                     
+                                     @(Html.Kendo().Button().Name("buttonGen" + Model)
+                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Сформировать_234__00)
+                                           .HtmlAttributes(new { @class = "pwWidth100", ModelId = Model.ToString() })
+                                           .Events(e => e.Click("buttonReportDepGenSelect"))
+                                           .Enable(false)
+                                      )
+                                     
+                                 </div>
+                                 
+                                 
+                                 <div id="pwReport6">
+                                     @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100", ModelId = Model })
+                                           .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                           .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportReport"))
+                                           .Enable(false)
+                                      )
+                                 </div>
+
+                                 <div id="pwReport6">
+                                     <div id="divSendButtonContainer_@Model" style="display: none; float: left;">
+                                         @(Html.Kendo().Button().Name("buttonSend" + Model).Content("Отправить")
+                                             .HtmlAttributes(new { @class = "pwWidth100", ModelId = Model.ToString() })
+                                             .Events(e => e.Click("buttonReportDepSendSelect"))
+                                          )
+                                         <input type="hidden" id="@("hiddenSendId" + Model)" />
+                                     </div>
+                                 </div>
+
+                                 
+
+                     
+                             </div>
+                             <div id="@("contentReport" + Model)" class="pwPageReport">
+                             </div>
+                         </div>
+                     </div>
+             );
+            }))
+<input type="hidden" id="@("typeReport" + Model)" />

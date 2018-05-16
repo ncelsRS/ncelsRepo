@@ -1,0 +1,126 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+    //regNumber: dataItem.reg_number, volume: dataItem.volume,
+}
+
+<script>
+    function addToList(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var id = '@Model';
+        var type = '@ViewBag.Type';
+        
+        var obj = {};
+        obj.reestrId = dataItem.IntId;
+        obj.type = type;
+        obj.id = id;
+        obj.regId = dataItem.regId;
+        obj.dfId = dataItem.dfId;
+        var json = JSON.stringify(obj);
+
+        kendo.ui.progress($('#loaderProfile'), true);
+        $.ajax({
+            type: 'POST',
+            url: '/Project/AddListRequestOrder',
+            contentType: 'application/json; charset=utf-8',
+            data: json,
+            success: function (result) {
+                if (result == 'True') {
+                    //ShowAlert('Сообщение', 'Добавлено', 'Success');
+                    updateNotClose();
+                    $(e.currentTarget).hide();
+                    $(e.currentTarget).closest("tr").addClass("k-state-added");
+                } else {
+                    ShowAlert('Сообщение', 'Данная запись уже была добавлена ранее', window.AlertType.Error);
+                }
+            },
+            complete: function () {
+                kendo.ui.progress($('#loaderProfile'), false);
+            }
+        });
+    }
+
+    function updateClose() {
+        var window = $("#TaskCommandWindow");
+        window.data("kendoWindow").close();
+        var grid = $("#gridListDic" + '@Model').data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    function updateNotClose() {
+        var grid = $("#gridListDic" + '@Model').data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+
+    InitFilterListRequestGrid('@Model.ToString()');
+</script>
+<div id="loaderProfile"></div>
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes =>
+            {
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+              
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+                        </div>
+                    </div>
+              
+                    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.RegisterOrderer2Views>()
+                                   .Name("gridRequestList" + Model)
+                           .Columns(columns =>
+                           {
+                               columns.Command(command => { command.Custom("Добавить").Click("addToList"); }).Width(80);
+                               columns.Bound(p => p.C_int_name).Title("МНН").Width(80).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+                               columns.Bound(p => p.substance).Title("Состав").Width(80);
+                               columns.Bound(p => p.volume).Title("Объём").Width(80);
+                               columns.Bound(p => p.dosage_comment).Title("Комментарие к лекарственной форме").Width(80);
+                               columns.Bound(p => p.name).Title("ТН").Width(80);
+                               columns.Bound(p => p.C_dosage_form_name).Title("Лек форма").Width(80);
+                               columns.Bound(p => p.concentration).Title("Концентрация").Width(80);
+                               columns.Bound(p => p.reg_number).Title("Рег номер ").Width(80);
+                               columns.Bound(p => p.C_producer_name).Title("Производитель").Width(80);
+                               columns.Bound(p => p.C_country_name).Title("Страна").Width(80);
+                               columns.Bound(p => p.C_atc_code).Title("АТХ код").Width(80);
+                               columns.Bound(p => p.dosage_value).Title("Дозировка").Width(80);
+                               columns.Bound(p => p.box_name1).Title("Первичная упаковка").Width(80);
+                               columns.Bound(p => p.box_name2).Title("Вторичная упаковка").Width(80);
+                               columns.Bound(p => p.box_count).Title("Фасовка").Width(80);
+                               columns.Bound(p => p.um).Title("Способ введения").Width(80);
+                               //columns.Bound(p => p.unit_count).Title("Кол-во во вторичной упаковке").Width(80);
+                           })
+
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                                  .Filterable()
+
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => { aggregates.Add(p => p.C_int_name).Count(); })
+                               .Sort(sort => { sort.Add("C_int_name").Descending(); })
+                               .PageSize(50)
+                               .Read(read => read.Action("ReadNewRegisterOrders", "Project", new { requestOrderId = Model}))//ReadRegisterOrderer2
+                           ) )
+                </div>
+             );
+            }))
+<script>
+    resizeGrid('@("#gridRequestList" + Model)');
+</script>

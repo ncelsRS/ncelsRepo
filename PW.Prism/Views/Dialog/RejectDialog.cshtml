@@ -1,0 +1,78 @@
+﻿@model PW.Ncels.Database.Models.RejectDialogViewModel
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReject" + Model.Id)" name="TmcApplicationComment">
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Payload)
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+                <h3 style="margin-top: 0px;"> @Model.Text </h3>
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Комментарий</p>
+            </div>
+            <div class="pwWinContentRight2">
+                @(Html.TextAreaFor(p => p.Comment, new
+                  {
+                      style = "width:98%; height:100px;"
+                  }))
+            </div>
+        </div>
+    </div>
+
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+    var viewModel = kendo.observable({
+        task: {},
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+            /*
+            var c = {
+                Id:  $("#Id").val(),
+                Payload: $("#Payload").val(),
+                Comment: $("#Comment").val(),
+            };
+            */
+
+            var c = $("#Comment").val();
+            $.ajax({
+                type: 'POST',
+                url: '@Html.Raw(Model.Url)',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ comment: c  }),
+                success: function (result) {
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+
+                    if ($("#TaskCommandWindow").data("kendoWindow").dialogCallback) {
+                        $("#TaskCommandWindow").data("kendoWindow").dialogCallback(result);
+                    }
+
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+
+                    
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formReject" + name), viewModel);
+
+</script>

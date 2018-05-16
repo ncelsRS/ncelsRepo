@@ -1,0 +1,83 @@
+﻿@using System.Web.Script.Serialization
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+
+@{
+    var @nameRu = "";
+    var @nameKz = "";
+    var @producerNameRu = "";
+    var @producerNameKz = "";
+    var @countryNameRu = "";
+    var @countryNameKz = "";
+    var @tnvedCode = "";
+    var @kpvedCode = "";
+    var @price = "";
+    var @currency = "";
+    var @count = @Model.ObkRsProductses?.Count ?? 0;
+}
+
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table id="tableFactory" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#mtPartsId").hide();
+
+        $('#tableFactory').DataTable({
+            data: null,
+            searching: false,
+            columns: [
+                { title: "Наименование" },
+                { title: "Юридический адрес" },
+                { title: "Фактический адрес" },
+                { title: "Количество сехов" },
+            ]
+        });
+
+        updateFactoryTable();
+
+    });
+
+    function updateFactoryTable(){
+    var contractId = $('#ContractId').val();
+        if (contractId == null || contractId.length === 0)
+            return;
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetContractFactory")',
+            data: { 'contractId': contractId },
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                    $("#tableFactory").DataTable({
+                        data: data,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        bLengthChange: false,
+                        autoWidth: true,
+                        columns: [
+                            { data: "Name" },
+                            { data: "LegalLocation" },
+                            { data: "ActualLocation" },
+                            { data: "Count" }
+                        ]
+                    });
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });        
+    }
+
+</script>

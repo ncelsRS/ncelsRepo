@@ -1,0 +1,189 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid?
+
+
+@helper ToolbarDeclarationReport()
+    {
+        <div class="pull-left">
+            <label>Дата начала</label>
+            @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>Дата окончания</label>
+            @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>ОПС</label>
+            @(Html.Kendo().DropDownList().Name("expertOrganizations" + Model)
+                                        .AutoBind(false)
+                                        .OptionLabel("Все")
+                                        .DataTextField("Name")
+                                        .DataValueField("Id")
+                                        .HtmlAttributes(new { @style = "width: 300px" })
+                                        .DataSource(dataSource => dataSource.Read(read => read.Action("GetExpertOrganizations", "BlankAccounting"))))
+
+            @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))                                                                                 
+            @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
+
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload" + Model).Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@(Html.Kendo().Splitter()
+                      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                      .Name(("splitter"))
+                      .Panes(panes =>
+                      {
+                          panes.Add().Scrollable(false).Size("100%").Content(
+                            @<div class="pwPanelBar">
+                                @( Html.Kendo().Grid<OBK_DefectiveProductsReportView>()
+                                                                         .Name("OBK_DefectiveProductsReportView" + Model)
+
+                                                                         .Columns(columns =>
+                                                                         {
+                                                                             columns.Bound(p => p.ExpStartDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(80);
+                                                                             columns.Bound(p => p.DeclarationNumber).Title("Номер заявки").Width(80);
+                                                                             columns.Bound(p => p.SendDate).Format("{0:dd.MM.yyyy}").Title("Дата подачи заявки").Width(100);
+                                                                             columns.Bound(p => p.Declarant).Title("Заявитель").Width(150);
+                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
+                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Номер рег. удостоверения").Width(150);
+                                                                             columns.Bound(p => p.ProductInfo).Title("Наименование продукции, номер серии, размер партии").Width(180);
+                                                                             columns.Bound(p => p.ProducerName).Title("Завод-изготовитель, Страна").Width(180);
+                                                                             columns.Bound(p => p.ExpReasonName).Title("Показатель несоответствия").Width(100);
+                                                                         })
+                                                                         .AutoBind(false)
+                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                         .ToolBar(toolbar => { toolbar.Template(ToolbarDeclarationReport().ToHtmlString()); })
+                                                                         .Groupable()
+                                                                         .Sortable()
+                                                                         .Filterable()
+                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                         .Pageable()
+                                                                         .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                         .DataSource(dataSource => dataSource
+                                                                             .Ajax()
+                                                                             .Sort(sort => { sort.Add("ExpStartDate").Descending(); })
+                                                                             .PageSize(30)
+                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
+                                                                            )
+                                ))
+
+                            </div>
+                                                              );
+                              }))
+
+                             <script>
+
+    function reloadDeclarationReport(){
+        $("#OBK_DefectiveProductsReportView" + "@Model").data("kendoGrid").dataSource.read();
+    }
+
+    $("#reload" + "@Model").click(function ()
+        {
+        $("#OBK_DefectiveProductsReportView" + "@Model").data("kendoGrid").dataSource.read();
+        });
+
+    $("#export" + "@Model").click(function ()
+    {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+
+         if(fr != '' || to != '' || org != ''){
+             var grid = $("#OBK_DefectiveProductsReportView" + "@Model").data("kendoGrid");
+             parameterMap = grid.dataSource.transport.parameterMap;
+             var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+             window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@ViewData["reportType"]");
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+     function initZBKReportFilters(){
+        var from = $('#dateFrom' + "@Model").val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#dateTo' + "@Model").val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#OBK_DefectiveProductsReportView" + "@Model").data("kendoGrid");
+         var filterArr = grid.dataSource.filter();
+         var filter = [];
+         if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+         }
+
+        var expertOrganizations = $('#expertOrganizations' + '@Model').val();
+
+        if (from != undefined && from != null && from != "")
+        {
+            checkRemove(filter, "ExpStartDate", "gte");
+            filter.push(
+                { field: "ExpStartDate", operator: "gte", value: fromDate });
+        } else
+        {
+            checkRemove(filter, "ExpStartDate", "gte");
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            checkRemove(filter, "ExpStartDate", "lte");
+            filter.push(
+                { field: "ExpStartDate", operator: "lte", value: toDate });
+        } else
+        {
+            checkRemove(filter, "ExpStartDate", "lte");
+        }
+
+        if (expertOrganizations != undefined && expertOrganizations != null && expertOrganizations != "")
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+            filter.push(
+                { field: "ExpertOrganization", operator: "eq", value: getDropDownVal("#expertOrganizations") });
+        } else
+        {
+            checkRemove(filter, "ExpertOrganization", "eq");
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    function getDropDownVal(name){
+        return $.trim($(name + "@Model").data("kendoDropDownList").text());
+    };
+
+     $("#search" + "@Model").click(function ()
+     {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+         var org = $("#expertOrganizations" + "@Model").val();
+
+         if(fr != '' || to != '' || org != ''){
+             initZBKReportFilters();
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+    function checkRemove(arr, field, operator) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].field == field && arr[i].operator == operator)
+            {
+                arr.splice(i, 1);
+            }
+        }
+    }
+
+                             </script>
+

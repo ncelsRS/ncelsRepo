@@ -1,0 +1,632 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.Models.OBK.ZBKViewModel
+
+@Html.HiddenFor(o => o.AttachPath)
+
+@{
+    double total = 0;
+    double totalWithNDS = 0;
+
+    if (Model.CopyQuantity != null)
+    {
+        total = 219 * (int)Model.CopyQuantity;
+        totalWithNDS = (total * Model.Nds);
+    }
+
+    if (Model.ExpApplication == false)
+    {
+        total = total * 2;
+        totalWithNDS = totalWithNDS * 2;
+    }
+
+    decimal decTotal = Math.Round(Convert.ToDecimal(total), 2);
+    decimal decTotalWithNDS = Math.Round(Convert.ToDecimal(totalWithNDS), 2);
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <br>
+                    <br>
+                    <div style="margin-left:50px">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="checkbox" style="margin-left:20px" id="zbkOriginals" checked="@(Model.OriginalsGiven)" disabled="disabled" /><span>Оригиналы ЗБК предоставлены заявителям</span>
+
+                                @{
+                                    if (Model.IsBoss != true)
+                                    {
+                                        <button class="btn btn-success dropdown-toggle" id="signZBKCopyToCoz" onclick="signZBKCopy(event)" style="margin-left:20px">Подписано и передано в ЦОЗ</button>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <textarea style="width: 700px; height: 200px;" placeholder="Замечания" id="notes">@Model.Notes</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <label style="color: black;">Данные заключения</label>
+                    <br>
+                    <div style="margin:5px;">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>Заявитель</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.Declarer, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>Наименование организации</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.OrganizationName, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>№ заключения</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.ConclusionNumber, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>№ договора</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.ContractNumber, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>Дата выдачи</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.StartDate, "{0:dd.MM.yyyy}", new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>№ заявки</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.DeclarationNumber, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>Дата истечения</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.ExpireDate, "{0:dd.MM.yyyy}", new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>Тип заявки</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.DeclarationType, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label> Тип заключения</label>
+                                <div class="input-group" style="width:100%">
+                                    @{
+                                        if (Model.ExpApplication == true)
+                                        {
+                                            <input value="Без приложения" disabled="disabled" class="form-control edit-control">
+                                        }
+                                        else
+                                        {
+                                            <input value="С приложением" disabled="disabled" class="form-control edit-control">
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label style="color:black">Продукция</label>
+                                <br>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <table id="products" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label id="LetterDate-label">Дата подачи запроса</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.LetterDate, "{0:dd.MM.yyyy}", new { @class = "form-control date-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label id="LetterNumber-label">Номер письма</label>
+                                <div class="input-group" style="width:100%">
+                                    @Html.TextBoxFor(model => model.LetterNumber, new { @class = "form-control edit-control", placeholder = "Введите значение", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label>Прикрепить файл</label>
+                                <div class="input-group">
+                                    <input name="files" id="@("files" + Model.Id)" type="file" title="@PW.Ncels.Database.Recources.Messages.ВыбратьФайл" />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <label id="copyQuantity-label">Количество копий*</label>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="input-group">
+                                    <input id="copyQuantity" value="@Model.CopyQuantity" style="width:50px;" class="copyQuantity-control" type="number" disabled="disabled" />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label style="color:black">Стоимость услуги</label>
+                                <br>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <table id="productsCost" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Наименование услуги</th>
+                                                    <th>Единица измерения</th>
+                                                    <th>Цена тенге без НДС</th>
+                                                    <th>Количество услуг</th>
+                                                    @{
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <th>Количество приложении</th>
+                                                        }
+                                                    }
+                                                    <th>Итоговая стоимость услуги, в тенге без НДС</th>
+                                                    <th>Итоговая стоимость услуги, в тенге с НДС</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Оформление копий заключения о безопасности и качества</td>
+                                                    <td>1 копия</td>
+                                                    <td id="onePrice">219</td>
+                                                    <td id="copyQuantityTable">@Model.CopyQuantity</td>
+                                                    @{
+                                                        if (Model.ExpApplication == false)
+                                                        {
+                                                            <td id="copyQuantityTable2">@Model.CopyQuantity</td>
+                                                        }
+                                                    }
+                                                    <td id="totalWithoutNds">@(decTotal)</td>
+                                                    <td id="totalWithNds">@(decTotalWithNDS)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label style="color:black">ЗБК</label>
+                                <br>
+                                <span>Начальный номер от:</span><input type="number" id="@("startNumber" + Model.Id)" style="width:100px; margin-left:20px"><button class="btn btn-info btn-sm" style="margin-left:20px" id="SaveStartNumber">ОК</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label style="color:black">Расчет бланка</label>
+                                <br>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <table id="productsCost" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Оригинал</th>
+                                                    <th>Начальный номер</th>
+                                                    <th>Конечный номер</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Основной документ</td>
+                                                    <td id="primeStart"></td>
+                                                    <td id="primeEnd"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Приложение</td>
+                                                    <td id="applicationStart"></td>
+                                                    <td id="applicationEnd"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label style="color:black">Список испорченных и замененных бланков</label>
+                                <button type="button" class="btn btn-info btn-sm" id="replaceBlank" data-toggle="modal" data-target="#myModal">Замена бланка</button>
+                                <br>
+                                <br>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <table id="productsCost" dt-options="dtOptions" dt-columns="dtColumns" class="table table-striped table-bordered table-hover dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Номер испорченного бланка</th>
+                                                    <th>Номер нового бланка</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="corruptedBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="myModal" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Замена бланка</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Номер заменяемого бланка</label>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input id="blankForReplace" style="width:100px;" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Номер нового бланка</label>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input id="newBlank" style="width:100px;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-info" id="replaceCorruptedBlank">Сохранить</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмета</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div id="receiverModal" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Выдать копию ЗБК</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>Получатель</label>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <input id="receiver" class="" style="width:400px;" />
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>Дата передачи</label>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <input id="receiveDate" style="width:400px;" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-info" id="saveReceiver">Сохранить</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмета</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/zbk_copy.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        fillProductsTable();
+
+        var fileId = '@Model.Id';
+
+        InitializeZBKCopyFile(fileId);
+
+        initBlankNumbers();
+        initCorruptedBlanks();
+
+        $(".k-upload-button").hide();
+
+        if ('@Model.StageStatusCode' == '@OBK_Ref_StageStatus.Completed' || '@Model.IsBoss' == 'True'){
+            $("#replaceBlank").attr("disabled", "disabled");
+            $("#SaveStartNumber").attr("disabled", "disabled");
+            $("#startNumber" + '@Model.Id').attr("disabled", "disabled");
+            $("#signZBKCopyToCoz").attr("disabled", "disabled");
+        }
+
+        if ('@Model.SendToAccountant' == 'True'){
+            disabledCOZ();
+        }
+
+        $("#receiveDate").kendoDatePicker({});
+    });
+
+    function disabledCOZ()
+    {
+        $(".sendToAccountant").hide();
+        $("#notes").attr("disabled", "disabled");
+    }
+
+        $("#replaceCorruptedBlank").click(function ()
+    {
+        if ($("#blankForReplace").val() == "" && $("#newBlank").val() == ""){
+            alert("Заполните поля!");
+        } else
+        {
+            $.ajax({
+                type: 'POST',
+                url: '/ZBKCopy/ReplaceBlank',
+                data: {
+                    blankForReplace: $("#blankForReplace").val(),
+                    newBlank: $("#newBlank").val(),
+                    zbkCopyId: '@Model.Id'
+                },
+                success: function (data)
+                {
+                    debugger;
+                    if (data.success == true)
+                    {
+
+                        var str = '';
+                        if (data.result.length > 0)
+                        {
+                            for (var i = 0; i < data.result.length; i++)
+                            {
+                                str = str + '<tr><td>' + data.result[i].CorruptedBlankNumber + '</td> <td>' + data.result[i].NewBlankNumber + '</td></tr>';
+                            }
+                        }
+                        $("#blankForReplace").val("");
+                        $("#newBlank").val("");
+                        $("#corruptedBody").html(str);
+                        
+                        $('#myModal').modal('hide');
+                        alert(data.message);  
+                    } else
+                    {
+                        alert(data.message);
+                    }
+    
+                }
+            });
+        }
+    });
+
+
+        function initBlankNumbers()
+        {
+            $.ajax({
+                type: 'POST',
+                url: '/ZBKCopy/InitBlankNumber',
+                data: { zbkCopyId: '@Model.Id' },
+                success: function (data)
+                {
+                    if (data.success == true)
+                    {
+                        $("#primeStart").html(data.result.StartNumber);
+                        $("#primeEnd").html(data.result.EndPrimeNumber);
+                        $("#applicationStart").html(data.result.StartApplicationNumber);
+                        $("#applicationEnd").html(data.result.EndApplicationNumber);
+                    }
+                }
+            });
+        }
+
+        function initCorruptedBlanks()
+        {
+              $.ajax({
+                type: 'POST',
+                url: '/ZBKCopy/GetCorruptedBlanks',
+                data: {
+                    zbkCopyId: '@Model.Id'
+                },
+                success: function (data)
+                {
+                    var str = '';
+                    if (data.success == true && data.result.length > 0)
+                    {
+
+                        for (var i = 0; i < data.result.length; i++){
+                            str = str + '<tr><td>' + data.result[i].CorruptedBlankNumber + '</td> <td>' + data.result[i].NewBlankNumber + '</td></tr>';
+                        }
+                    }
+
+                    $("#corruptedBody").html(str);
+                }
+            });
+        }
+
+    $("#SaveStartNumber").click(function ()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/SaveStartBlankNumber',
+            data: {
+                startNumber: $("#startNumber" + '@Model.Id').val(),
+                zbkCopyId: '@Model.Id',
+                expApplication: '@Model.ExpApplication'
+            },
+            success: function (data)
+            {
+                if (data.success == true)
+                {
+                    $("#primeStart").html(data.result.StartNumber);
+                    $("#primeEnd").html(data.result.EndPrimeNumber);
+                    $("#applicationStart").html(data.result.StartApplicationNumber);
+                    $("#applicationEnd").html(data.result.EndApplicationNumber);
+                    initBlankNumbers();
+                    initCorruptedBlanks();
+                }
+            }
+        });
+    });
+
+    $("#toCopyZBK").click(function ()
+    {
+          $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/SendToPayment',
+            data: {id:'@Model.Id'},
+            success: function (data){
+                if(data.success == true){
+                    alert("Передано на оплату");
+                    disabledCOZ();
+                }
+            }
+        });
+
+    });
+
+    $(".copyQuantity-control").change(function () {
+        var copyQuantity = $("#copyQuantity").val();
+        $("#copyQuantityTable").html(copyQuantity);
+        $("#totalWithoutNds").html(copyQuantity * 219);
+        $("#totalWithNds").html(parseInt(copyQuantity * 219 * 1.12));
+    });
+
+    function fillProductsTable() {
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/Products?contractId=' + '@Model.ContractId',
+            success: function (data) {
+                if (data.success == true) {
+                    initProductsTable(data.result);
+                }
+            }
+        });
+    }
+
+    function initProductsTable(data) {
+        $("#products").DataTable({
+            autoWidth: false,
+            searching: false,
+            paging: false,
+            bInfo: false,
+            data: data,
+            "columns": [
+                { data: 'name', sWidth: "50px", title: "Наименование" },
+                { data: 'fullName', sWidth: "20px", title: "Полное наименование" },
+                { data: 'producerName', sWidth: "50px", title: "Производитель" },
+                { data: 'serieParty', sWidth: "50px", title: "Кол-во в потр.уп." },
+                { data: 'country', sWidth: "50px", title: "Страна-производитель" },
+            ]
+        });
+    }
+
+
+    function checkValidation() {
+         var valid = true;
+         valid = checkAttr("copyQuantity", valid);
+
+         if(valid == false){
+            alert("Заполните обязательные поля!");
+         }
+         return valid;
+    }
+
+        function signZBKCopy() {
+        $.ajax({
+            type: 'POST',
+            url: '/ZBKCopy/GetStageSign',
+            data: {zbkCopyStageId : '@Model.StageId'},
+            success: function (result) {
+                startSign(result.preambleXml, '@Model.StageId', saveZbkCopySign);
+                reloadGrid();
+                }
+            });
+        }
+
+        function saveZbkCopySign(signedData, id)
+        {
+                var data1 = {
+                    id: id,
+                    signedData: signedData
+                };
+                var json = JSON.stringify(data1);
+                $.ajax({
+                    type: 'POST',
+                    url: '/ZbkCopy/SaveSignedZbkCopyStage',
+                    contentType: 'application/json; charset=utf-8',
+                    data: json,
+                    success: function (result) {
+                        alert(result.message);
+                        if (result.success == true){
+                            $("#replaceBlank").attr("disabled", "disabled");
+                            $("#SaveStartNumber").attr("disabled", "disabled");
+                            $("#startNumber" + '@Model.Id').attr("disabled", "disabled");
+                            $("#signZBKCopyToCoz").attr("disabled", "disabled");
+                            reloadGrid();
+                        }
+                    }
+                });
+    }
+
+    function checkAttr(attr, valid) {
+        var val = $("#" + attr + "").val();
+        if (val == "") {
+            $("#" + attr + "-label").css({ 'color': '#a94442' });
+            valid = false;
+        } else {
+            $("#" + attr + "-label").css({ 'color': '#555' });
+        }
+        return valid;
+    }
+
+</script>
+

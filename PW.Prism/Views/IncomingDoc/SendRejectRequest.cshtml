@@ -1,0 +1,86 @@
+﻿@model PW.Ncels.Database.Models.DocumentModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formRejectRequest" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">Отклонить заявление <span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                <p>Причина</p>
+            </div>
+            <div class="pwWinContentRight2">
+                <select id="@("PrismRejectReason" + Model.Id)" data-bind="value: item.PrismRejectReasonId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+
+    var viewModel = kendo.observable({
+        item: {
+            PrismRejectReasonId: ''
+        },
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', true);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            console.log('item', viewModel.get('item.PrismRejectReasonId[0]'));
+            var rId = viewModel.get('item.PrismRejectReasonId[0].Id');
+            var rName = viewModel.get('item.PrismRejectReasonId[0].Name');
+
+            $.ajax({
+                type: 'POST',
+                url: '/IncomingDoc/SendRejectRequestConfirm',
+                data: { id: name, reason: rId },
+                success: function (result) {
+                    if (result == 'True') {
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                        ShowAlert("Сообщение", "Завление успешно отклонено");
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    kendo.bind($("#formRejectRequest" + name), viewModel);
+
+    $("#PrismRejectReason" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        maxSelectedItems: 1,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/PrismRejectReasons'
+                }
+            }
+        }
+    });
+
+</script>

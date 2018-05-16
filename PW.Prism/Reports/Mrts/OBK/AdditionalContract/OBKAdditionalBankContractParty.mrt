@@ -1,0 +1,405 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <MS_x0020_SQL Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>MS SQL</Alias>
+        <ConnectionStringEncrypted>+XR36+91uznhSdlMZ3Dge94S9wlNf9OZahX9zHpEZV7zGouJxXfyneIf1fRggOEPgSD5LdNK2flpQfmlelzn54twgQ9FX9kF7BXcDPsYpEbjErui2X0=</ConnectionStringEncrypted>
+        <Name>MS SQL</Name>
+      </MS_x0020_SQL>
+    </Databases>
+    <DataSources isList="true" count="1">
+      <OBK_Contract Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>OBK_Contract</Alias>
+        <Columns isList="true" count="18">
+          <value>additionalContractNumber,System.String</value>
+          <value>additionalContractSendDate,System.DateTime</value>
+          <value>AddressLegalRu,System.String</value>
+          <value>bik,System.String</value>
+          <value>Bin,System.String</value>
+          <value>BossDocNumber,System.String</value>
+          <value>BossFirstName,System.String</value>
+          <value>BossLastName,System.String</value>
+          <value>BossMiddleName,System.String</value>
+          <value>contractCreateDate,System.DateTime</value>
+          <value>contractNumber,System.String</value>
+          <value>country,System.String</value>
+          <value>declarantFullName,System.String</value>
+          <value>documentType,System.String</value>
+          <value>Email,System.String</value>
+          <value>IIK,System.String</value>
+          <value>Phone,System.String</value>
+          <value>position,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>OBK_Contract</Name>
+        <NameInSource>MS SQL</NameInSource>
+        <Parameters isList="true" count="1">
+          <value>addContractNumber,addContractNumber,14,100</value>
+        </Parameters>
+        <SqlCommand>SELECT TOP 1 
+    addCon.[Number] as additionalContractNumber
+   ,con.[Number] as contractNumber 
+   ,con.[StartDate] as contractCreateDate
+   ,addCon.[SendDate] as additionalContractSendDate
+   ,declarant.[NameRu] as declarantFullName
+   ,decContact.[BossPosition] as position
+   ,decContact.[BossLastName] 
+   ,decContact.[BossFirstName]
+   ,decContact.[BossMiddleName]
+   ,contractDocument.[NameGenitiveRu] as documentType
+   ,decContact.[BankIik] as IIK
+   ,decContact.[BankBik] as bik
+   ,declarant.[Bin]
+   ,decContact.[AddressLegalRu]
+   ,decContact.[Phone]
+   ,decContact.[Email]
+   ,decContact.[BossDocNumber]
+   ,counrtyDic.[Name] as country
+  FROM [ncels].[dbo].[OBK_Contract] as addCon
+  left join [ncels].[dbo].[OBK_Contract] as con on addCon.[ParentId] = con.[Id]
+  left join [ncels].[dbo].[OBK_DeclarantContact] decContact on addCon.[DeclarantContactId] = decContact.[Id]
+  left join [ncels].[dbo].[OBK_Declarant] as declarant on declarant.Id = addCon.[DeclarantId]
+  left join [ncels].[dbo].[OBK_Ref_ContractDocumentType] as contractDocument on decContact.[BossDocType] = contractDocument.[Id]
+  left join [ncels].[dbo].[Dictionaries] as counrtyDic on declarant.[CountryId] = counrtyDic.[Id]
+where addCon.[Id] = @addContractNumber
+
+
+</SqlCommand>
+      </OBK_Contract>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Resources isList="true" count="0" />
+    <Variables isList="true" count="1">
+      <value>,addContractNumber,addContractNumber,,System.Guid,e1fc9ff0-b89f-407e-918b-cb91964c38b7,False,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="4" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="16">
+        <Text1 Ref="5" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.6,0.4,9.2,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>2fffb92547b542e982c9624dad18441c</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text1</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ № {OBK_Contract.additionalContractNumber}</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text1>
+        <Text2 Ref="6" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>3.8,1,11,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>c8482f545fd4406a956216bab70c1a4c</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text2</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>к  Договору № {OBK_Contract.contractNumber} от  {OBK_Contract.contractCreateDate.ToString("dd/MM/yyyy")} г.
+</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text2>
+        <Text3 Ref="7" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>2.4,1.6,14.2,0.8</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>1590daefab41458894963918a12b3d4e</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text3</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text> на проведение  оценки безопасности и качества серии (партии) лекарственных средств, (изделий медицинского назначения) </Text>
+          <TextBrush>Black</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text3>
+        <Text4 Ref="8" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,3,2.2,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>6cbd01e6e6c5441da14355e434f488c8</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text4</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>г. Алматы</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text4>
+        <Text5 Ref="9" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>13.4,3,4.2,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>7b9d71632588411695fc1f1c9a83ba95</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text5</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>{OBK_Contract.additionalContractSendDate.ToString("dd/MM/yyyy")} г.</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text5>
+        <Text6 Ref="10" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0.8,4,17.6,5.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>de374ecc5872478da2237d4dabcbe922</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text6</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>Республиканское государственное предприятие на праве хозяйственного ведения «Национальный центр экспертизы лекарственных средств, изделий медицинского назначения и медицинской техники» Министерства здравоохранения Республики Казахстан, в дальнейшем «Исполнитель», в лице Заместителя Генерального директора Кабденовой А.Т., действующей на основании  Доверенности №  051 от 16.05.2017 года, с одной стороны, и {OBK_Contract.declarantFullName} (непосредственно товаропроизводитель), в дальнейшем «Заявитель», в лице {OBK_Contract.position} {OBK_Contract.BossLastName} {OBK_Contract.BossFirstName} {OBK_Contract.BossMiddleName}, действующего (ей) на основании {OBK_Contract.documentType} {OBK_Contract.BossDocNumber}, с другой стороны,  совместно именуемые в дальнейшем «Стороны», руководствуясь ст. 401, 402, 403 Гражданского кодекса Республики Казахстан, подписали настоящее Дополнительное соглашение №{OBK_Contract.additionalContractNumber} к договору  на проведение  оценки безопасности и качества серии (партии) лекарственных средств, (изделий медицинского назначения) от {OBK_Contract.contractCreateDate.ToString("dd/MM/yyyy")} г. № {OBK_Contract.contractNumber} (далее – Договор),  о нижеследующем:</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text6>
+        <Text7 Ref="11" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,9.4,17.6,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>78bbb1b6f9e04cc5b33d28f82d97b6ad</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text7</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>1.	В раздел 12 Договора в части Заявителя внести изменения и изложить в следующей редакции:</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <Type>Expression</Type>
+        </Text7>
+        <Text8 Ref="12" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,9.8,9.8,2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>69e9698994344827b3bb84fbc15c09c9</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text8</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>«Банковские реквизиты:
+Наименование Банка  
+ИИК KZ {OBK_Contract.IIK}
+БИК {OBK_Contract.bik}
+БИН {OBK_Contract.Bin}»
+</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <Type>Expression</Type>
+        </Text8>
+        <Text9 Ref="13" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,11.8,17.4,2.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>7df926598bf74b6e9c576b4e6fcba581</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text9</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>2.	Настоящее Дополнительное соглашение является неотъемлемой частью Договора, в связи с чем, толкование и исполнение условий Договора производится с учетом внесенных настоящим Дополнительным соглашением изменений.  
+3.	Настоящее Дополнительное соглашение вступает в силу с момента подписания уполномоченными представителями Сторон.
+4.	Настоящее Дополнительное соглашение составлено на государственном и русском языках, в двух подлинных экземплярах, имеющих одинаковую юридическую силу.
+</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text9>
+        <Text10 Ref="14" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>6,15,6.6,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>2625278814974dc09f024e33cb282a24</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text10</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>5.	Реквизиты Сторон:</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text10>
+        <Text11 Ref="15" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,16,6.6,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>6d8e47d797a648cab660deedb2b7fc9c</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text11</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>ИСПОЛНИТЕЛЬ </Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text11>
+        <Text12 Ref="16" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,17,8.2,3</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>34b643a72c914194a1ad3b4d45ede07c</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text12</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>РГП на ПХВ «Национальный центр экспертизы             
+лекарственных средств, изделий медицинского
+назначения и медицинской техники» МЗ РК
+г. Алматы, пр. Абылай хана, 63/110, 
+е-mail farm@dari.kz,             
+БИН 980 240 003 251, Код 601, КБЕ 16,
+</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <Type>Expression</Type>
+        </Text12>
+        <Text13 Ref="17" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>11.6,16,6.6,0.4</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>e642b47d0f0c4085b615f56b89963613</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text13</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>ЗАЯВИТЕЛЬ</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <Type>Expression</Type>
+        </Text13>
+        <Text14 Ref="18" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>11.6,17,6.6,3.6</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10</Font>
+          <Guid>18ea7de3d5734db5945b375acc0bff06</Guid>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text14</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>{OBK_Contract.declarantFullName} 
+{OBK_Contract.country} {OBK_Contract.AddressLegalRu} 
+{OBK_Contract.Email} 
+{OBK_Contract.Phone}</Text>
+          <TextBrush>[0:0:0]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+        </Text14>
+        <Text15 Ref="19" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.8,21.4,7.4,1.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>947f2ed5c1b04601856c796e142e3ce0</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text15</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>Заместитель Генерального директора
+Кабденова А.Т. ________________        </Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text15>
+        <Text16 Ref="20" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>13,21.4,5,1.2</ClientRectangle>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,10,Bold</Font>
+          <Guid>db61690e63ab4282b9033b612c798ff3</Guid>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text16</Name>
+          <Page isRef="4" />
+          <Parent isRef="4" />
+          <Text>____________________
+____________ /__________/
+</Text>
+          <TextBrush>Black</TextBrush>
+          <Type>Expression</Type>
+        </Text16>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>3c0139e81937417b91073e8cf9b3e354</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="21" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="22" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Report</ReportAlias>
+  <ReportChanged>12/12/2017 5:24:10 PM</ReportChanged>
+  <ReportCreated>12/11/2017 12:06:56 PM</ReportCreated>
+  <ReportFile>C:\Users\ww\Desktop\OBKAdditionalBankContractParty.mrt</ReportFile>
+  <ReportGuid>17cfb053d1b9464bbc93ffb018211b46</ReportGuid>
+  <ReportImage isNull="true" />
+  <ReportName>Report</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2018.1.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        public Report()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

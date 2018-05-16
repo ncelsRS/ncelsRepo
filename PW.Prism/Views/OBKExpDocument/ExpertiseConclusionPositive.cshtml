@@ -1,0 +1,171 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKExpertiseConclusionPositive
+
+@{
+    var expertiseStartDate = DateTime.Now.ToShortDateString();
+    var expertiseEndDate = Model.ecEndDate != null ? string.Format("{0:dd.MM.yyyy}", Model.ecEndDate) : null;
+}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row" style="margin-bottom: 10px">
+            <div class="col-sm-12" id="validWindow">
+                <div class="form-group">
+                    <div class="col-lg-6">
+                        <label class="control-label">Дата регистрации:</label>
+                        <input class="form-control date-control form-disabled" type="text" id="expertiseStartDate" value="@expertiseStartDate">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="control-label">Дата истечения:</label>
+                        <input class="form-control date-control form-disabled" type="text" id="expertiseEndDate" value="@expertiseEndDate">
+                    </div>
+                </div>
+                <div id="showreasonId">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label">Основание на русском языке*</label>
+                            <textarea rows="4" name="expReasonNameRu" type="text" class="form-control" readonly="readonly">@Model.ecReasonNameRu</textarea>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="control-label">Основание на казахском языке*</label>
+                            <textarea rows="4" name="expReasonNameKz" type="text" class="form-control" readonly="readonly">@Model.ecReasonNameKz</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div id="displayShow" style="display: block">
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label">Наименование на русском языке*</label>
+                            <textarea rows="5" name="expProNameRu" type="text" class="form-control" readonly="readonly">@Model.ecProductNameRu</textarea>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="control-label">Наименование на казахском языке*</label>
+                            <textarea rows="5" name="expProNameKz" type="text" class="form-control" readonly="readonly">@Model.ecProductNameKz</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label">Доп. информация на русском языке</label>
+                            <textarea name="addInfoExpertiseRu" type="text" class="form-control" readonly="readonly">@Model.ecAdditionalInfoRu</textarea>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="control-label">Доп. информация на казахском языке</label>
+                            <textarea name="addInfoExpertiseKz" type="text" class="form-control" readonly="readonly">@Model.ecAdditionalInfoKz</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label class="control-label">№ заключения*</label>
+                            <input name="expConclusionNumber" disabled="disabled" type="text" class="form-control" value="@Model.ecNumber">
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="control-label">№ бланка*</label>
+                            @if (Model.ToShow)
+                            {
+                                <input id="expBlankNumber" name="expBlankNumber" type="text" class="form-control form-disabled" value="@Model.ecBlankNumber">
+                            }
+                            else
+                            {
+                                <input id="expBlankNumber" name="expBlankNumber" type="text" class="form-control form-disabled">
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="btn btn-default form-disabled" onclick="saveExpConclusion()">Сохранить</button>
+        <button type="button" class="btn btn-default" onclick="closeExpConclusion()">Отмена</button>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        if ('@Model.ToShow' === 'True') {
+            $('.form-disabled').each(function () {
+                $(this).attr('disabled', true);
+            });
+        }
+    });
+
+    setDateFormat(".date-control");
+
+    function saveExpConclusion() {
+        if (validForm()) {
+            saveEcPositive();
+        } else {
+            alert('Заполните обязательные поля');
+        }
+    }
+
+    function saveEcPositive() {
+        var model = {
+            AssessmentDeclarationId: '@Model.AssessmentDeclarationId',
+            ProductSeriesId: '@Model.ProductSeriesId',
+            ecStartDate: $("#expertiseStartDate").val(),
+            ecEndDate: $("#expertiseEndDate").val(),
+            ecReasonNameRu: '@Model.ecReasonNameRu',
+            ecReasonNameKz: '@Model.ecReasonNameKz',
+            ecProductNameRu: '@Model.ecProductNameRu',
+            ecProductNameKz: '@Model.ecProductNameKz',
+            ecAdditionalInfoRu: '@Model.ecAdditionalInfoRu',
+            ecAdditionalInfoKz: '@Model.ecAdditionalInfoKz',
+            ecBlankNumber: $("#expBlankNumber").val(),
+            ecNumber: '@Model.ecNumber'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/OBKExpDocument/SaveExpertiseConclusionPositive',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (data.isSuccess) {
+                    alert('Решение успешно сохранено');
+                    $('.form-disabled').each(function () {
+                        $(this).attr('disabled', true);
+                    });
+                    $("#tableExperConclution_@Model.AssessmentDeclarationId tbody tr").each(function () {
+                        var psid = $(this).attr('rowid');
+                        if (psid == '@Model.ProductSeriesId') {
+                            $(this).attr('br', '2');
+                        }
+                    });
+                } else {
+                    alert('Ошибка при сохранении');
+                }
+            }
+        });
+    }
+
+    function closeExpConclusion() {
+        $("#panelExpertiseConclusion_@Model.AssessmentDeclarationId").hide();
+    }
+
+    function validForm() {
+        var valid = true;
+        if ($("#expBlankNumber").val() == "" || $("#expBlankNumber").val() == null) {
+            $("#expBlankNumber").css({ 'border-color': '#a94442' });
+            valid = false;
+        } else {
+            $("#expBlankNumber").css({ 'border-color': '#cccccc' });
+        }
+        if ($("#expertiseStartDate").val() == "" || $("#expertiseStartDate").val() == null) {
+            $("#expertiseStartDate").css({ 'border-color': '#a94442' });
+            valid = false;
+        } else {
+            $("#expertiseStartDate").css({ 'border-color': '#cccccc' });
+        }
+        if ($("#expertiseEndDate").val() == "" || $("#expertiseEndDate").val() == null) {
+            $("#expertiseEndDate").css({ 'border-color': '#a94442' });
+            valid = false;
+        } else {
+            $("#expertiseEndDate").css({ 'border-color': '#cccccc' });
+        }
+        return valid;
+    }
+</script>

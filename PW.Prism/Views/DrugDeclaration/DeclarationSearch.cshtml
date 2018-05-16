@@ -1,0 +1,317 @@
+﻿@model Guid
+
+<script>
+    $(document).ready(function () {
+        debugger;
+        var viewModel = kendo.observable({
+            Search: function(e) {
+                debugger;
+                var filterViewModel = viewModel.get('filter');
+                var filter = {
+                    Number: filterViewModel.Number,
+                    DeclarationDateFrom: filterViewModel.DeclarationDateFrom,
+                    DeclarationDateTo: filterViewModel.DeclarationDateTo,
+                    TypeId: filterViewModel.TypeId,
+                    ProducerName: filterViewModel.ProducerName,
+                    ProducerCountry: filterViewModel.ProducerCountry,
+                    ApplicantName: filterViewModel.ApplicantName,
+                    ApplicantCountry: filterViewModel.ApplicantCountry,
+                    HolderName: filterViewModel.HolderName,
+                    HolderCountry: filterViewModel.HolderCountry,
+                    DrugName: filterViewModel.DrugName,
+                    StageStartDateFrom: filterViewModel.StageStartDateFrom,
+                    StageStartDateTo: filterViewModel.StageStartDateTo,
+                    StageEndDateFrom: filterViewModel.StageEndDateFrom,
+                    StageEndDateTo: filterViewModel.StageEndDateTo,
+                    StageId: filterViewModel.StageId,
+                    StageResultId: filterViewModel.StageResultId,
+                    UnitId: filterViewModel.UnitId,
+                    ExpertId: filterViewModel.ExpertId,
+                    Mnn: filterViewModel.Mnn
+                };
+                if ($("#TaskCommandWindow").data("kendoWindow").dialogCallback)
+                {
+                    $("#TaskCommandWindow").data("kendoWindow").dialogCallback(filter);
+                }
+                $("#TaskCommandWindow").data("kendoWindow").close();
+                var grid = $("#" + $("#TaskCommandWindow").data("kendoWindow").gridId).data("kendoGrid");
+                grid.dataSource.transport.options.read.data = function () {
+                    return {
+                        customFilter: filter
+                    };
+                };
+                grid.dataSource.read();
+            },
+            Cancel: function(e) {
+                debugger;
+                $("#TaskCommandWindow").data("kendoWindow").close();
+            },
+            filter: $("#TaskCommandWindow").data("kendoWindow").windowViewModel
+        });
+        kendo.bind($("#declarationSearchForm@(Model)"), viewModel);
+    });
+</script>
+<div class="row">
+    <form id="declarationSearchForm@(Model)" class="form-horizontal">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Номер заявления</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.Number" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Дата заявления</label>
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("DeclarationDateFrom" + Model).HtmlAttributes(new { data_bind = "value: filter.DeclarationDateFrom" })
+                            </div>
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("DeclarationDateTo" + Model).HtmlAttributes(new { data_bind = "value: filter.DeclarationDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Вид регистрации</label>
+                    <div class="col-lg-8">
+                        @Html.Kendo().ComboBox().Name("EXP_DIC_Type" + Model).BindTo((List<SelectListItem>)ViewBag.EXP_DIC_Type).HtmlAttributes(new { data_bind = "value: filter.TypeId", @class = "pwWidth100" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Производитель</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.ProducerName" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Страна</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.ProducerCountry" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Заявитель</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.ApplicantName" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Страна</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.ApplicantCountry" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Держатель РУ</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.HolderName" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Страна</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" data-bind="value: filter.HolderCountry" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">Торговое наименование</label>
+                    <div class="col-lg-10">
+                        <input type="text" class="form-control" data-bind="value: filter.DrugName" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">МНН</label>
+                    <div class="col-lg-10">
+                        <input type="text" class="form-control" data-bind="value: filter.Mnn" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Дата пост. на этап</label>
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("StageStartDateFrom" + Model).HtmlAttributes(new { data_bind = "value: filter.StageStartDateFrom" })
+                            </div>
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("StageStartDateTo" + Model).HtmlAttributes(new { data_bind = "value: filter.StageStartDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Дата зав. этапа</label>
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("StageEndDateFrom" + Model).HtmlAttributes(new { data_bind = "value: filter.StageEndDateFrom" })
+                            </div>
+                            <div class="col-lg-6">
+                                @Html.Kendo().DatePicker().Name("StageEndDateTo" + Model).HtmlAttributes(new { data_bind = "value: filter.StageEndDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Этап</label>
+                    <div class="col-lg-8">
+                        @Html.Kendo().ComboBox().Name("Stage" + Model).HtmlAttributes(new { data_bind = "value: filter.StageId", @class = "pwWidth100" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Результат</label>
+                    <div class="col-lg-8">
+                        @Html.Kendo().ComboBox().Name("StageResult" + Model).HtmlAttributes(new { data_bind = "value: filter.StageResultId", @class = "pwWidth100" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Подразделение</label>
+                    <div class="col-lg-8">
+                        @Html.Kendo().ComboBox().Name("Unit" + Model).HtmlAttributes(new { data_bind = "value: filter.UnitId", @class = "pwWidth100" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Эксперт</label>
+                    <div class="col-lg-8">
+                        @Html.Kendo().ComboBox().Name("Expert" + Model).HtmlAttributes(new { data_bind = "value: filter.ExpertId", @class = "pwWidth100" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <fieldset>
+                    <legend>Лекарственный препарат</legend>
+                    <div class="row">
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Оригинальный
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Генерик
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Рецептурный
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Безрецептурный
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Медицинские иммунобиологические препараты (мибп)
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Иммунобиологический балк-продукт
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Лекарственный растительный препарат (в т.ч. сборы)
+                        </label>
+                    </div>
+                    <div class="row">
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Лекарственная субстанция
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Иммунобиологический препарат
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="col-lg-12">
+                <fieldset>
+                    <legend>Признаки</legend>
+                    <div class="row">
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Подконтрольные вещества
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Имеющие патенты
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Выполненный этап
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Нераспределенные
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Оплаченные
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Отечественный производитель
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Новый производитель
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox"> Просроченные
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="btn-toolbar" role="toolbar" style="margin-top: 20px">
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button" data-bind="click: Cancel">Отмена</button>
+                </div>
+                <div class="btn-group pull-right" role="group" style="margin-left: 10px">
+                    <button type="button" class="k-button k-primary" data-bind="click: Search">Найти</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

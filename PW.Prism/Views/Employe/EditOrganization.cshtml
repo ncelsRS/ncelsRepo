@@ -1,0 +1,353 @@
+﻿@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid[]
+
+@{
+    Layout = null;
+}
+
+<script>
+    var nameData = '@Model[0]';
+    var employeeId = nameData;
+    var parentId = '@(Model.Length==2? Model[1].ToString():string.Empty)';
+
+    var modelId = '@ViewData["modelId"]';
+
+    var viewModel = kendo.observable({
+        item: {},
+        Save: function() {
+            Save();
+        }
+
+    });
+
+    function PermissionParams() {
+        return {
+            modelId: nameData
+        };
+    }
+
+    function changeUnitsSigner(e) {
+        var x = $("#UnitsSignerCombobox").data("kendoDropDownList").text();
+        var y = $("#UnitsSignerCombobox").val();
+        $("#SignerId").val(y).change();
+        $("#Signer").val(x).change();
+    }
+
+    function changeUnitsAddress(e) {
+        var x = $("#UnitsAddressCombobox").data("kendoDropDownList").text();
+        var y = $("#UnitsAddressCombobox").val();
+        $("#RegionId").val(y).change();
+        $("#RegionName").val(x).change();
+    }
+    
+    function changeUnitsBank(e) {
+        var x = $("#UnitsBankCombobox").data("kendoDropDownList").text();
+        var y = $("#UnitsBankCombobox").val();
+        $("#CurrencyId").val(y).change();
+        $("#CurrencyName").val(x).change();
+    }
+
+    function changeUnitsSignerDocType(e) {
+        debugger;
+        var y = $("#UnitsSignerDocTypeCombobox").val();
+        $("#DocumentType").val(y).change();
+    }
+
+    function changeUnitsSignerDocAvailable(e) {
+        debugger;
+        var y = $("#UnitsSignerDocAvailableCombobox").val();
+        $("#DocAvailable").val(y).change();
+    }
+
+    function error_handlerPP(e) {
+        debugger;
+        e.preventDefault(e);
+        var grid = $("#GridSignerModel" + nameData).data("kendoGrid");
+        grid.cancelChanges();
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            ShowAlert('Внимание!', message, window.AlertType.Warning, 3000);
+        }
+    }
+
+    function Save() {
+        var json = JSON.stringify(viewModel.get('item'));
+
+        $.ajax({
+            type: 'POST',
+            url: '/Employe/OrganizationUpdate',
+            data: json,
+            contentType: 'application/json; charset=utf-8',
+            success: function(result) {
+
+                if (result == 'True') {
+                    //treereload(modelId);
+                    alert('@PW.Ncels.Database.Recources.Messages.Property_Успешносохранено_101__00');
+                };
+            },
+            complete: function () {
+
+            }
+        });
+    }
+    $.ajax({
+        type: 'get',
+        url: '/Employe/OrganizationRead?Id=' + nameData + '&ParentId=' + parentId,
+        contentType: 'application/json; charset=utf-8',
+        success: function (result) {
+            result = JSON.parse(result);
+            viewModel.set("item", result);
+
+            kendo.bind($("#formOrganization" + nameData), viewModel);
+        },
+        complete: function () {
+            //  alert('Success! User Loaded!');
+        }
+    });
+
+    $("#BossId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+
+    $("#UnitTypeDictionaryId" + nameData).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        autoBind: false,
+        maxSelectedItems: 1,
+        filter: "contains",
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/List',
+                    data: { text: "DepartmentTypeDictionary" }
+                }
+            }
+        }
+    });
+</script>
+<div class="pwUnitsPage">
+    <div class="pwUnitsHeader">@PW.Ncels.Database.Recources.Messages.Property_Организция_272__00</div>
+    
+    
+    
+    @(Html.Kendo().TabStrip().Name("tabscripOrganization" + Model[0])
+        .Animation(false)
+        .HtmlAttributes(new {@class = "pwUnitsOrganization" })
+        .Items(tabstrip =>
+        {
+            tabstrip.Add()
+                .Text("Общие данные")
+                .Selected(true)
+                .Content(@<text>
+                             <form id="@( "formOrganization" + Model[0])" class="pwUnitsContent">
+                                 <table>
+                                     <colgroup>
+                                         <col width="30%"/>
+                                         <col width="100%"/>
+                                     </colgroup>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Код_385__00</td>
+                                         <td><input type="text" data-bind="value: item.Code" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Наименованиенарусском_41__00</td>
+                                         <td><input type="text" data-bind="value: item.Name" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Наименованиенаказахском_33__00</td>
+                                         <td><input type="text" data-bind="value: item.NameKz" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Сокращенноенаименование_28__00</td>
+                                         <td><input type="text" data-bind="value: item.ShortName" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Типорганизации_131__00</td>
+                                         <td><input id="@( "UnitTypeDictionaryId" + Model[0])" data-bind="value: item.UnitTypeDictionaryId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_Руководитель_202__00</td>
+                                         <td><input id="@( "BossId" + Model[0])" data-bind="value: item.BossId" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" class="pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>Email:</td>
+                                         <td><input type="text" data-bind="value: item.Email" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                     <tr>
+                                         <td>@PW.Ncels.Database.Recources.Messages.Property_БИН</td>
+                                         <td><input type="text" data-bind="value: item.Bin" class="k-textbox pwWidth100"/></td>
+                                     </tr>
+                                 </table>
+                                 @if (EmployePermissionHelper.CanChangeAddressUnits)
+                                 {
+                                     @( Html.Kendo().Grid<UnitAddress>().Name("GridUnitsAddressOrganization" + Model[0]).Columns(columns =>
+                                        {
+                                            columns.Bound(p => p.RegionName).Title("Область");
+                                            columns.Bound(p => p.AddressNameRu).Title("Юридический адрес");
+                                            columns.Bound(p => p.PostalCode).Title("Почтовый индекс");
+                                            columns.Bound(p => p.ShortCityNameRu).Title("Наименование <br> города на русском");
+                                            columns.Bound(p => p.ShortCityNameKz).Title("Наименование <br> города на казахском");
+                                            columns.Command(command =>
+                                            {
+                                                command.Edit();
+                                                command.Destroy();
+                                            }).Width(200);
+                                        }).ToolBar(toolbar => toolbar.Create()
+                                            )
+                                            .HtmlAttributes(new {@class = "pwGrid"})
+                                            .Reorderable(reorderable => reorderable.Columns(true))
+                                            .Resizable(resizable => resizable.Columns(true))
+                                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                                            .Scrollable()
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model =>
+                                                {
+                                                    model.Id(p => p.UnitAddressId);
+                                                    model.Field(p => p.RegionId);
+                                                    model.Field(f => f.RegionName);
+                                                })
+                                                .Read(read => read.Action("UnitsAddressRead", "Employe").Data("PermissionParams"))
+                                                .Create(update => update.Action("UnitsAddressCreate", "Employe").Data("PermissionParams"))
+                                                .Update(update => update.Action("UnitsAddressUpdate", "Employe").Data("PermissionParams"))
+                                                .Destroy(update => update.Action("UnitsAddressDestroy", "Employe").Data("PermissionParams"))
+                                                .Events(events => events.Error("error_handlerPP"))
+                                            )
+                                           //.Events(e => e.DataBound("dataBoundPermission"))
+                                           )
+                                 }
+                                 <div hidden="@( !EmployePermissionHelper.IsEditOs)" class="pwUnitsFooter k-block">
+                                     <button type="button" class="btn btn-default" data-bind="click: Save">@PW.Ncels.Database.Recources.Messages.Property_Сохранить_278__00</button>
+                                 </div>
+                             </form>
+                          </text>);
+            if (EmployePermissionHelper.CanChangeBankUnits)
+            {
+
+                tabstrip.Add()
+                    .Text("Банковские реквизиты")
+                    .Content(@<text>
+                                 @( Html.Kendo().Grid<UnitBankModel>()
+                                        .Name("GridUnitBankModel" + Model[0])
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(p => p.CurrencyName).Title("Валюта");
+                                            columns.Bound(p => p.BankNameRu).Title("Наименование банка");
+                                            columns.Bound(p => p.StartDate).Format("{0:d}").Title("Дата действия с");
+                                            columns.Bound(p => p.EndDate).Format("{0:d}").Title("Дата действия по");
+                                            columns.Command(command =>
+                                            {
+                                                command.Edit();
+                                                command.Destroy();
+                                            }).Width(200);
+                                        })
+                                        .ToolBar(toolbar => toolbar.Create()
+                                        //.HtmlAttributes(new {@class = "pwRefAdd"})
+                                        )
+                                        .HtmlAttributes(new {@class = "pwGrid"})
+                                        .Reorderable(reorderable => reorderable.Columns(true))
+                                        .Resizable(resizable => resizable.Columns(true))
+                                        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                                        .Scrollable()
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(p => p.UnitBankId);
+                                                model.Field(p => p.CurrencyId);
+                                                model.Field(q => q.CurrencyName);
+                                                model.Field(p => p.BankNameRu);
+                                                model.Field(p => p.BankNameKz);
+                                                model.Field(p => p.KBE);
+                                                model.Field(p => p.Code);
+                                                model.Field(p => p.SWIFT);
+                                                model.Field(p => p.IIK);
+                                                model.Field(p => p.CorrespondentBank);
+                                                model.Field(p => p.CorrespondentAccount);
+                                                model.Field(p => p.SWIFT1);
+                                                model.Field(p => p.CorrespondentAccount1);
+                                                model.Field(p => p.SWIFT2);
+                                                model.Field(f => f.StartDate);
+                                                model.Field(f => f.EndDate);
+                                            })
+                                            .Read(read => read.Action("UnitsBankRead", "Employe").Data("PermissionParams"))
+                                            .Create(update => update.Action("UnitsBankCreate", "Employe").Data("PermissionParams"))
+                                            .Update(update => update.Action("UnitsBankUpdate", "Employe").Data("PermissionParams"))
+                                            .Destroy(update => update.Action("UnitsBankDestroy", "Employe").Data("PermissionParams"))
+                                        //.Events(events => events.RequestEnd("error_handlerPP"))
+                                        ))
+                              </text>);
+            }
+            if (EmployePermissionHelper.CanChangeSignerUnits)
+            {
+                tabstrip.Add()
+                    .Text("Подписывающие лица")
+                    .Content(@<text>
+                                 @( Html.Kendo().Grid<UnitSignerModel>()
+                                        .Name("GridSignerModel" + Model[0])
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(p => p.Signer).Title("ФИО (подразделение - должность)");
+                                            columns.Bound(p => p.StartDate).Format("{0:d}").Title("Дата действия с");
+                                            columns.Bound(p => p.EndDate).Format("{0:d}").Title("Дата действия по");
+                                            columns.Command(command =>
+                                            {
+                                                command.Edit();
+                                                command.Destroy();
+                                            }).Width(200);
+                                        })
+                                        .ToolBar(toolbar => toolbar.Create())
+                                        .HtmlAttributes(new {@class = "pwGrid"})
+                                        .Reorderable(reorderable => reorderable.Columns(true))
+                                        .Resizable(resizable => resizable.Columns(true))
+                                        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                                        .Scrollable()
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(p => p.SignerId);
+                                                model.Field(q => q.Signer);
+                                                model.Field(f => f.DocumentType);
+                                                model.Field(f => f.DocAvailable);
+                                                model.Field(f => f.StartDate);
+                                                model.Field(f => f.EndDate);
+                                            })
+                                            .Read(read => read.Action("UnitsSignerRead", "Employe").Data("PermissionParams"))
+                                            .Create(update => update.Action("UnitsSignerCreate", "Employe").Data("PermissionParams"))
+                                            .Update(update => update.Action("UnitsSignerUpdate", "Employe").Data("PermissionParams"))
+                                            .Destroy(update => update.Action("UnitsSignerDestroy", "Employe").Data("PermissionParams"))
+                                        ))</text>);
+            }
+        }))
+</div>
+
+<script>
+    resizeGrid3("#GridUnitsAddressOrganization" + '@Model[0]', 360);
+    resizeGrid3("#GridUnitBankModel" + '@Model[0]', 360);
+    resizeGrid3("#GridSignerModel" + '@Model[0]', 360);
+    var treeviewElement3 = $("#formOrganization" + '@Model[0]');
+    treeviewElement3.height($(window).height() - 280);
+</script>

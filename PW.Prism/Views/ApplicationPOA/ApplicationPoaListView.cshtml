@@ -1,0 +1,168 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+@using PW.Prism.Controllers.Lims
+<!-- Список доверенностей -->
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    var ApplicationPoaList = {
+        sendTo1CFn: function(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var window = $("#TaskCommandWindow");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Отправка в 1С',
+                actions: ["Close"],
+                content: '@Url.Action("ConfirmDialog", "Dialog")?Id=' + dataItem.Id
+                + '&url=' + encodeURIComponent('@Url.Action("ConfirmSendTo1CTmcs", "ApplicationPOA")?id=' + dataItem.Id)
+                + '&text=Отправить в 1С?'
+            });
+            $("#TaskCommandWindow").data("kendoWindow").gridId = 'gridPowerOfa' + '@Model';
+            window.data("kendoWindow").title('Отправка в 1С');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        acceptFn: function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var window = $("#TaskCommandWindow");
+
+            window.kendoWindow({
+                width: "550px",
+                height: "auto",
+                modal: true,
+                title: 'Принятие',
+                actions: ["Close"]
+            });
+            $("#TaskCommandWindow").data("kendoWindow").gridId = 'gridTmcs_' + dataItem.TmcInId;
+            window.data("kendoWindow").title('Принятие');
+            window.data("kendoWindow").setOptions({
+                width: 550,
+                height: 'auto'
+            });
+            window.data("kendoWindow").refresh('@Url.Action("AcceptTmcView","ApplicationPOA")?id=' + dataItem.Id + '&tmcInId=' + dataItem.TmcInId);
+
+            window.data("kendoWindow").center();
+            window.data("kendoWindow").open();
+        },
+        onDataBoundPoaFn: function(e) {
+            var grid = this;
+            grid.tbody.find("tr[role='row']").each(function () {
+                var model = grid.dataItem(this);
+
+                if (model.StateType == @TmcIn.TmcInStatuses.SendedAdmission1C) {
+                    $(this).find(".k-grid-btnSendTo1C").addClass("k-state-disabled");
+                }
+            });
+        }
+    };
+
+    function takeDetailsReport(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        printDocumentTMC2(dataItem.Id);
+    }
+
+    function dataBoundTmcViewModelHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.StateType == 1) {
+                $(this).find(".k-grid-btnAccept").addClass("k-state-disabled");
+            }
+        });
+    }
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+                                .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" }).Content("")
+                                .ImageUrl("/Content/images/reload.png"))
+</div>
+@(Html.Kendo().Grid<TmcInViewModel>()
+    .Name("gridPowerOfa" + Model)
+    .Columns(columns =>
+    {
+        columns.Command(command => { command.Custom("btnSendTo1C").Text("Отправить в 1С").Click("ApplicationPoaList.sendTo1CFn"); }).Width(90);
+        columns.Bound(p => p.OwnerEmployeeValue).Title("ФИО МОЛ").Width(150);
+        columns.Bound(p => p.Provider).Title("Наименование поставщика товара").Width(150);//.ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 + "#=count#");
+        columns.Bound(p => p.ProviderBin).Title("БИН поставщика товара").Width(150);
+        columns.Bound(p => p.ContractNumber).Title("Номер договора").Width(150);
+        columns.Bound(p => p.ContractDate).Format("{0:dd.MM.yyyy}").Title("Дата договора").Width(150);
+        columns.Bound(p => p.LastDeliveryDate).Format("{0:dd.MM.yyyy}").Title("Последний срок поставки по договору").Width(150);
+        columns.Bound(p => p.StateTypeValue).Title("Статус").Sortable(false).Filterable(false).Width(150);
+        columns.Bound(p => p.PowerOfAttorney).Title("Доверенность").Width(150);
+    })
+    .ColumnMenu(c => c.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .Groupable()
+    .Filterable()
+    .Sortable()
+    .Pageable(c => c.Refresh(true))
+    .Scrollable()
+    .ClientDetailTemplateId("template")
+    .HtmlAttributes(new { @class = "pwGrid" })
+    .DataSource(dataSource => dataSource.Ajax().Model(model => { model.Id(p => p.Id); })
+        .PageSize(20)
+        .Read(read => read.Action("ReadApplicationList", "ApplicationPOA", new { type = 1 }))
+    )
+    .Events(c => c.DataBound("ApplicationPoaList.onDataBoundPoaFn"))
+    .Resizable(s => s.Columns(true))
+)
+
+<script id="template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<TmcViewModel>()
+        .Name("gridTmcs_#=TmcInId#") // template expression, to be evaluated in the master context
+        .Columns(columns =>
+        {
+            columns.Command(command => { command.Custom("btnAccept").Text("Принять").Click("ApplicationPoaList.acceptFn"); }).Width(100);
+            columns.Bound(o => o.Name).Title("Наименование товара").Width(120);
+            columns.Bound(o => o.MeasureTypeDicValue).Title("Единица измерения").Width(120);
+            columns.Bound(o => o.CountRequest).Title("Количество/объем").Format("{0:n6}").Width(120);
+            columns.Bound(o => o.CountFact).Title("Количество/объем (факт)").Format("{0:n6}").Width(120);
+            columns.Bound(o => o.MeasureTypeConvertDicValue).Title("Единица измерения (конв)").Width(120);
+            columns.Bound(o => o.CountConvert).Title("Количество/объем (конв)").Format("{0:n6}").Width(120);
+            //columns.Bound(o => o.StateTypeValue).Title("Статус").Width(120);
+            columns.Bound(o => o.ReceivingDate).Format("{0:dd.MM.yyyy}").Title("Дата получения").Width(120);
+        })
+        .Events(c => c.DataBound("dataBoundTmcViewModelHandler"))
+        .HtmlAttributes(new { @class = "pwGrid" })
+        .DataSource(dataSource => dataSource
+            .Ajax().Model(model =>
+            {
+                model.Id(p => p.Id);
+                model.Field(p => p.TmcInIdString).DefaultValue("#=TmcInId#");
+            })
+            .PageSize(20)
+            .Read(read => read.Action("ReadTmcList", "ApplicationPOA", new { tmcInId = "#=TmcInId#", type = ApplicationPOAController.ApplicationListType.PowerOfA })))
+        .Sortable()
+        .Resizable(s => s.Columns(true))
+        .Pageable()
+        .ToClientTemplate()
+    )
+</script>
+
+<script>
+    (function() {
+        resizeGrid3('@("#gridPowerOfa" + Model)', 110);
+
+        $('@("#reload" + Model)').click(function (e) {
+            var grid = $('@("#gridPowerOfa" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        });
+    })();
+</script>

@@ -1,0 +1,618 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <Соединение1 Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>Соединение1</Alias>
+        <ConnectionStringEncrypted>+TjRCVZ72flsZb3segR3Y+Ng+YhbWXuBRU/RyU1cYC/EePsJzRh73fFGoazlROAb5HDR62Jxe/XsS5zEaRjhuw==</ConnectionStringEncrypted>
+        <Name>Соединение1</Name>
+      </Соединение1>
+    </Databases>
+    <DataSources isList="true" count="3">
+      <LimsData Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>LimsData</Alias>
+        <Columns isList="true" count="13">
+          <value>Id,System.Guid</value>
+          <value>TmcName,System.String</value>
+          <value>GeneralCount,System.Decimal</value>
+          <value>GeneralFact,System.Decimal</value>
+          <value>GeneralConvertFact,System.Decimal</value>
+          <value>GeneralActualFact,System.Decimal</value>
+          <value>MeasureName,System.String</value>
+          <value>MinDateTime,System.DateTime</value>
+          <value>MaxDateTime,System.DateTime</value>
+          <value>UseFactCountSum,System.Decimal</value>
+          <value>UseConvertCountSum,System.Decimal</value>
+          <value>CenterId,System.Guid</value>
+          <value>ApplicationNumbers,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>LimsData</Name>
+        <NameInSource>Соединение1</NameInSource>
+        <Parameters isList="true" count="3">
+          <value>_x0040_DateStart,DateStart,31,0</value>
+          <value>_x0040_DateEnd,DateEnd,31,0</value>
+          <value>_x0040_DepartmentId,DepartmentId,14,0</value>
+        </Parameters>
+        <SqlCommand>SELECT Ttmc.Id
+	,Ttmc.Name AS TmcName
+	,Ttmc.[Count] AS GeneralCount
+	,Ttmc.[CountFact] AS GeneralFact
+	,Ttmc.[CountConvert] AS GeneralConvertFact
+	,Ttmc.[CountActual]	AS GeneralActualFact
+	,Td.Name AS MeasureName
+	,MIN(Toff.[CreatedDate]) AS MinDateTime
+	,MAX(Toff.[CreatedDate]) AS MaxDateTime
+	,SUM(CASE WHEN Ttmc.[CountConvert] &lt;&gt; 0 
+		THEN Toff.[Count] / Ttmc.[CountConvert] * Ttmc.[CountFact]
+		ELSE Toff.[Count]
+		END) AS UseFactCountSum
+	,SUM(Toff.[Count]) AS UseConvertCountSum
+	,Tcenter.Id AS CenterId
+,STUFF((SELECT ', ' + [ApplicationNumber]
+	FROM Units AS TTdep 
+	WHERE (TTdep.ParentId = Tcenter.ID) 
+			FOR XML PATH(''),TYPE).value('(./text())[1]','NVARCHAR(MAX)')
+		  ,1,2,'') AS ApplicationNumbers
+FROM [dbo].[TmcOffs] AS Toff
+INNER JOIN [dbo].[TmcOutCounts] AS Ttoc ON Ttoc.Id = Toff.[TmcOutId]
+INNER JOIN [dbo].[Tmcs] AS Ttmc ON Ttmc.Id = Ttoc.TmcId
+INNER JOIN [dbo].[Dictionaries] AS Td ON Td.Id = Ttmc.MeasureTypeDicId
+INNER JOIN [dbo].[Employees] AS Te ON Te.Id = Toff.CreatedEmployeeId
+INNER JOIN [dbo].[Units] AS Tp ON Tp.Id = Te.PositionId
+INNER JOIN [dbo].[Units] AS Tdep ON Tdep.Id = Tp.ParentId
+INNER JOIN [dbo].[Units] AS Tcenter ON Tcenter.Id = Tdep.ParentId
+WHERE Toff.[CreatedDate] &gt;= @DateStart AND Toff.[CreatedDate] &lt;= @DateEnd 
+AND Tcenter.Id = 'C0AD22A0-9912-47C3-AADB-8DAD27ACB141'
+GROUP BY Ttmc.Id
+	,Ttmc.Name
+	,Ttmc.[Count]
+	,Ttmc.[CountFact]
+	,Ttmc.[CountConvert]
+	,Ttmc.[CountActual]
+	,Td.Name
+	,Tcenter.Id</SqlCommand>
+      </LimsData>
+      <LimsHeader Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>LimsHeader</Alias>
+        <Columns isList="true" count="2">
+          <value>ParentDepartmentId,System.Guid</value>
+          <value>DisplayNames,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>LimsHeader</Name>
+        <NameInSource>Соединение1</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand>SELECT
+	ParentDepartmentId
+	, ISNULL(ParentDepartmentName + ', ','-') +  STUFF(( SELECT DISTINCT ', ' + ISNULL(Tbp.Name,'-') + ' ' + ISNULL(Td.ShortName, '-') + ' ' + ISNULL(Tb.ShortName, '-')
+			FROM [dbo].[Units] AS Tp
+			INNER JOIN [dbo].[Units] AS Td ON Td.Id = Tp.ParentId
+			INNER JOIN [dbo].[Units] AS Tpd ON Tpd.Id = Td.ParentId
+			LEFT OUTER JOIN Employees AS Tb ON CAST(Tb.Id AS nvarchar(4000)) = Td.BossId
+			LEFT OUTER JOIN Units AS Tbp ON Tbp.Id = Tb.PositionId
+			WHERE (Tpd.Id = T.ParentDepartmentId)
+			FOR XML PATH(''),TYPE
+		).value('(./text())[1]', 'NVARCHAR(MAX)'), 1, 2, '') AS DisplayNames
+FROM
+(
+SELECT DISTINCT Td.Id
+	,Td.Name AS DepartmentName
+	,Td.ShortName AS DepartmentShortName
+	,Tb.FullName AS BossName
+	,Tb.ShortName AS BossShortName
+	,Tbp.Name AS BossPositionName
+	,Tbp.NameKz AS BossPositionNameKz
+	,ISNULL(Tcbp.Name,'-') + ' ' + ISNULL(Tpd.ShortName, '-') + ' ' + ISNULL(Tcb.ShortName, '-') AS ParentDepartmentName
+	,Tpd.Id AS ParentDepartmentId
+	,ISNULL(Tbp.Name,'-') + ' ' + ISNULL(Td.ShortName, '-') + ' ' + ISNULL(Tb.ShortName, '-') AS DisplayName
+	FROM [dbo].[Units] AS Tp
+	INNER JOIN [dbo].[Units] AS Td ON Td.Id = Tp.ParentId
+	INNER JOIN [dbo].[Units] AS Tpd ON Tpd.Id = Td.ParentId
+	LEFT OUTER JOIN Employees AS Tb ON CAST(Tb.Id AS nvarchar(4000)) = Td.BossId
+	LEFT OUTER JOIN Units AS Tbp ON Tbp.Id = Tb.PositionId
+	LEFT OUTER JOIN Employees AS Tcb ON CAST(Tb.Id AS nvarchar(4000)) = Tpd.BossId
+	LEFT OUTER JOIN Units AS Tcbp ON Tbp.Id = Tb.PositionId
+) AS T
+WHERE T.ParentDepartmentId = 'C0AD22A0-9912-47C3-AADB-8DAD27ACB141'
+GROUP BY ParentDepartmentId, ParentDepartmentName</SqlCommand>
+      </LimsHeader>
+      <LimsFooter Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>LimsFooter</Alias>
+        <Columns isList="true" count="10">
+          <value>Id,System.Guid</value>
+          <value>DepartmentName,System.String</value>
+          <value>DepartmentShortName,System.String</value>
+          <value>BossName,System.String</value>
+          <value>BossShortName,System.String</value>
+          <value>BossPositionName,System.String</value>
+          <value>BossPositionNameKz,System.String</value>
+          <value>ParentDepartmentName,System.String</value>
+          <value>ParentDepartmentId,System.Guid</value>
+          <value>DisplayName,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <Dictionary isRef="1" />
+        <Name>LimsFooter</Name>
+        <NameInSource>Соединение1</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand>SELECT DISTINCT Td.Id
+	,Td.Name AS DepartmentName
+	,Td.ShortName AS DepartmentShortName
+	,Tb.FullName AS BossName
+	,Tb.ShortName AS BossShortName
+	,Tbp.Name AS BossPositionName
+	,Tbp.NameKz AS BossPositionNameKz
+	,ISNULL(Tcbp.Name,'-') + ' ' + ISNULL(Tpd.ShortName, '-') + ' ' + ISNULL(Tcb.ShortName, '-') AS ParentDepartmentName
+	,Tpd.Id AS ParentDepartmentId
+	,ISNULL(Tbp.Name,'-') + ' ' + ISNULL(Td.ShortName, '-') + ' ' + ISNULL(Tb.ShortName, '-') AS DisplayName
+	FROM [dbo].[Units] AS Tp
+	INNER JOIN [dbo].[Units] AS Td ON Td.Id = Tp.ParentId
+	INNER JOIN [dbo].[Units] AS Tpd ON Tpd.Id = Td.ParentId
+	LEFT OUTER JOIN Employees AS Tb ON CAST(Tb.Id AS nvarchar(4000)) = Td.BossId
+	LEFT OUTER JOIN Units AS Tbp ON Tbp.Id = Tb.PositionId
+	LEFT OUTER JOIN Employees AS Tcb ON CAST(Tb.Id AS nvarchar(4000)) = Tpd.BossId
+	LEFT OUTER JOIN Units AS Tcbp ON Tbp.Id = Tb.PositionId
+WHERE Tpd.Id = 'C0AD22A0-9912-47C3-AADB-8DAD27ACB141'</SqlCommand>
+      </LimsFooter>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="4">
+      <value>,DateStart,DateStart,Дата_x0020_начала_x0020_периода,System.DateTime,,False,False,False</value>
+      <value>,DateEnd,DateEnd,дата_x0020_завершения_x0020_периода,System.DateTime,,False,False,False</value>
+      <value>,CenterId,CenterId,Идентификатор_x0020_Испытательного_x0020_центра_x0020_с_x0020_лабораториями,System.Guid,,False,False,False</value>
+      <value>,DepartmentId,DepartmentId,Ид_x0020_департамента,System.Guid,,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="6" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <ЗаголовокСтраницы1 Ref="7" type="PageHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,4.2</ClientRectangle>
+          <Components isList="true" count="5">
+            <Текст1 Ref="8" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,19,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>a17b13f93ca84507b2008a90337b80d2</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст1</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Text>Материальный отчёт от {Today.ToString("dd.MM.yyyy")}
+по Испытательному центру c лабораториями
+</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст1>
+            <Текст4 Ref="9" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1,19,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,12,Bold</Font>
+              <Guid>f75008e17ed245cc9106a9402df5cf78</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст4</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Text>за период с {DateStart.ToString("dd.MM.yyyy")} по {DateEnd.ToString("dd.MM.yyyy")}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст4>
+            <Текст2 Ref="10" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,1.4,19,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>8392bffdbaa84138977502df64876c5c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст2</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Text>Комиссией в составе: {LimsHeader.DisplayNames}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Текст2>
+            <Текст30 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.8,19,2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>4cb7475d24b4471a89f547bbe676e153</Guid>
+              <HorAlignment>Width</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст30</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Text>составлен список на списание товарно-материальных ценностей: химических реактивов, химической посуды, индикаторов и прочих ценностей, использованных для проведения физико-химических, микробиологических, иммунобиологических, лабораторных фармакологических испытаний, а так же токсикологических испытаний по сертификации и регистрации лекарственных средств, а так же для приготовления индикаторов, титрованных и других растворов и для проведения прочих испытаний.</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+            </Текст30>
+            <Текст31 Ref="12" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,3.8,19,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>f3c9783174224664b1a899e8ce99f5ee</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст31</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Text>Приложение 9</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Текст31>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>78e36466eb0e4968b16e1f0ff5a0e10b</Guid>
+          <Name>ЗаголовокСтраницы1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <PrintOn>OnlyFirstPage</PrintOn>
+        </ЗаголовокСтраницы1>
+        <ЗаголовокДанных1 Ref="13" type="HeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,5.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="5">
+            <Текст6 Ref="14" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,0.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>57680ac889e149f18a28d7d889796a75</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст6</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Text>№</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст6>
+            <Текст7 Ref="15" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.8,0,7,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>035f9e63d5654302865951799ca939ae</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст7</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Text>Наименование запасов</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст7>
+            <Текст8 Ref="16" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7.8,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>c4cadd4eebf844a8be783ab120dd690f</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст8</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Text>Ед. изм.
+</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст8>
+            <Текст9 Ref="17" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.2,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>14e52501d91a423daba58e8214cdf3d3</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст9</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Text>Кол-во</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст9>
+            <Текст10 Ref="18" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.4,0,6.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>8292bb7dd2b14133b8f895ffc00c91b7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст10</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Text>Где израсходовано (приложение)</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст10>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>5803996949cb490fa61e6f9ccee24593</Guid>
+          <Name>ЗаголовокДанных1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+        </ЗаголовокДанных1>
+        <Данные1 Ref="19" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,7,19,0.8</ClientRectangle>
+          <Components isList="true" count="5">
+            <Текст11 Ref="20" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,0.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>29bcd7d9e8ed4229987fe11e2d1f0a58</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст11</Name>
+              <Page isRef="6" />
+              <Parent isRef="19" />
+              <Text>{Line}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст11>
+            <Текст12 Ref="21" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.8,0,7,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>779e6f572a4a48bfbba1bf830df84a70</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст12</Name>
+              <Page isRef="6" />
+              <Parent isRef="19" />
+              <Text>{LimsData.TmcName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст12>
+            <Текст13 Ref="22" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanBreak>True</CanBreak>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,2.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>d8243802464a46be94bd72e4e47130c7</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст13</Name>
+              <Page isRef="6" />
+              <Parent isRef="19" />
+              <Text>{LimsData.MeasureName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст13>
+            <Текст14 Ref="23" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>10.2,0,2.2,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>8c976beed5c2407ba1d6745a6f6572fa</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст14</Name>
+              <Page isRef="6" />
+              <Parent isRef="19" />
+              <Text>{LimsData.UseFactCountSum.ToString("N3")}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст14>
+            <Текст15 Ref="24" type="Text" isKey="true">
+              <Border>All;Black;1;Solid;False;4;Black</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.4,0,6.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <GrowToHeight>True</GrowToHeight>
+              <Guid>5a8ec4075b6c468488eaf02c7cd463bd</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст15</Name>
+              <Page isRef="6" />
+              <Parent isRef="19" />
+              <Text>{LimsData.ApplicationNumbers}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Текст15>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>LimsData</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>a4888f66706541f89197cff9968a8358</Guid>
+          <Name>Данные1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Sort isList="true" count="0" />
+        </Данные1>
+        <FooterBand1 Ref="25" type="FooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8.6,19,0.8</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Name>FooterBand1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+        </FooterBand1>
+        <Данные2 Ref="26" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <BusinessObjectGuid isNull="true" />
+          <ClientRectangle>0,10.2,19,0.6</ClientRectangle>
+          <Components isList="true" count="3">
+            <Текст5 Ref="27" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.8,0,7,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>841fea83d81c4623bc421bca5269984e</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст5</Name>
+              <Page isRef="6" />
+              <Parent isRef="26" />
+              <Text>{LimsFooter.BossPositionName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Bottom</VertAlignment>
+            </Текст5>
+            <Текст16 Ref="28" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12.6,0,6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>3e68cb2cb2d148dea48b190d69869a78</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст16</Name>
+              <Page isRef="6" />
+              <Parent isRef="26" />
+              <Text>{LimsFooter.BossShortName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Bottom</VertAlignment>
+            </Текст16>
+            <Текст48 Ref="29" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>7.8,0,4.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Times New Roman,10</Font>
+              <Guid>5415ce6bdbda4cae988545cc6eeb67ee</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Текст48</Name>
+              <Page isRef="6" />
+              <Parent isRef="26" />
+              <TextBrush>Black</TextBrush>
+            </Текст48>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>LimsFooter</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Guid>d4b3f66b52da4da98b912aafff47652e</Guid>
+          <Name>Данные2</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Sort isList="true" count="0" />
+        </Данные2>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>a365ae69a0c44627a164f953db5c672a</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="30" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="31" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Отчет</ReportAlias>
+  <ReportChanged>2/9/2017 2:44:09 AM</ReportChanged>
+  <ReportCreated>1/12/2017 12:42:06 PM</ReportCreated>
+  <ReportFile>D:\PROJECTS\krypton pro\NCLS\source\Expertise\PW.Prism\PW.Prism\Reports\List\applicationD_4.mrt</ReportFile>
+  <ReportGuid>2b428b9070884d27a08606df5ceb30f3</ReportGuid>
+  <ReportName>Отчет</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2015.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Отчет : Stimulsoft.Report.StiReport
+    {
+        public Отчет()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>

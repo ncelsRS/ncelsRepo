@@ -1,0 +1,239 @@
+﻿@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Models
+
+<!-- Список заявок на выдачу-->
+
+@model Guid
+<style>
+    .k-state-disabled {
+        pointer-events: none;
+    }
+</style>
+<script>
+    function editDetails(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "550px",
+            height: "auto",
+            modal: true,
+            title: 'Выдача',
+            actions: ["Close"]
+        });
+
+        window.data("kendoWindow").gridId = 'gridDelivery' + '@Model';
+        window.data("kendoWindow").title('Выдача');
+        window.data("kendoWindow").setOptions({
+            width: 550,
+            height: 'auto'
+        });
+        window.data("kendoWindow").refresh('/Tmc/OutTmc?id=' + dataItem.Id + '&measureTypeConvertDicId=' + dataItem.MeasureTypeConvertDicId);
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    function rejectRequest(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "550px",
+            height: "auto",
+            modal: true,
+            title: 'Отклонить',
+            actions: ["Close"]
+        });
+
+        window.data("kendoWindow").title('Отклонить');
+        window.data("kendoWindow").setOptions({
+            width: 550,
+            height: 'auto'
+        });
+        window.data("kendoWindow").refresh('/Tmc/RejectAgreement?id=' + dataItem.Id
+            + '&type=2'
+            + '&url=@Url.Action("ConfirmRejectAgreement", "Tmc")');
+
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    function dataBoundDeliveryChildHandler() {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+            if (model.StateType == 1 || model.StateType == 2) {
+                $(this).find(".k-grid-issued").addClass("k-state-disabled");
+            }
+        });
+    }
+
+    function sync_handler(e) {
+        this.read();
+    }
+
+    var DeliveryList = {
+        onEditHandler: function (e) {
+
+            var grid = $("#gridDelivery" + '@Model').data("kendoGrid");
+
+            //Find parent grid current row
+            var parentRow = this.wrapper.closest("tr.k-detail-row").prev(".k-master-row");
+            //get the parent grid row DataItem
+            var parentDataItem = grid.dataItem(parentRow);
+
+            //check if model is new
+            if (e.model.isNew()) {
+                //set the parent grid dataItem field value to current ForeignKeyColumn field
+                e.model.set("TmcCount", parentDataItem.CountActual);
+
+            }
+            var numeric = e.container.find("input[name=Count]").data("kendoNumericTextBox");
+            numeric.max(parentDataItem.CountActual);
+        },
+        _reload: function () {
+            var grid = $('@("#gridDelivery" + Model)').data("kendoGrid");
+            grid.dataSource.read();
+        },
+        detailExpand: function (e) {
+            //var eid = e.masterRow.data('uid');
+            var eid = e.masterRow[0].rowIndex;
+            if (!GeneralTmc.contains(GeneralTmc.expandedItemIDs, eid))
+                GeneralTmc.expandedItemIDs.push(eid);
+        },
+        detailCollapse: function (e) {
+            //var eid = e.masterRow.data('uid');
+            var eid = e.masterRow[0].rowIndex;
+            for (var i = 0; i < GeneralTmc.expandedItemIDs.length; i++)
+                if (GeneralTmc.expandedItemIDs[i] == eid) {
+                    GeneralTmc.expandedItemIDs.splice(i, 1);
+                    break;
+                }
+        },
+        onDataBound: function (e) {
+            var grid = this;
+            grid.tbody.find("tr[role='row']").each(function () {
+                var model = grid.dataItem(this);
+                if (model.StateType == 2 || model.StateType == -1) {
+                    $(this).find(".k-grid-reject").addClass("k-state-disabled");
+                }
+            });
+
+            GeneralTmc.subgridChange('gridDelivery' + '@Model');
+        }
+    }
+
+</script>
+
+<div id="pwSix">
+    @(Html.Kendo().Button().Name("reload" + Model)
+          .HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+          .Content("")
+          .ImageUrl("/Content/images/reload.png")
+          )
+</div>
+
+@(Html.Kendo().Grid<TmcOutView>()
+    .Name("gridDelivery" + Model)
+    .Columns(columns =>
+    {
+        columns.Command(command => { command.Custom("reject").Text("Отклонить").Click("rejectRequest"); }).Width(100);
+
+        columns.Bound(p => p.Note).Title("Описание").Width(150);
+        columns.Bound(p => p.OutTypeDicValue).Title("Вид получения").Width(150);
+        columns.Bound(p => p.CreatedEmployeeValue).Title("ФИО").Width(150);
+        columns.Bound(p => p.CreatedDate).Format("{0:dd.MM.yyyy}").Title("Дата").Width(150);
+
+
+        //columns.Bound(p => p.IsFullDeliveryValue).Title("Сведения по товару").Width(150);
+        //columns.Bound(p => p.Name).Title("Наименование товара").Width(150);
+        //columns.Bound(p => p.Name).Title("Единица измерения").Width(150);
+        //columns.Bound(p => p.Name).Title("Количество/объем поставляемого товара").Width(150);
+        //columns.Command(command => { command.Edit(); command.Destroy(); command.Custom("Отправить").Click("editDetails"); }).Width(200);
+    })
+    //.ToolBar(toolbar => toolbar.Create())
+    //.Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .ColumnMenu(c => c.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .Groupable()
+    .Filterable()
+    .Sortable()
+    .Resizable(s => s.Columns(true))
+    .Pageable()
+    .Scrollable()
+    .ClientDetailTemplateId("templateTmcOutCount")
+    .HtmlAttributes(new { @class = "pwGrid" })
+    .Events(c =>
+    {
+       // c.DataBound("dataBoundDeliveryHandler");
+        c.DetailExpand("DeliveryList.detailExpand");
+        c.DetailCollapse("DeliveryList.detailCollapse");
+        c.DataBound("DeliveryList.onDataBound");
+
+    })
+    .DataSource(dataSource => dataSource
+             .Ajax()
+             .Model(model =>{
+                 model.Id(p => p.Id);
+             })
+             .PageSize(20)
+             .Read(read => read.Action("ReadDelivery", "Tmc"))
+             .Events(c =>
+             {
+                 c.Sync("sync_handler");
+             }))
+)
+
+<script id="templateTmcOutCount" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<TmcOutCountView>()
+          .Name("gridTmcOutCount_#=TmcOutId#") // template expression, to be evaluated in the master context
+          .Columns(columns =>
+          {
+              columns.Command(command =>
+              {
+                  command.Custom("issued").Text("Выдать").Click("editDetails");
+              }).Width(100);
+
+              columns.Bound(o => o.Name).Title("Наименование товара").Width(120);
+              columns.Bound(o => o.MeasureTypeConvertDicValue).Title("Единица измерения (конв)").Width(120);
+              columns.Bound(o => o.Count).Title("Количество/объем (запрос)").Width(120);
+              columns.Bound(o => o.CountFact).Title("Количество/объем (факт)").Format("{0:n6}").Width(120);
+              //columns.Bound(o => o.CountConvert).Title("Количество/объем (конв)").Width(120);
+          })
+          .ColumnMenu(c => c.Columns(true))
+          .Reorderable(reorder => reorder.Columns(true))
+          //.ToolBar(toolbar => toolbar.Create())
+          .Events(c => c.DataBound("dataBoundDeliveryChildHandler"))
+          .HtmlAttributes(new { @class = "pwGrid" })
+          //.Editable(editable => editable.Mode(GridEditMode.PopUp))
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Model(model => {
+                  model.Id(p => p.Id);
+              })
+              .PageSize(20)
+              .Read(read => read.Action("ReadDeliveryChildrens", "Tmc", new { tmcOutId = "#=TmcOutId#" }))
+              .Events(c =>
+              {
+                  c.Sync("sync_handler");
+              }))
+          .Resizable(s => s.Columns(true))
+          .Sortable()
+          .Pageable()
+          .ToClientTemplate()
+    )
+</script>
+
+<script>
+
+    (function () {
+        var name = '@Model';
+
+        resizeGrid3('@("#gridDelivery" + Model)', 110);
+
+        $('#reload' + name).click(function (e) {
+            DeliveryList._reload();
+        });
+    })();
+</script>

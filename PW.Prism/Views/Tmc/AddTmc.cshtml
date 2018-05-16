@@ -1,0 +1,201 @@
+﻿
+
+@model PW.Ncels.Database.DataModel.Tmc
+<!-- Принятие и конвертация в доверенности -->
+<div id="@("loader"+ Model)"></div>
+<form id="@("formReassignment" + Model.Id)">
+
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Количество/объем (факт.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="Count" name="Count" data-bind="value: task.Count, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Единица измерения (конв.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="MeasureTypeConvertDicId" data-bind="value: task.MeasureTypeConvertDic, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Количество (конв.)</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="CountConvert" name="CountConvert" data-bind="value: task.CountConvert, events: { change: change }" style="width: 60px;" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2" style="margin-top: 7px !important">
+                <p>Дата получения</p>
+            </div>
+            <div class="pwWinContentRight2 tmcClass">
+                <input id="ReceivingDate" name="ReceivingDate" data-bind="value: task.ReceivingDate, events: { change: change }" class="pwWidth100" required data-required-msg="@PW.Ncels.Database.Recources.Messages.Property_Листы_КолСим360__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+    var now = new Date();
+
+    $("#Count").kendoNumericTextBox({
+        min: 0,
+        decimals:6,
+        format: 'n6'
+    });
+    $("#CountConvert").kendoNumericTextBox({
+        min: 0,
+        decimals: 6,
+        format: 'n6'
+    });
+    $("#ReceivingDate").kendoDatePicker({
+        value: now,
+        max: now
+    });
+
+    var viewModel = kendo.observable({
+        task: {
+            Count: '@Model.Count',
+            ReceivingDate: now
+        },
+        hasChanges: false,
+        change: function () {
+            this.set('hasChanges', false);
+        },
+        save: function (e) {
+            kendo.ui.progress($('#loader' + name), true);
+            debugger;
+            var json = JSON.stringify(viewModel.get('task'));
+            
+            $.ajax({
+                type: 'POST',
+                url: '/Tmc/ConfirmAddTmc?Id=' + name,
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    $("#TaskCommandWindow").data("kendoWindow").close();
+                    var id = $("#TaskCommandWindow").data("kendoWindow").gridId;
+                    var grid = $("#" + id).data("kendoGrid");
+                    grid.dataSource.read();
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function (e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+
+    });
+
+
+    $("#MeasureTypeConvertDicId").kendoComboBox({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/ListOfUnitsExceptCode',
+                    data: { text: "MeasureType", Id: '@Model.MeasureTypeDicId' }
+                }
+            }
+        }
+    });
+    @*$("#ExecutorsId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#ExecutionDate" + name).kendoDatePicker();
+    $("#ResponsibleId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        maxSelectedItems: 1,
+        filter: "contains",
+        autoBind: false,
+
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/ListEmploye'
+
+                }
+            }
+        }
+    });
+    $("#Text" + name).kendoAutoComplete({
+        filter: "contains",
+      //  dataTextField: "Name",
+        placeholder: "@PW.Ncels.Database.Recources.Messages.Property_Введитетекст_118__00",
+
+        autoBind: false,
+        dataSource: {
+
+            transport: {
+                read: {
+                    url: '/Reference/ListAutoComplete',
+                    data: { text: "ReassignmentTypeDictionary" }
+                }
+            }
+        }
+    });
+
+    var dataReportType = [
+  { text: "Первичная экспертиза", value: "5" },
+  { text: "Фармакологическая экспертиза", value: "6" },
+  { text: "Фармацевтическая экспертиза", value: "7" },
+  { text: "Аналитическая экспертиза", value: "8" },
+  { text: "Переводы", value: "9" },
+  { text: "Заключение оценки безопасности", value: "10" },
+  { text: "Оценка условий производства", value: "11" }
+    ];
+
+    $("#TypeReport" ).kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        index: 0,
+        dataSource: dataReportType
+    });*@
+    //  viewModel.set('task.ExecutionDate', new Date());
+    kendo.bind($("#formReassignment" + name), viewModel);
+
+
+    // init Count
+    // $("#Count").data("kendoNumericTextBox").value(@Model.CountFact);
+    //var temp = viewModel.get('task.ExecutionDate');
+    //if (temp != null) {
+    //    var date = temp.toString();
+    //    viewModel.set('task.ExecutionDate', isoDateReviver(date));
+    //}
+</script>

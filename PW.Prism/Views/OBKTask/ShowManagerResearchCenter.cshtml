@@ -1,0 +1,100 @@
+﻿@model PW.Ncels.Database.Models.OBK.OBKManagerResearchCenter
+
+<div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+        <h4>Выберите отвественных ИЦ</h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group" id="errorMessage_@Model.TaskId" style="display: none">
+                    <label>Заполните обязательные поля</label>
+                </div>
+                <div class="form-group">
+                    <table id="tableManager">
+                        <tbody>
+                        @foreach (var u in Model.UnitLaboratory)
+                        {
+                            <tr rowId="@u.Id">
+                                <td><label>@u.UnitDisplayName</label></td>
+                                <td>@Html.DropDownList("ManagerLabId", u.ExecutorLaboratory, String.Empty, new { @class = "form-control modal-control" })</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td><label>Руководство</label></td>
+                            <td>@Html.DropDownList("BossId", Model.BossSelectList, String.Empty, new { @class = "form-control modal-control" })</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" onclick="sendToManagerResearchCentr()">Отправить</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+    </div>
+</div>
+
+<script>
+
+    function sendToManagerResearchCentr() {
+        if (validModal()) {
+            $("#errorMessage_@Model.TaskId").hide();
+            sendToMRC();
+        }
+        else
+            $("#errorMessage_@Model.TaskId").show();
+    }
+
+    function sendToMRC() {
+        debugger;
+
+        var managerLaboratory = new Array();
+        $('table#tableManager tbody tr').each(function () {
+            debugger;
+            var id = $(this).attr('rowId');
+            var manager = $(this).find('select#ManagerLabId').val();
+            managerLaboratory.push({ UnitLaboratoryId: id, ExecutorId: manager });
+        });
+
+        var model = {
+            TaskId: '@Model.TaskId',
+            BossId: $("#BossId").val(),
+            ManagerLaboratory: managerLaboratory
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/OBKTask/SaveManagerLaboratory',
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                debugger;
+                if (data.isSuccess) {
+                    $("#modalManager_@Model.TaskId").modal('toggle');
+                    $("#sendToResearchCenters").attr('disabled', true);
+                    $("#acceptTaskBtn").attr('disabled', true);
+                    alert("Задание успешно передано");
+                }
+            }
+        });
+    }
+
+    function validModal() {
+        var valid = true;
+        $('.modal-control').each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                $(this).css({ 'border-color': '#a94442' });
+                valid = false;
+            } else {
+                $(this).css({ 'border-color': '#cccccc' });
+            }
+        });
+        return valid;
+    }
+
+
+</script>

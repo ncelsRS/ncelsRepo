@@ -1,0 +1,35 @@
+﻿@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.FileLinksCategoryCom
+
+<div id="content" style="height: 200px">
+   
+            <div class="input-group">
+                <span class="input-group-addon">
+                    @Html.CheckBoxFor(model => model.IsError)
+                </span>
+                <input type="text" class="form-control" aria-label="..." value="@ResourceSetting.FieldError" readonly="readonly">
+            </div><!-- /input-group -->
+            <textarea cols="20" id="NoteComment" name="NoteComment" rows="2" placeholder="@ResourceSetting.Description" style="width: 100%; height: 100px;"></textarea>
+   @{
+        Guid? ownerId = null;
+        if (Model.FileLinksCategoryComRecords.Any())
+        {
+            ownerId = Model.FileLinksCategoryComRecords.First().UserId;
+        }
+    }
+            @foreach (var entity in Model.FileLinksCategoryComRecords.OrderByDescending(e => e.Id))
+            {
+                var className = "aleralert alert-info";
+                if (entity.UserId == ownerId)
+                {
+                    className = "alert alert-success";
+                }
+                <div class="@className" role="alert" style="text-align: left">
+                    <p>@entity.Note </p>
+                    <p style="text-align: right;font-size: 12px"><b>@ResourceSetting.RegDate:</b> @entity.CreateDateStr <b>  @ResourceSetting.Autor:</b>@entity.OwnerName</p>
+
+                </div>
+            }
+        </div>
+  

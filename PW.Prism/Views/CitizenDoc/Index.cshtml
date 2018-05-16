@@ -1,0 +1,194 @@
+﻿@using PW.Ncels.Database.Helpers
+@model Guid
+
+@{
+    //Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<script>
+    InitFilterCitizenGrid('@Model.ToString()');
+</script>
+
+@(Html.Kendo().Splitter()
+            .HtmlAttributes(new { @class = "pwSplitter k-block" })
+            .Name(("splitter" + Model))
+            .Panes(panes => {
+            panes.Add()
+                .Size("250px")
+                .Collapsible(true)
+                .MaxSize("500px")
+                .MinSize("250px")
+                .Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        @(Html.Kendo().Button().Name("addInDocButton" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Создатьдокумент_119__00).Events(e => e.Click("addCitizenDocClick"))
+                                   .ImageUrl("/Content/images/add.png"))
+                    </div>
+
+                    @(Html.Kendo().PanelBar().HtmlAttributes(new { @class = "pwPanelBar" })
+                               .Name("panelbar" + Model)
+                               .ExpandMode(PanelBarExpandMode.Multiple)
+                               .ExpandAll(true)
+                               .HtmlAttributes(new { style = "width:auto;" })
+                               .Events(e => e.Select("panelCitizenSelect"))
+                               .Items(panelbar => {
+                                   panelbar.Add().Expanded(true);
+                                   if (UserHelper.GetCurrentEmployee().OrganizationId != Guid.Parse("8F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE"))
+                                   {
+                                       panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_ПоОрганизации_333__00)
+                            .Items(programs =>
+                            {
+                                programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Фонд_333__001).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", Guid.Parse("8F0B91F3-AF29-4D3C-96D6-019CBBDFC8BE") }, { "ItemType", "OrganizationId" }, { "ModelId", Model.ToString() } });
+                                programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Филиал_333__002).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", UserHelper.GetCurrentEmployee().OrganizationId }, { "ItemType", "OrganizationId" }, { "ModelId", Model.ToString() } });
+                            });
+                                   }
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Типобращения_172__001)
+                                        .Items(projects => {
+                                            projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "ApplicantType" }, { "ModelId", Model.ToString() } });
+                                            projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Физическоелицо_163__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "ApplicantType" }, { "ModelId", Model.ToString() } });
+                                            projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Юридическоелицо_139__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "ApplicantType" }, { "ModelId", Model.ToString() } });
+                                        });
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_ВидОбращения_201__0)
+                                       .Items(citizen => {
+                                           citizen.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Жалоба_201__0).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "CB71413F-A4CD-4656-8879-1DF638D73446" }, { "ItemType", "CitizenTypeDictionaryId" }, { "ModelId", Model.ToString() } });
+                                           citizen.Add().Text(PW.Ncels.Database.Recources.Messages.Property_ПисьменноеОбращение_201__011).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "404C4300-BF88-4AB0-B891-484575E67F06" }, { "ItemType", "CitizenTypeDictionaryId" }, { "ModelId", Model.ToString() } });
+                                           citizen.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Сайт_201__01).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "D9264D12-ED13-4DB2-9A93-9CD72A72CB60" }, { "ItemType", "CitizenTypeDictionaryId" }, { "ModelId", Model.ToString() } });
+                                       });
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Постатусу_262__00)
+                                       .Items(projects => {
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Все_394__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Новые_377__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "0" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Зарегистрированные_84__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Вработе_309__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                           projects.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Исполненные_240__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "9" }, { "ItemType", "Status" }, { "ModelId", Model.ToString() } });
+                                       });
+
+                                   panelbar.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Потипуконтроля_121__00)
+                                       .Items(programs => {
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Неконтрольный_174__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "1" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Контроль_310__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "2" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Особоыйконтроль_122__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "3" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                           programs.Add().Text(PW.Ncels.Database.Recources.Messages.Property_Доконтроль_241__00).LinkHtmlAttributes(new Dictionary<string, object>() { { "ItemId", "4" }, { "ItemType", "Monitoring" }, { "ModelId", Model.ToString() } });
+                                       });
+
+
+                               })
+                    )
+                </div>
+                );
+
+            panes.Add().Scrollable(false).Size("100%").Content(
+                @<div class="pwPanelBar">
+                    <div class="pwBlockAdd k-block">
+                        <div id="pwOne">
+                            @(Html.Kendo().MaskedTextBox().Name("findText" + Model).Mask("").HtmlAttributes(new { @class = "pwWidth100" }))
+                        </div>
+
+                        <div id="pwTwo">
+                            @(Html.Kendo().DropDownList().Name("findType" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .BindTo(new List<SelectListItem>() {
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Все_394__00, Value = "0"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Пономеру_281__00, Value = "1"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поисполнителю_170__00, Value = "2"
+                                       },
+                                       new SelectListItem() {
+                                           Text = PW.Ncels.Database.Recources.Messages.Property_Поотправителю_171__00, Value = "3"
+                                       }
+                                   })
+                                   .SelectedIndex(0)
+                            )
+
+                        </div>
+
+                        <div id="pwThree">
+                            @(Html.Kendo().Button().Name("find" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Найти_372__00)
+                                   .ImageUrl("/Content/images/find.png"))
+                        </div>
+
+                        <div id="pwFour">
+                            @(Html.Kendo().Button().Name("export" + Model).HtmlAttributes(new { @class = "pwWidth100" })
+                                   .Content(PW.Ncels.Database.Recources.Messages.Property_Экспорт_335__00)
+                                   .ImageUrl("/Content/images/export.png").Events(e => e.Click("onExportCitizenDoc")))
+                        </div>
+
+                    </div>
+                    <div id="pwSix">
+                        @(Html.Kendo().Button().Name("reload" + Model).HtmlAttributes(new { @class = "pwWidth100 pwButtonReload" })
+                                                    .Content("")
+                               .ImageUrl("/Content/images/reload.png"))
+
+                    </div>
+                    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.Document>()
+                                           .Name("gridCitizenListDoc" + Model)
+                           .Columns(columns => {
+
+                               columns.Bound(p => p.IsAttachments).Width(40).ClientTemplate(
+                                   "# if (IsAttachments == true) { #" +
+                                   "<img  src='" + Url.Content("~/Content/images/attachTrue.png") + "'  />" +
+                                   "# } else { #" +
+                                   "# } #").Title(PW.Ncels.Database.Recources.Messages.Property_Ф_402__00).Lockable(false).Locked(true).Lockable(false);
+                               columns.Bound(p => p.Number).Width(150).ClientTemplate(
+                                   "<div class=\"btn-group btn-group-xs\" style='height:14px;margin-top: -9px;'>" +
+                                        "<button type='button' style='width:90px;' class='btn btn-default btn-xs' onclick=\"getCitizenDetails('#=DocumentId#', '#=Number#')\"><span style=\"color:rgb(66,139,202);\">#=Number#</span></button>" +
+                                        "<button type='button' style='width:20px;' class='btn btn-default btn-xs' onclick=\"addCitizenRepeatDocClick('#=DocumentId#')\"><span class=\"glyphicon glyphicon-retweet\"></span></button>" +
+                                    "</div>"
+                                   ).Title(PW.Ncels.Database.Recources.Messages.Property_Номер_373__00).ClientFooterTemplate(PW.Ncels.Database.Recources.Messages.Property_Всего_356__00 +"#=count#").Locked(true).Lockable(false);
+                               //columns.Bound(p => p.SortNumber).Width(65).Title("#").Locked(true).Lockable(false);
+                               columns.Bound(p => p.DocumentDate).Format("{0:dd.MM.yyyy HH:mm}").Title(PW.Ncels.Database.Recources.Messages.Property_Датадок_307__00).Width(115).Locked(true).Lockable(false);
+                               columns.Bound(p => p.CitizenTypeDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Видобращения_198__00).Locked(true).Lockable(false);
+                               columns.Bound(p => p.StateType).ClientTemplate("<img  src=\"/Content/images/StateType_#=StateType#.png\" />").Title(PW.Ncels.Database.Recources.Messages.Property_Статус_357__00).Width(100).Filterable(filterable => filterable.UI("StateFilterDoc"));
+                               columns.Bound(p => p.MonitoringType).ClientTemplate("<img  src=\"/Content/images/MonitoringType_#=MonitoringType#.png\" />").Title(PW.Ncels.Database.Recources.Messages.Property_Типконтроля_224__00).Width(100).Filterable(filterable => filterable.UI("MonitoringFilterDoc"));
+                               columns.Bound(p => p.ExecutionDate).Format("{0:dd.MM.yyyy}").Title(PW.Ncels.Database.Recources.Messages.Property_Срокисп_283__00).Width(100);
+                               columns.Bound(p => p.NomenclatureDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Номенклатурадел_138__00);
+                               //columns.Bound(p => p.MonitoringNote).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_Типконтроля_224__00);
+                               columns.Bound(p => p.ResponsibleValue).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_Ответственныйзаисполнение_22__00);
+                               columns.Bound(p => p.Summary).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_Краткоесодержание_82__00);
+                               columns.Bound(p => p.CorrespondentsInfo).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_ФИО_361__00);
+                               columns.Bound(p => p.ApplicantAddress).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Адрес_378__00);
+                               columns.Bound(p => p.ApplicantName).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_Организция_272__00);
+                               columns.Bound(p => p.OutgoingNumber).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Исхномер_263__00);
+                               columns.Bound(p => p.PageCount).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_ЛП_395__00);
+                               columns.Bound(p => p.ExecutorsValue).Width(250).Title(PW.Ncels.Database.Recources.Messages.Property_Адресат_337__00);
+                               columns.Bound(p => p.AnswersValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Полученвответнаисх_39__00);
+                               columns.Bound(p => p.AutoAnswersValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Отправленыответные_59__00);
+                               columns.Bound(p => p.AutoAnswersTempValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Отправленыпромежуточные_27__00);
+                               columns.Bound(p => p.FormDeliveryDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Виддоставки_225__00);
+                               columns.Bound(p => p.LanguageDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Языкдокумента_175__00);
+                               columns.Bound(p => p.NomenclatureDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Дело_383__00);
+                               columns.Bound(p => p.QuestionDesignDictionaryValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Характервопроса_123__00);
+                               columns.Bound(p => p.CompleteDocumentsValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Кдокументу_242__00);
+                               columns.Bound(p => p.RegistratorValue).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Регистратор_243__00);
+                               columns.Bound(p => p.Note).Width(100).Title(PW.Ncels.Database.Recources.Messages.Property_Примечание_264__00);
+                           })
+
+                           .Reorderable(reorderable => reorderable.Columns(true))
+                           .Resizable(resizable => resizable.Columns(true))
+                           .Sortable(sortable => sortable.AllowUnsort(false))
+                           .Groupable()
+                           .Scrollable(scrollable => scrollable.Virtual(true))
+                            .Filterable()
+                           .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                           .HtmlAttributes(new { @class = "pwGrid" })
+                           .DataSource(dataSource => dataSource
+                               .Ajax()
+                               .Aggregates(aggregates => {aggregates.Add(p => p.Number).Count();})
+                               .Sort(sort => { sort.Add("SortNumber").Descending(); sort.Add("CreatedDate").Descending(); })
+                               .PageSize(50)
+                                       .Read(read => read.Action("ListDocument", "CitizenDoc"))
+                           ))
+                </div>
+            );
+        }))
+
+<script>
+    resizeGrid('@("#gridCitizenListDoc" + Model)');
+</script>

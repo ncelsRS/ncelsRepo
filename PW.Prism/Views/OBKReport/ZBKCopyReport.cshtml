@@ -1,0 +1,169 @@
+﻿@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@using PW.Ncels.Database.Helpers
+@using PW.Ncels.Database.Models
+@model Guid?
+
+
+@helper ToolbarDeclarationReport()
+    {
+        <div class="pull-left">
+            <label>Дата начала</label>
+            @( Html.Kendo().DatePicker().Name("dateFrom" + Model).Format("{0:dd.MM.yyyy}") )
+            <label>Дата окончания</label>
+            @( Html.Kendo().DatePicker().Name("dateTo" + Model).Format("{0:dd.MM.yyyy}") )
+
+            @( Html.Kendo().Button().Name("search" + Model).Content("Найти"))                                                                                 
+            @( Html.Kendo().Button().Name("export" + Model).Content("Экспорт"))
+
+        </div>
+        <div class="pull-right">
+            <div style="display: inline-block" id="columnMenu" class="custom-grid-menu"></div>
+            <div style="display: inline-block">
+                @( Html.Kendo().Button().Name("reload")
+                                                                            .Content("").ImageUrl("/Content/images/reload.png"))
+            </div>
+        </div>
+}
+
+@(Html.Kendo().Splitter()
+                      .HtmlAttributes(new { @class = "pwSplitter k-block" })
+                      .Name(("splitter"))
+                      .Panes(panes =>
+                      {
+                          panes.Add().Scrollable(false).Size("100%").Content(
+                            @<div class="pwPanelBar">
+                                @( Html.Kendo().Grid<OBK_ZBKCopyReportView>()
+                                                                         .Name("OBK_ZBKCopyReportView" + Model)
+
+                                                                         .Columns(columns =>
+                                                                         {
+                                                                             columns.Bound(p => p.ExtraditeDate).Format("{0:dd.MM.yyyy}").Title("Дата выдачи копии заключения").Width(80);
+                                                                             columns.Bound(p => p.BlankInterval).Title("Номер бланка копии заключения").Width(150);
+                                                                             columns.Bound(p => p.BlankQuantity).Title("Количество бланков").Width(100);
+                                                                             columns.Bound(p => p.ExpertOrganization).Title("Орган по сертификации").Width(150);
+                                                                             columns.Bound(p => p.Declarant).Title("Наименование фирмы").Width(180);
+                                                                             columns.Bound(p => p.ExpConclusionNumber).Title("Регистрационный номер заключения").Width(150);
+                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Комментарий").Width(60);
+                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Эксперт").Width(60);
+                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("ЦОЗ").Width(60);
+                                                                             columns.Bound(p => p.Id).ClientTemplate("<p></p>").Title("Заявитель").Width(60);
+                                                                         })
+                                                                         .AutoBind(false)
+                                                                         .Reorderable(reorderable => reorderable.Columns(true))
+                                                                         .Resizable(resizable => resizable.Columns(true))
+                                                                         .ToolBar(toolbar => { toolbar.Template(ToolbarDeclarationReport().ToHtmlString()); })
+                                                                         .Groupable()
+                                                                         .Sortable()
+                                                                         .Filterable()
+                                                                         .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                         .Scrollable(scrollable => scrollable.Virtual(true))
+                                                                         .Pageable()
+                                                                         .HtmlAttributes(new { style = "height:500px; font-size: 12px" })
+                                                                         .DataSource(dataSource => dataSource
+                                                                             .Ajax()
+                                                                             .Sort(sort => { sort.Add("ExtraditeDate").Descending(); })
+                                                                             .PageSize(30)
+                                                                             .Read(read => read.Action("OBKReportList", "OBKReport", new { reportType = ViewData["reportType"] }))
+                                                                            )
+                                ))
+
+                            </div>
+                                                              );
+                              }))
+
+                             <script>
+
+    function reloadDeclarationReport(){
+        $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid").dataSource.read();
+    }
+
+    $("#reload" + "@Model").click(function ()
+        {
+        $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid").dataSource.read();
+        });
+
+    $("#export" + "@Model").click(function ()
+    {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+
+         if(fr != '' || to != ''){
+             var grid = $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid");
+             parameterMap = grid.dataSource.transport.parameterMap;
+             var data = parameterMap({ sort: grid.dataSource.sort(), filter: grid.dataSource.filter(), group: grid.dataSource.group() });
+             window.open('/OBKReport/ExportOBKReport?request=' + $.param(data) + "&reportType=" + "@ViewData["reportType"]");
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+     function initZBKReportFilters(){
+        var from = $('#dateFrom' + "@Model").val();
+        var fromDate = new Date(from.split(".")[2] + '-' + from.split(".")[1] + '-' + from.split(".")[0]);
+        var to = $('#dateTo' + "@Model").val();
+        var toDate = new Date(to.split(".")[2] + '-' + to.split(".")[1] + '-' + to.split(".")[0]);
+        var grid = $("#OBK_ZBKCopyReportView" + "@Model").data("kendoGrid");
+         var filterArr = grid.dataSource.filter();
+         var filter = [];
+         if(filterArr != undefined || filterArr != null){
+             filter = filterArr.filters;
+         }
+
+        if (from != undefined && from != null && from != "")
+        {
+            checkRemove(filter, "ExtraditeDate", "gte");
+            filter.push(
+                { field: "ExtraditeDate", operator: "gte", value: fromDate });
+        } else
+        {
+            checkRemove(filter, "ExtraditeDate", "gte");
+        }
+
+        if (to != undefined && to != null && to != "")
+        {
+            checkRemove(filter, "ExtraditeDate", "lte");
+            filter.push(
+                { field: "ExtraditeDate", operator: "lte", value: toDate });
+        } else
+        {
+            checkRemove(filter, "ExtraditeDate", "lte");
+        }
+
+        grid.dataSource.filter({
+            logic: "and",
+            filters: filter
+        });
+    }
+
+    function getDropDownVal(name){
+        return $.trim($(name + "@Model").data("kendoDropDownList").text());
+    };
+
+     $("#search" + "@Model").click(function ()
+     {
+         var fr = $("#dateFrom" + "@Model").val();
+         var to = $("#dateTo" + "@Model").val();
+
+         if(fr != '' || to != ''){
+             initZBKReportFilters();
+         } else
+         {
+             alert("Заполните основные параметры поиска!");
+         }
+
+    });
+
+    function checkRemove(arr, field, operator) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].field == field && arr[i].operator == operator)
+            {
+                arr.splice(i, 1);
+            }
+        }
+    }
+
+                             </script>
+

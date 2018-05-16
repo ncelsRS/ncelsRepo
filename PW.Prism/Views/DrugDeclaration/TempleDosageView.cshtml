@@ -1,0 +1,302 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Constants
+@using PW.Ncels.Database.DataModel
+@model PW.Ncels.Database.DataModel.EXP_DrugDosage
+@{
+    var code = CodeConstManager.EXP_DrugDosageCode + "_";
+    if (Model.Id == 0)
+    {
+        code += "a" + Model.Position;
+    }
+    else
+    {
+        code += Model.Id.ToString();
+    }
+    var searchclass = "edit-control dosage-control";
+
+
+    code += "_";
+    var idDosage = code + "Dosage";
+    var idDosageMeasureTypeId = code + "DosageMeasureTypeId";
+    var idConcentrationRu = code + "ConcentrationRu";
+    var idConcentrationKz = code + "ConcentrationKz";
+    var idBestBefore = code + "BestBefore";
+    var idBestBeforeMeasureTypeDicId = code + "BestBeforeMeasureTypeDicId";
+    var idAppPeriodOpen = code + "AppPeriodOpen";
+    var idAppPeriodOpenMeasureDicId = code + "AppPeriodOpenMeasureDicId";
+    var idAppPeriodMix = code + "AppPeriodMix";
+    var idAppPeriodMixMeasureDicId = code + "AppPeriodMixMeasureDicId";
+    var idSaleTypeId = code + "SaleTypeId";
+    var tabguid = Guid.NewGuid();
+    var tab1 = tabguid + "tab1";
+    var tab1b = "#" + tabguid + "tab1";
+    var tab2 = tabguid + "tab2";
+    var tab2b = "#" + tabguid + "tab2";
+    var tab3 = tabguid + "tab3";
+    var tab3b = "#" + tabguid + "tab3";
+
+    var divId = "subDiv_" + Model.Id;
+    var idRecord = "";
+    var indexRecord = Model.Position.ToString();
+    var codeRecord = "";
+    if (Model.Id > 0)
+    {
+        codeRecord = "ExpDrugDosages[" + @indexRecord + "].";
+        idRecord = Model.Id.ToString();
+    }
+    var titleBoby = "Дозировка";
+    if (!string.IsNullOrEmpty(Model.RegNumber))
+    {
+        titleBoby += " (Заявка № " + Model.RegNumber + ")";
+    }
+    if (!string.IsNullOrEmpty(Model.ReestrNumber))
+    {
+        titleBoby += " - ( № рег. удостоверения: " + Model.ReestrNumber + ")";
+    }
+
+}
+<div class="panel panel-success dosage-group" id="@divId" rowid="@idRecord" rowindex="@indexRecord">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a class="lotLihk" onclick="toogleDosagePangel(this)">@titleBoby</a>
+            <!--   <a style="float: right" class="glyphicon glyphicon-remove" onclick="removeDosagePanel(this)"></a>-->
+        </h4>
+        
+    </div>
+    @if (Model.Id == -1)
+    {
+        Model.ExpDrugWrappings = new List<EXP_DrugWrapping> { new EXP_DrugWrapping() { Id = -1 } };
+        Model.ExpDrugSubstances = new List<EXP_DrugSubstance> { new EXP_DrugSubstance() { Id = -1 } };
+        Model.ExpDrugPrices = new List<EXP_DrugPrice>();
+    }
+    <div class="panel-body divpanel">
+        <div class="tabs-container">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="@tab1b">Общие сведения</a></li>
+                <li class=""><a data-toggle="tab" href="@tab2b">Упаковки</a></li>
+                <li class=""><a data-toggle="tab" href="@tab3b">Полный качественный и количественный состав</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="@tab1" class="tab-pane active">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Дозировка/концентрация (заполняется при наличии, объем заполняется в упаковке)
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Количество</label>
+                                            <div class="input-group">
+                                                @Html.TextBox(@codeRecord + "Dosage", Model.Dosage, new { @class = "edit-control dosage-control form-control", id = idDosage, typeField = "float", placeholder = "Введите значение" })
+                                                <span class="input-group-addon">
+                                                    <a class="commentDialog" href="#">
+                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Единица измерения</label>
+                                            <div class="input-group">
+                                                @Html.DropDownList(@codeRecord + "DosageMeasureTypeId", (IEnumerable<SelectListItem>
+                                                    )(ViewData["MeasureList" + idRecord]), String.Empty, new { @class = "form-control edit-control dosage-control", id = idDosageMeasureTypeId })
+                                                <span class="input-group-addon">
+                                                    <a class="commentDialog" href="#">
+                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Концентрация (на рус)</label>
+                                            <div class="input-group">
+                                                @Html.TextBox(@codeRecord + "ConcentrationRu", Model.ConcentrationRu, new { @class = "edit-control dosage-control form-control", id = idConcentrationRu, placeholder = "Введите значение" })
+                                                <span class="input-group-addon">
+                                                    <a class="commentDialog" href="#">
+                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Концентрация (на каз)</label>
+                                            <div class="input-group">
+                                                @Html.TextBox(@codeRecord + "ConcentrationKz", Model.ConcentrationKz, new { @class = "edit-control dosage-control form-control", id = idConcentrationKz, placeholder = "Введите значение" })
+
+
+                                                <span class="input-group-addon">
+                                                    <a class="commentDialog" href="#">
+                                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        Форма отпуска в стране заявителя
+                        <div class="input-group">
+                            @Html.DropDownList(@codeRecord + "SaleTypeId", (IEnumerable<SelectListItem>)(ViewData["SaleTypeList" + idRecord]),
+                                String.Empty,
+                                new
+                                {
+                                    @class = "form-control edit-control dosage-control",
+                                    id = idSaleTypeId
+                                })
+                            <span class="input-group-addon">
+                                <a class="commentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Срок хранения лекарственного средства
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <p>Предлагаемый срок хранения</p>
+
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.TextBox(@codeRecord + "BestBefore", Model.BestBefore, new { @class = "form-control edit-control  dosage-control", placeholder = "Введите значение", id = idBestBefore })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.DropDownList(@codeRecord + "BestBeforeMeasureTypeDicId", (IEnumerable<SelectListItem>)(ViewData["BestBeforeMeasureTypeList" + idRecord]),
+                        String.Empty,
+                        new
+                        {
+                            @class = "form-control edit-control  dosage-control",
+                            id = idBestBeforeMeasureTypeDicId
+                        })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>Предлагаемый период применения (после первого вскрытия контейнера)</p>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.TextBox(@codeRecord + "AppPeriodOpen", Model.AppPeriodOpen, new
+                                              {
+                                                  @class = "form-control edit-control  dosage-control",
+                                                  placeholder = "Введите значение",
+                                                  id = idAppPeriodOpen
+                                              })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.DropDownList(@codeRecord + "AppPeriodOpenMeasureDicId", (IEnumerable<SelectListItem>)(ViewData["AppPeriodOpenMeasureList" + idRecord]),
+                                    String.Empty,
+                                    new
+                                    {
+                                        @class = "form-control edit-control  dosage-control",
+                                        id = idAppPeriodOpenMeasureDicId
+                                    })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>Предлагаемый период применения (после растворения или разведения)</p>
+
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.TextBox(@codeRecord + "AppPeriodMix", Model.AppPeriodMix, new { @class = "form-control edit-control  dosage-control", placeholder = "Введите значение", id = idAppPeriodMix })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    @Html.DropDownList(@codeRecord + "AppPeriodMixMeasureDicId", (IEnumerable<SelectListItem>)(ViewData["AppPeriodMixMeasureList" + idRecord]),
+                                    String.Empty,
+                                    new
+                                    {
+                                        @class = "form-control edit-control  dosage-control",
+                                        id = idAppPeriodMixMeasureDicId
+                                    })
+                                                    <span class="input-group-addon">
+                                                        <a class="commentDialog" href="#">
+                                                            <i class="glyphicon glyphicon-info-sign"></i>
+                                                        </a>
+                                                    </span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div id="@tab2" class="tab-pane">
+                    @Html.Partial("~/Views/DrugDeclaration/WrappingView.cshtml", @Model)
+                    @Html.Partial("~/Views/DrugDeclaration/DrugPriceView.cshtml", @Model)
+                </div>
+                <div id="@tab3" class="tab-pane">
+                    @Html.Partial("~/Views/DrugDeclaration/SubstanceView.cshtml", @Model)
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

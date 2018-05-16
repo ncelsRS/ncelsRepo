@@ -1,0 +1,555 @@
+﻿@using PW.Ncels.Database.Constants
+@model PW.Ncels.Database.DataModel.OBK_AssessmentDeclaration
+
+@{
+    Model.CreatedDate = Convert.ToDateTime(DateTime.Now.ToShortDateString());
+}
+
+<div class="panel-body">
+    <div class="row"></div>
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group" style="margin-bottom: 5px">
+                    <div class="col-lg-8">
+                        <label>Способ проведения*</label>
+                        <div class="input-group" id="typeIds">
+                            @Html.DropDownList("TypeId", (IEnumerable<SelectListItem>)(ViewData["TypeList"]), String.Empty, new { @class = "form-control edit-control main-control", @disabled = true })
+                            <span class="input-group-addon">
+                                <a class="OBKcommentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Дата заполнения*:</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.CreatedDate, new { @class = "form-control edit-control main-control date-control", placeholder = "Введите значение" })
+                            <span class="input-group-addon">
+                                <a class="OBKcommentDialog" href="#">
+                                    <i class="glyphicon glyphicon-info-sign"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-6" id="invoiceAgentDiv" style="display: block">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <label>Документы:</label>
+                <div class="form-group">
+                    <label>№ договора поставки:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceContractRu, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Договора каз.:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceContractKz, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Дата договора поставки:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceContractDate, new { @class = "form-control edit-control main-control date-control", placeholder = "Введите значение" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>№ инвойса:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceRu, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>№ инвойса на казахском языке:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceKz, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Дата инвойса:</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceDate, new { @class = "form-control edit-control main-control date-control", placeholder = "Введите значение" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-body" id="radioPanel" style="display:none;">
+                <div class="input-group">
+                    <input type="checkbox" id="DomesticProducer" checked="@Model.DomesticProducer" class="domestic-producer main-control" name="DomesticProducer"> <span>Отечественный товаропроизводитель</span>
+                    <br><label id="ActCondition-label">Условия хранения</label>
+                </div>
+                <div class="input-group">
+                    <fieldset>
+                        <input type="radio" name="KfSelection" checked="@Model.KfSelection" class="sel-radio main-control" id="KfSelection" style="margin-left: 20px;"> Отбор образцов осуществлен представителем КФ
+                        <br>
+                        <input type="radio" name="GDPItself" checked="@Model.GDPItself" class="sel-radio main-control" id="GDPItself" style="margin-left: 20px;"> Склад, сертифицированный сертификатом GDP<br> <span style="margin-left: 20px;">(GMP только для отечественного производителя)</span>
+                        <br>
+                        <input type="radio" name="OBKApplicantParty" checked="@Model.OBKApplicantParty" class="sel-radio main-control" id="OBKApplicantParty" style="margin-left: 20px;"> Отбор экспертом УОБиК
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <label id="invoiceAgentLabel">Представитель:</label>
+                <div class="form-group">
+                    <label id="surnameLabel">Фамилия*</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceAgentLastName, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="nameLabel">Имя*</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceAgentFirstName, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Отчество</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceAgentMiddelName, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="positionLabel">Должность*</label>
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.InvoiceAgentPositionName, new { @class = "form-control edit-control main-control" })
+                        <span class="input-group-addon">
+                            <a class="OBKcommentDialog" href="#">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var type = $("#TypeId").val();
+        if (type === "1") {
+            document.getElementById('invoiceAgentDiv').style.display = "none";
+        }
+
+        if ('@Model.GDPItself' == 'True'){
+            activateGDPPane();
+        }
+
+        if ('@Model.KfSelection' == 'True'){
+            activateACTSelectionsPane();
+        }
+
+
+    });
+
+
+
+    $("#OBKSaAttachBtn").click(function () {
+        checkGDPDocs();
+
+    });
+
+    var first = true;
+
+    function resertFirst(){
+        first = false;
+    }
+
+    function checkGDPDocs() {
+        if(first){
+            if ('@Model.GDPItself' == 'True'){
+                showGDPDocs();
+                hideActSelectionDocs();
+            }
+
+            if ('@Model.DomesticProducer' == 'True'){
+                hideDomesticDocs();
+            }
+
+            if ('@Model.KfSelection' == 'True'){
+                hideGDPDocs();
+                showActSelectionDocs();
+            }
+        }
+
+        if ($('#GDPItself').is(':checked') == false && $('#OBKApplicantParty').is(':checked') == false
+            && $('#KfSelection').is(':checked') == false ){
+                hideAllActDocs();
+        }
+        resertFirst();
+    }
+
+    function activateGDPPane() {
+
+        $('#li-tab-5').css('display', 'inline');
+        $('#tab-5').removeClass('invisible');
+
+            $.ajax({
+                url: "/SafetyAssessment/ActReception?id=" + '@Model.Id',
+                success: function (result) {
+                    // refreshes partial view
+                    $('#tab-5').html(result);
+                    initActControl();
+                        $.ajax({
+                            processData: false,
+                            type: "POST",
+                            url: '/SafetyAssessment/GetSamples?id=' + $("#ContractId").val(),
+                            dataType: 'json',
+                            cache: false,
+                            success: function (data) {
+                                if (data.isSuccess) {
+                                    initSamplesTable(data);
+                                    initActTableControl();
+
+                             if (showOnly) {
+                                setReadOnlyControl();
+                            }
+                        }
+                    },
+               error: function (e) {
+                alert("Connection Failed. Please Try Again", e);
+                }
+                });
+                }
+            });
+
+    }
+
+    function activateACTSelectionsPane() {
+
+        $('#li-tab-6').css('display','inline');
+        $('#tab-6').removeClass('invisible');
+
+            $.ajax({
+                url: "/SafetyAssessment/ActSelection?id=" + '@Model.Id',
+                success: function (result) {
+                    // refreshes partial view
+                    $('#tab-6').html(result);
+                    initActControl();
+                        $.ajax({
+                            processData: false,
+                            type: "POST",
+                            url: '/SafetyAssessment/GetSamples?id=' + $("#ContractId").val(),
+                            dataType: 'json',
+                            cache: false,
+                            success: function (data) {
+                                if (data.isSuccess) {
+                                    initSamplesTable(data);
+                                    initActTableControl();
+
+                             if (showOnly) {
+                                setReadOnlyControl();
+                            }
+                        }
+                    },
+               error: function (e) {
+                alert("Connection Failed. Please Try Again", e);
+                }
+                });
+                }
+            });
+
+    }
+
+    function initSamplesTable(data){
+         $("#samples").DataTable({
+                        autoWidth: false,
+                        searching: false,
+                        paging: false,
+                        bInfo: false,
+                        data: data.data,
+                        "columns": [
+                            { data: 'name', sWidth: "50px",title:"Наименование образцов предьявленной продукции"},
+                            { data: 'measure', sWidth: "20px",title:"Ед. измерения"},
+                         { data: 'serie', sWidth: "20px",title:"Номер партии"},
+                         { data: 'serieParty', sWidth: "50px",title:"Размер партии"},
+                         { data: 'seriesStartDate', sWidth: "50px",title:"Дата изготовления"},
+                         { data: 'seriesEndDate', sWidth: "50px", title: "Срок годности" },
+                         { data: 'producerName', sWidth: "50px", title: "Производитель" },
+                         {
+                             data: 'quantity', sWidth: "150px", title: "Кол-во отобранных образцов продукции",
+                             render: function (data, type, row, meta) {
+                                 var res = "<input type='text' class='act-table-control act-input-control' id='Quantity' data-serieId='" + row.serieId
+                                     + "' value='" + handleQuantity(row.quantity)
+                                     + "'  style='width:30px; float: left; height: 34px;' >  <div style='width:auto;' id='" + row.serieId + "'> </div>";
+                                 getSelectBox(row.serieId, row.measureId);
+                                 return res;
+                             }
+                         },
+                        ]
+                });
+
+    }
+
+    $("#GDPItself").click(function () {
+
+        $('#KfSelection').attr('checked', false);
+        $('#OBKApplicantParty').attr('checked', false);
+        showGDPDocs();
+        hideActSelectionDocs();
+        $('#tab-6').html("");
+        $('#li-tab-6').css('display','none');
+        activateGDPPane();
+    });
+
+    $("#KfSelection").click(function () {
+        $('#GDPItself').attr('checked', false);
+        $('#OBKApplicantParty').attr('checked', false);
+        $('#tab-5').html("");
+        $('#li-tab-5').css('display', 'none');
+
+        hideGDPDocs();
+        showActSelectionDocs();
+        activateACTSelectionsPane();
+    });
+
+    $("#OBKApplicantParty").click(function () {
+
+        $('#KfSelection').attr('checked', false);
+        $('#GDPItself').attr('checked', false);
+        hideActSelectionDocs();
+        hideGDPDocs();
+        $('#tab-6').html("");
+        $('#li-tab-6').css('display', 'none');
+        $('#tab-5').html("");
+        $('#li-tab-5').css('display', 'none');
+
+    });
+
+    var showOnly = false
+
+    function getSelectBox(serieId, _measureId) {
+        $.ajax({
+            type: "POST",
+            url: "/SafetyAssessment/MeasureSelect",
+            data: { measureId: _measureId},
+            success: function (data) {
+                $("#" + serieId).html(data);
+                initActTableControlById(serieId, _measureId);
+                if(showOnly){
+                    $('.act-table-control').attr('disabled', 'disabled');
+                    $('.act-table-cont').attr('disabled', 'disabled');
+                }
+            },
+            error: function () {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    }
+
+    function handleQuantity(quantity) {
+        return quantity == null ? '' : quantity;
+    }
+
+    function initActControl() {
+        $(".act-control").change(function () {
+            var controlId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+            if ($(this).hasClass("chzn-select") && fieldValue != null && fieldValue.length > 0) {
+                fieldValue = fieldValue.join(',');
+            }
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+            UpdateModel("act", null, null, controlId, fieldValue, type, fieldDisplay, $("#ActReceptionId").val());
+        });
+
+                $("#ActDate").datepicker({
+                        dateFormat: 'dd.mm.yy',
+                        language: 'ru',
+                        autoclose: true
+                    });
+    }
+    function initActTableControlById(serieId, measureId) {
+        $(".act-table-control-" + measureId).change(function () {
+            var controlId = $(this).attr('id');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+            if ($(this).hasClass("chzn-select") && fieldValue != null && fieldValue.length > 0) {
+                fieldValue = fieldValue.join(',');
+            }
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+
+            UpdateModel("act-series", serieId, null, controlId, fieldValue, type, fieldDisplay);
+        });
+    }
+
+    function initActTableControl() {
+        $(".act-table-control").change(function () {
+            var controlId = $(this).attr('id');
+            var recordId = $(this).attr('data-serieId');
+            var type = "string";
+            if ($(this).attr('typeField') != null) {
+                type = $(this).attr('typeField');
+            }
+            var fieldDisplay = $(this).val();
+            var fieldValue = $(this).val();
+
+            if ($(this).is("select")) {
+                fieldDisplay = $(this).find('option:selected').text();
+            }
+            if ($(this).hasClass("chzn-select") && fieldValue != null && fieldValue.length > 0) {
+                fieldValue = fieldValue.join(',');
+            }
+            if ($(this).hasClass("select2-offscreen") && $(this).select2('data') != null) {
+                fieldDisplay = $(this).select2('data').text;
+            }
+
+            UpdateModel("act-series", recordId, null, controlId, fieldValue, type, fieldDisplay);
+        });
+
+        $("#ActDate").datepicker({
+            dateFormat: 'dd.mm.yy',
+            language: 'ru',
+            autoclose: true
+        });
+    }
+
+    $("#DomesticProducer").click(function () {
+        if (this.checked) {
+            hideDomesticDocs();
+        } else {
+            showDomesticDocs();
+        }
+    });
+
+    function hideDomesticDocs() {
+        $('a[name=5b514478-0d32-4b5a-8583-8f7454c586b1]').closest('tr').hide();
+        $('a[name=86a2fc65-191e-434c-9284-24003e6f8aa1]').closest('tr').hide();
+
+        //Накладная, счет-фактура или инвойс
+        $('a[name=86a2fc65-191e-434c-9284-24003e6f8aa1]').parent().parent().children().eq(0).attr("attcode", "2");
+        //Сертификат происхождения продукции
+        $('a[name=5b514478-0d32-4b5a-8583-8f7454c586b1]').parent().parent().children().eq(0).attr("attcode", "2");
+    }
+
+    function showDomesticDocs() {
+        $('a[name=5b514478-0d32-4b5a-8583-8f7454c586b1]').closest('tr').show();
+        $('a[name=86a2fc65-191e-434c-9284-24003e6f8aa1]').closest('tr').show();
+
+        //Накладная, счет-фактура или инвойс
+        $('a[name=86a2fc65-191e-434c-9284-24003e6f8aa1]').parent().parent().children().eq(0).attr("attcode", "1");
+        //Сертификат происхождения продукции
+        $('a[name=5b514478-0d32-4b5a-8583-8f7454c586b1]').parent().parent().children().eq(0).attr("attcode", "1");
+    }
+
+    function hideGDPDocs() {
+        $('a[name=8705ee0d-06aa-48f5-a4e2-0f22cf1fcfc2]').closest('tr').hide();
+        //Договор аренды / Сертификат GDP
+        $('a[name=8705ee0d-06aa-48f5-a4e2-0f22cf1fcfc2]').parent().parent().children().eq(0).attr("attcode", "2");
+
+        $('a[name=39f28edb-9f52-4dfc-adff-b0f9d7c61a61]').closest('tr').hide();
+        //Договор аренды / Сертификат GDP
+        $('a[name=39f28edb-9f52-4dfc-adff-b0f9d7c61a61]').parent().parent().children().eq(0).attr("attcode", "2");
+    }
+
+    function showGDPDocs() {
+        $('a[name=8705ee0d-06aa-48f5-a4e2-0f22cf1fcfc2]').closest('tr').show();
+        //Договор аренды / Сертификат GDP
+        $('a[name=8705ee0d-06aa-48f5-a4e2-0f22cf1fcfc2]').parent().parent().children().eq(0).attr("attcode", "1");
+
+        $('a[name=39f28edb-9f52-4dfc-adff-b0f9d7c61a61]').closest('tr').show();
+        //Акт приема-передачи
+        $('a[name=39f28edb-9f52-4dfc-adff-b0f9d7c61a61]').parent().parent().children().eq(0).attr("attcode", "1");
+
+    }
+
+    function hideActSelectionDocs() {
+        $('a[name=54f4bbdd-eee8-4cbd-a789-8df86ea141c7]').closest('tr').hide();
+        //Акт отбора
+        $('a[name=54f4bbdd-eee8-4cbd-a789-8df86ea141c7]').parent().parent().children().eq(0).attr("attcode", "2");
+    }
+
+    function showActSelectionDocs() {
+        $('a[name=54f4bbdd-eee8-4cbd-a789-8df86ea141c7]').closest('tr').show();
+        //Акт отбора
+        $('a[name=54f4bbdd-eee8-4cbd-a789-8df86ea141c7]').parent().parent().children().eq(0).attr("attcode", "1");
+    }
+
+    if ('@Model.ContractId' != '' && $("#TypeId").val() == 2){
+        $("#radioPanel").css('display', 'inline');
+    }
+
+    function hideAllActDocs() {
+        $('a[name=8705ee0d-06aa-48f5-a4e2-0f22cf1fcfc2]').closest('tr').hide();
+        $('a[name=39f28edb-9f52-4dfc-adff-b0f9d7c61a61]').closest('tr').hide();
+        $('a[name=54f4bbdd-eee8-4cbd-a789-8df86ea141c7]').closest('tr').hide();
+    }
+
+</script>

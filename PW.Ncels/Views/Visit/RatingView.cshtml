@@ -1,0 +1,142 @@
+﻿@using PW.Ncels.Models.Visit;
+@model VisitRatingModel
+@{
+    //Layout = "../Shared/_Layout.cshtml";
+    var cc = Model.Comment;
+}
+<div id="visitRatingValue" style="width: 450px;
+    margin-left: auto;
+    margin-right: auto;">
+    <div class="row">
+        <label style="float: left;padding-left: 15px;">Оценка</label>
+        <div class="col-md-12 col-sm-12">
+            <div id="reviewStars-input">
+                <input id="star-4" type="radio" name="reviewStars" value="5"/>
+                <label title="gorgeous" for="star-4"></label>
+
+                <input id="star-3" type="radio" name="reviewStars"  value="4"/>
+                <label title="good" for="star-3"></label>
+
+                <input id="star-2" type="radio" name="reviewStars" value="3" />
+                <label title="regular" for="star-2"></label>
+
+                <input id="star-1" type="radio" name="reviewStars" value="2" />
+                <label title="poor" for="star-1"></label>
+
+                <input id="star-0" type="radio" name="reviewStars" value="1" />
+                <label title="bad" for="star-0"></label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <label style="float: left;padding-left: 15px;">Комментарий</label>
+        <div class="col-md-12 col-sm-12">
+            <textarea rows="10" cols="45" id="visitRatingComment" style="width: 100%" value="@Model.Comment">@Model.Comment</textarea>
+        </div>
+    </div>
+    <button class="btn btn-info" onclick="RatingSave()">сохранить</button>
+    <button class="btn btn-default" onclick="$('.ui-dialog-titlebar-close').click()">отмена</button>
+</div>
+<script>
+    
+    function RatingSave() {
+        var visitId = '@Model.VisitId';
+        var comment = $('#visitRatingValue #visitRatingComment').val();
+        var value = $('#visitRatingValue input[name=reviewStars]:checked').val();
+        if (value == null || value == undefined) {
+            ShowAlert('Внимание!', 'Выберите оценку', window.AlertType.Warning, 3000);
+            return;
+        }
+        console.log('SaveRatingValue');
+        $.ajax({
+            type: 'POST',
+            url: "/Visit/SaveRatingValue",
+            data: { visitId: visitId, value: value, comment: comment },
+            success: function (result) {
+                if (result.success == false) {
+                    ShowAlert('Внимание!', result.message, window.AlertType.Warning, 3000);
+                }
+                else {
+                    window.ShowAlert('Успех!', "Оценка успешно оставлена", window.AlertType.Success, 2000);
+                    setTimeout(function () {
+                        window.location.href = '/Visit/Index';
+                    }, 1500);
+                }
+            },
+            error: function () {
+                ShowAlert('Ошибка!', window.commonErrorMessage, window.AlertType.Error, 3000);
+            }
+        });
+    }
+</script>
+<style>
+    #reviewStars-input input:checked ~ label, #reviewStars-input label, #reviewStars-input label:hover, #reviewStars-input label:hover ~ label {
+  background: url('../../Content/img/rating-star.png') no-repeat;
+}
+
+#reviewStars-input {
+  
+  /*fix floating problems*/
+  overflow: hidden;
+  *zoom: 1;
+  /*end of fix floating problems*/
+  
+  position: relative;
+  float: left;
+}
+
+#reviewStars-input input {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  
+  width: 43px;
+  height: 40px;
+  
+  position: absolute;
+  top: 0;
+  z-index: 0;
+}
+
+#reviewStars-input input:checked ~ label {
+  background-position: 0 -40px;
+  height: 40px;
+  width: 43px;
+}
+
+#reviewStars-input label {
+  background-position: 0 0;
+  height: 40px;
+  width: 43px;
+  float: right;
+  cursor: pointer;
+  margin-right: 10px;
+  
+  position: relative;
+  z-index: 1;
+}
+
+#reviewStars-input label:hover, #reviewStars-input label:hover ~ label {
+  background-position: 0 -40px;
+  height: 40px;
+  width: 43px;
+}
+
+#reviewStars-input #star-0 {
+  left: 0px;
+}
+#reviewStars-input #star-1 {
+  left: 53px;
+}
+#reviewStars-input #star-2 {
+  left: 106px;
+}
+#reviewStars-input #star-3 {
+  left: 159px;
+}
+#reviewStars-input #star-4 {
+  left: 212px;
+}
+#reviewStars-input #star-5 {
+  left: 265px;
+}
+</style>

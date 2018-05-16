@@ -1,0 +1,26 @@
+﻿@model Guid
+
+@{
+    Layout = null;
+}
+
+<div class="pwPage">
+    @(Html.Kendo().Grid<PW.Ncels.Database.DataModel.ExtensionExecution>()
+                .Name("gridExtensionExecution" + Model)
+        .Columns(columns => {
+
+            columns.Bound(p => p.ExecutionDate).Title(PW.Ncels.Database.Recources.Messages.Property_Срокисполнения_156__00).Format("{0:dd.MM.yyyy}").Width(100);
+            columns.Bound(p => p.AutorValue).Title(PW.Ncels.Database.Recources.Messages.Property_Автор_374__00).Width(100);
+            columns.Bound(p => p.Text).Title(PW.Ncels.Database.Recources.Messages.Property_Основание_293__00).Width(100);
+        })
+        .Reorderable(reorderable => reorderable.Columns(false))
+        .Resizable(resizable => resizable.Columns(true))
+        .Scrollable(scrollable => scrollable.Virtual(true))
+        .HtmlAttributes(new { @class = "pwGridHistory" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+                    .Sort(sort => sort.Add("CreatedDate"))
+            .Model(model => model.Id(p => p.Id))
+                    .Read(read => read.Action("GetExtensionExecution", "History", new { id = Model }))
+        ))
+</div>

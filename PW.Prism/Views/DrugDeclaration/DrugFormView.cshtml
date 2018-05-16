@@ -1,0 +1,129 @@
+﻿@using System.Globalization
+@using PW.Ncels.Database.Recources
+@model PW.Ncels.Database.DataModel.EXP_DrugDeclaration
+@{
+    var drugFormText = "";
+    var drugform_kz = "";
+    var drugform_ru = "";
+    if (Model.sr_dosage_forms != null)
+    {
+        drugFormText = Model.sr_dosage_forms.name + "/" + Model.sr_dosage_forms.name_kz;
+        drugform_kz = Model.sr_dosage_forms.name;
+        drugform_ru = Model.sr_dosage_forms.name_kz;
+    }
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Лекарственная форма
+    </div>
+    <div class="panel-body" >
+        <div>
+            <div class="input-group">
+<input class="form-control edit-control" type="text" readonly="readonly" id="DrugFormId" name="DrugFormId" value="@drugFormText">
+                    <span class="input-group-addon">
+                        <a class="commentDialog" href="#">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px; margin-bottom: 10px">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label for="name" class="col-lg-3">На государственном языке:</label>
+                        <div class="col-lg-9">
+                            <div class="input-group">
+                                <input class="form-control edit-control" type="text" readonly="readonly" id="drugform_kz" value="@drugform_kz">
+                                <span class="input-group-addon">
+                                    <a class="commentDialog" href="#">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px; ">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label for="name" class="col-lg-3">На русском языке:</label>
+                        <div class="col-lg-9">
+                            <div class="input-group">
+                                <input class="form-control edit-control" type="text" readonly="readonly" id="drugform_ru" value="@drugform_ru">
+                                <span class="input-group-addon">
+                                    <a class="commentDialog" href="#">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+
+
+                var attendeeUrl = '@Url.Action("SelectDrugForm")';
+                var pageSize = 20;
+                $('#DrugFormId').select2(
+                {
+                    placeholder: 'Введите часть слова',
+                    minimumInputLength: 3,
+                    allowClear: true,
+                    ajax: {
+                        quietMillis: 150,
+                        url: attendeeUrl,
+                        dataType: 'jsonp',
+                        data: function(term, page) {
+                            return {
+                                pageSize: pageSize,
+                                pageNum: page,
+                                searchTerm: term
+                            };
+                        },
+                        results: function(data, page) {
+                            var more = (page * pageSize) < data.Total;
+                            return { results: data.Results, more: more };
+                        }
+                    }
+                }).on("change",
+                    function(e) {
+                        var val = e.val;
+                        if (val == null || val.length === 0) {
+                            $("#drugform_kz").val("");
+                            $("#drugform_ru").val("");
+                            return;
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetDrugFormNames")',
+                            data: { 'id': val },
+                            dataType: 'json',
+                            cache: false,
+                            success: function(data) {
+                                if (data.isSuccess) {
+                                    $("#drugform_kz").val(data.nameKz);
+                                    $("#drugform_ru").val(data.nameRu);
+                                } else {
+                                    $("#drugform_kz").val("");
+                                    $("#drugform_ru").val("");
+                                }
+                            },
+                            error: function() {
+                                alert("Connection Failed. Please Try Again");
+                            }
+                        });
+
+                    });
+                if ("@drugFormText" != "") {
+                    $("#DrugFormId").select2("data", { id: "@Model.DrugFormId", text: "@drugFormText" });
+                }
+            });
+        </script>
+    }

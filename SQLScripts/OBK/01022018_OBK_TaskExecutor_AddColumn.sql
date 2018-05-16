@@ -1,0 +1,1 @@
+﻿  ALTER TABLE OBK_TaskExecutor ADD IsCompleted BIT DEFAULT(NULL)

@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "../Shared/_Layout.cshtml";
+}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Все</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="@Url.Action("Index", "Home")">Домашняя страница</a>
+            </li>
+            <li>
+                <a>Почта</a>
+            </li>
+            <li class="active">
+                <strong>Написать письмо</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="correspondenceSend">
+    <div class="row">
+        <div class="col-lg-12">
+            <div>
+                <button type="button" onclick="location.href = '@Url.Action("Index", "Correspondence")'" class="btn btn-primary">Все письма</button>
+                <button type="button" onclick="location.href = '@Url.Action("Outgoing", "Correspondence")'" class="btn btn-primary">Отправленные</button>
+                <button type="button" onclick="location.href = '@Url.Action("Income", "Correspondence")'" class="btn btn-primary">Входящие</button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>
+                        Написать письмо
+                    </h5>
+                    <div ibox-tools></div>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <div class="note-font btn-group">
+                        <button class="btn btn-default btn-sm" ng-if="object.StateType==0" type="button" ng-click="save()" security bp-type="project" bp-action="edit" bp-id="{{object.Id}}"><i class="fa fa-save"></i> Сохранить</button>
+                        <button class="btn btn-default btn-sm" ng-if="object.StateType==0" type="button" ng-click="send()" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-send-o"></i> Отправить в ЦОЗ</button>
+                        <button class="btn btn-default btn-sm" ng-if="object.StateType==0" type="button" ng-click="delete('@Model')" security bp-type="project" bp-action="execute" bp-id="{{object.Id}}"><i class="fa fa-trash"></i> Удалить</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="panel-body">
+                        <input type="hidden" value="@Model" id="projectId" />
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Тип</label>
+                                    <ui-select ng-model="object.ApplicantType" ui-select-selected required theme="bootstrap" ng-change="selectProjectType(object.ApplicantType)">
+                                        <ui-select-match>{{$select.selected.Name}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in ProjectType | filter: $select.search">
+                                            <div ng-bind-html="item.Name| highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Номер/ Наименование / Дата создания</label>
+                                    <ui-select ng-model="object.AnswersId" ui-select-selected required theme="bootstrap">
+                                        <ui-select-match>{{$select.selected.Number}} {{$select.selected.Name }} {{$select.selected.CreatedDate | date}}</ui-select-match>
+                                        <ui-select-choices repeat="item.Id as item in Projects | filter: $select.search">
+                                            <div ng-bind-html="item.Number + ' ' + item.Name + ' ' + item.CreatedDate | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Текст</label>
+                                    <textarea class="form-control" ng-model="object.Summary" rows="9"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <div class="panel-body">
+                                        <h3 class="m-t-none m-b">3. Вложения</h3>
+                                        <p class="text-bold">Прикрепите необходимые файлы ниже</p>
+                                        <attach-edit url="/Upload/GetAttachListEdit" type="sysAttachApplicant" path="@Model" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

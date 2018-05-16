@@ -1,0 +1,84 @@
+﻿@model PW.Ncels.Database.Models.DocumentModel
+
+
+<div id="@("loader"+ Model.Id)"></div>
+<form id="@("formReview" + Model.Id)">
+
+    <div class="pwWinTitle">
+        <div class="pwWinTitleIconSend"></div>
+        <div class="pwWinTitleText">@PW.Ncels.Database.Recources.Messages.Property_Отправитьдокументнарассмотрение_9__00 <span style="font-weight: bold" id="@("DocumenetNumber" + Model.Id)" data-bind="text: document.DisplayName"></span></div>
+    </div>
+    <div class="pwWinContent2">
+        <div class="pwWinContentLine1">
+            <div class="pwWinContentLeft2">
+                @PW.Ncels.Database.Recources.Messages.Property_Исполнитель_222__00
+            </div>
+            <div class="pwWinContentRight2">
+                <input id="@("CustomExecutorsId"+ Model.Id)" data-bind="value: document.CustomExecutorsId, events: { change: change }" data-placeholder="@PW.Ncels.Database.Recources.Messages.Property_Выберитезначение_57__00" />
+            </div>
+        </div>
+    </div>
+    <div class="pwWinFooter">
+        <button type="button" data-role="button" id="TaskJobCancel" class="k-button pwWinButton" data-bind="click: cancel">@PW.Ncels.Database.Recources.Messages.Property_Отмена_352__00</button>
+        <button type="button" data-role="button" id="TaskJob" class="k-button pwWinButton" data-bind="click: save, enabled: hasChanges">@PW.Ncels.Database.Recources.Messages.Property_Да_401__00</button>
+    </div>
+</form>
+
+<script>
+    var name = '@Model.Id';
+    var data = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)));
+    var viewModel = kendo.observable({
+        document: data,
+        hasChanges:true,
+        change: function () {
+            if (this.document.get('CustomExecutorsId') != null && this.document.get('CustomExecutorsId').length > 0) {
+                this.set('hasChanges', true);
+            } else {
+                this.set('hasChanges', false);
+            }
+        },
+        save: function(e) {
+            kendo.ui.progress($('#loader' + name), true);
+
+            var json = JSON.stringify(viewModel.get('document'));
+
+            $.ajax({
+                type: 'POST',
+                url: '/CitizenDoc/DocumentReviewConfirm',
+                contentType: 'application/json; charset=utf-8',
+                data: json,
+                success: function (result) {
+                    result = JSON.parse(result);
+                    if (result.State == true) {
+                        $("#TaskCommandWindow").data("kendoWindow").close();
+                    } else {
+                        taskActionError();
+                    }
+                },
+                complete: function () {
+                    kendo.ui.progress($('#loader' + name), false);
+                }
+            });
+        },
+        cancel: function(e) {
+            $("#TaskCommandWindow").data("kendoWindow").close();
+        }
+    });
+
+    $("#CustomExecutorsId" + name).kendoMultiSelect({
+        dataTextField: "Name",
+        dataValueField: "Id",
+        filter: "contains",
+        autoBind: false,
+        dataSource: {
+            transport: {
+                read: {
+                    url: '/Reference/AllListEmploye'
+
+                }
+            }
+        }
+    });
+
+    kendo.bind($("#formReview" + name), viewModel);
+</script>

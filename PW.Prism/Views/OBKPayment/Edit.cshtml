@@ -1,0 +1,176 @@
+﻿@model PW.Ncels.Database.DataModel.OBK_Contract
+
+
+@{
+    var invoice1c = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceNumber1C;
+    var invoice1cDate = Model.OBK_DirectionToPayments.FirstOrDefault(e => e.ContractId == Model.Id && e.IsDeleted == false)?.InvoiceDatetime1C;
+    var contract = Model.Number + (Model.StartDate != null ? " от " + Model.StartDate : "") + " " + Model.OBK_Ref_Type.NameRu;
+    var contractId = Model.Id;
+    var provider = "БИН/ИИН " + Model.Unit.Bin + " " + Model.Unit.DisplayName + " " + Model.Unit.LegalAddress;
+    var buyer = "БИН/ИИН " + Model.OBK_Declarant.Bin + " " + Model.OBK_Declarant.NameRu + " " + Model.OBK_DeclarantContact.AddressLegalRu;
+}
+<style>
+    .input-group {
+        width: 100% !important
+    }
+
+    #invoice1c #provider #contract #invoice1cDate #buyer {
+        width: 100% !important
+    }
+</style>
+
+
+
+<div class="panel panel-success">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>№ счета на оплату:</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" readonly="readonly" id="invoice1c" value="@invoice1c">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Поставщик:</label>
+                            <div class="input-group">
+                                <textarea class="form-control" readonly="readonly" rows="3" id="provider">@provider</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Договор:</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" readonly="readonly" id="contract" value="@contract">
+                                <span class="input-group-addon k-button" onclick="showContractTemplate('@contractId')">
+                                    <i class="glyphicon glyphicon-new-window"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Дата счета:</label>
+                            <div class="input-group">
+                                <input class="form-control date-control" type="text" readonly="readonly" disabled="disabled" id="invoice1cDate" value="@invoice1cDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Покупатель:</label>
+                            <div class="input-group">
+                                <textarea class="form-control" readonly="readonly" rows="3" id="buyer">@buyer</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table class="table table-striped table-bordered table-hover dataTable" dt-columns="dtColumns" dt-options="dtOptions" id="tablePayments" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setDateFormat(".date-control");
+        debugger;
+        $("#tablePayments").DataTable({
+            language: {
+                url: "/Content/json/Russian.json"
+            },
+            data: null,
+            searching: false,
+            bLengthChange: false,
+            columns: [
+                { title: "" },
+                { title: "Наименование услуги" },
+                { title: "Наименование продукции" },
+                { title: "Кол-во" },
+                { title: "Цена, тг." },
+                { title: "Сумма, тг." }
+            ]
+        });
+
+        var val = '@Model.Id';
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetContractPrice", "OBKPayment")',
+            data: { 'id': val },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (data.isSuccess) {
+                    $("#tablePayments").DataTable({
+                        language: {
+                            url: "/Content/json/Russian.json"
+                        },
+                        data: data.result,
+                        destroy: true,
+                        searching: false,
+                        iDisplayLength: 5,
+                        LengthMenu: false,
+                        bLengthChange: false,
+                        autoWidth: true,
+                        columns: [
+                            { data: "Line" },
+                            { data: "ServiceName" },
+                            { data: "ProductName" },
+                            { data: "Count" },
+                            { data: "PriceWithTax" },
+                            { data: "Price" }
+                        ]
+                    });
+                }
+            },
+            error: function() {
+                alert("Connection Failed. Please Try Again");
+            }
+        });
+    });
+
+    function showContractTemplate(contractId) {
+        var window = $("#TaskCommandWindow");
+        window.kendoWindow({
+            width: "90%",
+            height: "auto",
+            modal: true, resizable: false,
+            close: onCloseCommandWindow,
+            actions: ["Close"]
+        });
+        window.data("kendoWindow").dialogCallback = function () {
+            alert('dialogCallback');
+        };
+        //window.data("kendoWindow").gridSelectedIds = id;
+        window.data("kendoWindow").title('@contract');
+        //window.data("kendoWindow").setOptions({
+        //    width: 550,
+        //    height: 'auto'
+        //});
+        //window.data("kendoWindow").refresh('/OBKPayment/SetChiefAccountant');
+        window.data('kendoWindow').content('<object data="/OBKContract/GetContractTemplatePdf?id=@contractId&isStream=true" type="application/pdf" style="width:100%;height:550px"></object>');
+        window.data("kendoWindow").center();
+        window.data("kendoWindow").open();
+    }
+
+    function setDateFormat(control) {
+        $(control).datepicker({
+            dateFormat: 'dd.mm.yy',
+            language: 'ru',
+            autoclose: true
+        });
+    }
+</script>
