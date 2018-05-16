@@ -43,6 +43,8 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool?>("HasIin");
 
+                    b.Property<int?>("IconRecordId");
+
                     b.Property<string>("Iin");
 
                     b.Property<string>("LastName")
@@ -58,6 +60,8 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("UserType");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IconRecordId");
 
                     b.ToTable("AuthUsers");
                 });
@@ -990,6 +994,13 @@ namespace Teme.Shared.Data.Migrations
                     b.HasIndex("ContractId");
 
                     b.ToTable("UserForActions");
+                });
+
+            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUser", b =>
+                {
+                    b.HasOne("Teme.Shared.Data.Context.IconRecord")
+                        .WithMany("AuthUsers")
+                        .HasForeignKey("IconRecordId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>

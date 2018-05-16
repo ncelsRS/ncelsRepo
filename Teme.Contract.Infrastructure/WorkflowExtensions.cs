@@ -13,7 +13,7 @@ namespace Teme.Contract.Infrastructure
         {
             if (context.ExecutionPointer.Scope.Count <= level) return null;
             return context.Workflow.ExecutionPointers.Find(x =>
-                x.Id == context.ExecutionPointer.Scope.Skip(level).Take(1).First());
+                context.ExecutionPointer.Scope.Contains(x.Id) && x.EventData != null);
         }
     }
 }

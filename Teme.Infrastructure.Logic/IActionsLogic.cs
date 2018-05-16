@@ -11,6 +11,6 @@ namespace Teme.Infrastructure.Logic
     {
         Task<IEnumerable<OpenUserAction>> OpenUserActions(string workflowId);
         Task<object> Create(CreateModel createModel);
-        Task<object> PublishUserAction(string userPromt, string userOption, object value, string workflowId, string userId, IEnumerable<string> executors);
+        Task<object> PublishUserAction(string userPromt, string userOption, object value, string workflowId, string userId, IEnumerable<string> executors, Dictionary<string, bool> agreements);
     }
 }

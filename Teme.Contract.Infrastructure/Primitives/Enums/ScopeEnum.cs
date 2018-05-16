@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,5 +18,25 @@ namespace Teme.Contract.Infrastructure.Primitives.Enums
         /// Выполнение в ЦОЗ
         /// </summary>
         public const string Coz = "Coz";
+        /// <summary>
+        /// Выполнение в ДЭФ
+        /// </summary>
+        public const string Def = "Def";
+        /// <summary>
+        /// Руководитель ЦОЗ
+        /// </summary>
+        public const string CozBoss = "CozBoss";
+        /// <summary>
+        /// ЗамГенДир
+        /// </summary>
+        public const string Ceo = "Ceo";
+
+
+        public static readonly List<string> OneToMoreListScope = new List<string>()
+        {
+            Coz,
+            CozBoss,
+            Ceo
+        };
     }
 }

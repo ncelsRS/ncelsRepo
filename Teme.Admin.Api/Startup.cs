@@ -68,6 +68,7 @@ namespace Teme.Admin.Api
             app.UseRscAuth();
 
             app.UseMvc();
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
     }
 }
