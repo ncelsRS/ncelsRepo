@@ -23,14 +23,14 @@ import { ManufacturerComponent } from './manufacturer/manufacturer.component';
 import { SubjectComponent } from './subject/subject.component';
 import { AttachmentsComponent } from './attachments/attachments.component';
 import { SigningComponent } from './signing/signing.component';
-import { TestPaymentComponent } from './test-payment/test-payment.component';
+import {TestPaymentComponent} from './test-payment/test-payment.component';
 import {ContractForm} from '../../shared/reference/contract-form';
 import {Country} from '../../shared/reference/country';
 import { TextMaskModule } from 'angular2-text-mask';
 import {CalculatorServiceType} from '../../shared/reference/calculator-service-type';
 import {Calendar} from '../../shared/datepicker/calendar';
 import {IconButton} from '../../shared/icon/icon-button';
-//import {IconService} from '../../shared/icon/icon.service';
+import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 
 @NgModule({
   imports: [
@@ -61,8 +61,8 @@ import {IconButton} from '../../shared/icon/icon-button';
     Country,
     CalculatorServiceType,
     Calendar,
-    IconButton
-    //IconService
+    IconButton,
+    SmartTableButtonViewComponent
   ],
   //exports: [ExtPaymentComponent],
   providers:[
@@ -70,6 +70,9 @@ import {IconButton} from '../../shared/icon/icon-button';
       provide: PERFECT_SCROLLBAR_CONFIG,
       useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
     }
-  ]
+  ],
+  entryComponents: [
+    SmartTableButtonViewComponent,
+    ]
 })
 export class ExtPaymentModule { }

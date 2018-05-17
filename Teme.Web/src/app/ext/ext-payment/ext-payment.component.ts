@@ -1,22 +1,36 @@
 import {Component, OnInit, ViewEncapsulation, HostListener, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Routes} from '@angular/router';
+import {ExtPaymentService} from './ext-payment.service';
+import {PaymentDto} from './payment-dto';
 
 
 @Component({
-  selector: 'app-pages',
+  selector: 'app-ext-payment',
   templateUrl: './ext-payment.component.html',
   styleUrls: ['./ext-payment.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [ExtPaymentService]
 })
 export class ExtPaymentComponent implements OnInit {
   public showAllErr = false;
   type: string;
+  paymentId:string = "0";
+  paymentData:PaymentDto;
+  varplaceholder="введите значениеее1"
 
-  constructor() {
+  constructor(private route: ActivatedRoute, private paymentService: ExtPaymentService) {
     this.type = 'cost-info';
   }
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.paymentId = params.paymentId;
+      console.log('params', params);
+    });
+
+    this.paymentService.getPayment(this.paymentId).subscribe((data:PaymentDto)=> {this.paymentData = data});
+
   }
   setTab(name: string) {
     this.type = name;
@@ -24,6 +38,23 @@ export class ExtPaymentComponent implements OnInit {
   sendPaymentRequest(validate) {
     this.showAllErr = true;
   }
+  getChangeModel(){
+    let fields= {cardNumber: "333"};
+    this.changeModel(fields);
+  }
+
+  changeModel(fields:any){
+    //fields': {CardNumber: "555"}
+    var changeModelHead = ({'id': this.paymentId, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': fields});
+    this.paymentService.changeModel(changeModelHead)
+      .subscribe(
+        //(data) => console.log(data),
+        //error => console.log(error)
+      );
+  }
+
+
+
 
   onSubmit(form: FormsModule) {
     // element.all(by.tagName('app-hero-parent'))
@@ -150,6 +181,6 @@ export class ExtPaymentComponent implements OnInit {
 
 
   getTestVar(){
-    console.log(this.paymentModel.testPayment);
+    console.log("testVar", this.paymentId);
   }
 }

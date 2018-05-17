@@ -7,13 +7,13 @@ export const environment = {
   production: false,
   urls: {
     identity: 'http://localhost:9433',
-    extContract: 'http://localhost:9101',
-    admin: 'http://localhost:9121',
-    payment: 'http://localhost:60825/Payment/',
-    //reference: 'http://localhost:5121/api/reference/',
-    reference: 'http://localhost:9001/Admin/api/reference/',
-    contract: 'http://localhost:62559/Contract/',
-    //contract: 'http://localhost:9001/Contract/Contract/'
-    icon: 'http://localhost:49980/Icon/',
+    extContract: 'http://localhost:9001',
+    admin: 'http://localhost:9002',
+    payment: 'http://localhost:9003/Payment/',
+    reference: 'http://localhost:9002/api/reference/',
+    //reference: 'http://localhost:9001/Admin/api/reference/',
+    contract: 'http://localhost:9001/Contract/',
+    //contract: 'http://localhost:9001/Contract/Contract/',
+    icon: 'http://localhost:9004/Icon/',
   }
 };

@@ -16,6 +16,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
+import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 
 @NgModule({
   imports: [
@@ -38,9 +39,12 @@ import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
     ExtPayerComponent,
     ExtCertificateComponent,
     ExtManufacturActionComponent,
+    SmartTableButtonViewComponent,
+    //SafePipe
   ],
   entryComponents: [
     ExtManufacturActionComponent,
-    ExtCertificateComponent]
+    ExtCertificateComponent,
+    SmartTableButtonViewComponent]
 })
 export class ExtContractModule { }
