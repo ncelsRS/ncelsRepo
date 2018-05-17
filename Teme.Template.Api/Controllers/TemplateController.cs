@@ -18,8 +18,14 @@ namespace Teme.Template.Api.Controllers
         [HttpGet]
         public async Task<ActionResult> GetContract(int contractId)
         {
-            return File(await _templateLogic.GetContract(contractId), "application/pdf");
-            //return File(_templateLogic.GetContract(), "application/msword");
+            return File(await _templateLogic.GetContract(contractId), "application/pdf", "Договор.pdf");
+        }
+
+        [Route("GetContractStream")]
+        [HttpGet]
+        public async Task<ActionResult> GetContractStream(int contractId)
+        {
+            return new FileStreamResult(await _templateLogic.GetContract(contractId), "application/pdf");
         }
     }
 }

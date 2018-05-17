@@ -91,7 +91,8 @@ namespace Teme.Payment.Logic
             var result = await _repo.GetPayment(paymentId);
             if (result == null)
                 return null;
-            return _dtoRepo.ConvertEntityToPayment(result);
+            //return _dtoRepo.ConvertEntityToPayment(result);
+            return result;
         }
     }
 }

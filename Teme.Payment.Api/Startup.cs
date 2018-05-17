@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ using NSwag.AspNetCore;
 using Serilog;
 using Teme.Payment.Api.Startups;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace Teme.Payment.Api
 {
@@ -45,6 +48,14 @@ namespace Teme.Payment.Api
             services.AddCors();
             // Default vm template
             services.AddMvc();
+
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Ext
+            });
 
             // Add Autofac
             var containerBuilder = new Autofac.ContainerBuilder();

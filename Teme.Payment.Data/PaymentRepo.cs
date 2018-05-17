@@ -6,6 +6,7 @@ using Context = Teme.Shared.Data.Context;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Teme.Payment.Data.DTO;
 
 namespace Teme.Payment.Data
 {
@@ -43,9 +44,49 @@ namespace Teme.Payment.Data
             return await Task.Run(() => Context.Payments.Where(e => !e.isDeleted && e.ContractId == contractId));
         }
 
-        public async Task<Context.Payment> GetPayment(int id)
+        public async Task<PaymentDto> GetPayment(int id)
         {
-            return await Context.Payments.FirstOrDefaultAsync(e => e.Id == id);
+
+            return await Context.Payments.Where(e => e.Id == id)
+                .Select(e => new PaymentDto
+                {
+                    Id = e.Id,
+                    ApplicationAreaKz = e.ApplicationAreaKz,
+                    ApplicationAreaRu = e.ApplicationAreaRu,
+                    AppointmentKz = e.AppointmentKz,
+                    AppointmentRu = e.AppointmentRu,
+                    CardNumber = e.CardNumber,
+                    ChangesMade = e.ChangesMade,
+                    ClassRisk = e.ClassRisk,
+                    ContractForm = e.ContractForm,
+                    ContractId = e.ContractId,
+                    IsBlank = e.IsBlank,
+                    IsClosedSystem = e.IsClosedSystem,
+                    IsDiagnostics = e.IsDiagnostics,
+                    IsMeasures = e.IsMeasures,
+                    IsPresenceMedicinalProduct = e.IsPresenceMedicinalProduct,
+                    IsStyryl = e.IsStyryl,
+                    IsTypeImnMt = e.IsTypeImnMt,
+                    NameKz = e.NameKz,
+                    NameRu = e.NameRu,
+                    NumberModificationImn = e.NumberModificationImn,
+                    RationaleManufacturer = e.RationaleManufacturer,
+                    RevisionBeforeChanges = e.RevisionBeforeChanges,
+                    TradeName = e.TradeName,
+                    PaymentEquipmentDtos = e.PaymentEquipments.Select(x => new PaymentEquipmentDto
+                    {
+                        Code = x.Code,
+                        CountryId = x.CountryId,
+                        EquipmentTypeId = x.EquipmentTypeId,
+                        Manufacturer = x.Manufacturer,
+                        Model = x.Model,
+                        Name = x.Name,
+                        PaymentId = x.PaymentId,
+                        Ref_Country = x.Ref_Country,
+                        Ref_EquipmentType = x.Ref_EquipmentType
+                    })
+                })
+                .FirstOrDefaultAsync();
         }
     }
 }

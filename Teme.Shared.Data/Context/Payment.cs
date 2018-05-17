@@ -122,6 +122,9 @@ namespace Teme.Shared.Data.Context
         /// </summary>
         public bool isDeleted { get; set; } = false;
 
+        public virtual ICollection<PaymentEquipment> PaymentEquipments { get; set; }
+        public virtual ICollection<PaymentPackaging> PaymentPackaging { get; set; }
+        public virtual ICollection<PaymentPlatform> PaymentPlatforms { get; set; }
 
     }
 }

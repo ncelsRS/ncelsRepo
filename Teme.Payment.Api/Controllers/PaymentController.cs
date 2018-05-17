@@ -12,6 +12,7 @@ using Teme.SharedApi.Controllers;
 
 namespace Teme.Payment.Api.Controllers
 {
+    [Route("api/[controller]")]
     public class PaymentController : BaseController <IPaymentLogic>
     {
         public PaymentController(IPaymentLogic logic) : base(logic)
@@ -80,7 +81,7 @@ namespace Teme.Payment.Api.Controllers
 
         [HttpGet]
         [Route("GetPaymentById")]
-        public async Task<IActionResult> GetContractById(int paymentId)
+        public async Task<IActionResult> GetPaymentById(int paymentId)
         {
             try
             {

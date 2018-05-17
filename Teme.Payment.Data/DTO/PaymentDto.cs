@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Payment.Data.DTO
@@ -110,5 +111,9 @@ namespace Teme.Payment.Data.DTO
         /// Вносимые изменения
         /// </summary>
         public string ChangesMade { get; set; }
+
+        public virtual IEnumerable<PaymentEquipmentDto> PaymentEquipmentDtos { get; set; }
+        public virtual IEnumerable<PaymentPackaging> PaymentPackaging { get; set; }
+        public virtual IEnumerable<PaymentPlatform> PaymentPlatforms { get; set; }
     }
 }
