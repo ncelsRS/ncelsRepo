@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,13 +13,14 @@ namespace WorkflowCore.Interface
 {
     public static class WorkflowHostExtensions
     {
-        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, Dictionary<string, IEnumerable<string>> ExecutorsIds = null, object data = null)
+        public static async Task PublishUserAction(this IWorkflowHost host, string actionKey, object chosenValue, Dictionary<string, IEnumerable<string>> ExecutorsIds = null, object data = null, Dictionary<string, bool> agreements = null)
         {
             UserAction eventData = new UserAction()
             {
                 OutcomeValue = chosenValue,
                 ExecutorsIds = ExecutorsIds,
-                Data = data
+                Data = data,
+                Agreements = agreements
             };
 
             await host.PublishEvent(UserTask.EventName, actionKey, eventData);

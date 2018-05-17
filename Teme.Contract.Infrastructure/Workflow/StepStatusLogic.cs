@@ -79,8 +79,8 @@ namespace Teme.Contract.Infrastructure.Workflow
             await _repo.SaveStatePolice(
                 new List<StatePolicy>{
                     new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Ext, Status = ExtContractStatus.InWork, Permission = ExtPortal.IsDeclarant },
-                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsChief },
-                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.InWork, Permission = IntPortal.IsExecutor }
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.RequiredAgreement, Permission = IntPortal.IsChief },
+                    new StatePolicy { ContractId = contract.Id, Scope = OrganizationScopeEnum.Coz, Status = IntContractStatus.RequiredAgreement, Permission = IntPortal.IsExecutor }
                 });
         }
     }

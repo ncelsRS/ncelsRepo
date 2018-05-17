@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Teme.Shared.Data.Primitives.Contract;
 
@@ -11,6 +11,7 @@ namespace Teme.Contract.Infrastructure.Primitives
         public ContractTypeEnum ContractType { get; set; }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public object Value { get; set; }
+        public Dictionary<string, bool> Agreements { get; set; }
     }
 
     public class ContractWorkflowEventData

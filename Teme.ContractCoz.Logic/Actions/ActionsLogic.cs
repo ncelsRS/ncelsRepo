@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.Contract.Logic.Clients;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 
@@ -12,24 +14,67 @@ namespace Teme.ContractCoz.Logic.Actions
 {
     public class ActionsLogic : EntityLogic, IActionsLogic
     {
-        private readonly IContractWorkflowLogic _wflogic;
-        public ActionsLogic(IEntityRepo repo, IContractWorkflowLogic wflogic) : base(repo)
+        private readonly IConfiguration _config;
+        public ActionsLogic(IEntityRepo repo, IConfiguration config) : base(repo)
         {
-            _wflogic = wflogic;
+            _config = config;
         }
 
         /// <summary>
         /// Отправка договора выбранному испольнителю ЦОЗ
         /// </summary>
-        /// <param name="dbem"></param>
         /// <returns></returns>
-        public async Task<object> DistributionByExecutors(string userPromt, string userOption, string workflowId, int userId)
+        public async Task<object> DistributionByExecutors(string workflowId, int userId)
         {
-            var actions = await _wflogic.GetUserActions(workflowId, "SelectExecutors");
-            var action = actions.FirstOrDefault(x => x.Prompt == userPromt && x.Options.ContainsKey(userOption));
-            var executorsIds = new Dictionary<string, IEnumerable<string>>() { { ScopeEnum.Coz, new[] { userId.ToString() } } };
-            var result = await _wflogic.PublishUserAction(action.Key, userOption, executorsIds);
-            return result;
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.SendToCozExecutorAsync(workflowId, userId);
+        }
+
+        /// <summary>
+        /// Согласование исполнителем ЦОЗ 
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="agree">true Согласовано, false Отказ</param>
+        /// <returns></returns>
+        public async Task<object> CozExecutorAgreementsRequest(string workflowId, bool agree)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.CozExecutorAgreementsRequestAsync(workflowId, agree);
+        }
+
+        /// <summary>
+        /// Возврат на доработку заявителю
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task<object> ReturnToDeclarant(string workflowId)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.ReturnToDeclarantAsync(workflowId);
+        }
+
+        /// <summary>
+        /// Согласование Руководителем ЦОЗ
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="agree">true Согласовано, false Отказ</param>
+        /// <returns></returns>
+        public async Task<object> CozBossAgreementsRequest(string workflowId, bool agree)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.CozBossAgreementsRequestAsync(workflowId, agree);
+        }
+
+        /// <summary>
+        /// Согласование ЗамГенДир
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <param name="agree"></param>
+        /// <returns></returns>
+        public async Task<object> CozCeoAgreementsRequest(string workflowId, bool agree)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.CozCeoAgreementsRequestAsync(workflowId, agree);
         }
     }
 }
