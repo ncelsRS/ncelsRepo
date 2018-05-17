@@ -14,6 +14,7 @@ import {IntPayerComponent} from "./int-payer/int-payer.component";
 import {IntCostComponent} from "./int-cost/int-cost.component";
 import {FileUploadModule} from "ng2-file-upload";
 
+
 const routes: Routes = [
   {
     path: 'card',

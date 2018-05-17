@@ -23,12 +23,17 @@ const routes: Routes = [
     component:IntContractComponent,
   },
   {
+    path: 'contracts/menu/:status',
+    component:IntContractComponent,
+  },
+  {
     path: 'contracts/:id',
     component:IntContractDetailComponent,
     loadChildren:'./int-contract/int-contract-detail/int-contract-detail.module#IntContractDetailModule'
   },
   {
     path: 'declarations',
+
     component:IntDeclarationComponent
   },
   {

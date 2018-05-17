@@ -71,13 +71,15 @@ export class ExtContractsComponent implements OnInit {
         renderComponent: ExtManufacturActionComponent,
         onComponentInitFunction(instance) {
           instance.view.subscribe(row => {
-            alert(`${row.id} view is work!`);
+           // this.router.navigate(['ext/contracts/6','view',row.id,1]);
+
           });
           instance.edit.subscribe(row => {
-            alert(`${row.id} edit is work!`)
+            //this.router.navigate(['ext/contracts/6','edit',row.id,1]);
+
           });
           instance.dlte.subscribe(row => {
-            alert(`${row.id} delete is work!`)
+
           });
         }
       },
@@ -103,7 +105,7 @@ export class ExtContractsComponent implements OnInit {
           console.log(response);
           this.createContractId = response;
           console.log(this.createContractId);
-          this.router.navigate(['ext/contracts/6','create',this.createContractId.id,this.createContractId.workflowId ]);
+          this.router.navigate(['ext/contracts/6','create',this.createContractId.id,this.createContractId.workflowId, contractType]);
         })
         .catch(err => {
             console.error(err);

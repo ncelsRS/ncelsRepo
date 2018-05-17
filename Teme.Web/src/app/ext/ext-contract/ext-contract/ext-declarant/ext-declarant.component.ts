@@ -32,8 +32,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   isAddBankName = false;
   selectedDeclarantDocType: string;
   levels: Array<DeclarantDocType> = [
-    {code: '0', name: 'Доверенность'},
-    {code: '1', name: 'Устав'},
+    {value: '0', name: 'Доверенность'},
+    {value: '1', name: 'Устав'},
   ]
 
   public orgFormVar;
@@ -49,9 +49,14 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   public listVarRes;
   changeModelRes:any;
   changeModelHead;
+  _isNewSubject:boolean= false;
   @Input() idContractChild:string;
   @Input() showErrors = false;
+  @Input() viewAction:string;
   @Output() onChangedManufYes = new EventEmitter<boolean>();
+
+  public phoneMask = ['+','7',' ','(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
+  public iinMask = [/\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/];
 
 
 
@@ -86,6 +91,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
       })
       .then (response => {
           this.orgFormVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.declarantOrgForm = response as number;
+            this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'OrganizationFormId': this.model.declarantOrgForm }});
           this.isAddOrgForm = false;
         }
       )
@@ -129,6 +136,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
       })
       .then (response => {
           this.bankVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.declarantBank  = response as number;
+          this.changedModelRef({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {'BankId': this.model.declarantBank }});
           console.log(res);
           this.isAddBankName = false;
         }
@@ -221,21 +230,39 @@ export class ExtDeclarantComponent  extends TemplateValidation{
       this.changeModelHead =
         ({'id': this.idContractChild, 'classname': 'Teme.Shared.Data.Context.Contract',
           'fields':
-            {'DeclarantIsManufacture': '1',
+            {'DeclarantIsManufacture': "1",
               'DeclarantId': this.model.id,
               'DeclarantDetailsId': this.model.detailId
             }
         });
-      console.log(this.changeModelHead);
-
+    }
+    else
+    {
+      this.clearModel();
+      this.changeModelHead =
+        ({'id': this.idContractChild, 'classname': 'Teme.Shared.Data.Context.Contract',
+          'fields':
+            {'DeclarantIsManufacture': "0",
+              'DeclarantId': this.model.id,
+              'DeclarantDetailsId': this.model.detailId
+            }
+        });
     }
 
   }
 
 
+
+
   onChangedModel(evnt) {
-    console.log(evnt);
-    console.log(evnt.name+" stepssssss "+evnt.value);
+
+    if(evnt.name == 'DeclarantPerpetualDoc'){
+      if (evnt.checked)
+      {
+        this.model.DeclarantDocStartDate = null;
+        this.model.DeclarantDocEndDate = null;
+      }
+    }
 
     if (evnt.name == 'NameKz' || evnt.name == 'NameRu' ||
       evnt.name == 'NameEn' || evnt.name == 'OrganizationFormId' || evnt.name == 'CountryId') {
@@ -247,26 +274,40 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
     else if (evnt.name == 'DeclarantDocWithoutNumber'||evnt.name == 'DeclarantPerpetualDoc')
     {
-      if (evnt.value=='on')
+      if (evnt.checked)
       { this.changeModelHead =
-        ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: 1}})}
+        ({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: 1}})}
         else {this.changeModelHead =
-        ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]:0}})};
+        ({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]:0}})};
 
     }
     else {
       this.changeModelHead = ({
-        'id': this.model.id,
+        'id': this.model.detailId,
         'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
       })
     }
 
 
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
-      console.log(evnt.value);
-      console.log(this.changeModelHead);
+      if(evnt.name != 'IsResident' && evnt.name != 'IdNumber')
       this.changedModelRef(this.changeModelHead);
+      if(this._isNewSubject || this.viewAction=='edit') {
+        if(evnt.name == 'IsResident')
+          this.changedModelRef({
+            'id': this.model.id,
+            'classname': 'Teme.Shared.Data.Context.Declarant',
+            'fields': {IsResident: (this.model.isDecRes == 'res') ? "1" : "0"}
+          });
+
+        if(evnt.name == 'IdNumber')
+          this.changedModelRef({
+            'id': this.model.id,
+            'classname': 'Teme.Shared.Data.Context.Declarant',
+            'fields': {'IdNumber': this.model.IdNumber}
+          });
+      }
 
     }
 
@@ -283,7 +324,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
         'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident': 0}});
     }
 
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
       console.log(this.changeModelHead);
       this.changedModelRef(this.changeModelHead);
@@ -315,7 +356,6 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   createDeclarant()
   {
     let responseData;
-    //this.idContractChild
     this.refService.AddDeclarant(this.idContractChild, 'Declarant')
       .toPromise()
       .then(response => {
@@ -324,6 +364,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
         this.model.id  = responseData.id;
         this.model.detailId  = responseData.detailId;
         this.disabledAddDetail = false;
+        this._isNewSubject = true;
         this.onChangedModelAddNewSbj();
 
       })
@@ -384,12 +425,14 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     dataArray.push(data);
 
     this.model.id = dataArray[0].id;
+    this.model.IdNumber = dataArray[0].idNumber;
+    this.model.DeclarantIsManufacture  = dataArray[0].declarantIsManufacture;
     this.model.declarantNameRu = dataArray[0].nameRu;
     this.model.declarantNameKz = dataArray[0].nameKz;
     this.model.declarantNameEn = dataArray[0].nameEn ;
     this.model.declarantOrgForm = dataArray[0].organizationFormId;
     this.model.declarantCountry = dataArray[0].countryId;
-    this.model.isRes = (dataArray[0].isResident)?'res':'unres';
+    this.model.isDecRes = (dataArray[0].isResident)?'res':'unres';
     this.model.declarantDetailId = dataArray[0].declarantDetailDto.id;
     this.model.declarantAddressLegalRu = dataArray[0].declarantDetailDto.legalAddress;
     this.model.declarantAddressFact = dataArray[0].declarantDetailDto.factAddress;
@@ -398,10 +441,10 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     this.model.declarantBossMiddleName = dataArray[0].declarantDetailDto.bossMiddleName;
     this.model.declarantBossPosition = dataArray[0].declarantDetailDto.bossPositionRu;
     this.model.declarantBossPositionKz = dataArray[0].declarantDetailDto.bossPositionKz;
-    this.model.declarantBankName = dataArray[0].declarantDetailDto.bankId;
+    this.model.declarantBank = dataArray[0].declarantDetailDto.bankName;
     this.model.declarantBankIik = dataArray[0].declarantDetailDto.bankIik;
     this.model.declarantBankSwift = dataArray[0].declarantDetailDto.bankSwift;
-    this.model.declarantCurr = dataArray[0].declarantDetailDto.currencyId;
+    this.model.declarantBankCurr = dataArray[0].declarantDetailDto.currencyId;
     this.model.declarantPhone = dataArray[0].declarantDetailDto.phone;
     this.model.manufacturPhone2 = dataArray[0].declarantDetailDto.phone2;
     this.model.declarantEmail = dataArray[0].declarantDetailDto.email;
@@ -414,10 +457,75 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
   }
 
+  clearModel()
+  {
+    this.model.id = null;
+    this.model.IdNumber = null;
+    this.model.DeclarantIsManufacture  = null;
+    this.model.declarantNameRu = null;
+    this.model.declarantNameKz = null;
+    this.model.declarantNameEn = null;
+    this.model.declarantOrgForm = null;
+    this.model.declarantCountry = null;
+    this.model.isDecRes = null;
+    this.model.declarantDetailId = null;
+    this.model.declarantAddressLegalRu = null;
+    this.model.declarantAddressFact = null;
+    this.model.declarantBossLastName= null;
+    this.model.declarantBossFirstName = null;
+    this.model.declarantBossMiddleName = null;
+    this.model.declarantBossPosition = null;
+    this.model.declarantBossPositionKz = null;
+    this.model.declarantBank = null;
+    this.model.declarantBankIik = null;
+    this.model.declarantBankSwift = null;
+    this.model.declarantBankCurr = null;
+    this.model.declarantPhone =null;
+    this.model.manufacturPhone2 = null;
+    this.model.declarantEmail =null;
+    this.model.DeclarantDocType = null;
+    this.model.DeclarantDocWithoutNumber = null;
+    this.model.DeclarantDocNumber = null;
+    this.model.DeclarantDocStartDate = null;
+    this.model.DeclarantDocEndDate = null;
+    this.model.DeclarantPerpetualDoc = null;
+
+  }
+
   onChangedModelDate(name,val){
-    this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[name]: new Date(val.year,val.month, val.day)}});
+    this.changedModelRef({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[name]: new Date(val.year,val.month, val.day)}});
     //this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {'DeclarantDocEndDate': this.model.DeclarantDocEndDate.value}});
   };
+
+  onViewChangeContract()
+  {
+    console.log("declarant="+this.model.id);
+    if (this.viewAction == 'view')
+      this.GetDeclarantById(this.model.id);
+    if (this.viewAction == 'edit') {
+      this.GetDeclarantById(this.model.id);
+      this.disabledAddDetail = false;
+    }
+
+  }
+
+  GetDeclarantById(val)
+  {
+    this.refService.GetDeclarantById(val)
+      .toPromise()
+      .then(response => {
+        this.listVarRes = response ;
+        console.log(response);
+        this.loadData(response);
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+
+  }
 
 }
 

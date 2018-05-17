@@ -35,6 +35,8 @@ export class IdentityInterceptorService implements HttpInterceptor {
             }));
         }),
         catchError(err => {
+          if (err.status)
+            return Observable.throw(err);
           return next.handle(req)
             .pipe(catchError(err => {
               if (err.status == 401)

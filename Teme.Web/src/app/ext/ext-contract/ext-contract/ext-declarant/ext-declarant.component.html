@@ -11,11 +11,14 @@
         <div class="form-group" >
           <div class="custom-control custom-radio radio-inline" >
             <input type="radio" class="custom-control-input radio-primary " name="IsResident" id="DeclarantResident"
-                   [(ngModel)]="model.isDecRes" value="res">
+                   [(ngModel)]="model.isDecRes" value="res"
+                   (change)="onChangedModel($event.target)">
+
             <label class="custom-control-label" for="DeclarantResident">Резидент РК</label>
           </div>
           <div class="custom-control custom-radio radio-inline ">
             <input type="radio" class="custom-control-input  radio-primary" name="IsResident" id="DeclarantNoResident"
+                   (change)="onChangedModel($event.target)"
                    [(ngModel)]="model.isDecRes" value="unres">
             <label class="custom-control-label" for="DeclarantNoResident">Нерезидент РК</label>
           </div>
@@ -26,8 +29,10 @@
           <div>
             <input maxlength="24" name="IdNumber"
                    class="form-control"  type="text"
-                   ng-pattern="[0-9]+" ng-minlength="12" ng-maxlength="12" ui-mask="999999999999"  placeholder="____________"
+                   [textMask] = "{mask: iinMask}"
+                   placeholder="____________"
                    #declarantBin = "ngModel"
+                   (change)="onChangedModel($event.target)"
                    [ngClass]="{'has-error':showErrors === true && declarantBin.invalid && isDecRes !== 'unres'}"
                    [(ngModel)]="model.IdNumber"
                    required>
@@ -196,7 +201,8 @@
         <div class="form-group">
           <label>Номер телефона * </label>
           <div>
-            <input name="Phone"  class="form-control"  ui-mask="+7 (999) 999-99-99"  type="text" placeholder="+7 (___) ___-__-__"
+            <input name="Phone"  class="form-control"  type="text" placeholder="+7 (___) ___-____"
+                   [textMask]="{mask: phoneMask}"
                    #declarantPhone = "ngModel"
                    [ngClass]="{'has-error':showErrors === true && declarantPhone.invalid}"
                    [(ngModel)]="model.declarantPhone"
@@ -208,7 +214,8 @@
         <div class="form-group">
           <label>Номер телефона</label>
           <div>
-            <input name="Phone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"   placeholder="+7 (___) ___-__-__"
+            <input name="Phone2"   class="form-control"  type="text"  ui-mask="+7 (999) 999-99-99"   placeholder="+7 (___) ___-____"
+                   [textMask]="{mask: phoneMask}"
                    #declarantPhone2 = "ngModel"
                    [(ngModel)]="model.declarantPhone2"
                    (change)="onChangedModel($event.target)"
@@ -382,12 +389,12 @@
                 [disabled]="disabledAddDetail"
                 [(ngModel)]="model.DeclarantDocType">
           <option></option>
-          <option *ngFor="let level of levels" [ngValue]="level.code" (click)="changeDocLevel(level)">
+          <option *ngFor="let level of levels" [value]="level.value" (click)="changeDocLevel(level)">
             {{level.name}}
           </option>
         </select>
         <br>
-        <div [hidden]="(model.DeclarantDocType !== '0' )">
+        <div *ngIf="(model.DeclarantDocType !== '0' )">
           <div class="col-lg-2">
             <div class="form-group">
               <div class="checkbox">

@@ -1,23 +1,44 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {IntContractBtnComponent} from "./int-contract-btn/int-contract-btn.component";
 import {Menu} from "../../../shared/menu/menu.model";
+import {RefIntContractService} from './int-contract-service';
+import {LocalDataSource} from 'ng2-smart-table';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-int-contract',
   templateUrl: './int-contract.component.html',
   styleUrls: ['./int-contract.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [RefIntContractService],
 })
 export class IntContractComponent implements OnInit {
   public menuItems: Array<any>;
-  public data = [{
-    number: '1321 #1223',
-    contractAddition: 'sdfg',
-    contractType: 'asd',
-    type: 'sdac', serviceType: 'sdac', sendDate: 'sdac', legal: 'sdac',
-    GV: 'sdac', DEF: 'sdac', declarant: 'sdac', productType: 'sdac',
-    name: 'sdac', startDate: 'sdac', endDate: 'sdac'
-  }];
+  public contractList=[];
+  _selectRow:string;
+  _workflowId:string;
+  _statusContract:string;
+  public isSelectRow:boolean=true;
+  public data ;
+  //   = [{
+  //   number: '1321 #1223',
+  //   contractAddition: 'sdfg',
+  //   contractType: 'asd',
+  //   type: 'sdac',
+  //   serviceType: 'sdac',
+  //   sendDate: 'sdac',
+  //   legal: 'sdac',
+  //   GV: 'sdac',
+  //   DEF: 'sdac',
+  //   declarant: 'sdac',
+  //   productType: 'sdac',
+  //   name: 'sdac',
+  //   startDate: 'sdac',
+  //   endDate: 'sdac'
+  // }];
+
+  @ViewChild(IntContractBtnComponent) intCntBtnChild:IntContractBtnComponent;
+
   public table1Settings = {
     selectMode: 'single',  //single|multi
     hideHeader: false,
@@ -37,7 +58,8 @@ export class IntContractComponent implements OnInit {
       },
       contractAddition: {
         title: 'Договор или доп соглашение',
-        type: 'string'
+        type: 'string',
+        hidden:true,
       },
       contractType: {
         title: 'Тип договора(Тип соглашения)',
@@ -94,11 +116,17 @@ export class IntContractComponent implements OnInit {
     }
   };
 
-  constructor() {
+  constructor(private refIntService: RefIntContractService, private route: ActivatedRoute) {
+
   }
 
   ngOnInit() {
+
+    this.route.params.subscribe(params => {  this._statusContract = params.status;
+      console.log(this._statusContract)
+      this.GetListContracts(this._statusContract);});
     this.menuItems = this.getMenuItems();
+
   }
 
   public onDeleteConfirm(event): void {
@@ -110,11 +138,13 @@ export class IntContractComponent implements OnInit {
   }
 
   public onRowSelect(event) {
-    // console.log(event);
+
   }
 
   public onUserRowSelect(event) {
-    //console.log(event);   //this select return only one page rows
+    this.isSelectRow = false;
+    this._selectRow = event.data.number;
+    this.getContractById();
   }
 
   public onRowHover(event) {
@@ -123,16 +153,105 @@ export class IntContractComponent implements OnInit {
 
   getMenuItems() {
     return [
-      new Menu (1, 'Не распределенные', '/pages/dashboard', null, 'tachometer', null, false, 0),
-      new Menu (2, 'В работе', '/pages/membership', null, 'users', null, false, 0),
-      new Menu (3, 'На карректировке', null, null, 'laptop', null, true, 0),
-      new Menu (4, 'Требует согдасования', '/pages/ui/buttons', null, 'keyboard-o', null, false, 3),
-      new Menu (5, 'Согласованные', '/pages/ui/cards', null, 'address-card-o', null, false, 3),
-      new Menu (6, 'Не согласованные', '/pages/ui/components', null, 'creative-commons', null, false, 3),
-      new Menu (7, 'Активные', '/pages/ui/icons', null, 'font-awesome', null, false, 3),
-      new Menu (8, 'Истекшие', '/pages/ui/list-group', null, 'th-list', null, false, 3),
-      new Menu (9, 'Все', '/pages/ui/media-objects', null, 'object-group', null, false, 3),
+      new Menu (1, 'Не распределенные', '/int/spa/contracts/menu/onDistribution', null, 'tachometer', null, false, 0),
+      new Menu (2, 'В работе', '/int/spa/contracts/menu/inWork', null, 'users', null, false, 0),
+      new Menu (3, 'На карректировке', '/int/spa/contracts/menu/onAdjustment', null, 'laptop', null, true, 0),
+      new Menu (4, 'Требует согдасования', '/int/spa/contracts/menu/requiredRegistration', null, 'keyboard-o', null, false, 3),
+      new Menu (5, 'Согласованные', '/int/spa/contracts/menu/onAgreement', null, 'address-card-o', null, false, 3),
+      new Menu (6, 'Не согласованные', '/int/spa/contracts/menu/onDistribution', null, 'creative-commons', null, false, 3),
+      new Menu (7, 'Активные', '/int/spa/contracts/menu/active', null, 'font-awesome', null, false, 3),
+      new Menu (8, 'Истекшие', '/int/spa/contracts/menu/expired', null, 'th-list', null, false, 3),
+      new Menu (9, 'Все', '/int/spa/contracts/menu/all', null, 'object-group', null, false, 3),
     ]
+  }
+
+  GetListContracts(status)
+  {
+    this.refIntService.GetListContracts(status)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.contractList.push(response);
+        this.loadContractData();
+
+        console.log(this.contractList);
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+  }
+
+  loadContractData()
+  {
+    this.data=null;
+    this.data =  new LocalDataSource();
+    console.log('contractList', this.contractList);
+    this.contractList.forEach(condata => {
+      condata.forEach(con => {
+        this.data.add({
+          number: con.id,
+          contractAddition: con.number,
+          contractType: con.contractScope,
+          type: con.contractType,
+          serviceType: 'test',//condata.serviceTypes.nameRu,
+          sendDate: 'test',
+          legal: 'test',
+          GV: 'test',
+          DEF: 'test',
+          declarant: con.declarantNameRu,
+          productType: 'test',
+          name: 'test',
+          startDate: con.startdate,
+          endDate: 'test'
+        })})
+      }
+    )
+    this.data.reset();
+
+  }
+
+  getContractById()
+  {
+    let responseData;
+    console.log(this._selectRow);
+    this.refIntService.GetContractById(this._selectRow)
+      .toPromise()
+      .then(response => {
+        responseData = response;
+        this._workflowId = responseData.workflowId;
+        console.log(response);
+
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+  }
+
+  DistributionByExecutors(selectUser)
+  {
+    let responseData;
+    this.refIntService.DistributionByExecutors(this._workflowId, selectUser)
+      .toPromise()
+      .then(response => {
+        responseData = response;
+        this._workflowId = responseData.workflowId;
+
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+  }
+
+  SelectExecuter(val)
+  {
+    this.DistributionByExecutors(val);
   }
 
 }

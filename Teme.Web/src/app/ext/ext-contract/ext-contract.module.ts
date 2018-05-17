@@ -15,6 +15,7 @@ import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
+import {TextMaskModule} from 'angular2-text-mask';
 import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 
@@ -26,6 +27,7 @@ import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-vie
     FormsModule,
     Ng2SmartTableModule,
     NgbModule.forRoot(),
+    TextMaskModule,
     RscFileModule
   ],
   declarations: [

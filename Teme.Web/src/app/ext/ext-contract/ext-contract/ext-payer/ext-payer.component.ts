@@ -37,6 +37,7 @@ export class ExtPayerComponent extends TemplateValidation {
   public disabledAddDetail=true;
   public disabledPayerDetail=true;
   @Input() idContractChild:string;
+  @Input() viewAction:string;
   @Output() onChangedManufYes = new EventEmitter<boolean>();
   @Output() onChangedDeclarantYes = new EventEmitter<boolean>();
 
@@ -44,8 +45,11 @@ export class ExtPayerComponent extends TemplateValidation {
   public  choosePayerVar;
   public items = [];
   public listVarRes;
+  _isNewSubject:boolean = false;
   changeModelHead;
   changeModelRes:any;
+
+  public iinMask = [/\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/];
 
   constructor(private refService: RefService) { super();
     this.getOrgForm();
@@ -81,6 +85,8 @@ export class ExtPayerComponent extends TemplateValidation {
       })
       .then (response => {
           this.orgFormVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.payerOrgForm = response as number;
+        this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'OrganizationFormId': this.model.payerOrgForm }});
           this.isAddOrgForm = false;
         }
       )
@@ -124,6 +130,8 @@ export class ExtPayerComponent extends TemplateValidation {
       })
       .then (response => {
           this.bankVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.payerBankName = response as number;
+          this.changedModelRef({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {'BankId': this.model.payerBankName }});
           console.log(res);
           this.isAddBankName = false;
         }
@@ -225,9 +233,19 @@ export class ExtPayerComponent extends TemplateValidation {
             }
         });
     }
-    else
+    else if(lev=='3')
     {
+      this.clearModel();
+      this.changeModelHead =
+        ({'id': this.idContractChild, 'classname': 'Teme.Shared.Data.Context.Contract',
+          'fields':
+            {'ChoosePayer': '2',
+              'PayerId': this.model.id,
+              'PayerDetailsId': this.model.detailId
+            }
+        });
       this.disabledPayerDetail = false;
+
     }
 
   }
@@ -296,16 +314,40 @@ export class ExtPayerComponent extends TemplateValidation {
     let dataArray=[];
     dataArray.push(data);
 
-    this.model.id = dataArray[0].Id;
+   // this.model.id = dataArray[0].Id;
+    this.model.isPayerRes = (dataArray[0].isResident)?'res':'unres';
+    this.model.isPayerJuridical = dataArray[0].IdJuridical;
+
+    this.model.IdNumber = dataArray[0].idNumber;
     this.model.payerOrgForm = dataArray[0].organizationFormId;
     this.model.payerNameRu = dataArray[0].nameRu;
     this.model.payerCountry = dataArray[0].countryId;
     this.model.detailId = dataArray[0].declarantDetailDto.id;
     this.model.payerAddressLegalRu = dataArray[0].declarantDetailDto.legalAddress;
-    this.model.payerBankName = dataArray[0].declarantDetailDto.bankId;
+    this.model.payerBankName = dataArray[0].declarantDetailDto.bankName;
     this.model.payerBankIik = dataArray[0].declarantDetailDto.bankIik;
     this.model.payerBankCurr = dataArray[0].declarantDetailDto.currencyId;
     this.model.declarantBankSwift = dataArray[0].declarantDetailDto.bankSwift;
+
+
+  }
+
+  clearModel()
+  {
+    this.model.id =null;
+    this.model.isPayerRes = null;
+    this.model.isPayerJuridical = null;
+
+    this.model.IdNumber =null;
+    this.model.payerOrgForm = null;
+    this.model.payerNameRu =null;
+    this.model.payerCountry = null;
+    this.model.detailId = null;
+    this.model.payerAddressLegalRu = null;
+    this.model.payerBankName = null;
+    this.model.payerBankIik = null;
+    this.model.payerBankCurr = null;
+    this.model.declarantBankSwift = null;
 
 
   }
@@ -322,7 +364,8 @@ export class ExtPayerComponent extends TemplateValidation {
         this.model.id  = responseData.id;
         this.model.detailId = responseData.detailId;
         this.disabledAddDetail = false;
-        this.onChangedModelResisdent();
+        this._isNewSubject;
+        this.onChangedModelAddNewSbj();
 
       })
       .catch (err=>
@@ -335,27 +378,13 @@ export class ExtPayerComponent extends TemplateValidation {
 
   onChangedModel(evnt) {
 
-    if (evnt.name == 'NameKz' || evnt.name == 'NameRu' || evnt.name == 'IsJuridical' ||
+    if (evnt.name == 'NameKz' || evnt.name == 'NameRu' ||
       evnt.name == 'NameEn' || evnt.name == 'OrganizationFormId' || evnt.name == 'CountryId') {
-      if (evnt.name =='IsJuridical') {
-        if (evnt.value == 'fl') {
-          this.changeModelHead =
-          ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: 1}})
-        }
-        else {
-          this.changeModelHead =
-          ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: 0}})
-        }
-        ;
-
-      }
-      else {
-        this.changeModelHead = ({
+      this.changeModelHead = ({
           'id': this.model.id,
           'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {[evnt.name]: evnt.value}
         })
       }
-    }
     else {
       this.changeModelHead = ({
         'id': this.model.detailId,
@@ -364,32 +393,30 @@ export class ExtPayerComponent extends TemplateValidation {
     }
 
 
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
-      console.log(evnt.value);
-      console.log(this.changeModelHead);
+      if(evnt.name != 'IsJuridical' && evnt.name != 'IsResident' && evnt.name != 'IdNumber')
       this.changedModelRef(this.changeModelHead);
+      if(this._isNewSubject || this.viewAction=='edit')
+        if(evnt.name == 'IsJuridical')
+          this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsJuridical':(this.model.isPayerJuridical == 'fl')?"1":"0"}});
+        if(evnt.name == 'IsResident')
+          this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident':(this.model.isPayerRes == 'res')?"1":"0"}});
+        if(evnt.name == 'IdNumber')
+          this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.IdNumber}})
 
     }
 
   }
 
-  onChangedModelResisdent() {
+  onChangedModelAddNewSbj() {
 
-    if (this.model.isPayerRes == 'res') {
-      this.changeModelHead =
-        ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident': 1}})
-    }
-    else {
-      this.changeModelHead = ({
-        'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident': 0}});
-    }
-
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
-      console.log(this.changeModelHead);
-      this.changedModelRef(this.changeModelHead);
-      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.IdNumber}});
+      console.log(this.model.isPayerJuridical);
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsJuridical':(this.model.isPayerJuridical === 'fl')?"1":"0"}});
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IsResident':(this.model.isPayerRes === 'res')?"1":"0"}});
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.IdNumber}})
     }
 
   }
@@ -411,4 +438,35 @@ export class ExtPayerComponent extends TemplateValidation {
 
   }
 
-}
+  onViewChangeContract()
+  {
+    console.log("payer="+this.model.id);
+    if (this.viewAction == 'view')
+      this.GetDeclarantById(this.model.id);
+    if (this.viewAction == 'edit') {
+      this.GetDeclarantById(this.model.id);
+      this.disabledPayerDetail = false;
+      this.disabledAddDetail = false;
+    }
+
+  }
+
+  GetDeclarantById(val)
+  {
+    this.refService.GetDeclarantById(val)
+      .toPromise()
+      .then(response => {
+        this.listVarRes = response ;
+        console.log(response);
+        this.loadData(response);
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
+
+  }
+
+ }
