@@ -368,6 +368,28 @@ namespace Teme.Shared.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Permissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    DateCreate = table.Column<DateTime>(nullable: false),
+                    DateUpdate = table.Column<DateTime>(nullable: false),
+                    PermissionCode = table.Column<string>(nullable: true),
+                    RoleId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Permissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ref_PriceLists",
                 columns: table => new
                 {
@@ -771,6 +793,28 @@ namespace Teme.Shared.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuthUserRoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    DateCreate = table.Column<DateTime>(nullable: false),
+                    DateUpdate = table.Column<DateTime>(nullable: false),
+                    RoleId = table.Column<int>(nullable: true),
+                    UserId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthUserRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthUserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuthUserScopes",
                 columns: table => new
                 {
@@ -843,6 +887,16 @@ namespace Teme.Shared.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthUserRoles_RoleId",
+                table: "AuthUserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthUserRoles_UserId",
+                table: "AuthUserRoles",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthUsers_IconRecordId",
@@ -985,6 +1039,11 @@ namespace Teme.Shared.Data.Migrations
                 column: "DegreeRiskClassId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Permissions_RoleId",
+                table: "Permissions",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ref_PriceLists_PriceTypeId",
                 table: "Ref_PriceLists",
                 column: "PriceTypeId");
@@ -1015,6 +1074,14 @@ namespace Teme.Shared.Data.Migrations
                 column: "ContractId");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_AuthUserRoles_AuthUsers_UserId",
+                table: "AuthUserRoles",
+                column: "UserId",
+                principalTable: "AuthUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_AuthUserScopes_AuthUsers_AuthUserId",
                 table: "AuthUserScopes",
                 column: "AuthUserId",
@@ -1029,6 +1096,7 @@ namespace Teme.Shared.Data.Migrations
                 principalTable: "AuthUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
+
             string[] files = Directory.GetFiles(Directory.GetParent(Directory.GetCurrentDirectory()).FullName + @"\SQLScripts\Teme", "*.sql");
             foreach (var file in files)
             {
@@ -1040,8 +1108,11 @@ namespace Teme.Shared.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_AuthUsers_IconRecords_IconRecordId",
-                table: "AuthUsers");
+                name: "FK_IconRecords_AuthUsers_AuthUserId",
+                table: "IconRecords");
+
+            migrationBuilder.DropTable(
+                name: "AuthUserRoles");
 
             migrationBuilder.DropTable(
                 name: "AuthUserScopes");
@@ -1059,6 +1130,9 @@ namespace Teme.Shared.Data.Migrations
                 name: "PaymentPlatforms");
 
             migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
                 name: "Ref_ClassifierMedicalAreas");
 
             migrationBuilder.DropTable(
@@ -1069,9 +1143,6 @@ namespace Teme.Shared.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ref_ValueAddedTaxes");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "StatePolicies");
@@ -1093,6 +1164,9 @@ namespace Teme.Shared.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Ref_PriceTypes");
@@ -1128,10 +1202,10 @@ namespace Teme.Shared.Data.Migrations
                 name: "Ref_OrganizationForms");
 
             migrationBuilder.DropTable(
-                name: "IconRecords");
+                name: "AuthUsers");
 
             migrationBuilder.DropTable(
-                name: "AuthUsers");
+                name: "IconRecords");
 
             migrationBuilder.DropTable(
                 name: "Icons");
