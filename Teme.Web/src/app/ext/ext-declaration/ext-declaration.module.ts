@@ -21,6 +21,7 @@ import { PackageUploadBtnComponent } from './ext-declaration/ext-imn-set/package
 import {ExtProducerContentComponent} from'./ext-declaration/ext-producer/ext-producer-content/ext-producer-content.component'
 import { NgSelectModule } from '@ng-select/ng-select';
 import {ShReferenceComponent} from '../../shared/sh-reference/sh-reference.component';
+import {LocalReferenceComponent} from '../../shared/local-reference/local-reference.component';
 
 @NgModule({
   imports: [
@@ -47,7 +48,8 @@ import {ShReferenceComponent} from '../../shared/sh-reference/sh-reference.compo
     ExtSubjectComponent,
     PackageUploadBtnComponent,
     ExtProducerContentComponent,
-    ShReferenceComponent],
+    ShReferenceComponent,
+    LocalReferenceComponent],
   entryComponents: [
     ExtDeclarationsActionsComponent,
     ExtJournalListComponent,
