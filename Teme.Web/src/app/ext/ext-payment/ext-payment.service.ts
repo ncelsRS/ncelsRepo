@@ -11,16 +11,17 @@ export class ExtPaymentService{
   constructor(private http: HttpClient){ }
 
   createPayment(contractId : number){
-    console.log(this.urlPayment);
     const body = {contractId: contractId};
     return this.http.post(this.urlPayment + 'Create', body);
-    //http://localhost:60825/Payment/Create
   }
 
   changeModel(obj){
-    console.log(obj);
-    return  this.http.put(this.urlPayment + "ChangeModel", obj);
 
+    return  this.http.put(this.urlPayment + "ChangeModel", obj);
+  }
+
+  getPayment(paymentId:string){
+    return  this.http.get(this.urlPayment + "GetPaymentById", { params: {paymentId} });
   }
 
 }

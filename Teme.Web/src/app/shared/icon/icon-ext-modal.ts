@@ -9,9 +9,9 @@ export class IconExtModal {
   }
 
   showIconModal() {
-    jQuery('#iconModal').remove()
+    jQuery('#iconExtModal').remove()
     this.elementRefIconModal.nativeElement.insertAdjacentHTML('beforeend', `
-<div class="modal fade" id="iconModal" tabindex="-1" role="dialog" aria-labelledby="iconModalLabel" aria-hidden="true">
+<div class="modal fade" id="iconExtModal" tabindex="-1" role="dialog" aria-labelledby="iconModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -43,6 +43,8 @@ export class IconExtModal {
   </div>
 </div>
 `);
-    jQuery('#iconModal').modal();
+    jQuery('#iconExtModal').modal();
   }
+
+
 }

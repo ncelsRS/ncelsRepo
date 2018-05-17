@@ -1,5 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {ExtPaymentService} from '../../../ext-payment/ext-payment.service';
+import {SmartTableButtonViewComponent} from '../../../../shared/smart-table-button-view.component';
+import { Pipe, PipeTransform } from '@angular/core';
+import {DomSanitizer,SafeResourceUrl,} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-ext-payment-tab',
@@ -8,34 +11,105 @@ import {ExtPaymentService} from '../../../ext-payment/ext-payment.service';
   encapsulation: ViewEncapsulation.None,
   providers: [ExtPaymentService]
 })
-export class ExtPaymentTabComponent implements OnInit {
-  paymentId: number = null;
+
+//@Pipe({ name: 'safe' })
+export class ExtPaymentTabComponent implements OnInit//, PipeTransform
+{
+  paymentId: string = '3';
   done: boolean = false;
-  constructor(private paymentService: ExtPaymentService) { }
+  urlPayment:SafeResourceUrl;
+  constructor(private paymentService: ExtPaymentService, private sanitizer: DomSanitizer) {
 
-
-    // public menuItems = [
-    //     { id: 1, name: 'Регистрация', unicode: '&#xf2bc'},
-    //     { id: 2, name: 'Перерегистрация', unicode: '&#xf0c9'},
-    //     { id: 3, name: 'Внесение изменения', unicode: '&#xf0a2'}
-    // ]
+  }
 
   ngOnInit() {
-  }
-  closeModal(){
 
   }
-  showPaymentModal(){
-    //jQuery('#add-modal').modal('hide');
+
+
+
+  createPayment(){
+    this.paymentService.createPayment(3)
+      .subscribe(
+        (data: number) => {
+           this.setUrlAndModalShow(data.toString());
+
+         },
+        error => console.log(error)
+      );
+  }
+
+  setUrlAndModalShow(paymentId:string){
+    this.paymentId=paymentId;
+    this.urlPayment = this.sanitizer.bypassSecurityTrustResourceUrl("http://localhost:9180/ext/payment?paymentId=" + this.paymentId )
     jQuery('#frameModal').modal('show');
   }
 
-  test(){
-    this.paymentService.createPayment(3)
-      .subscribe(
-        (data: number) => {this.paymentId=data; this.done=true;},
-        error => console.log(error)
-      );
-    console.log(this.paymentId,this.done);
+  public paymentData = [{
+    rowNumber:1,
+    numberPayment: 'Наименование',
+    contractForm: '12344',
+    sendDate: 'Модель',
+    status: 'Производитель',
+    action: 'Страна',
+  }];
+  public paymentSettings = {
+    selectMode: 'single',  //single|multi
+    hideHeader: false,
+    hideSubHeader: false,
+    actions: false,
+    columns: {
+      rowNumber: {
+        title: '№',
+        editable: false,
+        width: '60px',
+        type: 'html',
+        valuePrepareFunction: (value) => { return '<div class="text-center">' + value + '</div>'; }
+      },
+      numberPayment: {
+        title: 'Номер заявки на платеж',
+        type: 'string'
+      },
+      contractForm: {
+        title: 'Тип заявки на платеж',
+        type: 'string'
+      },
+      sendDate: {
+        title: 'Дата первой отправки',
+        type: 'string'
+      },
+      status: {
+        title: 'Статус',
+        type: 'number'
+      },
+      action: {
+        title: 'Действия',
+        type: 'custom',
+        renderComponent: SmartTableButtonViewComponent,
+        onComponentInitFunction(instance) {
+          //console.log("instance", instance, instance.view);
+          instance.edit.subscribe(row => {
+            console.log(`${row.id} view is work!`);
+            this.setUrlAndModalShow(row.id.toString());
+          });
+        }
+      }
+    },
+    pager: {
+      display: true,
+      perPage: 5
+    }
+  };
+
+
+  public onDeleteConfirm(event): void {
+    if (window.confirm('Are you sure you want to delete?')) {
+      event.confirm.resolve();
+    } else {
+      event.confirm.reject();
+    }
+
   }
+
+
 }

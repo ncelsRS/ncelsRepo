@@ -13,10 +13,11 @@ import { ExtDeclarantComponent} from './ext-contract/ext-declarant/ext-declarant
 import { ExtPaymentTabComponent } from './ext-contract/ext-payment-tab/ext-payment-tab.component';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 import {TextMaskModule} from 'angular2-text-mask';
+import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
+import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import {TextMaskModule} from 'angular2-text-mask';
     TextMaskModule
 
 
+    RscFileModule
   ],
   declarations: [
     ExtContractsComponent,
@@ -42,9 +44,12 @@ import {TextMaskModule} from 'angular2-text-mask';
     ExtPayerComponent,
     ExtCertificateComponent,
     ExtManufacturActionComponent,
+    SmartTableButtonViewComponent,
+    //SafePipe
   ],
   entryComponents: [
     ExtManufacturActionComponent,
-    ExtCertificateComponent]
+    ExtCertificateComponent,
+    SmartTableButtonViewComponent]
 })
 export class ExtContractModule { }

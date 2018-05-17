@@ -35,7 +35,8 @@ export class CostInfoComponent extends TemplateValidation {
   applicationTypeId: string = "1";
 
 
-  constructor(public iconModal:  IconExtModal, private paymentService: ExtPaymentService) {
+  constructor(public iconModal:  IconExtModal//, private paymentService: ExtPaymentService
+  ) {
     super();
   }
 
@@ -43,36 +44,15 @@ export class CostInfoComponent extends TemplateValidation {
   ngOnInit() {
     this.model = this.costInfoModal;
   }
-  getTest(){
-    // console.log(this.costInfoModal,this.model);
-    var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
-
-
-    // changeModelHead = ({
-    //   'id': this.model.id,
-    //   'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
-    // })
-
-
-    this.paymentService.changeModel(changeModelHead)
-      .subscribe(
-        (data) => console.log(data),
-        error => console.log(error)
-      );
-      // .then(response => {
-      //   console.log(response);
-      //   this.changeModelRes = response ;
-      // })
-      // .catch (err=>
-      //   {
-      //     console.error(err);
-      //   }
-      // )
-    ;
-
-
-
-  }
+  // getTest(){
+  //
+  //   var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
+  //   this.paymentService.changeModel(changeModelHead)
+  //     .subscribe(
+  //       (data) => console.log(data),
+  //       error => console.log(error)
+  //     );
+  // }
 
 
 
