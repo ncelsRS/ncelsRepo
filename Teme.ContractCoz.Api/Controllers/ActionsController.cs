@@ -162,5 +162,26 @@ namespace Teme.ContractCoz.Api.Controllers
                 return ExceptionResult(ex);
             }
         }
+
+        /// <summary>
+        /// Регистрация договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(UserPromts.RegisterContract + "/" + UserOptions.Register + "/{workflowId}")]
+        public async Task<IActionResult> RegisterContract([FromRoute][Required] string workflowId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var r = await Logic.RegisterContract(workflowId);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
     }
 }

@@ -138,5 +138,27 @@ namespace Teme.Infrastructure.Api.Controllers
                 return ExceptionResult(ex, workflowId);
             }
         }
+
+        /// <summary>
+        /// Регистрация договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("RegisterContract")]
+        public async Task<object> RegisterContract([FromQuery][Required] string workflowId)
+        {
+            try
+            {
+                var agreements = new Dictionary<string, bool> { { ScopeEnum.Coz, true }, { ScopeEnum.CozBoss, true }, { ScopeEnum.Ceo, true } };
+                var executors = new[] { "BossCoz" };
+                var r = await Logic.PublishUserAction(UserPromts.RegisterContract, UserOptions.Register, null, workflowId, null, executors, agreements);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, workflowId);
+            }
+        }
     }
 }

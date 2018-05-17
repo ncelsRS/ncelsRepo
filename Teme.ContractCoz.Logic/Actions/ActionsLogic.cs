@@ -76,5 +76,16 @@ namespace Teme.ContractCoz.Logic.Actions
             var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
             return await client.CozCeoAgreementsRequestAsync(workflowId, agree);
         }
+
+        /// <summary>
+        /// Регистрация договора(активный)
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task<object> RegisterContract(string workflowId)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.RegisterContractAsync(workflowId);
+        }
     }
 }
