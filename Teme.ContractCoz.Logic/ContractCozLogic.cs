@@ -9,6 +9,7 @@ using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.ContractCoz.Data;
+using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.ContractLogic;
@@ -55,9 +56,10 @@ namespace Teme.ContractCoz.Logic
         /// Получение списка договоров
         /// </summary>
         /// <returns></returns>
-        public async Task<object> GetListContract(string statusCode, string permission)
+        public async Task<object> GetListContract(string statusCode, int userId)
         {
-            return await Repo.GetListContract(statusCode, permission);
+            var user = GetUser(4).Select(x => x.UserRoles.Select(e => e.Role.Permissions));
+            return await Repo.GetListContract(statusCode, 4);
         }
     }
 }

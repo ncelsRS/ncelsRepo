@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Logic.Clients;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
+using Teme.Shared.Logic.Clients;
 using Teme.Shared.Logic.ContractLogic;
 using WorkflowCore.Users.Models;
 

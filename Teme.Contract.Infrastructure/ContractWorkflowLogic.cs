@@ -51,5 +51,12 @@ namespace Teme.Contract.Infrastructure
             await _host.PublishUserAction(key, chosenValue, executorsIds, value, agreements);
             return await awaiter;
         }
+
+        public async Task<object> CreatePayment(string workflowSheme)
+        {
+            var workflowId = await _host.StartWorkflow(workflowSheme, new PaymentTransitionData());
+            await TaskCompletionService.AddTask(workflowId);
+            return workflowId;
+        }
     }
 }

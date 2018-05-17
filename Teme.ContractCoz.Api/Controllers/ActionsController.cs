@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
-using Teme.Contract.Logic.Clients;
 using Teme.ContractCoz.Logic;
 using Teme.ContractCoz.Logic.Actions;
 using Teme.SharedApi.Controllers;
