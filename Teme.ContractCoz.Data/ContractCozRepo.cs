@@ -17,14 +17,16 @@ namespace Teme.ContractCoz.Data
         /// Получение списка договров
         /// </summary>
         /// <returns></returns>
-        public async Task<IQueryable<object>> GetListContract() => await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted).Select(x=> new {
+        public async Task<IQueryable<object>> GetListContract(string statusCode) => await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.StatePolicies.Any(c => c.Status == statusCode)).Select(x => new
+        {
             x.Id, //Id
             x.Number, //номер
             x.ContractType,
             x.WorkflowId,
             x.ContractForm, // Тип договора
             x.ContractScope,// Тип услуги
-            ServiceTypes = x.CostWorks.Where(q=> q.Ref_PriceList.Ref_ServiceType.ParentId == null).Select(e=> new {
+            ServiceTypes = x.CostWorks.Where(q => q.Ref_PriceList.Ref_ServiceType.ParentId == null).Select(e => new
+            {
                 e.Ref_PriceList.Ref_ServiceType.NameRu, // тип услуги
                 e.Ref_PriceList.Ref_ServiceType.NameKz, // тип услуги
             }),

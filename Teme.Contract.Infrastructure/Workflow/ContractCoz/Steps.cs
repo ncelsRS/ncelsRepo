@@ -75,13 +75,18 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreedValue))
                 Agreements = agreedValue as Dictionary<string, bool>;
-            _ss.CozExecutorMeetReq(context.Workflow.Id);
+            _ss.CozExecutorNotMeetReq(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
     public class CozReturnToDeclarant : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public CozReturnToDeclarant(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
@@ -92,12 +97,18 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreedValue))
                 Agreements = agreedValue as Dictionary<string, bool>;
+            _ss.CozReturnToDeclarant(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
     public class CozBossMeetReq : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public CozBossMeetReq(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
 
@@ -109,12 +120,18 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreementsValue))
                 Agreements = agreementsValue as Dictionary<string, bool>;
+            _ss.CozBossMeetReq(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
     public class CozBossNotMeetReq : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public CozBossNotMeetReq(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
 
@@ -126,12 +143,18 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreementsValue))
                 Agreements = agreementsValue as Dictionary<string, bool>;
+            _ss.CozBossNotMeetReq(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
     public class CeoMeetReq : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public CeoMeetReq(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
 
@@ -143,12 +166,18 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreementsValue))
                 Agreements = agreementsValue as Dictionary<string, bool>;
+            _ss.CeoMeetReq(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
 
     public class CeoNotMeetReq : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public CeoNotMeetReq(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
 
@@ -160,6 +189,7 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreementsValue))
                 Agreements = agreementsValue as Dictionary<string, bool>;
+            _ss.CeoNotMeetReq(context.Workflow.Id);
             return ExecutionResult.Next();
         }
     }
