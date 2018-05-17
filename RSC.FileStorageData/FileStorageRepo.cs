@@ -3,7 +3,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using RSC.FileStorageData.Dtos;
 using RSC.FileStorageLogic.Dtos;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,14 +52,19 @@ namespace RSC.FileStorageData
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<FileMetadata> GetFile(string entityType, string entityId)
+        public async Task<IEnumerable<FileInfoFullDto>> GetFiles(string entityType, string entityId, string fileType)
         {
-            var filterBuilder = Builders<GridFSFileInfo>.Filter;
-            var filter = filterBuilder.Eq(x => x.Metadata["EntityType"], entityType)
-                | filterBuilder.Eq(x => x.Metadata["EntityId"], entityId);
-            var res = await _bucket.Find(filter).ToListAsync();
-            var meta = res.FirstOrDefault()?.Metadata;
-            return BsonSerializer.Deserialize<FileMetadata>(meta);
+            var res = await _col
+                .Find(x => x.Metadata["EntityType"] == entityType
+                    && (x.Metadata["EntityId"] == entityId || entityId == "null")
+                    && x.Metadata["FileType"] == fileType)
+                .Project(x => new
+                {
+                    x.Id,
+                    x.Filename
+                })
+                .ToListAsync();
+            return res.Select(x => new FileInfoFullDto { Id = x.Id.ToString(), Filename = x.Filename });
         }
     }
 }

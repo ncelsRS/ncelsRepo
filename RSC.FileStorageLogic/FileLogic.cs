@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using RSC.FileStorageData;
+using RSC.FileStorageData.Dtos;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -79,6 +81,11 @@ namespace RSC.FileStorageLogic
             var info = await contentTypeTask;
             var stream = await fileStreamTask;
             return new Tuple<Stream, string, string>(stream, info.ContentType, info.FileName);
+        }
+
+        public async Task<IEnumerable<FileInfoFullDto>> GetFiles(string entityType, string entityId, string fileType)
+        {
+            return await _repo.GetFiles(entityType, entityId, fileType);
         }
     }
 }

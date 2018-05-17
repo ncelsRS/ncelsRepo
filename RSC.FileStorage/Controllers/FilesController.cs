@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using RSC.FileStorageLogic;
-using Teme.SharedApi.Controllers;
+using System.Threading.Tasks;
 
 namespace RSC.FileStorage.Controllers
 {
@@ -28,7 +22,7 @@ namespace RSC.FileStorage.Controllers
 
         [HttpGet]
         [Route("{fileId}")]
-        public async Task<IActionResult> Get([FromRoute] string fileId)
+        public async Task<IActionResult> Download([FromRoute] string fileId)
         {
             var result = await _logic.DownloadAsStream(fileId);
             return File(result.Item1, result.Item2, result.Item3);
@@ -38,6 +32,12 @@ namespace RSC.FileStorage.Controllers
         public async Task<IActionResult> Delete()
         {
             return Json(null);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFiles([FromQuery] string entityType, [FromQuery] string entityId, [FromQuery] string fileType)
+        {
+            return Json(await _logic.GetFiles(entityType, entityId, fileType));
         }
     }
 }
