@@ -7,13 +7,7 @@ namespace Teme.Payment.Data.DTO
     public class PaymentPackagingDto
     {
         public int Id { get; set; }
-
-        /// <summary>
-        /// Заявка на платеж
-        /// </summary>
-        public int PaymentId { get; set; }
-
-        /// <summary>
+       /// <summary>
         /// Тип упаковки
         /// </summary>
         public int PackagingtTypeId { get; set; }

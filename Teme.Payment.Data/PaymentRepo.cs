@@ -75,13 +75,13 @@ namespace Teme.Payment.Data
                     TradeName = e.TradeName,
                     PaymentEquipmentDtos = e.PaymentEquipments.Select(x => new PaymentEquipmentDto
                     {
+                        Id = x.Id,
                         Code = x.Code,
                         CountryId = x.CountryId,
                         EquipmentTypeId = x.EquipmentTypeId,
                         Manufacturer = x.Manufacturer,
                         Model = x.Model,
-                        Name = x.Name,
-                        PaymentId = x.PaymentId
+                        Name = x.Name
                     }),
                     PaymentPackagingDtos = e.PaymentPackaging.Select(x => new PaymentPackagingDto
                     {
@@ -89,7 +89,6 @@ namespace Teme.Payment.Data
                         Name = x.Name,
                         NumberUnitsInBox = x.NumberUnitsInBox,
                         PackagingtTypeId = x.PackagingtTypeId,
-                        PaymentId = x.PaymentId,
                         ShortDescription = x.ShortDescription,
                         SizeHeight = x.SizeHeight,
                         SizeLength = x.SizeLength,
@@ -100,13 +99,13 @@ namespace Teme.Payment.Data
                     }),
                     PaymentPlatformDtos = e.PaymentPlatforms.Select(x => new PaymentPlatformDto
                     {
+                        Id = x.Id,
                         CountryId = x.CountryId,
                         FactAddress = x.FactAddress,
                         LegalAddress = x.LegalAddress,
                         NameEn = x.NameEn,
                         NameKz = x.NameKz,
                         NameRu = x.NameRu,
-                        PaymentId = x.PaymentId
                     })
 
                 })

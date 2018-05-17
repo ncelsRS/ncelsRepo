@@ -7,17 +7,11 @@ namespace Teme.Payment.Data.DTO
 {
     public class PaymentEquipmentDto
     {
-        /// <summary>
-        /// Заявка на платеж
-        /// </summary>
-        public int PaymentId { get; set; }
-        
+        public int Id { get; set; }
         /// <summary>
         /// Тип комплектации ИМН и МТ
         /// </summary>
         public int EquipmentTypeId { get; set; }
-
-        public Ref_EquipmentType Ref_EquipmentType { get; set; }
 
         /// <summary>
         /// Наименование
@@ -43,7 +37,5 @@ namespace Teme.Payment.Data.DTO
         /// Страна
         /// </summary>
         public int? CountryId { get; set; }
-  
-        public Ref_Country Ref_Country { get; set; }
     }
 }

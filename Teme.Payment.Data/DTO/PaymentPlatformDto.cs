@@ -6,11 +6,7 @@ namespace Teme.Payment.Data.DTO
 {
     public class PaymentPlatformDto
     {
-        /// <summary>
-        /// Заявка на платеж
-        /// </summary>
-        public int PaymentId { get; set; }
-
+        public int Id { get; set; }
         /// <summary>
         /// Страна
         /// </summary>
