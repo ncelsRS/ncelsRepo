@@ -1,4 +1,4 @@
-﻿namespace Teme.Shared.Data.Primitives.Permissions
+namespace Teme.Shared.Data.Primitives.Permissions
 {
     /// <summary>
     /// Permissions для внешнего портала
@@ -29,6 +29,14 @@
             /// Исполнитель
             /// </summary>
             public const string IsExecutor = "IsExecutor";
+            /// <summary>
+            /// ЗамГенДир
+            /// </summary>
+            public const string IsCeo = "IsCeo";
+            /// <summary>
+            /// Смотритель
+            /// </summary>
+            public const string Viewer = "Viewer";
         }
         
     }
