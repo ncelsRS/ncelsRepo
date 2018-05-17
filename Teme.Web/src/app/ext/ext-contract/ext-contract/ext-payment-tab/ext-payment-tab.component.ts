@@ -3,6 +3,7 @@ import {ExtPaymentService} from '../../../ext-payment/ext-payment.service';
 import {SmartTableButtonViewComponent} from '../../../../shared/smart-table-button-view.component';
 import { Pipe, PipeTransform } from '@angular/core';
 import {DomSanitizer,SafeResourceUrl,} from '@angular/platform-browser';
+import {PaymentDto} from '../../../ext-payment/payment-dto';
 
 @Component({
   selector: 'app-ext-payment-tab',
@@ -23,7 +24,10 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
   }
 
   ngOnInit() {
-
+    let contractId="3";
+    this.paymentService.getListPayments(contractId).subscribe((data)=> {
+      this.paymentData = data;
+    });
   }
 
 
@@ -33,33 +37,32 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
       .subscribe(
         (data: number) => {
            this.setUrlAndModalShow(data.toString());
-
          },
         error => console.log(error)
       );
   }
 
-  setUrlAndModalShow(paymentId:string){
+  public setUrlAndModalShow(paymentId:string){
     this.paymentId=paymentId;
-    this.urlPayment = this.sanitizer.bypassSecurityTrustResourceUrl("http://localhost:9180/ext/payment?paymentId=" + this.paymentId )
+    this.urlPayment = this.sanitizer.bypassSecurityTrustResourceUrl("ext/payment?paymentId=" + this.paymentId )
     jQuery('#frameModal').modal('show');
   }
-
-  public paymentData = [{
-    rowNumber:1,
-    numberPayment: 'Наименование',
-    contractForm: '12344',
-    sendDate: 'Модель',
-    status: 'Производитель',
-    action: 'Страна',
-  }];
+  public paymentData:any;
+  // public paymentData = [{
+  //   rowNumber:1,
+  //   numberPayment: 'Наименование',
+  //   contractForm: '12344',
+  //   sendDate: 'Модель',
+  //   status: 'Производитель',
+  //   action: 'Страна',
+  // }];
   public paymentSettings = {
     selectMode: 'single',  //single|multi
     hideHeader: false,
     hideSubHeader: false,
     actions: false,
     columns: {
-      rowNumber: {
+      id: {
         title: '№',
         editable: false,
         width: '60px',
@@ -86,13 +89,22 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
         title: 'Действия',
         type: 'custom',
         renderComponent: SmartTableButtonViewComponent,
-        onComponentInitFunction(instance) {
-          //console.log("instance", instance, instance.view);
+        onComponentInitFunction: (instance: any) => {
+          console.log("instance", instance, instance.view);
           instance.edit.subscribe(row => {
             console.log(`${row.id} view is work!`);
             this.setUrlAndModalShow(row.id.toString());
+
           });
         }
+        // onComponentInitFunction(instance) {
+        //   console.log("instance", instance, instance.view);
+        //   instance.edit.subscribe(row => {
+        //     console.log(`${row.id} view is work!`);
+        //     this.setUrlAndModalShow(row.id.toString());
+        //
+        //   });
+        // }
       }
     },
     pager: {
@@ -109,6 +121,10 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
       event.confirm.reject();
     }
 
+  }
+
+  getTest(){
+    console.log('paymentData',this.paymentData)
   }
 
 

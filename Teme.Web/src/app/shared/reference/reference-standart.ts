@@ -1,15 +1,15 @@
 //Страны
-import {Component, forwardRef, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, forwardRef, Input, OnInit, Output} from '@angular/core';
 import {ReferenceService} from './reference.service';
 import {TemplateValidation} from '../TemplateValidation';
 import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms';
 
 @Component({
-  selector: 'app-reference-country',
+  selector: 'app-reference-standart',
   template: `
-    <select class="form-control" #templateForm="ngModel" name="templateForm"
+    <select class="form-control" #templateForm="ngModel" name="{{referenceName}}"
             [ngClass]="{'has-error':showItemErrors === true && templateForm.invalid}"
-            [(ngModel)]="model" required>
+            [(ngModel)]="model" required (change)="changeModel($event.target)" >
       <option value="" disabled selected>-- Выберите значение --</option>
       <option *ngFor="let item of items" [value]="item.id">{{item.nameRu}}</option>
     </select>
@@ -18,26 +18,32 @@ import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms';
   styles: [],
   providers: [{
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => DegreeRiskClass),
+    useExisting: forwardRef(() => ReferenceStandart),
     multi: true
   }, {
     provide: NG_VALIDATORS,
-    useExisting: forwardRef(() => DegreeRiskClass),
+    useExisting: forwardRef(() => ReferenceStandart),
     multi: true
   },
     ReferenceService
   ]
 })
-export class DegreeRiskClass extends TemplateValidation implements OnInit  {
+export class ReferenceStandart extends TemplateValidation implements OnInit  {
   @Input() showItemErrors = false;
+  @Input() referenceName:string;
+  @Output() changeModelParent = new EventEmitter<any>();
+
+  changeModel(evnt:any) {
+    this.changeModelParent.emit(evnt);
+  }
   public items: any;
 
   constructor(private referenceService: ReferenceService) {
     super();
   }
-  ngOnInit(){
-    this.referenceService.getCountry().subscribe((data)=> {this.items=data});
 
+  ngOnInit(){
+    this.referenceService.getReferenceStandart(this.referenceName).subscribe((data)=> {this.items=data});
   }
 
   getTest(){

@@ -17,9 +17,11 @@ export class ReferenceService{
   }
 
   getCalculatorServiceType(applicationTypeId:string){
-    const params = {applicationTypeId: applicationTypeId};
-    return this.http.get( this.referenceUrl + 'CalculatorServiceType',{ params: params} )
+    //const params = {applicationTypeId: applicationTypeId};
+    return this.http.get( this.referenceUrl + 'CalculatorServiceType',{ params: {applicationTypeId: applicationTypeId}} )
   }
 
-
+  getReferenceStandart(referanceName:string){
+    return this.http.get( this.referenceUrl + referanceName);
+  }
 }

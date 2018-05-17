@@ -18,7 +18,7 @@ export class DeclarationReferenceService {
   }
 
   public getDegreeRiskClass(){
-    let promise = this.http.get(this.url + 'DegreeRiskClass').toPromise();
+    let promise = this.http.get(this.url + 'ReferenceStandart').toPromise();
     return promise;
   }
 

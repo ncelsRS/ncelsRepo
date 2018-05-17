@@ -24,6 +24,9 @@ export class ExtPaymentService{
     return  this.http.get(this.urlPayment + "GetPaymentById", { params: {paymentId} });
   }
 
+  getListPayments(contractId:string){
+    return  this.http.get(this.urlPayment + "GetListPayments", { params: {contractId} });
+  }
 }
 
 

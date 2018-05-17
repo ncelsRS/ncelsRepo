@@ -31,6 +31,7 @@ import {CalculatorServiceType} from '../../shared/reference/calculator-service-t
 import {Calendar} from '../../shared/datepicker/calendar';
 import {IconButton} from '../../shared/icon/icon-button';
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
+import {ReferenceStandart} from '../../shared/reference/reference-standart';
 
 @NgModule({
   imports: [
@@ -62,7 +63,8 @@ import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-vie
     CalculatorServiceType,
     Calendar,
     IconButton,
-    SmartTableButtonViewComponent
+    SmartTableButtonViewComponent,
+    ReferenceStandart
   ],
   //exports: [ExtPaymentComponent],
   providers:[
