@@ -12,7 +12,6 @@ using Teme.SharedApi.Controllers;
 
 namespace Teme.Payment.Api.Controllers
 {
-    [Route("api/[controller]")]
     public class PaymentController : BaseController <IPaymentLogic>
     {
         public PaymentController(IPaymentLogic logic) : base(logic)

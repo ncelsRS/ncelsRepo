@@ -79,11 +79,7 @@ namespace Teme.Payment.Api
             loggerFactory.AddSerilog();
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
-
-            // Start the Workflow instance
-            //var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            //host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
-            //host.Start();
+            app.UseRscAuth();
             app.UseMvc();
         }
     }
