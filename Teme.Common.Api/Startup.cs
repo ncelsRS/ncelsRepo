@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ using NSwag.AspNetCore;
 using Serilog;
 using Teme.Common.Api.Startups;
 using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Primitives.OrgScopes;
+using Teme.SharedApi;
 
 namespace Teme.Common.Api
 {
@@ -43,6 +46,15 @@ namespace Teme.Common.Api
             //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
             //services.AddWorkflow();
             services.AddCors();
+
+            var certPath = Configuration["IdentityConfig:CertPath"];
+            var certPass = Configuration["IdentityConfig:CertPass"];
+            var cert = new X509Certificate2(certPath, certPass);
+            services.AddRscAuth(Configuration, cert, new string[]
+            {
+                OrganizationScopeEnum.Ext
+            });
+
             // Default vm template
             services.AddMvc();
 
@@ -69,10 +81,7 @@ namespace Teme.Common.Api
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
 
-            // Start the Workflow instance
-            //var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            //host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
-            //host.Start();
+            app.UseRscAuth();
             app.UseMvc();
         }
     }

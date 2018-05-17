@@ -80,7 +80,7 @@ namespace Teme.Payment.Api.Controllers
 
         [HttpGet]
         [Route("GetPaymentById")]
-        public async Task<IActionResult> GetContractById(int paymentId)
+        public async Task<IActionResult> GetPaymentById(int paymentId)
         {
             try
             {
