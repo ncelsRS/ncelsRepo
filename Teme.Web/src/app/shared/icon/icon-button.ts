@@ -61,7 +61,7 @@ import {IconRecord} from './IconRecord';
 })
 @Injectable()
 export class IconButton implements OnInit  {
-  iconUrl:string = environment.urls.icon;
+  iconUrl:string = environment.urls.common + '/Icon/';
   dataIcon:Icon;
   iconRecords: Array<IconRecord> = [];
   note: string = "";

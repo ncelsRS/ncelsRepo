@@ -4,7 +4,7 @@ import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class ReferenceService{
-  referenceUrl:string = environment.urls.reference
+  referenceUrl:string = environment.urls.admin + '/api/reference/';
 
   constructor(private http: HttpClient){ }
 

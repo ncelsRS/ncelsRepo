@@ -7,7 +7,7 @@ import {IconRecord} from './IconRecord';
 
 @Injectable()
 export class IconIntModal {
-  iconUrl:string = environment.urls.icon;
+  iconUrl:string = environment.urls.common + '/Icon/';
   iconData:Icon;
   constructor(private elementRefIconModal: ElementRef, private http: HttpClient) {
 

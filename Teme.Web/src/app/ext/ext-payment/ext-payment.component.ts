@@ -27,7 +27,6 @@ export class ExtPaymentComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.paymentId = params.paymentId;
     });
-
     this.paymentService.getPayment(this.paymentId).subscribe((data:PaymentDto)=> {
       //this.paymentData = data
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;

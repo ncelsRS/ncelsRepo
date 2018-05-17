@@ -5,9 +5,8 @@ export const environment = {
     extContract: 'http://localhost:9001',
     admin: 'http://localhost:9002',
     payment: 'http://localhost:9003',
-    icon: 'http://localhost:9004/Icon/',
+    common: 'http://localhost:9004',
     contractCoz: 'http://localhost:9005',
     files: 'http://localhost:9006',
-    reference: 'http://localhost:9121/api/reference/',
   }
 };
