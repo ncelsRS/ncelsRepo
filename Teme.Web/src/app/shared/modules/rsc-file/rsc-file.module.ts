@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UploadComponent } from './upload/upload.component';
 import {FileUploadModule} from 'ng2-file-upload';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {RscFileService} from './upload/rsc-file.service';
 
 @NgModule({
   imports: [
@@ -10,6 +10,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     FileUploadModule
   ],
   declarations: [UploadComponent],
+  providers: [RscFileService],
   exports: [UploadComponent]
 })
 export class RscFileModule { }

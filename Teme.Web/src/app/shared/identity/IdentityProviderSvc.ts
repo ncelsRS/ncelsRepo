@@ -6,14 +6,14 @@ import {Observable} from 'rxjs/Observable';
 import {Router} from '@angular/router';
 
 import 'rxjs/add/observable/of';
-import {catchError, map} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 
 @Injectable()
 
 export class IdentityProviderSvc {
 
   constructor(private http: HttpClient) {
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
   }
 
   private static _auth: IdentityRes = null;
@@ -70,13 +70,18 @@ export class IdentityProviderSvc {
       return this.refreshAuth(auth.refreshToken);
   }
 
+  private static _headerRequest: Observable<string> = null;
+
   public getAuthHeader(): Observable<string> {
-    return this.checkAuthWithRefresh()
-      .pipe(map(res => {
-        if (!res) return null;
-        let auth = this.getAuth();
-        return 'Bearer ' + auth.accessToken;
-      }));
+    if (!IdentityProviderSvc._headerRequest)
+      IdentityProviderSvc._headerRequest = this.checkAuthWithRefresh()
+        .pipe(map(res => {
+          IdentityProviderSvc._headerRequest = null;
+          if (!res) return null;
+          let auth = this.getAuth();
+          return 'Bearer ' + auth.accessToken;
+        })).pipe(share());
+    return IdentityProviderSvc._headerRequest;
   }
 
   public redirectToLogin() {

@@ -9,6 +9,7 @@ export const environment = {
     identity: 'http://localhost:9433',
     extContract: 'http://localhost:9001',
     admin: 'http://localhost:9002',
+    files: 'http://localhost:9002',
     payment: 'http://localhost:9003/Payment/',
     reference: 'http://localhost:9002/api/reference/',
     //reference: 'http://localhost:9001/Admin/api/reference/',
