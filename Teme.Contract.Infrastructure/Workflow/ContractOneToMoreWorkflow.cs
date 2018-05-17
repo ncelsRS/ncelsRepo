@@ -26,7 +26,13 @@ namespace Teme.Contract.Infrastructure.Workflow
                                         .If(d => d.Agreements.FirstOrDefault(x => x.Key == ScopeEnum.Coz).Value)
                                             .Do(t3 => t3.CozBossAgreements()))
                                                 .If(d => d.Agreements.FirstOrDefault(x => x.Key == ScopeEnum.CozBoss).Value)
-                                                    .Do(t3 => t3.CeoAgreements()));
+                                                    .Do(t3 => t3.CeoAgreements()))
+
+                .UserTask(UserPromts.RegisterContract, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())
+                    .WithOption(UserOptions.Register).Do(t =>
+                        t.StartWith<RegisterContract>()
+                            .Output(d => d.ExecutorsIds, s => s.ExecutorsIds)
+                            .Output(d => d.Agreements, s => s.Agreements));
             return builder;
         }
     }

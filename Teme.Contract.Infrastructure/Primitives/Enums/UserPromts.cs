@@ -32,6 +32,10 @@ namespace Teme.Contract.Infrastructure.Primitives.Enums
         /// Возврат заявителю 
         /// </summary>
         public const string ReturnToDeclarant = "ReturnToDeclarant";
+        /// <summary>
+        /// Регистрация договора
+        /// </summary>
+        public const string RegisterContract = "RegisterContract";
 
     }
 }

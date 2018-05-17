@@ -36,19 +36,14 @@ namespace Teme.Contract.Infrastructure.Primitives
         /// </summary>
         public const string NotMeetRequirements = "NotMeetRequirements";
 
-        ///// <summary>
-        ///// Согласование руководителем ЦОЗ
-        ///// </summary>
-        //public const string CozBossAgreementsOption = "CozBossAgreementsOption";
-
-        ///// <summary>
-        ///// Согласование ЗамГенДир
-        ///// </summary>
-        //public const string CeoAgreedOption = "CeoAgreedOption";
-
         /// <summary>
         /// Возврат заявителю 
         /// </summary>
         public const string ReturnToDeclarant = "ReturnToDeclarant";
+
+        /// <summary>
+        /// Регистрация
+        /// </summary>
+        public const string Register = "Register";
     }
 }
