@@ -16,6 +16,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ExtCertificateComponent } from './ext-contract/ext-certificate/ext-certificate.component';
 import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-action/ext-manufactur-action.component';
+import {TextMaskModule} from 'angular2-text-mask';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
     FormsModule,
     Ng2SmartTableModule,
     NgbModule.forRoot(),
-    HttpClientModule
+    HttpClientModule,
+    TextMaskModule
 
 
   ],

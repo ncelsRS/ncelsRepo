@@ -30,8 +30,6 @@ import {forEach} from '@angular/router/src/utils/collection';
 })
 export class ExtCostComponent extends TemplateValidation {
   isViewCost = false;
-  isManuf :string;
-  _isManuf:string
   private _prnRegisterType: string;
   @Input() showErrors = false;
 
@@ -52,7 +50,7 @@ export class ExtCostComponent extends TemplateValidation {
 
   public calculatorModifVar=[];
   public calculatorModifdata=[];
-  _dataCostWork;
+  _dataCostWork=[];
   public applTypeLevel;
   public serviceLevel;
   public serciveCount;
@@ -64,11 +62,14 @@ export class ExtCostComponent extends TemplateValidation {
   public priceListData =[];
   public disabledCount = false;
   public disabledViewCost = true;
+  public isContractViewCost;
   @Input() public idContractChild:string;
+  @Input() viewAction:string;
   public data;
+  public listVarRes;
   changeModelHead;
   changeModelRes;
-  listVarRes;
+
 
 
   constructor(private refService: RefService) {
@@ -123,7 +124,6 @@ export class ExtCostComponent extends TemplateValidation {
 
 
   getCalculatorApplicationType(scopeCode:string, contractForm:string) {
-    // if (this.prnRegisterType != null) {
     this.refService.getCalculatorApplicationType(scopeCode, contractForm)
       .toPromise()
       .then(
@@ -135,21 +135,14 @@ export class ExtCostComponent extends TemplateValidation {
           console.error(err);
         }
       );
-
-    //}
-
   }
 
   getCalculatorServiceType(id: string) {
-    // if (this.prnRegisterType != null) {
     this.refService.getCalculatorServiceType(id)
       .toPromise()
       .then(
         data => {
           this.calculatorServiceVar = data;
-          console.log("step1");
-          console.log(data);
-          console.log("step2")
         })
       .catch(err => {
           console.error(err);
@@ -189,7 +182,7 @@ export class ExtCostComponent extends TemplateValidation {
 
   }
 
-  getShowPriceList(isImport:string, serviceTypeId: string, serviceTypeModifId?: string)
+  getShowPriceList(isImport, serviceTypeId: string, serviceTypeModifId?: string)
   {
     // if (this.prnRegisterType != null) {
     this.refService.getShowPriceList(isImport, serviceTypeId, serviceTypeModifId)
@@ -211,42 +204,44 @@ export class ExtCostComponent extends TemplateValidation {
   }
 
   viewCost() {
-   if(this.isManuf=='frg') {this._isManuf='1'}else{this._isManuf='0'};
-    this.getShowPriceList(this._isManuf,this.serviceLevel, this.addServiceLevel);
-    console.log(this.priceListVar);
 
+    this.getShowPriceList(this.model.isImport,this.serviceLevel, this.addServiceLevel);
+    console.log(this.priceListVar);
+    this.disabledViewCost = true;
 
   }
 
 
   loadData()
   {
+    this.priceListData=[];
     this.priceListData.push(this.priceListVar);
     console.log(this.priceListData);
     for(let t of this.priceListData)
     {
-
-      console.log(t.price);
-      console.log(this.serviceCount);
-
       let addServiceSum:number=0;
 
       this.data=new LocalDataSource();
+      this._dataCostWork = [];
+      console.log("IsImport= "+this.model.IsImport);
       this.data.add({Cnt:1, workName:this.serviceLevelText,priceWONSD:t.price, countWork:'1',allPrice:t.price+t.price*t.valueAddedTax/100});
-      this._dataCostWork.add({PriceListId:this.serviceLevel,ContractId:this.idContractChild, Count: 1, IsImport:(this.isManuf=='frg')?1:0,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:t.price+t.price*t.valueAddedTax/100})
+      this._dataCostWork.push({PriceListId:Number(t.id),ContractId:Number(this.idContractChild), Count: 1, IsImport:(this.model.isImport==='1')?true:false,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:t.price+t.price*t.valueAddedTax/100})
       if(t.priceListModificationModels!=null)
       {
         addServiceSum =this.serviceCount*(t.priceListModificationModels.price+t.priceListModificationModels.price*t.priceListModificationModels.valueAddedTax/100);
-        this.data.add({Cnt:2, workName:this.addServiceLevelText,priceWONSD:t.priceListModificationModels.price, countWork:this.serviceCount,allPrice:addServiceSum});
-        this._dataCostWork.add({PriceListId:this.serviceLevel,ContractId:this.idContractChild, Count: this.serviceCount, IsImport:(this.isManuf=='frg')?1:0,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:addServiceSum})
+        this.data.add({Cnt:2, workName:this.addServiceLevelText,priceWONSD:t.priceListModificationModels.price, countWork:this.model.serciveCount,allPrice:addServiceSum});
+        this._dataCostWork.push({PriceListId:Number(t.priceListModificationModels.id),ContractId:Number(this.idContractChild), Count: this.model.serciveCount, IsImport:(this.model.isImport==='1')?true:false ,PriceWithValueAddedTax:t.price,TotalPriceWithValueAddedTax:addServiceSum})
       }
       this.data.add({Cnt:'', workName:'',priceWONSD:'Всего', countWork:this.serviceCount+1 ,allPrice:(t.price+t.price*t.valueAddedTax/100)+addServiceSum});
-      this.saveCalculateCost();
-      console.log(this.data);
+
+
+
+
       this.data.reset();
 
 
     }
+    this.saveCalculateCost();
   }
 
   onAddService(evnt)
@@ -273,8 +268,9 @@ export class ExtCostComponent extends TemplateValidation {
 
   clearCost(){
     this.data=null;
-    this.data.reset();
-    this.refService.DeleteCostWork(this.idContractChild);
+    this._dataCostWork = null;
+    this.DeleteCostWork();
+    this.disabledViewCost = false;
   }
 
   changeServiceCount(evnt)
@@ -285,7 +281,7 @@ export class ExtCostComponent extends TemplateValidation {
   onChangedModel(evnt) {
     this.changeModelHead = ({
         'id': this.idContractChild,
-        'classname': 'Teme.Shared.Data.Context.CostWork', 'fields': {[evnt.name]: evnt.value}
+        'classname': 'Teme.Shared.Data.Context.Contract', 'fields': {[evnt.name]: evnt.value}
       });
     console.log(this.changeModelHead);
     this.changedModelRef(this.changeModelHead);
@@ -312,8 +308,104 @@ export class ExtCostComponent extends TemplateValidation {
 
   saveCalculateCost()
   {
-    this.refService.SaveCostWork(this._dataCostWork);
+
+    this.refService.SaveCostWorked(this._dataCostWork)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+      })
+      .catch (err=>
+        {
+
+          console.error(err);
+        }
+      );
   }
+
+  DeleteCostWork()
+  {
+    this.refService.DeleteCostWork(this.idContractChild)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+      })
+      .catch (err=>
+        {
+
+          console.error(err);
+        }
+      );
+
+  }
+
+
+  onViewChangeContract()
+  {
+
+    this.refService.GetContractById(this.idContractChild)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.listVarRes = response;
+        this.viewData();
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+    if (this.viewAction == 'view') {
+      this.isContractViewCost = true;
+      this.isViewCost = true;
+    }
+    if (this.viewAction == 'edit') {
+      this.isContractViewCost = false;
+      this.isViewCost = false;
+    }
+  }
+
+  viewData() {
+    let countCost: number = 0;
+    let allSumm: number = 0;
+    this.data = new LocalDataSource();
+    this.model.NameIMNRu = this.listVarRes.medicalDeviceNameRu;
+    this.model.NameIMNKz = this.listVarRes.medicalDeviceNameKz;
+    this.model.isImport = (this.listVarRes.costWorkDto[0].isImport)?"1":"0";
+    if (this.listVarRes.costWorkDto[0].nameRu != 'undefined') {
+      this.data.add({
+        Cnt: 1,
+        workName: this.listVarRes.costWorkDto[0].nameRu,
+        priceWONSD: this.listVarRes.costWorkDto[0].priceWithValueAddedTax,
+        countWork: this.listVarRes.costWorkDto[0].count,
+        allPrice: this.listVarRes.costWorkDto[0].totalPriceWithValueAddedTax
+      });
+      countCost = this.listVarRes.costWorkDto[0].count;
+      allSumm = this.listVarRes.costWorkDto[0].totalPriceWithValueAddedTax;
+    }
+    if (this.listVarRes.costWorkDto[1].nameRu != 'undefined') {
+      this.data.add({
+        Cnt: 2,
+        workName: this.listVarRes.costWorkDto[1].nameRu,
+        priceWONSD: this.listVarRes.costWorkDto[1].priceWithValueAddedTax,
+        countWork: this.listVarRes.costWorkDto[1].count,
+        allPrice: this.listVarRes.costWorkDto[1].totalPriceWithValueAddedTax
+      });
+      countCost = countCost + this.listVarRes.costWorkDto[1].count;
+      allSumm = allSumm+this.listVarRes.costWorkDto[0].totalPriceWithValueAddedTax;
+      this.model.serciveCount = this.listVarRes.costWorkDto[1].count;
+    }
+    this.data.add({Cnt: '', workName: '', priceWONSD: 'Всего', countWork: countCost, allPrice: allSumm});
+    this.data.reset();
+    this.isViewCost = true;
+  }
+
+
+
+
+
+
+
 
 
 

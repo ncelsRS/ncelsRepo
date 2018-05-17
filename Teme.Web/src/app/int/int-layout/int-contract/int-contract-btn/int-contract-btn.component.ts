@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 
+
 @Component({
   selector: 'app-int-contract-btn',
   templateUrl: './int-contract-btn.component.html',
@@ -8,6 +9,9 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from 
 })
 export class IntContractBtnComponent implements OnInit {
   renderValue: string;
+  public idContract;
+  public contractNumber;
+
 
   @Input() value: string | number;
   @Input() rowData: any;
@@ -17,11 +21,14 @@ export class IntContractBtnComponent implements OnInit {
   constructor() { }
 
   onClick() {
-    window.open("/int/spa/contracts/1")
+    window.open("/int/spa/contracts/"+this.rowData.number)
   }
 
   ngOnInit() {
     this.renderValue = this.value.toString().toUpperCase();
+
   }
+
+
 
 }

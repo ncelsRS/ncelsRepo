@@ -20,9 +20,13 @@ export class ExtContractComponent  extends TemplateValidation {
 
   public ramoch;
   @ViewChild(ExtManufacturerComponent) manufacturChild:ExtManufacturerComponent;
+  @ViewChild(ExtDeclarantComponent) declarantChild:ExtDeclarantComponent;
+  @ViewChild(ExtPayerComponent) payerChild:ExtPayerComponent;
+  @ViewChild(ExtCostComponent) costChild:ExtCostComponent;
 
   selectedLevel: string;
   @Input()  showAllErr = false;
+  @Input()  sendCozWithOutKey = false;
   @Output() selectedLevelChange = new EventEmitter<string>();
   @Output() idContractEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
@@ -30,6 +34,9 @@ export class ExtContractComponent  extends TemplateValidation {
   @Output() onChangeViewType = new EventEmitter<string>();
   public idContract;
   _idworkflow:string;
+  _contractType:string;
+  public viewCostStatus:boolean = false;
+  public viewPaymentStatus:boolean = false;
   public viewtype: string;
 
   type: string;
@@ -42,14 +49,9 @@ export class ExtContractComponent  extends TemplateValidation {
 
   constructor(private route: ActivatedRoute, private refService: RefService) {
     super();
-
-    this.type = 'manufacturer';
     this.getContactForm();
     this.getHolderType();
-
-    //this.createContract('1','eaesrg')
-
-
+    this.type = 'manufacturer';
   }
 
   setDeclarationTab(name: string) {
@@ -58,11 +60,9 @@ export class ExtContractComponent  extends TemplateValidation {
 
 
   changeLevel(lev) {
-
-    console.log(lev);
     this.onChangedModel(lev.target);
-    this.selectedLevel = lev;
-    this.selectedLevelChange.emit(lev);
+    this.selectedLevel = lev.target.value;
+    this.selectedLevelChange.emit(this.selectedLevel);
 
   }
 
@@ -73,7 +73,7 @@ export class ExtContractComponent  extends TemplateValidation {
         this.idContractEvent.emit(this.idContract);
         this._idworkflow  = params.workflowId;
         this.viewtype = params.viewtype;
-
+        this._contractType = params.contractType;
         console.log(params);
         this.viewAction();
 
@@ -85,6 +85,10 @@ export class ExtContractComponent  extends TemplateValidation {
 
 
   public contract: any = {
+    contractData:{
+      holderType: null,
+      contractForm:null
+    },
     manufactur: {
       id: null,
       detailId:null,
@@ -174,7 +178,11 @@ export class ExtContractComponent  extends TemplateValidation {
       applicationType: null,
       serviceType: null,
       NameIMNRu: null,
-      NameIMNKz: null,},
+      NameIMNKz: null,
+      isImport:null,
+      serciveCount:null,
+    },
+
   };
 
 
@@ -268,15 +276,41 @@ export class ExtContractComponent  extends TemplateValidation {
   {
     if(this.viewtype == 'view')
     {
-      this.getContractById();
-
+      this.getContractById()
+      if(this._contractType === "1") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = false;
+      }
+      if(this._contractType === "2") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = true;
+      }
 
     }
     else if(this.viewtype == 'edit') {
       this.getContractById();
-      //this.viewEvent.emit(this.viewtype);
+      if(this._contractType === "1") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = false;
+      }
+      if(this._contractType === "2") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = true;
+      }
+
+
     }
-    else {}
+    else if(this.viewtype === 'create')
+    {
+        if(this._contractType === "1") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = false;
+      }
+        if(this._contractType === "2") {
+        this.viewPaymentStatus = true;
+        this.viewCostStatus = true;
+      }
+    }
   }
 
     getContractById()
@@ -287,14 +321,22 @@ export class ExtContractComponent  extends TemplateValidation {
       .then(response => {
         console.log(response);
         responseData = response;
+        this.contract.contractData.holderType = responseData.holderType;
+        this.contract.contractData.contractForm = responseData.contractForm;
         this.contract.manufactur.id = responseData.manufacturId;
         this.contract.manufactur.detailId = responseData.manufacturDetailId;
         this.contract.declarant.id =  responseData.declarantId;
         this.contract.declarant.detailId = responseData.declarantDetailId;
         this.contract.payer.id = responseData.payerId;
         this.contract.payer.detailId = responseData.payerDetailId;
+        this._contractType = responseData.contractType;
+        this._idworkflow = responseData.workflowId;
         this.viewEvent.emit(this.viewtype);
         this.manufacturChild.onViewChangeContract();
+        this.declarantChild.onViewChangeContract();
+        this.payerChild.onViewChangeContract();
+
+        //this.costChild.onViewChangeContract();
       })
       .catch(err => {
           console.error(err);
@@ -311,7 +353,7 @@ export class ExtContractComponent  extends TemplateValidation {
     this.contract.declarant.id = this.contract.manufactur.id;
     this.contract.declarant.detailId = this.contract.manufactur.detailId;
     this.contract.declarant.isDecRes = this.contract.manufactur.isRes;
-    this.contract.declarant.IdNumber = this.contract.manufactur.IdNumber;
+    this.contract.declarant.IdNumber = this.contract.manufactur.idNumber;
     this.contract.declarant.declarantOrgForm = this.contract.manufactur.manufacturOrgForm;
     this.contract.declarant.declarantNameRu = this.contract.manufactur.manufacturNameRu;
     this.contract.declarant.declarantNameKz = this.contract.manufactur.manufacturNameKz;
@@ -347,7 +389,7 @@ export class ExtContractComponent  extends TemplateValidation {
     this.contract.payer.payerAddressLegalRu = this.contract.declarant.declarantAddressLegalRu;
     this.contract.payer.payerBankName = this.contract.declarant.declarantBank;
     this.contract.payer.payerBankIik = this.contract.declarant.declarantBankIik;
-    this.contract.payer.payerBankCurr = this.contract.declarant.declarantBankIik;
+    this.contract.payer.payerBankCurr = this.contract.declarant.declarantBankCurr;
     this.contract.declarantBankSwift = this.contract.declarant.declarantBankSwift;
 
   }
@@ -357,8 +399,8 @@ export class ExtContractComponent  extends TemplateValidation {
     console.log('Change is work')
     this.contract.payer.id = this.contract.manufactur.id;
     this.contract.payer.detailId = this.contract.manufactur.detailId;
-    this.contract.payer.IdNumber = this.contract.declarant.IdNumber;
-    this.contract.payer.isPayerRes = this.contract.declarant.isDecRes;
+    this.contract.payer.IdNumber = this.contract.manufactur.idNumber;
+    this.contract.payer.isPayerRes = this.contract.manufactur.isRes;
     this.contract.payer.payerOrgForm = this.contract.manufactur.manufacturOrgForm;
     this.contract.payer.payerNameRu = this.contract.manufactur.manufacturNameRu;
     this.contract.payer.payerCountry = this.contract.manufactur.manufacturCountry;
@@ -374,7 +416,7 @@ export class ExtContractComponent  extends TemplateValidation {
 
 
       this.changeModelHead = ({
-        'id': this.model.id,
+        'id': this.idContract,
         'classname': 'Teme.Shared.Data.Context.Contract', 'fields': {[evnt.name]: evnt.value}
       })
       this.changedModelRef(this.changeModelHead);
@@ -395,5 +437,21 @@ export class ExtContractComponent  extends TemplateValidation {
       )
     ;
 
+  }
+
+  SendCozWithOutKey()
+  {
+    console.log(this._contractType);
+    this.refService.SendOrRemoveSendWithoutSign(this._idworkflow,this._contractType)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
   }
 }

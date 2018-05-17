@@ -28,12 +28,13 @@ export class ExtManufacturActionComponent implements OnInit ,  ViewCell{
   viewData()
   {
     this.view.emit(this.rowData);
-    this.router.navigate(['ext/contracts/6','view',this.rowData.id,'null' ]);
+    this.router.navigate(['ext/contracts/6','view',this.rowData.id,1]);
   }
 
   editData()
   {
     this.edit.emit(this.rowData);
+    this.router.navigate(['ext/contracts/6','edit',this.rowData.id,1]);
   }
 
   deleteData()

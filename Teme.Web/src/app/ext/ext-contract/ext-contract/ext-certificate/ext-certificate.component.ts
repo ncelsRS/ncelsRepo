@@ -10,7 +10,9 @@ export class ExtCertificateComponent implements OnInit {
 
   public file:any;
   @Output() showErrEvent = new EventEmitter<boolean>();
+  @Output() sendCozWithOutKeyEvent = new EventEmitter<boolean>();
   showerr:boolean;
+  sendCozWithOutKey:boolean=false;
 
   fileUpload=false;
   constructor() { }
@@ -42,6 +44,13 @@ export class ExtCertificateComponent implements OnInit {
   sendToNcels() {
     this.showerr = true;
     this.showErrEvent.emit(this.showerr);
+  }
+
+  sendWithOutKeyToCoz()
+  {
+    console.log("click send");
+    this.sendCozWithOutKey = true;
+    this.sendCozWithOutKeyEvent.emit(this.sendCozWithOutKey);
   }
 
 }

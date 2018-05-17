@@ -43,11 +43,16 @@ export class ExtManufacturerComponent extends TemplateValidation  {
   public listVarNoRes;
   public listVarRes;
   changeModelHead;
+  _isNewSubject:boolean = false;
 
    @Input() prnRegisterType: string;
    @Input() showErrors = false;
    @Input() idContractChild:string;
    @Input() viewAction:string;
+
+  public phoneMask = ['+','7',' ','(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
+  public iinMask = [/\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/];
+  public emailMask = [/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/];
 
   constructor(private refService: RefService){
     super();
@@ -85,6 +90,9 @@ export class ExtManufacturerComponent extends TemplateValidation  {
       })
       .then (response => {
           this.orgFormVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.manufacturOrgForm = response;
+          this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'OrganizationFormId': this.model.manufacturOrgForm }});
+
           this.isAddOrgForm = false;
         }
       )
@@ -129,6 +137,8 @@ export class ExtManufacturerComponent extends TemplateValidation  {
       })
       .then (response => {
           this.bankVar.push({id: response as number, code: null, nameRu: nameKz, nameKz: nameRu});
+          this.model.manufacturBankName = response;
+          this.changedModelRef({'id': this.model.detailId, 'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {'BankId': this.model.manufacturBankName }});
           console.log(res);
           this.isAddBankName = false;
         }
@@ -204,7 +214,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
 
   onChangedModel(evnt) {
-
+     console.log(this.viewAction);
     if (evnt.name == 'NameKz' || evnt.name == 'NameRu' ||
       evnt.name == 'NameEn' || evnt.name == 'OrganizationFormId' || evnt.name == 'CountryId') {
         this.changeModelHead = ({
@@ -214,39 +224,43 @@ export class ExtManufacturerComponent extends TemplateValidation  {
       }
     else {
       this.changeModelHead = ({
-        'id': this.model.id,
+        'id': this.model.detailId,
         'classname': 'Teme.Shared.Data.Context.DeclarantDetail', 'fields': {[evnt.name]: evnt.value}
       })
     }
 
-
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
-      console.log(evnt.value);
-      console.log(this.changeModelHead);
+      if(evnt.name != 'IsResident' && evnt.name != 'IdNumber')
       this.changedModelRef(this.changeModelHead);
 
+      if(this._isNewSubject || this.viewAction=='edit') {
+        if(evnt.name == 'IsResident')
+        this.changedModelRef({
+          'id': this.model.id,
+          'classname': 'Teme.Shared.Data.Context.Declarant',
+          'fields': {IsResident: (this.model.isRes == 'res') ? "1" : "0"}
+        });
+
+        if(evnt.name == 'IdNumber')
+        this.changedModelRef({
+          'id': this.model.id,
+          'classname': 'Teme.Shared.Data.Context.Declarant',
+          'fields': {'IdNumber': this.model.idNumber}
+        });
+      }
+
     }
+
 
   }
 
   onChangedModelAddNewSbj() {
 
-
-    if (this.model.isRes == 'res') {
-      this.changeModelHead =
-        ({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {IsResident: 1}})
-    }
-    else {
-      this.changeModelHead = ({
-        'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {IsResident: 0}});
-    }
-
-    if(!this.listVarRes)
+    if(this.viewAction!='view')
     {
-      console.log(this.changeModelHead);
-      this.changedModelRef(this.changeModelHead);
-      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.IdNumber}});
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {IsResident:(this.model.isRes=='res')?"1":"0"}})
+      this.changedModelRef({'id': this.model.id, 'classname': 'Teme.Shared.Data.Context.Declarant', 'fields': {'IdNumber': this.model.idNumber}});
     }
 
   }
@@ -278,9 +292,11 @@ export class ExtManufacturerComponent extends TemplateValidation  {
       .toPromise()
       .then(response => {
         console.log(response);
+        console.log("createManufactur");
         responseData = response;
         this.model.id  = responseData.id;
         this.model.detailId = responseData.detailId;
+        this._isNewSubject = true;
         this.disabledAddDetail = false;
         this.onChangedModelAddNewSbj();
 
@@ -354,8 +370,9 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     let dataArray=[];
     dataArray.push(data);
     console.log(dataArray);
-
+    console.log("idNumber"+dataArray[0].idNumber);
     this.model.id = dataArray[0].id;
+    this.model.idNumber =  dataArray[0].idNumber;
     this.model.manufacturNameRu = dataArray[0].nameRu;
     this.model.manufacturNameKz = dataArray[0].nameKz;
     this.model.manufacturNameEn = dataArray[0].nameEn ;
@@ -383,8 +400,15 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
   onViewChangeContract()
   {
-    console.log("viewAction="+this.viewAction);
-    this.GetDeclarantById(this.model.id);
+
+    console.log("manuf="+this.model.id);
+    if (this.viewAction == 'view')
+
+       this.GetDeclarantById(this.model.id);
+    if (this.viewAction == 'edit') {
+      this.GetDeclarantById(this.model.id);
+      this.disabledAddDetail = false;
+    }
 
   }
 

@@ -9,6 +9,7 @@
                 #applicationType = "ngModel"
                 [ngClass]="{'has-error':showErrors === true && applicationType.invalid}"
                 [(ngModel)]="model.applicationType"
+                [disabled]="isContractViewCost"
                 required
 
                 (change)="changeApplTypeLevel($event.target.value)">
@@ -27,6 +28,7 @@
                 #serviceType = "ngModel"
                 [ngClass]="{'has-error':showErrors === true && serviceType.invalid}"
                 [(ngModel)]="model.serviceType"
+                [disabled]="isContractViewCost"
                 required
                 (change)="changeServiceLevel($event)">
           <option></option>
@@ -45,6 +47,7 @@
                  [ngClass]="{'has-error':showErrors === true && NameIMNRu.invalid}"
                  [(ngModel)]="model.NameIMNRu"
                  (change)="onChangedModel($event.target)"
+                 [disabled]="isContractViewCost"
                  required>
         </div>
       </div>
@@ -56,12 +59,14 @@
                  [ngClass]="{'has-error':showErrors === true && NameIMNKz.invalid}"
                  [(ngModel)]="model.NameIMNKz"
                  (change)="onChangedModel($event.target)"
+                 [disabled]="isContractViewCost"
                  required>
         </div>
       </div>
       <div class="form-group">
         <label>Дополнительные услуги</label>
-        <select class="form-control"  name="costAddService" (change)="onAddService($event.target)">
+        <select class="form-control"  name="costAddService" (change)="onAddService($event.target)"
+                [disabled]="isContractViewCost">
           <option [value]="99"></option>
           <option [value]="99">--Нет дополнительных услуг--</option>
           <option *ngFor="let item of calculatorModifdata" [value]="item.id" >{{item.nameRu}}</option>
@@ -72,20 +77,22 @@
         <div class="form-group">
           <label>Количетсво</label>
           <div>
-            <input name="Count" placeholder="Введите значение" [(ngModel)]="serciveCount" class="form-control" type="number" value="1" (change)="changeServiceCount($event)"
+            <input name="Count" placeholder="Введите значение" [(ngModel)]="model.serciveCount" class="form-control" type="number" value="1" (change)="changeServiceCount($event)"
             [disabled]="disabledCount">
           </div>
         </div>
       </div>
       <div class="form-group" >
         <div class="custom-control custom-radio radio-inline" >
-          <input type="radio" class="custom-control-input radio-primary " name="costManufactur" id="costForeign"  [(ngModel)]="isManuf" value="frg"
-                  (change)="changeAddImport($event)">
+          <input type="radio" class="custom-control-input radio-primary " name="costManufactur" id="costForeign"  [(ngModel)]="model.isImport" value="1"
+                  (change)="changeAddImport($event)"
+                 [disabled]="isContractViewCost">
           <label class="custom-control-label" for="costForeign">Стоимость зарубежного производителя</label>
         </div>
         <div class="custom-control custom-radio radio-inline ">
-          <input type="radio" class="custom-control-input  radio-primary" name="costManufactur" id="costNational" [(ngModel)]="isManuf" value="nat"
-                 (change)="changeAddImport($event)">
+          <input type="radio" class="custom-control-input  radio-primary" name="costManufactur" id="costNational" [(ngModel)]="model.isImport" value="0"
+                 (change)="changeAddImport($event)"
+                 [disabled]="isContractViewCost">
           <label class="custom-control-label" for="costNational">Стоимость отечественного производителя</label>
         </div>
       </div>
@@ -94,9 +101,9 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="form-group">
-            <button type="button" class="btn btn-sm btn-primary" (click)="viewCost()"
+            <button type="button" class="btn btn-sm btn-primary"  (click)="viewCost()"
             [disabled]="disabledViewCost">Узнать цену</button>
-            <button type="button" class="btn btn-sm btn-primary" (click)="clearCost()">Очистить</button>
+            <button type="button" class="btn btn-sm btn-primary" [disabled]="!disabledViewCost" (click)="clearCost()">Очистить</button>
           </div>
         </div>
       </div>

@@ -8,11 +8,14 @@ import {environment} from '../../../../environments/environment';
 
 
 @Injectable()
-export class RefService  {
+export class RefIntContractService  {
 
   url = environment.urls.reference;
   urlData = environment.urls.contract;
-  urlDeclarantActions = environment.urls.contractDeclarantActions;
+  urlContractCoz = environment.urls.contractCoz;
+  urlContractAction = environment.urls.contractCozAction;
+  urlContractDeclarantActions = environment.urls.contractDeclarantActions;
+
 
 
   constructor(private http: HttpClient){
@@ -22,18 +25,18 @@ export class RefService  {
   saveOrgForm(nameKz:string,nameRu:string){
 
     return  this.http.put(this.url+"SaveOrganizationForm",  {
-   },{
-    params: {
-      nameRu: nameKz,
-      nameKz: nameRu
-      // observe: 'response'
-    },
+    },{
+      params: {
+        nameRu: nameKz,
+        nameKz: nameRu
+        // observe: 'response'
+      },
       headers:   { "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-          "Content-Type": "application/json; charset=utf-8",
-          "Accept": "application/json",
-          "Access-Control-Allow-Credentials": "true",
-        }
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+        "Content-Type": "application/json; charset=utf-8",
+        "Accept": "application/json",
+        "Access-Control-Allow-Credentials": "true",
+      }
     })
 
   }
@@ -43,15 +46,10 @@ export class RefService  {
   }
 
   saveBank(nameKz:string,nameRu:string){
-     let data = ({  nameRu: nameRu, nameKz: nameKz});
-     console.log(data);
+    let data = ({  nameRu: nameRu, nameKz: nameKz});
+    console.log(data);
     console.log("rr");
-    return  this.http.put(this.url+"SaveBank", {},{
-      params:{
-        nameRu: nameKz,
-        nameKz: nameRu
-      }
-      }
+    return  this.http.put(this.url+"SaveBank", data
 
     )
 
@@ -88,7 +86,7 @@ export class RefService  {
       params: {
         contractScope: contractScope,
         contractForm: contractForm
-       }
+      }
     })
 
   }
@@ -119,8 +117,8 @@ export class RefService  {
 
   createContract(cntType, cntScope){
     return  this.http.post(this.urlData+"Create", {
-          contractType: cntType,
-          contractScope: cntScope
+        contractType: cntType,
+        contractScope: cntScope
 
       }
     );
@@ -129,7 +127,7 @@ export class RefService  {
   changeModel(obj){
     console.log("ww");
     console.log(obj);
-     return  this.http.put(this.urlData+"ChangeModel",obj
+    return  this.http.put(this.urlData+"ChangeModel",obj
     );
 
   }
@@ -139,7 +137,7 @@ export class RefService  {
       params: {
         contractId: contractId,
         code:code
-    }});
+      }});
   }
 
   SearchDeclarantResident(iin){
@@ -157,33 +155,47 @@ export class RefService  {
     });
   }
 
-  GetListContracts(contractScope){
-    return  this.http.get(this.urlData+"GetListContracts",{
-      params: {
-        contractScope: contractScope
-      }
-      // ,
-      // headers:   { "Access-Control-Allow-Origin": "*",
-      //   "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-      //   "Content-Type": "application/json; charset=utf-8",
-      //   "Accept": "application/json",
-      //   "Access-Control-Allow-Credentials": "true",
-      // }
-    });
+
+
+
+
+
+  SaveCostWorked(obj){
+    console.log("here SaveCostWork 1");
+    console.log("this obj="+obj);
+    console.log("here SaveCostWork 2");
+    return  this.http.put(this.urlData+"SaveCostWork",obj)
 
   }
 
-  GetContractById(contractId){
-    return  this.http.get(this.urlData+"GetContractById",{
+  DeleteCostWork(contractId){
+    return  this.http.delete(this.urlData+"DeleteCostWork",{
       params: {
         contractId: contractId
+      }
+    })
+  }
+
+  GetListContracts(statusCode)
+  {
+    return  this.http.get(this.urlContractCoz+"GetListContract",{
+      params: {
+        statusCode: statusCode
+      }
+    })
+  }
+
+  GetContractById(Id){
+    return  this.http.get(this.urlContractCoz+"GetContractById",{
+      params: {
+        Id: Id
       }
     });
 
   }
 
   GetDeclarantById(id){
-    return  this.http.get(this.urlData+"GetDeclarantById",{
+    return  this.http.get(this.urlContractCoz+"GetDeclarantById",{
       params: {
         id: id
       }
@@ -191,33 +203,30 @@ export class RefService  {
 
   }
 
-  SaveCostWorked(obj){
-    return  this.http.put(this.urlData+"SaveCostWork",obj)
+  DistributionByExecutors(workFlowId, UserId){
+    return  this.http.post(this.urlContractAction+"Actions/SelectExecutors/selectExecutors/"+workFlowId+"/"+UserId,{})
+    ;
+
+  };
+
+  CozExecutorAgreedRequest(promt, option, workFlowId){
+    return  this.http.post(this.urlContractAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
+      ;
+
+  };
+
+  CozExecutorNotAgreedRequest(promt, option, workFlowId){
+    return  this.http.post(this.urlContractAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
+      ;
+
+  };
+
+  GetViewActions(workFlowId){
+    return  this.http.get(this.urlContractDeclarantActions+"Actions/contract/"+workFlowId,{});
 
   }
 
-  DeleteCostWork(contractId){
-    return  this.http.delete(this.urlData+"DeleteCostWork",{
-     params: {
-       contractId: contractId
-     }
-    })
-  }
-
-  SendOrRemoveSendWithSign(workflowId, contractType, contractId){
-    return  this.http.delete(this.urlData+"SendOrRemoveSendWithoutSign",{
-      params: {
-        workflowId: workflowId,
-        contractType:contractType,
-        contractId: contractId
-      }
-    })
-  }
-
-  SendOrRemoveSendWithoutSign(workflowId, contractType){
-    console.log(workflowId);
-    return  this.http.post(this.urlDeclarantActions+"DeclarantActions/SendOrRemove/sendWithoutSign/"+contractType+"/"+workflowId,{})
 
 
-  }
+
 }

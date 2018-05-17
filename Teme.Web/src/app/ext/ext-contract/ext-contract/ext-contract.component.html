@@ -25,7 +25,7 @@
           <!--<button type="button" class="btn btn-success btn-sm btn"><i class="fa fa-check"></i>Проверить </button>-->
           <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i>Просмотр </button>
         </div>
-        <app-ext-certificate (showErrEvent)="sendToNcels()"></app-ext-certificate>
+        <app-ext-certificate (showErrEvent)="sendToNcels()" (sendCozWithOutKeyEvent)="SendCozWithOutKey()" ></app-ext-certificate>
       </div>
       <h3>Договор</h3>
       <div class="row">
@@ -35,9 +35,10 @@
               <p class="height-mid">Договор состовляется с*</p>
             </div>
             <div class="col-md-6">
-              <select class="custom-select input-drop-down" name="HolderType" (click)="onChangedModel($event.target)">
+              <select class="custom-select input-drop-down" name="HolderType" (change)="onChangedModel($event.target)"
+                      [(ngModel)] = "contract.contractData.holderType">
                 <option></option>
-                <option *ngFor="let item of holderTypeItems" [value]="item.value" >
+                <option *ngFor="let item of holderTypeItems" [value]="item.key" >
                   {{item.nameRu}}
                 </option>
               </select>
@@ -52,7 +53,9 @@
               <p class="height-mid">Тип договора</p>
             </div>
             <div class="col-md-6">
-              <select class="form-control input-drop-down" name="ContractForm"  [ngModel]="selectedLevel" (ngModelChange)="changeLevel($event)">
+              <select class="form-control" name="ContractForm"
+                      [(ngModel)] = "contract.contractData.contractForm"
+                      (change)="changeLevel($event)">
                 <option></option>
                 <option *ngFor="let item of items" [value]="item.key" >
                   {{item.nameRu}}
@@ -62,7 +65,7 @@
           </div>
         </div>
       </div>
-      <br>
+      <br><!--{(ngModel)]="selectedLevel" -->
       <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist" value="fl" >
           <a class="nav-item nav-link active" data-toggle="tab" role="tab"
@@ -71,12 +74,12 @@
              aria-controls="nav-profile" aria-selected="false" [ngClass]="{'text-danger': showAllErr && declarantForm.invalid }" (click)="setDeclarationTab('declarant')" >Заявитель</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-contact" aria-selected="false" [ngClass]="{'text-danger': showAllErr && payerForm.invalid }" (click)="setDeclarationTab('payer')" >Плательщик</a>
-          <a class="nav-item nav-link" data-toggle="tab" role="tab"
+          <a *ngIf="!viewCostStatus" class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-contact" aria-selected="false" [ngClass]="{'text-danger': showAllErr && costForm.invalid }" (click)="setDeclarationTab('cost')" >Стоимость работ</a>
           <a class="nav-item nav-link" data-toggle="tab" role="tab"
              aria-controls="nav-contact" aria-selected="false" (click)="setDeclarationTab('attachment')" >Вложения</a>
-          <a class="nav-item nav-link" data-toggle="tab" role="tab"
-             aria-controls="nav-contact" aria-selected="false" [hidden]="ramoch==='Multi'" (click)="setDeclarationTab('payment')" >Заявка на платеж</a>
+          <a *ngIf="!viewPaymentStatus" class="nav-item nav-link" data-toggle="tab" role="tab"
+             aria-controls="nav-contact" aria-selected="false"  (click)="setDeclarationTab('payment')" >Заявка на платеж</a>
         </div>
       </nav>
       <div class="pd-20">
@@ -92,22 +95,25 @@
                                                                  name="declarantForms"
                                                                  [(ngModel)]="contract.declarant"
                                                                  [idContractChild]="idContract"
+                                                                 [viewAction]="viewtype"
                                                                  (onChangedManufYes)="onChildChanged($event)"
                                                                  required #declarantForm="ngModel"></app-ext-declarant></div>
         <div [hidden]="type !== 'payer'"><app-ext-payer [showErrors]="showAllErr"
                                                         name="payerForms"
                                                         [(ngModel)]="contract.payer"
                                                         [idContractChild]="idContract"
+                                                        [viewAction]="viewtype"
                                                         (onChangedManufYes)="onChildManufacturChanged($event)"
                                                         (onChangedDeclarantYes)="onChildDeclarantChanged($event)"
                                                         required #payerForm="ngModel"></app-ext-payer></div>
-        <div [hidden]="type !== 'cost'"><app-ext-cost [prnRegisterType]="selectedLevel"
+        <div *ngIf="viewCostStatus" [hidden]="type !== 'cost'"><app-ext-cost [prnRegisterType]="selectedLevel"
                                                       [showErrors]="showAllErr"
                                                       [idContractChild]="idContract"
+                                                      [viewAction]="viewtype"
                                                       name="costForms"
                                                       [(ngModel)]="contract.cost"
                                                       required #costForm="ngModel"></app-ext-cost></div>
-        <div [hidden]="type !== 'attachment'"><app-ext-attachment></app-ext-attachment></div>
+        <div [hidden]="type !== 'attachment' "><app-ext-attachment></app-ext-attachment></div>
         <div [hidden]="type !== 'payment'"><app-ext-payment-tab></app-ext-payment-tab></div>
       </div>
     </div>

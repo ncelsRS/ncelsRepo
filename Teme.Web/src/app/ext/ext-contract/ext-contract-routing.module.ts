@@ -22,7 +22,18 @@ const routes: Routes = [
                 component: ExtContractComponent
             },
             {
-              path: ':id/:viewtype/:idContract/:workflowId',
+              path: ':id/:viewtype/:idContract/:workflowId/:contractType',
+              data: { title: 'Договор' },
+              component: ExtContractComponent
+            },
+            {
+              path: ':id/:viewtype/:idContract/:workflowId/:contractType/:statusContract',
+              data: { title: 'Договор' },
+              component: ExtContractComponent
+            },
+
+            {
+              path: ':id/:viewtype/:idContract/:contractType',
               data: { title: 'Договор' },
               component: ExtContractComponent
             },
