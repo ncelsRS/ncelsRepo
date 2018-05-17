@@ -17,13 +17,11 @@ namespace Teme.Shared.Logic.RefBaseLogic
         public async Task Add(TEntity entity)
         {
             await Repo.Add(entity);
-            await Save();
         }
 
         public async Task Delete(int id)
         {
             await Repo.Delete(id);
-            await Save();
         }
 
         public async Task<TEntity> GetById(int id)
@@ -31,9 +29,9 @@ namespace Teme.Shared.Logic.RefBaseLogic
             return await Repo.GetById(id);
         }
 
-        public Task Save()
+        public async Task Save()
         {
-            throw new NotImplementedException();
+            await Repo.Save();
         }
 
         public async Task Update(TEntity entity)

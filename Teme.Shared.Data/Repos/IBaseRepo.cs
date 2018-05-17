@@ -11,5 +11,6 @@ namespace Teme.Shared.Data.Repos
         Task<TEntity> GetById(int id);
         Task Delete(int id);
         Task Update(TEntity entity);
+        Task Save();
     }
 }

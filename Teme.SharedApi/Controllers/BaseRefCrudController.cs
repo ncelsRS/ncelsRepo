@@ -9,9 +9,9 @@ using Teme.SharedApi.Controllers;
 
 namespace Teme.SharedApi.Controllers
 {
-    public class BaseCrudController<TEntity> : BaseController<IRefBaseLogic<TEntity>>
+    public class BaseRefCrudController<TEntity> : BaseController<IRefBaseLogic<TEntity>>
     {
-        public BaseCrudController(IRefBaseLogic<TEntity> logic) : base(logic)
+        public BaseRefCrudController(IRefBaseLogic<TEntity> logic) : base(logic)
         {
         }
 
@@ -66,8 +66,8 @@ namespace Teme.SharedApi.Controllers
         {
             try
             {
-                await Logic.GetById(id);
-                return Json(new { success = true });
+                var aa = await Logic.GetById(id);
+                return Ok(await Logic.GetById(id));
             }
             catch (Exception ex)
             {

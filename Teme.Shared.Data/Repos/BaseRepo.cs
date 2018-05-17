@@ -36,12 +36,12 @@ namespace Teme.Shared.Data.Repos
 
         public async Task<TEntity> GetById(int id)
         {
-            return await Repo.FindAsync(new { Id = id });
+            return await Repo.FindAsync(id);
         }
 
         public async Task Delete(int id)
         {
-            var entity = await Repo.FindAsync(new { Id = id });
+            var entity = await Repo.FindAsync(id);
             Repo.Remove(entity);
             await Save();
         }
