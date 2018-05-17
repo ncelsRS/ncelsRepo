@@ -23,7 +23,7 @@ namespace Teme.Infrastructure.Api.Startups
 
             assembly = Assembly.Load(new AssemblyName("Teme.Contract.Infrastructure"));
             builder.RegisterAssemblyTypes(assembly)
-                .Where(t => t.Name.EndsWith("Logic") && t.Name.EndsWith("Step"))
+                .Where(t => t.Name.EndsWith("Logic"))
                 .AsImplementedInterfaces();
 
             assembly = Assembly.Load(new AssemblyName("Teme.Infrastructure.Logic"));
