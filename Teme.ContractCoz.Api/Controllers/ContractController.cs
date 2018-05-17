@@ -64,12 +64,12 @@ namespace Teme.ContractCoz.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetListContract")]
-        public async Task<IActionResult> GetListContract()
+        public async Task<IActionResult> GetListContract([FromQuery][Required] string statusCode)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
-                var result = await Logic.GetListContract();
+                var result = await Logic.GetListContract(statusCode);
                 return Json(result);
             }
             catch (Exception ex)

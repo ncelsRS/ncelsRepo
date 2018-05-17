@@ -74,6 +74,11 @@ namespace Teme.Contract.Infrastructure.Workflow
 
     public class RegisterContract : StepBody
     {
+        private readonly IStepStatusLogic _ss;
+        public RegisterContract(IStepStatusLogic ss)
+        {
+            _ss = ss;
+        }
         public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
         public Dictionary<string, bool> Agreements { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
@@ -83,6 +88,7 @@ namespace Teme.Contract.Infrastructure.Workflow
                 ExecutorsIds = executorsValue as Dictionary<string, IEnumerable<string>>;
             if (attrs.TryGetValue("Agreements", out var agreementsValue))
                 Agreements = agreementsValue as Dictionary<string, bool>;
+            _ss.RegisterContract(context.Workflow.Id);
             Log.Information("RegisterContract");
             return ExecutionResult.Next();
         }

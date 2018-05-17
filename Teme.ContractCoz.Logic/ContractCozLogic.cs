@@ -55,9 +55,9 @@ namespace Teme.ContractCoz.Logic
         /// Получение списка договоров
         /// </summary>
         /// <returns></returns>
-        public async Task<object> GetListContract()
+        public async Task<object> GetListContract(string statusCode)
         {
-            return await Repo.GetListContract();
+            return await Repo.GetListContract(statusCode);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +10,7 @@ namespace Teme.Shared.Data.Primitives.Statuses
     public class IntContractStatus
     {
         /// <summary>
-        /// На распеделнии
+        /// На распеделнии(не распределенные)
         /// </summary>
         public const string OnDistribution = "onDistribution";
 
@@ -25,12 +25,22 @@ namespace Teme.Shared.Data.Primitives.Statuses
         public const string RequiredAgreement = "requiredAgreement";
 
         /// <summary>
+        /// Не согласован
+        /// </summary>
+        public const string RequiredNotAgreement = "requiredNotAgreement";
+
+        /// <summary>
         /// Согласованные
         /// </summary>
         public const string OnAgreement = "onAgreement";
 
         /// <summary>
-        /// Требудет регистрации
+        /// Требует подписания
+        /// </summary>
+        public const string RequiredSign = "RequiredSign";
+
+        /// <summary>
+        /// Требует регистрации
         /// </summary>
         public const string RequiredRegistration = "requiredRegistration";
 
