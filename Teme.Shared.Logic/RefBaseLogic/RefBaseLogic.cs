@@ -1,0 +1,44 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Teme.Shared.Data.Context;
+using Teme.Shared.Data.Repos.RefBaseRepo;
+
+namespace Teme.Shared.Logic.RefBaseLogic
+{
+    public class RefBaseLogic<TIRepo, TEntity> : BaseLogic<TIRepo, TEntity>, IRefBaseLogic<TEntity> where TIRepo : IRefBaseRepo<TEntity> where TEntity : BaseEntity
+    {
+        public RefBaseLogic(TIRepo repo) : base(repo)
+        {
+        }
+
+        public async Task Add(TEntity entity)
+        {
+            await Repo.Add(entity);
+            await Save();
+        }
+
+        public async Task Delete(int id)
+        {
+            await Repo.Delete(id);
+            await Save();
+        }
+
+        public async Task<TEntity> GetById(int id)
+        {
+            return await Repo.GetById(id);
+        }
+
+        public Task Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task Update(TEntity entity)
+        {
+            await Repo.Update(entity);
+        }
+    }
+}

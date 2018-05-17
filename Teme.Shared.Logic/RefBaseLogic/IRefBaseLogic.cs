@@ -1,13 +1,14 @@
-using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using Teme.Shared.Data.Context;
 
-namespace Teme.Shared.Data.Repos
+namespace Teme.Shared.Logic.RefBaseLogic
 {
-    public interface IBaseRepo<TEntity>
+    public interface IRefBaseLogic<TEntity> : IBaseLogic
     {
-        IQueryable<AuthUser> GetCurrentUser(int userId);
         Task Add(TEntity entity);
+        Task Save();
         Task<TEntity> GetById(int id);
         Task Delete(int id);
         Task Update(TEntity entity);

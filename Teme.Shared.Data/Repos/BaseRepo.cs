@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +26,7 @@ namespace Teme.Shared.Data.Repos
         public async Task Add(TEntity entity)
         {
             await Repo.AddAsync(entity);
+            await Save();
         }
 
         public async Task Save()
@@ -36,6 +37,19 @@ namespace Teme.Shared.Data.Repos
         public async Task<TEntity> GetById(int id)
         {
             return await Repo.FindAsync(new { Id = id });
+        }
+
+        public async Task Delete(int id)
+        {
+            var entity = await Repo.FindAsync(new { Id = id });
+            Repo.Remove(entity);
+            await Save();
+        }
+
+        public async Task Update(TEntity entity)
+        {
+           Repo.Update(entity);
+           await Save();
         }
 
         //        Нужно добавить этот метод в OnRelease в автофаке, однако di dotnet core видимо уже решил эти проблемы
