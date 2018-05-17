@@ -10,9 +10,10 @@ import {environment} from '../../../../environments/environment';
 @Injectable()
 export class RefService  {
 
-  url = environment.urls.reference;
-  urlData = environment.urls.contract;
-  urlDeclarantActions = environment.urls.contractDeclarantActions;
+  urlAdminApi = environment.urls.admin+"/api/reference/";
+  urlContract = environment.urls.extContract+"/Contract/";
+  DeclarationActions = environment.urls.extContract;
+
 
 
   constructor(private http: HttpClient){
@@ -21,7 +22,7 @@ export class RefService  {
 
   saveOrgForm(nameKz:string,nameRu:string){
 
-    return  this.http.put(this.url+"SaveOrganizationForm",  {
+    return  this.http.put(this.urlAdminApi+"SaveOrganizationForm",  {
    },{
     params: {
       nameRu: nameKz,
@@ -39,14 +40,14 @@ export class RefService  {
   }
 
   getOrgForm(){
-    return  this.http.get(this.url+"OrganizationForm");
+    return  this.http.get(this.urlAdminApi+"OrganizationForm");
   }
 
   saveBank(nameKz:string,nameRu:string){
      let data = ({  nameRu: nameRu, nameKz: nameKz});
      console.log(data);
     console.log("rr");
-    return  this.http.put(this.url+"SaveBank", {},{
+    return  this.http.put(this.urlAdminApi+"SaveBank", {},{
       params:{
         nameRu: nameKz,
         nameKz: nameRu
@@ -58,33 +59,33 @@ export class RefService  {
   }
 
   getBank(){
-    return  this.http.get(this.url+"Bank");
+    return  this.http.get(this.urlAdminApi+"Bank");
   }
 
   getCountry(){
-    return  this.http.get(this.url+"Country");
+    return  this.http.get(this.urlAdminApi+"Country");
   }
 
   getCurrency(){
-    return  this.http.get(this.url+"Currency");
+    return  this.http.get(this.urlAdminApi+"Currency");
   }
 
   getContractForm(){
-    return  this.http.get(this.url+"ContractForm");
+    return  this.http.get(this.urlAdminApi+"ContractForm");
   }
 
   getChosenPayer(){
-    return  this.http.get(this.url+"ChosenPayer");
+    return  this.http.get(this.urlAdminApi+"ChosenPayer");
   }
 
   getHolderType(){
-    return  this.http.get(this.url+"HolderType");
+    return  this.http.get(this.urlAdminApi+"HolderType");
   }
 
 
   getCalculatorApplicationType(contractScope:string,contractForm:string){
 
-    return  this.http.get(this.url+"CalculatorApplicationType",{
+    return  this.http.get(this.urlAdminApi+"CalculatorApplicationType",{
       params: {
         contractScope: contractScope,
         contractForm: contractForm
@@ -95,7 +96,7 @@ export class RefService  {
 
   getCalculatorServiceType(applicationTypeId:string){
 
-    return  this.http.get(this.url+"CalculatorServiceType",{
+    return  this.http.get(this.urlAdminApi+"CalculatorServiceType",{
       params: {
         applicationTypeId: applicationTypeId,
 
@@ -106,7 +107,7 @@ export class RefService  {
 
   getShowPriceList(isImport:string, serviceTypeId: string, serviceTypeModifId?: string){
 
-    return  this.http.get(this.url+"ShowPriceList",{
+    return  this.http.get(this.urlAdminApi+"ShowPriceList",{
       params: {
         isImport: isImport,
         serviceTypeId:serviceTypeId,
@@ -118,7 +119,7 @@ export class RefService  {
   }
 
   createContract(cntType, cntScope){
-    return  this.http.post(this.urlData+"Create", {
+    return  this.http.post(this.urlContract+"Create", {
           contractType: cntType,
           contractScope: cntScope
 
@@ -129,13 +130,13 @@ export class RefService  {
   changeModel(obj){
     console.log("ww");
     console.log(obj);
-     return  this.http.put(this.urlData+"ChangeModel",obj
+     return  this.http.put(this.urlContract+"ChangeModel",obj
     );
 
   }
 
   AddDeclarant(contractId,code){
-    return  this.http.get(this.urlData+"AddDeclarant",{
+    return  this.http.get(this.urlContract+"AddDeclarant",{
       params: {
         contractId: contractId,
         code:code
@@ -143,14 +144,14 @@ export class RefService  {
   }
 
   SearchDeclarantResident(iin){
-    return  this.http.get(this.urlData+"SearchDeclarantResident",{
+    return  this.http.get(this.urlContract+"SearchDeclarantResident",{
       params: {
         iin: iin
       }});
   }
 
   SearchDeclarantNonResident(countryId){
-    return  this.http.get(this.urlData+"SearchDeclarantNonResident",{
+    return  this.http.get(this.urlContract+"SearchDeclarantNonResident",{
       params: {
         countryId: countryId
       }
@@ -158,7 +159,7 @@ export class RefService  {
   }
 
   GetListContracts(contractScope){
-    return  this.http.get(this.urlData+"GetListContracts",{
+    return  this.http.get(this.urlContract+"GetListContracts",{
       params: {
         contractScope: contractScope
       }
@@ -174,7 +175,7 @@ export class RefService  {
   }
 
   GetContractById(contractId){
-    return  this.http.get(this.urlData+"GetContractById",{
+    return  this.http.get(this.urlContract+"GetContractById",{
       params: {
         contractId: contractId
       }
@@ -183,7 +184,7 @@ export class RefService  {
   }
 
   GetDeclarantById(id){
-    return  this.http.get(this.urlData+"GetDeclarantById",{
+    return  this.http.get(this.urlContract+"GetDeclarantById",{
       params: {
         id: id
       }
@@ -192,12 +193,12 @@ export class RefService  {
   }
 
   SaveCostWorked(obj){
-    return  this.http.put(this.urlData+"SaveCostWork",obj)
+    return  this.http.put(this.urlContract+"SaveCostWork",obj)
 
   }
 
   DeleteCostWork(contractId){
-    return  this.http.delete(this.urlData+"DeleteCostWork",{
+    return  this.http.delete(this.urlContract+"DeleteCostWork",{
      params: {
        contractId: contractId
      }
@@ -205,7 +206,7 @@ export class RefService  {
   }
 
   SendOrRemoveSendWithSign(workflowId, contractType, contractId){
-    return  this.http.delete(this.urlData+"SendOrRemoveSendWithoutSign",{
+    return  this.http.delete(this.urlContract+"SendOrRemoveSendWithoutSign",{
       params: {
         workflowId: workflowId,
         contractType:contractType,
@@ -216,7 +217,7 @@ export class RefService  {
 
   SendOrRemoveSendWithoutSign(workflowId, contractType){
     console.log(workflowId);
-    return  this.http.post(this.urlDeclarantActions+"DeclarantActions/SendOrRemove/sendWithoutSign/"+contractType+"/"+workflowId,{})
+    return  this.http.post(this.DeclarationActions+"/DeclarantActions/SendOrRemove/sendWithoutSign/"+contractType+"/"+workflowId,{})
 
 
   }

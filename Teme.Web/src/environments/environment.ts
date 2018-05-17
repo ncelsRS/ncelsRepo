@@ -1,20 +1,13 @@
-// The file contents for the current environment will overwrite these during build.
-// The build system defaults to the dev environment which uses `environment.ts`, but if you do
-// `ng build --env=prod` then `environment.prod.ts` will be used instead.
-// The list of which env maps to which file can be found in `.angular-cli.json`.
-
 export const environment = {
   production: false,
   urls: {
     identity: 'http://localhost:9433',
     extContract: 'http://localhost:9001',
     admin: 'http://localhost:9002',
-    files: 'http://localhost:9002',
-    payment: 'http://localhost:9003/Payment/',
-    reference: 'http://localhost:9002/api/reference/',
-    //reference: 'http://localhost:9001/Admin/api/reference/',
-    contract: 'http://localhost:9001/Contract/',
-    //contract: 'http://localhost:9001/Contract/Contract/',
+    payment: 'http://localhost:9003',
     icon: 'http://localhost:9004/Icon/',
+    contractCoz: 'http://localhost:9005',
+    files: 'http://localhost:9006',
+    reference: 'http://localhost:9121/api/reference/',
   }
 };

@@ -208,7 +208,7 @@ export class IntContractComponent implements OnInit {
         })})
       }
     )
-    this.data.refresh();
+    this.data.reset();
 
   }
 

@@ -27,10 +27,7 @@ import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-vie
     FormsModule,
     Ng2SmartTableModule,
     NgbModule.forRoot(),
-    HttpClientModule,
-    TextMaskModule
-
-
+    TextMaskModule,
     RscFileModule
   ],
   declarations: [
