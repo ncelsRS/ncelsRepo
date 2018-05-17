@@ -57,7 +57,7 @@ namespace Teme.Payment.Data
                     AppointmentRu = e.AppointmentRu,
                     CardNumber = e.CardNumber,
                     ChangesMade = e.ChangesMade,
-                    ClassRisk = e.ClassRisk,
+                    DegreeRiskClassId = e.DegreeRiskClassId,
                     ContractForm = e.ContractForm,
                     ContractId = e.ContractId,
                     IsBlank = e.IsBlank,

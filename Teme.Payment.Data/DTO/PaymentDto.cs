@@ -70,7 +70,7 @@ namespace Teme.Payment.Data.DTO
         /// <summary>
         /// Класс в зависимости от степени потенциального риска применения
         /// </summary>
-        public string ClassRisk { get; set; }
+        public int? DegreeRiskClassId { get; set; }
 
         /// <summary>
         /// Бланк
