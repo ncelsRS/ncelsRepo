@@ -15,5 +15,14 @@ namespace Teme.Contract.Infrastructure.Workflow
         Task CeoNotMeetReq(string workflowId);
         Task CozReturnToDeclarant(string workflowId);
         Task RegisterContract(string workflowId);
+        Task SendPaymentToNcels(string workflowId);
+        Task SelectPaymentExecutors(string workflowId);
+        Task GvExecutorMeet(string workflowId);
+        Task GvExecutorNotMeet(string workflowId);
+        Task GvBossMeet(string workflowId);
+        Task GvBossNotMeet(string workflowId);
+        Task DefExecutorMeet(string workflowId);
+        Task DefExecutorNotMeet(string workflowId);
+        Task RegisterPayment(string workflowId);
     }
 }

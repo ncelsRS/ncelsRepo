@@ -34,5 +34,10 @@ namespace Teme.Shared.Data.Primitives.OrgScopes
         /// </summary>
         public const string Gv = "gv";
 
+        /// <summary>
+        /// ДЭФ
+        /// </summary>
+        public const string Def = "def";
+
     }
 }
