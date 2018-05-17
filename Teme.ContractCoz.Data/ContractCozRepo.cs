@@ -17,7 +17,7 @@ namespace Teme.ContractCoz.Data
         /// Получение списка договров
         /// </summary>
         /// <returns></returns>
-        public async Task<IQueryable<object>> GetListContract(string statusCode) => await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.StatePolicies.Any(c => c.Status == statusCode)).Select(x => new
+        public async Task<IQueryable<object>> GetListContract(string statusCode, string permission) => await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted && e.StatePolicies.Any(c => c.Status == statusCode && c.Permission == permission)).Select(x => new
         {
             x.Id, //Id
             x.Number, //номер
