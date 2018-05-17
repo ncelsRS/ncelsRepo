@@ -13,9 +13,10 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180517172146_addRolesPermissions")]
+    partial class addRolesPermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,28 +65,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasIndex("IconRecordId");
 
                     b.ToTable("AuthUsers");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserRoles", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("DateCreate");
-
-                    b.Property<DateTime>("DateUpdate");
-
-                    b.Property<int?>("RoleId");
-
-                    b.Property<int?>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AuthUserRoles");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>
@@ -989,7 +968,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("RolesPermissions");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.StatePolicy", b =>
@@ -1043,17 +1022,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasOne("Teme.Shared.Data.Context.IconRecord")
                         .WithMany("AuthUsers")
                         .HasForeignKey("IconRecordId");
-                });
-
-            modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserRoles", b =>
-                {
-                    b.HasOne("Teme.Shared.Data.Context.Role", "Role")
-                        .WithMany("RolesUsers")
-                        .HasForeignKey("RoleId");
-
-                    b.HasOne("Teme.Shared.Data.Context.AuthUser", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.AuthUserScopes", b =>

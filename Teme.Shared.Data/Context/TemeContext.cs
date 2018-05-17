@@ -16,6 +16,8 @@ namespace Teme.Shared.Data.Context
 
         public DbSet<AuthUser> AuthUsers { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<AuthUserRoles> AuthUserRoles { get; set; }
+        public DbSet<RolesPermissions> Permissions { get; set; }
         public DbSet<StatePolicy> StatePolicies { get; set; }
         public DbSet<UserForAction> UserForActions { get; set; }
 
@@ -47,39 +49,38 @@ namespace Teme.Shared.Data.Context
         public DbSet<IconRecord> IconRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-      base.OnModelCreating(modelBuilder);
-      modelBuilder.Entity<Declarant>()
-          .HasMany(e => e.DeclarantContract)
-          .WithOne(e => e.Declarant)
-          .HasForeignKey(e => e.DeclarantId);
-      modelBuilder.Entity<Declarant>()
-          .HasMany(e => e.ManufacturContract)
-          .WithOne(e => e.Manufactur)
-          .HasForeignKey(e => e.ManufacturId);
-      modelBuilder.Entity<Declarant>()
-          .HasMany(e => e.PayerContract)
-          .WithOne(e => e.Payer)
-          .HasForeignKey(e => e.PayerId);
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Declarant>()
+                .HasMany(e => e.DeclarantContract)
+                .WithOne(e => e.Declarant)
+                .HasForeignKey(e => e.DeclarantId);
+            modelBuilder.Entity<Declarant>()
+                .HasMany(e => e.ManufacturContract)
+                .WithOne(e => e.Manufactur)
+                .HasForeignKey(e => e.ManufacturId);
+            modelBuilder.Entity<Declarant>()
+                .HasMany(e => e.PayerContract)
+                .WithOne(e => e.Payer)
+                .HasForeignKey(e => e.PayerId);
 
-      modelBuilder.Entity<DeclarantDetail>()
-          .HasMany(e => e.DeclarantDetailContract)
-          .WithOne(e => e.DeclarantDetail)
-          .HasForeignKey(e => e.DeclarantDetailId);
-      modelBuilder.Entity<DeclarantDetail>()
-          .HasMany(e => e.ManufacturDetailContract)
-          .WithOne(e => e.ManufacturDetail)
-          .HasForeignKey(e => e.ManufacturDetailId);
-      modelBuilder.Entity<DeclarantDetail>()
-          .HasMany(e => e.PayerDetailContract)
-          .WithOne(e => e.PayerDetail)
-          .HasForeignKey(e => e.PayerDetailId);
+            modelBuilder.Entity<DeclarantDetail>()
+                .HasMany(e => e.DeclarantDetailContract)
+                .WithOne(e => e.DeclarantDetail)
+                .HasForeignKey(e => e.DeclarantDetailId);
+            modelBuilder.Entity<DeclarantDetail>()
+                .HasMany(e => e.ManufacturDetailContract)
+                .WithOne(e => e.ManufacturDetail)
+                .HasForeignKey(e => e.ManufacturDetailId);
+            modelBuilder.Entity<DeclarantDetail>()
+                .HasMany(e => e.PayerDetailContract)
+                .WithOne(e => e.PayerDetail)
+                .HasForeignKey(e => e.PayerDetailId);
 
+            //modelBuilder.Entity<Ref_EquipmentType>()
+            //      .Property(b => b.DateUpdate)
+            //      .HasDefaultValueSql("getdate()");
 
-      //modelBuilder.Entity<Ref_EquipmentType>()
-      //      .Property(b => b.DateUpdate)
-      //      .HasDefaultValueSql("getdate()");
-
-    }
+        }
     }
 }

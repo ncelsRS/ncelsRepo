@@ -7,6 +7,7 @@ namespace Theme.Shared.Data.Primitives
 {
     public class FileMetadata
     {
+        public string Id { get; set; }
         public string EntityType { get; set; }
         public string EntityId { get; set; }
         public string ParentId { get; set; }

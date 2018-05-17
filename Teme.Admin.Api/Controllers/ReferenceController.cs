@@ -251,11 +251,5 @@ namespace Teme.Admin.Api.Controllers
         {
             return Ok(await _refLogic.GetMeasure());
         }
-
-        public async Task<IActionResult> GosRegistrySearch(string name, string culture, int page, int counter)
-        {
-
-            return null;
-        }
     }
 }
