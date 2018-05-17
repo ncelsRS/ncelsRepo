@@ -113,7 +113,7 @@ namespace Teme.Payment.Data.DTO
         public string ChangesMade { get; set; }
 
         public virtual IEnumerable<PaymentEquipmentDto> PaymentEquipmentDtos { get; set; }
-        public virtual IEnumerable<PaymentPackaging> PaymentPackaging { get; set; }
-        public virtual IEnumerable<PaymentPlatform> PaymentPlatforms { get; set; }
+        public virtual IEnumerable<PaymentPackagingDto> PaymentPackagingDtos { get; set; }
+        public virtual IEnumerable<PaymentPlatformDto> PaymentPlatformDtos { get; set; }
     }
 }
