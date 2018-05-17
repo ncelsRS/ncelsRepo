@@ -5,7 +5,7 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class ExtPaymentService{
 
-  urlPayment: string = environment.urls.payment;
+  urlPayment: string = environment.urls.payment + '/Payment/';
 
 
   constructor(private http: HttpClient){ }
@@ -24,6 +24,9 @@ export class ExtPaymentService{
     return  this.http.get(this.urlPayment + "GetPaymentById", { params: {paymentId} });
   }
 
+  getListPayments(contractId:string){
+    return  this.http.get(this.urlPayment + "GetListPayments", { params: {contractId} });
+  }
 }
 
 

@@ -1,4 +1,4 @@
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {TemplateValidation} from 'app/shared/TemplateValidation';
@@ -27,13 +27,17 @@ import {ExtPaymentService} from '../ext-payment.service';
   //encapsulation: ViewEncapsulation.None
 })
 export class CostInfoComponent extends TemplateValidation {
-  // public dateMask = [ /[1-9]/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/];
+
   isNotRegistred = false;
   @Input() showErrors = false;
   @Input() costInfoModal: any;
 
   applicationTypeId: string = "1";
 
+  @Output() changeModelParent = new EventEmitter<any>();
+  changeModel(evnt:any) {
+    this.changeModelParent.emit(evnt);
+  }
 
   constructor(public iconModal:  IconExtModal//, private paymentService: ExtPaymentService
   ) {
@@ -44,15 +48,15 @@ export class CostInfoComponent extends TemplateValidation {
   ngOnInit() {
     this.model = this.costInfoModal;
   }
-  // getTest(){
-  //
-  //   var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
-  //   this.paymentService.changeModel(changeModelHead)
-  //     .subscribe(
-  //       (data) => console.log(data),
-  //       error => console.log(error)
-  //     );
-  // }
+  getTest(){
+    console.log('costInfoModal',this.costInfoModal);
+    // var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
+    // this.paymentService.changeModel(changeModelHead)
+    //   .subscribe(
+    //     (data) => console.log(data),
+    //     error => console.log(error)
+    //   );
+  }
 
 
 

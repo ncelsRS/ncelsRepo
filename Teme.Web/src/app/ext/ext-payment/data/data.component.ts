@@ -1,4 +1,4 @@
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';;
 import {TemplateValidation} from 'app/shared/TemplateValidation';
@@ -24,6 +24,11 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
 export class DataComponent extends TemplateValidation {
 
   @Input() showErrors = false;
+  @Output() changeModelParent = new EventEmitter<any>();
+  degreeRiskClass="degreeRiskClass";
+  changeModel(evnt:any) {
+    this.changeModelParent.emit(evnt);
+  }
 
   constructor( public iconModal:  IconExtModal) {
     super();
