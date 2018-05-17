@@ -20,6 +20,8 @@ namespace Teme.ContractCoz.Data
         public async Task<IQueryable<object>> GetListContract() => await Task.Run(() => Context.Contracts.Where(e => !e.isDeleted).Select(x=> new {
             x.Id, //Id
             x.Number, //номер
+            x.ContractType,
+            x.WorkflowId,
             x.ContractForm, // Тип договора
             x.ContractScope,// Тип услуги
             ServiceTypes = x.CostWorks.Where(q=> q.Ref_PriceList.Ref_ServiceType.ParentId == null).Select(e=> new {
