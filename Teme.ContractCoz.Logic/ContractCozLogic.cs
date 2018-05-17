@@ -58,7 +58,7 @@ namespace Teme.ContractCoz.Logic
         /// <returns></returns>
         public async Task<object> GetListContract(string statusCode, int userId)
         {
-            var user = GetUser(4).Select(x => x.UserRoles.Select(e => e.Role.Permissions));
+            var user = GetUser(userId).Select(x => x.UserRoles.Select(e => e.Role.Permissions));
             return await Repo.GetListContract(statusCode, 4);
         }
     }
