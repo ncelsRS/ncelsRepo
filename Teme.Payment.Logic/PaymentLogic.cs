@@ -88,11 +88,7 @@ namespace Teme.Payment.Logic
         /// <returns></returns>
         public async Task<object> GetPaymentById(int paymentId)
         {
-            var result = await _repo.GetPayment(paymentId);
-            if (result == null)
-                return null;
-            //return _dtoRepo.ConvertEntityToPayment(result);
-            return result;
+            return await _repo.GetPayment(paymentId);
         }
     }
 }

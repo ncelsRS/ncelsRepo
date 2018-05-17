@@ -81,10 +81,34 @@ namespace Teme.Payment.Data
                         Manufacturer = x.Manufacturer,
                         Model = x.Model,
                         Name = x.Name,
+                        PaymentId = x.PaymentId
+                    }),
+                    PaymentPackagingDtos = e.PaymentPackaging.Select(x => new PaymentPackagingDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        NumberUnitsInBox = x.NumberUnitsInBox,
+                        PackagingtTypeId = x.PackagingtTypeId,
                         PaymentId = x.PaymentId,
-                        Ref_Country = x.Ref_Country,
-                        Ref_EquipmentType = x.Ref_EquipmentType
+                        ShortDescription = x.ShortDescription,
+                        SizeHeight = x.SizeHeight,
+                        SizeLength = x.SizeLength,
+                        SizeMeasureId = x.SizeMeasureId,
+                        SizeWidth = x.SizeWidth,
+                        VolumeMeasureId = x.VolumeMeasureId,
+                        VolumeValue = x.VolumeValue
+                    }),
+                    PaymentPlatformDtos = e.PaymentPlatforms.Select(x => new PaymentPlatformDto
+                    {
+                        CountryId = x.CountryId,
+                        FactAddress = x.FactAddress,
+                        LegalAddress = x.LegalAddress,
+                        NameEn = x.NameEn,
+                        NameKz = x.NameKz,
+                        NameRu = x.NameRu,
+                        PaymentId = x.PaymentId
                     })
+
                 })
                 .FirstOrDefaultAsync();
         }
