@@ -40,8 +40,8 @@ namespace Teme.Contract.Logic
         /// <returns></returns>
         public async Task<object> Create(CreateModel createModel)
         {
-            var client = new Clients.ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
-            var workflowId = await client.CreateAsync(new Clients.CreateModel() { ContractScope = createModel.ContractScope, ContractType = (Clients.ContractTypeEnum)createModel.ContractType });
+            var client = new Shared.Logic.Clients.ActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            var workflowId = await client.CreateAsync(new Shared.Logic.Clients.CreateModel() { ContractScope = createModel.ContractScope, ContractType = (Shared.Logic.Clients.ContractTypeEnum)createModel.ContractType });
             var contract = new Shared.Data.Context.Contract()
             {
                 WorkflowId = workflowId.ToString(),
