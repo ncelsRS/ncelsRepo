@@ -9,6 +9,6 @@ namespace Teme.ContractCoz.Data
 {
     public interface IContractCozRepo : IContractBaseRepo
     {
-        Task<IQueryable<object>> GetListContract(string statusCode, string permission);
+        Task<IQueryable<object>> GetListContract(string statusCode, int permission);
     }
 }

@@ -19,4 +19,5 @@ namespace Teme.Contract.Infrastructure.Primitives
         public string AwaiterKey { get; set; }
         public object Value { get; set; }
     }
+
 }

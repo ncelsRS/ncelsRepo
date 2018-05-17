@@ -36,6 +36,21 @@ namespace Teme.Contract.Infrastructure.Primitives.Enums
         /// Регистрация договора
         /// </summary>
         public const string RegisterContract = "RegisterContract";
-
+        /// <summary>
+        /// Согласование иполнителем ГВ
+        /// </summary>
+        public const string GvExecutorAgreements = "GvExecutorAgreements";
+        /// <summary>
+        /// Согласование руководителем ГВ
+        /// </summary>
+        public const string GvBossAgreements = "GvBossAgreements";
+        /// <summary>
+        /// Согласование иполнителем ДЭФ
+        /// </summary>
+        public const string DefExecutorAgreements = "DefExecutorAgreements";
+        /// <summary>
+        /// Регистрация заявки на платеж
+        /// </summary>
+        public const string RegisterPayment = "RegisterPayment";
     }
 }
