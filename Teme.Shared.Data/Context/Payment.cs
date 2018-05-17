@@ -75,7 +75,9 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Класс в зависимости от степени потенциального риска применения
         /// </summary>
-        public string ClassRisk { get; set; }
+        public int? DegreeRiskClassId { get; set; }
+        [ForeignKey("DegreeRiskClassId")]
+        public virtual Ref_DegreeRiskClass Ref_DegreeRiskClass { get; set; }
 
         /// <summary>
         /// Бланк

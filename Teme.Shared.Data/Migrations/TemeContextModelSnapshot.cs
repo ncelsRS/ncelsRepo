@@ -372,8 +372,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("ChangesMade");
 
-                    b.Property<string>("ClassRisk");
-
                     b.Property<int?>("ContractForm");
 
                     b.Property<int>("ContractId");
@@ -381,6 +379,8 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<DateTime>("DateCreate");
 
                     b.Property<DateTime>("DateUpdate");
+
+                    b.Property<int?>("DegreeRiskClassId");
 
                     b.Property<bool?>("IsBlank");
 
@@ -413,6 +413,8 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
+
+                    b.HasIndex("DegreeRiskClassId");
 
                     b.ToTable("Payments");
                 });
@@ -1095,6 +1097,10 @@ namespace Teme.Shared.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Teme.Shared.Data.Context.References.Ref_DegreeRiskClass", "Ref_DegreeRiskClass")
+                        .WithMany()
+                        .HasForeignKey("DegreeRiskClassId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.PaymentEquipment", b =>
@@ -1109,7 +1115,7 @@ namespace Teme.Shared.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
-                        .WithMany()
+                        .WithMany("PaymentEquipments")
                         .HasForeignKey("PaymentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -1121,7 +1127,7 @@ namespace Teme.Shared.Data.Migrations
                         .HasForeignKey("PackagingTypeId");
 
                     b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
-                        .WithMany()
+                        .WithMany("PaymentPackaging")
                         .HasForeignKey("PaymentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -1141,7 +1147,7 @@ namespace Teme.Shared.Data.Migrations
                         .HasForeignKey("CountryId");
 
                     b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
-                        .WithMany()
+                        .WithMany("PaymentPlatforms")
                         .HasForeignKey("PaymentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
