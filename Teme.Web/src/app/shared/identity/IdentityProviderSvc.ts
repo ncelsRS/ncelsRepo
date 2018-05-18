@@ -53,7 +53,6 @@ export class IdentityProviderSvc {
       );
   }
 
-
   public setAuthFromOneTime(oneTime: string): Observable<boolean> {
     if (!oneTime || this.isJwtExp(oneTime))
       this.redirectToLogin();

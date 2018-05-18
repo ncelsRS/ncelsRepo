@@ -38,7 +38,7 @@ export class ExtContractsComponent implements OnInit {
     prop: {name: 'view', filter: false},
     columns: {
       id: {
-        title: '№ Договора',
+        title: '№',
         type: 'string'
       },
       number: {

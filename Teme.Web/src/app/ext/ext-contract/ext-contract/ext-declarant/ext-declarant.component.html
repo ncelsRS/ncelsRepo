@@ -47,7 +47,7 @@
             <label>Страна</label>
             <select class="form-control"   name="declarantNoResCounty"
                     #declarantNoResCounty = "ngModel"
-                    (change)="searchManufacturNoRes()"
+                    (change)="searchDeclarantNoRes()"
                     [ngClass]="{'has-error':showErrors === true && declarantNoResCounty.invalid && model.isDecRes === 'unres'}"
                     [(ngModel)]="model.declarantNoResCounty"
                     required>
@@ -63,7 +63,11 @@
                       #declarantRuName = "ngModel"
                       [ngClass]="{'has-error':showErrors === true && declarantRuName.invalid && model.isDecRes === 'unres'}"
                       [(ngModel)]="model.declarantRuName"
+                      (change)="onChangeNameNoRes()"
                       required>
+                <option></option>
+                <option [value]="-1">нет данных</option>
+                <option *ngFor="let item of listVarNoRes" [value]="item.id">{{item.nameRu}}</option>
               </select>
           </div>
         </div>
@@ -386,7 +390,7 @@
 
         <h4>Действующее на основании</h4>
         <select class="form-control" type="number" name="DeclarantDocType"
-                [disabled]="disabledAddDetail"
+                [disabled]="disDeclarantDocType "
                 [(ngModel)]="model.DeclarantDocType">
           <option></option>
           <option *ngFor="let level of levels" [value]="level.value" (click)="changeDocLevel(level)">
@@ -394,7 +398,7 @@
           </option>
         </select>
         <br>
-        <div *ngIf="(model.DeclarantDocType !== '0' )">
+        <div *ngIf="(model.DeclarantDocType === '0' )">
           <div class="col-lg-2">
             <div class="form-group">
               <div class="checkbox">
@@ -410,6 +414,7 @@
               <div>
                 <input name="DeclarantDocNumber" class="form-control"  placeholder="Введите значение"  type="text"
                        [(ngModel)]="model.DeclarantDocNumber"
+                       [disabled]="model.DeclarantDocWithoutNumber"
                        (change)="onChangedModel($event.target)">
               </div>
             </div>
@@ -421,6 +426,7 @@
                    name="DeclarantDocStartDate"  ngbDatepicker
                    #letterBDate="ngModel" #letterBDateBtn="ngbDatepicker"
                    [(ngModel)]="model.DeclarantDocStartDate"
+                   [disabled]="model.DeclarantPerpetualDoc"
                    (ngModelChange) ="onChangedModelDate(letterBDate.name,model.DeclarantDocStartDate)">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="letterBDateBtn.toggle()"
@@ -436,6 +442,7 @@
                      name="DeclarantDocEndDate"  ngbDatepicker
                      #letterEDate="ngModel" #letterEDateBtn="ngbDatepicker"
                      [(ngModel)]="model.DeclarantDocEndDate"
+                     [disabled]="model.DeclarantPerpetualDoc"
                      (ngModelChange) ="onChangedModelDate(letterEDate.name, model.DeclarantDocEndDate)">
               <div class="input-group-append">
                 <button class="btn btn-outline-secondary fa fa-calendar fa-lg" (click)="letterEDateBtn.toggle()"

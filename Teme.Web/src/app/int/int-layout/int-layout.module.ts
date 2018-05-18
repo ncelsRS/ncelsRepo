@@ -60,7 +60,8 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     Ng2SmartTableModule,
     FormsModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+
   ],
   declarations: [
     IntContractComponent,
@@ -74,6 +75,7 @@ const routes: Routes = [
     IntPaymentComponent,
     IntPaymentBtnComponent,
     IntPaymentDetailComponent,
+
   ],
   exports: [RouterModule],
   entryComponents: [

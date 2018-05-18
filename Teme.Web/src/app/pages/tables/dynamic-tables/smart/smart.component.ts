@@ -20,7 +20,7 @@ export class SmartComponent {
       custom: [],
       position: 'right' // left|right
     },
-    add: {     
+    add: {
       addButtonContent: '<h4 class="mb-1"><i class="fa fa-plus ml-3 text-success"></i></h4>',
       createButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
       cancelButtonContent: '<i class="fa fa-times text-danger"></i>'
@@ -35,13 +35,13 @@ export class SmartComponent {
       confirmDelete: true
     },
     noDataMessage: 'No data found',
-    columns: {     
+    columns: {
       id: {
         title: 'ID',
         editable: false,
         width: '60px',
         type: 'html',
-        valuePrepareFunction: (value) => { return '<div class="text-center">' + value + '</div>'; }       
+        valuePrepareFunction: (value) => { return '<div class="text-center">' + value + '</div>'; }
       },
       firstName: {
         title: 'First Name',
@@ -71,7 +71,7 @@ export class SmartComponent {
     }
   };
 
-  constructor() { 
+  constructor() {
     this.getData((data) => {
       this.data = data;
     });

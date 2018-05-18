@@ -12,8 +12,9 @@ export class RefIntContractService  {
 
   urlAdminApi = environment.urls.admin+"/api/reference/";
   urlContract = environment.urls.extContract+"/Contract/";
+  urlContractActions = environment.urls.extContract;
   urlContractCoz = environment.urls.contractCoz+"/Contract/";;
-  urlContractAction = environment.urls.contractCoz+"/"
+  urlContractCozAction = environment.urls.contractCoz+"/"
   //urlContractDeclarantActions = environment.urls.contractDeclarantActions;
 
 
@@ -93,25 +94,30 @@ export class RefIntContractService  {
   }
 
   DistributionByExecutors(workFlowId, UserId){
-    return  this.http.post(this.urlContractAction+"Actions/SelectExecutors/selectExecutors/"+workFlowId+"/"+UserId,{})
+    return  this.http.post(this.urlContractCozAction+"Actions/SelectExecutors/selectExecutors/"+workFlowId+"/"+UserId,{})
     ;
 
   };
 
   CozExecutorAgreedRequest(promt, option, workFlowId){
-    return  this.http.post(this.urlContractAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
+    return  this.http.post(this.urlContractCozAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
       ;
 
   };
 
   CozExecutorNotAgreedRequest(promt, option, workFlowId){
-    return  this.http.post(this.urlContractAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
+    return  this.http.post(this.urlContractCozAction+"Actions/"+promt+"/"+option+"/"+workFlowId,{})
       ;
 
   };
 
   GetViewActions(workFlowId){
-    return  this.http.get(this.urlContract+"Actions/contract/"+workFlowId,{});
+    return  this.http.get(this.urlContractActions+"/Actions/contract/"+workFlowId,{});
+
+  }
+
+  RegisterContract(workFlowId){
+    return  this.http.post(this.urlContractCozAction+"Actions/RegisterContract/Register/"+workFlowId,{});
 
   }
 

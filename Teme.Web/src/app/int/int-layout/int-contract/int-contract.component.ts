@@ -1,9 +1,10 @@
-import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, VERSION, ViewChild, ViewEncapsulation} from '@angular/core';
 import {IntContractBtnComponent} from "./int-contract-btn/int-contract-btn.component";
 import {Menu} from "../../../shared/menu/menu.model";
 import {RefIntContractService} from './int-contract-service';
 import {LocalDataSource} from 'ng2-smart-table';
 import {ActivatedRoute} from '@angular/router';
+//import { ToastrService, GlobalConfig } from 'ngx-toastr';
 
 @Component({
   selector: 'app-int-contract',
@@ -15,11 +16,21 @@ import {ActivatedRoute} from '@angular/router';
 export class IntContractComponent implements OnInit {
   public menuItems: Array<any>;
   public contractList=[];
+  title = '';
+  type = 'success';
+  message = '';
+  //version = VERSION;
+  //options: GlobalConfig;
   _selectRow:string;
   _workflowId:string;
   _statusContract:string;
+  private lastInserted: number[] = [];
   public isSelectRow:boolean=true;
+  public selectExecutors = true;
+  public Register = true;
   public data ;
+  _workflowid:string;
+  _prompt:string;
   //   = [{
   //   number: '1321 #1223',
   //   contractAddition: 'sdfg',
@@ -117,7 +128,8 @@ export class IntContractComponent implements OnInit {
   };
 
   constructor(private refIntService: RefIntContractService, private route: ActivatedRoute) {
-
+  // this.options = this.toastrService.toastrConfig;
+  // ,  public toastrService: ToastrService
   }
 
   ngOnInit() {
@@ -145,6 +157,7 @@ export class IntContractComponent implements OnInit {
     this.isSelectRow = false;
     this._selectRow = event.data.number;
     this.getContractById();
+
   }
 
   public onRowHover(event) {
@@ -156,7 +169,7 @@ export class IntContractComponent implements OnInit {
       new Menu (1, 'Не распределенные', '/int/spa/contracts/menu/onDistribution', null, 'tachometer', null, false, 0),
       new Menu (2, 'В работе', '/int/spa/contracts/menu/inWork', null, 'users', null, false, 0),
       new Menu (3, 'На карректировке', '/int/spa/contracts/menu/onAdjustment', null, 'laptop', null, true, 0),
-      new Menu (4, 'Требует согдасования', '/int/spa/contracts/menu/requiredRegistration', null, 'keyboard-o', null, false, 3),
+      new Menu (4, 'Требует согласования', '/int/spa/contracts/menu/requiredRegistration', null, 'keyboard-o', null, false, 3),
       new Menu (5, 'Согласованные', '/int/spa/contracts/menu/onAgreement', null, 'address-card-o', null, false, 3),
       new Menu (6, 'Не согласованные', '/int/spa/contracts/menu/onDistribution', null, 'creative-commons', null, false, 3),
       new Menu (7, 'Активные', '/int/spa/contracts/menu/active', null, 'font-awesome', null, false, 3),
@@ -171,6 +184,7 @@ export class IntContractComponent implements OnInit {
       .toPromise()
       .then(response => {
         console.log(response);
+        this.contractList = [];
         this.contractList.push(response);
         this.loadContractData();
 
@@ -221,7 +235,8 @@ export class IntContractComponent implements OnInit {
       .then(response => {
         responseData = response;
         this._workflowId = responseData.workflowId;
-        console.log(response);
+        console.log("_workflowId"+responseData.workflowId);
+        this.ViewActions(responseData.workflowId);
 
 
       })
@@ -232,6 +247,24 @@ export class IntContractComponent implements OnInit {
 
   }
 
+  RegisterContract()
+  {
+    let responseData;
+    this.refIntService.RegisterContract(this._workflowId)
+      .toPromise()
+      .then(response => {
+        responseData = response;
+        this._workflowId = responseData.workflowId;
+        this.GetListContracts(this._statusContract);
+
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+  }
+
   DistributionByExecutors(selectUser)
   {
     let responseData;
@@ -240,6 +273,7 @@ export class IntContractComponent implements OnInit {
       .then(response => {
         responseData = response;
         this._workflowId = responseData.workflowId;
+        this.GetListContracts(this._statusContract);
 
 
       })
@@ -253,5 +287,57 @@ export class IntContractComponent implements OnInit {
   {
     this.DistributionByExecutors(val);
   }
+
+  ViewActions(workflowid)
+  {
+    this.selectExecutors = true;
+    this.Register = true;
+    let responseData;
+    this.refIntService.GetViewActions(workflowid)
+      .toPromise()
+      .then(response => {
+        responseData = response;
+        console.log(responseData);
+        this._prompt = responseData[0].prompt;
+        let keys = Object.keys(responseData[0].options);
+        console.log("key",keys);
+        keys.forEach(key => {
+          let val = responseData[0].options[key];
+          console.log('val='+val);
+          switch(val) {
+            case 'selectExecutors': {
+              this.selectExecutors = false;
+              break;
+            }
+            case 'Register': {
+              this.Register = false;
+              break;
+            }
+            default: {
+              null;
+              break;
+            }
+          }
+
+
+        });
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+  };
+
+  // openToast() {
+  //   let m = "option";
+  //   let t = "successssssssssssssssss";
+  //   const opt = JSON.parse(JSON.stringify(this.options));
+  //   const inserted = this.toastrService[this.type](m, t, opt);
+  //   if (inserted) {
+  //     this.lastInserted.push(inserted.toastId);
+  //   }
+  //   return inserted;
+  // }
 
 }
