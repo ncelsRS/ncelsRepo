@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Routes} from '@angular/router';
 import {ExtPaymentService} from './ext-payment.service';
 import {PaymentDto} from './payment-dto';
+import {isBoolean} from 'util';
 
 
 @Component({
@@ -16,8 +17,7 @@ export class ExtPaymentComponent implements OnInit {
   public showAllErr = false;
   type: string;
   paymentId:string = "0";
-  paymentData:PaymentDto;
-  varplaceholder="введите значениеее1"
+  //paymentData:PaymentDto;
 
   constructor(private route: ActivatedRoute, private paymentService: ExtPaymentService) {
     this.type = 'cost-info';
@@ -26,10 +26,34 @@ export class ExtPaymentComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.paymentId = params.paymentId;
-      console.log('params', params);
     });
+    this.paymentService.getPayment(this.paymentId).subscribe((data:PaymentDto)=> {
+      //this.paymentData = data
+      this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
+      // this.paymentModel.costInfo.contractNumber = data.contractNumber;
+      // this.paymentModel.costInfo.conclusionBeginDate = data.conclusionBeginDate;
+      // this.paymentModel.costInfo.conclusionEndDate = data.conclusionEndDate;
+      this.paymentModel.costInfo.cardNumber = data.cardNumber;
+      this.paymentModel.costInfo.isTypeImnMt = data.isTypeImnMt;
+      this.paymentModel.costInfo.tradeName = data.tradeName;
 
-    this.paymentService.getPayment(this.paymentId).subscribe((data:PaymentDto)=> {this.paymentData = data});
+      this.paymentModel.data.nameKz = data.nameKz;
+      this.paymentModel.data.nameRu = data.nameRu;
+      this.paymentModel.data.applicationAreaKz = data.applicationAreaKz;
+      this.paymentModel.data.applicationAreaRu = data.applicationAreaRu;
+      this.paymentModel.data.appointmentKz = data.appointmentKz;
+      this.paymentModel.data.appointmentRu = data.appointmentRu;
+      this.paymentModel.data.isClosedSystem = data.isClosedSystem;
+      this.paymentModel.data.rationaleManufacturer = data.rationaleManufacturer;
+      this.paymentModel.data.degreeRiskClassId = data.degreeRiskClassId;
+      this.paymentModel.data.isBlank = data.isBlank;
+      this.paymentModel.data.isMeasures = data.isMeasures;
+      this.paymentModel.data.isDiagnostics = data.isDiagnostics;
+      this.paymentModel.data.isStyryl = data.isStyryl;
+      this.paymentModel.data.isPresenceMedicinalProduct = data.isPresenceMedicinalProduct;
+      this.paymentModel.data.numberModificationImn = data.numberModificationImn;
+
+    });
 
   }
   setTab(name: string) {
@@ -39,54 +63,48 @@ export class ExtPaymentComponent implements OnInit {
     this.showAllErr = true;
   }
   getChangeModel(){
-    let fields= {cardNumber: "333"};
-    this.changeModel(fields);
+    console.log("paymentModel",this.paymentModel );
+    // let fields= {cardNumber: "333"};
+    // this.changeModel(fields);
   }
 
-  changeModel(fields:any){
-    //fields': {CardNumber: "555"}
+  changeModel(evnt:any){
+    console.log("evnt",evnt, evnt.value);
+    let fields = {[evnt.name]: evnt.value};
+    console.log("fields",fields);
     var changeModelHead = ({'id': this.paymentId, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': fields});
     this.paymentService.changeModel(changeModelHead)
-      .subscribe(
-        //(data) => console.log(data),
-        //error => console.log(error)
-      );
+      .subscribe((data)=>{},error => console.log(error));
   }
-
-
-
 
   onSubmit(form: FormsModule) {
     // element.all(by.tagName('app-hero-parent'))
   }
 
-
-
   public paymentModel: any = {
     costInfo: {
-      contractForm: "2",             //Тип регистрации
+      contractForm: null,             //Тип регистрации
       contractNumber: null, 			    //Номер договора
       conclusionBeginDate: null,	    //Дата заключения
       conclusionEndDate: null,		    //Срок Действия
-      registrationType: null,	        //Вид регистрации
-      registrationNumber: null,		    //№ регистрационного удостоверения
+      cardNumber: null,		            //№ регистрационного удостоверения
       isTypeImnMt: null,				      //Тип ИМН/МТ
       tradeName: null,					      //Торговое название
       typeServices: null,			        //Тип услуги
-      additionalServices: null,	      //Дополнительные услуги
-      priceManufacturerType: null,		//Cтоимость отечественного или зарубежного производителя
-      numberServices:null,           //Количество
+      // additionalServices: null,	      //Дополнительные услуги
+      // priceManufacturerType: null,		//Cтоимость отечественного или зарубежного производителя
+      // numberServices:null,           //Количество
     },
     data: {
       nameKz: null,					          //Наименование на государственном языке
       nameRu: null,					          //Наименование на русском языке
       applicationAreaKz: null,		      //Область применения на государственном языке
       applicationAreaRu: null,		      //Область применения на русском языке
-      appointmentAreaKz: null,			    //Назначение на государственном языке
-      appointmentAreaRu: null,			    //Назначение на русском языке
-      iSclosedSystem: null,			        //Закрытая система
+      appointmentKz: null,			    //Назначение на государственном языке
+      appointmentRu: null,			    //Назначение на русском языке
+      isClosedSystem: null,			        //Закрытая система
       rationaleManufacturer: null,		  //Назначение на русском языке
-      classRisk: null,				          //Класс в зависимости от степени потенциального риска применения
+      degreeRiskClassId: null,				          //Класс в зависимости от степени потенциального риска применения
       isBlank: null,							      //Бланк
       isMeasures: null,						      //Средство измерения
       isDiagnostics: null,					    //ИМН и МТ для ин витро диагностики

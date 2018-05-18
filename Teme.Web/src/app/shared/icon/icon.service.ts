@@ -4,7 +4,7 @@ import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class IconService{
-  iconUrl:string = environment.urls.icon;
+  iconUrl:string = environment.urls.common + '/Icon/';
 
   constructor(private http: HttpClient){ }
 

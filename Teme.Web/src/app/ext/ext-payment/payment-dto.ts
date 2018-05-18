@@ -15,7 +15,7 @@ export class PaymentDto {
   public appointmentRu: string;
   public isClosedSystem: boolean;
   public rationaleManufacturer: string;
-  public classRisk: string;
+  public degreeRiskClassId: number;
   public isBlank: boolean;
 
   public isMeasures: boolean;

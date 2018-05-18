@@ -8,6 +8,5 @@ export const environment = {
     icon: 'http://localhost:9004/Icon/',
     contractCoz: 'http://localhost:9005',
     files: 'http://localhost:9006',
-    reference: 'http://localhost:9121/api/reference/',
   }
 };

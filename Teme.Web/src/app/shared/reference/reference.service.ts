@@ -4,7 +4,7 @@ import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class ReferenceService{
-  referenceUrl:string = environment.urls.reference
+  referenceUrl:string = environment.urls.admin + '/api/reference/';
 
   constructor(private http: HttpClient){ }
 
@@ -17,9 +17,11 @@ export class ReferenceService{
   }
 
   getCalculatorServiceType(applicationTypeId:string){
-    const params = {applicationTypeId: applicationTypeId};
-    return this.http.get( this.referenceUrl + 'CalculatorServiceType',{ params: params} )
+    //const params = {applicationTypeId: applicationTypeId};
+    return this.http.get( this.referenceUrl + 'CalculatorServiceType',{ params: {applicationTypeId: applicationTypeId}} )
   }
 
-
+  getReferenceStandart(referanceName:string){
+    return this.http.get( this.referenceUrl + referanceName);
+  }
 }

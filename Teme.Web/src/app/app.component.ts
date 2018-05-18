@@ -27,7 +27,9 @@ export class AppComponent {
         .split('&')[0]
         .split('=')[1];
       this.identitySvc.setAuthFromOneTime(onetime)
-        .subscribe();
+        .subscribe(res => {
+          window.location.href = url.substr(0, index - 1);
+        });
     }
     else
       this.identitySvc.checkAuthWithRefresh()
