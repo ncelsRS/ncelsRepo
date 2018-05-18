@@ -67,6 +67,7 @@ namespace Teme.Contract.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+            
             loggerFactory.AddSerilog();
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings => { });
             app.UseRscAuth();
