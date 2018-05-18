@@ -11,6 +11,7 @@ import {UserMenuComponent} from './components/user-menu/user-menu.component'
 import { PipesModule } from '../theme/pipes/pipes.module';
 import {HorizontalMenuComponent} from "../shared/menu/horizontal-menu/horizontal-menu.component";
 
+
 @NgModule({
   imports: [
     CommonModule,

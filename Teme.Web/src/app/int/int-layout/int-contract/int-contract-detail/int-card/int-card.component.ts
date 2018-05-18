@@ -61,6 +61,7 @@ export class IntCardComponent implements OnInit {
       .then(response => {
         responseData = response;
         console.log(responseData);
+        console.log("looggss");
         this.idManufactur = responseData.manufacturId;
         this.idDeclarant = responseData.declarantId;
         this.idPayer = responseData.payerId;
@@ -214,6 +215,9 @@ export class IntCardComponent implements OnInit {
 
   };
 
+
+
+
   ViewActions()
   {
     let responseData;
@@ -221,6 +225,7 @@ export class IntCardComponent implements OnInit {
       .toPromise()
       .then(response => {
         responseData = response;
+        console.log("brrrrrrrrrrr");
         console.log(responseData);
         this._prompt = responseData[0].prompt;
         let keys = Object.keys(responseData[0].options);

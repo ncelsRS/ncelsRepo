@@ -166,9 +166,11 @@ export class ExtContractComponent  extends TemplateValidation {
       payerNoResName: null,
       payerOrgForm: null,
       payerCountry: null,
+      payerNoResCountry: null,
       payerAddressLegalRu: null,
       payerBankName: null,
       payerBankIik: null,
+      payerBankBin:null,
       payerBankSwift: null,
       payerBankCurr: null,
     },
@@ -180,6 +182,7 @@ export class ExtContractComponent  extends TemplateValidation {
       NameIMNRu: null,
       NameIMNKz: null,
       isImport:null,
+
       serciveCount:null,
     },
 
@@ -263,7 +266,7 @@ export class ExtContractComponent  extends TemplateValidation {
         item.nameKz = 'Өндіруші';
       }
       else if (item.value == 'Declarant') {
-        item.nameRu = 'Перерегистрация';
+        item.nameRu = 'Заявитель';
         item.nameKz = 'Жолдаушы';
 
       }
@@ -390,7 +393,8 @@ export class ExtContractComponent  extends TemplateValidation {
     this.contract.payer.payerBankName = this.contract.declarant.declarantBank;
     this.contract.payer.payerBankIik = this.contract.declarant.declarantBankIik;
     this.contract.payer.payerBankCurr = this.contract.declarant.declarantBankCurr;
-    this.contract.declarantBankSwift = this.contract.declarant.declarantBankSwift;
+    this.contract.payer.payerBankSwift = this.contract.declarant.declarantBankSwift;
+    this.contract.payer.payerBankBin = this.contract.declarant.IdNumber;
 
   }
 
@@ -409,6 +413,7 @@ export class ExtContractComponent  extends TemplateValidation {
     this.contract.payer.payerBankIik = this.contract.manufactur.manufacturBankIik;
     this.contract.payer.payerBankCurr = this.contract.manufactur.manufacturCurr;
     this.contract.declarantBankSwift = this.contract.manufactur.manufacturBankSwift;
+    this.contract.payer.payerBankBin = this.contract.declarant.idNumber;
 
   };
 

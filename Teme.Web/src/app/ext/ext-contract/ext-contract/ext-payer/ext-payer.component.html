@@ -63,8 +63,9 @@
           <label>Страна</label>
           <select class="form-control"  name="payerNoRes"
                   #payerNoRes = "ngModel"
+                  (change)="searchPayerNoRes()"
                   [ngClass]="{'has-error':showErrors === true && payerNoRes.invalid && isDecRes !== 'unres'}"
-                  [(ngModel)]="model.payerNoRes"
+                  [(ngModel)]="model.payerNoResCountry"
                   required>
             <option></option>
             <option *ngFor="let item of countryVarNoRes">{{item.nameRu}}</option>
@@ -76,9 +77,13 @@
             <label>Наименование на русском языке *</label>
             <select class="form-control" name="payerNoResName"
                     #payerNoResName = "ngModel"
+                    (change)="onChangeNameNoRes()"
                     [ngClass]="{'has-error':showErrors === true && payerNoResName.invalid && isDecRes !== 'unres'}"
                     [(ngModel)]="model.payerNoResName"
                     required>
+              <option></option>
+              <option [value]="-1">нет данных</option>
+              <option *ngFor="let item of listVarNoRes" [value]="item.id">{{item.nameRu}}</option>
             </select>
           </div>
         </div>
@@ -225,8 +230,8 @@
             </div>
           </div>
         </div>
-
-        <div class="form-group ng-hide" ng-show="object.Payer.IsResident == true">
+        <div [hidden]="model.isPayerRes === 'res'">
+        <div class="form-group ng-hide" >
           <label>Расчетный счет/ИИК</label>
           <div>
             <input name="BankIik" class="form-control" placeholder="Введите значение"  type="text" ng-disabled="showContactInformationPayer"
@@ -237,6 +242,7 @@
                    [disabled]="disabledAddDetail"
                    required>
           </div>
+        </div>
         </div>
         <!--<div class="form-group ng-hide" >-->
           <!--<label>Расчетный счет</label>-->
@@ -258,28 +264,42 @@
             <option *ngFor="let item of currencyVar" [value]="item.id">{{item.nameRu}}</option>
           </select>
         </div>
-
+        <div [hidden]="model.isPayerRes === 'unres'">
         <div class="form-group ng-hide" ng-show="object.Payer.IsResident == true">
           <label>ИИН/БИН</label>
           <div >
             <input name="BankBin" class="form-control"  placeholder="Введите значение"  type="text" ng-disabled="true" required=""
                    [disabled]="disabledAddDetail"
+                   [(ngModel)]="model.payerBankBin"
                    (change)="onChangedModel($event.target)">
           </div>
         </div>
+        </div>
 
-        <div class="form-group ng-hide" ng-show="object.Payer.IsResident != null">
-          <label ng-show="object.Payer.IsResident == true" class="ng-hide">БИК</label>
+        <div [hidden]="model.isPayerRes === 'unres'">
+          <div class="form-group ng-hide" >
+            <label>БИК</label>
+            <div >
+              <input name="BankИшл" class="form-control"  placeholder="Введите значение"  type="text" ng-disabled="true" required=""
+                     (change)="onChangedModel($event.target)">
+            </div>
+          </div>
+        </div>
+        <div [hidden]="model.isPayerRes === 'res'">
+
+        <div class="form-group ng-hide">
+          <label>SWIFT</label>
           <!--<label ng-show="object.Payer.IsResident == false" class="ng-hide">SWIFT *</label>-->
           <div ng-class="{'input-group': showComments}">
             <input name="BankSwift" class="form-control" placeholder="Введите значение"  type="text"
                    #payerBankSwift="ngModel"
-                   [ngClass]="{'has-error':showErrors === true && payerBankSwift.invalid}"
+                   [ngClass]="{'has-error':showErrors === true && payerBankSwift.invalid }"
                    [(ngModel)]="model.payerBankSwift"
                    (change)="onChangedModel($event.target)"
                    [disabled]="disabledAddDetail"
                    required>
           </div>
+        </div>
         </div>
       </div>
     </div>

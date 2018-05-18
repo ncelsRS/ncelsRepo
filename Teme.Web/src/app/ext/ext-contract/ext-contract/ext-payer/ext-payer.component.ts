@@ -45,6 +45,7 @@ export class ExtPayerComponent extends TemplateValidation {
   public  choosePayerVar;
   public items = [];
   public listVarRes;
+  public listVarNoRes;
   _isNewSubject:boolean = false;
   changeModelHead;
   changeModelRes:any;
@@ -117,6 +118,23 @@ export class ExtPayerComponent extends TemplateValidation {
         () =>
           console.log('done loading orgForm')
       );
+
+  }
+
+  searchPayerNoRes()
+  {
+    this.refService.SearchDeclarantNonResident(this.model.payerNoResCountry)
+      .toPromise()
+      .then(response => {
+        console.log(response);
+        this.listVarNoRes = response ;
+      })
+      .catch (err=>
+        {
+          console.error(err);
+        }
+      )
+    ;
 
   }
 
@@ -298,6 +316,7 @@ export class ExtPayerComponent extends TemplateValidation {
         else
         {
           this.loadData(this.listVarRes);
+          this.disabledAddDetail = false;
         }
       })
       .catch (err=>
@@ -420,6 +439,13 @@ export class ExtPayerComponent extends TemplateValidation {
     }
 
   }
+
+  onChangeNameNoRes()
+  {
+    if(this.model.payerNoResName =="-1")
+      this.createPayer();
+  }
+
 
   changedModelRef(obj)
   {

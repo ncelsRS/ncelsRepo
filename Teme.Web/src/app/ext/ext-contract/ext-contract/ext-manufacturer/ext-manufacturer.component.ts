@@ -6,6 +6,7 @@ import {
  } from "@angular/forms";
 import {TemplateValidation} from '../../../../shared/TemplateValidation';
 import {RefService} from '../ext-ref-sevice';
+import {forEach} from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'app-ext-manufacturer',
@@ -161,7 +162,10 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     this.refService.getBank()
       .subscribe(
         data=> {
-          this.bankVar = data;      },
+          this.bankVar = data;
+
+          console.log(this.bankVar);
+          },
         (err) =>
           console.error(err),
         () =>
@@ -175,12 +179,14 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     this.refService.getCountry()
       .subscribe(
         data=> {
-          this.countryVarNoRes = data;      },
+          this.countryVarNoRes = data;
+          this.countryVarNoRes.splice(0,1);
+          }),
         (err) =>
           console.error(err),
         () =>
           console.log('done loading Country')
-      );
+      ;
 
   }
 
@@ -188,13 +194,21 @@ export class ExtManufacturerComponent extends TemplateValidation  {
     this.refService.getCountry()
       .subscribe(
         data=> {
-          this.countryVarRes = data;      },
+          this.countryVarRes = data;
+         },
         (err) =>
           console.error(err),
         () =>
           console.log('done loading Country')
+
       );
 
+  }
+
+  changeCoutryList()
+  {
+    if(this.model.isRes=='res')
+      this.countryVarRes.splice(1);
   }
 
 
@@ -214,7 +228,9 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
 
   onChangedModel(evnt) {
-     console.log(this.viewAction);
+
+    if(evnt.name =='IsResident'&& this.model.isRes =='res')
+      this.changeCoutryList();
     if (evnt.name == 'NameKz' || evnt.name == 'NameRu' ||
       evnt.name == 'NameEn' || evnt.name == 'OrganizationFormId' || evnt.name == 'CountryId') {
         this.changeModelHead = ({
@@ -327,6 +343,12 @@ export class ExtManufacturerComponent extends TemplateValidation  {
 
   }
 
+  onChangeNameNoRes()
+  {
+    if(this.model.manufacturNoResNameSearch =="-1")
+    this.createManufactur();
+  }
+
   searchManufactur(val) {
     this.refService.SearchDeclarantResident(val)
       .toPromise()
@@ -339,6 +361,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
         }
         else {
           this.loadData(response);
+          this.disabledAddDetail = false;
         }
       })
       .catch(err => {

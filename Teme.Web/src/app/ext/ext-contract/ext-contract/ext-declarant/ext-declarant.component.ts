@@ -45,6 +45,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   public currencyVar;
   public viewAddDeclarant=false;
   public disabledAddDetail=true;
+  public disDeclarantDocType:boolean = true;
   public listVarNoRes;
   public listVarRes;
   changeModelRes:any;
@@ -200,7 +201,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     this.refService.getCountry()
       .subscribe(
         data=> {
-          this.countryVarNoRes = data;      },
+          this.countryVarNoRes = data;
+          this.countryVarNoRes.splice(0,1);  },
         (err) =>
           console.error(err),
         () =>
@@ -224,6 +226,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
   onManufChange(chk)
   {
+    this.disDeclarantDocType = false;
     console.log(chk);
     if (chk) {
       this.onChangedManufYes.emit(chk);
@@ -251,10 +254,17 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
   }
 
-
+  onChangeNameNoRes()
+  {
+    if(this.model.declarantRuName =="-1")
+      this.createDeclarant();
+  }
 
 
   onChangedModel(evnt) {
+
+    if(evnt.name == 'isDecRes')
+    this.changeCoutryList();
 
     if(evnt.name == 'DeclarantPerpetualDoc'){
       if (evnt.checked)
@@ -364,6 +374,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
         this.model.id  = responseData.id;
         this.model.detailId  = responseData.detailId;
         this.disabledAddDetail = false;
+        this.disDeclarantDocType = false;
         this._isNewSubject = true;
         this.onChangedModelAddNewSbj();
 
@@ -377,9 +388,9 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   }
 
 
-  searchManufacturNoRes()
+  searchDeclarantNoRes()
   {
-    this.refService.SearchDeclarantNonResident(this.model.manufacturNoResCountry)
+    this.refService.SearchDeclarantNonResident(this.model.declarantRuName)
       .toPromise()
       .then(response => {
         console.log(response);
@@ -408,6 +419,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
         else
         {
           this.loadData(this.listVarRes);
+          this.disabledAddDetail = false;
+          this.disDeclarantDocType = false;
         }
       })
       .catch (err=>
@@ -481,7 +494,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     this.model.declarantBankSwift = null;
     this.model.declarantBankCurr = null;
     this.model.declarantPhone =null;
-    this.model.manufacturPhone2 = null;
+    this.model.declarantPhone2 = null;
     this.model.declarantEmail =null;
     this.model.DeclarantDocType = null;
     this.model.DeclarantDocWithoutNumber = null;
@@ -525,6 +538,12 @@ export class ExtDeclarantComponent  extends TemplateValidation{
       )
     ;
 
+  }
+
+  changeCoutryList()
+  {
+    if(this.model.isRes=='res')
+      this.countryVarRes.splice(1);
   }
 
 }

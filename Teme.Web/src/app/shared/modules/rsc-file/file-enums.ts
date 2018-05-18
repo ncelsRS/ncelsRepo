@@ -12,6 +12,14 @@ export enum FilePermissions{
 }
 
 export const FileTypeCodes = {
+  letterManager: {
+    key: 'letterManager',
+    value: '1.Доверенность на менеджера'
+  },
+  letManufactur: {
+    key: 'letManufactur',
+    value: '2.Доверенность от производителя'
+  },
   application: {
     key: 'application',
     value: 'Заявление'
