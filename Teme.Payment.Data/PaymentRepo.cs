@@ -51,6 +51,9 @@ namespace Teme.Payment.Data
                 .Select(e => new PaymentDto
                 {
                     Id = e.Id,
+                    ContractId = e.ContractId,
+                    ContractNumber = e.Contract.Number,
+                    ContractDateCreate = e.Contract.DateCreate,
                     ApplicationAreaKz = e.ApplicationAreaKz,
                     ApplicationAreaRu = e.ApplicationAreaRu,
                     AppointmentKz = e.AppointmentKz,
@@ -59,7 +62,7 @@ namespace Teme.Payment.Data
                     ChangesMade = e.ChangesMade,
                     DegreeRiskClassId = e.DegreeRiskClassId,
                     ContractForm = e.ContractForm,
-                    ContractId = e.ContractId,
+                    
                     IsBlank = e.IsBlank,
                     IsClosedSystem = e.IsClosedSystem,
                     IsDiagnostics = e.IsDiagnostics,
