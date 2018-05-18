@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Teme.Contract.Infrastructure.Workflow;
 using Teme.Contract.Infrastructure.Workflow.ContractCoz;
+using Teme.Contract.Infrastructure.Workflow.Payment;
 
 namespace Teme.Contract.Infrastructure
 {
@@ -23,6 +24,18 @@ namespace Teme.Contract.Infrastructure
 
             service.AddTransient<CeoMeetReq>();
             service.AddTransient<CeoNotMeetReq>();
+            service.AddTransient<RegisterContract>();
+
+            service.AddTransient<SendPaymentToNcels>();
+            service.AddTransient<SelectPaymentExecutors>();
+            service.AddTransient<GvExecutorMeet>();
+            service.AddTransient<GvExecutorNotMeet>();
+            service.AddTransient<GvBossMeet>();
+            service.AddTransient<GvBossNotMeet>();
+            service.AddTransient<DefExecutorMeet>();
+            service.AddTransient<DefExecutorNotMeet>();
+            service.AddTransient<RegisterPayment>();
+
         }
     }
 }

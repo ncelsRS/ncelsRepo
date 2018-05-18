@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Primitives.Enums;
-using Teme.Contract.Logic.Clients;
 using Teme.ContractCoz.Logic;
 using Teme.ContractCoz.Logic.Actions;
 using Teme.SharedApi.Controllers;
@@ -156,6 +155,27 @@ namespace Teme.ContractCoz.Api.Controllers
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
                 var r = await Logic.CozCeoAgreementsRequest(workflowId, false);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Регистрация договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(UserPromts.RegisterContract + "/" + UserOptions.Register + "/{workflowId}")]
+        public async Task<IActionResult> RegisterContract([FromRoute][Required] string workflowId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var r = await Logic.RegisterContract(workflowId);
                 return Json(r);
             }
             catch (Exception ex)

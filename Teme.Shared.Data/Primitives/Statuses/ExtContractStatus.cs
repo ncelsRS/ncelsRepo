@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -28,6 +28,11 @@ namespace Teme.Shared.Data.Primitives.Statuses
         /// На корректировке у заявителя
         /// </summary>
         public const string OnAdjustment = "onAdjustment";
+
+        /// <summary>
+        /// На формировании счета на оплату
+        /// </summary>
+        public const string FormationInvoice = "formationInvoice";
 
         /// <summary>
         /// Активный

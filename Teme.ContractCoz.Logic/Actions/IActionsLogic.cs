@@ -10,5 +10,6 @@ namespace Teme.ContractCoz.Logic.Actions
         Task<object> CozExecutorAgreementsRequest(string workflowId, bool agree);
         Task<object> DistributionByExecutors(string workflowId, int userId);
         Task<object> ReturnToDeclarant(string workflowId);
+        Task<object> RegisterContract(string workflowId);
     }
 }
