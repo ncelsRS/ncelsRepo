@@ -14,6 +14,9 @@ namespace Teme.Payment.Data.DTO
         /// </summary>
         public int ContractId { get; set; }
 
+        public string ContractNumber { get; set; }
+        public DateTime ContractDateCreate { get; set; }
+
         /// <summary>
         /// Тип договора
         /// </summary>
