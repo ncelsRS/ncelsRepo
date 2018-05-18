@@ -2,6 +2,8 @@
 export class PaymentDto {
   public id: number;
   public contractId: number;
+  public contractNumber: string;
+  public contractDateCreate: DateTimeFormat;
   public contractForm: number;
   public cardNumber: string;
   public isTypeImnMt: boolean;

@@ -21,7 +21,7 @@ export class IntPaymentBtnComponent implements OnInit {
   }
 
   onClick() {
-    window.open("/int/spa/payments/1")
+    window.open("/int/spa/payments/" + this.value)
   }
 
 

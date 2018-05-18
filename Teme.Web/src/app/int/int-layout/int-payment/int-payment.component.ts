@@ -11,7 +11,7 @@ import {IntPaymentBtnComponent} from './int-payment-btn/int-payment-btn.componen
 export class IntPaymentComponent implements OnInit {
   public menuItems: Array<any>;
   public data = [{
-    number: '1321 #1223',
+    number: '1321',
     paymentAddition: 'sdfg',
     contractType: 'asd',
     typeServices: 'sdac', sendDate: 'sdac',

@@ -28,7 +28,7 @@ export class EquipmentComponent extends TemplateValidation {
   public equipmentData = [{
       rowNumber:1,
       type: 'Тип',
-      name: 'Наименование',
+      name: '1',
       idCode: '12344',
       model: 'Модель',
       manufacturer: 'Производитель',
@@ -79,7 +79,7 @@ export class EquipmentComponent extends TemplateValidation {
         editor: {
           type: 'list',
           config: {
-            list: [{ value: 'Antonette', title: 'Antonette' }, { value: 'Bret', title: 'Bret' }, {
+            list: [{ value: '1', title: 'Antonette' }, { value: '2', title: 'Bret' }, {
               value: '<b>Samantha</b>',
               title: 'Samantha'
             }]

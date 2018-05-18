@@ -30,9 +30,9 @@ export class ExtPaymentComponent implements OnInit {
     this.paymentService.getPayment(this.paymentId).subscribe((data:PaymentDto)=> {
       //this.paymentData = data
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
-      // this.paymentModel.costInfo.contractNumber = data.contractNumber;
-      // this.paymentModel.costInfo.conclusionBeginDate = data.conclusionBeginDate;
-      // this.paymentModel.costInfo.conclusionEndDate = data.conclusionEndDate;
+      this.paymentModel.costInfo.contractNumber = data.contractNumber;
+      this.paymentModel.costInfo.contractDateCreate = data.contractDateCreate;
+      this.paymentModel.costInfo.contractDateInterval = data.contractDateCreate;
       this.paymentModel.costInfo.cardNumber = data.cardNumber;
       this.paymentModel.costInfo.isTypeImnMt = data.isTypeImnMt;
       this.paymentModel.costInfo.tradeName = data.tradeName;
@@ -69,9 +69,9 @@ export class ExtPaymentComponent implements OnInit {
   }
 
   changeModel(evnt:any){
-    console.log("evnt",evnt, evnt.value);
+    //console.log("evnt","-" + evnt.name + "-", evnt.value, evnt);
     let fields = {[evnt.name]: evnt.value};
-    console.log("fields",fields);
+    //console.log("fields",fields);
     var changeModelHead = ({'id': this.paymentId, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': fields});
     this.paymentService.changeModel(changeModelHead)
       .subscribe((data)=>{},error => console.log(error));
@@ -85,8 +85,8 @@ export class ExtPaymentComponent implements OnInit {
     costInfo: {
       contractForm: null,             //Тип регистрации
       contractNumber: null, 			    //Номер договора
-      conclusionBeginDate: null,	    //Дата заключения
-      conclusionEndDate: null,		    //Срок Действия
+      contractDateCreate: null,	    //Дата заключения
+      contractDateInterval: null,		    //Срок Действия
       cardNumber: null,		            //№ регистрационного удостоверения
       isTypeImnMt: null,				      //Тип ИМН/МТ
       tradeName: null,					      //Торговое название
@@ -199,6 +199,7 @@ export class ExtPaymentComponent implements OnInit {
 
 
   getTestVar(){
-    console.log("testVar", this.paymentId);
+    let fff = new Date('2018-05-04T12:43:56.4566667');
+    console.log("getTestVar", fff.toString());
   }
 }

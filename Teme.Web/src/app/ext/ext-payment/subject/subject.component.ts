@@ -26,7 +26,7 @@ export class SubjectComponent extends TemplateValidation {
   @Input() showErrors = false;
 
   public phoneMask = ['+','7',' ','(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
-  public iinMask = [/[1-9](12)/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]
+  public iinMask = [/[1-9]/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]
 
 
   constructor(public iconModal:  IconExtModal) {

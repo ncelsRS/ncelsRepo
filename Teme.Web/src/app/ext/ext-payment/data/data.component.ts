@@ -25,7 +25,7 @@ export class DataComponent extends TemplateValidation {
 
   @Input() showErrors = false;
   @Output() changeModelParent = new EventEmitter<any>();
-  degreeRiskClass="degreeRiskClass";
+  refData={column:"degreeRiskClassId", name:"degreeRiskClass"};
   changeModel(evnt:any) {
     this.changeModelParent.emit(evnt);
   }

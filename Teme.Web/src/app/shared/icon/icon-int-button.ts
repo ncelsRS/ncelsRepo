@@ -8,7 +8,7 @@ import {IconRecord} from './IconRecord';
 
 
 @Component({
-  selector: 'app-icon-button',
+  selector: 'app-icon-int-button',
   template: `
     <div class="input-group-append"  data-toggle="modal" data-target="#iconIntModal" style="height: 100%;">
       <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
@@ -60,7 +60,7 @@ import {IconRecord} from './IconRecord';
   ]
 })
 @Injectable()
-export class IconButton implements OnInit  {
+export class IconIntButton implements OnInit  {
   iconUrl:string = environment.urls.common + '/Icon/';
   dataIcon:Icon;
   iconRecords: Array<IconRecord> = [];

@@ -7,7 +7,7 @@ import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms';
 @Component({
   selector: 'app-reference-standart',
   template: `
-    <select class="form-control" #templateForm="ngModel" name="{{referenceName}}"
+    <select class="form-control" #templateForm="ngModel" attr.name="{{ref.column}}"
             [ngClass]="{'has-error':showItemErrors === true && templateForm.invalid}"
             [(ngModel)]="model" required (change)="changeModel($event.target)" >
       <option value="" disabled selected>-- Выберите значение --</option>
@@ -30,7 +30,7 @@ import {NG_VALUE_ACCESSOR, NG_VALIDATORS} from '@angular/forms';
 })
 export class ReferenceStandart extends TemplateValidation implements OnInit  {
   @Input() showItemErrors = false;
-  @Input() referenceName:string;
+  @Input() ref : any;
   @Output() changeModelParent = new EventEmitter<any>();
 
   changeModel(evnt:any) {
@@ -43,7 +43,7 @@ export class ReferenceStandart extends TemplateValidation implements OnInit  {
   }
 
   ngOnInit(){
-    this.referenceService.getReferenceStandart(this.referenceName).subscribe((data)=> {this.items=data});
+    this.referenceService.getReferenceStandart(this.ref.name).subscribe((data)=> {this.items=data});
   }
 
   getTest(){
