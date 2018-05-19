@@ -32,7 +32,7 @@ export class ExtPaymentComponent implements OnInit {
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
       this.paymentModel.costInfo.contractNumber = data.contractNumber;
       this.paymentModel.costInfo.contractDateCreate = data.contractDateCreate;
-      this.paymentModel.costInfo.contractDateInterval = data.contractDateCreate;
+      this.paymentModel.costInfo.contractDateInterval = data.contractDateInterval;
       this.paymentModel.costInfo.cardNumber = data.cardNumber;
       this.paymentModel.costInfo.isTypeImnMt = data.isTypeImnMt;
       this.paymentModel.costInfo.tradeName = data.tradeName;
@@ -88,6 +88,8 @@ export class ExtPaymentComponent implements OnInit {
       contractDateCreate: null,	    //Дата заключения
       contractDateInterval: null,		    //Срок Действия
       cardNumber: null,		            //№ регистрационного удостоверения
+      cardBeginDate: null,
+      cardEndDate: null,
       isTypeImnMt: null,				      //Тип ИМН/МТ
       tradeName: null,					      //Торговое название
       typeServices: null,			        //Тип услуги
@@ -136,13 +138,13 @@ export class ExtPaymentComponent implements OnInit {
       },
     },
     manufacturer: {
-      manufacturer: null,						//Производитель
+      manufacturer: null,						  //Производитель
       organizationalForm: null,				//Организационная форма
-      country: null,							//Страна
-      nameKz: null,								//Наименование на государственном языке
-      nameRu: null,								//Наименование на русском языке
-      nameEn: null,								//Наименование на английском языке
-      legalAddress: null,						//Юридический адрес
+      country: null,							    //Страна
+      nameKz: null,								    //Наименование на государственном языке
+      nameRu: null,								    //Наименование на русском языке
+      nameEn: null,								    //Наименование на английском языке
+      legalAddress: null,						  //Юридический адрес
       actualAddress: null,						//Фактический адрес
       revisionBeforeChanges: null,				//Редакция до внесения изменений
       changesMade: null,							//Вносимые изменения
