@@ -79,10 +79,7 @@ export class EquipmentComponent extends TemplateValidation {
         editor: {
           type: 'list',
           config: {
-            list: [{ value: '1', title: 'Antonette' }, { value: '2', title: 'Bret' }, {
-              value: '<b>Samantha</b>',
-              title: 'Samantha'
-            }]
+            list: [{ value: '1', title: 'Antonette' }, { value: '2', title: 'Bret' }, { value: '3', title: 'Samantha'}]
           }
         }
       },

@@ -28,12 +28,12 @@ import {ContractForm} from '../../shared/reference/contract-form';
 import {Country} from '../../shared/reference/country';
 import { TextMaskModule } from 'angular2-text-mask';
 import {CalculatorServiceType} from '../../shared/reference/calculator-service-type';
-import {Calendar} from '../../shared/datepicker/calendar';
 
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 import {ReferenceStandart} from '../../shared/reference/reference-standart';
 import {IconIntButton} from '../../shared/icon/icon-int-button';
 import {IconModule} from '../../shared/icon/icon.module';
+import {SmartTableReferenceComponent} from '../../shared/smart-table-reference.component';
 
 @NgModule({
   imports: [
@@ -64,8 +64,8 @@ import {IconModule} from '../../shared/icon/icon.module';
     ContractForm,
     Country,
     CalculatorServiceType,
-    Calendar,
     // IconIntButton,
+    SmartTableReferenceComponent,
     SmartTableButtonViewComponent,
     ReferenceStandart
   ],
@@ -78,6 +78,7 @@ import {IconModule} from '../../shared/icon/icon.module';
   ],
   entryComponents: [
     SmartTableButtonViewComponent,
+    SmartTableReferenceComponent,
     ]
 })
 export class ExtPaymentModule { }

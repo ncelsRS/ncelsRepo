@@ -31,9 +31,13 @@ export class ExtPaymentComponent implements OnInit {
       //this.paymentData = data
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
       this.paymentModel.costInfo.contractNumber = data.contractNumber;
-      this.paymentModel.costInfo.contractDateCreate = data.contractDateCreate;
-      this.paymentModel.costInfo.contractDateInterval = data.contractDateInterval;
+      let contractDate:Date = new Date(data.contractDateCreate);
+      this.paymentModel.costInfo.contractDateCreate = contractDate;
+      contractDate.setFullYear( contractDate.getFullYear() + 1);
+      this.paymentModel.costInfo.contractDateInterval = contractDate;
       this.paymentModel.costInfo.cardNumber = data.cardNumber;
+      this.paymentModel.costInfo.cardBeginDate = data.cardBeginDate;
+      this.paymentModel.costInfo.cardEndDate = data.cardEndDate;
       this.paymentModel.costInfo.isTypeImnMt = data.isTypeImnMt;
       this.paymentModel.costInfo.tradeName = data.tradeName;
 
@@ -71,7 +75,7 @@ export class ExtPaymentComponent implements OnInit {
   changeModel(evnt:any){
     //console.log("evnt","-" + evnt.name + "-", evnt.value, evnt);
     let fields = {[evnt.name]: evnt.value};
-    //console.log("fields",fields);
+    console.log("fields",fields);
     var changeModelHead = ({'id': this.paymentId, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': fields});
     this.paymentService.changeModel(changeModelHead)
       .subscribe((data)=>{},error => console.log(error));

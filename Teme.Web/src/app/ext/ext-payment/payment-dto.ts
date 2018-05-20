@@ -3,10 +3,12 @@ export class PaymentDto {
   public id: number;
   public contractId: number;
   public contractNumber: string;
-  public contractDateCreate: string;
+  public contractDateCreate: Date;
   public contractDateInterval: string;
   public contractForm: number;
   public cardNumber: string;
+  public cardBeginDate: Date;
+  public cardEndDate: Date;
   public isTypeImnMt: boolean;
   public tradeName: string;
   public nameRu: string;
