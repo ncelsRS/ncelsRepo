@@ -10,7 +10,7 @@ import {IconRecord} from './IconRecord';
 @Component({
   selector: 'app-icon-int-button',
   template: `
-    <div class="input-group-append"  data-toggle="modal" data-target="#iconIntModal" style="height: 100%;">
+    <div class="input-group-append" (click)="showIconModal()" data-toggle="modal" data-target="#iconIntModal" style="height: 100%;">
       <span class="input-group-text"><i class="fa fa-info-circle fa-lg"></i></span>
     </div>
     <div class="modal fade" id="iconIntModal" tabindex="-1" role="dialog" aria-labelledby="iconModalLabel" aria-hidden="true">
@@ -30,7 +30,7 @@ import {IconRecord} from './IconRecord';
                 </li>
               </ul>
               <div class="tab-content">
-                <div class="tab-pane active" id="f1tab">
+                <div class="tab-pane active" id="f1tab"  style="min-height: 350px;">
                   <textarea cols="20" id="NoteComment" [(ngModel)]="note" name="NoteComment" rows="2" placeholder="Описание"
                         style="width: 100%; height: 100px;" ></textarea>
 
@@ -64,15 +64,16 @@ export class IconIntButton implements OnInit  {
   iconUrl:string = environment.urls.common + '/Icon/';
   dataIcon:Icon;
   iconRecords: Array<IconRecord> = [];
+
+  @Input() moduleType;
+  @Input() objectId;
+  @Input() fieldName;
+  @Input() valueField;
+  @Input() displayField;
   note: string = "";
-  @Input() moduleType = "1";
-  @Input() objectId = "1";
-  @Input() fieldName = "test.field2";
-  @Input() valueField = "знасение поля 3";
-  @Input() displayField = "значение на экране 3"
-  params = {moduleType: this.moduleType, objectId: this.objectId, fieldName: this.fieldName}
-  body = {moduleType: this.moduleType, objectId: this.objectId, fieldName: this.fieldName,
-    valueField: this.valueField, displayField: this.displayField}
+
+
+
 
   constructor(private elementRefIconModal: ElementRef, private http: HttpClient) {
 
@@ -80,15 +81,21 @@ export class IconIntButton implements OnInit  {
 
   ngOnInit(){
 
-    this.http.get( this.iconUrl + 'GetIconRecords',{ params: this.params })
+  }
+  showIconModal(){
+    let params = {moduleType: this.moduleType, objectId: this.objectId, fieldName: this.fieldName}
+    this.http.get( this.iconUrl + 'GetIconRecords',{ params: params })
       .subscribe((data:Icon)=> {this.iconRecords = data==null?[]:data.iconRecords});
   }
 
   saveComment(){
-    console.log("saveComment",this.note)
 
-    this.body['note'] = this.note;
-    this.http.post(this.iconUrl + 'CreateIcon', this.body).subscribe(data => {
+    let body = {moduleType: this.moduleType, objectId: this.objectId, fieldName: this.fieldName,
+      valueField: this.valueField, displayField: this.displayField}
+    console.log("body", body)
+
+    body['note'] = this.note;
+    this.http.post(this.iconUrl + 'CreateIcon', body).subscribe(data => {
       console.log(data);
       this.ngOnInit();
     });

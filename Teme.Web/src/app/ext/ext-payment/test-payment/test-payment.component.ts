@@ -35,9 +35,16 @@ function toInteger(value: any): number {
 export class TestPaymentComponent extends TemplateValidation{
   @Input() showErrors = false;
 
+  moduleType = "1";
+  objectId = "1";
+  fieldName = "test.field2";
+  valueField = "знасение поля 3";
+  displayField = "значение на экране 3"
+
   public icons = [];
   myDate = new Date();
 
+  reference = [{ value: '1', title: 'Казахстан' }, { value: '2', title: 'Россия' }, { value: '3', title: 'Белорусия'}]
 
   constructor(public iconModal:  IconIntModal) {
 
@@ -66,7 +73,7 @@ export class TestPaymentComponent extends TemplateValidation{
         editor: {
           type: 'list',
           config: {
-            list: [{ value: '1', title: 'Казахстан' }, { value: '2', title: 'Россия' }, { value: '3', title: 'Белорусия'}]
+            list: this.reference
           }
         },
         renderComponent: SmartTableReferenceComponent,
@@ -80,6 +87,7 @@ export class TestPaymentComponent extends TemplateValidation{
       button: {
         title: 'Button',
         type: 'custom',
+
         renderComponent: SmartTableButtonViewComponent,
         onComponentInitFunction(instance) {
           instance.edit.subscribe(row => {
