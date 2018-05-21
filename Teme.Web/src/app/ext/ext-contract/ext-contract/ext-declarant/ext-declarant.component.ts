@@ -72,8 +72,8 @@ export class ExtDeclarantComponent  extends TemplateValidation{
     this.getBanks();
     this.getCountryNoRes();
     this.getCountry();
-    this.getCurrency()
-  }
+    this.getCurrency();
+    }
 
 
     ngOnInit() {

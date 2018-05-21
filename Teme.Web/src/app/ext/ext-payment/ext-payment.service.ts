@@ -6,7 +6,8 @@ import {Injectable} from '@angular/core';
 export class ExtPaymentService{
 
   urlPayment: string = environment.urls.payment + '/Payment/';
-
+  urlPackaging = environment.urls.common + "Packaging/";
+  urlReference = environment.urls.admin + "/api/Reference/";
 
   constructor(private http: HttpClient){ }
 
@@ -24,9 +25,25 @@ export class ExtPaymentService{
     return  this.http.get(this.urlPayment + "GetPaymentById", { params: {paymentId} });
   }
 
+  savePackaging(row, paymentId){
+    // let data = ({PaymentId : paymentId, Name: row.name, SizeWidth: row.sizeWidth, SizeHeight: row.sizeHeight, SizeLength: row.sizeLength,
+    //     //   numberUnitsInBox: row.numberUnitsInBox, ShortDescription : row.shortDescription});
+    console.log(row);
+    return  this.http.put(this.urlPackaging+"Add",{},
+      {params : {PaymentId : paymentId, Name: row.name, SizeWidth: row.sizeWidth,
+          SizeHeight: row.sizeHeight, SizeLength: row.sizeLength, SizeMeasureId: row.sizeMeasure,
+      numberUnitsInBox: row.numberUnitsInBox, ShortDescription : row.shortDescription}})
+  }
+
+   getMeasure(){
+    let promise = this.http.get(this.urlReference + 'Measure').toPromise();
+    return promise;
+  }
+
   getListPayments(contractId:string){
     return  this.http.get(this.urlPayment + "GetListPayments", { params: {contractId} });
   }
+
 }
 
 
