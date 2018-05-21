@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Teme.Contract.Infrastructure.Primitives
+namespace Teme.Shared.Data.Primitives.Workflow.Enums
 {
     public class UserOptions
     {

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Infrastructure.Workflow.ContractCoz;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using WorkflowCore.Interface;
 using WorkflowCore.Users;
 

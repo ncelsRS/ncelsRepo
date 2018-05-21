@@ -7,7 +7,6 @@ using Teme.Contract.Data;
 using Teme.Contract.Data.DTO;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.ContractCoz.Data;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;

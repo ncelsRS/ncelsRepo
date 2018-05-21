@@ -14,6 +14,8 @@ using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
 using Teme.Contract.Infrastructure.Workflow;
 using Teme.Contract.Infrastructure.Workflow.Payment;
+using Teme.Declaration.Infrastructure.TransitionDatas;
+using Teme.Declaration.Infrastructure.Workflow;
 using Teme.Infrastructure.Api.Startups;
 using Teme.Shared.Data.Context;
 using WorkflowCore.Interface;
@@ -70,6 +72,7 @@ namespace Teme.Infrastructure.Api
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
             host.RegisterWorkflow<ContractWorkflow, ContractWorkflowTransitionData>();
             host.RegisterWorkflow<PaymentWorkflow, PaymentTransitionData>();
+            host.RegisterWorkflow<DeclarationWorkflow, DeclarationTransitionData>();
             host.Start();
             app.UseMvc();
         }

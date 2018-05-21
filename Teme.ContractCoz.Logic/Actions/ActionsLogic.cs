@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.Clients;

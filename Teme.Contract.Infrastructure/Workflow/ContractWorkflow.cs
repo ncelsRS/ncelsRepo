@@ -2,13 +2,13 @@ using Serilog;
 using System.Linq;
 using MongoDB.Bson;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Infrastructure.Workflow.ContractCoz;
 using Teme.Contract.Infrastructure.Workflow.ContractGv;
 using Teme.Shared.Data.Primitives.Contract;
 using WorkflowCore.Interface;
 using WorkflowCore.Users;
 using Teme.Contract.Infrastructure.Workflow.ContractCeo;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 
 namespace Teme.Contract.Infrastructure.Workflow
 {
