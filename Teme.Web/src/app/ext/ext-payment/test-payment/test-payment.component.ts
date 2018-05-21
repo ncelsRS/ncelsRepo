@@ -3,6 +3,26 @@ import {TemplateValidation} from 'app/shared/TemplateValidation';
 import {IconIntModal} from '../../../shared/icon/icon-int-modal';
 import { ViewCell  } from 'ng2-smart-table';
 import {SmartTableButtonViewComponent} from '../../../shared/smart-table-button-view.component';
+import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import {SmartTableReferenceComponent} from '../../../shared/smart-table-reference.component';
+
+
+function padNumber(value: number) {
+  if (isNumber(value)) {
+    return `0${value}`.slice(-2);
+  } else {
+    return '';
+  }
+}
+
+
+function isNumber(value: any): boolean {
+  return !isNaN(toInteger(value));
+}
+
+function toInteger(value: any): number {
+  return parseInt(`${value}`, 10);
+}
 
 @Component({
   selector: 'app-test-payment',
@@ -16,6 +36,8 @@ export class TestPaymentComponent extends TemplateValidation{
   @Input() showErrors = false;
 
   public icons = [];
+  myDate = new Date();
+
 
   constructor(public iconModal:  IconIntModal) {
 
@@ -23,7 +45,14 @@ export class TestPaymentComponent extends TemplateValidation{
 
   }
   ngOnInit() {
+
   }
+
+  dateToString() {
+    let ddd = new Date( "13-01-2011".replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3") );
+  }
+
+
 
 
   settings = {
@@ -31,8 +60,16 @@ export class TestPaymentComponent extends TemplateValidation{
       id: {
         title: 'ID',
       },
-      name: {
-        title: 'Full Name',
+      countryId: {
+        title: 'Страна',
+        type: 'custom',
+        editor: {
+          type: 'list',
+          config: {
+            list: [{ value: '1', title: 'Казахстан' }, { value: '2', title: 'Россия' }, { value: '3', title: 'Белорусия'}]
+          }
+        },
+        renderComponent: SmartTableReferenceComponent,
       },
       username: {
         title: 'User Name',
@@ -56,31 +93,31 @@ export class TestPaymentComponent extends TemplateValidation{
   data = [
     {
       id: 1,
-      name: 'Leanne Graham',
+      countryId: 1,
       username: 'Bret',
       email: 'Sincere@april.biz',
     },
     {
       id: 2,
-      name: 'Ervin Howell',
+      countryId: 2,
       username: 'Antonette',
       email: 'Shanna@melissa.tv',
     },
     {
       id: 3,
-      name: 'Clementine Bauch',
+      countryId: 1,
       username: 'Samantha',
       email: 'Nathan@yesenia.net',
     },
     {
       id: 4,
-      name: 'Patricia Lebsack',
+      countryId: 1,
       username: 'Karianne',
       email: 'Julianne.OConner@kory.org',
     },
     {
       id: 5,
-      name: 'Chelsey Dietrich',
+      countryId: 2,
       username: 'Kamren',
       email: 'Lucio_Hettinger@annie.ca',
     },
@@ -89,25 +126,3 @@ export class TestPaymentComponent extends TemplateValidation{
 }
 
 
-@Component({
-  selector: 'button-view',
-  template: `
-    <button (click)="onClick()">{{ renderValue }}</button>
-  `,
-})
-export class ButtonViewComponent implements ViewCell, OnInit {
-  renderValue: string;
-
-  @Input() value: string | number;
-  @Input() rowData: any;
-
-  @Output() save: EventEmitter<any> = new EventEmitter();
-
-  ngOnInit() {
-    this.renderValue = this.value.toString().toUpperCase();
-  }
-
-  onClick() {
-    this.save.emit(this.rowData);
-  }
-}

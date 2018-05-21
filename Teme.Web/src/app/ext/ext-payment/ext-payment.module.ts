@@ -28,12 +28,17 @@ import {ContractForm} from '../../shared/reference/contract-form';
 import {Country} from '../../shared/reference/country';
 import { TextMaskModule } from 'angular2-text-mask';
 import {CalculatorServiceType} from '../../shared/reference/calculator-service-type';
-import {Calendar} from '../../shared/datepicker/calendar';
-
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 import {ReferenceStandart} from '../../shared/reference/reference-standart';
 import {IconIntButton} from '../../shared/icon/icon-int-button';
 import {IconModule} from '../../shared/icon/icon.module';
+import {SmartTableReferenceComponent} from '../../shared/smart-table-reference.component';
+import { MeasureDropDownComponent } from './equipment/measure-drop-down/measure-drop-down.component';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {DropDownLocalComponent} from '../../shared/drop-down-local/drop-down-local.component';
+import {CustomEditorComponent} from './equipment/custom-editor.component';
+import {CustomRenderComponent} from './equipment/custom-render.component';
+import {AdvancedExamplesCustomEditorComponent} from './equipment/advanced-example-custom-editor.component';
 
 @NgModule({
   imports: [
@@ -49,7 +54,9 @@ import {IconModule} from '../../shared/icon/icon.module';
     FileUploadModule,
     ReactiveFormsModule,
     TextMaskModule,
-    IconModule
+    IconModule,
+    TextMaskModule,
+    NgSelectModule
   ],
   declarations: [
     ExtPaymentComponent,
@@ -64,10 +71,14 @@ import {IconModule} from '../../shared/icon/icon.module';
     ContractForm,
     Country,
     CalculatorServiceType,
-    Calendar,
-    // IconIntButton,
     SmartTableButtonViewComponent,
-    ReferenceStandart
+    SmartTableReferenceComponent,
+    ReferenceStandart,
+    MeasureDropDownComponent,
+    DropDownLocalComponent,
+    CustomEditorComponent,
+    CustomRenderComponent,
+    AdvancedExamplesCustomEditorComponent
   ],
   //exports: [ExtPaymentComponent],
   providers:[
@@ -78,6 +89,10 @@ import {IconModule} from '../../shared/icon/icon.module';
   ],
   entryComponents: [
     SmartTableButtonViewComponent,
+    MeasureDropDownComponent,
+    SmartTableReferenceComponent,
+    CustomEditorComponent,
+    CustomRenderComponent
     ]
 })
 export class ExtPaymentModule { }

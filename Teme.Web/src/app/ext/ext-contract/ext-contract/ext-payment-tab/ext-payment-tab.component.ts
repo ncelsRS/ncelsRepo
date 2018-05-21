@@ -90,9 +90,9 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
         type: 'custom',
         renderComponent: SmartTableButtonViewComponent,
         onComponentInitFunction: (instance: any) => {
-          console.log("instance", instance, instance.view);
+          //console.log("instance", instance, instance.view);
           instance.edit.subscribe(row => {
-            console.log(`${row.id} view is work!`);
+            //console.log(`${row.id} view is work!`);
             this.setUrlAndModalShow(row.id.toString());
 
           });

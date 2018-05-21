@@ -14,7 +14,6 @@ import {IdentityModule} from "./shared/identity/identity.module";
 import {HttpClientModule} from '@angular/common/http';
 import {RscFileModule} from './shared/modules/rsc-file/rsc-file.module';
 
-
 @NgModule({
   declarations: [
     AppComponent,
