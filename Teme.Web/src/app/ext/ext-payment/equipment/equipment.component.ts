@@ -3,7 +3,8 @@ import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
 import {DataComponent} from '../data/data.component';
 import {NG_VALIDATORS, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
-
+import {ExtPaymentService} from '../ext-payment.service';
+import {MeasureDropDownComponent} from './measure-drop-down/measure-drop-down.component';
 
 @Component({
   selector: 'app-equipment',
@@ -19,16 +20,18 @@ import {TemplateValidation} from '../../../shared/TemplateValidation';
     useExisting: forwardRef(() => EquipmentComponent),
     multi: true
   },
-    IconExtModal
+    IconExtModal,
+    ExtPaymentService
   ]
 })
-export class EquipmentComponent extends TemplateValidation {
+export class EquipmentComponent extends TemplateValidation implements OnInit {
 
   @Input() showErrors = false;
+  @Input() paymentId: string;
   public equipmentData = [{
       rowNumber:1,
       type: 'Тип',
-      name: '1',
+      name: 'Наименование',
       idCode: '12344',
       model: 'Модель',
       manufacturer: 'Производитель',
@@ -79,7 +82,10 @@ export class EquipmentComponent extends TemplateValidation {
         editor: {
           type: 'list',
           config: {
-            list: [{ value: '1', title: 'Antonette' }, { value: '2', title: 'Bret' }, { value: '3', title: 'Samantha'}]
+            list: [{ value: 'Antonette', title: 'Antonette' }, { value: 'Bret', title: 'Bret' }, {
+              value: '<b>Samantha</b>',
+              title: 'Samantha'
+            }]
           }
         }
       },
@@ -105,6 +111,7 @@ export class EquipmentComponent extends TemplateValidation {
       perPage: 5
     }
   };
+  public measure = [];
 
   public boxData = [{
     rowNumber:1,
@@ -117,92 +124,109 @@ export class EquipmentComponent extends TemplateValidation {
     numberUnitsInBox:300,
     shortDescription: 'Краткое описание'
   }];
-  public boxSettings = {
-    selectMode: 'single',  //single|multi
-    hideHeader: false,
-    hideSubHeader: false,
-    actions: {
-      columnTitle: 'Actions',
-      add: true,
-      edit: true,
-      delete: true,
-      custom: [],
-      position: 'right' // left|right
-    },
-    add: {
-      addButtonContent: '<h4 class="mb-1"><i class="fa fa-plus ml-3 text-success"></i></h4>',
-      createButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
-      cancelButtonContent: '<i class="fa fa-times text-danger"></i>'
-    },
-    edit: {
-      editButtonContent: '<i class="fa fa-pencil mr-3 text-primary"></i>',
-      saveButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
-      cancelButtonContent: '<i class="fa fa-times text-danger"></i>'
-    },
-    delete: {
-      deleteButtonContent: '<i class="fa fa-trash-o text-danger"></i>',
-      confirmDelete: true
-    },
-    noDataMessage: 'No data found',
-    columns: {
-      rowNumber: {
-        title: '№',
-        editable: false,
-        width: '60px',
-        type: 'html',
-        valuePrepareFunction: (value) => { return '<div class="text-center">' + value + '</div>'; }
+
+  boxSettings;
+
+  ngOnInit() {
+    this.boxSettings = this.getBoxSettings();
+  }
+
+  public getBoxSettings() {
+    return {
+      selectMode: 'single',  //single|multi
+      hideHeader: false,
+      hideSubHeader: false,
+      actions: {
+        columnTitle: 'Actions',
+        add: true,
+        edit: true,
+        delete: true,
+        custom: [],
+        position: 'right' // left|right
       },
-      type: {
-        title: 'Вид',
-        type: 'string'
-        //filter: true
+      add: {
+        addButtonContent: '<h4 class="mb-1"><i class="fa fa-plus ml-3 text-success"></i></h4>',
+        createButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
+        cancelButtonContent: '<i class="fa fa-times text-danger"></i>',
+        confirmCreate: true
       },
-      name: {
-        title: 'Наименование',
-        type: 'html',
-        editor: {
-          type: 'list',
-          config: {
-            list: [{ value: 'Antonette', title: 'Antonette' }, { value: 'Bret', title: 'Bret' }, {
-              value: '<b>Samantha</b>',
-              title: 'Samantha'
-            }]
+      edit: {
+        editButtonContent: '<i class="fa fa-pencil mr-3 text-primary"></i>',
+        saveButtonContent: '<i class="fa fa-check mr-3 text-success"></i>',
+        cancelButtonContent: '<i class="fa fa-times text-danger"></i>'
+      },
+      delete: {
+        deleteButtonContent: '<i class="fa fa-trash-o text-danger"></i>',
+        confirmDelete: true
+      },
+      noDataMessage: 'No data found',
+      columns: {
+        rowNumber: {
+          title: '№',
+          editable: false,
+          width: '60px',
+          type: 'html',
+          valuePrepareFunction: (value) => {
+            return '<div class="text-center">' + value + '</div>';
           }
+        },
+        type: {
+          title: 'Вид',
+          type: 'string'
+          //filter: true
+        },
+        name: {
+          title: 'Наименование',
+          type: 'string'
+        },
+        sizeWidth: {
+          title: 'Размер Ширина',
+          type: 'string'
+        },
+        sizeHeight: {
+          title: 'Размер Высота',
+          type: 'string'
+        },
+        sizeLength: {
+          title: 'Размер Длина',
+          type: 'number'
+        },
+        sizeMeasure: {
+          title: 'Еденица измерения',
+          type: 'html',
+          editor: {
+            // type: 'list',
+            // config: {
+            //   list: this.measure
+            // }
+            type: 'custom',
+            component: MeasureDropDownComponent
+          },
+          onComponentInitFunction: (instance) => {
+            instance.save.subscribe(row => {
+              alert(`${row.name} saved!`)
+            });
+          }
+          ,renderComponent : MeasureDropDownComponent
+        },
+        numberUnitsInBox: {
+          title: 'Кол-во ед. в упаковке',
+          type: 'number'
+        }
+        ,
+        shortDescription: {
+          title: 'Краткое описание',
+          type: 'number'
         }
       },
-      sizeWidth: {
-        title: 'Размер Ширина',
-        type: 'string'
-      },
-      sizeHeight: {
-        title: 'Размер Высота',
-        type: 'string'
-      },
-      sizeLength: {
-        title: 'Размер Длина',
-        type: 'number'
-      },
-      sizeMeasure: {
-        title: 'Еденица измерения',
-        type: 'number'
-      },
-      numberUnitsInBox: {
-        title: 'Кол-во ед. в упаковке',
-        type: 'number'
+      pager: {
+        display: true,
+        perPage: 5
       }
-      ,
-      shortDescription: {
-        title: 'Краткое описание',
-        type: 'number'
-      }
-    },
-    pager: {
-      display: true,
-      perPage: 5
-    }
-  };
+    };
+  }
 
-  constructor(public iconModal:  IconExtModal) {
+  constructor(public iconModal:  IconExtModal, private extPaymentService: ExtPaymentService) {
     super();
     // this.getData((data) => {
     //   this.data = data;
@@ -236,6 +260,15 @@ export class EquipmentComponent extends TemplateValidation {
 
   public onRowHover(event){
     //console.log(event);
+  }
+
+  public addRecord(event) {
+    this.extPaymentService.savePackaging(event.newData, this.paymentId)
+      .toPromise()
+      .catch(err => {
+          console.error(err);
+        }
+      );
   }
 
 

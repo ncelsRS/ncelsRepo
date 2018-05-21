@@ -8,5 +8,6 @@ export const environment = {
     common: 'http://localhost:9004',
     contractCoz: 'http://localhost:9005',
     files: 'http://localhost:9006',
+   // common: 'http://localhost:9088/'
   }
 };
