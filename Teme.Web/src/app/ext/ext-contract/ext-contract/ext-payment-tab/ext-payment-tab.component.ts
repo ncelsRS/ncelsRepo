@@ -88,6 +88,7 @@ export class ExtPaymentTabComponent implements OnInit//, PipeTransform
       action: {
         title: 'Действия',
         type: 'custom',
+        defaultValue: 'true',
         renderComponent: SmartTableButtonViewComponent,
         onComponentInitFunction: (instance: any) => {
           //console.log("instance", instance, instance.view);

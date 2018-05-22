@@ -46,10 +46,10 @@ export class CostInfoComponent extends TemplateValidation {
     //let date:Date = new Date( evnt.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3 06:00:00") )
     let date = new Date(evnt.year, evnt.month - 1, evnt.day, 6);
     if (date.toString() == 'Invalid Date') {
-      const [day, month, year] = evnt.split('.');
-      console.log('year', year);
-      if (day != undefined && month != undefined && year != undefined) {
-        console.log('year!=undefined', year);
+      const [day, month, year] = evnt.split(".")
+      //console.log('year', year);
+      if(day != undefined && month != undefined && year != undefined) {
+        //console.log('year!=undefined', year);
         if (day.length == 2 && month.length == 2 && year.length == 4)
           date = new Date(year, month - 1, day,);
       }
