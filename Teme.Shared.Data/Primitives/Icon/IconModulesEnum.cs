@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Teme.Shared.Data.Primitives
+namespace Teme.Shared.Data.Primitives.Icon
 {
     /// <summary>
     /// Тип Модуля для Айки

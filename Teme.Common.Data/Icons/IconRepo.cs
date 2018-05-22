@@ -32,6 +32,7 @@ namespace Teme.Common.Data.Icons
                             Id = x.Id,
                             ModuleType = x.ModuleType,
                             ObjectId = x.ObjectId,
+                            isError = x.isError,
                             FieldName = x.FieldName,
                             IconRecords = x.IconRecords.Select(ir => new IconRecordOutDto {
                                 id = ir.Id,
@@ -48,6 +49,11 @@ namespace Teme.Common.Data.Icons
         public async Task CreateIcon(Icon icon)
         {
             Context.Icons.Add(icon);
+            await Context.SaveChangesAsync();
+        }
+        public async Task UpdateIcon(Icon icon)
+        {
+            Context.Icons.Update(icon);
             await Context.SaveChangesAsync();
         }
         public async Task CreateIconRecord(IconRecord iconRecord)

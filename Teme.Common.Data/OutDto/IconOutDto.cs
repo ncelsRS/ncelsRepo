@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Teme.Shared.Data.Context;
-using Teme.Shared.Data.Primitives;
+using Teme.Shared.Data.Primitives.Icon;
 
 namespace Teme.Common.Data.OutDto
 {
@@ -28,6 +28,12 @@ namespace Teme.Common.Data.OutDto
         /// Ид объекта 
         /// </summary>
         public int ObjectId { get; set; }
+
+        /// <summary>
+        /// Признак ошибки
+        /// </summary>
+        public bool isError { get; set; }
+
         /// <summary>
         /// Наименование поля
         /// </summary>
