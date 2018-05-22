@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using Teme.Shared.Data.Primitives;
+using Teme.Shared.Data.Primitives.Icon;
 
 namespace Teme.Shared.Data.Context
 {
@@ -19,7 +19,13 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Ид объекта 
         /// </summary>
-        public int ObjectId { get; set; }        
+        public int ObjectId { get; set; }
+
+        /// <summary>
+        /// Признак ошибки
+        /// </summary>
+        public bool isError { get; set; }
+
         /// <summary>
         /// Признак удаления
         /// </summary>

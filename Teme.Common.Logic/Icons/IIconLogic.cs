@@ -12,5 +12,6 @@ namespace Teme.Common.Logic.Icons
     {
         Task<object> CreateIconRecord(IconCreateInDto iconCreateInDto);
         Task<object> GetIconRecords(IconGetInDto iconGetInDto);
+        Task<object> UpdateIconError(IconCreateInDto cm);
     }
 }

@@ -2,7 +2,7 @@ using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 

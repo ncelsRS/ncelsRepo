@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Teme.Shared.Logic;
 
-namespace Teme.Infrastructure.Logic
+namespace Teme.Infrastructure.Logic.Payments
 {
     public interface IPaymentActionLogic : IBaseLogic
     {

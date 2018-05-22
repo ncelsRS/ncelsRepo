@@ -339,6 +339,8 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool>("isDeleted");
 
+                    b.Property<bool>("isError");
+
                     b.HasKey("Id");
 
                     b.ToTable("Icons");
@@ -389,6 +391,10 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("AppointmentKz");
 
                     b.Property<string>("AppointmentRu");
+
+                    b.Property<DateTime?>("CardBeginDate");
+
+                    b.Property<DateTime?>("CardEndDate");
 
                     b.Property<string>("CardNumber");
 
@@ -1147,7 +1153,7 @@ namespace Teme.Shared.Data.Migrations
             modelBuilder.Entity("Teme.Shared.Data.Context.Payment", b =>
                 {
                     b.HasOne("Teme.Shared.Data.Context.Contract", "Contract")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade);
 

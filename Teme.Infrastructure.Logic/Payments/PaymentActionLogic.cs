@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 
-namespace Teme.Infrastructure.Logic
+namespace Teme.Infrastructure.Logic.Payments
 {
     public class PaymentActionLogic : EntityLogic, IPaymentActionLogic
     {

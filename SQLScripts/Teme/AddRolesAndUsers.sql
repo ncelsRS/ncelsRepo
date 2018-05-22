@@ -1,11 +1,4 @@
-﻿--
--- Скрипт сгенерирован Devart dbForge Studio for SQL Server, Версия 5.5.327.0
--- Домашняя страница продукта: http://www.devart.com/ru/dbforge/sql/studio
--- Дата скрипта: 18.05.2018 10:38:04
--- Версия сервера: 14.00.3008
---
-
-SET DATEFORMAT ymd
+﻿SET DATEFORMAT ymd
 SET ARITHABORT, ANSI_PADDING, ANSI_WARNINGS, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER, ANSI_NULLS, NOCOUNT ON
 SET NUMERIC_ROUNDABORT, IMPLICIT_TRANSACTIONS, XACT_ABORT OFF
 GO

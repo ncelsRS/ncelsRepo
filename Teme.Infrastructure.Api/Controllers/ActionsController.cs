@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Data.Model;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Infrastructure.Logic;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using Teme.SharedApi.Controllers;
 
 namespace Teme.Infrastructure.Api.Controllers

@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Contract.Logic.DeclarantActions;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using Teme.SharedApi.Controllers;
 
 namespace Teme.Contract.Api.Controllers

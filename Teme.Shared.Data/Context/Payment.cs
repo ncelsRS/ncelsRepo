@@ -30,6 +30,16 @@ namespace Teme.Shared.Data.Context
         public string CardNumber { get; set; }
 
         /// <summary>
+        /// Дата регисрации регистрационного удостоверения
+        /// </summary>
+        public DateTime? CardBeginDate { get; set; }
+
+        /// <summary>
+        /// Срок действия регистрационного удостоверения
+        /// </summary>
+        public DateTime? CardEndDate { get; set; }
+
+        /// <summary>
         /// Тип ИМН/МТ
         /// </summary>
         public bool? IsTypeImnMt { get; set; }
