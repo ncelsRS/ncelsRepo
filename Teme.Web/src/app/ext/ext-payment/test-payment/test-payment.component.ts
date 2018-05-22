@@ -6,24 +6,6 @@ import {SmartTableButtonViewComponent} from '../../../shared/smart-table-button-
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import {SmartTableReferenceComponent} from '../../../shared/smart-table-reference.component';
 
-
-function padNumber(value: number) {
-  if (isNumber(value)) {
-    return `0${value}`.slice(-2);
-  } else {
-    return '';
-  }
-}
-
-
-function isNumber(value: any): boolean {
-  return !isNaN(toInteger(value));
-}
-
-function toInteger(value: any): number {
-  return parseInt(`${value}`, 10);
-}
-
 @Component({
   selector: 'app-test-payment',
   templateUrl: './test-payment.component.html',
@@ -35,11 +17,17 @@ function toInteger(value: any): number {
 export class TestPaymentComponent extends TemplateValidation{
   @Input() showErrors = false;
 
-  moduleType = "1";
-  objectId = "1";
-  fieldName = "test.field2";
-  valueField = "знасение поля 3";
-  displayField = "значение на экране 3"
+  textInput:string = "wwww";
+  getTest(){
+    this.textInput = this.textInput + "a";
+  }
+
+  moduleType1 = "1";
+  objectId1 = "1";
+  fieldName1 = "test.field2";
+  displayField1 = "значение на экране 3";
+  valueField1 = this.displayField1;
+
 
   public icons = [];
   myDate = new Date();
