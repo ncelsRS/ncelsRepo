@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Teme.Shared.Data.Primitives
+namespace Teme.Shared.Data.Primitives.Icon
 {
     /// <summary>
     /// Тип Модуля для Айки
@@ -14,13 +14,13 @@ namespace Teme.Shared.Data.Primitives
         /// </summary>
         Contract = 1,
         /// <summary>
-        /// Заявление
-        /// </summary>
-        Declaration = 2,
-        /// <summary>
         /// Заявка на платеж
         /// </summary>
-        Payment = 3,
+        Payment = 2,
+        /// <summary>
+        /// Заявление
+        /// </summary>
+        Declaration = 3,
 
     }
 }

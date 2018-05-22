@@ -7,7 +7,7 @@ using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.Clients;
 
-namespace Teme.ContractCoz.Logic.PaymentActions
+namespace Teme.PaymentCozLogic.PaymentActions
 {
     public class PaymentActionLogic : EntityLogic, IPaymentActionLogic
     {

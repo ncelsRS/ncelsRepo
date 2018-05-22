@@ -15,6 +15,7 @@ namespace Teme.Common.Data.Icons
         Task<Icon> GetIcon(IconGetInDto cm);
         Task<IconOutDto> GetIconOutDto(IconGetInDto cm);
         Task CreateIcon(Icon icon);
+        Task UpdateIcon(Icon icon);        
         Task CreateIconRecord(IconRecord iconRecord);
     }
 }

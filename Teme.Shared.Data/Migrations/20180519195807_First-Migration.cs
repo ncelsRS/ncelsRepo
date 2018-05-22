@@ -584,6 +584,8 @@ namespace Teme.Shared.Data.Migrations
                     ApplicationAreaRu = table.Column<string>(nullable: true),
                     AppointmentKz = table.Column<string>(nullable: true),
                     AppointmentRu = table.Column<string>(nullable: true),
+                    CardBeginDate = table.Column<DateTime>(nullable: true),
+                    CardEndDate = table.Column<DateTime>(nullable: true),
                     CardNumber = table.Column<string>(nullable: true),
                     ChangesMade = table.Column<string>(nullable: true),
                     ContractForm = table.Column<int>(nullable: true),
@@ -1103,6 +1105,7 @@ namespace Teme.Shared.Data.Migrations
                 //string sql = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, MIGRATION_SQL_SCRIPT_FILE_NAME);
                 migrationBuilder.Sql(File.ReadAllText(file));
             }
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

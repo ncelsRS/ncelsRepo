@@ -13,7 +13,7 @@ using Teme.Shared.Data.Primitives.Contract;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    [Migration("20180517210753_FirstMigration")]
+    [Migration("20180519195807_First-Migration")]
     partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -390,6 +390,10 @@ namespace Teme.Shared.Data.Migrations
                     b.Property<string>("AppointmentKz");
 
                     b.Property<string>("AppointmentRu");
+
+                    b.Property<DateTime?>("CardBeginDate");
+
+                    b.Property<DateTime?>("CardEndDate");
 
                     b.Property<string>("CardNumber");
 
@@ -1148,7 +1152,7 @@ namespace Teme.Shared.Data.Migrations
             modelBuilder.Entity("Teme.Shared.Data.Context.Payment", b =>
                 {
                     b.HasOne("Teme.Shared.Data.Context.Contract", "Contract")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade);
 

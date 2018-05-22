@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Teme.Shared.Data.Primitives;
+using Teme.Shared.Data.Primitives.Icon;
 
 namespace Teme.Common.Data.InDto
 {

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Teme.Shared.Logic;
 
-namespace Teme.ContractCoz.Logic.PaymentActions
+namespace Teme.PaymentCozLogic.PaymentActions
 {
     public interface IPaymentActionLogic : IBaseLogic
     {
