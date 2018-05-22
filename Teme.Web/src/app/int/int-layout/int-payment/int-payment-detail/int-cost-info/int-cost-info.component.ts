@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
+import {TemplateValidation} from '../../../../../shared/TemplateValidation';
 
 @Component({
   selector: 'app-int-cost-info',
@@ -10,11 +11,18 @@ import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
     IconExtModal
 ]
 })
-export class IntCostInfoComponent implements OnInit {
+export class IntCostInfoComponent extends TemplateValidation implements OnInit {
 
-  constructor(public iconModal:  IconExtModal) { }
+  constructor(public iconModal:  IconExtModal) {
+    super();
+  }
 
   ngOnInit() {
   }
+
+  modelCustom = {};
+  customDay = '';
+  isDisabled = true;
+  modelCustom2 = {};
 
 }

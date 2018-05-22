@@ -12,18 +12,19 @@ import {ViewCell} from 'ng2-smart-table';
   `,
 })
 export class SmartTableReferenceComponent implements ViewCell, OnInit {
-  private devicesMap: any[] = [{ value: '1', title: 'Казахстан' }, { value: '2', title: 'Россия' }, { value: '3', title: 'Белорусия'}];
+  private reference: any[] = [{ value: '1', title: 'Казахстан' }, { value: '2', title: 'Россия' }, { value: '3', title: 'Белорусия'}];
 
   renderValue: string;
 
   @Input() value: string;
   @Input() rowData: any;
+  @Input() grid: any[];
 
   @Output() edit: EventEmitter<any> = new EventEmitter();
 
   ngOnInit() {
-    console.log('this.value', this.value);
-    this.renderValue = this.devicesMap.filter(x => x.value == this.value)[0].title;
+    //console.log('source', this.grid);
+    this.renderValue = this.reference.filter(x => x.value == this.value)[0].title;
   }
 
   onClick() {

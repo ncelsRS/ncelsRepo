@@ -57,6 +57,9 @@ export class ExtPaymentComponent implements OnInit {
       this.paymentModel.data.isPresenceMedicinalProduct = data.isPresenceMedicinalProduct;
       this.paymentModel.data.numberModificationImn = data.numberModificationImn;
 
+      this.paymentModel.manufacturer.revisionBeforeChanges = data.revisionBeforeChanges;
+      this.paymentModel.manufacturer.changesMade = data.changesMade;
+
     });
 
   }
@@ -142,14 +145,14 @@ export class ExtPaymentComponent implements OnInit {
       },
     },
     manufacturer: {
-      manufacturer: null,						  //Производитель
-      organizationalForm: null,				//Организационная форма
-      country: null,							    //Страна
-      nameKz: null,								    //Наименование на государственном языке
-      nameRu: null,								    //Наименование на русском языке
-      nameEn: null,								    //Наименование на английском языке
-      legalAddress: null,						  //Юридический адрес
-      actualAddress: null,						//Фактический адрес
+      // manufacturer: null,						  //Производитель
+      // organizationalForm: null,				//Организационная форма
+      // country: null,							    //Страна
+      // nameKz: null,								    //Наименование на государственном языке
+      // nameRu: null,								    //Наименование на русском языке
+      // nameEn: null,								    //Наименование на английском языке
+      // legalAddress: null,						  //Юридический адрес
+      // actualAddress: null,						//Фактический адрес
       revisionBeforeChanges: null,				//Редакция до внесения изменений
       changesMade: null,							//Вносимые изменения
     },
