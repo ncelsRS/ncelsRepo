@@ -7,7 +7,7 @@ namespace Teme.Shared.Logic.RefBaseLogic
 {
     public interface IRefBaseLogic<TEntity> : IBaseLogic
     {
-        Task Add(TEntity entity);
+        Task<int> Add(TEntity entity);
         Task Save();
         Task<TEntity> GetById(int id);
         Task Delete(int id);

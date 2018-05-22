@@ -23,10 +23,11 @@ namespace Teme.Shared.Data.Repos
             return Context.AuthUsers.Where(x => x.Id == userId);
         }
 
-        public async Task Add(TEntity entity)
+        public async Task<int> Add(TEntity entity)
         {
             await Repo.AddAsync(entity);
             await Save();
+            return entity.Id;
         }
 
         public async Task Save()

@@ -7,7 +7,7 @@ namespace Teme.Shared.Data.Repos
     public interface IBaseRepo<TEntity>
     {
         IQueryable<AuthUser> GetCurrentUser(int userId);
-        Task Add(TEntity entity);
+        Task<int> Add(TEntity entity);
         Task<TEntity> GetById(int id);
         Task Delete(int id);
         Task Update(TEntity entity);

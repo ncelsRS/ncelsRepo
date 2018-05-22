@@ -21,8 +21,7 @@ namespace Teme.SharedApi.Controllers
         {
             try
             {
-                await Logic.Add(entity);
-                return Json(new { success = true});
+                return Json(await Logic.Add(entity));
             }
             catch (Exception ex)
             {

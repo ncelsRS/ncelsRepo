@@ -9,8 +9,6 @@ namespace Teme.Common.Logic.PackagingLogic
 {
     public class PackageLogic : RefBaseLogic<IPackagingRepo<PaymentPackaging>, PaymentPackaging>, IPackagingLogic<PaymentPackaging>
     {
-        public PackageLogic(IPackagingRepo<PaymentPackaging> repo) : base(repo)
-        {
-        }
+        public PackageLogic(IPackagingRepo<PaymentPackaging> repo) : base(repo){}
     }
 }

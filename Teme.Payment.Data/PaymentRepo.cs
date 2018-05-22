@@ -77,8 +77,8 @@ namespace Teme.Payment.Data
                     {
                         Id = x.Id,
                         Code = x.Code,
-                        CountryId = x.CountryId,
-                        EquipmentTypeId = x.EquipmentTypeId,
+                        Country = x.Ref_Country,
+                        EquipmentType = x.Ref_EquipmentType,
                         Manufacturer = x.Manufacturer,
                         Model = x.Model,
                         Name = x.Name

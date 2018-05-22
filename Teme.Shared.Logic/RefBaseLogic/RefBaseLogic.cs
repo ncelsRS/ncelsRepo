@@ -14,9 +14,9 @@ namespace Teme.Shared.Logic.RefBaseLogic
         {
         }
 
-        public async Task Add(TEntity entity)
+        public async Task<int> Add(TEntity entity)
         {
-            await Repo.Add(entity);
+            return await Repo.Add(entity);
         }
 
         public async Task Delete(int id)
