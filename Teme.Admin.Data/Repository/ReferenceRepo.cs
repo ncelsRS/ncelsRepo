@@ -97,7 +97,7 @@ namespace Teme.Admin.Data.Repository
         /// Организационная форма(справочник)
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Ref_OrganizationForm>> OrganizationFormAsync() => await _context.Ref_OrganizationForms.Where(e => !e.IsDeleted && e.IsConfirmed).ToArrayAsync();
+        public async Task<IEnumerable<Ref_OrganizationForm>> OrganizationFormAsync() => await _context.Ref_OrganizationForms.Where(e => !e.IsDeleted).ToArrayAsync(); // && e.IsConfirmed
 
         /// <summary>
         /// Добавить новую Организационную форума(справочник)
@@ -120,7 +120,7 @@ namespace Teme.Admin.Data.Repository
         /// Банки(справочник)
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Ref_Bank>> BanksAsync() => await _context.Ref_Banks.Where(e => !e.IsDeleted && e.IsConfirmed).ToArrayAsync();
+        public async Task<IEnumerable<Ref_Bank>> BanksAsync() => await _context.Ref_Banks.Where(e => !e.IsDeleted ).ToArrayAsync(); //&& e.IsConfirmed
 
         /// <summary>
         /// Добавить новый Банк(справочник)
