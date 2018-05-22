@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Teme.Contract.Infrastructure.Primitives.Enums
+namespace Teme.Shared.Data.Primitives.Workflow.Enums
 {
     public class ScopeEnum
     {
