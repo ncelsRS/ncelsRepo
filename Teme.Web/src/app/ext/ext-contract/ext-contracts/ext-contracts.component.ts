@@ -1,6 +1,8 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import {RefService} from '../ext-contract/ext-ref-sevice';
 import {Router} from "@angular/router";
+import { ToastrService } from 'ngx-toastr';
+
 
 import {ExtManufacturActionComponent} from '../ext-contract/ext-manufactur-action/ext-manufactur-action.component';
 
@@ -49,7 +51,7 @@ export class ExtContractsComponent implements OnInit {
         title: 'Дата',
         type: 'string'
       },
-      contractForm: {
+      status: {
         title: 'Статус',
         type: 'string'
       },
@@ -57,7 +59,7 @@ export class ExtContractsComponent implements OnInit {
         title: 'Производитель',
         type: 'string'
       },
-      medicalDeviceNameRu: {
+      contractForm: {
         title: 'Наименования ИМН/МТ',
         type: 'string'
       },
@@ -91,7 +93,8 @@ export class ExtContractsComponent implements OnInit {
   };
 
   constructor(private refService: RefService,
-              private router: Router) {
+              private router: Router,
+              private toastr: ToastrService) {
     this.GetListContracts('eaesrg');
   }
 
@@ -136,7 +139,9 @@ export class ExtContractsComponent implements OnInit {
 
   }
 
-
+  showSuccess() {
+    this.toastr.success('Hello world!', 'Toastr fun!');
+  }
 
 
 }

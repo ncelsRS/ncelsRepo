@@ -19,6 +19,7 @@ import {TextMaskModule} from 'angular2-text-mask';
 import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
 import {RscSmartTableModule} from '../../shared/rsc-smart-table.module';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   imports: [
@@ -31,6 +32,8 @@ import {RscSmartTableModule} from '../../shared/rsc-smart-table.module';
     TextMaskModule,
     RscFileModule,
     RscSmartTableModule
+    RscFileModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [
     ExtContractsComponent,
@@ -50,5 +53,4 @@ import {RscSmartTableModule} from '../../shared/rsc-smart-table.module';
     ExtCertificateComponent,
     SmartTableButtonViewComponent]
 })
-export class ExtContractModule {
-}
+export class ExtContractModule { }
