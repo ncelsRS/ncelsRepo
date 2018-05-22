@@ -28,7 +28,11 @@ namespace Teme.Shared.Data.Context
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentEquipment> PaymentEquipments { get; set; }
         public DbSet<PaymentPackaging> PaymentPackagings { get; set; }
-        public DbSet<PaymentPlatform> PaymentPlatforms { get; set; }
+        //public DbSet<PaymentPlatform> PaymentPlatforms { get; set; }
+
+        public DbSet<MedicalDeviceData> MedicalDeviceDatas { get; set; }
+        public DbSet<MedicalDeviceManufacturer> MedicalDeviceManufacturers { get; set; }
+
         public DbSet<Ref_StorageCondition> Ref_StorageConditions { get; set; }
         public DbSet<Ref_ClassifierMedicalArea> Ref_ClassifierMedicalAreas { get; set; }
         public DbSet<Ref_NomenclatureCodeMedProduct> Ref_NomenclatureCodeMedProducts { get; set; }

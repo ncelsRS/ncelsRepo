@@ -14,9 +14,10 @@ using Teme.Shared.Data.Primitives.Icon;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180522113730_updatePaymentModel")]
+    partial class updatePaymentModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

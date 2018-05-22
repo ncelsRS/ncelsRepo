@@ -3,7 +3,7 @@ using Teme.Shared.Data.Repos;
 
 namespace Teme.Shared.Data.Primitives.Repos.DeclarationRepo
 {
-    public interface IDeclarationBaseRepo : IBaseRepo<Declaration>
+    public interface IDeclarationBaseRepo : IBaseRepo<Context.Declaration>
     {
     }
 }

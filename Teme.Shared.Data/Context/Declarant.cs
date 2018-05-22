@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Teme.Shared.Data.Context.References;
+using Teme.Shared.Data.Primitives.Declaration;
 
 namespace Teme.Shared.Data.Context
 {
@@ -27,6 +28,11 @@ namespace Teme.Shared.Data.Context
         public string NameRu { get; set; }
         public string NameKz { get; set; }
         public string NameEn { get; set; }
+
+        /// <summary>
+        /// Тип производителя(для заявки на платеж и заявления)
+        /// </summary>
+        public ManufactureType ManufactureType { get; set; } = ManufactureType.Manufacture;
 
         /// <summary>
         /// Страна

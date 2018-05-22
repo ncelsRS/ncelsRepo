@@ -6,7 +6,7 @@ using Teme.Shared.Data.Repos;
 
 namespace Teme.Shared.Data.Primitives.Repos.DeclarationRepo
 {
-    public abstract class DeclarationBaseRepo : BaseRepo<Declaration>, IDeclarationBaseRepo
+    public abstract class DeclarationBaseRepo : BaseRepo<Context.Declaration>, IDeclarationBaseRepo
     {
         public DeclarationBaseRepo(TemeContext context) : base(context)
         {

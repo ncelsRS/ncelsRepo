@@ -7,7 +7,7 @@ using Teme.Shared.Data.Context.References;
 namespace Teme.Shared.Data.Context
 {
     /// <summary>
-    /// Заявка на платеж. Комплектация ИМН и МТ
+    /// Упаковка
     /// </summary>
     public class PaymentPackaging : BaseEntity
     {
@@ -17,6 +17,11 @@ namespace Teme.Shared.Data.Context
         public int PaymentId { get; set; }
         [ForeignKey("PaymentId")]
         public Payment Payment { get; set; }
+
+        /// <summary>
+        /// заявление
+        /// </summary>
+        public Declaration Declaration { get; set; }
 
         /// <summary>
         /// Тип упаковки

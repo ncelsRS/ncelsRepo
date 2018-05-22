@@ -69,7 +69,7 @@ namespace Teme.Payment.Logic
             var result = await _repo.GetListPayments(contractId);
             return result.Select(x => new {
                 x.Id,
-                x.ContractForm
+                //x.ContractForm
                 //x.Number,
                 //x.DateCreate,
                 //x.ContractForm,

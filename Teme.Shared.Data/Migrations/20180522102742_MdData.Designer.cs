@@ -8,15 +8,15 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
-using Teme.Shared.Data.Primitives.Declaration;
 using Teme.Shared.Data.Primitives.Icon;
 
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180522102742_MdData")]
+    partial class MdData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,8 +225,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool>("IsResident");
 
-                    b.Property<int>("ManufactureType");
-
                     b.Property<string>("NameEn");
 
                     b.Property<string>("NameKz");
@@ -341,19 +339,11 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("LetterNumber");
 
-                    b.Property<int?>("MedicalDeviceDataId");
-
-                    b.Property<int?>("MedicalDeviceManufacturerId");
-
                     b.Property<int?>("NomenclatureId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
-
-                    b.HasIndex("MedicalDeviceDataId");
-
-                    b.HasIndex("MedicalDeviceManufacturerId");
 
                     b.HasIndex("NomenclatureId");
 
@@ -455,8 +445,6 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool?>("IsStyryl");
 
-                    b.Property<string>("NdNumber");
-
                     b.Property<string>("RationaleManufacturer");
 
                     b.HasKey("Id");
@@ -507,17 +495,11 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<bool?>("IsTypeImnMt");
 
-                    b.Property<int?>("MedicalDeviceDataId");
-
                     b.Property<string>("NameKz");
 
                     b.Property<string>("NameRu");
 
                     b.Property<string>("NumberModificationImn");
-
-                    b.Property<int?>("PayerDetailId");
-
-                    b.Property<int?>("PayerId");
 
                     b.Property<int?>("PaymentForm");
 
@@ -530,12 +512,6 @@ namespace Teme.Shared.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
-
-                    b.HasIndex("MedicalDeviceDataId");
-
-                    b.HasIndex("PayerDetailId");
-
-                    b.HasIndex("PayerId");
 
                     b.ToTable("Payments");
                 });
@@ -1210,14 +1186,6 @@ namespace Teme.Shared.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ContractId");
 
-                    b.HasOne("Teme.Shared.Data.Context.MedicalDeviceData", "MedicalDeviceData")
-                        .WithMany()
-                        .HasForeignKey("MedicalDeviceDataId");
-
-                    b.HasOne("Teme.Shared.Data.Context.MedicalDeviceManufacturer", "MedicalDeviceManufacturer")
-                        .WithMany()
-                        .HasForeignKey("MedicalDeviceManufacturerId");
-
                     b.HasOne("Teme.Shared.Data.Context.References.Ref_NomenclatureCodeMedProduct", "Nomenclature")
                         .WithMany()
                         .HasForeignKey("NomenclatureId");
@@ -1264,18 +1232,6 @@ namespace Teme.Shared.Data.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Teme.Shared.Data.Context.MedicalDeviceData", "MedicalDeviceData")
-                        .WithMany()
-                        .HasForeignKey("MedicalDeviceDataId");
-
-                    b.HasOne("Teme.Shared.Data.Context.DeclarantDetail", "PayerDetail")
-                        .WithMany()
-                        .HasForeignKey("PayerDetailId");
-
-                    b.HasOne("Teme.Shared.Data.Context.Declarant", "Payer")
-                        .WithMany()
-                        .HasForeignKey("PayerId");
                 });
 
             modelBuilder.Entity("Teme.Shared.Data.Context.PaymentEquipment", b =>

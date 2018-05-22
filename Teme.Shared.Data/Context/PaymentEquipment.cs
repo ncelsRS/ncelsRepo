@@ -14,9 +14,14 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Заявка на платеж
         /// </summary>
-        public int PaymentId { get; set; }
+        public int? PaymentId { get; set; }
         [ForeignKey("PaymentId")]
         public Payment Payment { get; set; }
+
+        /// <summary>
+        /// заявление
+        /// </summary>
+        public Declaration Declaration { get; set; }
 
         /// <summary>
         /// Тип комплектации ИМН и МТ
