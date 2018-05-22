@@ -14,6 +14,13 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         {
             builder.StartWith(c => Log.Verbose("Start Coz"))
 
+
+
+
+
+
+
+
                 // распределение договора руководителем ЦОЗ
                 .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())
                     .WithOption(UserOptions.SelectExecutors).Do(t1 =>
