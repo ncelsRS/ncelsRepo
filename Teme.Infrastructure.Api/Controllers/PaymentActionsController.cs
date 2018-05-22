@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Infrastructure.Logic;
+using Teme.Infrastructure.Logic.Payments;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using Teme.SharedApi.Controllers;
 
 namespace Teme.Infrastructure.Api.Controllers
@@ -66,7 +67,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// Отправка заявки исполнителю ГВ
         /// </summary>
         /// <param name="workflowId"></param>
-        /// <param name="executors"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("SendToGvExecutor")]
@@ -89,6 +90,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// Согласование исполнителем ГВ
         /// </summary>
         /// <param name="workflowId"></param>
+        /// <param name="agree">true - соответствует требованиясм, false - не соответствует требованиям</param>
         /// <returns></returns>
         [HttpPost]
         [Route("GvExecutorAgreementsRequest")]
@@ -112,6 +114,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// Согласование руководителем ГВ
         /// </summary>
         /// <param name="workflowId"></param>
+        /// <param name="agree">true - соответствует требованиясм, false - не соответствует требованиям</param>
         /// <returns></returns>
         [HttpPost]
         [Route("GvBossAgreementsRequest")]
@@ -135,6 +138,7 @@ namespace Teme.Infrastructure.Api.Controllers
         /// Согласование исполнителем Деф
         /// </summary>
         /// <param name="workflowId"></param>
+        /// <param name="agree">true - соответствует требованиясм, false - не соответствует требованиям</param>
         /// <returns></returns>
         [HttpPost]
         [Route("DefExecutorAgreementsRequest")]

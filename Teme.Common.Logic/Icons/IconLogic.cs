@@ -30,8 +30,12 @@ namespace Teme.Common.Logic.Icons
             Icon icon = await _repo.GetIcon(cm);
             if (icon == null)
             {
-                icon = new Icon() { ModuleType = cm.ModuleType, ObjectId = cm.ObjectId, FieldName = cm.FieldName };
+                icon = new Icon() { ModuleType = cm.ModuleType, ObjectId = cm.ObjectId, FieldName = cm.FieldName, isError=true };
                 await _repo.CreateIcon(icon);
+            } else if (!icon.isError)
+            {
+                icon.isError = true;
+                await _repo.UpdateIcon(icon);
             }
             var iconRecord = new IconRecord()
             {
@@ -47,7 +51,7 @@ namespace Teme.Common.Logic.Icons
         }
 
         /// <summary>
-        /// Создание Айк
+        /// Получить Айку
         /// </summary>
         /// <returns></returns>
         public async Task<object> GetIconRecords(IconGetInDto gid)
@@ -56,6 +60,27 @@ namespace Teme.Common.Logic.Icons
             //IconOutDto iconOutDto = _outDtoRepo.ConvertEntityToIcon(icon);
             return IconOutDto;
         }
+
+        /// <summary>
+        /// Изменить Статус Айки
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> UpdateIconError(IconCreateInDto cm)
+        {
+            Icon icon = await _repo.GetIcon(cm);
+            if (icon != null)
+            {
+                if (icon.isError)
+                {
+                    icon.isError = false;
+                    await _repo.UpdateIcon(icon);
+                }
+                
+            }
+            return new { icon.Id };
+        }
+
+
 
     }
 }

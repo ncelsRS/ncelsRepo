@@ -108,5 +108,6 @@ namespace Teme.Shared.Data.Context
         public virtual ICollection<CostWork> CostWorks { get; set; }
         public virtual ICollection<UserForAction> UserForActions { get; set; }
         public virtual ICollection<StatePolicy> StatePolicies { get; set; }
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

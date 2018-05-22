@@ -51,26 +51,32 @@ namespace Teme.Payment.Data
                 .Select(e => new PaymentDto
                 {
                     Id = e.Id,
-                    ApplicationAreaKz = e.ApplicationAreaKz,
-                    ApplicationAreaRu = e.ApplicationAreaRu,
-                    AppointmentKz = e.AppointmentKz,
-                    AppointmentRu = e.AppointmentRu,
-                    CardNumber = e.CardNumber,
-                    ChangesMade = e.ChangesMade,
-                    DegreeRiskClassId = e.DegreeRiskClassId,
-                    ContractForm = e.ContractForm,
                     ContractId = e.ContractId,
-                    IsBlank = e.IsBlank,
-                    IsClosedSystem = e.IsClosedSystem,
-                    IsDiagnostics = e.IsDiagnostics,
-                    IsMeasures = e.IsMeasures,
-                    IsPresenceMedicinalProduct = e.IsPresenceMedicinalProduct,
-                    IsStyryl = e.IsStyryl,
+                    ContractNumber = e.Contract.Number,
+                    ContractDateCreate = e.Contract.DateCreate, //.ToString("dd.MM.yyyy"),
+                    //ContractDateInterval = e.Contract.DateCreate.AddYears(1).AddDays(-1).ToString("dd.MM.yyyy"),
+                    //ApplicationAreaKz = e.ApplicationAreaKz,
+                    //ApplicationAreaRu = e.ApplicationAreaRu,
+                    //AppointmentKz = e.AppointmentKz,
+                    //AppointmentRu = e.AppointmentRu,
+                    //CardNumber = e.CardNumber,
+                    //CardBeginDate = e.CardBeginDate,
+                    //CardEndDate = e.CardEndDate,
+                    //ChangesMade = e.ChangesMade,
+                    //DegreeRiskClassId = e.DegreeRiskClassId,
+                    //ContractForm = e.ContractForm,
+
+                    //IsBlank = e.IsBlank,
+                    //IsClosedSystem = e.IsClosedSystem,
+                    //IsDiagnostics = e.IsDiagnostics,
+                    //IsMeasures = e.IsMeasures,
+                    //IsPresenceMedicinalProduct = e.IsPresenceMedicinalProduct,
+                    //IsStyryl = e.IsStyryl,
                     IsTypeImnMt = e.IsTypeImnMt,
                     NameKz = e.NameKz,
                     NameRu = e.NameRu,
                     NumberModificationImn = e.NumberModificationImn,
-                    RationaleManufacturer = e.RationaleManufacturer,
+                    //RationaleManufacturer = e.RationaleManufacturer,
                     RevisionBeforeChanges = e.RevisionBeforeChanges,
                     TradeName = e.TradeName,
                     PaymentEquipmentDtos = e.PaymentEquipments.Select(x => new PaymentEquipmentDto
@@ -97,16 +103,16 @@ namespace Teme.Payment.Data
                         VolumeMeasureId = x.VolumeMeasureId,
                         VolumeValue = x.VolumeValue
                     }),
-                    PaymentPlatformDtos = e.PaymentPlatforms.Select(x => new PaymentPlatformDto
-                    {
-                        Id = x.Id,
-                        CountryId = x.CountryId,
-                        FactAddress = x.FactAddress,
-                        LegalAddress = x.LegalAddress,
-                        NameEn = x.NameEn,
-                        NameKz = x.NameKz,
-                        NameRu = x.NameRu,
-                    })
+                    //PaymentPlatformDtos = e.PaymentPlatforms.Select(x => new PaymentPlatformDto
+                    //{
+                    //    Id = x.Id,
+                    //    CountryId = x.CountryId,
+                    //    FactAddress = x.FactAddress,
+                    //    LegalAddress = x.LegalAddress,
+                    //    NameEn = x.NameEn,
+                    //    NameKz = x.NameKz,
+                    //    NameRu = x.NameRu,
+                    //})
 
                 })
                 .FirstOrDefaultAsync();

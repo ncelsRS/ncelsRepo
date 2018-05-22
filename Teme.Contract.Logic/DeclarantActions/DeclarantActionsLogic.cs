@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Teme.Contract.Data;
 using Teme.Contract.Infrastructure;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Repos;

@@ -14,6 +14,9 @@ namespace Teme.Payment.Data.DTO
         /// </summary>
         public int ContractId { get; set; }
 
+        public string ContractNumber { get; set; }
+        public DateTime ContractDateCreate { get; set; }
+
         /// <summary>
         /// Тип договора
         /// </summary>
@@ -23,6 +26,16 @@ namespace Teme.Payment.Data.DTO
         /// Номер регистрационного удостоверения
         /// </summary>
         public string CardNumber { get; set; }
+
+        /// <summary>
+        /// Дата регисрации регистрационного удостоверения
+        /// </summary>
+        public DateTime? CardBeginDate { get; set; }
+
+        /// <summary>
+        /// Срок действия регистрационного удостоверения
+        /// </summary>
+        public DateTime? CardEndDate { get; set; }
 
         /// <summary>
         /// Тип ИМН/МТ

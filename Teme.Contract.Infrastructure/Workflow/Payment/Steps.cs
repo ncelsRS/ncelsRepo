@@ -24,7 +24,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.SendPaymentToNcels(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -56,7 +56,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.SelectPaymentExecutors(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -88,7 +88,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.GvExecutorMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -120,7 +120,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.GvExecutorNotMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -153,7 +153,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.GvBossMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -185,7 +185,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.GvBossNotMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -217,7 +217,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.DefExecutorMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -249,7 +249,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.DefExecutorNotMeet(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();
@@ -281,7 +281,7 @@ namespace Teme.Contract.Infrastructure.Workflow.Payment
         {
             try
             {
-                //_ss.SendToNcels(context.Workflow.Id);
+                _ss.RegisterPayment(context.Workflow.Id);
                 var attrs = context.GetParentScope().ExtensionAttributes;
                 if (attrs == null || attrs.Count <= 0)
                     throw new NullReferenceException();

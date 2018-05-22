@@ -42,11 +42,7 @@ namespace Teme.Payment.Api
             // добавляем контекст TemeContext в качестве сервиса в приложение
             services.AddDbContext<TemeContext>(options => options.UseSqlServer(connectionStr));
 
-            // Add Workflow with the persistence provider
-            //services.AddWorkflow(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), true, true));
-            //services.AddWorkflow();
             services.AddCors();
-            // Default vm template
             services.AddMvc();
 
             var certPath = Configuration["IdentityConfig:CertPath"];

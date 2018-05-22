@@ -2,7 +2,7 @@ using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -13,6 +13,13 @@ namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
         public static IWorkflowBuilder<ContractWorkflowTransitionData> CozExecutorAgreements(this IWorkflowBuilder<ContractWorkflowTransitionData> builder)
         {
             builder.StartWith(c => Log.Verbose("Start Coz"))
+
+
+
+
+
+
+
 
                 // распределение договора руководителем ЦОЗ
                 .UserTask(UserPromts.SelectExecutors, (d, c) => d.ExecutorsIds[ScopeEnum.Coz].FirstOrDefault())

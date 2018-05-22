@@ -24,6 +24,7 @@ namespace Teme.Contract.Infrastructure
 
             service.AddTransient<CeoMeetReq>();
             service.AddTransient<CeoNotMeetReq>();
+            service.AddTransient<RegisterContract>();
 
             service.AddTransient<SendPaymentToNcels>();
             service.AddTransient<SelectPaymentExecutors>();

@@ -50,6 +50,11 @@ namespace Teme.Shared.Data.Primitives.Statuses
         public const string OnAdjustment = "onAdjustment";
 
         /// <summary>
+        /// На формировании счета на оплату
+        /// </summary>
+        public const string FormationInvoice = "formationInvoice";
+
+        /// <summary>
         /// Активный
         /// </summary>
         public const string Active = "active";

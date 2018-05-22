@@ -53,6 +53,23 @@ namespace Teme.Common.Api.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Изменение статуса Айки
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("UpdateIconError")]
+        public async Task<IActionResult> UpdateIconError([FromBody] IconCreateInDto iconCreateInDt)
+        {
+            try
+            {
+                var result = await Logic.UpdateIconError(iconCreateInDt);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
     }
 }

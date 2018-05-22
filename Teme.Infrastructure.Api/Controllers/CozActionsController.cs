@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure.Primitives;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Infrastructure.Logic;
 using Teme.Shared.Data.Primitives.Contract;
+using Teme.Shared.Data.Primitives.Workflow.Enums;
 using Teme.SharedApi.Controllers;
 
 namespace Teme.Infrastructure.Api.Controllers
@@ -131,6 +131,28 @@ namespace Teme.Infrastructure.Api.Controllers
                 var executors = new[] { "BossCoz" };
                 var userOption = agree ? UserOptions.MeetRequirements : UserOptions.NotMeetRequirements;
                 var r = await Logic.PublishUserAction(UserPromts.CeoAgreements, userOption, null, workflowId, null, executors, agreements);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex, workflowId);
+            }
+        }
+
+        /// <summary>
+        /// Регистрация договора
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("RegisterContract")]
+        public async Task<object> RegisterContract([FromQuery][Required] string workflowId)
+        {
+            try
+            {
+                var agreements = new Dictionary<string, bool> { { ScopeEnum.Coz, true }, { ScopeEnum.CozBoss, true }, { ScopeEnum.Ceo, true } };
+                var executors = new[] { "BossCoz" };
+                var r = await Logic.PublishUserAction(UserPromts.RegisterContract, UserOptions.Register, null, workflowId, null, executors, agreements);
                 return Json(r);
             }
             catch (Exception ex)

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Teme.Contract.Infrastructure;
-using Teme.Contract.Infrastructure.Primitives.Enums;
 using Teme.Shared.Data.Repos;
 using Teme.Shared.Logic;
 using Teme.Shared.Logic.Clients;
@@ -75,6 +74,17 @@ namespace Teme.ContractCoz.Logic.Actions
         {
             var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
             return await client.CozCeoAgreementsRequestAsync(workflowId, agree);
+        }
+
+        /// <summary>
+        /// Регистрация договора(активный)
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        public async Task<object> RegisterContract(string workflowId)
+        {
+            var client = new CozActionsClient() { BaseUrl = _config["Urls:InfrastructureApi"] };
+            return await client.RegisterContractAsync(workflowId);
         }
     }
 }
