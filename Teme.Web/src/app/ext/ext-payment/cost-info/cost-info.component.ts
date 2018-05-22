@@ -21,7 +21,7 @@ import {ExtPaymentService} from '../ext-payment.service';
     multi: true
   },
     IconExtModal, ExtPaymentService,
-    [I18n, { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n }],
+    [I18n, {provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n}],
     [{provide: NgbDateParserFormatter, useClass: NgbDatePTParserFormatter}],
   ]
   //encapsulation: ViewEncapsulation.None
@@ -33,30 +33,32 @@ export class CostInfoComponent extends TemplateValidation {
   @Input() costInfoModal: any;
   costInfoCardBeginDate;
 
-  applicationTypeId: string = "1";
+  applicationTypeId: string = '1';
 
   @Output() changeModelParent = new EventEmitter<any>();
-  changeModel(evnt:any) {
+
+  changeModel(evnt: any) {
     this.changeModelParent.emit(evnt);
   }
-  changeModelDate(evnt:any,name:string) {
-    console.log("evnt",evnt);
+
+  changeModelDate(evnt: any, name: string) {
+    console.log('evnt', evnt);
     //let date:Date = new Date( evnt.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3 06:00:00") )
-    let date = new Date(evnt.year, evnt.month-1 , evnt.day,6);
+    let date = new Date(evnt.year, evnt.month - 1, evnt.day, 6);
     if (date.toString() == 'Invalid Date') {
-      const [day, month, year] = evnt.split(".")
+      const [day, month, year] = evnt.split('.');
       console.log('year', year);
-      if(day != undefined && month != undefined && year != undefined) {
+      if (day != undefined && month != undefined && year != undefined) {
         console.log('year!=undefined', year);
         if (day.length == 2 && month.length == 2 && year.length == 4)
-          date = new Date(year, month - 1, day, )
+          date = new Date(year, month - 1, day,);
       }
 
     }
-    if (date.toString() != 'Invalid Date'){
-      let evnt1 = {name:name, value:date.toISOString()};
+    if (date.toString() != 'Invalid Date') {
+      let evnt1 = {name: name, value: date.toISOString()};
       let fields = {[evnt1.name]: evnt1.value};
-      console.log("fields",fields);
+      console.log('fields', fields);
 
       console.log('invalidBekbol');
       this.changeModelParent.emit(evnt1);
@@ -66,17 +68,22 @@ export class CostInfoComponent extends TemplateValidation {
     //let fields = {[evnt.name]: evnt.value};
     //console.log('fields',fields);
   }
-  constructor(public iconModal:  IconExtModal//, private paymentService: ExtPaymentService
+
+  constructor(public iconModal: IconExtModal//, private paymentService: ExtPaymentService
   ) {
     super();
   }
 
+  customDay = '';
+  isDisabled = false;
+  modelCustom2 = "";
 
   ngOnInit() {
     this.model = this.costInfoModal;
   }
-  getTest(){
-    console.log('costInfoModal',this.costInfoModal);
+
+  getTest() {
+    console.log('costInfoModal', this.costInfoModal);
     // var changeModelHead = ({'id': 3, 'classname': 'Teme.Shared.Data.Context.Payment', 'fields': {CardNumber: "123"}});
     // this.paymentService.changeModel(changeModelHead)
     //   .subscribe(
@@ -84,7 +91,6 @@ export class CostInfoComponent extends TemplateValidation {
     //     error => console.log(error)
     //   );
   }
-
 
 
 }

@@ -27,13 +27,14 @@ export class SubjectComponent extends TemplateValidation {
 
   public phoneMask = ['+','7',' ','(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
   public iinMask = [/[1-9]/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]
-
+  isRes = 'unres';
 
   constructor(public iconModal:  IconExtModal) {
     super();
   }
 
   ngOnInit() {
+
   }
 
 }
