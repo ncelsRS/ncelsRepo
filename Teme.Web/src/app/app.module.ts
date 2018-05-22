@@ -1,6 +1,6 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AgmCoreModule} from '@agm/core';
 import {CalendarModule} from 'angular-calendar';
@@ -10,7 +10,7 @@ import {AppSettings} from './app.settings';
 
 import {AppComponent} from './app.component';
 import {NotFoundComponent} from './pages/errors/not-found/not-found.component';
-import {IdentityModule} from "./shared/identity/identity.module";
+import {IdentityModule} from './shared/identity/identity.module';
 import {HttpClientModule} from '@angular/common/http';
 import {RscFileModule} from './shared/modules/rsc-file/rsc-file.module';
 
@@ -30,7 +30,7 @@ import {RscFileModule} from './shared/modules/rsc-file/rsc-file.module';
     CalendarModule.forRoot(),
     routing,
   ],
-  providers: [AppSettings],
+  providers: [AppSettings, {provide: LOCALE_ID, useValue: 'ru'}],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -18,4 +18,6 @@ export class IntSubjectComponent extends TemplateValidation implements OnInit {
   ngOnInit() {
   }
 
+  isRes = 'unres';
+
 }

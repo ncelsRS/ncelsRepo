@@ -43,6 +43,8 @@ export class TestPaymentComponent extends TemplateValidation{
 
   }
 
+  dateTest = '';
+
   dateToString() {
     let ddd = new Date( "13-01-2011".replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3") );
   }
