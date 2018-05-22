@@ -6,6 +6,7 @@ import {ExtPayerComponent} from './ext-payer/ext-payer.component';
 import {ExtCostComponent} from './ext-cost/ext-cost.component';
 import {RefService} from './ext-ref-sevice';
 import {TemplateValidation} from '../../../shared/TemplateValidation';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Component({
@@ -47,7 +48,8 @@ export class ExtContractComponent  extends TemplateValidation {
   public holderTypeVar;
   changeModelHead;
 
-  constructor(private route: ActivatedRoute, private refService: RefService) {
+  constructor(private route: ActivatedRoute, private refService: RefService,
+              private toastr: ToastrService) {
     super();
     this.getContactForm();
     this.getHolderType();
@@ -451,6 +453,7 @@ export class ExtContractComponent  extends TemplateValidation {
       .toPromise()
       .then(response => {
         console.log(response);
+        this.toastr.success('Договор отправлен в ЦОЗ!', 'Уведомление!');
       })
       .catch (err=>
         {

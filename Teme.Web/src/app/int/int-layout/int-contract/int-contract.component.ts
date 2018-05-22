@@ -4,7 +4,7 @@ import {Menu} from "../../../shared/menu/menu.model";
 import {RefIntContractService} from './int-contract-service';
 import {LocalDataSource} from 'ng2-smart-table';
 import {ActivatedRoute} from '@angular/router';
-//import { ToastrService, GlobalConfig } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-int-contract',
@@ -29,7 +29,7 @@ export class IntContractComponent implements OnInit {
   public selectExecutors = true;
   public Register = true;
   public data ;
-  _workflowid:string;
+
   _prompt:string;
   //   = [{
   //   number: '1321 #1223',
@@ -127,7 +127,8 @@ export class IntContractComponent implements OnInit {
     }
   };
 
-  constructor(private refIntService: RefIntContractService, private route: ActivatedRoute) {
+  constructor(private refIntService: RefIntContractService, private route: ActivatedRoute,
+              private toastr: ToastrService) {
   // this.options = this.toastrService.toastrConfig;
   // ,  public toastrService: ToastrService
   }
@@ -166,15 +167,18 @@ export class IntContractComponent implements OnInit {
 
   getMenuItems() {
     return [
-      new Menu (1, 'Не распределенные', '/int/spa/contracts/menu/onDistribution', null, 'tachometer', null, false, 0),
-      new Menu (2, 'В работе', '/int/spa/contracts/menu/inWork', null, 'users', null, false, 0),
-      new Menu (3, 'На карректировке', '/int/spa/contracts/menu/onAdjustment', null, 'laptop', null, true, 0),
-      new Menu (4, 'Требует согласования', '/int/spa/contracts/menu/requiredRegistration', null, 'keyboard-o', null, false, 3),
-      new Menu (5, 'Согласованные', '/int/spa/contracts/menu/onAgreement', null, 'address-card-o', null, false, 3),
-      new Menu (6, 'Не согласованные', '/int/spa/contracts/menu/onDistribution', null, 'creative-commons', null, false, 3),
-      new Menu (7, 'Активные', '/int/spa/contracts/menu/active', null, 'font-awesome', null, false, 3),
-      new Menu (8, 'Истекшие', '/int/spa/contracts/menu/expired', null, 'th-list', null, false, 3),
-      new Menu (9, 'Все', '/int/spa/contracts/menu/all', null, 'object-group', null, false, 3),
+      new Menu (101, 'Не распределенные', '/int/spa/contracts/menu/onDistribution', null, 'paper-plane', null, false, 0),
+      new Menu (102, 'В работе', '/int/spa/contracts/menu/inWork', null, 'paper-plane', null, false, 0),
+      new Menu (103, 'Требует согласования', '/int/spa/contracts/menu/requiredAgreement', null, 'paper-plane', null, false, 0),
+      new Menu (104, 'Не согласованные', '/int/spa/contracts/menu/requiredNotAgreement', null, 'paper-plane', null, false, 0),
+      new Menu (105, 'Согласованные', '/int/spa/contracts/menu/onAgreement', null, 'paper-plane', null, false, 0),
+      new Menu (106, 'Требует подписания', '/int/spa/contracts/menu/requiredSign', null, 'paper-plane', null, false, 0),
+      new Menu (107, 'Требует регистрации', '/int/spa/contracts/menu/requiredRegistration', null, 'paper-plane', null, false, 0),
+      new Menu (108, 'На корректировке у заявителя', '/int/spa/contracts/menu/onAdjustment', null, 'paper-plane', null, false, 0),
+      new Menu (109, 'На формировании счета на оплату', '/int/spa/contracts/menu/formationInvoice', null, 'paper-plane', null, false, 0),
+      new Menu (110, 'Активные', '/int/spa/contracts/menu/active', null, 'paper-plane', null, false, 0),
+      new Menu (111, 'Истекшие', '/int/spa/contracts/menu/expired', null, 'paper-plane', null, false, 0),
+      new Menu (112, 'Все', '/int/spa/contracts/menu/all', null, 'paper-plane', null, false, 0),
     ]
   }
 
@@ -274,6 +278,7 @@ export class IntContractComponent implements OnInit {
         responseData = response;
         this._workflowId = responseData.workflowId;
         this.GetListContracts(this._statusContract);
+        this.toastr.success('Договор! '+this._workflowId+' успешно отправлен', 'Уведомление!');
 
 
       })

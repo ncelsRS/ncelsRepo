@@ -18,6 +18,7 @@ import { ExtManufacturActionComponent } from './ext-contract/ext-manufactur-acti
 import {TextMaskModule} from 'angular2-text-mask';
 import {RscFileModule} from '../../shared/modules/rsc-file/rsc-file.module';
 import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-view.component';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import {SmartTableButtonViewComponent} from '../../shared/smart-table-button-vie
     Ng2SmartTableModule,
     NgbModule.forRoot(),
     TextMaskModule,
-    RscFileModule
+    RscFileModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [
     ExtContractsComponent,

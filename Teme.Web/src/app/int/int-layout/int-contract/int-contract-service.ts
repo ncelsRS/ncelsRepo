@@ -5,6 +5,7 @@ import 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import {ContentType} from '@angular/http/src/enums';
 import {environment} from '../../../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Injectable()
@@ -19,7 +20,8 @@ export class RefIntContractService  {
 
 
 
-  constructor(private http: HttpClient){
+  constructor(private http: HttpClient,
+              private toastr: ToastrService){
     this.getContractForm();
   }
 

@@ -5,7 +5,7 @@ import {IntManufacturerComponent} from '../int-manufacturer/int-manufacturer.com
 import {IntDeclarantComponent} from '../int-declarant/int-declarant.component';
 import {IntPayerComponent} from '../int-payer/int-payer.component';
 import {IntCostComponent} from '../int-cost/int-cost.component';
-import {Action} from 'rxjs/scheduler/Action';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-int-card',
@@ -36,7 +36,8 @@ export class IntCardComponent implements OnInit {
   public MeetRequirements:boolean=true;
   public NotMeetRequirements:boolean=true;
 
-  constructor(private route: ActivatedRoute,private refIntService: RefIntContractService) { this.type = 'manufacturer'}
+  constructor(private route: ActivatedRoute,private refIntService: RefIntContractService,
+              private toastr: ToastrService) { this.type = 'manufacturer'}
 
   ngOnInit() {
     this.route.parent.params
@@ -190,6 +191,8 @@ export class IntCardComponent implements OnInit {
         responseData = response;
         console.log(responseData);
         this.ViewActions();
+        this.toastr.success('Договор успешно согласован!', 'Уведомление!');
+        this.MeetRequirements = true;
       })
       .catch(err => {
           console.error(err);
@@ -206,6 +209,8 @@ export class IntCardComponent implements OnInit {
         responseData = response;
         console.log(responseData);
         this.ViewActions();
+        this.toastr.success('Договор отказан в согласовании!', 'Уведомление!');
+        this.NotMeetRequirements = true;
 
       })
       .catch(err => {
@@ -225,7 +230,6 @@ export class IntCardComponent implements OnInit {
       .toPromise()
       .then(response => {
         responseData = response;
-        console.log("brrrrrrrrrrr");
         console.log(responseData);
         this._prompt = responseData[0].prompt;
         let keys = Object.keys(responseData[0].options);
