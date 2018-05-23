@@ -69,7 +69,7 @@ export class TestPaymentComponent extends TemplateValidation{
 
 
 
-  settings = {
+    settings = {
     columns: {
       id: {
         title: 'ID',

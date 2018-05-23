@@ -6,6 +6,7 @@ import {IntDeclarantComponent} from '../int-declarant/int-declarant.component';
 import {IntPayerComponent} from '../int-payer/int-payer.component';
 import {IntCostComponent} from '../int-cost/int-cost.component';
 import { ToastrService } from 'ngx-toastr';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-int-card',
@@ -30,21 +31,28 @@ export class IntCardComponent implements OnInit {
   public idManufactur;
   public idDeclarant;
   public idPayer;
+  public idContractText;
+  public  urlContract:SafeResourceUrl;
   _workflowid:string;
   _prompt:string;
 
   public MeetRequirements:boolean=true;
   public NotMeetRequirements:boolean=true;
+  public returnToDeclarant:boolean = true;
 
   constructor(private route: ActivatedRoute,private refIntService: RefIntContractService,
-              private toastr: ToastrService) { this.type = 'manufacturer'}
+              private toastr: ToastrService, private sanitizer: DomSanitizer) {
+    this.type = 'manufacturer'
+  }
 
   ngOnInit() {
     this.route.parent.params
       .subscribe(params => {
         this.idContract = params.id;
         this.getContractById();
+        this.urlContract = this.sanitizer.bypassSecurityTrustResourceUrl("http://localhost:9007/api/Template/GetContractStream?contractId="+this.idContract);
         this.idContractEvent.emit(this.idContract);
+        this.idContractText = this.idContract;
 
       })
 
@@ -193,6 +201,8 @@ export class IntCardComponent implements OnInit {
         this.ViewActions();
         this.toastr.success('Договор успешно согласован!', 'Уведомление!');
         this.MeetRequirements = true;
+        this.NotMeetRequirements = true;
+        this.returnToDeclarant = true;
       })
       .catch(err => {
           console.error(err);
@@ -210,7 +220,31 @@ export class IntCardComponent implements OnInit {
         console.log(responseData);
         this.ViewActions();
         this.toastr.success('Договор отказан в согласовании!', 'Уведомление!');
+        this.MeetRequirements = true;
         this.NotMeetRequirements = true;
+        this.returnToDeclarant = true;
+
+      })
+      .catch(err => {
+          console.error(err);
+        }
+      )
+
+  };
+
+  ReturnToDeclarant()
+  {
+    let responseData;
+    this.refIntService.ReturnToDeclarant(this._workflowid)
+      .toPromise()
+      .then(response => {
+        responseData = response;
+        console.log(responseData);
+        this.ViewActions();
+        this.toastr.success('Договор отправлен на корректировку!', 'Уведомление!');
+        this.MeetRequirements = true;
+        this.NotMeetRequirements = true;
+        this.returnToDeclarant = true;
 
       })
       .catch(err => {
@@ -244,6 +278,10 @@ export class IntCardComponent implements OnInit {
             }
             case 'NotMeetRequirements': {
               this.NotMeetRequirements = false;
+              break;
+            }
+            case 'ReturnToDeclarant': {
+              this.returnToDeclarant = false;
               break;
             }
             default: {

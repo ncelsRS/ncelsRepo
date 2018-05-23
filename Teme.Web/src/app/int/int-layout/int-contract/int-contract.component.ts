@@ -5,7 +5,8 @@ import {RefIntContractService} from './int-contract-service';
 import {LocalDataSource} from 'ng2-smart-table';
 import {ActivatedRoute} from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-
+import {IdentityProviderSvc} from '../../../shared/identity/IdentityProviderSvc';
+import {register} from 'ts-node';
 @Component({
   selector: 'app-int-contract',
   templateUrl: './int-contract.component.html',
@@ -19,6 +20,7 @@ export class IntContractComponent implements OnInit {
   title = '';
   type = 'success';
   message = '';
+
   //version = VERSION;
   //options: GlobalConfig;
   _selectRow:string;
@@ -29,6 +31,7 @@ export class IntContractComponent implements OnInit {
   public selectExecutors = true;
   public Register = true;
   public data ;
+  public userName;
 
   _prompt:string;
   //   = [{
@@ -128,17 +131,19 @@ export class IntContractComponent implements OnInit {
   };
 
   constructor(private refIntService: RefIntContractService, private route: ActivatedRoute,
-              private toastr: ToastrService) {
-  // this.options = this.toastrService.toastrConfig;
-  // ,  public toastrService: ToastrService
+              private toastr: ToastrService,
+              private userService: IdentityProviderSvc ) {
   }
 
   ngOnInit() {
 
     this.route.params.subscribe(params => {  this._statusContract = params.status;
       console.log(this._statusContract)
+      this.Register = true;
+      this.selectExecutors = true;
       this.GetListContracts(this._statusContract);});
     this.menuItems = this.getMenuItems();
+    console.log("userName ",this.userName);
 
   }
 
@@ -167,10 +172,10 @@ export class IntContractComponent implements OnInit {
 
   getMenuItems() {
     return [
-      new Menu (101, 'Не распределенные', '/int/spa/contracts/menu/onDistribution', null, 'paper-plane', null, false, 0),
+      new Menu (101, 'Нераспределенные', '/int/spa/contracts/menu/onDistribution', null, 'paper-plane', null, false, 0),
       new Menu (102, 'В работе', '/int/spa/contracts/menu/inWork', null, 'paper-plane', null, false, 0),
       new Menu (103, 'Требует согласования', '/int/spa/contracts/menu/requiredAgreement', null, 'paper-plane', null, false, 0),
-      new Menu (104, 'Не согласованные', '/int/spa/contracts/menu/requiredNotAgreement', null, 'paper-plane', null, false, 0),
+      new Menu (104, 'Несогласованные', '/int/spa/contracts/menu/requiredNotAgreement', null, 'paper-plane', null, false, 0),
       new Menu (105, 'Согласованные', '/int/spa/contracts/menu/onAgreement', null, 'paper-plane', null, false, 0),
       new Menu (106, 'Требует подписания', '/int/spa/contracts/menu/requiredSign', null, 'paper-plane', null, false, 0),
       new Menu (107, 'Требует регистрации', '/int/spa/contracts/menu/requiredRegistration', null, 'paper-plane', null, false, 0),

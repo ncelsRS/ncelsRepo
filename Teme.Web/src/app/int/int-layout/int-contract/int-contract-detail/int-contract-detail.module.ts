@@ -13,6 +13,7 @@ import {IntDeclarantComponent} from "./int-declarant/int-declarant.component"
 import {IntPayerComponent} from "./int-payer/int-payer.component";
 import {IntCostComponent} from "./int-cost/int-cost.component";
 import {FileUploadModule} from "ng2-file-upload";
+import {IconModule} from '../../../../shared/icon/icon.module';
 
 
 const routes: Routes = [
@@ -37,7 +38,8 @@ const routes: Routes = [
     Ng2SmartTableModule,
     FormsModule,
     FileUploadModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    IconModule
   ],
   declarations: [
     IntAttachmentsComponent,

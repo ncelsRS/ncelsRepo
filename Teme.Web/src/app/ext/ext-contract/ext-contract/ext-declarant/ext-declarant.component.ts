@@ -54,6 +54,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
   public disDeclarantDocType:boolean = true;
   public listVarNoRes;
   public listVarRes;
+  public iModuleType = 1;
   changeModelRes:any;
   changeModelHead;
   _isNewSubject:boolean= false;

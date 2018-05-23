@@ -12,6 +12,7 @@ const URL = 'https://evening-anchorage-3159.herokuapp.com/api/';
 export class ExtAttachmentComponent {
 
   @Input() contractId: number;
+  @Input() public idContractChild:string;
 
   public fileEntityTypes = EntityTypes;
   public fileTypes = FileTypeCodes;

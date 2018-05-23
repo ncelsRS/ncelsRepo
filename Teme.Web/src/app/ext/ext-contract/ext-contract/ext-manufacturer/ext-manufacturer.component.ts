@@ -45,6 +45,7 @@ export class ExtManufacturerComponent extends TemplateValidation  {
   public listVarRes;
   changeModelHead;
   _isNewSubject:boolean = false;
+  public iModuleType = 1;
 
    @Input() prnRegisterType: string;
    @Input() showErrors = false;

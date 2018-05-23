@@ -14,6 +14,7 @@ export class IntManufacturerComponent implements OnInit {
   public bankVar;
   public currencyVar;
   public listVarRes;
+  public iModuleType=1;
   @Input() idContractChild:string;
   @Input() idManufacurIn:string;
 
