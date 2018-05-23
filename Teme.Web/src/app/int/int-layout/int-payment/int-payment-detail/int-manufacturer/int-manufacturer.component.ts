@@ -1,5 +1,6 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
+import {TemplateValidation} from '../../../../../shared/TemplateValidation';
 
 @Component({
   selector: 'app-int-manufacturer',
@@ -8,10 +9,12 @@ import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
   encapsulation: ViewEncapsulation.None,
   providers:[IconExtModal]
 })
-export class IntManufacturerComponent implements OnInit {
+export class IntManufacturerComponent extends TemplateValidation implements OnInit {
 
 
-  constructor(public iconModal:  IconExtModal) { }
+  constructor(public iconModal:  IconExtModal) {
+    super();
+  }
 
   ngOnInit() {
   }

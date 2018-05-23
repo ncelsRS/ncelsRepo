@@ -1,5 +1,6 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
+import {TemplateValidation} from '../../../../../shared/TemplateValidation';
 
 @Component({
   selector: 'app-int-equipment',
@@ -8,7 +9,7 @@ import {IconExtModal} from 'app/shared/icon/icon-ext-modal';
   encapsulation: ViewEncapsulation.None,
   providers:[IconExtModal]
 })
-export class IntEquipmentComponent {
+export class IntEquipmentComponent extends TemplateValidation {
 
   @Input() showErrors = false;
   public equipmentData = [{
@@ -192,6 +193,7 @@ export class IntEquipmentComponent {
   };
 
   constructor(public iconModal:  IconExtModal) {
+    super();
     // this.getData((data) => {
     //   this.data = data;
     // });

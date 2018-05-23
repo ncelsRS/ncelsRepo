@@ -16,6 +16,7 @@ import { IntDeclarationDetailComponent } from './int-declaration/int-declaration
 import { IntPaymentComponent } from './int-payment/int-payment.component';
 import { IntPaymentBtnComponent } from './int-payment/int-payment-btn/int-payment-btn.component';
 import { IntPaymentDetailComponent } from './int-payment/int-payment-detail/int-payment-detail.component';
+import { ToastrModule } from 'ngx-toastr';
 
 const routes: Routes = [
   {
@@ -61,6 +62,7 @@ const routes: Routes = [
     Ng2SmartTableModule,
     FormsModule,
     NgbModule.forRoot(),
+    ToastrModule.forRoot(),
 
   ],
   declarations: [

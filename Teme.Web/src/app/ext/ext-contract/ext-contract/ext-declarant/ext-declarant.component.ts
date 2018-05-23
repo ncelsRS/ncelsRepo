@@ -6,6 +6,9 @@ import {
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
 import {RefService} from '../ext-ref-sevice';
+import {NgbDateParserFormatter, NgbDatepickerI18n} from '@ng-bootstrap/ng-bootstrap';
+import {CustomDatepickerI18n, I18n} from '../../../../shared/datepicker/CustomDatepickerI18n';
+import {NgbDatePTParserFormatter} from '../../../../shared/datepicker/NgbDatePTParserFormatter';
 
 
 
@@ -23,7 +26,10 @@ import {RefService} from '../ext-ref-sevice';
       useExisting: forwardRef(() => ExtDeclarantComponent),
       multi: true
     },
-      RefService]
+      RefService,
+      [I18n, { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n }],
+      [{provide: NgbDateParserFormatter, useClass: NgbDatePTParserFormatter}],
+    ]
 })
 
 @Injectable()
@@ -77,6 +83,7 @@ export class ExtDeclarantComponent  extends TemplateValidation{
 
 
     ngOnInit() {
+
   }
 
 
