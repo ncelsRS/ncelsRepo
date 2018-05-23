@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Teme.Shared.Data.Context.References;
 
-namespace Teme.Payment.Data.DTO
+namespace Teme.Payment.Data.OutDto
 {
     public class PaymentEquipmentDto
     {

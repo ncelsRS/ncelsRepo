@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Teme.Payment.Data;
-using Teme.Payment.Data.Model;
+using Teme.Payment.Data.InDto;
 using Teme.Payment.Logic;
 using Teme.SharedApi.Controllers;
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Teme.Payment.Data.Model;
+using Teme.Payment.Data.InDto;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Logic.PaymentLogic;
 

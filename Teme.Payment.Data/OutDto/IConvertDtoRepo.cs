@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Teme.Payment.Data.DTO
+namespace Teme.Payment.Data.OutDto
 {
     public interface IConvertDtoRepo
     {
