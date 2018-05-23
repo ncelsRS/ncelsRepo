@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using Teme.Shared.Data.Primitives.OrgScopes;
 
 namespace Teme.Shared.Data.Context
 {
@@ -52,6 +49,11 @@ namespace Teme.Shared.Data.Context
         /// Признак удаления
         /// </summary>
         public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
+        /// Адрес организации
+        /// </summary>
+        public OrganizationAddress Address { get; set; }
 
         /// <summary>
         /// Родитель

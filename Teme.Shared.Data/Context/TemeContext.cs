@@ -18,6 +18,7 @@ namespace Teme.Shared.Data.Context
         public DbSet<Role> Roles { get; set; }
         public DbSet<AuthUserRoles> AuthUserRoles { get; set; }
         public DbSet<RolesPermissions> Permissions { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
         public DbSet<StatePolicy> StatePolicies { get; set; }
         public DbSet<UserForAction> UserForActions { get; set; }
 

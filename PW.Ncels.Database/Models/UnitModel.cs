@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using PW.Ncels.Database.DataModel;
 using PW.Ncels.Database.Helpers;
