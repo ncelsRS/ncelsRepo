@@ -7,7 +7,7 @@ using Teme.Shared.Data.Context.References;
 namespace Teme.Shared.Data.Context
 {
     /// <summary>
-    /// Заявка на платеж. Комплектация ИМН и МТ
+    /// Упаковка
     /// </summary>
     public class PaymentPackaging : BaseEntity
     {
@@ -19,9 +19,14 @@ namespace Teme.Shared.Data.Context
         public Payment Payment { get; set; }
 
         /// <summary>
+        /// заявление
+        /// </summary>
+        public Declaration Declaration { get; set; }
+
+        /// <summary>
         /// Тип упаковки
         /// </summary>
-        public int PackagingtTypeId { get; set; }
+        public Nullable<int> PackagingTypeId { get; set; }
         [ForeignKey("PackagingTypeId")]
         public Ref_PackagingType Ref_PackagingType { get; set; }
 
@@ -73,5 +78,10 @@ namespace Teme.Shared.Data.Context
         /// Краткое описание
         /// </summary>
         public string ShortDescription { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

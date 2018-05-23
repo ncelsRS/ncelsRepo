@@ -35,5 +35,15 @@ namespace Teme.Shared.Data.Context
         /// Код Номенклатуры медицинских изделий Республики Казахстан (НМИ РК)
         /// </summary>
         public Ref_NomenclatureCodeMedProduct Nomenclature { get; set; }
+
+        /// <summary>
+        /// Данные ИМН/МТ
+        /// </summary>
+        public MedicalDeviceData MedicalDeviceData { get; set; }
+
+        /// <summary>
+        /// Производитель для заявки на платеж и заявления(не должен быть пустой если договор один к одному)
+        /// </summary>
+        public MedicalDeviceManufacturer MedicalDeviceManufacturer { get; set; }
     }
 }

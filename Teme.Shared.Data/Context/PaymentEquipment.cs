@@ -14,9 +14,14 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Заявка на платеж
         /// </summary>
-        public int PaymentId { get; set; }
+        public int? PaymentId { get; set; }
         [ForeignKey("PaymentId")]
         public Payment Payment { get; set; }
+
+        /// <summary>
+        /// заявление
+        /// </summary>
+        public Declaration Declaration { get; set; }
 
         /// <summary>
         /// Тип комплектации ИМН и МТ
@@ -51,5 +56,10 @@ namespace Teme.Shared.Data.Context
         public int? CountryId { get; set; }
         [ForeignKey("CountryId")]
         public Ref_Country Ref_Country { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

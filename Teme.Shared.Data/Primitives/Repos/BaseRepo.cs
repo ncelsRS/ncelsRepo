@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +24,11 @@ namespace Teme.Shared.Data.Repos
             return Context.AuthUsers.Where(x => x.Id == userId);
         }
 
-        public async Task Add(TEntity entity)
+        public async Task<int> Add(TEntity entity)
         {
             await Repo.AddAsync(entity);
+            await Save();
+            return entity.Id;
         }
 
         public async Task Save()
@@ -35,7 +38,19 @@ namespace Teme.Shared.Data.Repos
 
         public async Task<TEntity> GetById(int id)
         {
-            return await Repo.FindAsync(new { Id = id });
+            return await Repo.FindAsync(id);
+        }
+
+        public async Task Delete(TEntity entity)
+        {
+            Repo.Update(entity);
+            await Save();
+        }
+
+        public async Task Update(TEntity entity)
+        {
+           Repo.Update(entity);
+           await Save();
         }
 
         //        Нужно добавить этот метод в OnRelease в автофаке, однако di dotnet core видимо уже решил эти проблемы

@@ -37,5 +37,9 @@ namespace Teme.Payment.Data.DTO
         /// Страна
         /// </summary>
         public int? CountryId { get; set; }
+
+        public Ref_Country Country { get; set; }
+
+        public Ref_EquipmentType EquipmentType { get; set; }
     }
 }

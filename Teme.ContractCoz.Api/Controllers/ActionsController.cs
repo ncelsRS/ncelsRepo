@@ -80,6 +80,27 @@ namespace Teme.ContractCoz.Api.Controllers
         }
 
         /// <summary>
+        /// Возврат на доработку заявителю
+        /// </summary>
+        /// <param name="workflowId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(UserPromts.ReturnToDeclarant + "/" + UserOptions.ReturnToDeclarant + "/{workflowId}")]
+        public async Task<IActionResult> ReturnToDeclarant([FromRoute][Required] string workflowId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var r = await Logic.ReturnToDeclarant(workflowId);
+                return Json(r);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionResult(ex);
+            }
+        }
+
+        /// <summary>
         /// соотвествует требованиям Руководителя ЦОЗ
         /// </summary>
         /// <param name="workflowId"></param>
