@@ -4,6 +4,7 @@ import {IdentityProviderSvc} from './IdentityProviderSvc';
 import {Observable} from 'rxjs/Observable';
 import {Router} from '@angular/router';
 import {catchError, map, mergeMap} from 'rxjs/operators';
+import 'rxjs/add/observable/throw';
 
 @Injectable()
 export class IdentityInterceptorService implements HttpInterceptor {
@@ -35,7 +36,8 @@ export class IdentityInterceptorService implements HttpInterceptor {
             }));
         }),
         catchError(err => {
-          if (err.status)
+          console.log(err);
+          if (err.status || err.status === 0)
             return Observable.throw(err);
           return next.handle(req)
             .pipe(catchError(err => {

@@ -89,7 +89,7 @@ export class IconIntButton implements OnInit  {
 
           this.status = data.isError? 2: 3;
         }
-        console.log('int this.status', this.status);
+        //console.log('int this.status', this.status);
       });
   }
 
@@ -97,11 +97,11 @@ export class IconIntButton implements OnInit  {
 
     let body = {moduleType: this.moduleType, objectId: this.objectId, fieldName: this.fieldName,
       valueField: this.valueField, displayField: this.displayField}
-    console.log("body", body)
+    //console.log("body", body)
 
     body['note'] = this.note;
     this.http.post(this.iconUrl + 'CreateIcon', body).subscribe(data => {
-      console.log(data);
+      //console.log(data);
       this.ngOnInit();
     });
     this.note = "";

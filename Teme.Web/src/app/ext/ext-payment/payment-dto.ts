@@ -37,20 +37,20 @@ export class PaymentDto {
 }
 export class PaymentEquipmentDto {
   public id: number;
-  public equipmentTypeId: number;
+  public equipmentType: any;
   public name: string;
   public model: string;
   public manufacturer: string;
-  public countryId: number;
+  public country: any;
 }
 export class PaymentPackagingDto {
   public id: number;
-  public packagingtTypeId: number;
+  public packagingType: any;
   public name: string;
   public sizeWidth: string;
   public sizeHeight: string;
   public sizeLength: string;
-  public sizeMeasureId: number;
+  public sizeMeasure: any;
   public volumeValue: string;
   public volumeMeasureId: number;
   public numberUnitsInBox: string;
