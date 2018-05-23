@@ -36,6 +36,10 @@ namespace Teme.Contract.Infrastructure
             service.AddTransient<DefExecutorNotMeet>();
             service.AddTransient<RegisterPayment>();
 
+
+            service.AddTransient<Test>();
+            service.AddTransient<Test1>();
+
         }
     }
 }
