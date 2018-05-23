@@ -36,6 +36,8 @@ export class ExtPayerComponent extends TemplateValidation {
   public viewAddPayer=false;
   public disabledAddDetail=true;
   public disabledPayerDetail=true;
+  public iModuleType = 1;
+
   @Input() idContractChild:string;
   @Input() viewAction:string;
   @Output() onChangedManufYes = new EventEmitter<boolean>();

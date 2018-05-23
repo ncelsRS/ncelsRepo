@@ -63,7 +63,6 @@ const routes: Routes = [
     FormsModule,
     NgbModule.forRoot(),
     ToastrModule.forRoot(),
-
   ],
   declarations: [
     IntContractComponent,

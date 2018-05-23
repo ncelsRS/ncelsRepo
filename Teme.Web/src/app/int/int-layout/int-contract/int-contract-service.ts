@@ -123,6 +123,11 @@ export class RefIntContractService  {
 
   }
 
+  ReturnToDeclarant(workFlowId){
+    return  this.http.post(this.urlContractCozAction+"Actions/ReturnToDeclarant/ReturnToDeclarant/"+workFlowId,{});
+
+  }
+
 
 
 
