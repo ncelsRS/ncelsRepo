@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Teme.Shared.Data.Context.References;
 
 namespace Teme.Payment.Data.DTO
 {
@@ -11,6 +12,8 @@ namespace Teme.Payment.Data.DTO
         /// Тип упаковки
         /// </summary>
         public int PackagingtTypeId { get; set; }
+
+        public Ref_PackagingType PackagingType { get; set; }
 
         /// <summary>
         /// Наименование
@@ -36,6 +39,8 @@ namespace Teme.Payment.Data.DTO
         /// Размер Еденица измерения
         /// </summary>
         public Nullable<int> SizeMeasureId { get; set; }
+
+        public Ref_Measure SizeMeasure { get; set; }
 
         /// <summary>
         /// Объем значение

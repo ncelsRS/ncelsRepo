@@ -26,7 +26,7 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Тип упаковки
         /// </summary>
-        public int PackagingtTypeId { get; set; }
+        public int PackagingTypeId { get; set; }
         [ForeignKey("PackagingTypeId")]
         public Ref_PackagingType Ref_PackagingType { get; set; }
 
@@ -78,5 +78,10 @@ namespace Teme.Shared.Data.Context
         /// Краткое описание
         /// </summary>
         public string ShortDescription { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

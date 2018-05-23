@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Teme.Payment.Data.DTO;
+using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Payment.Data
 {
@@ -64,7 +65,7 @@ namespace Teme.Payment.Data
                     //CardEndDate = e.CardEndDate,
                     //ChangesMade = e.ChangesMade,
                     //DegreeRiskClassId = e.DegreeRiskClassId,
-                    //ContractForm = e.ContractForm,
+                    ContractForm = ContractFormEnum.Registration,
 
                     //IsBlank = e.IsBlank,
                     //IsClosedSystem = e.IsClosedSystem,
@@ -79,7 +80,8 @@ namespace Teme.Payment.Data
                     //RationaleManufacturer = e.RationaleManufacturer,
                     RevisionBeforeChanges = e.RevisionBeforeChanges,
                     TradeName = e.TradeName,
-                    PaymentEquipmentDtos = e.PaymentEquipments.Select(x => new PaymentEquipmentDto
+                    PaymentEquipmentDtos = e.PaymentEquipments.Where(x => !x.isDeleted)
+                    .Select(x => new PaymentEquipmentDto
                     {
                         Id = x.Id,
                         Code = x.Code,
@@ -89,19 +91,18 @@ namespace Teme.Payment.Data
                         Model = x.Model,
                         Name = x.Name
                     }),
-                    PaymentPackagingDtos = e.PaymentPackaging.Select(x => new PaymentPackagingDto
+                    PaymentPackagingDtos = e.PaymentPackaging.Where(x => !x.isDeleted)
+                    .Select(x => new PaymentPackagingDto
                     {
                         Id = x.Id,
                         Name = x.Name,
                         NumberUnitsInBox = x.NumberUnitsInBox,
-                        PackagingtTypeId = x.PackagingtTypeId,
+                        PackagingType = x.Ref_PackagingType,
                         ShortDescription = x.ShortDescription,
-                        SizeHeight = x.SizeHeight,
+                        SizeHeight = x.SizeHeight, 
                         SizeLength = x.SizeLength,
-                        SizeMeasureId = x.SizeMeasureId,
-                        SizeWidth = x.SizeWidth,
-                        VolumeMeasureId = x.VolumeMeasureId,
-                        VolumeValue = x.VolumeValue
+                        SizeMeasure = x.Ref_SizeMeasure,
+                        SizeWidth = x.SizeWidth
                     }),
                     //PaymentPlatformDtos = e.PaymentPlatforms.Select(x => new PaymentPlatformDto
                     //{

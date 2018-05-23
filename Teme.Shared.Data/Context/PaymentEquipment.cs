@@ -56,5 +56,10 @@ namespace Teme.Shared.Data.Context
         public int? CountryId { get; set; }
         [ForeignKey("CountryId")]
         public Ref_Country Ref_Country { get; set; }
+
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
     }
 }

@@ -9,7 +9,7 @@ namespace Teme.Shared.Data.Repos
         IQueryable<AuthUser> GetCurrentUser(int userId);
         Task<int> Add(TEntity entity);
         Task<TEntity> GetById(int id);
-        Task Delete(int id);
+        Task Delete(TEntity entity);
         Task Update(TEntity entity);
         Task Save();
     }

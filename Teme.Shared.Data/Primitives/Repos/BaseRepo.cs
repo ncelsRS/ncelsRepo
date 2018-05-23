@@ -40,10 +40,9 @@ namespace Teme.Shared.Data.Repos
             return await Repo.FindAsync(id);
         }
 
-        public async Task Delete(int id)
+        public async Task Delete(TEntity entity)
         {
-            var entity = await Repo.FindAsync(id);
-            Repo.Remove(entity);
+            Repo.Update(entity);
             await Save();
         }
 

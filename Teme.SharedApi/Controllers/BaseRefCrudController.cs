@@ -31,11 +31,11 @@ namespace Teme.SharedApi.Controllers
 
         [HttpPost]
         [Route("Delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(TEntity entity)
         {
             try
             {
-                await Logic.Delete(id);
+                await Logic.Delete(entity);
                 return Json(new { success = true });
             }
             catch (Exception ex)

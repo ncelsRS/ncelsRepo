@@ -42,5 +42,10 @@ namespace Teme.Shared.Data.Context
         [MaxLength(255)]
         public string FactAddress { get; set; }
 
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool isDeleted { get; set; } = false;
+
     }
 }

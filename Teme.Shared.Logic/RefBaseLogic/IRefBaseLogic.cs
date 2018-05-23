@@ -10,7 +10,7 @@ namespace Teme.Shared.Logic.RefBaseLogic
         Task<int> Add(TEntity entity);
         Task Save();
         Task<TEntity> GetById(int id);
-        Task Delete(int id);
+        Task Delete(TEntity entity);
         Task Update(TEntity entity);
     }
 }

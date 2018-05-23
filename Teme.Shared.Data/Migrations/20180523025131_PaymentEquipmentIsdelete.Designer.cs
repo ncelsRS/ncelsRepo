@@ -14,9 +14,10 @@ using Teme.Shared.Data.Primitives.Icon;
 namespace Teme.Shared.Data.Migrations
 {
     [DbContext(typeof(TemeContext))]
-    partial class TemeContextModelSnapshot : ModelSnapshot
+    [Migration("20180523025131_PaymentEquipmentIsdelete")]
+    partial class PaymentEquipmentIsdelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -595,7 +596,9 @@ namespace Teme.Shared.Data.Migrations
 
                     b.Property<string>("NumberUnitsInBox");
 
-                    b.Property<int>("PackagingTypeId");
+                    b.Property<int?>("PackagingTypeId");
+
+                    b.Property<int>("PackagingtTypeId");
 
                     b.Property<int>("PaymentId");
 
@@ -1308,8 +1311,7 @@ namespace Teme.Shared.Data.Migrations
 
                     b.HasOne("Teme.Shared.Data.Context.References.Ref_PackagingType", "Ref_PackagingType")
                         .WithMany()
-                        .HasForeignKey("PackagingTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PackagingTypeId");
 
                     b.HasOne("Teme.Shared.Data.Context.Payment", "Payment")
                         .WithMany("PaymentPackaging")
