@@ -10,6 +10,6 @@ namespace Teme.ContractCoz.Data
 {
     public interface IContractCozRepo : IContractBaseRepo
     {
-        Task<IQueryable<object>> GetListContract(string statusCode, List<RolesPermissions> permission);
+        Task<IEnumerable<object>> GetListContract(string statusCode, List<string> permissions);
     }
 }

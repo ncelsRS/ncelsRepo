@@ -8,6 +8,44 @@ using WorkflowCore.Models;
 
 namespace Teme.Contract.Infrastructure.Workflow.ContractCoz
 {
+
+
+
+
+    public class Test : StepBody
+    {
+        public Test()
+        {
+        }
+
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            return ExecutionResult.Next();
+        }
+    }
+
+    public class Test1 : StepBody
+    {
+        public Test1()
+        {
+        }
+
+        public Dictionary<string, IEnumerable<string>> ExecutorsIds { get; set; }
+
+        public override ExecutionResult Run(IStepExecutionContext context)
+        {
+            return ExecutionResult.Next();
+        }
+    }
+
+
+
+
+
+
+
     public class SelectExecutorsFirst : StepBody
     {
         private readonly IStepStatusLogic _ss;
