@@ -31,10 +31,11 @@ export class ExtPaymentComponent implements OnInit {
       //this.paymentData = data
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
       this.paymentModel.costInfo.contractNumber = data.contractNumber;
-      let contractDate:Date = new Date(data.contractDateCreate);
-      this.paymentModel.costInfo.contractDateCreate = contractDate;
-      contractDate.setFullYear( contractDate.getFullYear() + 1);
-      this.paymentModel.costInfo.contractDateInterval = contractDate;
+
+      this.paymentModel.costInfo.contractDateCreate = new Date(data.contractDateCreate);
+      let contractDateInterval:Date = new Date(data.contractDateCreate);
+      contractDateInterval.setDate( contractDateInterval.getDate() + 364);
+      this.paymentModel.costInfo.contractDateInterval = contractDateInterval;
       this.paymentModel.costInfo.cardNumber = data.cardNumber;
       this.paymentModel.costInfo.cardBeginDate = data.cardBeginDate;
       this.paymentModel.costInfo.cardEndDate = data.cardEndDate;

@@ -72,15 +72,16 @@ export class IconExtButton implements OnInit  {
   status = 1;
   private _valueField: string = null;
   @Input() set valueField(value: string) {
-
-    console.log('ext value', value)
-    if (this._valueField == null){
-      this._valueField = value;
-    } else {
-      this._valueField = null;
-      this.status = 3;
-      this.getUpdateIconError();
+    if(this.status == 2){
+      if (this._valueField == null){
+        this._valueField = value;
+      } else {
+        this._valueField = null;
+        this.status = 3;
+        this.getUpdateIconError();
+      }
     }
+
 
     // this._input = value;
 
