@@ -31,7 +31,7 @@ import { ToastrModule } from 'ngx-toastr';
     NgbModule.forRoot(),
     TextMaskModule,
     RscFileModule,
-    RscSmartTableModule
+    RscSmartTableModule,
     RscFileModule,
     ToastrModule.forRoot(),
   ],
