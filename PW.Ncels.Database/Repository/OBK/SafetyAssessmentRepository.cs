@@ -52,9 +52,8 @@ namespace PW.Ncels.Database.Repository.OBK
         {
             //todo надо добавить фильтр для договоро и отображать только подписанные и активные и договор не зарегистрировался в заявке
 
-            //var contract = AppContext.OBK_Contract.Where(e => AppContext.OBK_AssessmentDeclaration.Where(r => r.StatusId != 14 && r.StatusId != 15 && r.StatusId != 17).ToList()
-            //.Any(x => x.ContractId == e.Id) && e.EmployeeId == employeeId && e.Type == type && e.Status == 8);
-            var contract = AppContext.OBK_Contract.Where(e => e.EmployeeId == employeeId && e.Type == type && e.Status == 8);
+            //var contract = AppContext.OBK_Contract.Where(e => AppContext.OBK_AssessmentDeclaration.Where(r => r.StatusId != 14 && r.StatusId != 15 && r.StatusId != 17).ToList().Any(x => x.ContractId == e.Id)
+            var contract = AppContext.OBK_Contract.Where(e=> e.EmployeeId == employeeId && e.Type == type && e.Status == 8);
             return contract;
 
         }
@@ -833,7 +832,7 @@ namespace PW.Ncels.Database.Repository.OBK
         public void SendToWork(Guid[] stageIds, Guid[] executorIds)
         {
             var stages = AppContext.OBK_AssessmentStage.Where(e => stageIds.Contains(e.Id)).ToList();
-
+            
             var executors = AppContext.Employees.Where(e => executorIds.Contains(e.Id)).ToList();
             // AssessmentStage ------ DeclarationId
             foreach (var stage in stages)
@@ -933,11 +932,11 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.Entry(attachedEntity).CurrentValues.SetValues(entity);
             AppContext.Commit(true);
 
-            // var contractEx = AppContext.OBK_Contract.Where(t => t.Id == entity.ContractId).FirstOrDefault();
+           // var contractEx = AppContext.OBK_Contract.Where(t => t.Id == entity.ContractId).FirstOrDefault();
 
-            //  var declarant = AppContext.OBK_Declarant.Where(y => y.Id == contractEx.DeclarantId).FirstOrDefault();
+          //  var declarant = AppContext.OBK_Declarant.Where(y => y.Id == contractEx.DeclarantId).FirstOrDefault();
 
-            //   new SafetyAssessmentRepository().AddHistoryDeclarant(entity.Id, OBK_Ref_StageStatus.RequiresRegistration, declarant.Id);
+         //   new SafetyAssessmentRepository().AddHistoryDeclarant(entity.Id, OBK_Ref_StageStatus.RequiresRegistration, declarant.Id);
 
 
             //Отправка заявления на этап ЦОЗ
@@ -1033,7 +1032,7 @@ namespace PW.Ncels.Database.Repository.OBK
             AppContext.SaveChanges();
 
         }
-
+        
         public void SaveZBKBlanks(OBK_StageExpDocument expDocument)
         {
             var blankZBK = AppContext.OBK_BlankType.FirstOrDefault(o => CodeConstManager.BlankTypes.ZBK.Equals(o.Code));
