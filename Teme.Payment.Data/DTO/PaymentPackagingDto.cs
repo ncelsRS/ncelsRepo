@@ -11,7 +11,7 @@ namespace Teme.Payment.Data.DTO
        /// <summary>
         /// Тип упаковки
         /// </summary>
-        public int PackagingtTypeId { get; set; }
+        public int PackagingTypeId { get; set; }
 
         public Ref_PackagingType PackagingType { get; set; }
 

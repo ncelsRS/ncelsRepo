@@ -26,6 +26,8 @@ namespace Teme.Shared.Data.Context
         /// <summary>
         /// Тип упаковки
         /// </summary>
+        public Nullable<int> PackagingTypeId { get; set; }
+        [ForeignKey("PackagingTypeId")]
         public Ref_PackagingType Ref_PackagingType { get; set; }
 
         /// <summary>
