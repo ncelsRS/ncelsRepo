@@ -5,14 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {environment} from '../../../environments/environment';
 import {Subject} from 'rxjs/Subject';
 import {Cell, DefaultEditor, Editor, ViewCell} from 'ng2-smart-table';
-
-export enum ReferenceType {
-  NMI = 'NomenclatureCodeMedProduct',
-  StorageConditions = 'StorageCondition',
-  Declarant = 'Declarant',
-  Measure = 'Measure',
-  ClassifierMedicalArea ='ClassifierMedicalArea',
-}
+import {ReferenceType} from '../enums/ReferenceType';
 
 @Component({
   selector: 'app-drop-down-local',
@@ -20,7 +13,8 @@ export enum ReferenceType {
   styleUrls: ['./drop-down-local.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DropDownLocalComponent  implements OnInit, ViewCell {
+
+export class DropDownLocalComponent extends DefaultEditor  implements OnInit, ViewCell {
   @Input()
   referenceName: ReferenceType;
   typeahead = new Subject<string>();
@@ -32,13 +26,14 @@ export class DropDownLocalComponent  implements OnInit, ViewCell {
   urlChild = '';
   @Input() value: string;
   @Input() rowData: any;
-  @Output() edit: EventEmitter<any> = new EventEmitter();
-  renderValue: string;
+  @Input() searchFields: string;
+  @Input() titleField: string;
+  @Output() updateItemCell: EventEmitter<any> = new EventEmitter();
+  @Input() selected;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {super();}
 
   ngOnInit() {
-
     switch (this.referenceName) {
       case ReferenceType.NMI:
         this.urlChild = ReferenceType.NMI;
@@ -55,8 +50,14 @@ export class DropDownLocalComponent  implements OnInit, ViewCell {
       case ReferenceType.ClassifierMedicalArea:
         this.urlChild = ReferenceType.ClassifierMedicalArea;
         break;
-      default :
-        this.urlChild = ReferenceType.ClassifierMedicalArea;
+      case ReferenceType.PackagingType:
+        this.urlChild = ReferenceType.PackagingType;
+        break;
+      case ReferenceType.EquipmentType:
+        this.urlChild = ReferenceType.EquipmentType;
+        break;
+      case ReferenceType.Country:
+        this.urlChild = ReferenceType.Country;
         break;
     }
     this.loadReference();
@@ -80,12 +81,15 @@ export class DropDownLocalComponent  implements OnInit, ViewCell {
     }, 200)
   }
 
-  onChange($event) {
-    //  this.updateOnChange.emit($event);
+  public onChange($event) {
   }
 
-  onClick() {
-    this.edit.emit(this.rowData);
+  updateItem($event) {
+    this.updateItemCell.emit($event);
+  }
+
+  setSelected(id){
+    this.selected = id;
   }
 
 }

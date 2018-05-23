@@ -28,6 +28,24 @@ export class TestPaymentComponent extends TemplateValidation{
   displayField1 = "значение на экране 3";
   valueField1 = this.displayField1;
 
+  country = [{ id: '1', nameRu: 'Казахстан' }, { id: '2', nameRu: 'Россия' }, { id: '3', nameRu: 'Белорусия'}]
+  dicDisplayField:string;
+  dicValueField = '1';
+  dicModuleType = "2";
+  dicObjectId = "5";
+  dicFieldName = "test.fieldDic";
+
+  setDisplayFiel(){
+    this.dicDisplayField = this.country.filter(x => x.id==this.dicValueField)[0].nameRu;
+    console.log('valueField5', this.dicValueField);
+    console.log('displayField5', this.dicDisplayField);
+  }
+
+
+  changeModel(evnt:any){
+    this.setDisplayFiel();
+  }
+
 
   public icons = [];
   myDate = new Date();
@@ -40,8 +58,9 @@ export class TestPaymentComponent extends TemplateValidation{
 
   }
   ngOnInit() {
-
+    this.setDisplayFiel();
   }
+
 
   dateToString() {
     let ddd = new Date( "13-01-2011".replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3") );
@@ -50,7 +69,7 @@ export class TestPaymentComponent extends TemplateValidation{
 
 
 
-  settings = {
+    settings = {
     columns: {
       id: {
         title: 'ID',

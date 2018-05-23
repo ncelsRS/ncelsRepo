@@ -14,7 +14,6 @@ import { IntCostInfoComponent } from './int-cost-info/int-cost-info.component';
 import { IntDataComponent } from './int-data/int-data.component';
 import { IntEquipmentComponent } from './int-equipment/int-equipment.component';
 import { IntSubjectComponent } from './int-subject/int-subject.component';
-import {RscReferenceModule} from '../../../../shared/reference/rsc-reference.module';
 
 
 const routes: Routes = [
@@ -39,8 +38,7 @@ const routes: Routes = [
     Ng2SmartTableModule,
     FormsModule,
     FileUploadModule,
-    NgbModule.forRoot(),
-    RscReferenceModule
+    NgbModule.forRoot()
   ],
   declarations: [
     IntCardComponent,

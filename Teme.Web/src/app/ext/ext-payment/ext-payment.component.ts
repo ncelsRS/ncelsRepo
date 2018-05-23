@@ -31,10 +31,11 @@ export class ExtPaymentComponent implements OnInit {
       //this.paymentData = data
       this.paymentModel.costInfo.contractForm = (data.contractForm==null)? "" :data.contractForm ;
       this.paymentModel.costInfo.contractNumber = data.contractNumber;
-      let contractDate:Date = new Date(data.contractDateCreate);
-      this.paymentModel.costInfo.contractDateCreate = contractDate;
-      contractDate.setFullYear( contractDate.getFullYear() + 1);
-      this.paymentModel.costInfo.contractDateInterval = contractDate;
+
+      this.paymentModel.costInfo.contractDateCreate = new Date(data.contractDateCreate);
+      let contractDateInterval:Date = new Date(data.contractDateCreate);
+      contractDateInterval.setDate( contractDateInterval.getDate() + 364);
+      this.paymentModel.costInfo.contractDateInterval = contractDateInterval;
       this.paymentModel.costInfo.cardNumber = data.cardNumber;
       this.paymentModel.costInfo.cardBeginDate = data.cardBeginDate;
       this.paymentModel.costInfo.cardEndDate = data.cardEndDate;
@@ -59,6 +60,8 @@ export class ExtPaymentComponent implements OnInit {
 
       this.paymentModel.manufacturer.revisionBeforeChanges = data.revisionBeforeChanges;
       this.paymentModel.manufacturer.changesMade = data.changesMade;
+      this.paymentModel.equipmentImnMt = data.paymentEquipmentDtos;
+      this.paymentModel.packaging = data.paymentPackagingDtos;
 
     });
 
@@ -122,27 +125,9 @@ export class ExtPaymentComponent implements OnInit {
       numberModificationImn: null,				  //Количество модификации ИМН
     },
     equipment: {
-      equipmentImnMt: {							//Комплектация ИМН и МТ
-        id: null,							      //П/п
-        type: null,					        //Тип
-        name: null,							    //Наименование
-        idCode: null,								//ID
-        model: null,							  //Мордель
-        manufacturer: null,					//Производитель
-        country: null,						  //Страна
-      },
+      equipmentImnMt: [],
       numberModificationImn: null,				//Количество модификации ИМН
-      packaging: {								      //Упаковка
-        id: null,   							      //П/п
-        type: null,						          //Вид (первичная или вторичная)
-        name: null,							        //Наименование
-        SizeWidth: null,							//Размер Ширина
-        SizeHeight: null,							//Размер Высота
-        SizeLength: null,							//Размер Длина
-        SizeMeasure: null,						//Еденица измерения
-        NumberUnitsInPackaging: null,					//Кол-во ед. в упаковке
-        ShortDescription: null,						//Краткое описание
-      },
+      packaging: [],
     },
     manufacturer: {
       // manufacturer: null,						  //Производитель

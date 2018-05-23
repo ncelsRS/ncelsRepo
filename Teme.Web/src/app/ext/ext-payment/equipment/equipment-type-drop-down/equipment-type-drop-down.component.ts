@@ -2,13 +2,14 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from 
 import {DefaultEditor, ViewCell} from 'ng2-smart-table';
 
 @Component({
-  selector: 'app-measure-drop-down',
-  templateUrl: './measure-drop-down.component.html',
-  styleUrls: ['./measure-drop-down.component.scss'],
+  selector: 'app-equipment-type-drop-down',
+  templateUrl: './equipment-type-drop-down.component.html',
+  styleUrls: ['./equipment-type-drop-down.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class MeasureDropDownComponent extends DefaultEditor  implements OnInit {
-  refName = 'Measure';
+export class EquipmentTypeDropDownComponent extends DefaultEditor  implements OnInit  {
+
+  refName = 'EquipmentType';
   @Output() setSelected: EventEmitter<any> = new EventEmitter();
   public selectedId;
 
@@ -24,5 +25,4 @@ export class MeasureDropDownComponent extends DefaultEditor  implements OnInit {
   updateItem($event){
     this.cell.newValue = $event;
   }
-
 }
