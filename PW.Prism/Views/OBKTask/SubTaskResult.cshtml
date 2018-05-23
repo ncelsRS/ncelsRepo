@@ -9,12 +9,46 @@
     var tab2b = "#" + tab2;
     var tab3 = "tab-3" + Model.Id;
     var tab3b = "#" + tab3;
+    bool flag = false;
 }
 
 <style>
     .add-commnet {
         background-color: #dd4353;
         color: #2e2e2e;
+    }
+
+    .form-control-inline {
+        min-width: 0;
+        width: 150px;
+        display: inline;
+    }
+
+    .modal-content {
+        display: none;
+        position: fixed;
+    }
+
+    .modalbackground {
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 1;
+    }
+
+    .modal-content {
+        margin-left: auto;
+        margin-right: auto;
+        width: 80%;
+        height: 70%;
+        top: 20%;
+        background: white;
+        z-index: 2;
+    }
+
+    .close {
+        cursor: pointer;
     }
 </style>
 
@@ -105,6 +139,62 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div>
+                                        <div>
+                                            <label>№ задания</label>
+                                            @Html.DropDownList("searchTaskId", (IEnumerable<SelectListItem>)ViewData["SearchTask"], String.Empty, new { @class = "form-control-inline" })
+                                            <label>Продукция</label>
+                                            @Html.DropDownList("searchProductId", (IEnumerable<SelectListItem>)ViewData["SearchProduct"], String.Empty, new { @class = "form-control-inline" })
+                                        </div>
+                                        <br />
+                                        <div>
+                                            <label>Вид испытаний</label>
+                                            @Html.DropDownList("searchLaboratoryTypeId", (IEnumerable<SelectListItem>)ViewData["SearchLaboratoryTypeId"], String.Empty, new { @class = "form-control-inline" })
+                                            <label>№ протокола испытания</label>
+                                            @Html.DropDownList("searchPRId", (IEnumerable<SelectListItem>)ViewData["SearchPRId"], String.Empty, new { @class = "form-control-inline" })
+                                        </div>
+                                        <br />
+                                        <button style="margin-right:auto;" type="button" class="btn btn-default" id="chooseBtn" onclick="choose()">Выбрать</button>
+                                        <button type="button" class="btn btn-default" id="clearRowsBtn" onclick="clearRows()">Очистить</button>
+                                        <br />
+
+
+
+                                        @* <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modalbackground">
+                <table id="tableHtml" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td>Показатель</td>
+                            <td>Обозначение нормативных документов на методы испытаний</td>
+                            <td>Требования НД</td>
+                            <td>Фактически полученный результат</td>
+                            <td>Т 0С и влажность (%)</td>
+                            <td>Результат испытаний</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr rowid="newrows">
+                                <td>@Html.DropDownList("LaboratoryMarkId1", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));", })</td>
+                                <td><select id="regulation_1" name="regulation" class="form-control subtask-control"></select></td>
+                                <td><input type="text" id="claim1" class="form-control subtask-control" /></td>
+                                <td><input type="text" id="factResult1" class="form-control subtask-control" /></td>
+                                <td><input type="text" id="humidity1" class="form-control subtask-control" /></td>
+                                <td>@Html.DropDownList("ExpertiseResult1", (IEnumerable<SelectListItem>)ViewData["ExpertiseResults"], String.Empty, new { @class = "form-control subtask-control", value = "" })</td>
+                            </tr>
+                    </tbody>
+                </table>
+               <button style="margin-left:auto; display:block;" type="button" class="btn btn-default" id="chooseBtn1" onclick="choose1()">Выбрать</button>
+            </div>
+        </div>*@
+
+
+
+                                    </div>
+                                    <br />
                                     <div class="col-sm-12">
                                         <table id="tableExpertResult_@Model.Id" class="table table-bordered">
                                             <thead>
@@ -122,17 +212,10 @@
                                             <tbody>
                                                 @if (Model.Type == "create")
                                                 {
+
                                                     <tr rowid="1">
                                                         <td>1</td>
-                                                        <td>
-                                                            @Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]),
-                                                                 String.Empty, new
-                                                                 {
-                                                                     @class = "form-control subtask-control",
-                                                                     onchange = "javascript:GetRegulation(this.value, this.closest('tr'));",
-                                                                 })
-                                                        </td>
-
+                                                        <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));", })</td>
                                                         <td><select id="regulation_1" name="regulation" class="form-control subtask-control"></select></td>
                                                         <td><input type="text" id="claim" class="form-control subtask-control" /></td>
                                                         <td><input type="text" id="factResult" class="form-control subtask-control" /></td>
@@ -550,6 +633,7 @@
     });
 
     function saveRemark() {
+        alert("tt");
         debugger;
         var subTaskIndicator = new Array();
         $("table#tableExpertResult_@Model.Id tbody tr.add-commnet").each(function () {
@@ -597,9 +681,95 @@
             }
         });
     }
+
+@*    $('#chooseBtn').click(function () {
+        $('.modal-content').show();
+        $('body').toggleClass('modalbackground');
+    });
+
+    $('.modal-content .close').click(function () {
+        $('.modal-content').hide();
+        $('body').toggleClass('modalbackground');
+    });*@
+
+</script>
+@*<script>
+        $(function () {
+            $('#LaboratoryMarkId').select2();
+        });
+    </script>*@
+<script>
+    $(function () {
+        $('#searchTaskId').select2({ width: '300px' });
+    });
 </script>
 <script>
     $(function () {
-        $('#LaboratoryMarkId').select2();
+        $('#searchProductId').select2({ width: '300px' });
     });
+</script>
+<script>
+    $(function () {
+        $('#searchLaboratoryTypeId').select2({ width: '300px' });
+    });
+</script>
+<script>
+    $(function () {
+        $('#searchPRId').select2({ width: '300px' });
+    });
+</script>
+<script>
+    function choose() {
+        alert($("#searchLaboratoryTypeId").val());
+        debugger;
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetResultButton/?searchTaskId=' + $("#searchTaskId").val() + '&searchLaboratoryTypeId=' + $("#searchLaboratoryTypeId").val() + '&searchPRId=' + $("#searchPRId").val() + '&searchProductId=' + $("#searchProductId").val(),
+            // url: '/OBKTask/GetResultButton/?searchLaboratoryTypeId=' + $("#searchLaboratoryTypeId").val() + '&searchPRId=' + $("#searchPRId").val(),
+           // url: '/OBKTask/GetResultButton/?searchPRId=' + $("#searchPRId").val(),
+            cache: false,
+            dataType: "json",
+            success: function onSuccess(result) {
+                @flag = true;
+
+                $('table#tableExpertResult_@Model.Id tbody:first').children().remove();
+                debugger;
+                        for (var i = 0; i < result.length; i++) {
+                        var tbody = $('table#tableExpertResult_@Model.Id tbody:first');
+                        var lastRowIndex = tbody.children('tr').length;
+                        var nextIndex = parseInt(lastRowIndex) + 1;
+                        var selectList = document.getElementById("labMarkId");
+                        var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+                        var cols = '<tr rowid="' + nextIndex + '">';
+                        cols += '<td>' + nextIndex + '</td>';
+                        cols += '<td>' + selectType + '</td>';
+                        cols += '<td><select id="regulation_' +
+                            nextIndex +
+                            '" name="regulation"  class="form-control subtask-control"></select></td>';
+                        cols += '<td><input type="text" id="claim" class="form-control subtask-control" value ="' + result[i].Claim + '" /></td>';
+                        cols += '<td><input type="text" id="factResult" class="form-control subtask-control" value ="' + result[i].FactResult + '" /></td>';
+                        cols += '<td><input type="text" id="humidity" class="form-control subtask-control" value ="' + result[i].Humidity + '"/></td>';
+                        cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult" name="ExpertiseResult" value="">' +
+                            '<option selected="selected" value=""></option>' +
+                            '<option value="True">Соответствует требованиям</option>' +
+                            '<option value="False">Не соответствует требованиям</option>' +
+                            '</select></td>';
+                        //cols += '<td><i class="glyphicon glyphicon-remove" onclick="deleteRow(this)" title="Удалить"></i></td>';
+                        cols += '<td><button class="glyphicon glyphicon-remove" onclick="deleteRowSelect(this)" title="Удалить"></button></td>';
+                        cols += '</tr>';
+                        tbody.append(cols);
+                }
+            },
+            error: function (result) {
+                alert("Failed: ");
+            }
+        });
+    }
+    function deleteRowSelect(o) {
+        var p = o.parentNode.parentNode;
+        p.parentNode.removeChild(p);
+    }
+    function clearRows() {
+        $("table#tableExpertResult_@Model.Id tbody:first").children().remove();
+    }
 </script>

@@ -32,8 +32,15 @@ namespace PW.Prism.Controllers
                     o.Id,
                     o.NameRu,
                     o.NameKz,
-                    o.IsDeleted
+                    o.IsDeleted,
+                    RegulationList = o.OBK_Ref_LaboratoryRegulation_Mark.Select(x=> new
+                    {
+                        x.OBK_Ref_LaboratoryRegulation.Id,
+                        x.OBK_Ref_LaboratoryRegulation.NameRu,
+                        x.OBK_Ref_LaboratoryRegulation.NameKz
+                    })
                 });
+
             return Json(data.ToDataSourceResult(request));
         }
 
@@ -52,22 +59,17 @@ namespace PW.Prism.Controllers
                 db.OBK_Ref_LaboratoryMark.Add(d);
                 dictionary.Id = d.Id;
 
-                List <OBK_Ref_LaboratoryRegulation_Mark> list = new List<OBK_Ref_LaboratoryRegulation_Mark>();
 
-                string[] tokens = dictionary.RegulationList.Split(',');
-
-
-                foreach (var q in tokens)
+                foreach (var q in dictionary.RegulationList)
                 {
                     OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
 
                     regulationMark.Id = Guid.NewGuid();
                     regulationMark.laboratoryMark_id = d.Id;
-                    regulationMark.laboratoryRegulation_id = Guid.Parse(q);
-                    list.Add(regulationMark);
-                }
+                    regulationMark.laboratoryRegulation_id = q.Id;
+                    db.OBK_Ref_LaboratoryRegulation_Mark.Add(regulationMark);
 
-                db.OBK_Ref_LaboratoryRegulation_Mark.AddRange(list);
+                }
 
                 db.SaveChanges();
             }
@@ -82,6 +84,20 @@ namespace PW.Prism.Controllers
                 var d = db.OBK_Ref_LaboratoryMark.First(o => o.Id == dictionary.Id);
                 d.NameRu = dictionary.NameRu;
                 d.NameKz = dictionary.NameKz;
+
+                db.OBK_Ref_LaboratoryRegulation_Mark.RemoveRange(d.OBK_Ref_LaboratoryRegulation_Mark);
+                db.SaveChanges();
+
+                foreach (var q in dictionary.RegulationList)
+                {
+                    OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
+
+                    regulationMark.Id = Guid.NewGuid();
+                    regulationMark.laboratoryMark_id = d.Id;
+                    regulationMark.laboratoryRegulation_id = q.Id;
+                    db.OBK_Ref_LaboratoryRegulation_Mark.Add(regulationMark);
+
+                }
                 db.SaveChanges();
             }
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));

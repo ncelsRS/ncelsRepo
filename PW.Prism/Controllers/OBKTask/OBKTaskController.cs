@@ -20,6 +20,7 @@ using PW.Ncels.Database.Constants;
 using PW.Ncels.Database.Models.OBK;
 using PW.Prism.Helpers;
 using Stimulsoft.Report;
+using Newtonsoft.Json;
 
 namespace PW.Prism.Controllers.OBKTask
 {
@@ -345,7 +346,14 @@ namespace PW.Prism.Controllers.OBKTask
             if (type == "create")
             {
                 ViewData["LabMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
-                ViewData["LabNdMarks"] = new SelectList(repo.GetLaboratoryMark(), "Id", "NameRu");
+                ViewData["SearchTask"] = new SelectList(repo.GetSearchTaskId(), "Id", "TaskNumber");
+                //ViewData["SearchTask"] = new SelectList(repo.GetSearchTaskId(), "TaskNumber");
+                ViewData["SearchProduct"] = new SelectList(repo.GetSearchProductId(), "Id", "NameRu");
+                //ViewData["SearchProduct"] = new SelectList(repo.GetSearchProductId(), "NameRu");
+                ViewData["SearchLaboratoryTypeId"] = new SelectList(repo.GetSearchLaboratoryTypeId(), "Id", "NameRu");
+                //ViewData["SearchLaboratoryTypeId"] = new SelectList(repo.GetSearchLaboratoryTypeId(), "NameRu");
+                ViewData["SearchPRId"] = new SelectList(repo.GetSearchPRId(), "SubTaskNumber");
+                ViewData["LabMaskNd"] = new SelectList(repo.GetRegulation(), "Id", "NameRu");            
                 var booleans = new ReadOnlyDictionaryRepository().GetUOBKCheck();
                 ViewData["ExpertiseResults"] = new SelectList(booleans, "ExpertiseResult", "Name", "");
             }
@@ -370,6 +378,7 @@ namespace PW.Prism.Controllers.OBKTask
             var signData = repo.GetSubTaskSignDataExpert(id);
             return Json(new { data = signData }, JsonRequestBehavior.AllowGet);
         }
+
         public ActionResult SaveSignedSubTaskExpert(Guid id, string signedData)
         {
             var result = repo.SaveSignedSubTaskExpert(id, signedData);
@@ -454,6 +463,19 @@ namespace PW.Prism.Controllers.OBKTask
             return File(stream, "application/msword", $"Протокол.docx");
         }
 
+         public ActionResult GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? productId)
+          {
+              var result = repo.GetResultButton(searchTaskId, searchLaboratoryTypeId, searchPRId, productId);
+
+              return Json(result, JsonRequestBehavior.AllowGet);
+         }
+         /* public ActionResult GetResultButton(Guid? searchLaboratoryTypeId, string searchPRId)
+         {
+             var result = repo.GetResultButton(searchLaboratoryTypeId, searchPRId);
+
+             return Json(result, JsonRequestBehavior.AllowGet); 
+         }
+         */
         #endregion
     }
 }

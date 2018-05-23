@@ -78,7 +78,7 @@ namespace PW.Prism.Controllers
             }
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
         }
-        public ActionResult RegulationList()
+        public ActionResult Regulation() 
         {
             var data = db.OBK_Ref_LaboratoryRegulation.Select(o => new { Id = o.Id, Name = o.NameRu }).OrderBy(x => x.Name).ToList();
             return Json(data, JsonRequestBehavior.AllowGet);

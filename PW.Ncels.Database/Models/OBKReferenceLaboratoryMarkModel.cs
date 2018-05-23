@@ -17,7 +17,7 @@ namespace PW.Ncels.Database.Models
         [Required]
         public string NameKz { get; set; }  
 
-        public string RegulationList { get; set; }
+        public List<OBK_Ref_LaboratoryRegulation> RegulationList { get; set; }
 
         public string hidden { get; set; }
     }
