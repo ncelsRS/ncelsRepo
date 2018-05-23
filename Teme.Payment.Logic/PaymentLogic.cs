@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teme.Payment.Data;
-using Teme.Payment.Data.DTO;
-using Teme.Payment.Data.Model;
+using Teme.Payment.Data.OutDto;
+using Teme.Payment.Data.InDto;
 using Teme.Shared.Data.Primitives.Contract;
 using Teme.Shared.Logic.PaymentLogic;
 

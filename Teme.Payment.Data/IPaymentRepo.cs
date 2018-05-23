@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Teme.Payment.Data.DTO;
+using Teme.Payment.Data.OutDto;
 using Teme.Shared.Data.Repos.PaymentRepo;
 
 namespace Teme.Payment.Data

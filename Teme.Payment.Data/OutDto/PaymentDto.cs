@@ -4,7 +4,7 @@ using System.Text;
 using Teme.Shared.Data.Context;
 using Teme.Shared.Data.Primitives.Contract;
 
-namespace Teme.Payment.Data.DTO
+namespace Teme.Payment.Data.OutDto
 {
     public class PaymentDto
     {

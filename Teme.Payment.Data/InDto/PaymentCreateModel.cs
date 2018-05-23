@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Teme.Payment.Data.Model
+namespace Teme.Payment.Data.InDto
 {
     public class PaymentCreateModel
     {

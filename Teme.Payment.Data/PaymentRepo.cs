@@ -6,7 +6,7 @@ using Context = Teme.Shared.Data.Context;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Teme.Payment.Data.DTO;
+using Teme.Payment.Data.OutDto;
 using Teme.Shared.Data.Primitives.Contract;
 
 namespace Teme.Payment.Data
