@@ -939,6 +939,17 @@ namespace PW.Prism.Controllers.OBKContract
                 var priceKz = new OBKContractRepository().GetPriceCountNumber(id);
                 report.Dictionary.Variables["PriceCountNameKz"].ValueObject = PriceHelperKz.ConvertKzNumbers(priceKz);
 
+
+
+                var signData = db.OBK_ContractSignedDatas.FirstOrDefault(x => x.ContractId == id);
+                if (signData?.ApplicantSign != null && signData.CeoSign != null)
+                {
+                    report.RegBusinessObject("appSign", obkRepo.GetContractApplicantData(id));
+                    report.RegBusinessObject("ceoSign", obkRepo.GetContractCeoData(id));
+                }
+
+
+
                 report.Render(false);
             }
             catch (Exception ex)

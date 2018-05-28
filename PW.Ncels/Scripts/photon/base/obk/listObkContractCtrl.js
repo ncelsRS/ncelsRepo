@@ -536,6 +536,7 @@
     }
 
     $scope.editExpertOrganization = function () {
+        debugger;
         $scope.ContractSigners = [];
         $scope.object.Signer = null;
         loadContractSigners($scope, $http, $scope.object.ExpertOrganization);
@@ -1053,6 +1054,7 @@
     }
 
     $scope.editProject = function () {
+        debugger;
         var generatedGuid = $("#generatedGuid").val();
         $http({
             url: '/OBKContract/ContractSave',

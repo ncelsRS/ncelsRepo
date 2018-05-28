@@ -191,29 +191,28 @@ namespace PW.Ncels.Database.Repository.OBK
         public IQueryable<OBK_RS_Products> GetSearchProductId()
         {
             var rs = AppContext.OBK_ResearchCenterResult.Select(r => r.OBK_TaskMaterial);
-            List<int> ps_ids = new List<int>();
+            List<int> productIds = new List<int>();
 
             foreach (var r in rs)
             {
-                ps_ids.Add(r.ProductSeriesId);
+                productIds.Add(r.ProductSeriesId);
             }
 
-            List<OBK_Procunts_Series> pr_series = new List<OBK_Procunts_Series>();
+            List<OBK_Procunts_Series> procount_series = new List<OBK_Procunts_Series>();
+            foreach (var productId in productIds)
+            {
+                if (!procount_series.Contains(AppContext.OBK_Procunts_Series.Where(r => r.Id == productId).FirstOrDefault()))
+                    procount_series.Add(AppContext.OBK_Procunts_Series.Where(r => r.Id == productId).FirstOrDefault());
+            }
+
             List<OBK_RS_Products> rs_products = new List<OBK_RS_Products>();
-
-            foreach (var ps_id in ps_ids)
+            foreach (var procount_serie in procount_series)
             {
-                if (!pr_series.Contains(AppContext.OBK_Procunts_Series.Where(r => r.Id == ps_id).FirstOrDefault()))
-                    pr_series.Add(AppContext.OBK_Procunts_Series.Where(r => r.Id == ps_id).FirstOrDefault());
+                if(!rs_products.Contains(AppContext.OBK_RS_Products.Where(r => r.Id == procount_serie.OBK_RS_ProductsId).FirstOrDefault()))
+                rs_products.Add(AppContext.OBK_RS_Products.Where(r=>r.Id == procount_serie.OBK_RS_ProductsId).FirstOrDefault());
             }
 
-            foreach (var pr_serie in pr_series)
-            {
-
-                rs_products.Add(AppContext.OBK_RS_Products.Where(r => r.Id == pr_serie.OBK_RS_ProductsId).FirstOrDefault());
-            }
-
-            return rs_products.AsQueryable();
+                return rs_products.AsQueryable();
         }
         /*public IQueryable<string> GetSearchProductId()
         {
@@ -1696,14 +1695,123 @@ namespace PW.Ncels.Database.Repository.OBK
 
          return researchCenterResult;
         }*/
-        public IQueryable<ResearchCenterResultModel> GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? productId)
+        public IQueryable<ResearchCenterResultModel> GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? searchProductId)
         {
             var rcrmList = new List<ResearchCenterResultModel>();
 
-            List<OBK_TaskMaterial> task_materialTasks = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchLaboratoryTypeId).ToList();
-            foreach (var task_materialTask in task_materialTasks)
+
+
+            List<OBK_RS_Products> products = AppContext.OBK_RS_Products.Where(r => r.Id == searchProductId).ToList();
+            List<OBK_Procunts_Series> procount_series = new List<OBK_Procunts_Series>();
+            foreach (var product in products)
             {
-                foreach (var qwe in task_materialTask.OBK_ResearchCenterResult)
+                procount_series.AddRange(AppContext.OBK_Procunts_Series.Where(r => r.OBK_RS_ProductsId == product.Id).ToList());
+            }
+
+            List<OBK_TaskMaterial> task_materials_searchProductIds = new List<OBK_TaskMaterial>();
+            List<OBK_TaskMaterial> task_materials_searchTaskIds = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId).ToList();
+            List<OBK_TaskMaterial> task_materials_searchLaboratoryTypeIds = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId).ToList();
+            List<OBK_TaskMaterial> task_materials_searchPRIds = AppContext.OBK_TaskMaterial.Where(r => r.SubTaskNumber == searchPRId).ToList();
+
+            List<OBK_TaskMaterial> task_materials = new List<OBK_TaskMaterial>();
+
+
+            if (searchTaskId == null && searchLaboratoryTypeId == null && searchPRId == "" && searchProductId == null)
+            {
+
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId == null && searchPRId == "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId == null && searchPRId != "" && searchProductId == null)
+            {
+                task_materials = AppContext.OBK_TaskMaterial.Where(r => r.SubTaskNumber == searchPRId).ToList();
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId == null && searchPRId != "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.SubTaskNumber == searchPRId && r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId != null && searchPRId == "" && searchProductId == null)
+            {
+                task_materials = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId).ToList();
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId != null && searchPRId == "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId && r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId != null && searchPRId != "" && searchProductId == null)
+            {
+                 task_materials = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId && r.SubTaskNumber == searchPRId).ToList();
+            }
+            if (searchTaskId == null && searchLaboratoryTypeId != null && searchPRId != "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId && r.SubTaskNumber == searchPRId &&
+                    r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId == null && searchPRId == "" && searchProductId == null)
+            {
+                 task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId).ToList();
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId == null && searchPRId == "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId == null && searchPRId != "" && searchProductId == null)
+            {
+                task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.SubTaskNumber == searchPRId).ToList();
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId == null && searchPRId != "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.SubTaskNumber == searchPRId && r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId != null && searchPRId == "" && searchProductId == null)
+            {
+                task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.LaboratoryTypeId == searchLaboratoryTypeId).ToList();
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId != null && searchPRId == "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.LaboratoryTypeId == searchLaboratoryTypeId &&
+                    r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId != null && searchPRId != "" && searchProductId == null)
+            {
+                task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.LaboratoryTypeId == searchLaboratoryTypeId && r.SubTaskNumber == searchPRId).ToList();
+            }
+            if (searchTaskId != null && searchLaboratoryTypeId != null && searchPRId != "" && searchProductId != null)
+            {
+                foreach (var procount_serie in procount_series)
+                {
+                    task_materials = AppContext.OBK_TaskMaterial.Where(r => r.TaskId == searchTaskId && r.LaboratoryTypeId == searchLaboratoryTypeId && r.SubTaskNumber == searchPRId &&
+                    r.ProductSeriesId == procount_serie.Id).ToList();
+                }
+            }
+
+
+            foreach (var task_material in task_materials) 
+            {
+                foreach (var qwe in task_material.OBK_ResearchCenterResult)
                 {
                     ResearchCenterResultModel rcrmObj = new ResearchCenterResultModel();
                     rcrmObj.Id = qwe.Id;
@@ -1720,70 +1828,6 @@ namespace PW.Ncels.Database.Repository.OBK
                     rcrmList.Add(rcrmObj);
                 }
             }
-
-            List<OBK_TaskMaterial> task_materialLasbs = AppContext.OBK_TaskMaterial.Where(r => r.LaboratoryTypeId == searchLaboratoryTypeId).ToList();
-            foreach (var task_materialLasb in task_materialLasbs)
-            {
-                foreach (var qwe in task_materialLasb.OBK_ResearchCenterResult)
-                {
-                    ResearchCenterResultModel rcrmObj = new ResearchCenterResultModel();
-                    rcrmObj.Id = qwe.Id;
-                    rcrmObj.TaskMaterialId = qwe.TaskMaterialId;
-                    rcrmObj.LaboratoryMarkId = qwe.LaboratoryMarkId;
-                    rcrmObj.Claim = qwe.Claim;
-                    rcrmObj.Humidity = qwe.Humidity;
-                    rcrmObj.FactResult = qwe.FactResult;
-                    rcrmObj.LaboratoryRegulationId = qwe.LaboratoryRegulationId;
-                    rcrmObj.ExecutorId = qwe.ExecutorId;
-                    rcrmObj.ExpertiseResult = qwe.ExpertiseResult;
-                    rcrmObj.TaskExecutorId = qwe.TaskExecutorId;
-
-                    rcrmList.Add(rcrmObj);
-                }
-            }
-
-            List<OBK_TaskMaterial> task_materialProducts = AppContext.OBK_TaskMaterial.Where(r => r.ProductSeriesId == productId).ToList();
-            foreach (var task_materialProduct in task_materialProducts)
-            {
-                foreach (var qwe in task_materialProduct.OBK_ResearchCenterResult)
-                {
-                    ResearchCenterResultModel rcrmObj = new ResearchCenterResultModel();
-                    rcrmObj.Id = qwe.Id;
-                    rcrmObj.TaskMaterialId = qwe.TaskMaterialId;
-                    rcrmObj.LaboratoryMarkId = qwe.LaboratoryMarkId;
-                    rcrmObj.Claim = qwe.Claim;
-                    rcrmObj.Humidity = qwe.Humidity;
-                    rcrmObj.FactResult = qwe.FactResult;
-                    rcrmObj.LaboratoryRegulationId = qwe.LaboratoryRegulationId;
-                    rcrmObj.ExecutorId = qwe.ExecutorId;
-                    rcrmObj.ExpertiseResult = qwe.ExpertiseResult;
-                    rcrmObj.TaskExecutorId = qwe.TaskExecutorId;
-
-                    rcrmList.Add(rcrmObj);
-                }
-            }
-
-            List<OBK_TaskMaterial> task_materialsubTaskNumbers = AppContext.OBK_TaskMaterial.Where(r => r.SubTaskNumber == searchPRId).ToList();
-            foreach (var task_materialsubTaskNumber in task_materialsubTaskNumbers)
-            {
-                foreach (var qwe in task_materialsubTaskNumber.OBK_ResearchCenterResult)
-                {
-                    ResearchCenterResultModel rcrmObj = new ResearchCenterResultModel();
-                    rcrmObj.Id = qwe.Id;
-                    rcrmObj.TaskMaterialId = qwe.TaskMaterialId;
-                    rcrmObj.LaboratoryMarkId = qwe.LaboratoryMarkId;
-                    rcrmObj.Claim = qwe.Claim;
-                    rcrmObj.Humidity = qwe.Humidity;
-                    rcrmObj.FactResult = qwe.FactResult;
-                    rcrmObj.LaboratoryRegulationId = qwe.LaboratoryRegulationId;
-                    rcrmObj.ExecutorId = qwe.ExecutorId;
-                    rcrmObj.ExpertiseResult = qwe.ExpertiseResult;
-                    rcrmObj.TaskExecutorId = qwe.TaskExecutorId;
-
-                    rcrmList.Add(rcrmObj);
-                }
-            }
-
             return rcrmList.AsQueryable();
         }
     }

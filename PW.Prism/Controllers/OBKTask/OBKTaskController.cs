@@ -463,19 +463,12 @@ namespace PW.Prism.Controllers.OBKTask
             return File(stream, "application/msword", $"Протокол.docx");
         }
 
-         public ActionResult GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? productId)
+         public ActionResult GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? searchProductId)
           {
-              var result = repo.GetResultButton(searchTaskId, searchLaboratoryTypeId, searchPRId, productId);
+              var result = repo.GetResultButton(searchTaskId, searchLaboratoryTypeId, searchPRId, searchProductId);
 
               return Json(result, JsonRequestBehavior.AllowGet);
          }
-         /* public ActionResult GetResultButton(Guid? searchLaboratoryTypeId, string searchPRId)
-         {
-             var result = repo.GetResultButton(searchLaboratoryTypeId, searchPRId);
-
-             return Json(result, JsonRequestBehavior.AllowGet); 
-         }
-         */
         #endregion
     }
 }
