@@ -1830,5 +1830,17 @@ namespace PW.Ncels.Database.Repository.OBK
             }
             return rcrmList.AsQueryable();
         }
+
+        public string GetRegulationVal(Guid? id)
+        {
+            var result = AppContext.OBK_Ref_LaboratoryRegulation.Where(r => r.Id == id).FirstOrDefault().NameRu;
+            return result;
+        }
+
+        public string GetMarkVal(Guid? id)
+        {
+            var result = AppContext.OBK_Ref_LaboratoryMark.Where(r => r.Id == id).FirstOrDefault().NameRu;
+            return result;
+        }
     }
 }

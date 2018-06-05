@@ -18,11 +18,26 @@
         color: #2e2e2e;
     }
 
-    .form-control-inline {
-        min-width: 0;
-        width: 150px;
-        display: inline;
+    .form-control-inline1 {
+        color: #1672C7;
+        margin-left: 43px;
     }
+
+    .form-control-inline2 {
+        color: #1672C7;
+        margin-left: 106px;
+    }
+
+    .form-control-inline3 {
+        color: #1672C7;
+        margin-left: 10px;
+    }
+
+    .form-control-inline4 {
+        color: #1672C7;
+        margin-left: 10px;
+    }
+
 
     .modal-content {
         display: none;
@@ -40,25 +55,74 @@
     .modal-content {
         margin-left: auto;
         margin-right: auto;
-        width: 80%;
-        height: 70%;
-        top: 20%;
+        height: 75%;
+        top: 15%;
         background: white;
         z-index: 2;
+        width: 90%;
+        overflow: auto;
+        border-color: dodgerblue;
+        border-style: solid;
+        color: #3A80C1;
     }
 
-    .table table-bordered {
-        width: 600px;
-        overflow: scroll;
+    .groupDDL1, .groupDDL2 {
+        width: 300px;
+        color: #3A80C1;
+        display: inline;
+    }
+
+    .lblProtocol {
+        margin-left: 30px;
+        margin-top: 20px;
+    }
+
+    .lblProduct {
+        margin-left: 30px;
+    }
+
+    .lblTask, .lblLab{
+        margin-left: 30px;
+    }
+
+    .btnDDL {
+        height: 21px;
+        width: 10px;
+        color: #3A80C1;
+    }
+
+    .btnCh {
+        margin-bottom: 40px;
+        color: #3A80C1;
+        background: white;
+        height: 35px;
+        width: 105px;
+        margin-left: 40px;
+        font-weight: 600;
+    }
+
+    .btnResetAll {
+        margin-bottom: 40px;
+        color: #3A80C1;
+        background: white;
+        height: 35px;
+        width: 105px;
+        margin-left: 10px;
+        font-weight: 600;
     }
 
     .close {
         cursor: pointer;
     }
+
 </style>
 
 <div style="display: none;" id="labMarkId">
     @Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })
+</div>
+
+<div style="display: none;" id="labMarkId1">
+    @Html.DropDownList("LaboratoryMarkId1", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })
 </div>
 
 <div id="resultSubTaskPanel_@Model.Id" class="panel panel-default">
@@ -145,30 +209,36 @@
                                 </div>
                                 <div class="row">
                                     <div>
-                                        <div>
-                                            <label>№ задания</label>
-                                            @Html.DropDownList("searchTaskId", (IEnumerable<SelectListItem>)ViewData["SearchTask"], String.Empty, new { @class = "form-control-inline" })
-                                            <label>Продукция</label>
-                                            @Html.DropDownList("searchProductId", (IEnumerable<SelectListItem>)ViewData["SearchProduct"], String.Empty, new { @class = "form-control-inline" })
+
+
+                                    @if (Model.Type == "create")
+                                    {
+                                        <div class="groupDDL1">
+                                            <label class="lblTask">№ задания</label>
+                                            @Html.DropDownList("searchTaskId", (IEnumerable<SelectListItem>)ViewData["SearchTask"], String.Empty, new { @class = "form-control-inline1" })
+                                            <button type="button" class="btnDDL" id="clearDDL1" onclick="clearDDL1()">x</button>
+                                            <label class="lblProduct">Продукция</label>
+                                            @Html.DropDownList("searchProductId", (IEnumerable<SelectListItem>)ViewData["SearchProduct"], String.Empty, new { @class = "form-control-inline2" })
+                                            <button type="button" class="btnDDL" id="clearDDL2" onclick="clearDDL2()">x</button>
                                         </div>
                                         <br />
-                                        <div>
-                                            <label>Вид испытаний</label>
-                                            @Html.DropDownList("searchLaboratoryTypeId", (IEnumerable<SelectListItem>)ViewData["SearchLaboratoryTypeId"], String.Empty, new { @class = "form-control-inline" })
-                                            <label>№ протокола испытания</label>
-                                            @Html.DropDownList("searchPRId", (IEnumerable<SelectListItem>)ViewData["SearchPRId"], String.Empty, new { @class = "form-control-inline" })
+                                        <div class="groupDDL2">
+                                            <label class="lblLab">Вид испытаний</label>
+                                            @Html.DropDownList("searchLaboratoryTypeId", (IEnumerable<SelectListItem>)ViewData["SearchLaboratoryTypeId"], String.Empty, new { @class = "form-control-inline3" })
+                                            <button type="button" class="btnDDL" id="clearDDL3" onclick="clearDDL3()">x</button>
+                                            <label class="lblProtocol">№ протокола испытания</label>
+                                            @Html.DropDownList("searchPRId", (IEnumerable<SelectListItem>)ViewData["SearchPRId"], String.Empty, new { @class = "form-control-inline4" })
+                                            <button type="button" class="btnDDL" id="clearDDL4" onclick="clearDDL4()">x</button>
+                                            <button style="margin-right:auto;" type="button" class="btnCh" id="chooseBtn" onclick="choose()">Выбрать</button>
+                                            <button type="button" class="btnResetAll" id="clearRowsBtn" onclick="clearRows()">Сбросить</button>
                                         </div>
-                                        <br />
-                                        <button style="margin-right:auto;" type="button" class="btn btn-default" id="chooseBtn" onclick="choose()">Выбрать</button>
-                                        <button type="button" class="btn btn-default" id="clearRowsBtn" onclick="clearRows()">Сбросить</button>
-                                        <br />
+                                    }
 
 
-
-
-                                        <div class="modal-content">
+                                       <div class="modal-content">
                                             <span class="close">&times;</span>
                                             <div class="modalbackground">
+                                                <label style="text-align:center">Выберите из списка</label>
                                                 <table id="tableExpertResult1_@Model.Id" class="table table-bordered">
                                                     <thead>
                                                         <tr>
@@ -183,10 +253,10 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr rowid="newrows">
+                                                        <tr rowid="1">
                                                             <td>1</td>
-                                                            <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));", })</td>
-                                                            <td><select id="regulation_1" name="regulation" class="form-control subtask-control"></select></td>
+                                                            <td>@Html.DropDownList("LaboratoryMarkId1", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));", })</td>
+                                                            <td><select id="regulation_" name="regulation" class="form-control subtask-control"></select></td>
                                                             <td><input type="text" id="claim1" class="form-control subtask-control" /></td>
                                                             <td><input type="text" id="factResult1" class="form-control subtask-control" /></td>
                                                             <td><input type="text" id="humidity1" class="form-control subtask-control" /></td>
@@ -195,13 +265,13 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <button style="margin-left:auto; display:block;" type="button" class="btn btn-default" id="chooseBtn" onclick="choose()">Выбрать</button>
+                                                <button style="margin-right:auto;" type="button" class="btn btn-default" id="chooseBtnModal" onclick="chooseModal()">Выбрать</button>
+                                                <button type="button" class="btn btn-default" id="closeBtnModal" onclick="closeModal()">Закрыть</button>
                                             </div>
                                         </div>
 
 
-
-
+                                        
                                     </div>
                                     <br />
                                     <div class="col-sm-12">
@@ -221,7 +291,6 @@
                                             <tbody>
                                                 @if (Model.Type == "create")
                                                 {
-
                                                     <tr rowid="1">
                                                         <td>1</td>
                                                         <td>@Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control subtask-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));", })</td>
@@ -442,14 +511,23 @@
         tbody.append(cols);
     }
 
-    function deleteRow(e) {
+    @*function deleteRow(e) {
+        debugger;
         var row = $(e).closest('tr');
-        var success = function() {
+        var success = function () {
             row.remove();
         }
-        var cancel = function() {
+        var cancel = function () {
         };
         showConfirmation("Удалить", "Вы уверены, что хотите удалить?", success, cancel);
+    }*@
+
+    function deleteRow(e) {
+        var result = confirm("Вы уверены, что хотите удалить?");
+        var row = $(e).closest('tr');
+        if (result) {
+            row.remove();
+        }
     }
 
     function GetRegulation(labMarkId, tr) {
@@ -460,7 +538,7 @@
             data: { id: labMarkId },
             cache: false,
             type: "POST",
-            success: function(result) {
+            success: function (result) {
                 var markup = "<option value=''></option>";
                 for (var x = 0; x < result.length; x++) {
                     markup += "<option value=" + result[x].Value + ">" + result[x].Text + "</option>";
@@ -489,7 +567,7 @@
         }
     }
 
-    function saveResult() {
+    @*function saveResult() {
         if (validSubTask()) {
             var success = function() {
                 var subTaskIndicator = new Array();
@@ -567,6 +645,83 @@
         } else {
             alert("Заполните обязательные поля");
         }
+    }*@
+
+    function saveResult() {
+        debugger;
+        if (validSubTask()) {
+            var result = confirm("Данное действие не возможно будет отметить. Вы уверены, что хотите сохранить результаты?");
+            if (result) {
+                var subTaskIndicator = new Array();
+                $("table#tableExpertResult_@Model.Id tbody tr").each(function () {
+                    debugger;
+                    var rowid = $(this).attr('rowid');
+                    var laboratoryMarkId = $(this).find('select#LaboratoryMarkId option:selected').val();
+                    var regulationId = $(this).find('select#regulation_' + rowid + ' option:selected').val();
+                    var claim = $(this).find('input#claim').val();
+                    var factResult = $(this).find('input#factResult').val();
+                    var humidity = $(this).find('input#humidity').val();
+                    var expertiseResult = $(this).find('#ExpertiseResult').val();
+                    subTaskIndicator.push({
+                        LaboratoryMarkId: laboratoryMarkId,
+                        RegulationId: regulationId,
+                        Claim: claim,
+                        FactResult: factResult,
+                        Humidity: humidity,
+                        ExpertiseResult: expertiseResult
+                    });
+                });
+
+                var model = {
+                    Id: '@Model.Id',
+                    Nd: $("textarea#nd").val(),
+                    SubTaskNumber: '@Model.SubTaskNumber',
+                    ExpertiseResult: $("#ExpertiseResult").val(),
+                    Regulation: $("#textRegulation").val(),
+                    SubTaskIndicator: subTaskIndicator
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/OBKTask/SaveSubTaskResult',
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        switch (data.result) {
+                            case 'save':
+                                $('#resultSubTaskPanel_@Model.Id input')
+                                    .each(function () { $(this).attr('readonly', true); });
+                                $('#resultSubTaskPanel_@Model.Id textarea').each(function () {
+                                    $(this).attr('readonly', true);
+                                });
+                                $('#resultSubTaskPanel_@Model.Id select').each(function () {
+                                    $(this).attr('disabled', true);
+                                });
+                                $("#addRowTableBtn").attr('disabled', true);
+                                $("#saveResultBtn").attr('disabled', true);
+                                $("#createResultBtn_@Model.Id").attr('disabled', true);
+                                $("#showResultBtn_@Model.Id").removeAttr('disabled');
+                                break;
+                            case 'notFound':
+                                alert('Задание не найдно');
+                                break;
+                            case 'moreThanOne':
+                                alert('Найдено более одного повторяющегося показателя');
+                                break;
+                            case 'error':
+                                alert('Ошибка при сохранении');
+                                break;
+                            default:
+                                alert(data.result);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }
+        else { alert("Заполните обязательные поля"); }
     }
 
     function signBtn() {
@@ -605,6 +760,7 @@
     }
 
     function validSubTask() {
+        debugger;
         var valid = true;
         $('.subtask-control').each(function() {
             if ($(this).val() == "" || $(this).val() == null) {
@@ -614,6 +770,7 @@
                 $(this).css({ 'border-color': '#cccccc' });
             }
         });
+        debugger;
         if ($("#ExpertiseResult").val() == "" || $("#ExpertiseResult").val() == null) {
             $("#ExpertiseResult").css({ 'border-color': '#a94442' });
             valid = false;
@@ -709,22 +866,28 @@
     </script>*@
 <script>
     $(function () {
-        $('#searchTaskId').select2({ width: '300px' });
+        $('#searchTaskId').select2({
+            width: '300px',
+            placeholder: "Выберите значение"
+        });
     });
-</script>
-<script>
     $(function () {
-        $('#searchProductId').select2({ width: '300px' });
+        $('#searchProductId').select2({
+            width: '300px',
+            placeholder: "Выберите значение"
+        });
     });
-</script>
-<script>
     $(function () {
-        $('#searchLaboratoryTypeId').select2({ width: '300px' });
+        $('#searchLaboratoryTypeId').select2({
+            width: '300px',
+            placeholder: "Выберите значение"
+        });
     });
-</script>
-<script>
     $(function () {
-        $('#searchPRId').select2({ width: '300px' });
+        $('#searchPRId').select2({
+            width: '300px',
+            placeholder: "Выберите значение"
+        });
     });
 </script>
 <script>
@@ -733,32 +896,47 @@
         $.ajax({
             type: 'GET',
             url: '/OBKTask/GetResultButton/?searchTaskId=' + $("#searchTaskId").val() + '&searchLaboratoryTypeId=' + $("#searchLaboratoryTypeId").val() + '&searchPRId=' + $("#searchPRId").val() + '&searchProductId=' + $("#searchProductId").val(),
-            // url: '/OBKTask/GetResultButton/?searchLaboratoryTypeId=' + $("#searchLaboratoryTypeId").val() + '&searchPRId=' + $("#searchPRId").val(),
-           // url: '/OBKTask/GetResultButton/?searchPRId=' + $("#searchPRId").val(),
             cache: false,
             dataType: "json",
             success: function onSuccess(result) {
                 @flag = true;
 
+
+                $('select#LaboratoryMarkId1 option').each(function () {   //////????????????????????
+                        $(this).attr('selected', false);
+                });
+
                 $('table#tableExpertResult1_@Model.Id tbody:first').children().remove();
-                debugger;
-                        for (var i = 0; i < result.length; i++) {
-                        var tbody = $('table#tableExpertResult1_@Model.Id tbody:first');
-                        var lastRowIndex = tbody.children('tr').length;
-                        var nextIndex = parseInt(lastRowIndex) + 1;
-                        var selectList = document.getElementById("labMarkId");
-                        var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+                for (var i = 0; i < result.length; i++) {
+                    debugger;
+                    var mark_val = getMarkVal(result[i].LaboratoryMarkId);
+                    var reg_val = getRegVal(result[i].LaboratoryRegulationId);
+                    var tbody = $('table#tableExpertResult1_@Model.Id tbody:first');
+                    var lastRowIndex = tbody.children('tr').length;
+                    var nextIndex = parseInt(lastRowIndex) + 1;
+                    var selectList = document.getElementById("labMarkId1");
+                    var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+
+
+                        $('select#LaboratoryMarkId1 option').each(function () {   //////????????????????????
+                            if ($(this).text() == mark_val) {
+                                $(this).attr('selected', 'selected'); 
+                            }        
+                        });
+
+
                         var cols = '<tr rowid="' + nextIndex + '">';
+                        cols += '<td><input type="checkbox" /></td>';
                         cols += '<td>' + nextIndex + '</td>';
                         cols += '<td>' + selectType + '</td>';
                         cols += '<td><select id="regulation_' +
                             nextIndex +
-                            '" name="regulation"  class="form-control subtask-control"></select></td>';
+                            '" name="regulation"  class="form-control subtask-control">' + '<option>' + reg_val + '</option>' + '</select></td>';
                         cols += '<td><input type="text" id="claim1" class="form-control subtask-control" value ="' + result[i].Claim + '" /></td>';
                         cols += '<td><input type="text" id="factResult1" class="form-control subtask-control" value ="' + result[i].FactResult + '" /></td>';
                         cols += '<td><input type="text" id="humidity1" class="form-control subtask-control" value ="' + result[i].Humidity + '"/></td>';
-                        cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult1" name="ExpertiseResult" value="">' +
-                            '<option selected="selected" value=""></option>' +
+                            cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult1" name="ExpertiseResult" value="">' +
+                                '<option selected="selected" value="">' + result[i].ExpertiseResult + '</option>' +
                             '<option value="True">Соответствует требованиям</option>' +
                             '<option value="False">Не соответствует требованиям</option>' +
                             '</select></td>';
@@ -773,7 +951,145 @@
         });
     }
 
+    function getRegVal(id) {
+        var data = "";
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetRegulationVal/?id=' + id,
+            cache: false,
+            dataType: "json",
+            async: false,
+            success: function onSuccess(data) {
+                result = data; 
+            }
+        });
+        return result;
+    }
+
+    function getMarkVal(id) {
+        var data = "";
+        $.ajax({
+            type: 'GET',
+            url: '/OBKTask/GetMarkVal/?id=' + id,
+            cache: false,
+            dataType: "json",
+            async: false,
+            success: function onSuccess(data) {
+                result = data;
+            }
+        });
+        return result;
+    }
+
     function clearRows() {
         $("table#tableExpertResult_@Model.Id tbody:first").children().remove();
+        addRowTable();
+    }
+</script>
+<script>
+    function chooseModal() {
+        closeModal();
+        //window.location.reload();   
+        debugger;
+        var checkedRows = new Array();
+
+
+        $("#tableExpertResult1_@Model.Id tbody:first tr").each(function () {
+            if ($(this).find("input[type=checkbox]").is(":checked")) {
+                debugger;
+                var currentRow = $(this);
+                debugger;
+                //var col1_value = currentRow.find('td:eq(1) input').val();
+
+                var col2_value = currentRow.find('td:eq(2) :selected').val();
+                var col3_value = currentRow.find('td:eq(3) :selected').val();
+                var col4_value = currentRow.find('td:eq(4) input').val();
+                var col5_value = currentRow.find('td:eq(5) input').val();
+                var col6_value = currentRow.find('td:eq(6) input').val();
+                var col7_value = currentRow.find('td:eq(7) :selected').val();
+                debugger;
+                var obj = {};
+                //obj.col1 = col1_value;
+                obj.LaboratoryMarkId = col2_value;
+                obj.LaboratoryRegulationId = col3_value;
+                obj.Claim = col4_value;
+                obj.FactResult = col5_value;
+                obj.Humidity = col6_value;
+                obj.ExpertiseResult = col7_value;
+                debugger;
+                checkedRows.push(obj);
+            }
+        });
+
+        $('table#tableExpertResult_@Model.Id tbody:first').children().remove();
+
+        if (checkedRows.length == 0)
+        {
+            addRowTable();
+        }
+        else
+        {
+            $('select#LaboratoryMarkId option').each(function () {   //////????????????????????
+                $(this).attr('selected', false);
+            });
+
+            for (var i = 0; i < checkedRows.length; i++) {
+                debugger;
+                var mark_val = getMarkVal(checkedRows[i].LaboratoryMarkId);
+                //var reg_val1 = getRegVal(checkedRows[i].LaboratoryRegulationId);
+                var tbody = $('table#tableExpertResult_@Model.Id tbody:first');
+                var lastRowIndex = tbody.children('tr').length;
+                var nextIndex = parseInt(lastRowIndex) + 1;
+                var selectList = document.getElementById("labMarkId");
+                var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+
+
+                $('select#LaboratoryMarkId option').each(function () {   //////????????????????????
+                    if ($(this).text() == mark_val) {
+                        $(this).attr('selected', 'selected');
+                    }
+                });
+
+
+                var cols = '<tr rowid="' + nextIndex + '">';
+                cols += '<td>' + nextIndex + '</td>';
+                cols += '<td>' + selectType + '</td>';
+                cols += '<td><select id="regulation_' +
+                    nextIndex +
+                    '" name="regulation"  class="form-control subtask-control">' + '<option>' + checkedRows[i].LaboratoryRegulationId + '</option>' + '</select></td>';
+                cols += '<td><input type="text" id="claim" class="form-control subtask-control" value ="' + checkedRows[i].Claim + '" /></td>';
+                cols += '<td><input type="text" id="factResult" class="form-control subtask-control" value ="' + checkedRows[i].FactResult + '" /></td>';
+                cols += '<td><input type="text" id="humidity" class="form-control subtask-control" value ="' + checkedRows[i].Humidity + '"/></td>';
+                cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult" name="ExpertiseResult" value="">' +
+                    '<option selected="selected" value="">' + checkedRows[i].ExpertiseResult + '</option>' +
+                    '<option value="True">Соответствует требованиям</option>' +
+                    '<option value="False">Не соответствует требованиям</option>' +
+                    '</select></td>';
+                cols += '<td><i class="glyphicon glyphicon-remove" onclick="deleteRow(this)" title="Удалить"></i></td>';
+                cols += '</tr>';
+                tbody.append(cols);
+            }
+        }
+
+    }
+    function closeModal() {
+        $('.modal-content').hide();
+        $('body').toggleClass('modalbackground');
+    }
+    function clearDDL1() {
+        debugger;
+        $("#searchTaskId").select2("val", "");
+    }
+    function clearDDL2() {
+        debugger;
+        $("#searchProductId").select2("val", "");
+    }
+    function clearDDL3() {
+        debugger;
+        $("#searchLaboratoryTypeId").select2("val", "");
+    }
+    function clearDDL4() {
+        debugger;
+        $("#searchPRId").select2("val", "");
     }
 </script>

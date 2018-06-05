@@ -85,19 +85,23 @@ namespace PW.Prism.Controllers
                 d.NameRu = dictionary.NameRu;
                 d.NameKz = dictionary.NameKz;
 
-                db.OBK_Ref_LaboratoryRegulation_Mark.RemoveRange(d.OBK_Ref_LaboratoryRegulation_Mark);
+                var ex = db.OBK_Ref_LaboratoryRegulation_Mark.RemoveRange(d.OBK_Ref_LaboratoryRegulation_Mark);
                 db.SaveChanges();
 
-                foreach (var q in dictionary.RegulationList)
+                if (ex.Count() != 0)
                 {
-                    OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
+                    foreach (var q in dictionary.RegulationList)
+                    {
+                        OBK_Ref_LaboratoryRegulation_Mark regulationMark = new OBK_Ref_LaboratoryRegulation_Mark();
 
-                    regulationMark.Id = Guid.NewGuid();
-                    regulationMark.laboratoryMark_id = d.Id;
-                    regulationMark.laboratoryRegulation_id = q.Id;
-                    db.OBK_Ref_LaboratoryRegulation_Mark.Add(regulationMark);
+                        regulationMark.Id = Guid.NewGuid();
+                        regulationMark.laboratoryMark_id = d.Id;
+                        regulationMark.laboratoryRegulation_id = q.Id;
+                        db.OBK_Ref_LaboratoryRegulation_Mark.Add(regulationMark);
 
+                    }
                 }
+
                 db.SaveChanges();
             }
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));

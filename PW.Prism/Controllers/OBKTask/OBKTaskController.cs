@@ -464,11 +464,22 @@ namespace PW.Prism.Controllers.OBKTask
         }
 
          public ActionResult GetResultButton(Guid? searchTaskId, Guid? searchLaboratoryTypeId, string searchPRId, int? searchProductId)
-          {
+         {
               var result = repo.GetResultButton(searchTaskId, searchLaboratoryTypeId, searchPRId, searchProductId);
 
               return Json(result, JsonRequestBehavior.AllowGet);
          }
+
+        public ActionResult GetRegulationVal(Guid? id)
+        {
+            var result = repo.GetRegulationVal(id);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetMarkVal(Guid? id)
+        {
+            var result = repo.GetMarkVal(id); 
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }
