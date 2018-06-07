@@ -80,7 +80,7 @@ namespace PW.Prism.Controllers
         }
         public ActionResult Regulation() 
         {
-            var data = db.OBK_Ref_LaboratoryRegulation.Select(o => new { Id = o.Id, Name = o.NameRu }).OrderBy(x => x.Name).ToList();
+            var data = db.OBK_Ref_LaboratoryRegulation.Where(o => !o.IsDeleted).Select(o => new { Id = o.Id, Name = o.NameRu }).OrderBy(x => x.Name).ToList();
             return Json(data, JsonRequestBehavior.AllowGet);
         }
     }

@@ -88,7 +88,7 @@ namespace PW.Prism.Controllers
                 var ex = db.OBK_Ref_LaboratoryRegulation_Mark.RemoveRange(d.OBK_Ref_LaboratoryRegulation_Mark);
                 db.SaveChanges();
 
-                if (ex.Count() != 0)
+                if (dictionary.RegulationList != null)
                 {
                     foreach (var q in dictionary.RegulationList)
                     {
@@ -116,6 +116,14 @@ namespace PW.Prism.Controllers
                 d.IsDeleted = true;
                 db.SaveChanges();
             }
+
+            if (dictionary != null)
+            {
+                var d = db.OBK_Ref_LaboratoryRegulation_Mark.Where(o => o.laboratoryMark_id == dictionary.Id);
+                db.OBK_Ref_LaboratoryRegulation_Mark.RemoveRange(d);
+                db.SaveChanges();
+            }
+
             return Json(new[] { dictionary }.ToDataSourceResult(request, ModelState));
         }
     }

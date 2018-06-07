@@ -10,13 +10,13 @@ namespace PW.Ncels.Database.Models
 {
     public class OBKReferenceLaboratoryMarkModel
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [Required]
         public string NameRu { get; set; }
         [Required]
-        public string NameKz { get; set; }  
-
+        public string NameKz { get; set; }
+        [Required]
         public List<OBK_Ref_LaboratoryRegulation> RegulationList { get; set; }
 
         public string hidden { get; set; }
