@@ -59,7 +59,7 @@
         top: 15%;
         background: white;
         z-index: 2;
-        width: 90%;
+        width: 92%;
         overflow: auto;
         border-color: dodgerblue;
         border-style: solid;
@@ -114,15 +114,18 @@
     .close {
         cursor: pointer;
     }
+
+    .inputHidden
+    {
+        display:none;
+    }
+
 </style>
 
 <div style="display: none;" id="labMarkId">
     @Html.DropDownList("LaboratoryMarkId", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })
 </div>
 
-<div style="display: none;" id="labMarkId1">
-    @Html.DropDownList("LaboratoryMarkId1", (IEnumerable<SelectListItem>)(ViewData["LabMarks"]), String.Empty, new { @class = "form-control", onchange = "javascript:GetRegulation(this.value, this.closest('tr'));" })
-</div>
 
 <div id="resultSubTaskPanel_@Model.Id" class="panel panel-default">
     <div class="panel-heading">
@@ -898,65 +901,36 @@
             cache: false,
             dataType: "json",
             success: function onSuccess(result) {
-                @flag = true;
-
-                        $('#LaboratoryMarkId1 option').each(function () {
-                        $(this).attr("selected", false);
-                        });
 
                         $('table#tableExpertResult1_@Model.Id tbody:first').children().remove();
                         for (var i = 0; i < result.length; i++) {
                         debugger;
 
-                        //$("#LaboratoryMarkId1 option[selected]").attr('selected', false);
-
-                        var index = result[i].Id;
-
                         var mark_val = getMarkVal(result[i].LaboratoryMarkId);
                         var reg_val = getRegVal(result[i].LaboratoryRegulationId);
+
+                        var expResult = "";
+                        if(result[i].ExpertiseResult==true){var expResult = "Соответствует требованиям"; }
+                        else { var expResult = "Не соответствует требованиям"; }
+
                         var tbody = $('table#tableExpertResult1_@Model.Id tbody:first');
                         var lastRowIndex = tbody.children('tr').length;
                         var nextIndex = parseInt(lastRowIndex) + 1;
 
-                        //var selectList = document.getElementById("labMarkId1").cloneNode(true);
-                        //console.info("sdf", selectList.getAttribute("id"))
-                        var selectList = document.getElementById("labMarkId1").cloneNode(true);
-
-                        var x = document.getElementById('LaboratoryMarkId1');
-                        x.setAttribute('id', "LaboratoryMarkId4");
-                        //selectList.setAttribute('id', "LaboratoryMarkId2")
-                        var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
-
-                        $('#LaboratoryMarkId4 option').each(function () {   
-                            alert($(this).text());
-                         if ($(this).text() == mark_val) {
-                             $(this).attr("selected", "selected");
-                        }
-                         });
-
                         var cols = '<tr rowid="' + nextIndex + '">';
                         cols += '<td><input type="checkbox" /></td>';
                         cols += '<td>' + nextIndex + '</td>';
-
-                        cols += '<td>' + selectType + '</td>';
-
-                        cols += '<td><select id="regulation_' +
+                        cols += '<td><input type="text" id="LaboratoryMarkId1" readonly="readonly" class="form-control" value ="' + mark_val + '" /></td>';
+                        cols += '<td><input id="input_regulation_' +
                             nextIndex +
-                            '" name="regulation"  class="form-control subtask-control">' + '<option>' + reg_val + '</option>' + '</select></td>';
-                        cols += '<td><input type="text" id="claim1" class="form-control subtask-control" value ="' + result[i].Claim + '" /></td>';
-                        cols += '<td><input type="text" id="factResult1" class="form-control subtask-control" value ="' + result[i].FactResult + '" /></td>';
-                        cols += '<td><input type="text" id="humidity1" class="form-control subtask-control" value ="' + result[i].Humidity + '"/></td>';
-                            cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult1" name="ExpertiseResult" value="">' +
-                                '<option selected="selected" value="">' + result[i].ExpertiseResult + '</option>' +
-                            '<option value="True">Соответствует требованиям</option>' +
-                            '<option value="False">Не соответствует требованиям</option>' +
-                            '</select></td>';
-                        //cols += '<td><i class="glyphicon glyphicon-remove" onclick="deleteRow(this)" title="Удалить"></i></td>';
+                            '" name="regulation" readonly="readonly"  class="form-control" value ="' + reg_val  + '" /></td>';
+                        cols += '<td><input type="text" readonly="readonly" id="claim1" class="form-control" value ="' + result[i].Claim + '" /></td>';
+                        cols += '<td><input type="text"  readonly="readonly" id="factResult1" class="form-control" value ="' + result[i].FactResult + '" /></td>';
+                        cols += '<td><input type="text" readonly="readonly" id="humidity1" class="form-control" value ="' + result[i].Humidity + '"/></td>';
+                        cols += '<td><input type="text" readonly="readonly"  id="LaboratoryMarkId1" class="form-control" value ="' + expResult + '" /></td>';
+                        cols += '<td><input class = "inputHidden" value ="' + result[i].LaboratoryMarkId + '"/></td>';
                         cols += '</tr>';
                         tbody.append(cols);
-
-                        //$("#LaboratoryMarkId1").attr('selectedIndex', '0').find("option:selected").removeAttr("selected");
-
                 }
             },
             error: function (result) {
@@ -1003,33 +977,43 @@
 <script>
     function chooseModal() {
         closeModal();
-        //window.location.reload();
         debugger;
         var checkedRows = new Array();
 
-
-        $("#tableExpertResult1_@Model.Id tbody:first tr").each(function () {
+            var count = 0;
+            $("#tableExpertResult1_@Model.Id tbody:first tr").each(function () {
+            if ($(this).find("input[type=checkbox]").is(":checked")) {
+                    count++;
+                }
+            });
+            if(count > 1)
+            {
+                alert("Выберите одно значение");
+            }
+            else 
+            {
+                            $("#tableExpertResult1_@Model.Id tbody:first tr").each(function () {
             if ($(this).find("input[type=checkbox]").is(":checked")) {
                 debugger;
                 var currentRow = $(this);
                 debugger;
-                //var col1_value = currentRow.find('td:eq(1) input').val();
 
-                var col2_value = currentRow.find('td:eq(2) :selected').val();
-                var col3_value = currentRow.find('td:eq(3) :selected').val();
+                var col2_value = currentRow.find('td:eq(2) input').val();
+                var col3_value = currentRow.find('td:eq(3) input').val();
                 var col4_value = currentRow.find('td:eq(4) input').val();
                 var col5_value = currentRow.find('td:eq(5) input').val();
                 var col6_value = currentRow.find('td:eq(6) input').val();
-                var col7_value = currentRow.find('td:eq(7) :selected').val();
+                var col7_value = currentRow.find('td:eq(7) input').val();
+                var col8_value = currentRow.find('td:eq(8) input').val();
                 debugger;
                 var obj = {};
-                //obj.col1 = col1_value;
                 obj.LaboratoryMarkId = col2_value;
                 obj.LaboratoryRegulationId = col3_value;
                 obj.Claim = col4_value;
                 obj.FactResult = col5_value;
                 obj.Humidity = col6_value;
                 obj.ExpertiseResult = col7_value;
+                obj.LabId = col8_value;
                 debugger;
                 checkedRows.push(obj);
             }
@@ -1043,48 +1027,65 @@
         }
         else
         {
-            $('select#LaboratoryMarkId option').each(function () {   //////????????????????????
-                $(this).attr('selected', false);
-            });
-
+            //$('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val("");
+            var lId;
             for (var i = 0; i < checkedRows.length; i++) {
+
+
                 debugger;
-                var mark_val = getMarkVal(checkedRows[i].LaboratoryMarkId);
+                var mark_val = checkedRows[i].LaboratoryMarkId;
                 //var reg_val1 = getRegVal(checkedRows[i].LaboratoryRegulationId);
                 var tbody = $('table#tableExpertResult_@Model.Id tbody:first');
                 var lastRowIndex = tbody.children('tr').length;
                 var nextIndex = parseInt(lastRowIndex) + 1;
                 var selectList = document.getElementById("labMarkId");
                 var selectType = replaceAll('"form-control"', '"form-control subtask-control"', selectList.innerHTML);
+                var searchLab = checkedRows[i].LabId;                
 
 
-                $('select#LaboratoryMarkId option').each(function () {   //////????????????????????
-                    if ($(this).text() == mark_val) {
-                        $(this).attr('selected', 'selected');
-                    }
-                });
-
-
+                debugger;
                 var cols = '<tr rowid="' + nextIndex + '">';
                 cols += '<td>' + nextIndex + '</td>';
-                cols += '<td>' + selectType + '</td>';
+
+                cols += '<td>'+selectType+'</td>';
+
                 cols += '<td><select id="regulation_' +
-                    nextIndex +
-                    '" name="regulation"  class="form-control subtask-control">' + '<option>' + checkedRows[i].LaboratoryRegulationId + '</option>' + '</select></td>';
+                nextIndex +
+                '" name="regulation"  class="form-control subtask-control">' + '<option>' + checkedRows[i].LaboratoryRegulationId + '</option>' + '</select></td>';
                 cols += '<td><input type="text" id="claim" class="form-control subtask-control" value ="' + checkedRows[i].Claim + '" /></td>';
                 cols += '<td><input type="text" id="factResult" class="form-control subtask-control" value ="' + checkedRows[i].FactResult + '" /></td>';
                 cols += '<td><input type="text" id="humidity" class="form-control subtask-control" value ="' + checkedRows[i].Humidity + '"/></td>';
                 cols += '<td><select class="form-control subtask-control" data-val="true" data-val-required="Требуется поле ExpertiseResult." id="ExpertiseResult" name="ExpertiseResult" value="">' +
-                    '<option selected="selected" value="">' + checkedRows[i].ExpertiseResult + '</option>' +
+                    '<option selected="selected" value=""></option>' +
                     '<option value="True">Соответствует требованиям</option>' +
                     '<option value="False">Не соответствует требованиям</option>' +
                     '</select></td>';
                 cols += '<td><i class="glyphicon glyphicon-remove" onclick="deleteRow(this)" title="Удалить"></i></td>';
                 cols += '</tr>';
                 tbody.append(cols);
-            }
-        }
 
+                    //$('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val('');
+
+                    lId = checkedRows[i].LabId;
+                    $('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val(lId);
+
+
+                    @*if($('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val() != '')
+                    {
+                        $('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val('');
+                        
+                        alert("if");
+                    }
+                    else
+                    {
+                        $('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val(lId);
+                        alert("else");
+                    }*@
+
+            }
+            //$('#tableExpertResult_@Model.Id').first().find('#LaboratoryMarkId').val('51733e03-a306-4373-8c3d-4ab81a2c39b7');
+        }
+            }
     }
     function closeModal() {
         $('.modal-content').hide();
